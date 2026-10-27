@@ -82,6 +82,7 @@ public final class Core2024EberronCharacterEngine {
             if(originFeatNeedsChoice(base))s.put("origin_feat_choice_pending",true).put("origin_feat_choice_required",base);
             else applyOriginFeat(s,base,new JSONObject());
             if(n(s.optString("species")).equals("humano"))s.put("human_extra_origin_feat_pending",true);
+            Character2024SheetReconciler.reconcile(s);
         }catch(Exception ignored){}
     }
 
@@ -112,6 +113,7 @@ public final class Core2024EberronCharacterEngine {
             else if(sp.equals("Pequenino")){s.put("size","Pequeno").put("speed_m",9).put("brave_frightened_save_advantage",true).put("halfling_nimbleness",true).put("halfling_luck_reroll_natural_one",true).put("naturally_stealthy",true);}
             else if(sp.equals("Tiferino")){s.put("speed_m",9).put("darkvision_m",18).put("thaumaturgy_cantrip",true).put("species_choices_complete",false).put("species_choice_pending","Legado Ínfero + atributo de conjuração + tamanho Pequeno/Médio");}
             appendFeature(s,"Espécie 2024: "+sp+" — traços compilados; escolhas pendentes permanecem explícitas.");
+            Character2024SheetReconciler.reconcile(s);
         }catch(Exception ignored){}
     }
 

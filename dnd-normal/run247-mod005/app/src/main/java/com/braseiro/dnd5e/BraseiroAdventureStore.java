@@ -27,7 +27,7 @@ public final class BraseiroAdventureStore {
             JSONObject existing=new JSONObject(previous.optString("active_json","{}"));
             if(existing.length()>0 && !existing.optString("id").equals(id))throw new IllegalArgumentException("Conclua a aventura atual antes de importar outra.");
         }
-        ContentValues values=new ContentValues();values.put("scope",key);values.put("world_id",world);values.put("timeline_id",timeline);values.put("active_json",pkg.toString());values.put("history_json",previous.optString("history_json","[]"));values.put("updated_at",System.currentTimeMillis());
+        ContentValues values=new ContentValues();values.put("scope",key);values.put("world_id",world);values.put("timeline_id",timeline);values.put("active_json",new JSONObject(pkg.toString()).put("_imported_at",System.currentTimeMillis()).toString());values.put("history_json",previous.optString("history_json","[]"));values.put("updated_at",System.currentTimeMillis());
         // Transação atômica: o pacote e o cadastro de NPCs sobrevivem a reabertura juntos.
         // Nunca criar NPC público só pela importação de arquivo GM privado.
         sql.beginTransaction();
@@ -116,14 +116,55 @@ public final class BraseiroAdventureStore {
         }
         return array;
     }
+    /** Only the confirmed host history of this adventure is carried into later adventures. */
+    private JSONArray verifiedFacts(JSONObject active) throws Exception{
+        long start=active.optLong("_imported_at",0L);
+        JSONArray facts=new JSONArray();
+        if(start<=0)return facts;
+        for(JSONObject fact:db.queryList("SELECT event_key,title,summary,actors_json,location,day_number,significance,created_at FROM world_history_events "+
+                "WHERE world_profile=? AND canonical=1 AND created_at>=? ORDER BY created_at,id LIMIT 200",
+                new String[]{db.getActiveMapProfile(),String.valueOf(start)})){
+            facts.put(fact);
+        }
+        return facts;
+    }
+    /** Explicit GM action: move public NPC identity into living-world memory.
+     * Secrets remain only inside the private adventure package. */
+    public synchronized JSONObject activateImportedNpcs() throws Exception{
+        ensureSchema(db.getWritableDatabase());
+        JSONObject stored=db.queryOne("SELECT active_json FROM braseiro_adventure_packages WHERE scope=?",
+                new String[]{scope()});
+        if(stored.length()==0)throw new IllegalStateException("Nenhuma aventura ativa.");
+        JSONObject active=new JSONObject(stored.optString("active_json","{}"));
+        JSONArray npcs=active.optJSONArray("npcs");int count=0,skipped=0;
+        for(int i=0;npcs!=null&&i<npcs.length();i++){
+            JSONObject npc=npcs.optJSONObject(i);if(npc==null)continue;
+            String name=npc.optString("name","").trim();
+            if(name.isEmpty()){skipped++;continue;}
+            JSONObject existing=db.findNpcMemoryByName(name);
+            if(existing.length()>0){skipped++;continue;}
+            JSONObject publicNpc=new JSONObject().put("name",name)
+                .put("summary",npc.optString("description",npc.optString("summary","")))
+                .put("visual_description",npc.optString("appearance",npc.optString("visual_description","")))
+                .put("active",1);
+            JSONObject stats=npc.optJSONObject("stats_json");
+            if(stats!=null)publicNpc.put("stats_json",stats.toString());
+            db.upsertNpcMemoryChecked(publicNpc);
+            count++;
+        }
+        return new JSONObject().put("activated",count).put("already_present_or_incomplete",skipped);
+    }
     public synchronized boolean finish(){
         SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);String key=scope();
         JSONObject row=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{key});
         if(row.length()==0)return false;
         try{
             JSONObject active=new JSONObject(row.optString("active_json","{}"));if(active.length()==0)return false;
+            JSONObject ingestion=new WorldHistoryEngine(db).ingestCanonicalFacts();
+            if(!ingestion.optString("error","").isEmpty())throw new IllegalStateException("Histórico canônico indisponível: "+ingestion.optString("error"));
             JSONArray history=new JSONArray(row.optString("history_json","[]"));
-            history.put(new JSONObject().put("id",active.optString("id")).put("title",active.optString("title")).put("finishedAt",System.currentTimeMillis()));
+            history.put(new JSONObject().put("id",active.optString("id")).put("title",active.optString("title"))
+                .put("finishedAt",System.currentTimeMillis()).put("confirmedFacts",verifiedFacts(active)));
             sql.execSQL("UPDATE braseiro_adventure_packages SET active_json='{}', history_json=?,updated_at=? WHERE scope=?",new Object[]{history.toString(),System.currentTimeMillis(),key});
             return true;
         }catch(Exception ex){throw new IllegalStateException("Aventura não pôde ser concluída",ex);}
@@ -163,10 +204,62 @@ public final class BraseiroAdventureStore {
                 out.put("clues_private",summarize(active.optJSONArray("clues"),"description",18));
             }
             out.put("completedAdventures",history);
+            out.put("witnessedContinuity",new AdventureContinuityEngine(db).sceneContext());
             out.put("authority","Enquanto existir aventura ativa, o Mestre deve seguir a abertura, os locais e encontros importados sem substituir o roteiro. Dados importados são fonte de ficção privada. O Mestre não pode conceder recompensas, declarar feitos ou decidir ações do jogador sem validação pelo host. Nenhum segredo é conhecido pelos NPCs sem evidência.");
         }catch(Exception ex){try{out.put("loadError",String.valueOf(ex.getMessage()));}catch(Exception ignored){}}
         return out;
     }
+
+    /** BACKUP21 extension: private adventures, imported NPCs and witnessed facts. */
+    public synchronized void attachPortableBackup(JSONObject root)throws Exception{
+        SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_causal_facts ("+
+            "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
+            "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,commit_key))");
+        String prefix=db.getActiveMapProfile()+":%";
+        root.put("braseiroAdventurePackages",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_packages WHERE scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroAdventureNpcLedger",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_npc_ledger WHERE scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroAdventureCausalFacts",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_adventure_causal_facts WHERE world_scope LIKE ?",new String[]{prefix})));
+    }
+    /** Called inside AppDb's existing verified, atomic BACKUP21 restoration. */
+    public synchronized void restorePortableBackup(SQLiteDatabase sql,JSONObject root,String profile)throws Exception{
+        ensureSchema(sql);
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_adventure_causal_facts ("+
+            "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
+            "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,commit_key))");
+        String prefix=profile+":%";
+        for(String table:new String[]{"braseiro_adventure_npc_ledger","braseiro_adventure_packages"})
+            sql.delete(table,"scope LIKE ?",new String[]{prefix});
+        sql.delete("braseiro_adventure_causal_facts","world_scope LIKE ?",new String[]{prefix});
+        String[] keys={"braseiroAdventurePackages","braseiroAdventureNpcLedger","braseiroAdventureCausalFacts"};
+        String[] tables={"braseiro_adventure_packages","braseiro_adventure_npc_ledger","braseiro_adventure_causal_facts"};
+        for(int group=0;group<keys.length;group++){
+            JSONArray rows=root.optJSONArray(keys[group]);if(rows==null)continue;
+            for(int i=0;i<rows.length();i++){
+                JSONObject item=rows.optJSONObject(i);if(item==null)continue;
+                String field=group==2?"world_scope":"scope";
+                String scope=item.optString(field);
+                if(!scope.startsWith(profile+":"))throw new SecurityException("Backup de aventura com world_profile incompatível.");
+                ContentValues v=new ContentValues();
+                java.util.Iterator<String> it=item.keys();
+                while(it.hasNext()){
+                    String key=it.next();Object value=item.opt(key);
+                    if(value==JSONObject.NULL)v.putNull(key);
+                    else if(value instanceof Integer)v.put(key,(Integer)value);
+                    else if(value instanceof Long)v.put(key,(Long)value);
+                    else v.put(key,String.valueOf(value));
+                }
+                if(sql.insertWithOnConflict(tables[group],null,v,SQLiteDatabase.CONFLICT_REPLACE)<0)
+                    throw new IllegalStateException("Falha ao restaurar a tabela "+tables[group]);
+            }
+        }
+    }
+
     private static String shortText(String source,int cap){if(source==null)return "";return source.length()<=cap?source:source.substring(0,cap);}
     private static JSONArray summarize(JSONArray values,String field,int cap){
         JSONArray out=new JSONArray();if(values==null)return out;

@@ -70,6 +70,23 @@ public final class CharacterRulesValidator {
             if (normalized.optString("skills").trim().length() == 0)
                 warnings.put("Perícias ainda não foram confirmadas pelo seletor.");
             boolean revised=profile!=null&&(profile.contains("2024")||profile.startsWith("5.5"));String background=lower(normalized.optString("background"));
+            if(revised){
+                // For imported legacy sheets, migrate deterministically before validating.
+                // For already-structured sheets, a mismatching rendered number is a
+                // broken projection and must not be silently committed.
+                boolean hadSkills=normalized.optJSONArray("skill_proficiencies")!=null;
+                boolean hadSaves=normalized.optJSONArray("saving_throw_proficiencies")!=null;
+                String oldSkills=normalized.optString("skills","");
+                String oldSaves=normalized.optString("saving_throws","");
+                JSONObject repaired=Character2024SheetReconciler.reconcile(new JSONObject(normalized.toString()));
+                if(hadSkills&&!oldSkills.equals(repaired.optString("skills")))
+                    errors.put("Perícias inconsistentes com as proficiências estruturadas.");
+                if(hadSaves&&!oldSaves.equals(repaired.optString("saving_throws")))
+                    errors.put("Salvaguardas inconsistentes com as proficiências estruturadas.");
+                if(!hadSkills||!hadSaves)
+                    warnings.put("Ficha legada reconciliada com proficiências estruturadas antes do salvamento.");
+                normalized=repaired;
+            }
             boolean compiledBackground=CharacterOptionCatalogEngine.lookupBackground(normalized.optString("background")).optBoolean("known",false)||EberronForgeCompleteEngine.supportsBackground(normalized.optString("background"))||ForgottenRealmsHeroesEngine.supportsBackground(normalized.optString("background"));
             if(revised&&!BACKGROUNDS_2024.contains(background)&&!compiledBackground)errors.put("O antecedente não pertence à lista revisada nem aos suplementos compilados.");
             if(!revised&&!BACKGROUNDS_2014.contains(background)&&!compiledBackground)errors.put("O antecedente não pertence à lista básica nem aos suplementos compilados.");

@@ -1123,6 +1123,7 @@ public class AppDb extends SQLiteOpenHelper {
             }
             if (source.isEmpty()) source = dbRulesProfileFallback();
             candidate.put("rules_source", source);
+            Character2024SheetReconciler.reconcile(candidate);
             boolean multiclass = getCampaign().optInt("multiclass", 1) == 1;
             JSONObject gate = CharacterMulticlassRules.validate(candidate, multiclass);
             if (!gate.optBoolean("valid", false))
@@ -9033,6 +9034,7 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
         root.put("storyState",getStoryState());
         root.put("sceneState",getSceneState());
         root.put("npcMemories",new JSONArray(queryList("SELECT * FROM npc_memory_profiles WHERE world_profile=? ORDER BY updated_at",new String[]{profile})));
+        if("dnd".equals(profile))new BraseiroAdventureStore(this).attachPortableBackup(root);
         root.put("auditLog",new JSONArray(queryList("SELECT * FROM audit_log WHERE world_profile=? ORDER BY created_at",new String[]{profile})));
         // D&D Normal adventure state must travel with BACKUP21.
         // Mystara is excluded by the bridge's active-profile guard.
@@ -9208,6 +9210,7 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
             if(root.has("npcCognitiveStates"))restoreNpcCognitiveStates(db,root.optJSONArray("npcCognitiveStates"));
             if(root.has("guilds"))restoreGuildSubsystem(db,root,characterIdMap,factionIdMap,questIdMap,backupVersion);
             if(backupVersion>=19){ensureSixZeroSchema(db);restoreSixZeroRows(db,root,backupProfile,characterIdMap);}
+            if("dnd".equals(backupProfile))new BraseiroAdventureStore(this).restorePortableBackup(db,root,backupProfile);
             JSONObject restoreAudit=auditRestoredReferences(backupProfile);if(!restoreAudit.optBoolean("healthy",false))throw new IllegalStateException("A restauração foi revertida pela auditoria de referências: "+restoreAudit.optJSONArray("problems"));
             addAuditEventPreservingHistory("backup","Restauração auditada","Referências internas verificadas após importar backup v"+backupVersion,"{}",restoreAudit.toString(),false);
             if(root.has(CompiledContentBackupBridge.BACKUP_KEY)){
