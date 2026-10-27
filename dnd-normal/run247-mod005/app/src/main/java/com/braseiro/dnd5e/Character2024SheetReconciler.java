@@ -273,9 +273,15 @@ public final class Character2024SheetReconciler {
             LinkedHashSet<String> saveSet=new LinkedHashSet<>();
             for(int i=0;i<Math.min(saves.length,ABILITIES.length);i++)
                 if(saves[i])saveSet.add(ABILITIES[i]);
+            LinkedHashMap<String,JSONObject> original=readSkills(sheet);
             LinkedHashMap<String,JSONObject> selected=new LinkedHashMap<>();
-            for(int i=0;i<Math.min(ranks.length,names.length);i++)
-                addSkill(selected,names[i],"player:editor",ranks[i]);
+            for(int i=0;i<Math.min(ranks.length,names.length);i++){
+                String skill=canonicalSkill(names[i]);
+                JSONObject old=original.get(skill);
+                String source=(old!=null&&old.optInt("rank",1)==ranks[i])?
+                    old.optString("source","player"): "player:editor";
+                addSkill(selected,names[i],source,ranks[i]);
+            }
             derive(sheet,selected,saveSet);
             applyAbilityChoice(sheet);
             originFeats(sheet);
