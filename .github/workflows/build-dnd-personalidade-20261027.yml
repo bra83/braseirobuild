@@ -5,6 +5,8 @@ on:
       - feature/dnd-personalidade-estruturada-importador-20261027
     paths:
       - .github/workflows/build-dnd-personalidade-20261027.yml
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/**'
   workflow_dispatch:
 
 permissions:
