@@ -58,6 +58,10 @@ jobs:
       - name: Set upgrade version without changing repository source
         run: |
           set -euxo pipefail
+          # Each successful GitHub build receives a strictly increasing Android versionCode.
+          # This is required for safe in-app installation over the previous APK.
+          export CODE="$((CODE + GITHUB_RUN_NUMBER))"
+          printf 'CODE=%s\n' "$CODE" >> "$GITHUB_ENV"
           python3 - <<'PY'
           from pathlib import Path
           import os
