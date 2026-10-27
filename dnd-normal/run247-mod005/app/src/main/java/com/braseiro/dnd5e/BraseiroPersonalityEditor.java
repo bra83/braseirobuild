@@ -52,7 +52,7 @@ public final class BraseiroPersonalityEditor {
             View divider=new View(activity);divider.setBackgroundColor(0x44666666);
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,1);lp.setMargins(0,12,0,12);form.addView(divider,lp);
         }
-        final AlertDialog dialog=new AlertDialog.Builder(activity).setTitle("Personalidade viva — "+traits.length+" campos")
+        final AlertDialog dialog=new AlertDialog.Builder(activity).setTitle("Personalidade viva — "+traits.length()+" campos")
             .setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("Salvar traços",null).create();
         dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
             try{
