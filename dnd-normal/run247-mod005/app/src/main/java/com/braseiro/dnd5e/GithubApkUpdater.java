@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** User-consented, package-and-signer-checked APK updates; no code execution from GitHub. */
 public final class GithubApkUpdater {
     public interface Reporter { void status(String message); void installationReady(File verifiedApk); }
-    private static final String API="https://api.github.com/repos/bra83/braseirobuild/releases?per_page=30";
+    private static final String API_BASE="https://api.github.com/repos/bra83/braseirobuild/releases?per_page=100&page=";
+    private static final int MAX_RELEASE_PAGES=10;
     private static final long APK_MAX=850L*1024L*1024L;
     private final Activity activity;
     private final AtomicBoolean busy=new AtomicBoolean(false);
@@ -39,7 +40,7 @@ public final class GithubApkUpdater {
                 JSONObject release=latestDndRelease();
                 if(release==null){reporter.status("Nenhum APK de D&D publicado no canal oficial.");return;}
                 JSONArray assets=release.optJSONArray("assets");
-                JSONObject apk=null,sha=null;
+                JSONObject apk=null,sha=null,proof=null;
                 String name="";
                 for(int i=0;assets!=null&&i<assets.length();i++){
                     JSONObject a=assets.optJSONObject(i);if(a==null)continue;
@@ -50,7 +51,31 @@ public final class GithubApkUpdater {
                 for(int i=0;assets!=null&&i<assets.length();i++){
                     JSONObject a=assets.optJSONObject(i);if(a!=null && (name+".sha256").equals(a.optString("name")))sha=a;
                 }
+                for(int i=0;assets!=null&&i<assets.length();i++){
+                    JSONObject a=assets.optJSONObject(i);
+                    if(a!=null && "BUILD_PROOF.txt".equals(a.optString("name")))proof=a;
+                }
                 if(sha==null){reporter.status("Release recusada: manifesto SHA-256 ausente.");return;}
+                // The tiny build proof allows a fast no-update result without downloading
+                // hundreds of megabytes. The APK itself is still independently verified.
+                if(proof!=null){
+                    try{
+                        String metadata=readText(proof.optString("browser_download_url"),8192);
+                        java.util.regex.Matcher vm=java.util.regex.Pattern.compile("(?m)^VERSION_CODE=([0-9]+)\\s*$").matcher(metadata);
+                        if(vm.find()){
+                            long releasedCode=Long.parseLong(vm.group(1));
+                            PackageInfo installed=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0);
+                            long installedCode=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
+                            if(releasedCode<=installedCode){
+                                reporter.status("O Braseiro D&D já está atualizado ("+installed.versionName+").");
+                                return;
+                            }
+                        }
+                    }catch(Exception metadataError){
+                        // Older releases may lack metadata. Archive/version/signature verification
+                        // below remains authoritative; metadata is only an optimization.
+                    }
+                }
                 final long declared=apk.optLong("size",-1);
                 if(declared<1024L||declared>APK_MAX){reporter.status("Release recusada: tamanho APK inválido.");return;}
                 File root=activity.getExternalFilesDir("updates");
@@ -76,25 +101,70 @@ public final class GithubApkUpdater {
         });
     }
     private JSONObject latestDndRelease()throws Exception {
-        JSONArray list=new JSONArray(readText(API,3*1024*1024));
-        for(int i=0;i<list.length();i++){
-            JSONObject r=list.optJSONObject(i);
-            if(r==null||r.optBoolean("draft",true)||r.optBoolean("prerelease",false))continue;
-            if(r.optString("tag_name","").startsWith("dnd-"))return r;
+        // The shared Braseiro repository publishes many unrelated VTTs.
+        // Scanning just 30 releases could never reliably discover D&D releases.
+        for(int page=1;page<=MAX_RELEASE_PAGES;page++){
+            JSONArray list=new JSONArray(readText(API_BASE+page,16*1024*1024));
+            for(int i=0;i<list.length();i++){
+                JSONObject release=list.optJSONObject(i);
+                if(release==null||release.optBoolean("draft",false)||release.optBoolean("prerelease",false))continue;
+                if(!release.optString("tag_name","").startsWith("dnd-"))continue;
+                JSONArray files=release.optJSONArray("assets");
+                if(files==null)continue;
+                String apkName="";
+                for(int j=0;j<files.length();j++){
+                    JSONObject asset=files.optJSONObject(j);
+                    if(asset==null)continue;
+                    String name=asset.optString("name","");
+                    if(name.startsWith("BRASEIRO_DND_")&&name.endsWith(".apk")){
+                        apkName=name;
+                        break;
+                    }
+                }
+                if(apkName.isEmpty())continue;
+                boolean hasDigest=false;
+                for(int j=0;j<files.length();j++){
+                    JSONObject asset=files.optJSONObject(j);
+                    if(asset!=null&&(apkName+".sha256").equals(asset.optString("name",""))){
+                        hasDigest=true;
+                        break;
+                    }
+                }
+                if(hasDigest)return release;
+            }
+            if(list.length()<100)break;
         }
         return null;
     }
     private static HttpURLConnection connection(String address)throws Exception{
-        URL u=new URL(address);if(!"https".equalsIgnoreCase(u.getProtocol()))throw new SecurityException("Somente HTTPS autorizado.");
-        String host=u.getHost().toLowerCase(Locale.ROOT);
-        if(!(host.equals("api.github.com")||host.equals("github.com")||host.endsWith(".githubusercontent.com")||host.equals("release-assets.githubusercontent.com")))
-            throw new SecurityException("Servidor de atualização não autorizado: "+host);
-        HttpURLConnection c=(HttpURLConnection)u.openConnection();
-        c.setConnectTimeout(20000);c.setReadTimeout(45000);
-        c.setRequestProperty("User-Agent","Braseiro-DnD-Verified-Updater");
-        c.setRequestProperty("Accept","application/vnd.github+json");
-        c.setInstanceFollowRedirects(true);
-        return c;
+        // GitHub sends APK downloads to a CDN. Validate EVERY redirect, rather
+        // than only the initial URL, to reject HTTP and unknown destinations.
+        for(int redirects=0;redirects<8;redirects++){
+            URL u=new URL(address);
+            if(!"https".equalsIgnoreCase(u.getProtocol()))
+                throw new SecurityException("O atualizador exige HTTPS.");
+            String host=u.getHost().toLowerCase(Locale.ROOT);
+            if(!(host.equals("api.github.com")||host.equals("github.com")||
+                 host.endsWith(".githubusercontent.com")))
+                throw new SecurityException("Servidor de atualização não autorizado: "+host);
+            HttpURLConnection c=(HttpURLConnection)u.openConnection();
+            c.setConnectTimeout(20000);
+            c.setReadTimeout(45000);
+            c.setRequestProperty("User-Agent","Braseiro-DnD-Verified-Updater");
+            c.setRequestProperty("Accept","application/vnd.github+json");
+            c.setInstanceFollowRedirects(false);
+            int response=c.getResponseCode();
+            if(response==301||response==302||response==303||response==307||response==308){
+                String location=c.getHeaderField("Location");
+                c.disconnect();
+                if(location==null||location.trim().isEmpty())
+                    throw new IllegalStateException("Redirecionamento GitHub inválido.");
+                address=new URL(u,location).toString();
+                continue;
+            }
+            return c;
+        }
+        throw new SecurityException("Redirecionamentos GitHub excessivos.");
     }
     private static String readText(String url,int limit)throws Exception{
         HttpURLConnection c=connection(url);
