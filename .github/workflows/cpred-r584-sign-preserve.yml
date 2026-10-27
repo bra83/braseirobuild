@@ -1,0 +1,84 @@
+name: Cyberpunk RED 4.1.84 - compatible APK signing on private BRELGA
+on:
+  push:
+    branches: [fix/cyberpunk-r584-sign-20261026]
+    paths: [.github/workflows/cpred-r584-sign-preserve.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sign:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 35
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Sign tested 4.1.84 without distributing signing credentials
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CPRED_STORE_PASS: ${{ secrets.CPRED_SIGNING_STORE_PASSWORD }}
+          CPRED_KEY_PASS: ${{ secrets.CPRED_SIGNING_KEY_PASSWORD }}
+          CPRED_KEY_ALIAS: ${{ secrets.CPRED_SIGNING_KEY_ALIAS }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $ProgressPreference='SilentlyContinue'
+          $sourceTag='cyberpunk-red-r584-debug-not-upgrade-20261026'
+          $expectedSource='d6522397b432ea6452f8d3da3cd8ab2eb455b703'
+          $expectedCert='6aa87a24a2eb4762c3f493c9d5fddbf10b60cc8659a90423aed7cde8ae582bd3'
+          $inputName='BRASEIRO_CYBERPUNK_RED_4.1.84_DEBUG_NAO_ATUALIZA.apk'
+          $outputName='BRASEIRO_CYBERPUNK_RED_4.1.84_ASSINADO.apk'
+          $api='https://api.github.com/repos/bra83/hello-world/releases/tags/'+$sourceTag
+          $source=Invoke-RestMethod -Uri $api -Headers @{'User-Agent'='Braseiro-BRELGA-Verified'}
+          if($source.target_commitish -ne $expectedSource){throw 'SOURCE_COMMIT_NOT_PINNED'}
+          $dir=Join-Path $env:RUNNER_TEMP 'cpred-r584-compatible'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $input=Join-Path $dir $inputName
+          $asset=$source.assets | Where-Object {$_.name -eq $inputName} | Select-Object -First 1
+          if(!$asset){throw 'APK_4_1_84_NOT_YET_PUBLISHED'}
+          & curl.exe --fail --location --retry 4 --output $input $asset.browser_download_url
+          if($LASTEXITCODE -ne 0){throw 'APK_DOWNLOAD_FAILED'}
+          $sha=(Get-FileHash $input -Algorithm SHA256).Hash.ToLower()
+          if($asset.digest -ne ('sha256:'+$sha)){throw 'APK_SHA256_ASSET_MISMATCH'}
+          $key=$env:CPRED_KEYSTORE_PATH
+          if(!$key){$key=Join-Path $env:USERPROFILE '.android\debug.keystore'}
+          if(!(Test-Path $key)){throw 'LEGACY_KEYSTORE_MISSING_ON_OWNER_RUNNER'}
+          if(!$env:CPRED_STORE_PASS){throw 'CPRED_SIGNING_STORE_PASSWORD_SECRET_REQUIRED'}
+          if(!$env:CPRED_KEY_PASS){$env:CPRED_KEY_PASS=$env:CPRED_STORE_PASS}
+          $alias=$env:CPRED_KEY_ALIAS
+          if(!$alias){$alias='androiddebugkey'}
+          $roots=@($env:ANDROID_HOME,$env:ANDROID_SDK_ROOT,(Join-Path $env:LOCALAPPDATA 'Android\Sdk')) | Where-Object {$_ -and (Test-Path $_)}
+          $signer=$null
+          foreach($root in $roots){
+            $signer=Get-ChildItem (Join-Path $root 'build-tools') -Filter apksigner.bat -Recurse -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+            if($signer){break}
+          }
+          if(!$signer){throw 'ANDROID_APKSIGNER_NOT_FOUND_ON_BRELGA'}
+          $output=Join-Path $dir $outputName
+          & $signer.FullName sign --ks $key --ks-pass env:CPRED_STORE_PASS --key-pass env:CPRED_KEY_PASS --ks-key-alias $alias --out $output $input
+          if($LASTEXITCODE -ne 0){throw 'APK_SIGNING_FAILED'}
+          $cert=& $signer.FullName verify --print-certs $output
+          if($LASTEXITCODE -ne 0 -or (($cert -join ' ') -notmatch $expectedCert)){throw 'LEGACY_CERTIFICATE_MISMATCH'}
+          $cert | Set-Content -Encoding UTF8 (Join-Path $dir 'CERTIFICADO.txt')
+          $hash=(Get-FileHash $output -Algorithm SHA256).Hash.ToLower()
+          ($hash+'  '+$outputName) | Set-Content -Encoding ASCII (Join-Path $dir 'SHA256SUMS.txt')
+          $headers=@{Authorization=('Bearer '+$env:GH_TOKEN);'User-Agent'='Braseiro-BRELGA-Verified';Accept='application/vnd.github+json'}
+          $tag='cyberpunk-red-r584-mobile-signed-20261026'
+          $notes='Cyberpunk RED 4.1.84 atlas token zoom fix; 314+2 tests, Android CI; legacy certificate SHA256 '+$expectedCert+'. LEGACY KEY WAS PREVIOUSLY EXPOSED; treat as compromised and plan a secure signer migration. Source: https://github.com/bra83/hello-world/tree/fix/cpred-r584-map-token-zoom-20261026'
+          $body=@{tag_name=$tag;target_commitish=$env:GITHUB_SHA;name='Cyberpunk RED 4.1.84 - token maior no zoom afastado (assinatura compatível)';prerelease=$true;body=$notes} | ConvertTo-Json
+          try{$published=Invoke-RestMethod -Uri ('https://api.github.com/repos/bra83/braseirobuild/releases/tags/'+$tag) -Headers $headers}
+          catch{$published=Invoke-RestMethod -Method Post -Uri 'https://api.github.com/repos/bra83/braseirobuild/releases' -Headers $headers -ContentType 'application/json' -Body $body}
+          $upload=$published.upload_url -replace '\{\?name,label\}',''
+          foreach($file in @($output,(Join-Path $dir 'SHA256SUMS.txt'),(Join-Path $dir 'CERTIFICADO.txt'))){
+            $name=[uri]::EscapeDataString((Split-Path $file -Leaf))
+            $known=$published.assets | Where-Object {$_.name -eq (Split-Path $file -Leaf)} | Select-Object -First 1
+            if($known){
+              $digest='sha256:'+ (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+              if($known.digest -ne $digest){throw 'EXISTING_RELEASE_ASSET_HASH_MISMATCH'}
+            }else{
+              Invoke-RestMethod -Method Post -Uri ($upload+'?name='+$name) -Headers $headers -ContentType 'application/octet-stream' -InFile $file | Out-Null
+            }
+          }
+          Write-Host ('COMPATIBLE_SIGNED_APK: '+$published.html_url)
