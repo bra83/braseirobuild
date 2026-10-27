@@ -2815,21 +2815,55 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         aiFill.setOnClickListener(new View.OnClickListener(){public void onClick(View v){requestCharacterAi(f,rulesProfile);}});
         exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(collectCharacterSheet(f,rulesProfile),f.active.isChecked());}});importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(f,rulesProfile);}});
 
-        final AlertDialog d=new AlertDialog.Builder(this).setTitle(edit?"Editar ficha completa":"Criar personagem").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();showBoundDialog(d,new DialogInterface.OnShowListener(){public void onShow(final DialogInterface dialog){d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+        final java.util.concurrent.atomic.AtomicBoolean saving=new java.util.concurrent.atomic.AtomicBoolean(false);final AlertDialog d=new AlertDialog.Builder(this).setTitle(edit?"Editar ficha completa":"Criar personagem").setView(scroll).setNegativeButton("Cancelar",null).setPositiveButton("Salvar",null).create();showBoundDialog(d,new DialogInterface.OnShowListener(){public void onShow(final DialogInterface dialog){d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){public void onClick(View v){
             if(f.saved||!validateCharacterFormNumbers(f))return;
             reconcileCharacterDependencies(f,rulesProfile);
             if(f.personalityProfileJson!=null&&!value(f.personalityProfileJson).isEmpty()){try{BraseiroPersonalityProfile.checked(new JSONObject(value(f.personalityProfileJson)));}catch(Exception malformed){toast("Corrija a personalidade: "+malformed.getMessage());return;}}
-            JSONObject sheet=collectCharacterSheet(f,rulesProfile);String nm=sheet.optString("name").trim();if(nm.length()==0){f.name.setError("Informe o nome ou use a ajuda da IA.");return;}int lvl=sheet.optInt("level",1);int[] scores={sheet.optInt("str",10),sheet.optInt("dex",10),sheet.optInt("con",10),sheet.optInt("int_score",10),sheet.optInt("wis",10),sheet.optInt("cha",10)};int max=sheet.optInt("max_hp",1),hp=sheet.optInt("hp",max),ac=sheet.optInt("ac",10);String validation=rulesEngine.validateCharacter(rulesProfile,sheet.optString("species"),baseClass(sheet.optString("class_name")),sheet.optString("background"),lvl,scores,hp,max,ac);if(validation!=null){toast(validation);return;}
-            if(!sheet.optString("run136_validation_error").isEmpty()){toast(sheet.optString("run136_validation_error"));return;}
-            JSONObject strict=characterRulesValidator.validate(sheet,rulesProfile);if(!strict.optBoolean("valid")){new AlertDialog.Builder(MainActivity.this).setTitle("Ficha não passou na validação").setMessage(jsonListText(strict.optJSONArray("errors"))).setPositiveButton("Corrigir",null).show();return;}sheet=strict.optJSONObject("normalized");if(sheet==null)sheet=collectCharacterSheet(f,rulesProfile);nm=sheet.optString("name").trim();lvl=sheet.optInt("level",1);scores=new int[]{sheet.optInt("str",10),sheet.optInt("dex",10),sheet.optInt("con",10),sheet.optInt("int_score",10),sheet.optInt("wis",10),sheet.optInt("cha",10)};max=sheet.optInt("max_hp",1);hp=sheet.optInt("hp",max);ac=sheet.optInt("ac",10);
-            String notes=sheet.optString("history");if(sheet.optString("life_path").length()>0&&!notes.contains("HISTÓRIA DE VIDA"))notes+=(notes.length()>0?"\n\n":"")+sheet.optString("life_path");if(sheet.optString("extra_notes").length()>0)notes+=(notes.length()>0?"\n\n":"")+sheet.optString("extra_notes");
-            try{if(edit)safety.beforeDestructiveChange("editar ficha de "+nm);}catch(Exception e){toast("Não foi possível criar o snapshot preventivo: "+e.getMessage());return;}
-            String before=edit?existing.toString():"{}";
-            String controlMode=f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem()));
-            JSONObject saved=db.saveCharacterSheetAtomic(edit?existing.optLong("id",0):0,edit,sheet,notes,controlMode);
-            if(!saved.optBoolean("character_saved",false)){toast("Ficha não salva: "+saved.optString("reason",saved.optString("save_blocked","falha transacional")));return;}
-            f.saved=true;d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-            long id=saved.optLong("character_id",edit?existing.optLong("id",0):0);db.addAuditEvent("ficha",edit?"Ficha modificada":"Ficha criada",nm,before,saved.toString(),edit);dialog.dismiss();showHeroes();
+            if(!saving.compareAndSet(false,true))return;
+            final JSONObject uiSnapshot=collectCharacterSheet(f,rulesProfile,false);
+            if(uiSnapshot.optString("name","").trim().isEmpty()){saving.set(false);f.name.setError("Informe um nome.");return;}
+            final String controlChoice=f.controller==null?"manual":controlMode(String.valueOf(f.controller.getSelectedItem()));
+            final String before=edit?existing.toString():"{}";
+            d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            setStatus("Gravando ficha em segundo plano e preservando os 39 traços…");
+            final long startedAt=android.os.SystemClock.elapsedRealtime();
+            AppExecutors.serial().execute(new Runnable(){public void run(){
+                try{
+                    JSONObject sheet=completeCharacterSheetMechanics(new JSONObject(uiSnapshot.toString()),uiSnapshot.optString("feat_selection_json","{}"));
+                    String nm=sheet.optString("name","").trim();
+                    int lvl=sheet.optInt("level",1),max=sheet.optInt("max_hp",1),hp=sheet.optInt("hp",max),ac=sheet.optInt("ac",10);
+                    int[] scores={sheet.optInt("str",10),sheet.optInt("dex",10),sheet.optInt("con",10),sheet.optInt("int_score",10),sheet.optInt("wis",10),sheet.optInt("cha",10)};
+                    String validation=rulesEngine.validateCharacter(rulesProfile,sheet.optString("species"),baseClass(sheet.optString("class_name")),sheet.optString("background"),lvl,scores,hp,max,ac);
+                    if(validation!=null)throw new IllegalArgumentException(validation);
+                    if(!sheet.optString("run136_validation_error").isEmpty())throw new IllegalArgumentException(sheet.optString("run136_validation_error"));
+                    JSONObject strict=characterRulesValidator.validate(sheet,rulesProfile);
+                    if(!strict.optBoolean("valid"))throw new IllegalArgumentException("Ficha inválida: "+jsonListText(strict.optJSONArray("errors")));
+                    JSONObject normalized=strict.optJSONObject("normalized");
+                    if(normalized!=null)sheet=normalized;
+                    String notes=sheet.optString("history");
+                    if(!sheet.optString("life_path").isEmpty()&&!notes.contains("HISTÓRIA DE VIDA"))notes+=(notes.length()>0?"\\n\\n":"")+sheet.optString("life_path");
+                    if(!sheet.optString("extra_notes").isEmpty())notes+=(notes.length()>0?"\\n\\n":"")+sheet.optString("extra_notes");
+                    if(edit)safety.beforeDestructiveChange("editar ficha de "+nm);
+                    JSONObject saved=db.saveCharacterSheetAtomic(edit?existing.optLong("id",0):0,edit,sheet,notes,controlChoice);
+                    if(!saved.optBoolean("character_saved",false))throw new IllegalStateException("Ficha recusada: "+saved.optString("reason",saved.optString("save_blocked","falha transacional")));
+                    long id=saved.optLong("character_id",edit?existing.optLong("id",0):0);
+                    JSONObject persisted=db.getCharacter(id);
+                    JSONObject stored=new JSONObject(persisted.optString("sheet_json","{}"));
+                    JSONObject expectedPersona=BraseiroPersonalityProfile.fromSheet(sheet),actualPersona=BraseiroPersonalityProfile.fromSheet(stored);
+                    if(!expectedPersona.toString().equals(actualPersona.toString()))throw new IllegalStateException("A personalidade estruturada não foi preservada no banco.");
+                    if(!nm.equals(persisted.optString("name","")))throw new IllegalStateException("Nome não confirmado após leitura do banco.");
+                    try{db.addAuditEvent("ficha",edit?"Ficha modificada":"Ficha criada",nm,before,saved.toString(),edit);}
+                    catch(Exception audit){AppLog.w("CharacterSave","A ficha foi salva, mas a auditoria falhou.",audit);}
+                    AppLog.i("CharacterSavePerf","SAVE_VERIFIED_MS="+(android.os.SystemClock.elapsedRealtime()-startedAt));
+                    ui.post(()->{f.saved=true;dialog.dismiss();screenCache.clear();screenCacheTime.clear();showHeroes();setStatus("Ficha salva, conferida e preservada.");});
+                }catch(final Exception failure){
+                    AppLog.e("CharacterSave","Erro no salvamento verificado",failure);
+                    ui.post(()->{saving.set(false);d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                        new AlertDialog.Builder(MainActivity.this).setTitle("Ficha não confirmada").setMessage(String.valueOf(failure.getMessage()))
+                            .setPositiveButton("Revisar",null).show();
+                        setStatus("Formulário mantido; confira o motivo da falha.");});
+                }
+            }});
         }});Window w=d.getWindow();if(w!=null){w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}}});Window dw=d.getWindow();if(dw!=null){dw.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);}fitModernSamsungDialog(d);
     }
 
