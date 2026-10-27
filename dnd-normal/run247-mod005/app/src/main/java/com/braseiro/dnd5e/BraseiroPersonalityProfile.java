@@ -97,6 +97,22 @@ public final class BraseiroPersonalityProfile {
         return out.toString();
     }
 
+    /** Full field display in the character sheet; never changes game mechanics. */
+    public static String forSheetDisplay(JSONObject sheet) {
+        JSONObject profile=fromSheet(sheet);
+        JSONArray traits=profile.optJSONArray("traits");
+        if(traits==null||traits.length()==0)return "";
+        StringBuilder out=new StringBuilder();
+        for(int i=0;i<traits.length();i++) {
+            JSONObject t=traits.optJSONObject(i);
+            if(t==null||!t.optBoolean("enabled",true))continue;
+            if(out.length()>0)out.append("\n\n");
+            out.append(t.optString("label",t.optString("id"))).append(": ")
+               .append(t.optString("value"));
+        }
+        return out.toString();
+    }
+
     private static int score(JSONObject t, String scene) {
         int base = Math.max(1, Math.min(5, t.optInt("priority", 3)));
         JSONArray tr = t.optJSONArray("triggers");
