@@ -2748,6 +2748,25 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     /** Complete legacy fields without interpreting a fallen character as missing HP. */
     private JSONObject characterSheetForEditing(JSONObject existing,String profile){
+        // Avoid costly generator passes when editing an already complete persisted sheet.
+        try{
+            String raw=existing.optString("sheet_json","").trim();
+            if(raw.startsWith("{")){
+                JSONObject stored=new JSONObject(raw);
+                if(stored.has("personality_profile") && stored.has("resource_state_version")){
+                    stored.put("id",existing.optLong("id",0));
+                    stored.put("name",existing.optString("name",stored.optString("name")));
+                    stored.put("species",existing.optString("species",stored.optString("species")));
+                    stored.put("class_name",existing.optString("class_name",stored.optString("class_name")));
+                    stored.put("background",existing.optString("background",stored.optString("background")));
+                    stored.put("rules_source",profile);
+                    for(String field:new String[]{"level","hp","max_hp","ac","str","dex","con","int_score","wis","cha"}){
+                        if(existing.has(field)&&!existing.isNull(field))stored.put(field,existing.optInt(field));
+                    }
+                    return stored;
+                }
+            }
+        }catch(Exception error){AppLog.w("CharacterLoad","Ficha estruturada inválida: usando compatibilidade legada.",error);}
         JSONObject sheet=characterGenerator.fromLegacy(existing);
         try{
             sheet.put("rules_source",profile);
