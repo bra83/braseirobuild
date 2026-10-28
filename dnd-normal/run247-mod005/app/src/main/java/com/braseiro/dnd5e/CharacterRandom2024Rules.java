@@ -108,6 +108,13 @@ public final class CharacterRandom2024Rules {
         }
         return input;
     }
+    private static void addTool(JSONObject sheet,String choice)throws Exception{
+        JSONArray tools=sheet.optJSONArray("tool_proficiencies");
+        if(tools==null)tools=new JSONArray();
+        for(int i=0;i<tools.length();i++)if(same(tools.optString(i),choice))return;
+        tools.put(choice);
+        sheet.put("tool_proficiencies",tools);
+    }
     private static void addSkill(JSONObject sheet,String choice,String source)throws Exception{
         if(!includes(SKILLS,choice))throw new IllegalStateException("Perícia inválida: "+choice);
         JSONArray rows=sheet.optJSONArray("skill_proficiencies");
@@ -182,13 +189,30 @@ public final class CharacterRandom2024Rules {
                 String tool=choose(new String[]{"Flauta","Lira","Alaúde","Ferramentas de ferreiro"},rng);
                 sheet.put("monk_class_tool_choice",tool);
                 sheet.put("tools",sheet.optString("tools","")+"\nProficiência de Monge: "+tool);
-                JSONArray tools=sheet.optJSONArray("tool_proficiencies");
-                if(tools==null)tools=new JSONArray();
-                tools.put(tool);
-                sheet.put("tool_proficiencies",tools);
+                addTool(sheet,tool);
             }
             if(same(cls,"Bardo")){
                 sheet.put("bard_starting_instrument","Flauta");
+                JSONArray instruments=new JSONArray().put("Flauta").put("Lira").put("Alaúde");
+                sheet.put("bard_instrument_proficiencies",instruments);
+                for(int i=0;i<instruments.length();i++)
+                    addTool(sheet,"Instrumento musical: "+instruments.optString(i));
+            }
+            String backgroundTools=sheet.optString("tools","");
+            String backgroundChoice="";
+            if(backgroundTools.contains("Um tipo de Ferramentas de Artesão")){
+                backgroundChoice="Ferramentas de tecelão";
+                backgroundTools=backgroundTools.replace("Um tipo de Ferramentas de Artesão",backgroundChoice);
+            }else if(backgroundTools.contains("Um Instrumento Musical")){
+                backgroundChoice="Instrumento musical: Tambor";
+                backgroundTools=backgroundTools.replace("Um Instrumento Musical",backgroundChoice);
+            }else if(backgroundTools.contains("Um Kit de Jogos")){
+                backgroundChoice="Jogo de cartas";
+                backgroundTools=backgroundTools.replace("Um Kit de Jogos",backgroundChoice);
+            }
+            if(!backgroundChoice.isEmpty()){
+                sheet.put("background_tool_choice",backgroundChoice).put("tools",backgroundTools);
+                addTool(sheet,backgroundChoice);
             }
             // Recorded as a new 2024 character's explicit background choice B.
             // It grants 50 GP, never the objects of equipment choice A.
@@ -223,6 +247,23 @@ public final class CharacterRandom2024Rules {
                     .put("source","class_2024_option_A"));
             }
             sheet.put("inventory_ledger",ledger);
+            // Weapon Mastery selections are constrained to the actual initial
+            // class weapons. No unowned weapon or foreign-edition item is added.
+            JSONArray mastery=new JSONArray();
+            if(same(cls,"Bárbaro")){
+                mastery.put("Machado grande").put("Machadinha");
+            }else if(same(cls,"Ladino")){
+                mastery.put("Espada curta").put("Arco curto");
+            }else if(same(cls,"Patrulheiro")){
+                mastery.put("Cimitarra").put("Arco longo");
+            }else if(same(cls,"Paladino")){
+                mastery.put("Espada longa").put("Azagaia");
+            }
+            if(mastery.length()>0){
+                sheet.put("weapon_masteries_known",mastery.length());
+                sheet.put("selected_weapon_masteries",mastery);
+                sheet.put("weapon_mastery_choices_source",Core2024EberronCharacterEngine.PHB2024);
+            }
             sheet.put("inventory_currency_gp",classGp+50);
             sheet.put("inventory_ledger_status","new_character_class_A_background_B");
             sheet.put("inventory_review_required",false);
