@@ -151,8 +151,8 @@ public final class AdventureContinuityEngine {
         try{
             ensureSchema();
             JSONObject current=activePackage();
-            if(current.length()==0)return out;
-            String scope=worldScope(current.optString("world_id"),current.optString("timeline_id","principal"));
+            String scope=worldScope(current.optString("world_id",db.getActiveMapProfile()),
+                current.optString("timeline_id","principal"));
             for(JSONObject row:db.queryList("SELECT event_json FROM braseiro_adventure_causal_facts "+
                     "WHERE world_scope=? ORDER BY created_at DESC LIMIT 250",new String[]{scope})){
                 JSONObject fact=new JSONObject(row.optString("event_json","{}"));
