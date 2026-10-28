@@ -90,6 +90,14 @@ public final class CharacterRulesValidator {
                     errors.put(normalized.optString("species_mechanics_coherence_error"));
                 if(normalized.optBoolean("species_narrative_review_required",false))
                     warnings.put("Biografia menciona uma espécie anterior. Revise a narrativa antes de jogar.");
+                int unresolved=normalized.optInt("creation_missing_choice_count",0);
+                if(unresolved>0)
+                    warnings.put("Criação INCOMPLETA: "+unresolved+" escolhas mecânicas pendentes: "+
+                        normalized.optJSONArray("creation_missing_choices").toString());
+                if(normalized.optBoolean("inventory_review_required",false))
+                    warnings.put("Inventário textual preservado. Confirme a posse dos itens antes de converter para o inventário estruturado.");
+                if(normalized.optBoolean("mage_armor_confirmation_pending",false))
+                    warnings.put("O texto diz Armadura Arcana ativa, mas a conjuração não foi confirmada; CA de combate mantida.");
             }
             boolean compiledBackground=CharacterOptionCatalogEngine.lookupBackground(normalized.optString("background")).optBoolean("known",false)||EberronForgeCompleteEngine.supportsBackground(normalized.optString("background"))||ForgottenRealmsHeroesEngine.supportsBackground(normalized.optString("background"));
             if(revised&&!BACKGROUNDS_2024.contains(background)&&!compiledBackground)errors.put("O antecedente não pertence à lista revisada nem aos suplementos compilados.");
