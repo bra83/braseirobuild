@@ -51,6 +51,7 @@ public final class MasterGameContext {
             root.put("party_actions",new JSONArray(db.listPartyActions("queued",40)));
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(80)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
+            root.put("kvothe_strixhaven_party_policy",new KvotheCampaignPartyBridge(db).context());
             root.put("quests",WorldContextSelector.select(db.listQuests("active",1000),contextFocus,40,"title","objective","stage","stakes"));
             root.put("factions",WorldContextSelector.select(db.listFactions(1000),contextFocus,40,"name","agenda","current_plan","location"));
             root.put("guilds",new GuildEngine(db).promptView(contextFocus,40));
@@ -98,6 +99,7 @@ public final class MasterGameContext {
             root.put("npc_cognition",WorldContextSelector.select(db.listNpcCognitiveStates(5000),contextFocus,50,"npc_name","current_location","next_action","beliefs_json","faction","last_interaction_summary"));
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(50)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
+            root.put("kvothe_strixhaven_party_policy",new KvotheCampaignPartyBridge(db).context());
             root.put("quests",WorldContextSelector.select(db.listQuests("active",1000),contextFocus,30,"title","objective","stage","stakes"));
             root.put("factions",WorldContextSelector.select(db.listFactions(1000),contextFocus,30,"name","agenda","current_plan","location"));
             root.put("guilds",new GuildEngine(db).promptView(contextFocus,30));
