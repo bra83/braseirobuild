@@ -1,10 +1,15 @@
 name: D&D 2024 Species + Monk Audit Guard
 on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-2024-audit-guard.yml']
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetConsistencyGuard.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterMageArmorState.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRandom2024Rules.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024StartingClassChoices.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Core2024ClassRuntimeEngine.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroRandomPersonalityEngine.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024CreationReadiness.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -15,6 +20,7 @@ on:
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024RandomGenerationSafetyTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024RandomPersistenceTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/BraseiroRandomPersonalityEngineTest.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024AllClassesStartingChoicesTest.java'
       - '.github/workflows/dnd-2024-audit-guard.yml'
   workflow_dispatch:
 permissions:
@@ -54,6 +60,7 @@ jobs:
             --tests com.braseiro.dnd5e.Character2024RandomGenerationSafetyTest \
             --tests com.braseiro.dnd5e.Character2024RandomPersistenceTest \
             --tests com.braseiro.dnd5e.BraseiroRandomPersonalityEngineTest \
+            --tests com.braseiro.dnd5e.Character2024AllClassesStartingChoicesTest \
             --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
