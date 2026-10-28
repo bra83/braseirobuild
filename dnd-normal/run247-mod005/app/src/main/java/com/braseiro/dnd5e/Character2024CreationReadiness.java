@@ -52,6 +52,11 @@ public final class Character2024CreationReadiness {
 
             if(sheet.optBoolean("origin_feat_choice_pending",false))
                 missing(pending,"origin_feat_specialization");
+            JSONArray classChoices=sheet.optJSONArray("class_choices_pending");
+            if(classChoices!=null)for(int i=0;i<classChoices.length();i++){
+                String key=norm(classChoices.optString(i));
+                if(!key.isEmpty())missing(pending,"class_"+key);
+            }
 
             if(norm(sheet.optString("class_name")).startsWith("monge")){
                 // One artisan tool OR musical instrument is selected at level 1;
