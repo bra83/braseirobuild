@@ -143,6 +143,19 @@ public class Character2024RandomGenerationSafetyTest {
             assertEquals(s.toString(),expected,s.optString("magic_initiate_list"));
         }
     }
+    @Test public void incomplete2014AndHybridRandomLoadoutsMustNotBeMarkedComplete()throws Exception{
+        for(String profile:new String[]{"5e 2014","Híbrido compatível"}){
+            CharacterSheetGenerator generator=new CharacterSheetGenerator(new DndRulesEngine());
+            for(int i=0;i<12;i++){
+                JSONObject sheet=generator.randomComplete(profile,new String[]{"Humano"},
+                    new ArrayList<JSONObject>());
+                assertFalse(profile+" "+sheet,sheet.optBoolean("generation_valid",true));
+                assertEquals(profile+" "+sheet,"blocked",sheet.optString("generation_status"));
+                assertEquals(profile,DndRulesEngine.canonicalProfile(sheet.optString("rules_source")));
+                assertFalse("Must never cross to 2024",Character2024SheetReconciler.applies(sheet));
+            }
+        }
+    }
     @Test public void unrelated2014SheetIsNotTransformedInto2024()throws Exception{
         String[] legal=CharacterRandom2024Rules.legalSpecies("5e 2014",new String[]{"Humano","Anão","Urdunnir"});
         assertEquals(2,legal.length);
