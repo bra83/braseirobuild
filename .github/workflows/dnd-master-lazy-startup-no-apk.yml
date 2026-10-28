@@ -1,0 +1,66 @@
+name: D&D Master Lazy Python Startup — source and runtime tests ONLY (NO APK)
+on:
+  push:
+    branches: [fix/dnd-master-startup-python-lazy-20261028]
+    paths:
+      - '.github/workflows/dnd-master-lazy-startup-no-apk.yml'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BarbaraSupervisor.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/BarbaraStartupLazyTest.java'
+permissions:
+  contents: read
+jobs:
+  master-startup-no-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK
+        run: |
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Contract gate — no synchronous Chaquopy and no APK
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e')
+          b=(root/'BarbaraSupervisor.java').read_text()
+          m=(root/'MasterOrchestrator.java').read_text()
+          a=(root/'MainActivity.java').read_text()
+          ctor=b.split('public BarbaraSupervisor(Context ctx)',1)[1].split('private synchronized void initialize()',1)[0]
+          assert 'initialize();' not in ctor, 'Barbara constructor must never start Python'
+          plan=b.split('public JSONObject plan(String action,String importance,boolean narrative,boolean nonAdvancing,String occasion,String inputChannel,String requestedSystem)',1)[1]
+          assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Background plan must await Barbara'
+          assert 'public void warmUpAsync()' in b
+          assert 'masterOrchestrator.warmBarbaraAsync()' in a and 'ui.postDelayed' in a
+          assert 'MASTER_CANON_SEEDED' in m and 'MASTER_ADVENTURES_REGISTERED' in m
+          assert 'MASTER_RULES_REGISTERED' in m and 'MASTER_MONSTERS_REGISTERED' in m
+          print('DND_MASTER_LAZY_SOURCE_GATE_PASS')
+          PY
+      - name: Compile code (NO APK) and targeted canonical-adventure-Barbara tests
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.BarbaraStartupLazyTest' \
+            --tests 'com.braseiro.dnd5e.NarrativeCanonPersistenceTest' \
+            --tests 'com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest' \
+            --no-daemon --console=plain
+          echo 'DND_MASTER_LAZY_TESTS_PASS'
+      - name: Confirm no installer was generated
+        run: |
+          set -euo pipefail
+          test ! -d dnd-normal/run247-mod005/app/build/outputs/apk
+          echo 'DND_NO_APK_BUILD_PASS'
