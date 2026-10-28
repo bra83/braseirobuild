@@ -31,6 +31,15 @@ public class Character2024ClassContractTest {
                 fixture[0],"Marinheiro",1);
             assertTrue(fixture[0]+" "+s.optString("saving_throws"),
                 Character2024ClassContract.hasCorrectLevelOneSaves(s));
+            assertFalse(fixture[0]+" "+s.optString("proficiencies"),
+                s.optString("proficiencies").contains("conforme os manuais habilitados"));
+            assertTrue(fixture[0]+" sem descrição de proficiência de arma",
+                s.optString("proficiencies").contains("armas simples"));
+            if("Feiticeiro".equals(fixture[0])){
+                assertTrue(s.toString(),s.optString("spells").contains("Mísseis Mágicos"));
+                assertFalse(s.toString(),s.optString("spells").contains("Orbe Cromática"));
+                assertTrue(s.toString(),s.optString("features").contains("Feitiçaria Inata"));
+            }
         }
     }
     private static JSONObject orikBug()throws Exception {
