@@ -50,11 +50,11 @@ jobs:
           from pathlib import Path
           import re,os,json
           b=Path('baseline/BADGING.txt').read_text()
-          m=re.search(r"package: name='com\\.braseiro\\.dnd5e' versionCode='(\\d+)'",b)
+          m=re.search(r"package: name='com\.braseiro\.dnd5e' versionCode='(\d+)'",b)
           if not m:raise SystemExit('BASELINE_PACKAGE_UNVERIFIED')
           old=int(m.group(1));new=old+1
           if old!=202700031:raise SystemExit('BASELINE_VERSION_UNEXPECTED: '+str(old))
-          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('CODE='+str(new)+'\\n')
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('CODE='+str(new)+'\n')
           project=Path(os.environ['PROJECT'])
           version=project/'version.properties';s=version.read_text()
           for expected in ('VERSION_CODE=606548','VERSION_NAME=6.6.15-v1-3core-20261016','DB_SCHEMA=61','BACKUP_FORMAT=21'):
@@ -82,7 +82,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import hashlib,re
-          expected=re.search(r'Signer #1 certificate SHA-256 digest:\\s*([0-9a-fA-F]+)',Path('baseline/SIGNATURE.txt').read_text())
+          expected=re.search(r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)',Path('baseline/SIGNATURE.txt').read_text())
           actual=hashlib.sha256(Path('final/rulepack_signer.der').read_bytes()).hexdigest()
           if not expected or expected[1].lower()!=actual:raise SystemExit('RULEPACK_SIGNER_NOT_APK_SIGNER')
           print('SAME_SIGNER_FOR_RULEPACK_AND_INSTALLED_APK=PASS',actual)
@@ -134,11 +134,11 @@ jobs:
           from pathlib import Path
           import os,re,zipfile
           old=Path('baseline/BADGING.txt').read_text();new=Path('final/BADGING.txt').read_text()
-          x=r"package: name='([^']+)' versionCode='(\\d+)' versionName='([^']+)'"
+          x=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
           a=re.search(x,old);b=re.search(x,new)
           if not a or not b or a[1]!=b[1] or b[1]!='com.braseiro.dnd5e' or int(b[2])!=int(os.environ['CODE']) or b[3]!=os.environ['VERSION']+'-debug':
             raise SystemExit('APK_NOT_UPGRADE_COMPATIBLE')
-          cert=r"Signer #1 certificate SHA-256 digest:\\s*([0-9a-fA-F]+)"
+          cert=r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)"
           prev=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
           now=re.search(cert,Path('final/SIGNATURE.txt').read_text())
           if not prev or not now or prev[1].lower()!=now[1].lower():
@@ -146,7 +146,7 @@ jobs:
           with zipfile.ZipFile(Path('final')/os.environ['APK_NAME']) as z:
             if not any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist()):
               raise SystemExit('MAP_MISSING_FROM_PRODUCTION_APK')
-          proof='\\n'.join(['SHA='+os.environ['GITHUB_SHA'],'PACKAGE='+b[1],
+          proof='\n'.join(['SHA='+os.environ['GITHUB_SHA'],'PACKAGE='+b[1],
             'VERSION_CODE='+b[2],'NEW_CODE='+b[2],'OLD_CODE='+a[2],
             'SIGNING_CERT_SHA256='+now[1],'DATABASE_SCHEMA_UNCHANGED=61',
             'BACKUP_FORMAT_UNCHANGED=21','FULL_JVM_REGRESSIONS=PASS',
