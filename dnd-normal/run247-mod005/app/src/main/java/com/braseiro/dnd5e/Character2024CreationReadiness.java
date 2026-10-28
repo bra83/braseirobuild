@@ -52,6 +52,10 @@ public final class Character2024CreationReadiness {
 
             if(sheet.optBoolean("origin_feat_choice_pending",false))
                 missing(pending,"origin_feat_specialization");
+            int masteries=sheet.optInt("weapon_masteries_known",0);
+            JSONArray chosenMasteries=sheet.optJSONArray("selected_weapon_masteries");
+            if(masteries>0&&(chosenMasteries==null||chosenMasteries.length()<masteries))
+                missing(pending,"weapon_masteries");
             JSONArray classChoices=sheet.optJSONArray("class_choices_pending");
             if(classChoices!=null)for(int i=0;i<classChoices.length();i++){
                 String key=norm(classChoices.optString(i));
