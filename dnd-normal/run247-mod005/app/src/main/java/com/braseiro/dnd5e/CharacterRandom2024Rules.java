@@ -180,6 +180,17 @@ public final class CharacterRandom2024Rules {
             JSONArray selected=sheet.optJSONArray("selected_origin_feats");
             boolean already=false;
             if(selected!=null)for(int i=0;i<selected.length();i++)if(same(selected.optString(i),baseFeat))already=true;
+            if(already && sheet.optBoolean("origin_feat_choice_pending",false)){
+                // Earlier derivation may have recovered this feat by seeing its
+                // *name* in an auto-generated feature description. That does
+                // not mean required spells/instruments/tools were selected.
+                // Safe only here: this is a NEW, never-persisted random sheet.
+                JSONArray fresh=new JSONArray();
+                for(int i=0;i<selected.length();i++)
+                    if(!same(selected.optString(i),baseFeat))fresh.put(selected.optString(i));
+                sheet.put("selected_origin_feats",fresh);
+                already=false;
+            }
             if(!already)ok(Core2024EberronCharacterEngine.applyOriginFeat(sheet,baseFeat,featInput(baseFeat,bgFeat,sheet,rng)),"Talento do antecedente");
 
             JSONObject choices=speciesChoice(species,sheet,rng);
