@@ -44,10 +44,18 @@ new_branch = '''            if(matching!=null){
                 characterDialog(null,imported);
                 toast("Ficha JSON aberta como novo herói. Revise antes de salvar.");
             }'''
-old_branch=old_branch.replace("\n",newline)
-new_branch=new_branch.replace("\n",newline)
-assert text.count(old_branch) == 1, "Import UI changed: refuse unsupervised edit"
-text = text.replace(old_branch,new_branch,1)
+# The existing giant Android file contains mixed line endings in some regions.
+# Match the exact inspected block, accepting only an LF or CRLF representation.
+old_lf=old_branch
+new_lf=new_branch
+old_crlf=old_branch.replace("\n","\r\n")
+new_crlf=new_branch.replace("\n","\r\n")
+if text.count(old_lf)==1:
+    text=text.replace(old_lf,new_lf,1)
+elif text.count(old_crlf)==1:
+    text=text.replace(old_crlf,new_crlf,1)
+else:
+    raise AssertionError("Import UI changed: refuse unsupervised edit")
 # Both random creation entry points must respect the same fail-closed gate.
 old_full = 'characterDialog(null,seed);}});b.addView(randomHero);'
 new_full = ('if(!seed.optBoolean("generation_valid",false)){'
