@@ -81,11 +81,24 @@ public final class CharacterRulesValidator {
                 JSONObject repaired=Character2024SheetReconciler.reconcile(new JSONObject(normalized.toString()));
                 if(hadSkills&&!oldSkills.equals(repaired.optString("skills")))
                     errors.put("Perícias inconsistentes com as proficiências estruturadas.");
-                if(hadSaves&&!oldSaves.equals(repaired.optString("saving_throws")))
-                    errors.put("Salvaguardas inconsistentes com as proficiências estruturadas.");
+                if(hadSaves&&!oldSaves.equals(repaired.optString("saving_throws"))){
+                    if(Character2024ClassContract.isGeneratedLevelOne(normalized) &&
+                            Character2024ClassContract.hasCorrectLevelOneSaves(repaired))
+                        warnings.put("Salvaguardas de ficha aleatória legada reparadas de acordo com a classe 2024.");
+                    else
+                        errors.put("Salvaguardas inconsistentes com as proficiências estruturadas.");
+                }
                 if(!hadSkills||!hadSaves)
                     warnings.put("Ficha legada reconciliada com proficiências estruturadas antes do salvamento.");
                 normalized=repaired;
+                // Never certify internally consistent but CLASS-INCOMPATIBLE saves.
+                // This independent rules gate catches the Sorcerer WIS/CHA regression.
+                if(level==1 && !Character2024ClassContract.hasCorrectLevelOneSaves(normalized))
+                    errors.put("Proficiências em salvaguardas incompatíveis com a classe inicial 2024.");
+                String coreClass=baseClassName(normalized.optString("class_name"));
+                if(("Feiticeiro".equalsIgnoreCase(coreClass)||"Mago".equalsIgnoreCase(coreClass)) &&
+                        level==1 && !lower(normalized.optString("proficiencies")).contains("armas simples"))
+                    errors.put("Proficiência em armas incompleta para a classe 2024: requer armas simples.");
                 if(!normalized.optString("species_mechanics_coherence_error","").isEmpty())
                     errors.put(normalized.optString("species_mechanics_coherence_error"));
                 if(normalized.optBoolean("species_narrative_review_required",false))
