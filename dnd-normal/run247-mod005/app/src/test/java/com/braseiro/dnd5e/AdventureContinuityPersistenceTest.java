@@ -1,7 +1,7 @@
 package com.braseiro.dnd5e;
 
 import android.content.Context;
-import androidx.test.core.app.ApplicationProvider;
+import org.robolectric.RuntimeEnvironment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -24,7 +24,7 @@ public class AdventureContinuityPersistenceTest {
     private long characterId;
 
     @Before public void start() throws Exception {
-        ctx=ApplicationProvider.getApplicationContext();
+        ctx=RuntimeEnvironment.getApplication();
         filename="kvothe-legacy-"+Long.toHexString(System.nanoTime())+".db";
         db=new AppDb(ctx,filename);
         db.setActiveMapProfile("dnd");
