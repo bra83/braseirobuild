@@ -171,7 +171,7 @@ jobs:
           gh release create "$PACK_TAG" final/DND_2024_RULEPACK_V1.json \
             final/DND_2024_RULEPACK_V1.json.sig final/DND_2024_RULEPACK_V1.json.sha256 \
             --target "$GITHUB_SHA" --title "Braseiro D&D 2024 — Pacote modular assinado 1" \
-            --notes "Somente catálogo de antecedentes PHB 2024 existentes: 16/16 opções preservadas. Sem bytecode, scripts, regras novas não compiladas, alteração de personagem ou migração. Assinado com a mesma chave do APK D&D. Exige versãoCode >= 202700032."
+            --notes "Catálogo PHB 2024 existente: 12/12 classes, 10/10 espécies e 16/16 antecedentes preservados. Sem bytecode, scripts, regras novas não compiladas, alteração de personagem ou migração. Assinado com a mesma chave do APK D&D. Exige versãoCode >= 202700032."
       - name: Publish real upgradeable modular Android APK
         run: |
           set -euo pipefail
@@ -179,5 +179,5 @@ jobs:
             final/BUILD_PROOF.txt final/BADGING.txt final/SIGNATURE.txt \
             --target "$GITHUB_SHA" \
             --title "Braseiro D&D 6.6.22 — atualizador modular assinado" \
-            --notes "Android Ubuntu hosted sem BRELGA. D&D2024 rulepacks signed by the installed APK signing key; verified download, atomic storage, rollback, startup restore; generator reads modular PHB2024 background catalog; new D&D releases verified by code and certificate; saves and Mystara untouched; full JVM regressions; physical Galaxy A57 test NOT PERFORMED. Packages only extend data already supported by the engine: they cannot inject arbitrary new spells, actions or mechanics." 
+            --notes "Android Ubuntu hosted sem BRELGA. D&D2024 rulepacks signed by the installed APK signing key; verified download, atomic storage, rollback, startup restore; generator reads modular PHB2024 class/species/background catalogs; new D&D releases verified by code and certificate; saves and Mystara untouched; full JVM regressions; physical Galaxy A57 test NOT PERFORMED. Packages only extend data already supported by the engine: they cannot inject arbitrary new spells, actions or mechanics." 
           echo "APK_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/$APK_NAME"
