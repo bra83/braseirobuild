@@ -66,9 +66,18 @@ public final class PartyDirector {
     public long recruitHero(long characterId,String recruitmentType)throws Exception{
         ensureFounderMembership();
         JSONObject hero=db.getCharacter(characterId);if(hero.length()==0)throw new IllegalArgumentException("Herói inexistente.");
-        return db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",characterId).put("status","active")
+        long membership=db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",characterId).put("status","active")
                 .put("party_role","companion").put("recruitment_type",cleanRecruitmentType(recruitmentType)).put("joined_day",currentDay())
                 .put("home_location",db.getSceneState().optString("location")).put("loyalty",100).put("reason","Entrou para a companhia."));
+        // The existing user-facing recruitment action must honor player control.
+        if(membership>0 && !KvotheCampaignPartyBridge.inCampus(db.getSceneState())
+                && KvotheCampaignPartyBridge.atMarco(db.getSceneState(),db.getMapState())
+                && ("Wilem".equalsIgnoreCase(hero.optString("name"))
+                    || "Simmon".equalsIgnoreCase(hero.optString("name"))
+                    || "Auri".equalsIgnoreCase(hero.optString("name")))){
+            db.saveCharacterControl(characterId,"manual","{}");
+        }
+        return membership;
     }
 
     public long recruitNpc(String npcName,String recruitmentType,JSONObject compensation)throws Exception{
