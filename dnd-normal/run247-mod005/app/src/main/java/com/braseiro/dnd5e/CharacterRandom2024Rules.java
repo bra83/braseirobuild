@@ -137,6 +137,19 @@ public final class CharacterRandom2024Rules {
         if(choices.isEmpty())throw new IllegalStateException("Sem perícia livre válida");
         return choices.get(rng.nextInt(choices.size()));
     }
+    private static String uniqueSkillFrom(JSONObject sheet,Random rng,String[] candidatePool){
+        HashSet<String> used=new HashSet<>();
+        JSONArray rows=sheet.optJSONArray("skill_proficiencies");
+        if(rows!=null)for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.optJSONObject(i);
+            if(row!=null)used.add(n(row.optString("name")));
+        }
+        ArrayList<String> available=new ArrayList<>();
+        for(String skill:candidatePool)if(!used.contains(n(skill)))available.add(skill);
+        if(available.isEmpty())
+            throw new IllegalStateException("Todas as perícias de espécie já foram adquiridas: escolha requer reconciliação.");
+        return available.get(rng.nextInt(available.size()));
+    }
     private static JSONObject speciesChoice(String species,JSONObject sheet,Random rng){
         JSONObject c=new JSONObject();
         try{
@@ -146,7 +159,7 @@ public final class CharacterRandom2024Rules {
             if(same(species,"Draconato"))return c.put("ancestry",choose(new String[]{"Vermelho","Azul","Verde","Branco","Negro"},rng));
             if(same(species,"Elfo"))return c.put("lineage",choose(new String[]{"Alto","Drow","Floresta"},rng))
                 .put("ability",choose(new String[]{"Inteligência","Sabedoria","Carisma"},rng))
-                .put("skill",choose(new String[]{"Intuição","Percepção","Sobrevivência"},rng));
+                .put("skill",uniqueSkillFrom(sheet,rng,new String[]{"Intuição","Percepção","Sobrevivência"}));
             if(same(species,"Gnomo"))return c.put("lineage",choose(new String[]{"Floresta","Rocha"},rng));
             if(same(species,"Golias"))return c.put("ancestry",choose(new String[]{"Nuvem","Fogo","Gelo","Colina","Pedra","Tempestade"},rng));
             if(same(species,"Tiferino"))return c.put("size",rng.nextBoolean()?"Médio":"Pequeno")
