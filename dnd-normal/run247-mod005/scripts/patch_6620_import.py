@@ -7,7 +7,9 @@ closed if the inspected upstream source has changed.
 from pathlib import Path
 
 source = Path(__file__).resolve().parents[1] / "app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
-text = source.read_text(encoding="utf-8")
+raw = source.read_bytes()
+text = raw.decode("utf-8")
+newline = "\r\n" if b"\r\n" in raw else "\n"
 old_id = 'clean.remove("id");clean.remove("token_uri");'
 new_id = '/* Retain export ID as an untrusted lookup hint; UI confirmation is mandatory. */clean.remove("token_uri");'
 assert text.count(old_id) == 1, "Import decode changed: refuse unsupervised edit"
@@ -42,7 +44,25 @@ new_branch = '''            if(matching!=null){
                 characterDialog(null,imported);
                 toast("Ficha JSON aberta como novo herói. Revise antes de salvar.");
             }'''
+old_branch=old_branch.replace("\n",newline)
+new_branch=new_branch.replace("\n",newline)
 assert text.count(old_branch) == 1, "Import UI changed: refuse unsupervised edit"
 text = text.replace(old_branch,new_branch,1)
-source.write_text(text,encoding="utf-8")
-print("PATCH_6620_IMPORT_ID_CONFIRMATION_APPLIED=1")
+# Both random creation entry points must respect the same fail-closed gate.
+old_full = 'characterDialog(null,seed);}});b.addView(randomHero);'
+new_full = ('if(!seed.optBoolean("generation_valid",false)){'
+    'toast("Geração bloqueada: "+seed.optString("generation_blocked_reason","escolhas inválidas"));'
+    'return;}characterDialog(null,seed);}});b.addView(randomHero);')
+assert text.count(old_full)==1, "Random hero UI changed: refuse unsafe patch"
+text=text.replace(old_full,new_full,1)
+
+old_random_form = 'applyCharacterSeed(f,generated);toast("Ficha aleatória completa. Você pode editar qualquer campo antes de salvar.");'
+new_random_form = ('if(!generated.optBoolean("generation_valid",false)){'
+    'toast("Geração não concluída: "+generated.optString("generation_blocked_reason","escolhas obrigatórias pendentes"));'
+    'return;}applyCharacterSeed(f,generated);'
+    'toast("Ficha aleatória validada. Revise as escolhas antes de salvar.");')
+assert text.count(old_random_form)==1, "Random form UI changed: refuse unsafe patch"
+text=text.replace(old_random_form,new_random_form,1)
+
+source.write_bytes(text.encode("utf-8"))
+print("PATCH_6620_IMPORT_AND_RANDOM_GATES_APPLIED=1")
