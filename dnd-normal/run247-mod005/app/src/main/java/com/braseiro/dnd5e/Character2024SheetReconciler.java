@@ -193,7 +193,10 @@ public final class Character2024SheetReconciler {
         String declared=sheet.optString("selected_feats","")+
             "; "+sheet.optString("features","");
         if(containsWord(declared,"Sortudo"))feats.add("Sortudo");
-        if(containsWord(declared,"Músico"))feats.add("Músico");
+        // A generated description is not a completed Musician feat: three
+        // instrument selections are mandatory before this can be granted.
+        if(containsWord(declared,"Músico")&&!sheet.optBoolean("origin_feat_choice_pending",false))
+            feats.add("Músico");
         if(norm(sheet.optString("background")).equals("andarilho"))
             feats.add("Sortudo");
         if(!feats.isEmpty()){
