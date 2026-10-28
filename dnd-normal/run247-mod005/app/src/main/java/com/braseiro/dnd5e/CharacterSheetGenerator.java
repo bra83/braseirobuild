@@ -295,6 +295,9 @@ public final class CharacterSheetGenerator {
                     sheet.optInt("life_terms", 2), species, cls, background));
             syncLifeDetails(sheet, true);
             sheet.put("history", mergeHistory(sheet.optString("history"), sheet.optString("life_path")));
+            // One coherent, editable personality archetype for all 39 dimensions.
+            // Never affects spells, skills, items or mechanical statistics.
+            BraseiroRandomPersonalityEngine.applyToNewRandom(sheet,random);
             JSONObject assembled=ensureComplete(sheet);
             return CharacterRandom2024Rules.certify(
                 CharacterRandom2024Rules.finalizeNew2024(assembled,random));
