@@ -43,14 +43,14 @@ public final class AdventureContinuityEngine {
             if(event==null||!event.optBoolean("canonical_fact",false))continue;
             long actor=event.optLong("actor_character_id",0);
             if(actor<=0 || db.getCharacter(actor).length()==0)continue;
+            // A canonical deed is still history even when nobody witnessed it.
+            // Missing witnesses must NOT create fame or NPC knowledge by inference.
             JSONArray witnesses=event.optJSONArray("witness_npc_ids");
-            if(witnesses==null||witnesses.length()==0)continue;
             JSONArray verified=new JSONArray();Set<Long> seen=new HashSet<>();
-            for(int k=0;k<witnesses.length();k++){
+            for(int k=0;witnesses!=null&&k<witnesses.length();k++){
                 long npcId=witnesses.optLong(k,0);
                 if(npcId>0&&seen.add(npcId)&&db.getNpcMemory(npcId).length()>0)verified.put(npcId);
             }
-            if(verified.length()==0)continue;
             JSONObject fact=new JSONObject();
             fact.put("id",commitId+":"+i).put("adventure_id",adventureId)
                 .put("actor_character_id",actor).put("witness_npc_ids",verified)
@@ -59,7 +59,7 @@ public final class AdventureContinuityEngine {
                 .put("summary",limited(event.optString("body",event.optString("summary","")),850))
                 .put("location",limited(db.getSceneState().optString("location",""),150))
                 .put("game_day",db.getSceneState().optInt("day_number",1))
-                .put("visibility","witnessed_only")
+                .put("visibility",verified.length()>0?"witnessed_only":"private_unwitnessed")
                 .put("source","canonical_journal_commit");
             ContentValues values=new ContentValues();
             values.put("world_scope",key);values.put("commit_key",commitId+":"+i);
