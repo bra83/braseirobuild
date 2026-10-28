@@ -86,6 +86,10 @@ public final class CharacterRulesValidator {
                 if(!hadSkills||!hadSaves)
                     warnings.put("Ficha legada reconciliada com proficiências estruturadas antes do salvamento.");
                 normalized=repaired;
+                if(!normalized.optString("species_mechanics_coherence_error","").isEmpty())
+                    errors.put(normalized.optString("species_mechanics_coherence_error"));
+                if(normalized.optBoolean("species_narrative_review_required",false))
+                    warnings.put("Biografia menciona uma espécie anterior. Revise a narrativa antes de jogar.");
             }
             boolean compiledBackground=CharacterOptionCatalogEngine.lookupBackground(normalized.optString("background")).optBoolean("known",false)||EberronForgeCompleteEngine.supportsBackground(normalized.optString("background"))||ForgottenRealmsHeroesEngine.supportsBackground(normalized.optString("background"));
             if(revised&&!BACKGROUNDS_2024.contains(background)&&!compiledBackground)errors.put("O antecedente não pertence à lista revisada nem aos suplementos compilados.");
