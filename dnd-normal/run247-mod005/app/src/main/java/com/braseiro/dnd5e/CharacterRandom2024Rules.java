@@ -68,20 +68,37 @@ public final class CharacterRandom2024Rules {
             .put("base",base).put("background_bonus",bonus));
         s.put("random_origin_ability_plus2",plus2).put("random_origin_ability_plus1",plus1);
     }
-    private static JSONObject featInput(String feat,Random rng)throws Exception{
+    private static JSONObject featInput(String feat,String granted,JSONObject sheet,Random rng)throws Exception{
         JSONObject input=new JSONObject();
         if(same(feat,"Artifista"))
             input.put("tools",new JSONArray().put("Ferramentas de ferreiro").put("Ferramentas de carpinteiro").put("Ferramentas de pedreiro"));
-        else if(same(feat,"Habilidoso"))
-            input.put("proficiencies",new JSONArray().put("Acrobacia").put("Percepção").put("Investigação"));
+        else if(same(feat,"Habilidoso")){
+            JSONArray selected=new JSONArray();
+            for(int i=0;i<3;i++){
+                String next=unchosenSkill(sheet,rng);
+                selected.put(next);
+                addSkill(sheet,next,"feat:Skilled");
+            }
+            input.put("proficiencies",selected);
+        }
         else if(same(feat,"Músico"))
             input.put("instruments",new JSONArray().put("Flauta").put("Lira").put("Alaúde"));
         else if(same(feat,"Iniciado em Magia")){
             // Fixed, verified examples of two different cantrips and one level-1 spell.
-            input.put("ability","Sabedoria");
-            input.put("list","Mago");
-            input.put("cantrips",new JSONArray().put("Mãos Mágicas").put("Prestidigitação"));
-            input.put("first_level_spell","Mísseis Mágicos");
+            String list=granted.contains("(Clérigo)")?"Clérigo":
+                granted.contains("(Druida)")?"Druida":"Mago";
+            input.put("ability",same(list,"Mago")?"Inteligência":"Sabedoria");
+            input.put("list",list);
+            if(same(list,"Clérigo")){
+                input.put("cantrips",new JSONArray().put("Orientação").put("Taumaturgia"));
+                input.put("first_level_spell","Bênção");
+            }else if(same(list,"Druida")){
+                input.put("cantrips",new JSONArray().put("Druidismo").put("Orientação"));
+                input.put("first_level_spell","Curar Ferimentos");
+            }else{
+                input.put("cantrips",new JSONArray().put("Mãos Mágicas").put("Prestidigitação"));
+                input.put("first_level_spell","Mísseis Mágicos");
+            }
         }
         return input;
     }
@@ -137,7 +154,7 @@ public final class CharacterRandom2024Rules {
             JSONArray selected=sheet.optJSONArray("selected_origin_feats");
             boolean already=false;
             if(selected!=null)for(int i=0;i<selected.length();i++)if(same(selected.optString(i),baseFeat))already=true;
-            if(!already)ok(Core2024EberronCharacterEngine.applyOriginFeat(sheet,baseFeat,featInput(baseFeat,rng)),"Talento do antecedente");
+            if(!already)ok(Core2024EberronCharacterEngine.applyOriginFeat(sheet,baseFeat,featInput(baseFeat,bgFeat,sheet,rng)),"Talento do antecedente");
 
             JSONObject choices=speciesChoice(species,sheet,rng);
             if(choices.length()>0){
@@ -227,6 +244,8 @@ public final class CharacterRandom2024Rules {
             String reason=sheet.optString("generation_blocked_reason","");
             if(errors!=null&&errors.length()>0)
                 reason=(reason.isEmpty()?"":reason+"; ")+errors.toString();
+            if(sheet.optBoolean("species_narrative_review_required",false))
+                reason=(reason.isEmpty()?"":reason+"; ")+"Narrativa racial incoerente";
             if(!sheet.optBoolean("creation_mechanically_ready",true) && DndRulesEngine.PROFILE_2024.equals(profile))
                 reason=(reason.isEmpty()?"":reason+"; ")+"Escolhas obrigatórias pendentes";
             if(!reason.isEmpty()){
