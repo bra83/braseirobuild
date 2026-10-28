@@ -218,7 +218,15 @@ public final class Character2024SheetReconciler {
                 sheet.put("musician_inspiration_target_limit",proficiency);
         }
         if(norm(sheet.optString("species")).equals("humano")){
-            boolean extra=feats.contains("Músico");
+            String backgroundFeat=Core2024EberronCharacterEngine.originFeatForBackground(
+                sheet.optString("background",""));
+            int suffix=backgroundFeat.indexOf(" (");
+            if(suffix>=0)backgroundFeat=backgroundFeat.substring(0,suffix);
+            boolean extra=false;
+            for(String feat:feats){
+                // The Human's bonus feat is not necessarily Musician.
+                if(!norm(feat).equals(norm(backgroundFeat)))extra=true;
+            }
             if(extra)sheet.put("human_extra_origin_feat_pending",false);
             String size=norm(sheet.optString("size",""));
             String skill=canonicalSkill(sheet.optString("human_skill_choice",""));
