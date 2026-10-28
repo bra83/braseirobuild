@@ -17,7 +17,7 @@ public final class CharacterRulesValidator {
             "guerreiro","ladino","mago","monge","paladino","patrulheiro","artificer","artífice","artifice"));
     private static final Set<String> SPECIES = new HashSet<String>(Arrays.asList(
             "anão","anao","elfo","halfling","humano","gnomo","draconato","meio-elfo",
-            "meio-orc","tiefling","aasimar","goliath","orc","owlin"));
+            "meio-orc","tiefling","tiferino","pequenino","golias","aasimar","goliath","orc","owlin"));
     private static final Set<String> BACKGROUNDS_2014 = new HashSet<String>(Arrays.asList(
             "acólito","artesão de guilda","artista","charlatão","criminoso","eremita",
             "forasteiro","herói do povo","marinheiro","nobre","órfão","sábio","soldado","estudante de lorehold","estudante de prismari","estudante de quandrix","estudante de silverquill","estudante de witherbloom"));
