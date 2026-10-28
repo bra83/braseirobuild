@@ -64,6 +64,12 @@ public final class Character2024CreationReadiness {
             if(inventory.contains("a escolha")||inventory.contains("conforme o antecedente")||
                inventory.contains("equipamento inicial da classe confirmado"))
                 missing(pending,"equipment_package_or_choice");
+            JSONArray ledger=sheet.optJSONArray("inventory_ledger");
+            if((ledger==null||ledger.length()==0)&&!inventory.isEmpty()){
+                // Do not convert a prose inventory into fictitious owned items.
+                sheet.put("inventory_review_required",true);
+                sheet.put("inventory_ledger_status","legacy_text_pending_review");
+            }
             sheet.put("creation_missing_choices",pending);
             sheet.put("creation_missing_choice_count",pending.length());
             sheet.put("creation_mechanically_ready",pending.length()==0);
