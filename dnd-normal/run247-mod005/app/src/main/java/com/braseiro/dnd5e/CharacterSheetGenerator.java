@@ -1035,12 +1035,24 @@ public final class CharacterSheetGenerator {
 
     private String proficienciesFor(String cls,String profile) {
         String c = norm(cls);
-        if(rules.is2024(profile)&&(c.contains("mago")||c.contains("feiticeiro")))
-            return "Armas simples; focos de conjuração permitidos";
-        if(rules.is2024(profile)&&c.contains("bruxo"))
-            return "Armaduras leves, armas simples e focos de conjuração permitidos";
-        if(rules.is2024(profile)&&c.contains("druida"))
-            return "Armaduras leves, escudos, armas simples e focos druídicos";
+        if(rules.is2024(profile)){
+            // PHB 2024 class-wide weapon/armor proficiencies. No fallback to
+            // 2014 weapon subsets or to the vague "consult the manual" label.
+            switch(c){
+                case "barbaro": return "Armaduras leves e médias, escudos, armas simples e marciais";
+                case "bardo": return "Armaduras leves, armas simples, três instrumentos musicais";
+                case "bruxo": return "Armaduras leves, armas simples, focos arcanos";
+                case "clerigo": return "Armaduras leves e médias, escudos, armas simples, símbolo sagrado";
+                case "druida": return "Armaduras leves, escudos, armas simples, kit de herbalismo, foco druídico";
+                case "feiticeiro": return "Sem armaduras; armas simples; focos arcanos";
+                case "guerreiro": return "Todas as armaduras, escudos, armas simples e marciais";
+                case "ladino": return "Armaduras leves, armas simples, armas marciais leves ou com Acuidade, ferramentas de ladrão";
+                case "mago": return "Sem armaduras; armas simples; focos arcanos";
+                case "monge": return "Sem armaduras; armas simples e armas marciais leves; um instrumento musical ou ferramenta de artesão";
+                case "paladino": return "Todas as armaduras, escudos, armas simples e marciais";
+                case "patrulheiro": return "Armaduras leves e médias, escudos, armas simples e marciais";
+            }
+        }
         if (c.contains("barbar")) return "Armaduras leves e médias, escudos, armas simples e marciais";
         if (c.contains("guerreiro") || c.contains("paladino")) return "Todas as armaduras, escudos, armas simples e marciais";
         if (c.contains("ladino")) return "Armaduras leves, armas simples, armas finesse selecionadas, ferramentas de ladrão";
@@ -1092,6 +1104,11 @@ public final class CharacterSheetGenerator {
         else if (c.contains("bardo")) b.append("Inspiração de Bardo; Conjuração; recursos do antecedente");
         else if (c.contains("guerreiro")) b.append("Retomar o Fôlego; Estilo de Luta").append(revised?"; Maestria de Armas":"");
         else if (c.contains("mago")) b.append("Conjuração; Recuperação Arcana; Livro de Magias");
+        else if (revised&&level==1&&c.contains("feiticeiro")) b.append("Conjuração; Feitiçaria Inata (2 usos por descanso longo)");
+        else if (revised&&level==1&&c.contains("bruxo")) b.append("Magia de Pacto; Invocação Mística");
+        else if (revised&&level==1&&c.contains("druida")) b.append("Conjuração; Druídico; Ordem Primal");
+        else if (revised&&level==1&&c.contains("paladino")) b.append("Imposição das Mãos; Conjuração; Maestria de Armas");
+        else if (revised&&level==1&&c.contains("patrulheiro")) b.append("Conjuração; Inimigo Predileto; Maestria de Armas");
         else if (c.contains("clerigo")) b.append("Conjuração Divina; Canalizar Divindade quando disponível");
         else if (c.contains("monge")) b.append("Artes Marciais; Defesa sem Armadura").append(level>=2?(revised?"; Foco do Monge; Movimento sem Armadura; Metabolismo Sobrenatural":"; Ki; Movimento sem Armadura"):"");
         else if (c.contains("cozinheiro")) b.append("Bolsa de Cozinheiro; Petiscos; Temperos Aromáticos; pacote compilado Cozinheiro ativo");
