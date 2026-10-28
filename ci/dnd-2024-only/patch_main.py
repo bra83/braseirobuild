@@ -3,7 +3,8 @@
 from pathlib import Path
 from re import subn
 p=Path("dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java")
-with p.open("r",encoding="utf-8",newline="") as f:\n    s=f.read()
+with p.open("r",encoding="utf-8",newline="") as f:
+    s=f.read()
 def one(before,after,label):
     global s
     n=s.count(before)
@@ -43,5 +44,6 @@ new=('if(!edit&&!importedRules.trim().isEmpty()&&!rulesEngine.is2024(importedRul
      '{toast("Importação recusada: novas fichas exigem D&D 2024. A ficha original foi preservada.");return;}'
      'final String rulesProfile=edit?characterEditingProfile(existing):DndRulesEngine.PROFILE_2024;')
 one(old,new,"character editor new-vs-legacy profile")
-with p.open("w",encoding="utf-8",newline="") as f:\n    f.write(s)
+with p.open("w",encoding="utf-8",newline="") as f:
+    f.write(s)
 print("DND_NEW_2024_ONLY_UI_PATCHED PASS; unchanged Mystara code paths")
