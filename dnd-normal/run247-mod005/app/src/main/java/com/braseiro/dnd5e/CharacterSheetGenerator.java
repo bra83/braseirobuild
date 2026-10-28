@@ -256,6 +256,21 @@ public final class CharacterSheetGenerator {
     }
 
     public JSONObject randomComplete(String profile, String[] speciesOptions, List<JSONObject> existing) {
+        // Rejected candidates must NEVER reach the sheet editor. Some random
+        // combinations have no legal unchosen proficiency (e.g. Elf Keen Senses
+        // after all three choices were already granted by class/background).
+        // Reroll the entire candidate, then fail closed if no legal combination
+        // could be certified. Never grant a substitute outside the PHB options.
+        JSONObject last=new JSONObject();
+        for(int attempt=0;attempt<8;attempt++){
+            last=randomCompleteAttempt(profile,speciesOptions,existing);
+            if(last.optBoolean("generation_valid",false))return last;
+        }
+        return last;
+    }
+
+    private JSONObject randomCompleteAttempt(String profile, String[] speciesOptions,
+                                             List<JSONObject> existing) {
         try {
             String[] legalSpecies=CharacterRandom2024Rules.legalSpecies(profile,speciesOptions);
             String[] legalClasses=CharacterRandom2024Rules.legalClasses(profile,selectableClasses(profile));
