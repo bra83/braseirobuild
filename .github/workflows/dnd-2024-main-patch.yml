@@ -27,7 +27,10 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Patch only approved DnD UI locations; preserve saved campaigns
-        run: python3 ci/dnd-2024-only/patch_main.py
+        run: |
+          python3 ci/dnd-2024-only/patch_main.py
+          git diff --stat -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+          git diff --check
       - name: Compile patched real Android MainActivity
         run: |
           set -euo pipefail
