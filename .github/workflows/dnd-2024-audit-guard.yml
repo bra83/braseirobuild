@@ -12,6 +12,7 @@ on:
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SpeciesAndMonkRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024P0StateRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024RandomGenerationSafetyTest.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024RandomPersistenceTest.java'
       - '.github/workflows/dnd-2024-audit-guard.yml'
   workflow_dispatch:
 permissions:
@@ -49,6 +50,7 @@ jobs:
             --tests com.braseiro.dnd5e.Character2024SpeciesAndMonkRegressionTest \
             --tests com.braseiro.dnd5e.Character2024P0StateRegressionTest \
             --tests com.braseiro.dnd5e.Character2024RandomGenerationSafetyTest \
+            --tests com.braseiro.dnd5e.Character2024RandomPersistenceTest \
             --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
