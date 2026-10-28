@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.23 Sheet + Startup Hosted Validation and APK
+name: Braseiro DnD 6.6.24 Startup Critical Path Hosted Validation and APK
 on:
   push:
     branches: [fix/dnd-6620-species-monk-audit-20261027]
@@ -9,12 +9,15 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroDndApplication.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/DndStartupTrace.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024ClassContractTest.java'
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: dnd-6623-sheet-startup-release
+  group: dnd-6624-startup-critical-path-release
   cancel-in-progress: true
 jobs:
   build-validate-and-publish:
@@ -22,10 +25,10 @@ jobs:
     timeout-minutes: 150
     env:
       PROJECT: dnd-normal/run247-mod005
-      TAG: dnd-6.6.23-startup-sheet-20261028
-      APK_NAME: BRASEIRO_DND_6.6.23_SHEET_STARTUP_20261028.apk
-      VERSION: 6.6.23-sheet-startup-20261028
-      CODE: '202700033'
+      TAG: dnd-6.6.24-startup-critical-path-20261028
+      APK_NAME: BRASEIRO_DND_6.6.24_STARTUP_CORRIGIDO_20261028.apk
+      VERSION: 6.6.24-startup-20261028
+      CODE: '202700034'
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p baseline out
-          gh release download dnd-6.6.22-modular2024-20261028 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          gh release download dnd-6.6.23-startup-sheet-20261028 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
           python3 - <<'PY'
           import os,re
           from pathlib import Path
@@ -63,7 +66,24 @@ jobs:
           assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
           assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
           version.write_text(source.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE']).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
-          print('DND_6623_VERSION_AND_SCHEMA_PASS')
+          print('DND_6624_VERSION_AND_SCHEMA_PASS')
+          PY
+      - name: Guard v61 fast startup and copyable diagnostics
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          project=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e')
+          db=(project/'AppDb.java').read_text()
+          activity=(project/'MainActivity.java').read_text()
+          app=(project/'BraseiroDndApplication.java').read_text()
+          trace=(project/'DndStartupTrace.java').read_text()
+          assert 'createWorldProfileTables(db);String p=normalizeMapProfile(profile)' not in db
+          assert 'v61 schema is guaranteed by SQLiteOpenHelper' in db
+          assert 'COPIAR TEMPOS DA ABERTURA' in activity
+          assert 'UI_EVENT_LOOP_READY' in activity and 'DATABASE_READY' in activity
+          assert 'DndStartupTrace.begin()' in app and 'RULEPACK_RESTORED' in app
+          assert 'APP' in trace and 'last_report' in trace
+          print('DND_6624_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
           PY
       - name: Compile and test full D&D rules engine
         working-directory: ${{ env.PROJECT }}
@@ -89,7 +109,7 @@ jobs:
               r=ET.parse(p).getroot()
               for k in stats:stats[k]+=int(r.get(k,0))
           assert stats['tests']>=2888 and not any(stats[x] for x in ['failures','errors','skipped']),str(stats)
-          print('DND_6623_TESTS_PASS',stats)
+          print('DND_6624_TESTS_PASS',stats)
           PY
       - name: Build debug APK (same installed signer and package)
         working-directory: ${{ env.PROJECT }}
@@ -118,7 +138,7 @@ jobs:
           with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
               assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist())
           Path('out/BUILD_PROOF.txt').write_text('COMMIT='+os.environ['GITHUB_SHA']+'\nVERSION_CODE='+b[2]+'\nNEW_CODE='+b[2]+'\nCERT_SHA256='+now[1]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\nSHEET_RULES_TESTS=PASS\nSTARTUP_PHYSICAL_BENCHMARK=NOT_PERFORMED\n')
-          print('DND_6623_UPGRADE_SIGNER_MAP_PASS')
+          print('DND_6624_UPGRADE_SIGNER_MAP_PASS')
           PY
           (cd out && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
       - name: Publish only a fully verified upgrade
@@ -128,5 +148,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.23 — Fichas 2024 e inicialização" \
-            --notes "Regras: proficiências de resistência de Feiticeiro corrigidas, validação das 12 classes 2024, armas simples de conjuradores, magias iniciais utilizáveis, correção segura do legado da geração aleatória; bootstrap SQLite repetido removido. Versão de upgrade, assinatura estável e mapa preservados. Desempenho no aparelho físico ainda exige medição; não implica paridade completa dos livros."
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.24 — Inicialização e diagnóstico" \
+            --notes "Inicialização: removida recriação DDL/backfill de NPCs e checagens de schema do journal em toda abertura no DB v61. Inclui marcos de tempo da abertura e botão Configurações > COPIAR TEMPOS DA ABERTURA sem ADB. Regras 2024 e dados preservados; upgrade de versão, mesmo certificado e mapas. Desempenho físico ainda precisa de medição; não implica paridade completa dos livros."
