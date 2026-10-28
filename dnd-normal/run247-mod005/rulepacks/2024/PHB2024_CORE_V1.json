@@ -1,0 +1,28 @@
+{
+  "schema": "braseiro.dnd2024.catalog.v1",
+  "scope": "dnd2024",
+  "pack_id": "phb2024-core",
+  "revision": 1,
+  "min_engine_code": 202700032,
+  "label": "PHB 2024 — catálogo modular oficial suportado",
+  "catalog": {
+    "backgrounds": [
+      "Acólito",
+      "Andarilho",
+      "Artesão",
+      "Artista",
+      "Charlatão",
+      "Criminoso",
+      "Eremita",
+      "Escriba",
+      "Fazendeiro",
+      "Guarda",
+      "Guia",
+      "Marinheiro",
+      "Mercador",
+      "Nobre",
+      "Sábio",
+      "Soldado"
+    ]
+  }
+}
