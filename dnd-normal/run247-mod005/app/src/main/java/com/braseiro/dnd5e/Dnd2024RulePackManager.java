@@ -138,6 +138,13 @@ public final class Dnd2024RulePackManager {
             Dnd2024RulePackCatalog.resetToBuiltin();
             Dnd2024RulePackCatalog.activate(snapshot);
             return true;
+        }catch(java.io.FileNotFoundException firstVersion){
+            // Revert first external pack back to the built-in, compiled catalog.
+            // This deletes ONLY the app-private rule-pack envelope, never a character DB.
+            if(Dnd2024RulePackCatalog.revision()==0)return false;
+            active(app).delete();
+            Dnd2024RulePackCatalog.resetToBuiltin();
+            return true;
         }catch(Exception ignored){return false;}
     }
     private synchronized int install(byte[] data,byte[] sig)throws Exception{
