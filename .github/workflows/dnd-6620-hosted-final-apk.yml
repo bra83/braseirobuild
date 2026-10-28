@@ -62,13 +62,13 @@ jobs:
           assert (root/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(),'FULL_MAP_REQUIRED'
           print('UPGRADE_CODE_PASS previous=',old,'new=',new)
           PY
-      - name: Compile Java and run entire DnD JVM/Robolectric test suite
+      - name: Compile Java and run entire DnD JVM/Robolectric suite with canonical assets
         working-directory: ${{ env.PROJECT }}
         run: |
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
-          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
       - name: Verify critical tests including personality and 3 SQLite reopens
         working-directory: ${{ env.PROJECT }}
         run: |
