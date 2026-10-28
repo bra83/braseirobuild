@@ -165,7 +165,7 @@ public final class CharacterRandom2024Rules {
             if(same(species,"Humano")){
                 // Extra feat must be DIFFERENT from the background feat. Choose a
                 // no-input feat to avoid silently assigning unvalidated spells/tools.
-                String[] extras={"Alerta","Atacante Selvagem","Curandeiro","Sortudo","Valentão de Taverna"};
+                String[] extras={"Alerta","Atacante Selvagem","Curandeiro","Sortudo"};
                 ArrayList<String> candidates=new ArrayList<>();
                 for(String feat:extras)if(!same(feat,baseFeat))candidates.add(feat);
                 String extra=candidates.get(rng.nextInt(candidates.size()));
@@ -244,6 +244,14 @@ public final class CharacterRandom2024Rules {
             String reason=sheet.optString("generation_blocked_reason","");
             if(errors!=null&&errors.length()>0)
                 reason=(reason.isEmpty()?"":reason+"; ")+errors.toString();
+            String inventory=sheet.optString("inventory","");
+            if(!DndRulesEngine.PROFILE_2024.equals(profile) &&
+                (inventory.contains("conforme o antecedente")||inventory.contains("à escolha")))
+                reason=(reason.isEmpty()?"":reason+"; ")+"Equipamento do perfil ainda não resolvido";
+            JSONObject foreign=sheet.optJSONObject("species_resources");
+            if(foreign!=null && same(sheet.optString("species"),"Humano") &&
+                (foreign.has("one_with_stone")||foreign.has("urdunnir_stone_shape")))
+                reason=(reason.isEmpty()?"":reason+"; ")+"Recurso anão em ficha humana";
             if(sheet.optBoolean("species_narrative_review_required",false))
                 reason=(reason.isEmpty()?"":reason+"; ")+"Narrativa racial incoerente";
             if(!sheet.optBoolean("creation_mechanically_ready",true) && DndRulesEngine.PROFILE_2024.equals(profile))
