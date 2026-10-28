@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 dnd-normal/run247-mod005/scripts/patch_6620_import.py
-          git diff --check
+          git -c core.whitespace=cr-at-eol diff --check
           git diff --stat
           git diff -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java | grep -E '^[+-].*(remove\("id"|AlertDialog.Builder|characterDialog|beforeDestructiveChange)' || true
       - name: Commit only existing MainActivity
