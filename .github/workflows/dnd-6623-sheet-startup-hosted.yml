@@ -15,7 +15,7 @@ permissions:
   contents: write
 concurrency:
   group: dnd-6623-sheet-startup-release
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   build-validate-and-publish:
     runs-on: ubuntu-latest
