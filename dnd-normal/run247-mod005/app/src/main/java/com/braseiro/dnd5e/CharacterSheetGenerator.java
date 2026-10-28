@@ -256,6 +256,20 @@ public final class CharacterSheetGenerator {
     }
 
     public JSONObject randomComplete(String profile, String[] speciesOptions, List<JSONObject> existing) {
+        // New fully automatic creation is 2024-only. Legacy profiles remain
+        // readable/editable; never silently migrate an existing sheet.
+        if(!DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))){
+            JSONObject blocked=new JSONObject();
+            try{
+                blocked.put("rules_source",DndRulesEngine.canonicalProfile(profile));
+                blocked.put("generation_status","blocked");
+                blocked.put("generation_valid",false);
+                blocked.put("generation_blocked_reason",
+                    "Novas fichas aleatórias aceitam apenas D&D 2024. " +
+                    "Fichas 2014 e híbridas existentes continuam preservadas.");
+            }catch(org.json.JSONException ignored){}
+            return blocked;
+        }
         // Rejected candidates must NEVER reach the sheet editor. Some random
         // combinations have no legal unchosen proficiency (e.g. Elf Keen Senses
         // after all three choices were already granted by class/background).
