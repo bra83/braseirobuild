@@ -39,7 +39,13 @@ public class Character2024RandomGenerationSafetyTest {
                 JSONObject s=generator.randomComplete(PROFILE,new String[]{species},new ArrayList<JSONObject>());
                 assertEquals(s.toString(),species,s.optString("species"));
                 assertEquals(s.toString(),PROFILE,DndRulesEngine.canonicalProfile(s.optString("rules_source")));
-                assertEquals(s.toString(),"mechanically_valid",s.optString("generation_status"));
+                String debug="species="+species+" class="+s.optString("class_name")+
+                    " background="+s.optString("background")+
+                    " reason="+s.optString("generation_blocked_reason")+
+                    " choices="+s.optJSONArray("creation_missing_choices")+
+                    " feat="+s.optString("origin_feat")+
+                    " originPending="+s.optBoolean("origin_feat_choice_pending");
+                assertEquals(debug,"mechanically_valid",s.optString("generation_status"));
                 assertTrue(s.toString(),s.optBoolean("generation_valid",false));
                 assertTrue(s.toString(),s.optBoolean("creation_mechanically_ready",false));
                 assertEquals(s.toString(),0,s.optInt("creation_missing_choice_count",-1));
