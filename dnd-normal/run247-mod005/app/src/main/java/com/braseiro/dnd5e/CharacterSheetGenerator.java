@@ -262,7 +262,8 @@ public final class CharacterSheetGenerator {
         // Reroll the entire candidate, then fail closed if no legal combination
         // could be certified. Never grant a substitute outside the PHB options.
         JSONObject last=new JSONObject();
-        for(int attempt=0;attempt<8;attempt++){
+        int maxAttempts=rules.is2024(profile)?8:1;
+        for(int attempt=0;attempt<maxAttempts;attempt++){
             last=randomCompleteAttempt(profile,speciesOptions,existing);
             if(last.optBoolean("generation_valid",false))return last;
         }
