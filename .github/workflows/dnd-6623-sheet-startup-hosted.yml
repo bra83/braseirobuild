@@ -12,6 +12,7 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroDndApplication.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/DndStartupTrace.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/NarrativeContentEngine.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024ClassContractTest.java'
   workflow_dispatch:
 permissions:
@@ -77,12 +78,16 @@ jobs:
           activity=(project/'MainActivity.java').read_text()
           app=(project/'BraseiroDndApplication.java').read_text()
           trace=(project/'DndStartupTrace.java').read_text()
+          narrative=(project/'NarrativeContentEngine.java').read_text()
           assert 'createWorldProfileTables(db);String p=normalizeMapProfile(profile)' not in db
           assert 'v61 schema is guaranteed by SQLiteOpenHelper' in db
           assert 'COPIAR TEMPOS DA ABERTURA' in activity
           assert 'UI_EVENT_LOOP_READY' in activity and 'DATABASE_READY' in activity
           assert 'DndStartupTrace.begin()' in app and 'RULEPACK_RESTORED' in app
           assert 'APP' in trace and 'last_report' in trace
+          assert 'appDb.runInTransactionChecked(new AppDb.CheckedTransaction()' in narrative
+          hot=db.split('public JSONObject getNarrativeDiscovery(String kind,String stableKey)')[1].split('public ',1)[0]
+          assert 'ensureNarrativeDiscoverySchema' not in hot
           print('DND_6624_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
           PY
       - name: Compile and test full D&D rules engine
@@ -149,4 +154,4 @@ jobs:
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
             --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.24 — Inicialização e diagnóstico" \
-            --notes "Inicialização: removida recriação DDL/backfill de NPCs e checagens de schema do journal em toda abertura no DB v61. Inclui marcos de tempo da abertura e botão Configurações > COPIAR TEMPOS DA ABERTURA sem ADB. Regras 2024 e dados preservados; upgrade de versão, mesmo certificado e mapas. Desempenho físico ainda precisa de medição; não implica paridade completa dos livros."
+            --notes "Inicialização: sem recriação DDL/backfill de NPCs, sem checagens de schema no journal e consultas de descoberta; semeadura do cânone em uma única transação SQLite por abertura. Inclui marcos de tempo da abertura e botão Configurações > COPIAR TEMPOS DA ABERTURA sem ADB. Regras 2024 e dados preservados; upgrade de versão, mesmo certificado e mapas. Desempenho físico ainda precisa de medição; não implica paridade completa dos livros."
