@@ -263,7 +263,7 @@ public final class CharacterSheetGenerator {
                 throw new IllegalStateException("Não há espécie ou classe com mecânicas certificadas nesse perfil.");
             String species = chooseBalanced(legalSpecies, existing, "species");
             String cls = chooseBalanced(legalClasses, existing, "class_name");
-            String background = chooseBalanced(rules.is2024(profile)?BACKGROUNDS_2024:backgroundPool2014(), existing, "background");
+            String background = chooseBalanced(rules.is2024(profile)?BACKGROUNDS_2024:BACKGROUNDS, existing, "background");
             JSONObject sheet = baseComplete(profile, species, cls, background, 1,true);
             String subclass=randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
             sheet.put("name", randomName(species));
