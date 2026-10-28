@@ -257,10 +257,14 @@ public final class CharacterSheetGenerator {
 
     public JSONObject randomComplete(String profile, String[] speciesOptions, List<JSONObject> existing) {
         try {
-            String species = chooseBalanced(speciesOptions, existing, "species");
-            String cls = chooseBalanced(selectableClasses(profile), existing, "class_name");
+            String[] legalSpecies=CharacterRandom2024Rules.legalSpecies(profile,speciesOptions);
+            String[] legalClasses=CharacterRandom2024Rules.legalClasses(profile,selectableClasses(profile));
+            if(legalSpecies.length==0||legalClasses.length==0)
+                throw new IllegalStateException("Não há espécie ou classe com mecânicas certificadas nesse perfil.");
+            String species = chooseBalanced(legalSpecies, existing, "species");
+            String cls = chooseBalanced(legalClasses, existing, "class_name");
             String background = chooseBalanced(rules.is2024(profile)?BACKGROUNDS_2024:backgroundPool2014(), existing, "background");
-            JSONObject sheet = baseComplete(profile, species, cls, background, 1);
+            JSONObject sheet = baseComplete(profile, species, cls, background, 1,true);
             String subclass=randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
             sheet.put("name", randomName(species));
             sheet.put("nickname", chance(58) ? randomNickname(cls) : "");
@@ -275,9 +279,16 @@ public final class CharacterSheetGenerator {
                     sheet.optInt("life_terms", 2), species, cls, background));
             syncLifeDetails(sheet, true);
             sheet.put("history", mergeHistory(sheet.optString("history"), sheet.optString("life_path")));
-            return ensureComplete(sheet);
+            JSONObject assembled=ensureComplete(sheet);
+            return CharacterRandom2024Rules.certify(
+                CharacterRandom2024Rules.finalizeNew2024(assembled,random));
         } catch (Exception e) {
-            return new JSONObject();
+            JSONObject blocked=new JSONObject();
+            try{
+                blocked.put("generation_status","blocked").put("generation_valid",false)
+                    .put("generation_blocked_reason",String.valueOf(e.getMessage()));
+            }catch(Exception ignored){}
+            return blocked;
         }
     }
 
@@ -286,6 +297,11 @@ public final class CharacterSheetGenerator {
     }
 
     public JSONObject baseComplete(String profile, String species, String cls, String background, int level) {
+        return baseComplete(profile,species,cls,background,level,false);
+    }
+
+    private JSONObject baseComplete(String profile, String species, String cls,
+                                    String background, int level,boolean fullyRandom) {
         JSONObject o = new JSONObject();
         try {
             level = clamp(level, 1, 20);
@@ -299,6 +315,8 @@ public final class CharacterSheetGenerator {
             o.put("str", scores[0]); o.put("dex", scores[1]); o.put("con", scores[2]);
             o.put("int_score", scores[3]); o.put("wis", scores[4]); o.put("cha", scores[5]);
             applyOriginAbilityBonuses(o);
+            if(fullyRandom&&rules.is2024(o.optString("rules_source")))
+                CharacterRandom2024Rules.chooseBackgroundAbilitiesBeforeMechanics(o,random);
             applyMechanics(o);
             o.put("life_origin", "Cidade mercantil");
             o.put("life_career", careerForClass(o.optString("class_name")));
