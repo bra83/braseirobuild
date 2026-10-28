@@ -8,7 +8,7 @@ permissions:
   contents: write
 concurrency:
   group: braseiro-dnd-6622-modular
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   modular-rules-and-apk:
     runs-on: ubuntu-latest
