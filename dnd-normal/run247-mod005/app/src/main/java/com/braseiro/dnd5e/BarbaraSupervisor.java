@@ -40,6 +40,7 @@ public final class BarbaraSupervisor {
     private synchronized void initialize(){
         if(initialized)return;
         if(context==null){available=false;lastError="context_unavailable";initialized=true;return;}
+        try{DndStartupTrace.mark("BARBARA_PYTHON_BOOT_BEGIN");}catch(Throwable ignored){}
         try{
             if(!Python.isStarted())Python.start(new AndroidPlatform(context));
             module=Python.getInstance().getModule("braseiro_barbara_adapter");
@@ -55,7 +56,10 @@ public final class BarbaraSupervisor {
         }catch(Throwable failure){
             available=false;lastError=failure.getClass().getSimpleName()+": "+String.valueOf(failure.getMessage());
             AppLog.w("BarbaraSupervisor","Motor Barbara indisponível; validações Java permanecem ativas.",failure);
-        }finally{initialized=true;}
+        }finally{
+            initialized=true;
+            try{DndStartupTrace.mark("BARBARA_PYTHON_BOOT_END");DndStartupTrace.persist(context);}catch(Throwable ignored){}
+        }
     }
 
 
