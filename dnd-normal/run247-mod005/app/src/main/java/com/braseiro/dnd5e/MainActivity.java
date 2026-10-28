@@ -384,6 +384,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             ensureBundledMapForProfileAsync(activeWorldProfile());
             DndStartupTrace.mark("ACTIVITY_ONCREATE_END");
             ui.post(new Runnable(){public void run(){DndStartupTrace.mark("UI_EVENT_LOOP_READY");DndStartupTrace.persist(MainActivity.this);}});
+            // Give Android the first frame before starting the embedded Python policy engine.
+            // It is mandatory for narration and is awaited by the background Master.prepare().
+            ui.postDelayed(new Runnable(){public void run(){if(masterOrchestrator!=null)masterOrchestrator.warmBarbaraAsync();}},500L);
         }catch(Throwable fatal){DndStartupTrace.mark("STARTUP_FATAL");DndStartupTrace.persist(this);AppLog.e("MainActivity","Falha durante a inicialização.",fatal);showStartupFailure(fatal);}
     }
 
