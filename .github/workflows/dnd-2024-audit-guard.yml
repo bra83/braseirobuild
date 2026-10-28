@@ -52,3 +52,9 @@ jobs:
             --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Print failed JUnit cases without losing assertion data
+        if: failure()
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          find app/build/test-results/testDebugUnitTest -type f -name '*RandomGenerationSafetyTest*.xml' \
+            -exec sh -c 'for f do sed -n "1,60p" "$f" | cut -c1-1000; done' sh {} + || true
