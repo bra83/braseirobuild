@@ -176,5 +176,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.25 — Correção da abertura do Mestre" \
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.26 — História, Mundo Vivo e memória de Kvothe" \
             --notes "Integra os 39 tracos de personalidade e a historia de Kvothe ao Mestre; conserva feitos canonicos em aventuras importadas ou livres, testemunhas e reputacao regional explicita, com backup portatil. Preserva as fichas D&D 2024, a inicializacao otimizada 6.6.25, o mapa e a assinatura da instalacao. APK verificado apos testes JVM. A homologacao fisica e a propagacao completa de rumores por NPC continuam pendentes."
