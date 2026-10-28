@@ -2410,7 +2410,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(isMystaraWorld()){showMystaraHeroes();return;}
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
-        Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024);JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());characterDialog(null,seed);}});b.addView(randomHero);
+        Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024);JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());if(!seed.optBoolean("generation_valid",false)){toast("Geração bloqueada: "+seed.optString("generation_blocked_reason","escolhas inválidas"));return;}characterDialog(null,seed);}});b.addView(randomHero);
         Button importJson=button("IMPORTAR FICHA JSON",PANEL2);importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(null,db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024));}});b.addView(importJson);
         LinearLayout rests=card();
         Button shortRest=button("DESCANSO CURTO",PANEL2),longRest=button("DESCANSO LONGO",PANEL2);
@@ -2844,7 +2844,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout audit=card();audit.addView(text("AUDITORIA DOS ORÁCULOS",15,GOLD,true));audit.addView(text("Cada consulta salva livro, tabela, d100, termo original e páginas para conferência. A IA apenas interpreta o resultado; a referência é montada localmente pelo app.",12,MUTED,false));f.oracleReferences=labeledField(audit,"Referências Mythic",initial.optString("oracle_references"),true);f.oracleReferences.setMinLines(4);audit.addView(text("Os números 'página impressa' correspondem ao número desenhado no livro; 'página do PDF' corresponde ao contador do leitor.",11,MUTED,false));form.addView(audit);
         JSONObject savedControl=edit?db.getCharacterControl(existing.optLong("id",0)):new JSONObject();String initialControl=savedControl.optString("control_mode",initial.optString("control_mode","manual"));f.controller=spinner(new String[]{"EU CONTROLO","MESTRE CONTROLA","MESTRE COM CURADORIA"},controlLabel(initialControl));LinearLayout controlCard=card();controlCard.addView(text("CONTROLE DO PERSONAGEM",14,GOLD,true));controlCard.addView(f.controller);controlCard.addView(text("EU CONTROLO: nenhuma ação sem comando seu. MESTRE CONTROLA: iniciativas motivadas, limitadas pela ficha e pelas regras. MESTRE COM CURADORIA: ações relevantes aguardam APROVAR / ALTERAR / RECUSAR.",11,MUTED,false));form.addView(controlCard);f.active=check("Personagem em jogo",edit?existing.optInt("active",1)==1:initial.optBoolean("active",true));form.addView(f.active);configureSelectableMechanicFields(f,rulesProfile);bindCharacterDependencyListeners(f,rulesProfile);scroll.addView(form);
 
-        randomFill.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject generated=characterGenerator.randomComplete(rulesProfile,speciesForProfile(rulesProfile),db.listCharacters());applyCharacterSeed(f,generated);toast("Ficha aleatória completa. Você pode editar qualquer campo antes de salvar.");}});
+        randomFill.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject generated=characterGenerator.randomComplete(rulesProfile,speciesForProfile(rulesProfile),db.listCharacters());if(!generated.optBoolean("generation_valid",false)){toast("Geração não concluída: "+generated.optString("generation_blocked_reason","escolhas obrigatórias pendentes"));return;}applyCharacterSeed(f,generated);toast("Ficha aleatória validada. Revise as escolhas antes de salvar.");}});
         aiFill.setOnClickListener(new View.OnClickListener(){public void onClick(View v){requestCharacterAi(f,rulesProfile);}});
         exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(collectCharacterSheet(f,rulesProfile),f.active.isChecked());}});importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(f,rulesProfile);}});
 
@@ -11145,10 +11145,31 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
                    && existingHero.optString("class_name").equals(imported.optString("class_name")))
                     matching=existingHero;
             }
-            characterDialog(matching,imported);
-            toast(matching!=null?
-                "Ficha existente identificada pelo ID. Revise e salve para corrigir sem duplicar.":
-                "Ficha JSON aberta como novo herói. Revise antes de salvar.");
+            if(matching!=null){
+                final JSONObject confirmedExisting=matching,confirmedImport=imported;
+                new android.app.AlertDialog.Builder(this)
+                    .setTitle("Importar ficha já existente")
+                    .setMessage("O ID e a identidade coincidem com um personagem deste banco. Revise o conteúdo antes de substituir. Será criado um ponto de segurança antes da edição. Você também pode importar uma cópia separada.")
+                    .setPositiveButton("Revisar substituição",new android.content.DialogInterface.OnClickListener(){
+                        @Override public void onClick(android.content.DialogInterface dialog,int which){
+                            try{
+                                safety.beforeDestructiveChange("revisar importação da ficha existente");
+                                characterDialog(confirmedExisting,confirmedImport);
+                            }catch(Exception error){toast("Importação interrompida: "+error.getMessage());}
+                        }
+                    })
+                    .setNegativeButton("Importar como novo",new android.content.DialogInterface.OnClickListener(){
+                        @Override public void onClick(android.content.DialogInterface dialog,int which){
+                            confirmedImport.remove("id");
+                            characterDialog(null,confirmedImport);
+                        }
+                    })
+                    .setNeutralButton("Cancelar",null).show();
+            }else{
+                imported.remove("id"); // Foreign/colliding IDs have no authority.
+                characterDialog(null,imported);
+                toast("Ficha JSON aberta como novo herói. Revise antes de salvar.");
+            }
         }setStatus("Ficha JSON importada sem sobrescrever personagens existentes automaticamente.");}
         else if(request==REQ_TOKEN&&data.getData()!=null){importSelectedTokenAsync(data.getData());return;}
     }catch(Exception e){toast("Erro: "+e.getMessage());}}
@@ -11651,7 +11672,7 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
     }
     public JSONObject executeOfficialBookRule(String bookId,String actionId,JSONObject input){return masterOrchestrator==null?new JSONObject():masterOrchestrator.executeOfficialBookRule(bookId,actionId,input);}
 
-    private JSONObject decodeCharacterJson(String json)throws Exception{if(json==null||json.trim().length()==0)throw new Exception("O arquivo está vazio.");JSONObject root=new JSONObject(json);String format=root.optString("format");if(format.length()>0&&!"braseiro-character-sheet".equals(format))throw new Exception("Este JSON não é uma ficha individual do Braseiro.");JSONObject sheet=root.optJSONObject("character");if(sheet==null)sheet=root;if(!sheet.has("name")||!sheet.has("class_name"))throw new Exception("A ficha precisa conter name e class_name.");JSONObject clean=new JSONObject(sheet.toString());clean.remove("id");clean.remove("token_uri");String system=clean.optString("system",root.optString("rules_profile"));if(MystaraRulesEngine.SYSTEM_ID.equals(system)||MystaraRulesEngine.SYSTEM_LABEL.equals(system)){throw new Exception("Ficha Mystara recusada: este projeto é exclusivamente D&D.");}if(!clean.has("species"))throw new Exception("A ficha de D&D precisa conter species.");if(clean.has("personality_profile")){JSONObject pp=clean.optJSONObject("personality_profile");if(pp==null)throw new Exception("personality_profile precisa ser objeto JSON.");clean.put("personality_profile",BraseiroPersonalityProfile.checked(pp));}return DndPtBrLocalizer.localizeCharacterSheet(clean);}
+    private JSONObject decodeCharacterJson(String json)throws Exception{if(json==null||json.trim().length()==0)throw new Exception("O arquivo está vazio.");JSONObject root=new JSONObject(json);String format=root.optString("format");if(format.length()>0&&!"braseiro-character-sheet".equals(format))throw new Exception("Este JSON não é uma ficha individual do Braseiro.");JSONObject sheet=root.optJSONObject("character");if(sheet==null)sheet=root;if(!sheet.has("name")||!sheet.has("class_name"))throw new Exception("A ficha precisa conter name e class_name.");JSONObject clean=new JSONObject(sheet.toString());/* Retain export ID as an untrusted lookup hint; UI confirmation is mandatory. */clean.remove("token_uri");String system=clean.optString("system",root.optString("rules_profile"));if(MystaraRulesEngine.SYSTEM_ID.equals(system)||MystaraRulesEngine.SYSTEM_LABEL.equals(system)){throw new Exception("Ficha Mystara recusada: este projeto é exclusivamente D&D.");}if(!clean.has("species"))throw new Exception("A ficha de D&D precisa conter species.");if(clean.has("personality_profile")){JSONObject pp=clean.optJSONObject("personality_profile");if(pp==null)throw new Exception("personality_profile precisa ser objeto JSON.");clean.put("personality_profile",BraseiroPersonalityProfile.checked(pp));}return DndPtBrLocalizer.localizeCharacterSheet(clean);}
 
     private void addCharacterFormSection(LinearLayout form,String title){if(!isMystaraWorld()){form.addView(text(title,15,GOLD,true));return;}TextView band=text("◆  "+title+"  ◆",14,GOLD,true);band.setGravity(Gravity.CENTER);band.setPadding(dp(10),dp(9),dp(10),dp(9));band.setBackground(makeBg(PANEL2,GOLD,2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,dp(10),0,dp(7));form.addView(band,lp);}
 
