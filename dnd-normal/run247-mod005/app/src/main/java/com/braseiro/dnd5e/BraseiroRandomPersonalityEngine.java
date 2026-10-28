@@ -117,7 +117,8 @@ public final class BraseiroRandomPersonalityEngine {
         JSONObject existing=sheet.optJSONObject("personality_profile");
         if(existing!=null){
             // Never overwrite existing or incomplete human-authored choices.
-            BraseiroPersonalityProfile.checked(existing);
+            try{BraseiroPersonalityProfile.checked(existing);}
+            catch(Exception invalid){throw new IllegalStateException("PERSONALITY_EXISTING_INVALID",invalid);}
             return sheet;
         }
         JSONObject created=generate(random);
