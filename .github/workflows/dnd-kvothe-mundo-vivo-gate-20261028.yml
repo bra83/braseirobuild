@@ -36,10 +36,23 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Configure Android SDK
-        uses: android-actions/setup-android@v3
-      - name: Install Android platform 35
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Use preinstalled Android command-line tools
+        run: |
+          set -euxo pipefail
+          test -d "${ANDROID_HOME:?ANDROID_HOME missing}"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 4 -type f -name sdkmanager | head -n 1)"
+          test -n "$SDKMANAGER"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+      - name: Ensure Android 35 toolchain is installed
+        run: |
+          set -euxo pipefail
+          if ! test -d "$ANDROID_HOME/platforms/android-35" || ! test -d "$ANDROID_HOME/build-tools/35.0.0"; then
+            yes | "$SDKMANAGER" --licenses > /dev/null || true
+            "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+          fi
+          test -d "$ANDROID_HOME/platforms/android-35"
+          test -d "$ANDROID_HOME/build-tools/35.0.0"
       - name: Compile changed Android Java code
         run: |
           chmod +x ./gradlew
