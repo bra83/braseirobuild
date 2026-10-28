@@ -1,0 +1,33 @@
+name: DnD 6.6.20 Preserve Validated Random Sheet at Save
+on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-6620-apply-random-save-fix.yml']
+permissions:
+  contents: write
+jobs:
+  apply-save-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/dnd-6620-species-monk-audit-20261027
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+      - name: Patch exact D&D editor save anchor
+        run: |
+          set -euo pipefail
+          python3 dnd-normal/run247-mod005/scripts/patch_6620_random_save.py
+          git -c core.whitespace=cr-at-eol diff --check
+          git diff --stat
+      - name: Commit only existing D&D MainActivity
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+          git diff --cached --quiet && exit 1
+          git commit -m "fix(dnd): do not recalculate away validated random 2024 HP and AC at form save"
+          git push origin HEAD:fix/dnd-6620-species-monk-audit-20261027
