@@ -310,6 +310,12 @@ public final class CharacterRandom2024Rules {
     public static JSONObject certify(JSONObject sheet){
         try{
             String profile=DndRulesEngine.canonicalProfile(sheet.optString("rules_source"));
+            JSONObject profile39=sheet.optJSONObject("personality_profile");
+            if(!BraseiroRandomPersonalityEngine.validateCompleteRandom(profile39)){
+                sheet.put("generation_status","blocked").put("generation_valid",false)
+                    .put("generation_blocked_reason","Perfil aleatório de personalidade não contém 39 campos válidos.");
+                return sheet;
+            }
             JSONObject gate=new CharacterRulesValidator().validate(sheet,profile);
             JSONArray errors=gate.optJSONArray("errors");
             String reason=sheet.optString("generation_blocked_reason","");
