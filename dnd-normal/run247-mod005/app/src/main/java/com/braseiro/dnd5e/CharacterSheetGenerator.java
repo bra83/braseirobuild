@@ -639,7 +639,7 @@ public final class CharacterSheetGenerator {
         o.put("hit_dice", level + "d" + rules.classHitDie(cls));
         o.put("saving_throws", savingThrows(cls, o));
         String skills = skillsFor(cls, o.optString("background"), o);
-        o.put("skills", skills); o.put("proficiencies", proficienciesFor(cls));
+        o.put("skills", skills); o.put("proficiencies", proficienciesFor(cls, o.optString("rules_source")));
         o.put("passive_senses", passiveSenses(o, skills));
         o.put("languages", languagesFor(o.optString("species"),o.optString("rules_source")));
         o.put("tools", toolsFor(o.optString("background"), cls,o.optString("rules_source")));
@@ -892,7 +892,8 @@ public final class CharacterSheetGenerator {
     private String savingThrows(String cls, JSONObject o) {
         String c = norm(cls);String first = "Força", second = "Constituição";
         if (c.contains("bardo")) { first="Destreza"; second="Carisma"; }
-        else if (c.contains("bruxo") || c.contains("feiticeiro") || c.contains("paladino")) { first="Sabedoria"; second="Carisma"; }
+        else if (c.contains("feiticeiro")) { first="Constituição"; second="Carisma"; }
+        else if (c.contains("bruxo") || c.contains("paladino")) { first="Sabedoria"; second="Carisma"; }
         else if (c.contains("clerigo")) { first="Sabedoria"; second="Carisma"; }
         else if (c.contains("druida")) { first="Inteligência"; second="Sabedoria"; }
         else if (c.equals("xama")) { first="Sabedoria"; second="Carisma"; }
@@ -1032,8 +1033,14 @@ public final class CharacterSheetGenerator {
         return "Atacante Selvagem";
     }
 
-    private String proficienciesFor(String cls) {
+    private String proficienciesFor(String cls,String profile) {
         String c = norm(cls);
+        if(rules.is2024(profile)&&(c.contains("mago")||c.contains("feiticeiro")))
+            return "Armas simples; focos de conjuração permitidos";
+        if(rules.is2024(profile)&&c.contains("bruxo"))
+            return "Armaduras leves, armas simples e focos de conjuração permitidos";
+        if(rules.is2024(profile)&&c.contains("druida"))
+            return "Armaduras leves, escudos, armas simples e focos druídicos";
         if (c.contains("barbar")) return "Armaduras leves e médias, escudos, armas simples e marciais";
         if (c.contains("guerreiro") || c.contains("paladino")) return "Todas as armaduras, escudos, armas simples e marciais";
         if (c.contains("ladino")) return "Armaduras leves, armas simples, armas finesse selecionadas, ferramentas de ladrão";
@@ -1114,7 +1121,9 @@ public final class CharacterSheetGenerator {
         if (c.contains("clerigo")) return "Espaços: 2 de 1º círculo\nTruques: Chama Sagrada, Orientação, Taumaturgia\nPreparadas: Curar Ferimentos, Palavra Curativa, Bênção, Santuário";
         if (c.contains("druida")) return "Espaços: 2 de 1º círculo\nTruques: Druidismo, Bordão Místico\nPreparadas: Curar Ferimentos, Fogo das Fadas, Enredar, Falar com Animais";
         if (c.contains("bruxo")) return "Espaços de pacto: 1 de 1º círculo\nTruques: Rajada Mística, Mãos Mágicas\nConhecidas: Repreensão Infernal, Bruxaria";
-        if (c.contains("feiticeiro")) return "Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nConhecidas: Escudo, Orbe Cromática";
+        if (c.contains("feiticeiro")) return rules.is2024(profile)
+            ?"Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nPreparadas: Escudo, Mísseis Mágicos"
+            :"Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nConhecidas: Escudo, Orbe Cromática";
         if (c.contains("paladino")) return rules.is2024(profile)?"Espaços: 2 de 1º círculo\nPreparadas: Bênção, Curar Ferimentos":"Conjuração começa no nível 2 no perfil 2014; recursos atuais são marciais.";
         if (c.contains("patrulheiro")) return rules.is2024(profile)?"Espaços: 2 de 1º círculo\nPreparadas: Marca do Caçador, Curar Ferimentos":"Conjuração começa no nível 2 no perfil 2014; recursos atuais são marciais.";
         return "Magias e espaços conforme a classe, o nível e os manuais habilitados.";
