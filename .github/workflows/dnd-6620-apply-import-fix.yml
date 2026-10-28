@@ -1,4 +1,4 @@
-name: DnD 6.6.20 Apply Safe Import + Random Gates
+name: DnD 6.6.20 Apply Safe Import + Random Gates (mixed endings)
 on:
   push:
     branches:
