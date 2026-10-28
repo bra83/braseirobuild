@@ -107,7 +107,7 @@ jobs:
           import os,re,zipfile
           older=Path('baseline/BADGING.txt').read_text()
           newer=Path('out/BADGING.txt').read_text()
-          pattern=r"package: name='([^']+)' versionCode='(\\d+)' versionName='([^']+)'"
+          pattern=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
           a,b=re.search(pattern,older),re.search(pattern,newer)
           assert a and b and a[1]==b[1]=='com.braseiro.dnd5e'
           assert int(b[2])==int(os.environ['CODE']) and int(b[2])>int(a[2])
