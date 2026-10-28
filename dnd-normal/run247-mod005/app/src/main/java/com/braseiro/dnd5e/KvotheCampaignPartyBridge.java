@@ -36,7 +36,8 @@ public final class KvotheCampaignPartyBridge {
 
     public static boolean atMarco(JSONObject scene, JSONObject map) {
         if(scene==null)return false;
-        String hex=scene.optString("hex_id",map==null?"":map.optString("current_hex_id",""));
+        String hex=scene.optString("hex_id","");
+        if(hex.trim().isEmpty()&&map!=null)hex=map.optString("current_hex_id","");
         String location=norm(scene.optString("location",""));
         return "D040".equalsIgnoreCase(hex) &&
             (location.contains("marco do percurso")||location.contains("marco de percurso"));
@@ -126,6 +127,10 @@ public final class KvotheCampaignPartyBridge {
             JSONObject scene=db.getSceneState();
             boolean campus=inCampus(scene),marco=!campus&&atMarco(scene,db.getMapState());
             List<JSONObject> heroes=party.activeHeroRoster();
+            boolean hasKvothe=false;
+            for(JSONObject h:heroes)if("kvothe".equals(norm(h.optString("name"))))hasKvothe=true;
+            if(!hasKvothe)return out.put("enabled",false);
+            out.put("enabled",true);
             JSONArray roster=new JSONArray();
             for(JSONObject h:heroes){
                 long id=h.optLong("id");
