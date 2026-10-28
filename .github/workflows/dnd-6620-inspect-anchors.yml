@@ -23,7 +23,10 @@ jobs:
           f=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java')
           lines=f.read_text().splitlines()
           targets=['decodeCharacterJson(', 'REQ_IMPORT_CHARACTER', 'completeCharacterSheetMechanics(',
-                   'collectCharacterSheet(', 'show2024SpeciesConfigurator(', 'show2024BackgroundAbilitySelector(', 'randomComplete(', 'Ficha aleatória', 'ficha aleatória']
+                   'collectCharacterSheet(', 'show2024SpeciesConfigurator(', 'show2024BackgroundAbilitySelector(', 'randomComplete(', 'Ficha aleatória', 'ficha aleatória',
+                   'private JSONObject collectCharacterSheet(', 'private void applyCharacterSeed(',
+                   'private JSONObject completeCharacterSheetMechanics(',
+                   'private void applyCharacterSeed', 'private JSONObject collectCharacterSheet']
           for term in targets:
               matches=[i for i,s in enumerate(lines) if term in s]
               print('\n=== '+term+' occurrences='+str(len(matches))+' ===')
