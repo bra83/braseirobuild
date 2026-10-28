@@ -6799,7 +6799,8 @@ public class AppDb extends SQLiteOpenHelper {
         return queryOne("SELECT * FROM narrative_discovery_runtime WHERE world_profile=?",new String[]{getActiveMapProfile()});
     }
     public JSONObject getNarrativeDiscovery(String kind,String stableKey){
-        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        // DB v61 already created/upgraded narrative tables. Hot read during canonical
+        // startup seeding must never rerun CREATE TABLE / PRAGMA checks per entity.
         String k=kind==null?"":kind.trim(),key=stableKey==null?"":stableKey.trim();
         if(k.length()==0||key.length()==0)return new JSONObject();
         return queryOne("SELECT * FROM narrative_discovery_state WHERE world_profile=? AND kind=? AND stable_key=?",new String[]{getActiveMapProfile(),k,key});
