@@ -112,6 +112,10 @@ public final class Character2024SheetConsistencyGuard {
             }else sheet.remove("species_mechanics_coherence_error");
 
             if(normalize(sheet.optString("class_name","")).startsWith("monge")){
+                String features=sheet.optString("features","");
+                String generated="Recursos de classe de nível 1 conforme os manuais habilitados";
+                if(sheet.optInt("level",1)==1&&features.contains(generated))
+                    sheet.put("features",features.replace(generated,"Artes Marciais; Defesa sem Armadura"));
                 String attacks=sheet.optString("attacks","");
                 if(attacks.equals(oldGeneratedMonkAttacks(sheet))){
                     sheet.put("attacks",monkAttacks(sheet));
