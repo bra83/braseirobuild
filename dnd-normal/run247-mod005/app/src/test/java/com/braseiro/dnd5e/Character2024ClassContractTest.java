@@ -77,7 +77,7 @@ public class Character2024ClassContractTest {
             new int[0],new String[0]);
         assertTrue(s.toString(),Character2024ClassContract.hasCorrectLevelOneSaves(s));
     }
-    @Test public void 2014ProfilesAreNotRewritten() throws Exception {
+    @Test public void legacy2014ProfilesAreNotRewritten() throws Exception {
         JSONObject s=orikBug();s.put("rules_source","5e 2014");
         String before=s.toString();
         Character2024SheetReconciler.reconcile(s);
