@@ -35,7 +35,9 @@ public final class WorldDomainEventLedger {
         JSONObject summary=new JSONObject().put("proposal_hash",envelope.optJSONObject("_consequence_proposal")==null?"":envelope.optJSONObject("_consequence_proposal").optString("proposal_hash")).put("grounding_fingerprint",envelope.optJSONObject("_consequence_proposal")==null?"":envelope.optJSONObject("_consequence_proposal").optString("grounding_fingerprint")).put("mutation_events",seq);
         record(commitId,9999,"SCENE_COMMITTED","scene_commit",commitId,summary);
         // Facts are written only after the host has accepted and committed the scene.
-        new AdventureContinuityEngine(db).recordConfirmed(commitId,envelope);
+        AdventureContinuityEngine continuity=new AdventureContinuityEngine(db);
+        continuity.recordConfirmed(commitId,envelope);
+        continuity.commitKnowledgeTransfers(envelope);
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
 
