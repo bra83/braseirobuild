@@ -22,7 +22,7 @@ public final class Character2024CreationReadiness {
         for(int i=0;i<a.length();i++)if(norm(value).equals(norm(a.optString(i))))return true;
         return false;
     }
-    private static void missing(JSONArray pending,String id){pending.put(id);}
+    private static void missing(JSONArray pending,String id){if(!has(pending,id))pending.put(id);}
     private static int selectedDistinct(JSONArray feats){
         if(feats==null)return 0;
         java.util.HashSet<String> set=new java.util.HashSet<>();
@@ -60,6 +60,19 @@ public final class Character2024CreationReadiness {
             if(classChoices!=null)for(int i=0;i<classChoices.length();i++){
                 String key=norm(classChoices.optString(i));
                 if(!key.isEmpty())missing(pending,"class_"+key);
+            }
+            // A missing pending-array must never certify a new first-level hero.
+            // These fields encode mechanically executable decisions, not prose.
+            if(sheet.optInt("level",1)>=1){
+                String cls=norm(sheet.optString("class_name",""));
+                if(cls.equals("clerigo")&&!Character2024StartingClassChoices.resolved(sheet,"ordem_divina"))
+                    missing(pending,"class_ordem_divina");
+                else if(cls.equals("druida")&&!Character2024StartingClassChoices.resolved(sheet,"ordem_primal"))
+                    missing(pending,"class_ordem_primal");
+                else if(cls.equals("guerreiro")&&!Character2024StartingClassChoices.resolved(sheet,"fighting_style"))
+                    missing(pending,"class_fighting_style");
+                else if(cls.equals("bruxo")&&!Character2024StartingClassChoices.resolved(sheet,"invocations"))
+                    missing(pending,"class_invocations");
             }
 
             if(norm(sheet.optString("class_name")).startsWith("monge")){
