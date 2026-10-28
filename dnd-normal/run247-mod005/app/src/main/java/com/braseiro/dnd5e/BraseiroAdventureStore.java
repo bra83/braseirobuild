@@ -217,6 +217,10 @@ public final class BraseiroAdventureStore {
             "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
             "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
             "PRIMARY KEY(world_scope,commit_key))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_regional_reputation ("+
+            "world_scope TEXT NOT NULL, character_id INTEGER NOT NULL, region TEXT NOT NULL, "+
+            "sentiment TEXT NOT NULL, score INTEGER NOT NULL, updated_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,character_id,region,sentiment))");
         String prefix=db.getActiveMapProfile()+":%";
         root.put("braseiroAdventurePackages",new JSONArray(db.queryList(
             "SELECT * FROM braseiro_adventure_packages WHERE scope LIKE ?",new String[]{prefix})));
@@ -224,6 +228,8 @@ public final class BraseiroAdventureStore {
             "SELECT * FROM braseiro_adventure_npc_ledger WHERE scope LIKE ?",new String[]{prefix})));
         root.put("braseiroAdventureCausalFacts",new JSONArray(db.queryList(
             "SELECT * FROM braseiro_adventure_causal_facts WHERE world_scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroHeroRegionalReputation",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_hero_regional_reputation WHERE world_scope LIKE ?",new String[]{prefix})));
     }
     /** Called inside AppDb's existing verified, atomic BACKUP21 restoration. */
     public synchronized void restorePortableBackup(SQLiteDatabase sql,JSONObject root,String profile)throws Exception{
@@ -232,17 +238,24 @@ public final class BraseiroAdventureStore {
             "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
             "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
             "PRIMARY KEY(world_scope,commit_key))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_regional_reputation ("+
+            "world_scope TEXT NOT NULL, character_id INTEGER NOT NULL, region TEXT NOT NULL, "+
+            "sentiment TEXT NOT NULL, score INTEGER NOT NULL, updated_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,character_id,region,sentiment))");
         String prefix=profile+":%";
         for(String table:new String[]{"braseiro_adventure_npc_ledger","braseiro_adventure_packages"})
             sql.delete(table,"scope LIKE ?",new String[]{prefix});
         sql.delete("braseiro_adventure_causal_facts","world_scope LIKE ?",new String[]{prefix});
-        String[] keys={"braseiroAdventurePackages","braseiroAdventureNpcLedger","braseiroAdventureCausalFacts"};
-        String[] tables={"braseiro_adventure_packages","braseiro_adventure_npc_ledger","braseiro_adventure_causal_facts"};
+        sql.delete("braseiro_hero_regional_reputation","world_scope LIKE ?",new String[]{prefix});
+        String[] keys={"braseiroAdventurePackages","braseiroAdventureNpcLedger",
+            "braseiroAdventureCausalFacts","braseiroHeroRegionalReputation"};
+        String[] tables={"braseiro_adventure_packages","braseiro_adventure_npc_ledger",
+            "braseiro_adventure_causal_facts","braseiro_hero_regional_reputation"};
         for(int group=0;group<keys.length;group++){
             JSONArray rows=root.optJSONArray(keys[group]);if(rows==null)continue;
             for(int i=0;i<rows.length();i++){
                 JSONObject item=rows.optJSONObject(i);if(item==null)continue;
-                String field=group==2?"world_scope":"scope";
+                String field=group>=2?"world_scope":"scope";
                 String scope=item.optString(field);
                 if(!scope.startsWith(profile+":"))throw new SecurityException("Backup de aventura com world_profile incompatível.");
                 ContentValues v=new ContentValues();
