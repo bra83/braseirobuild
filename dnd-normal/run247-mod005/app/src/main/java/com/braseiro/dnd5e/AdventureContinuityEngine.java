@@ -32,10 +32,15 @@ public final class AdventureContinuityEngine {
     public int recordConfirmed(String commitId,JSONObject envelope)throws Exception{
         if(commitId==null||commitId.isEmpty()||envelope==null)return 0;
         ensureSchema();
-        JSONObject active=activePackage();if(active.length()==0)return 0;
+        JSONObject active=activePackage();
         JSONObject pkg=new JSONObject(active.optString("active_json","{}"));
-        String adventureId=pkg.optString("id","");if(adventureId.isEmpty())return 0;
-        String key=worldScope(active.optString("world_id"),active.optString("timeline_id","principal"));
+        // Freeform adventures use an explicit, private scope instead of losing facts.
+        // Imported adventures keep the established world/timeline from their host.
+        String adventureId=pkg.optString("id","");
+        if(adventureId.isEmpty())adventureId="freeform:"+db.getCampaign().optString("name","D&D Normal");
+        String world=active.optString("world_id",db.getActiveMapProfile());
+        String timeline=active.optString("timeline_id","principal");
+        String key=worldScope(world,timeline);
         int wrote=0;
         JSONArray journal=envelope.optJSONArray("journal_updates");
         for(int i=0;journal!=null&&i<journal.length();i++){
@@ -61,16 +66,84 @@ public final class AdventureContinuityEngine {
                 .put("game_day",db.getSceneState().optInt("day_number",1))
                 .put("visibility",verified.length()>0?"witnessed_only":"private_unwitnessed")
                 .put("source","canonical_journal_commit");
+            // Attitude is not inferred from keywords or an epithet; only the
+            // journal's accepted explicit consequence can state the sentiment.
+            JSONObject response=event.optJSONObject("reputation_effect");
+            if(response!=null && verified.length()>0) {
+                String sentiment=response.optString("sentiment","");
+                if("admiration".equals(sentiment)||"hostility".equals(sentiment)||
+                   "fear".equals(sentiment)||"trust".equals(sentiment)) {
+                    int change=Math.max(-20,Math.min(20,response.optInt("delta",0)));
+                    String region=limited(response.optString("region",
+                        db.getSceneState().optString("location","")),120);
+                    if(change!=0&&!region.isEmpty()) {
+                        fact.put("regional_reputation",new JSONObject()
+                            .put("region",region).put("sentiment",sentiment)
+                            .put("delta",change).put("evidence","witnessed_committed_fact"));
+                    }
+                }
+            }
             ContentValues values=new ContentValues();
             values.put("world_scope",key);values.put("commit_key",commitId+":"+i);
             values.put("actor_character_id",actor);values.put("adventure_id",adventureId);
             values.put("event_json",fact.toString());values.put("created_at",System.currentTimeMillis());
             long result=db.getWritableDatabase().insertWithOnConflict(
                 "braseiro_adventure_causal_facts",null,values,SQLiteDatabase.CONFLICT_IGNORE);
-            if(result>0)wrote++;
+            if(result>0){
+                wrote++;
+                JSONObject regional=fact.optJSONObject("regional_reputation");
+                if(regional!=null)commitRegionalReputation(key,actor,commitId+":"+i,regional);
+            }
         }
         return wrote;
     }
+
+    private void commitRegionalReputation(String scope,long character,String eventKey,
+                                           JSONObject effect)throws Exception {
+        SQLiteDatabase sql=db.getWritableDatabase();
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_regional_reputation ("+
+            "world_scope TEXT NOT NULL, character_id INTEGER NOT NULL, region TEXT NOT NULL, "+
+            "sentiment TEXT NOT NULL, score INTEGER NOT NULL, updated_at INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,character_id,region,sentiment))");
+        String region=effect.optString("region"),sentiment=effect.optString("sentiment");
+        if(region.isEmpty()||sentiment.isEmpty())return;
+        JSONObject previous=db.queryOne("SELECT score FROM braseiro_hero_regional_reputation "+
+            "WHERE world_scope=? AND character_id=? AND region=? AND sentiment=?",
+            new String[]{scope,String.valueOf(character),region,sentiment});
+        int newScore=Math.max(-100,Math.min(100,previous.optInt("score",0)+effect.optInt("delta",0)));
+        ContentValues row=new ContentValues();
+        row.put("world_scope",scope);row.put("character_id",character);
+        row.put("region",region);row.put("sentiment",sentiment);
+        row.put("score",newScore);row.put("updated_at",System.currentTimeMillis());
+        if(sql.insertWithOnConflict("braseiro_hero_regional_reputation",null,row,
+                SQLiteDatabase.CONFLICT_REPLACE)<0)
+            throw new IllegalStateException("Reputacao regional nao foi persistida.");
+    }
+
+    /** GM-only aggregate; never conveys knowledge to an unwitnessing NPC. */
+    public JSONArray regionalReputation(long heroId,int max){
+        JSONArray out=new JSONArray();
+        if(heroId<=0)return out;
+        try{
+            ensureSchema();
+            JSONObject current=activePackage();
+            String scope=worldScope(current.optString("world_id",db.getActiveMapProfile()),
+                current.optString("timeline_id","principal"));
+            SQLiteDatabase sql=db.getReadableDatabase();
+            try(android.database.Cursor cursor=sql.rawQuery(
+                "SELECT region,sentiment,score FROM braseiro_hero_regional_reputation "+
+                "WHERE world_scope=? AND character_id=? ORDER BY updated_at DESC LIMIT "+
+                Math.max(1,Math.min(100,max)),
+                new String[]{scope,String.valueOf(heroId)})){
+                while(cursor.moveToNext())out.put(new JSONObject()
+                    .put("region",cursor.getString(0))
+                    .put("sentiment",cursor.getString(1))
+                    .put("score",cursor.getInt(2)));
+            }
+        }catch(Exception ignored){/* No speculative reputation on missing schema. */}
+        return out;
+    }
+
     /** Scoped knowledge: only the participating NPC can recognize the hero. */
     public JSONArray factsKnownByNpc(long npcId,int max){
         JSONArray out=new JSONArray();
