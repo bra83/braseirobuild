@@ -1,0 +1,70 @@
+name: D&D Kvothe character story and living world gate (no APK)
+on:
+  push:
+    branches:
+      - feature/dnd-kvothe-story-bridge-20261028
+    paths:
+      - '.github/workflows/dnd-kvothe-mundo-vivo-gate-20261028.yml'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dnd-kvothe-world-no-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-jvm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+        working-directory: dnd-normal/run247-mod005
+    steps:
+      - name: Checkout exact D&D branch commit
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Configure Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android platform 35
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Compile changed Android Java code
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
+      - name: Execute story and structured personality gates
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests com.braseiro.dnd5e.BraseiroCharacterStoryTest \
+            --tests com.braseiro.dnd5e.BraseiroPersonalityProfileTest \
+            --no-daemon --console=plain
+      - name: Execute complete Android JVM regression suite
+        run: ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Validate all test XMLs (no skipped or failed cases)
+        run: |
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          paths=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          assert paths,'NO_TEST_RESULT_XML'
+          sums={k:0 for k in ['tests','failures','errors','skipped']}
+          for path in paths:
+              root=ET.parse(path).getroot()
+              for key in sums:sums[key]+=int(root.get(key,0))
+          print('DND_KVOTHE_FULL_JVM_GATE',sums)
+          assert sums['tests']>0 and sums['failures']==0 and sums['errors']==0 and sums['skipped']==0
+          PY
+      - name: Explicitly leave installation and APK unchanged
+        if: success()
+        run: echo 'JVM_PASS_ONLY; APK_NOT_BUILT; OTA_NOT_PUBLISHED; PHYSICAL_DEVICE_NOT_CERTIFIED'
