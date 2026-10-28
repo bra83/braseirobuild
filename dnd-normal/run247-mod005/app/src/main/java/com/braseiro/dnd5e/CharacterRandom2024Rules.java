@@ -20,10 +20,9 @@ public final class CharacterRandom2024Rules {
     private static final String[] ABILITIES={"Força","Destreza","Constituição","Inteligência","Sabedoria","Carisma"};
     private static final String[] SKILLS={"Acrobacia","Adestrar Animais","Arcanismo","Atletismo","Atuação","Enganação","Furtividade","História","Intimidação","Intuição","Investigação","Medicina","Natureza","Percepção","Persuasão","Prestidigitação","Religião","Sobrevivência"};
     private static final String[] CORE_CLASSES={"Bárbaro","Bardo","Bruxo","Clérigo","Druida","Feiticeiro","Guerreiro","Ladino","Mago","Monge","Paladino","Patrulheiro"};
-    // These classes currently have a REQUIRED first-level subclass/feature
-    // choice that the 2024 generator has not mechanically certified.
-    // Never offer them as "fully random" until those contracts are executable.
-    private static final String[] AUTO_2024_CLASSES={"Bárbaro","Bardo","Feiticeiro","Ladino","Mago","Monge","Paladino","Patrulheiro"};
+    // All 12 core classes. Every first-level required decision must be resolved
+    // mechanically before the generated sheet can pass the readiness gate.
+    private static final String[] AUTO_2024_CLASSES=CORE_CLASSES;
     private static final String[] CORE_2024_SPECIES={"Aasimar","Anão","Draconato","Elfo","Gnomo","Golias","Humano","Orc","Pequenino","Tiferino"};
     private static final String[] CORE_2014_SPECIES={"Anão","Elfo","Gnomo","Halfling","Humano","Draconato","Meio-Elfo","Meio-Orc","Tiefling"};
     private static String n(String text){return Normalizer.normalize(text==null?"":text.toLowerCase(Locale.ROOT),Normalizer.Form.NFD).replaceAll("\\p{M}","").replaceAll("[^a-z0-9]+"," ").trim();}
@@ -175,6 +174,7 @@ public final class CharacterRandom2024Rules {
             String species=sheet.optString("species"),cls=classBase(sheet.optString("class_name"));
             if(!includes(CORE_2024_SPECIES,species)||!includes(CORE_CLASSES,cls))
                 throw new IllegalStateException("Espécie/classe fora do catálogo 2024 validado");
+            Character2024StartingClassChoices.chooseForNewRandom(sheet);
             String bgFeat=Core2024EberronCharacterEngine.originFeatForBackground(sheet.optString("background"));
             String baseFeat=bgFeat.contains(" (")?bgFeat.substring(0,bgFeat.indexOf(" (")):bgFeat;
             JSONArray selected=sheet.optJSONArray("selected_origin_feats");
