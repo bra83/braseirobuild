@@ -33,14 +33,14 @@ public final class CharacterRandom2024Rules {
     public static String[] legalClasses(String profile,String[] offered){
         ArrayList<String> out=new ArrayList<>();
         String[] legal=DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))?
-            AUTO_2024_CLASSES:CORE_CLASSES;
+            Dnd2024RulePackCatalog.classPool():CORE_CLASSES;
         if(offered!=null)for(String x:offered){
             if(includes(legal,classBase(x))&&!out.contains(classBase(x)))out.add(classBase(x));
         }
         return out.toArray(new String[0]);
     }
     public static String[] legalSpecies(String profile,String[] offered){
-        String[] catalog=DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))?CORE_2024_SPECIES:CORE_2014_SPECIES;
+        String[] catalog=DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))?Dnd2024RulePackCatalog.speciesPool():CORE_2014_SPECIES;
         ArrayList<String> out=new ArrayList<>();
         if(offered!=null)for(String x:offered){
             // Preserve only exact, compiled PHB names; variants need their own source gates.
