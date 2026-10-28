@@ -39,6 +39,9 @@ public class Character2024RandomPersistenceTest {
                 String beforeInventory=character.optString("inventory");
                 String beforeEquipment=character.optString("equipment");
                 String beforeLedger=character.optJSONArray("inventory_ledger").toString();
+                JSONObject randomPersona=character.optJSONObject("personality_profile");
+                assertTrue(character.toString(),BraseiroRandomPersonalityEngine.validateCompleteRandom(randomPersona));
+                String beforePersona=randomPersona.toString();
                 String beforeOrigin=character.optString("origin_ability_bonus");
                 JSONObject beforePurchase=character.getJSONObject("ability_purchase");
                 JSONArray beforeFeats=character.optJSONArray("selected_origin_feats");
@@ -61,6 +64,8 @@ public class Character2024RandomPersistenceTest {
                     assertEquals(beforeInventory,stored.optString("inventory"));
                     assertEquals(beforeEquipment,stored.optString("equipment"));
                     assertEquals(beforeLedger,stored.optJSONArray("inventory_ledger").toString());
+                    assertEquals(beforePersona,stored.getJSONObject("personality_profile").toString());
+                    assertEquals(39,stored.getJSONObject("personality_profile").getJSONArray("traits").length());
                     assertEquals(beforeOrigin,stored.optString("origin_ability_bonus"));
                     assertEquals(beforePurchase.getJSONObject("background_bonus").toString(),
                         stored.getJSONObject("ability_purchase").getJSONObject("background_bonus").toString());
