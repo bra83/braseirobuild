@@ -20,6 +20,10 @@ public final class CharacterRandom2024Rules {
     private static final String[] ABILITIES={"Força","Destreza","Constituição","Inteligência","Sabedoria","Carisma"};
     private static final String[] SKILLS={"Acrobacia","Adestrar Animais","Arcanismo","Atletismo","Atuação","Enganação","Furtividade","História","Intimidação","Intuição","Investigação","Medicina","Natureza","Percepção","Persuasão","Prestidigitação","Religião","Sobrevivência"};
     private static final String[] CORE_CLASSES={"Bárbaro","Bardo","Bruxo","Clérigo","Druida","Feiticeiro","Guerreiro","Ladino","Mago","Monge","Paladino","Patrulheiro"};
+    // These classes currently have a REQUIRED first-level subclass/feature
+    // choice that the 2024 generator has not mechanically certified.
+    // Never offer them as "fully random" until those contracts are executable.
+    private static final String[] AUTO_2024_CLASSES={"Bárbaro","Bardo","Feiticeiro","Ladino","Mago","Monge","Paladino","Patrulheiro"};
     private static final String[] CORE_2024_SPECIES={"Aasimar","Anão","Draconato","Elfo","Gnomo","Golias","Humano","Orc","Pequenino","Tiferino"};
     private static final String[] CORE_2014_SPECIES={"Anão","Elfo","Gnomo","Halfling","Humano","Draconato","Meio-Elfo","Meio-Orc","Tiefling"};
     private static String n(String text){return Normalizer.normalize(text==null?"":text.toLowerCase(Locale.ROOT),Normalizer.Form.NFD).replaceAll("\\p{M}","").replaceAll("[^a-z0-9]+"," ").trim();}
@@ -29,8 +33,10 @@ public final class CharacterRandom2024Rules {
     private static String classBase(String value){int dash=value==null?-1:value.indexOf(" — ");return dash<0?value:value.substring(0,dash);}
     public static String[] legalClasses(String profile,String[] offered){
         ArrayList<String> out=new ArrayList<>();
+        String[] legal=DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))?
+            AUTO_2024_CLASSES:CORE_CLASSES;
         if(offered!=null)for(String x:offered){
-            if(includes(CORE_CLASSES,classBase(x))&&!out.contains(classBase(x)))out.add(classBase(x));
+            if(includes(legal,classBase(x))&&!out.contains(classBase(x)))out.add(classBase(x));
         }
         return out.toArray(new String[0]);
     }
