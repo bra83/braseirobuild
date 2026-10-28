@@ -19,6 +19,14 @@ public final class AdventureContinuityEngine {
                 "world_scope TEXT NOT NULL, commit_key TEXT NOT NULL, actor_character_id INTEGER NOT NULL, "+
                 "adventure_id TEXT NOT NULL, event_json TEXT NOT NULL, created_at INTEGER NOT NULL, "+
                 "PRIMARY KEY(world_scope,commit_key))");
+        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_knowledge ("+
+                "world_scope TEXT NOT NULL, fact_key TEXT NOT NULL, npc_id INTEGER NOT NULL, "+
+                "knowledge_kind TEXT NOT NULL, source_npc_id INTEGER NOT NULL, "+
+                "learned_day INTEGER NOT NULL, PRIMARY KEY(world_scope,fact_key,npc_id))");
+        db.getWritableDatabase().execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_attitudes ("+
+                "world_scope TEXT NOT NULL, hero_id INTEGER NOT NULL, npc_id INTEGER NOT NULL, "+
+                "sentiment TEXT NOT NULL, score INTEGER NOT NULL, "+
+                "PRIMARY KEY(world_scope,hero_id,npc_id,sentiment))");
     }
     private String worldScope(String world,String timeline){
         return db.getActiveMapProfile()+":"+world+":"+timeline;
@@ -54,7 +62,8 @@ public final class AdventureContinuityEngine {
             JSONArray verified=new JSONArray();Set<Long> seen=new HashSet<>();
             for(int k=0;witnesses!=null&&k<witnesses.length();k++){
                 long npcId=witnesses.optLong(k,0);
-                if(npcId>0&&seen.add(npcId)&&db.getNpcMemory(npcId).length()>0)verified.put(npcId);
+                if(npcId>0&&seen.add(npcId)&&db.getNpcMemory(npcId).optInt("active",1)==1
+                    &&db.getNpcMemory(npcId).length()>0)verified.put(npcId);
             }
             JSONObject fact=new JSONObject();
             fact.put("id",commitId+":"+i).put("adventure_id",adventureId)
@@ -93,6 +102,10 @@ public final class AdventureContinuityEngine {
                 wrote++;
                 JSONObject regional=fact.optJSONObject("regional_reputation");
                 if(regional!=null)commitRegionalReputation(key,actor,commitId+":"+i,regional);
+                for(int w=0;w<verified.length();w++)saveKnowledge(
+                    key,commitId+":"+i,verified.optLong(w), "witness",0,
+                    fact.optInt("game_day",1));
+                applyNpcAttitudes(key,actor,verified,event.optJSONArray("npc_attitude_effects"));
             }
         }
         return wrote;
@@ -118,6 +131,140 @@ public final class AdventureContinuityEngine {
         if(sql.insertWithOnConflict("braseiro_hero_regional_reputation",null,row,
                 SQLiteDatabase.CONFLICT_REPLACE)<0)
             throw new IllegalStateException("Reputacao regional nao foi persistida.");
+    }
+
+
+    private boolean saveKnowledge(String scope,String factKey,long npcId,String kind,
+                                  long sourceNpcId,int day)throws Exception {
+        ContentValues row=new ContentValues();
+        row.put("world_scope",scope);row.put("fact_key",factKey);row.put("npc_id",npcId);
+        row.put("knowledge_kind",kind);row.put("source_npc_id",sourceNpcId);
+        row.put("learned_day",Math.max(1,day));
+        return db.getWritableDatabase().insertWithOnConflict("braseiro_hero_npc_knowledge",
+                null,row,SQLiteDatabase.CONFLICT_IGNORE)>0;
+    }
+    private void applyNpcAttitudes(String scope,long hero,JSONArray witnesses,
+                                  JSONArray effects)throws Exception {
+        if(effects==null)return;
+        for(int i=0;i<effects.length()&&i<20;i++){
+            JSONObject e=effects.optJSONObject(i);if(e==null)continue;
+            long npc=e.optLong("npc_id");
+            boolean present=false;
+            for(int w=0;w<witnesses.length();w++)if(witnesses.optLong(w)==npc)present=true;
+            if(!present)continue;
+            String sentiment=e.optString("sentiment","");
+            if(!validSentiment(sentiment))continue;
+            int delta=Math.max(-20,Math.min(20,e.optInt("delta",0)));
+            if(delta==0)continue;
+            JSONObject existing=db.queryOne("SELECT score FROM braseiro_hero_npc_attitudes "+
+                "WHERE world_scope=? AND hero_id=? AND npc_id=? AND sentiment=?",
+                new String[]{scope,String.valueOf(hero),String.valueOf(npc),sentiment});
+            ContentValues row=new ContentValues();row.put("world_scope",scope);
+            row.put("hero_id",hero);row.put("npc_id",npc);row.put("sentiment",sentiment);
+            row.put("score",Math.max(-100,Math.min(100,existing.optInt("score",0)+delta)));
+            if(db.getWritableDatabase().insertWithOnConflict("braseiro_hero_npc_attitudes",
+                   null,row,SQLiteDatabase.CONFLICT_REPLACE)<0)
+                throw new IllegalStateException("Vinculo de NPC nao persistido.");
+        }
+    }
+    private static boolean validSentiment(String s) {
+        return "admiration".equals(s)||"hostility".equals(s)||"fear".equals(s)||
+            "trust".equals(s)||"gratitude".equals(s)||"respect".equals(s)||
+            "resentment".equals(s);
+    }
+    private String currentScope(){
+        JSONObject pkg=activePackage();
+        return worldScope(pkg.optString("world_id",db.getActiveMapProfile()),
+            pkg.optString("timeline_id","principal"));
+    }
+
+    /** A witness or an informed NPC may tell an active NPC. Hearsay never becomes proof. */
+    public boolean transmitFact(String factKey,long sourceNpc,long recipientNpc,int day,
+                                String channel)throws Exception {
+        ensureSchema();
+        if(factKey==null||factKey.isEmpty()||sourceNpc<=0||recipientNpc<=0||
+           sourceNpc==recipientNpc)return false;
+        JSONObject source=db.getNpcMemory(sourceNpc),recipient=db.getNpcMemory(recipientNpc);
+        if(source.length()==0||recipient.length()==0||
+           source.optInt("active",1)!=1||recipient.optInt("active",1)!=1)return false;
+        String scope=currentScope();
+        JSONObject factRow=db.queryOne("SELECT event_json FROM braseiro_adventure_causal_facts "+
+            "WHERE world_scope=? AND commit_key=?",new String[]{scope,factKey});
+        if(factRow.length()==0)return false;
+        boolean known=false;
+        JSONObject prior=db.queryOne("SELECT knowledge_kind FROM braseiro_hero_npc_knowledge "+
+            "WHERE world_scope=? AND fact_key=? AND npc_id=?",
+            new String[]{scope,factKey,String.valueOf(sourceNpc)});
+        if(prior.length()>0)known=true;
+        // 6.6.26 legacy witness facts are readable even without knowledge rows.
+        if(!known) {
+            JSONObject fact=new JSONObject(factRow.optString("event_json","{}"));
+            JSONArray witnesses=fact.optJSONArray("witness_npc_ids");
+            for(int i=0;witnesses!=null&&i<witnesses.length();i++)
+                if(witnesses.optLong(i)==sourceNpc)known=true;
+        }
+        if(!known)return false;
+        if(!"confirmed_contact".equals(channel))return false;
+        return saveKnowledge(scope,factKey,recipientNpc,"hearsay",sourceNpc,day);
+    }
+
+    /** Only already-confirmed contacts from a committed scene may spread knowledge. */
+    public int commitKnowledgeTransfers(JSONObject envelope)throws Exception {
+        if(envelope==null)return 0;
+        JSONArray transfers=envelope.optJSONArray("npc_knowledge_transfers");
+        if(transfers==null)return 0;
+        int applied=0,day=db.getSceneState().optInt("day_number",1);
+        for(int i=0;i<transfers.length()&&i<30;i++){
+            JSONObject x=transfers.optJSONObject(i);if(x==null||
+                    !x.optBoolean("confirmed_contact",false))continue;
+            if(transmitFact(x.optString("fact_key"),x.optLong("source_npc_id"),
+                    x.optLong("recipient_npc_id"),day,"confirmed_contact"))applied++;
+        }
+        return applied;
+    }
+
+    /** Deterministic, bounded off-scene contact, never arbitrary NPC omniscience. */
+    public int propagateScheduledContacts(int day)throws Exception {
+        ensureSchema();
+        java.util.List<JSONObject> actors=db.listNpcCognitiveStatesForSimulation(5000);
+        int taught=0,cap=Math.min(80,actors.size());
+        for(int i=0;i<cap&&taught<25;i++){
+            JSONObject src=actors.get(i);
+            String action=src.optString("next_action","").toLowerCase(java.util.Locale.ROOT);
+            if(!action.matches(".*(convers|boato|rumor|notici|contar|relatar).*"))continue;
+            String place=src.optString("current_location","").trim();
+            if(place.isEmpty())continue;
+            JSONObject memory=db.findNpcMemoryByName(src.optString("npc_name"));
+            long sourceId=memory.optLong("id");
+            if(sourceId<=0||memory.optInt("active",1)!=1)continue;
+            JSONArray known=factsKnownByNpc(sourceId,8);
+            if(known.length()==0)continue;
+            for(int j=0;j<cap&&taught<25;j++){
+                if(i==j)continue;
+                JSONObject dest=actors.get(j);
+                if(!place.equalsIgnoreCase(dest.optString("current_location","").trim()))continue;
+                JSONObject recipient=db.findNpcMemoryByName(dest.optString("npc_name"));
+                long targetId=recipient.optLong("id");
+                if(targetId<=0||recipient.optInt("active",1)!=1)continue;
+                for(int k=0;k<known.length()&&k<2&&taught<25;k++){
+                    JSONObject fact=known.optJSONObject(k);if(fact==null)continue;
+                    if(transmitFact(fact.optString("id"),sourceId,targetId,
+                            day,"confirmed_contact"))taught++;
+                }
+            }
+        }
+        return taught;
+    }
+
+    public JSONArray attitudesKnownToNpc(long npcId,int max){
+        JSONArray out=new JSONArray();if(npcId<=0)return out;
+        try{
+            ensureSchema();
+            for(JSONObject row:db.queryList(
+                 "SELECT hero_id,sentiment,score FROM braseiro_hero_npc_attitudes "+
+                 "WHERE world_scope=? AND npc_id=? LIMIT "+Math.max(1,Math.min(100,max)),
+                 new String[]{currentScope(),String.valueOf(npcId)}))out.put(row);
+        }catch(Exception ignored){/* absent legacy table */}return out;
     }
 
     /** GM-only aggregate; never conveys knowledge to an unwitnessing NPC. */
@@ -153,12 +300,24 @@ public final class AdventureContinuityEngine {
             JSONObject current=activePackage();
             String scope=worldScope(current.optString("world_id",db.getActiveMapProfile()),
                 current.optString("timeline_id","principal"));
-            for(JSONObject row:db.queryList("SELECT event_json FROM braseiro_adventure_causal_facts "+
+            for(JSONObject row:db.queryList("SELECT commit_key,event_json FROM braseiro_adventure_causal_facts "+
                     "WHERE world_scope=? ORDER BY created_at DESC LIMIT 250",new String[]{scope})){
                 JSONObject fact=new JSONObject(row.optString("event_json","{}"));
-                JSONArray witnesses=fact.optJSONArray("witness_npc_ids");
-                for(int i=0;witnesses!=null&&i<witnesses.length();i++){
-                    if(witnesses.optLong(i)==npcId){out.put(fact);break;}
+                JSONObject knowledge=db.queryOne("SELECT knowledge_kind,source_npc_id,learned_day "+
+                    "FROM braseiro_hero_npc_knowledge WHERE world_scope=? AND fact_key=? AND npc_id=?",
+                    new String[]{scope,row.optString("commit_key"),String.valueOf(npcId)});
+                if(knowledge.length()>0) {
+                    fact.put("npc_knowledge_kind",knowledge.optString("knowledge_kind"));
+                    fact.put("heard_from_npc_id",knowledge.optLong("source_npc_id"));
+                    fact.put("learned_day",knowledge.optInt("learned_day"));
+                    out.put(fact);
+                }else{
+                    JSONArray witnesses=fact.optJSONArray("witness_npc_ids");
+                    for(int i=0;witnesses!=null&&i<witnesses.length();i++){
+                        if(witnesses.optLong(i)==npcId){
+                            fact.put("npc_knowledge_kind","witness");out.put(fact);break;
+                        }
+                    }
                 }
                 if(out.length()>=max)break;
             }
@@ -177,10 +336,20 @@ public final class AdventureContinuityEngine {
                 long id=npc==null?present.optLong(i,0):npc.optLong("id",0);
                 if(id<=0)continue;
                 JSONArray facts=factsKnownByNpc(id,12);
-                if(facts.length()>0)known.put(new JSONObject().put("npc_id",id).put("verified_facts",facts));
+                if(facts.length()>0){
+                    JSONArray direct=new JSONArray(),reports=new JSONArray();
+                    for(int k=0;k<facts.length();k++){
+                        JSONObject item=facts.optJSONObject(k);if(item==null)continue;
+                        if("witness".equals(item.optString("npc_knowledge_kind")))direct.put(item);
+                        else reports.put(item);
+                    }
+                    known.put(new JSONObject().put("npc_id",id)
+                        .put("verified_facts",direct).put("heard_reports",reports)
+                        .put("hero_attitudes",attitudesKnownToNpc(id,16)));
+                }
             }
             result.put("present_npc_knowledge",known);
-            result.put("recognition_policy","NPCs só reconhecem feitos confirmados se foram testemunhas registradas. Boatos necessitam propagação causal; a ausência de evidência não autoriza conhecimento.");
+            result.put("recognition_policy","Testemunha conhece fato direto; contato e conversa criam apenas relato ouvido. Relato não equivale a fato comprovado; sentimentos são explícitos e individuais. Sem evidência, nenhum NPC reconhece o herói.");
         }catch(Exception ignored){}
         return result;
     }
