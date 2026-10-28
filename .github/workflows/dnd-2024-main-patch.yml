@@ -1,0 +1,48 @@
+name: D&D 2024-only creation UI (protected source commit)
+on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-2024-main-patch.yml']
+permissions:
+  contents: write
+concurrency:
+  group: dnd-2024-main-patch
+  cancel-in-progress: false
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/dnd-6620-species-monk-audit-20261027
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+            ci/dnd-2024-only
+          sparse-checkout-cone-mode: true
+          persist-credentials: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Patch only approved DnD UI locations; preserve saved campaigns
+        run: python3 ci/dnd-2024-only/patch_main.py
+      - name: Compile patched real Android MainActivity
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+          cd dnd-normal/run247-mod005
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Commit source ONLY if compilation succeeded
+        run: |
+          set -euo pipefail
+          git diff --check
+          git add -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+          git diff --cached --quiet && { echo 'No source diff'; exit 1; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(dnd2024): enforce 2024 for new characters without migrating legacy or Mystara"
+          git push origin HEAD:fix/dnd-6620-species-monk-audit-20261027
+          echo '2024_ONLY_MAINACTIVITY_COMPILED_AND_PUSHED=PASS'
