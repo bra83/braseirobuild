@@ -30,7 +30,7 @@ jobs:
         run: |
           python3 ci/dnd-2024-only/patch_main.py
           git diff --stat -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
-          git diff --check
+          git -c core.whitespace=cr-at-eol diff --check
       - name: Compile patched real Android MainActivity
         run: |
           set -euo pipefail
@@ -41,7 +41,7 @@ jobs:
       - name: Commit source ONLY if compilation succeeded
         run: |
           set -euo pipefail
-          git diff --check
+          git -c core.whitespace=cr-at-eol diff --check
           git add -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
           git diff --cached --quiet && { echo 'No source diff'; exit 1; }
           git config user.name "github-actions[bot]"
