@@ -265,7 +265,7 @@ public final class CharacterSheetGenerator {
             String cls = chooseBalanced(legalClasses, existing, "class_name");
             String background = chooseBalanced(rules.is2024(profile)?BACKGROUNDS_2024:BACKGROUNDS, existing, "background");
             JSONObject sheet = baseComplete(profile, species, cls, background, 1,true);
-            String subclass=randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
+            String subclass=rules.is2024(profile)?"":randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
             sheet.put("name", randomName(species));
             sheet.put("nickname", chance(58) ? randomNickname(cls) : "");
             sheet.put("title", chance(38) ? randomTitle(cls) : "");
