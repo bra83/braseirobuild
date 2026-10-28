@@ -265,6 +265,7 @@ public final class Character2024SheetReconciler {
     }
     public static JSONObject reconcile(JSONObject sheet){
         if(!applies(sheet))return sheet;
+        Character2024SheetConsistencyGuard.reconcile(sheet);
         try{
             LinkedHashMap<String,JSONObject> skills=readSkills(sheet);
             LinkedHashSet<String> saves=readSavingThrows(sheet);
