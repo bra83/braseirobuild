@@ -21,15 +21,25 @@ import org.json.JSONObject;
 public final class BarbaraSupervisor {
     private final Context context;
     private PyObject module;
-    private boolean available;
+    private volatile boolean available;
+    private volatile boolean initialized;
     private String lastError="",motorVersion="";
     private JSONObject requiredContract=new JSONObject();
     private JSONObject deviceProfile=new JSONObject();
 
-    public BarbaraSupervisor(Context ctx){context=ctx==null?null:ctx.getApplicationContext();initialize();}
+    // Constructing the Master on the Android main thread must NEVER start Chaquopy.
+    // The Python engine is prepared after first paint, and plan() waits for it on the
+    // existing background game-bus executor before any narration can be generated.
+    public BarbaraSupervisor(Context ctx){context=ctx==null?null:ctx.getApplicationContext();}
+
+    /** Non-blocking warm-up; never launched from Activity.onCreate on the UI thread. */
+    public void warmUpAsync(){if(context!=null&&!initialized)AppExecutors.io().execute(new Runnable(){
+        @Override public void run(){initialize();}
+    });}
 
     private synchronized void initialize(){
-        if(context==null){available=false;lastError="context_unavailable";return;}
+        if(initialized)return;
+        if(context==null){available=false;lastError="context_unavailable";initialized=true;return;}
         try{
             if(!Python.isStarted())Python.start(new AndroidPlatform(context));
             module=Python.getInstance().getModule("braseiro_barbara_adapter");
@@ -45,7 +55,7 @@ public final class BarbaraSupervisor {
         }catch(Throwable failure){
             available=false;lastError=failure.getClass().getSimpleName()+": "+String.valueOf(failure.getMessage());
             AppLog.w("BarbaraSupervisor","Motor Barbara indisponível; validações Java permanecem ativas.",failure);
-        }
+        }finally{initialized=true;}
     }
 
 
@@ -64,7 +74,7 @@ public final class BarbaraSupervisor {
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
-    public boolean isAvailable(){return available;}
+    public boolean isAvailable(){return initialized&&available;}
     private String liveContractProblem(){return BarbaraHostContractV1.compatibilityProblem(BarbaraHostContractV1.descriptor(),requiredContract);}
     private String systemId(String requested){return "mystara".equalsIgnoreCase(requested)?"mystara":"dnd";}
 
@@ -103,6 +113,9 @@ public final class BarbaraSupervisor {
         return plan(action,importance,narrative,nonAdvancing,occasion,null,"dnd");
     }
     public JSONObject plan(String action,String importance,boolean narrative,boolean nonAdvancing,String occasion,String inputChannel,String requestedSystem){/*BR_JSON_WRAP*/try{
+        // MainActivity prepares the game bus with AppExecutors.io(), never the UI.
+        // Do not silently drop Barbara policy while its prewarm is still pending.
+        initialize();
         String storyOccasion=occasion==null||occasion.trim().isEmpty()?"continuation":occasion.trim();String sid=systemId(requestedSystem);JSONObject fallback=new JSONObject();
         try{
             fallback.put("available",available).put("story_occasion",storyOccasion).put("system_id",sid).put("input_channel",inputChannel==null?"":inputChannel).put("host_world_authority",true).put("duplicate_gemini_call",false).put("fallback_java_policy",true).put("host_contract",BarbaraHostContractV1.descriptor());
@@ -134,7 +147,7 @@ public final class BarbaraSupervisor {
 
     public JSONObject diagnostic(){/*BR_JSON_WRAP*/try{
         JSONObject out=new JSONObject();
-        try{out.put("available",available).put("embedded",true).put("last_error",lastError).put("barbara_version",motorVersion).put("state_authority","sqlite_host").put("duplicate_gemini_call",false).put("host_contract",BarbaraHostContractV1.descriptor()).put("required_contract",requiredContract).put("device_profile",deviceProfile).put("contract_problem",liveContractProblem()).put("dnd_system_module",systemContract("dnd")).put("mystara_system_module",systemContract("mystara"));}
+        try{out.put("available",available).put("initialized",initialized).put("embedded",true).put("last_error",lastError).put("barbara_version",motorVersion).put("state_authority","sqlite_host").put("duplicate_gemini_call",false).put("host_contract",BarbaraHostContractV1.descriptor()).put("required_contract",requiredContract).put("device_profile",deviceProfile).put("contract_problem",liveContractProblem()).put("dnd_system_module",systemContract("dnd")).put("mystara_system_module",systemContract("mystara"));}
         catch(Exception ignored){AppLog.ignored("BarbaraSupervisor","Falha ao montar diagnóstico Barbara.",ignored);}return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 }
