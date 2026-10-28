@@ -80,5 +80,14 @@ public final class Character2024StartingClassChoices {
             sheet.put("concentration_constitution_save_advantage",true);
             addTraining(sheet,"Invocação Mística — Mente Sobrenatural (vantagem em testes de concentração)");
         }
+        JSONArray pending=sheet.optJSONArray("class_choices_pending");
+        if(pending!=null){
+            JSONArray remaining=new JSONArray();
+            for(int i=0;i<pending.length();i++){
+                String key=pending.optString(i);
+                if(!resolved(sheet,key))remaining.put(key);
+            }
+            sheet.put("class_choices_pending",remaining);
+        }
     }
 }
