@@ -89,6 +89,33 @@ public class Character2024RandomGenerationSafetyTest {
             }
         }
     }
+    @Test public void secondSpeciesCompilationMustNotUndoValidatedRandomChoices() throws Exception{
+        CharacterSheetGenerator generator=new CharacterSheetGenerator(new DndRulesEngine());
+        for(String species:SPECIES){
+            JSONObject s=null;
+            for(int i=0;i<35;i++){
+                JSONObject candidate=generator.randomComplete(PROFILE,new String[]{species},
+                    new ArrayList<JSONObject>());
+                if(candidate.optBoolean("generation_valid",false)){s=candidate;break;}
+            }
+            assertNotNull("No valid random character for "+species,s);
+            String feats=s.getJSONArray("selected_origin_feats").toString();
+            String origin=s.optString("origin_ability_bonus");
+            String inventory=s.optString("inventory");
+            int hp=s.optInt("max_hp"),ac=s.optInt("ac");
+            Core2024EberronCharacterEngine.apply2024SpeciesMechanics(s);
+            Character2024SheetReconciler.reconcile(s);
+            assertTrue(s.toString(),s.optBoolean("species_choices_complete",false));
+            assertEquals(s.toString(),0,s.optInt("creation_missing_choice_count",99));
+            assertEquals(s.toString(),feats,s.getJSONArray("selected_origin_feats").toString());
+            assertEquals(s.toString(),origin,s.optString("origin_ability_bonus"));
+            assertEquals(s.toString(),inventory,s.optString("inventory"));
+            assertEquals(s.toString(),hp,s.optInt("max_hp"));
+            assertEquals(s.toString(),ac,s.optInt("ac"));
+            if(species.equals("Humano"))
+                assertFalse(s.toString(),s.optBoolean("human_extra_origin_feat_pending",true));
+        }
+    }
     @Test public void incompatibleSpeciesCannotBeRolledAsHumanOrAssignedUnknownPowers()throws Exception{
         CharacterSheetGenerator generator=new CharacterSheetGenerator(new DndRulesEngine());
         JSONObject blocked=generator.randomComplete(PROFILE,new String[]{
