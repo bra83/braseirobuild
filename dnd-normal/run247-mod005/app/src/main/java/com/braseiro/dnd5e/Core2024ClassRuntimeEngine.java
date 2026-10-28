@@ -347,7 +347,29 @@ public final class Core2024ClassRuntimeEngine {
         if(payload==null||payload.optJSONArray("slots")==null)return pending(s,"slots [{level,count}, ...]");JSONArray req=payload.optJSONArray("slots");int total=0;for(int i=0;i<req.length();i++){JSONObject x=req.optJSONObject(i);if(x==null)continue;int l=x.optInt("level"),cnt=x.optInt("count",1);if(l<1||l>maxSlot||cnt<1)return blocked(s,"invalid_slot_selection");total+=l*cnt;}if(total<1||total>budget)return blocked(s,"slot_level_budget_"+budget);JSONObject rr=res(s,resourceKey);if(rr==null||rr.optInt("current",0)<1)return blocked(s,resourceKey);JSONArray cur=s.optJSONArray("spell_slots_current"),mx=s.optJSONArray("spell_slots_max");if(cur==null||mx==null)return blocked(s,"spell_slots_unavailable");for(int i=0;i<req.length();i++){JSONObject x=req.optJSONObject(i);int l=x.optInt("level"),cnt=x.optInt("count",1),idx=l-1;int can=Math.max(0,mx.optInt(idx,0)-cur.optInt(idx,0));if(can<cnt)return blocked(s,"requested_unspent_slot_level_"+l);}spend(s,resourceKey,1);for(int i=0;i<req.length();i++){JSONObject x=req.optJSONObject(i);int l=x.optInt("level"),cnt=x.optInt("count",1),idx=l-1;cur.put(idx,cur.optInt(idx,0)+cnt);}s.put("spell_slots_current",cur);return mark(s,event,new JSONObject().put("slot_level_budget_used",total).put("selections",req));
     }catch(Exception e){return s;}}
 
-    private static void appendPendingChoices(JSONObject s,String c,int lvl)throws Exception{JSONArray p=s.optJSONArray("class_choices_pending");if(p==null)p=new JSONArray();if(c.equals("druid")&&lvl>=1)add(p,"ordem_primal");if(c.equals("wizard")&&lvl>=2)add(p,"academic_expertise_skill");if(c.equals("fighter")&&lvl>=1)add(p,"fighting_style");if(c.equals("ranger")&&lvl>=2)add(p,"fighting_style");if(c.equals("cleric")&&lvl>=1)add(p,"ordem_divina");if(c.equals("warlock")&&lvl>=1)add(p,"invocations");s.put("class_choices_pending",p);}
+    private static void appendPendingChoices(JSONObject s,String c,int lvl)throws Exception{
+        JSONArray previous=s.optJSONArray("class_choices_pending"),pending=new JSONArray();
+        // Preserve unrelated incomplete selections but remove previously pending
+        // first-level entries only after their structured and validated choice.
+        if(previous!=null)for(int i=0;i<previous.length();i++){
+            String key=previous.optString(i);
+            if(("ordem_primal".equals(key)||"ordem_divina".equals(key)||
+                "fighting_style".equals(key)||"invocations".equals(key)) &&
+                Character2024StartingClassChoices.resolved(s,key))continue;
+            add(pending,key);
+        }
+        if(c.equals("druid")&&lvl>=1&&!Character2024StartingClassChoices.resolved(s,"ordem_primal"))
+            add(pending,"ordem_primal");
+        if(c.equals("wizard")&&lvl>=2)add(pending,"academic_expertise_skill");
+        if(c.equals("fighter")&&lvl>=1&&!Character2024StartingClassChoices.resolved(s,"fighting_style"))
+            add(pending,"fighting_style");
+        if(c.equals("ranger")&&lvl>=2)add(pending,"fighting_style");
+        if(c.equals("cleric")&&lvl>=1&&!Character2024StartingClassChoices.resolved(s,"ordem_divina"))
+            add(pending,"ordem_divina");
+        if(c.equals("warlock")&&lvl>=1&&!Character2024StartingClassChoices.resolved(s,"invocations"))
+            add(pending,"invocations");
+        s.put("class_choices_pending",pending);
+    }
     private static void add(JSONArray a,String v){for(int i=0;i<a.length();i++)if(v.equals(a.optString(i)))return;a.put(v);}
     private static JSONObject resource(JSONObject all,String key,int max,String recharge)throws Exception{JSONObject r=all.optJSONObject(key);if(r==null)r=new JSONObject().put("current",max);int cur=Math.max(0,Math.min(max,r.optInt("current",max)));r.put("max",max).put("current",cur).put("recharge",recharge).put("source",SOURCE);all.put(key,r);return r;}
     private static JSONObject res(JSONObject s,String key){JSONObject all=s.optJSONObject("class_resources");return all==null?null:all.optJSONObject(key);}

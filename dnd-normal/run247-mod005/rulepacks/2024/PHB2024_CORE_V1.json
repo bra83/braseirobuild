@@ -1,0 +1,54 @@
+{
+  "schema": "braseiro.dnd2024.catalog.v1",
+  "scope": "dnd2024",
+  "pack_id": "phb2024-core",
+  "revision": 1,
+  "min_engine_code": 202700032,
+  "label": "PHB 2024 — catálogo modular 12 classes, 10 espécies, 16 antecedentes",
+  "catalog": {
+    "backgrounds": [
+      "Acólito",
+      "Andarilho",
+      "Artesão",
+      "Artista",
+      "Charlatão",
+      "Criminoso",
+      "Eremita",
+      "Escriba",
+      "Fazendeiro",
+      "Guarda",
+      "Guia",
+      "Marinheiro",
+      "Mercador",
+      "Nobre",
+      "Sábio",
+      "Soldado"
+    ],
+    "classes": [
+      "Bárbaro",
+      "Bardo",
+      "Bruxo",
+      "Clérigo",
+      "Druida",
+      "Feiticeiro",
+      "Guerreiro",
+      "Ladino",
+      "Mago",
+      "Monge",
+      "Paladino",
+      "Patrulheiro"
+    ],
+    "species": [
+      "Aasimar",
+      "Anão",
+      "Draconato",
+      "Elfo",
+      "Gnomo",
+      "Golias",
+      "Humano",
+      "Orc",
+      "Pequenino",
+      "Tiferino"
+    ]
+  }
+}

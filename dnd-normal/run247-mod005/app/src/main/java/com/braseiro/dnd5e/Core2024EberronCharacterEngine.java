@@ -112,6 +112,36 @@ public final class Core2024EberronCharacterEngine {
             else if(sp.equals("Orc")){s.put("size","Médio").put("speed_m",9).put("darkvision_m",36).put("adrenaline_rush_uses",pb).put("relentless_endurance_uses",1);}
             else if(sp.equals("Pequenino")){s.put("size","Pequeno").put("speed_m",9).put("brave_frightened_save_advantage",true).put("halfling_nimbleness",true).put("halfling_luck_reroll_natural_one",true).put("naturally_stealthy",true);}
             else if(sp.equals("Tiferino")){s.put("speed_m",9).put("darkvision_m",18).put("thaumaturgy_cantrip",true).put("species_choices_complete",false).put("species_choice_pending","Legado Ínfero + atributo de conjuração + tamanho Pequeno/Médio");}
+            // Re-applying species mechanics during save or restore must not
+            // invalidate choices that are already confirmed and structured.
+            // A text-only claim of "complete" is never sufficient.
+            boolean ready=false;
+            String size=n(s.optString("size",""));
+            boolean sizeSelected=size.equals("medio")||size.equals("pequeno");
+            if(sp.equals("Aasimar"))ready=sizeSelected;
+            else if(sp.equals("Draconato"))ready=!s.optString("dragon_ancestry","").isEmpty();
+            else if(sp.equals("Elfo"))ready=!s.optString("species_lineage","").isEmpty()
+                && !s.optString("species_spellcasting_ability","").isEmpty()
+                && !s.optString("elf_keen_senses_choice","").isEmpty();
+            else if(sp.equals("Gnomo"))ready=!s.optString("species_lineage","").isEmpty();
+            else if(sp.equals("Golias"))ready=!s.optString("giant_ancestry","").isEmpty();
+            else if(sp.equals("Tiferino"))ready=sizeSelected
+                && !s.optString("fiendish_legacy","").isEmpty()
+                && !s.optString("species_spellcasting_ability","").isEmpty();
+            else if(sp.equals("Humano")){
+                JSONArray feats=s.optJSONArray("selected_origin_feats");
+                String backgroundFeat=originFeatForBackground(s.optString("background",""));
+                int suffix=backgroundFeat.indexOf(" (");
+                if(suffix>=0)backgroundFeat=backgroundFeat.substring(0,suffix);
+                boolean extra=false;
+                if(feats!=null)for(int i=0;i<feats.length();i++)
+                    if(!n(feats.optString(i)).equals(n(backgroundFeat)))extra=true;
+                ready=sizeSelected && !s.optString("human_skill_choice","").isEmpty() && extra;
+                if(ready)s.put("human_extra_origin_feat_pending",false);
+            }
+            if(ready){
+                s.put("species_choices_complete",true).put("species_choice_pending","");
+            }
             appendFeature(s,"Espécie 2024: "+sp+" — traços compilados; escolhas pendentes permanecem explícitas.");
             Character2024SheetReconciler.reconcile(s);
         }catch(Exception ignored){}
@@ -121,7 +151,8 @@ public final class Core2024EberronCharacterEngine {
         if(s==null||!is2024(s.optString("rules_source")))return fail(r,"Perfil 2024 necessário");String sp=canonical2024Species(s.optString("species"));if(sp.length()==0)return fail(r,"Espécie 2024 não reconhecida");if(c==null)c=new JSONObject();
         if(sp.equals("Aasimar")){String size=c.optString("size");if(!one(size,"Pequeno","Médio"))return fail(r,"Escolha tamanho Pequeno ou Médio");s.put("size",size);}
         else if(sp.equals("Draconato")){String ancestry=c.optString("ancestry");String type=dragonDamage(ancestry);if(type.length()==0)return fail(r,"Ancestralidade dracônica inválida");s.put("dragon_ancestry",ancestry).put("dragon_damage_type",type).put("resistances",append(s.optString("resistances"),type));}
-        else if(sp.equals("Elfo")){String lin=c.optString("lineage"),ability=canonicalAbility(c.optString("ability")),skill=c.optString("skill");if(!one(lin,"Alto","Drow","Floresta"))return fail(r,"Linhagem élfica inválida");if(ability.length()==0)return fail(r,"Escolha Inteligência, Sabedoria ou Carisma");if(!one(skill,"Intuição","Percepção","Sobrevivência"))return fail(r,"Escolha Intuição, Percepção ou Sobrevivência");s.put("species_lineage",lin).put("species_spellcasting_ability",ability);appendSkill(s,skill);if(lin.equals("Alto")){s.put("lineage_cantrip","Prestidigitação").put("lineage_level3_spell","Detectar Magia").put("lineage_level5_spell","Passo Nebuloso");}else if(lin.equals("Drow")){s.put("darkvision_m",36).put("lineage_cantrip","Luzes Dançantes").put("lineage_level3_spell","Fogo das Fadas").put("lineage_level5_spell","Escuridão");}else{s.put("speed_m",10.5).put("lineage_cantrip","Druidismo").put("lineage_level3_spell","Passos Longos").put("lineage_level5_spell","Passos sem Pegadas");}}
+        else if(sp.equals("Elfo")){String lin=c.optString("lineage"),ability=canonicalAbility(c.optString("ability")),skill=c.optString("skill");if(!one(lin,"Alto","Drow","Floresta"))return fail(r,"Linhagem élfica inválida");if(ability.length()==0)return fail(r,"Escolha Inteligência, Sabedoria ou Carisma");if(!one(skill,"Intuição","Percepção","Sobrevivência"))return fail(r,"Escolha Intuição, Percepção ou Sobrevivência");s.put("species_lineage",lin).put("species_spellcasting_ability",ability)
+                .put("elf_keen_senses_choice",skill);appendSkill(s,skill);if(lin.equals("Alto")){s.put("lineage_cantrip","Prestidigitação").put("lineage_level3_spell","Detectar Magia").put("lineage_level5_spell","Passo Nebuloso");}else if(lin.equals("Drow")){s.put("darkvision_m",36).put("lineage_cantrip","Luzes Dançantes").put("lineage_level3_spell","Fogo das Fadas").put("lineage_level5_spell","Escuridão");}else{s.put("speed_m",10.5).put("lineage_cantrip","Druidismo").put("lineage_level3_spell","Passos Longos").put("lineage_level5_spell","Passos sem Pegadas");}}
         else if(sp.equals("Gnomo")){String lin=c.optString("lineage");if(!one(lin,"Floresta","Rocha"))return fail(r,"Linhagem gnômica inválida");s.put("species_lineage",lin);if(lin.equals("Floresta")){s.put("lineage_cantrip","Ilusão Menor").put("speak_with_animals_prepared",true).put("speak_with_animals_free_uses",pb(Math.max(1,s.optInt("level",1))));}else{s.put("lineage_cantrips","Consertar, Prestidigitação").put("clockwork_device_limit",3);}}
         else if(sp.equals("Golias")){String a=c.optString("ancestry");if(!one(a,"Nuvem","Fogo","Gelo","Colina","Pedra","Tempestade"))return fail(r,"Ancestralidade Gigante inválida");s.put("giant_ancestry",a);}
         else if(sp.equals("Humano")){String size=c.optString("size"),skill=c.optString("skill");if(!one(size,"Pequeno","Médio"))return fail(r,"Escolha tamanho Pequeno ou Médio");if(skill.trim().length()==0)return fail(r,"Escolha uma perícia");s.put("size",size);appendSkill(s,skill);s.put("human_skill_choice",skill);}

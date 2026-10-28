@@ -32,11 +32,51 @@ final class GithubUpdaterUi {
         status.setTextSize(12);section.addView(status);
         Button update=new Button(a);update.setText("VERIFICAR ATUALIZAÇÕES NO GITHUB");section.addView(update);
         final GithubApkUpdater updater=new GithubApkUpdater(a);
+        final Dnd2024RulePackManager ruleUpdater=new Dnd2024RulePackManager(a);
+        final TextView ruleStatus=new TextView(a);
+        ruleStatus.setTextSize(13);
+        ruleStatus.setText("Pacote D&D 2024: revisão "+Dnd2024RulePackCatalog.revision()+
+            " • "+Dnd2024RulePackCatalog.label());
+        section.addView(ruleStatus);
+        final Button rulesButton=new Button(a);
+        rulesButton.setText("ATUALIZAR SOMENTE REGRAS 2024");
+        section.addView(rulesButton);
+        rulesButton.setOnClickListener(v->{
+            rulesButton.setEnabled(false);
+            ruleUpdater.checkAndInstall(message->a.runOnUiThread(()->{
+                ruleStatus.setText(message);
+                if(!ruleUpdater.isBusy() || message.startsWith("Pacote") ||
+                    message.startsWith("Nenhum") || message.startsWith("Nenhuma"))
+                    rulesButton.setEnabled(true);
+            }));
+        });
+        final Button rollbackRules=new Button(a);
+        rollbackRules.setText("REVERTER ÚLTIMO PACOTE DE REGRAS");
+        section.addView(rollbackRules);
+        rollbackRules.setOnClickListener(v->{
+            rollbackRules.setEnabled(false);
+            AppExecutors.serial().execute(()->{
+                boolean ok=ruleUpdater.rollback();
+                a.runOnUiThread(()->{
+                    rollbackRules.setEnabled(true);
+                    ruleStatus.setText(ok?"Pacote anterior restaurado: revisão "+
+                        Dnd2024RulePackCatalog.revision():
+                        "Reversão indisponível: pacote anterior inexistente ou inválido.");
+                });
+            });
+        });
         update.setOnClickListener(v->{
             if(updater.isBusy()){status.setText("Verificação ou download em andamento.");return;}
             // Do not request unknown-source permission merely to CHECK the version.
             // Android prompts for installation permission only if a verified newer APK exists.
             update.setEnabled(false);
+            // One tap checks data-only rule packs and executable APK releases.
+            ruleUpdater.checkAndInstall(message->a.runOnUiThread(()->{
+                ruleStatus.setText(message);
+                if(!ruleUpdater.isBusy() || message.startsWith("Pacote") ||
+                    message.startsWith("Nenhum") || message.startsWith("Nenhuma"))
+                    rulesButton.setEnabled(true);
+            }));
             updater.checkAndDownload(new GithubApkUpdater.Reporter(){
                 public void status(String message){a.runOnUiThread(()->{
                     status.setText(message);

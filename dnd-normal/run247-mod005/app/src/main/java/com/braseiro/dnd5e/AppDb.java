@@ -27,6 +27,9 @@ public class AppDb extends SQLiteOpenHelper {
     private volatile String activeMapProfile = "dnd";
     private final Context appContext;
     private volatile NpcPersonalityCatalog npcPersonalityCatalog;
+    // One complete profile/table backfill per AppDb instance, not per screen query.
+    private volatile boolean worldProfileDataBootstrapped=false;
+    private volatile boolean mapWorldStateBootstrapped=false;
 
     public AppDb(Context context) { this(context,DB_NAME); }
     /** Construtor de sandbox usado pelo verificador de round-trip 5.0. */
@@ -103,7 +106,7 @@ public class AppDb extends SQLiteOpenHelper {
     /** PREPARED após reinício é um estado seguro: SQLite não confirmou nenhuma consequência. */
     public JSONObject sceneCommitRecoveryState(){
         JSONObject out=new JSONObject();try{
-            SQLiteDatabase sql=getWritableDatabase();ensureBarbaraHardeningSchema(sql);String w=getActiveMapProfile();
+            SQLiteDatabase sql=getWritableDatabase();/* v61 schema is guaranteed by SQLiteOpenHelper; recovery must not execute DDL at every startup. */String w=getActiveMapProfile();
             List<JSONObject> open=queryList("SELECT commit_id,transaction_id,status,attempt_count,last_error,updated_at FROM scene_commit_journal WHERE world_profile=? AND status IN ('PREPARED','COMMITTING') ORDER BY updated_at DESC LIMIT 100",new String[]{w});
             JSONArray retryable=new JSONArray(),blocked=new JSONArray(),reconciled=new JSONArray(),discarded=new JSONArray();
             for(JSONObject r:open){String id=r.optString("commit_id"),status=r.optString("status");long txId=r.optLong("transaction_id",0);
@@ -6796,7 +6799,8 @@ public class AppDb extends SQLiteOpenHelper {
         return queryOne("SELECT * FROM narrative_discovery_runtime WHERE world_profile=?",new String[]{getActiveMapProfile()});
     }
     public JSONObject getNarrativeDiscovery(String kind,String stableKey){
-        ensureNarrativeDiscoverySchema(getWritableDatabase());
+        // DB v61 already created/upgraded narrative tables. Hot read during canonical
+        // startup seeding must never rerun CREATE TABLE / PRAGMA checks per entity.
         String k=kind==null?"":kind.trim(),key=stableKey==null?"":stableKey.trim();
         if(k.length()==0||key.length()==0)return new JSONObject();
         return queryOne("SELECT * FROM narrative_discovery_state WHERE world_profile=? AND kind=? AND stable_key=?",new String[]{getActiveMapProfile(),k,key});
@@ -6827,8 +6831,18 @@ public class AppDb extends SQLiteOpenHelper {
         try{sql.delete("narrative_discovery_state","world_profile=?",new String[]{profile});ContentValues v=new ContentValues();v.put("campaign_started",0);v.put("last_location_key","");v.put("last_geography_key","");v.put("last_poi_key","");v.put("last_weather_key","");v.put("last_location_imprint","");v.put("updated_at",System.currentTimeMillis());sql.update("narrative_discovery_runtime",v,"world_profile=?",new String[]{profile});if(owner)sql.setTransactionSuccessful();}finally{if(owner)sql.endTransaction();}
     }
 
-    private void ensureWorldProfileData(String profile){SQLiteDatabase db=getWritableDatabase();createWorldProfileTables(db);String p=normalizeMapProfile(profile);ContentValues c=new ContentValues();c.put("world_profile",p);c.put("name","mystara".equals(p)?"Crônica de Mystara":"Nova Campanha");c.put("rules_profile","mystara".equals(p)?"Rules Cyclopedia (BECMI)":"5.5e revisada (2024/2025)");c.put("tone","mystara".equals(p)?"Aventura clássica":"Fantasia heroica");c.put("feats",0);c.put("multiclass",0);c.put("flanking",0);c.put("notes","");db.insertWithOnConflict("campaign_profiles",null,c,SQLiteDatabase.CONFLICT_IGNORE);ContentValues state=new ContentValues();state.put("world_profile",p);db.insertWithOnConflict("story_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("combat_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("scene_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);}
-    private void ensureMapWorldState(String profile){SQLiteDatabase db=getWritableDatabase();ContentValues v=new ContentValues();v.put("world_profile",normalizeMapProfile(profile));db.insertWithOnConflict("map_world_state",null,v,SQLiteDatabase.CONFLICT_IGNORE);}
+    private synchronized void ensureWorldProfileData(String profile){
+        if(worldProfileDataBootstrapped)return;
+        SQLiteDatabase db=getWritableDatabase();/* onCreate/onUpgrade v61 already own schema creation. Never rerun the expensive legacy NPC/profile backfill on every launch. */String p=normalizeMapProfile(profile);ContentValues c=new ContentValues();c.put("world_profile",p);c.put("name","mystara".equals(p)?"Crônica de Mystara":"Nova Campanha");c.put("rules_profile","mystara".equals(p)?"Rules Cyclopedia (BECMI)":"5.5e revisada (2024/2025)");c.put("tone","mystara".equals(p)?"Aventura clássica":"Fantasia heroica");c.put("feats",0);c.put("multiclass",0);c.put("flanking",0);c.put("notes","");db.insertWithOnConflict("campaign_profiles",null,c,SQLiteDatabase.CONFLICT_IGNORE);ContentValues state=new ContentValues();state.put("world_profile",p);db.insertWithOnConflict("story_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("combat_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("scene_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);
+        worldProfileDataBootstrapped=true;
+    }
+    private synchronized void ensureMapWorldState(String profile){
+        if(mapWorldStateBootstrapped)return;
+        SQLiteDatabase db=getWritableDatabase();ContentValues v=new ContentValues();
+        v.put("world_profile",normalizeMapProfile(profile));
+        db.insertWithOnConflict("map_world_state",null,v,SQLiteDatabase.CONFLICT_IGNORE);
+        mapWorldStateBootstrapped=true;
+    }
     public JSONObject getMapState(){return getMapStateForProfile(activeMapProfile);}
     public JSONObject getMapStateForProfile(String profile){String normalized=normalizeMapProfile(profile);ensureMapWorldState(normalized);return queryOne("SELECT * FROM map_world_state WHERE world_profile=?",new String[]{normalized});}
     private void updateMapStateForProfile(String profile,ContentValues v){String normalized=normalizeMapProfile(profile);ensureMapWorldState(normalized);getWritableDatabase().update("map_world_state",v,"world_profile=?",new String[]{normalized});}

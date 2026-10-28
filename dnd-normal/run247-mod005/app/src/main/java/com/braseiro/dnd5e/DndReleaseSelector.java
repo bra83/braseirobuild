@@ -15,8 +15,8 @@ final class DndReleaseSelector {
         String[] lines=proof.split("\\r?\\n");
         for(String line:lines){
             if(line.startsWith("PACKAGE="))packageMatches=packageName.equals(line.substring(8).trim());
-            if(line.startsWith("VERSION_CODE=")){
-                String digits=line.substring(13).trim();
+            if(line.startsWith("VERSION_CODE=")||line.startsWith("NEW_CODE=")){
+                String digits=line.substring(line.indexOf('=')+1).trim();
                 if(!digits.matches("[0-9]{1,10}"))return -1;
                 try{
                     code=Long.parseLong(digits);

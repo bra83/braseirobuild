@@ -431,29 +431,28 @@ public final class NarrativeContentEngine {
      */
     public synchronized int seedOfficialCanon() {
         if (appDb == null) return 0;
-        int count = 0;
-
-        // 1. Forgotten Realms (FRHoF & FRAiF)
-        for (Entity e : com.braseiro.dnd5e.canon.FaerunCanonCatalog.all()) {
-            if (seedCanonicalEntity(e)) count++;
+        // The catalog is refreshed on every app version without overwriting the
+        // player's discoveries. Keep all canonical merges in ONE SQLite transaction
+        // instead of opening and committing a transaction for every entity on startup.
+        final int[] count = {0};
+        try {
+            appDb.runInTransactionChecked(new AppDb.CheckedTransaction() {
+                @Override public void run() throws Exception {
+                    for (Entity e : com.braseiro.dnd5e.canon.FaerunCanonCatalog.all())
+                        if (seedCanonicalEntity(e)) count[0]++;
+                    for (Entity e : com.braseiro.dnd5e.canon.EberronCanonCatalog.all())
+                        if (seedCanonicalEntity(e)) count[0]++;
+                    for (Entity e : com.braseiro.dnd5e.canon.RavenloftCanonCatalog.all())
+                        if (seedCanonicalEntity(e)) count[0]++;
+                    for (Entity e : com.braseiro.dnd5e.canon.LorwynNetherilArcanaCanonCatalog.all())
+                        if (seedCanonicalEntity(e)) count[0]++;
+                }
+            });
+        } catch (Exception e) {
+            AppLog.e("NarrativeContentEngine", "Lote canônico não confirmado; a transação foi revertida.", e);
+            return 0;
         }
-
-        // 2. Eberron: Forge of the Artificer (EFA)
-        for (Entity e : com.braseiro.dnd5e.canon.EberronCanonCatalog.all()) {
-            if (seedCanonicalEntity(e)) count++;
-        }
-
-        // 3. Ravenloft & Hungers (RHW & ABH)
-        for (Entity e : com.braseiro.dnd5e.canon.RavenloftCanonCatalog.all()) {
-            if (seedCanonicalEntity(e)) count++;
-        }
-
-        // 4. Lorwyn, Netheril, Arcana Unleashed, Bestiário & Adjudicação (LFL, NF, AU, XMM, XSAC)
-        for (Entity e : com.braseiro.dnd5e.canon.LorwynNetherilArcanaCanonCatalog.all()) {
-            if (seedCanonicalEntity(e)) count++;
-        }
-
-        return count;
+        return count[0];
     }
 
     /**

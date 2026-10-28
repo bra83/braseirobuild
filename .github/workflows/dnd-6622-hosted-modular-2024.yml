@@ -1,0 +1,183 @@
+name: Braseiro DnD 6.6.22 Signed Modular RulePack Hosted Release
+on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-6622-hosted-modular-2024.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: braseiro-dnd-6622-modular
+  cancel-in-progress: true
+jobs:
+  modular-rules-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      PROJECT: dnd-normal/run247-mod005
+      TAG: dnd-6.6.22-modular2024-20261028
+      PACK_TAG: dnd-2024-rules-v1
+      APK_NAME: BRASEIRO_DND_6.6.22_MODULAR_2024_20261028.apk
+      VERSION: 6.6.22-modular2024-20261028
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+            ci/dnd-rulepacks
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK on hosted Ubuntu only (not BRELGA)
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          tool="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$tool"
+          yes | "$tool" --licenses >/dev/null || true
+          "$tool" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Determine exact upgrade versionCode and enforce persisted schemas
+        run: |
+          set -euo pipefail
+          mkdir -p baseline
+          gh release download dnd-6.6.21-12classes-2024-20261028 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,os,json
+          b=Path('baseline/BADGING.txt').read_text()
+          m=re.search(r"package: name='com\.braseiro\.dnd5e' versionCode='(\d+)'",b)
+          if not m:raise SystemExit('BASELINE_PACKAGE_UNVERIFIED')
+          old=int(m.group(1));new=old+1
+          if old!=202700031:raise SystemExit('BASELINE_VERSION_UNEXPECTED: '+str(old))
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('CODE='+str(new)+'\n')
+          project=Path(os.environ['PROJECT'])
+          version=project/'version.properties';s=version.read_text()
+          for expected in ('VERSION_CODE=606548','VERSION_NAME=6.6.15-v1-3core-20261016','DB_SCHEMA=61','BACKUP_FORMAT=21'):
+            if expected not in s:raise SystemExit('VERSION_OR_SCHEMA_CHANGED: '+expected)
+          version.write_text(s.replace('VERSION_CODE=606548','VERSION_CODE='+str(new))
+            .replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
+          pack=json.loads((project/'rulepacks/2024/PHB2024_CORE_V1.json').read_text())
+          if pack['min_engine_code']!=new or pack['revision']!=1 or pack['scope']!='dnd2024':
+            raise SystemExit('PACK_ENGINE_COMPATIBILITY_FAILED')
+          assert (project/'signing/debug.keystore').is_file(),'MISSING_STABLE_SIGNER'
+          assert (project/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(),'MISSING_CANONICAL_MAP'
+          print('MODULAR_UPDATE_VERSION_PASS',old,new,'DB_SCHEMA=61 BACKUP_FORMAT=21')
+          PY
+      - name: Sign rule-pack bytes with same exact keystore and alias as Android APK
+        run: |
+          set -euo pipefail
+          mkdir -p final
+          cp "$PROJECT/rulepacks/2024/PHB2024_CORE_V1.json" final/DND_2024_RULEPACK_V1.json
+          javac ci/dnd-rulepacks/SignRulePack.java
+          java -cp ci/dnd-rulepacks SignRulePack \
+            final/DND_2024_RULEPACK_V1.json final/DND_2024_RULEPACK_V1.json.sig \
+            "$PROJECT/signing/debug.keystore" androiddebugkey android android
+          keytool -exportcert -keystore "$PROJECT/signing/debug.keystore" \
+            -storepass android -alias androiddebugkey -file final/rulepack_signer.der
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,re
+          expected=re.search(r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)',Path('baseline/SIGNATURE.txt').read_text())
+          actual=hashlib.sha256(Path('final/rulepack_signer.der').read_bytes()).hexdigest()
+          if not expected or expected[1].lower()!=actual:raise SystemExit('RULEPACK_SIGNER_NOT_APK_SIGNER')
+          print('SAME_SIGNER_FOR_RULEPACK_AND_INSTALLED_APK=PASS',actual)
+          PY
+          rm final/rulepack_signer.der
+          (cd final && sha256sum DND_2024_RULEPACK_V1.json > DND_2024_RULEPACK_V1.json.sha256)
+      - name: Compile all Java and run full Robolectric suite
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Evidence for signed package, new generator, legacy preservation, personality and SQLite
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          d=Path('app/build/test-results/testDebugUnitTest');ls=list(d.glob('TEST-*.xml'))
+          must=['Dnd2024RulePackCatalogTest','DndReleaseSelectorTest',
+            'Character2024RandomGenerationSafetyTest','Character2024RandomPersistenceTest',
+            'Character2024AllClassesStartingChoicesTest','Character2024P0StateRegressionTest',
+            'Character2024SheetDatabaseTest','Character2024SpeciesAndMonkRegressionTest',
+            'BraseiroRandomPersonalityEngineTest']
+          for name in must:
+            if not (d/('TEST-com.braseiro.dnd5e.'+name+'.xml')).is_file():raise SystemExit('MISSING_'+name)
+          stats={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in ls:
+            x=ET.parse(f).getroot()
+            for k in stats:stats[k]+=int(x.get(k,0))
+          print('DND_MODULAR_FULL_TEST_EVIDENCE='+str(stats))
+          if stats['tests']<2880 or stats['failures'] or stats['errors'] or stats['skipped']:
+            raise SystemExit('TEST_SUITE_UNCERTIFIED')
+          PY
+      - name: Build full map APK, compare package and signer
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:assembleDebug --no-daemon --console=plain
+      - name: Check installability and create official proof
+        run: |
+          set -euo pipefail
+          apk="$(find "$PROJECT/app/build/outputs/apk/debug" -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -s "$apk"
+          cp "$apk" "final/$APK_NAME"
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/aapt" dump badging "final/$APK_NAME" > final/BADGING.txt
+          "$tools/apksigner" verify --verbose --print-certs "final/$APK_NAME" > final/SIGNATURE.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re,zipfile
+          old=Path('baseline/BADGING.txt').read_text();new=Path('final/BADGING.txt').read_text()
+          x=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
+          a=re.search(x,old);b=re.search(x,new)
+          if not a or not b or a[1]!=b[1] or b[1]!='com.braseiro.dnd5e' or int(b[2])!=int(os.environ['CODE']) or b[3]!=os.environ['VERSION']+'-debug':
+            raise SystemExit('APK_NOT_UPGRADE_COMPATIBLE')
+          cert=r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)"
+          prev=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
+          now=re.search(cert,Path('final/SIGNATURE.txt').read_text())
+          if not prev or not now or prev[1].lower()!=now[1].lower():
+            raise SystemExit('APK_SIGNING_CERTIFICATE_MISMATCH')
+          with zipfile.ZipFile(Path('final')/os.environ['APK_NAME']) as z:
+            if not any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist()):
+              raise SystemExit('MAP_MISSING_FROM_PRODUCTION_APK')
+          proof='\n'.join(['SHA='+os.environ['GITHUB_SHA'],'PACKAGE='+b[1],
+            'VERSION_CODE='+b[2],'NEW_CODE='+b[2],'OLD_CODE='+a[2],
+            'SIGNING_CERT_SHA256='+now[1],'DATABASE_SCHEMA_UNCHANGED=61',
+            'BACKUP_FORMAT_UNCHANGED=21','FULL_JVM_REGRESSIONS=PASS','GITHUB_RELEASE_NEW_CODE_PROOF=PASS',
+            'SIGNED_2024_RULEPACK=PASS','RULEPACK_RESTORE_ROLLBACK_TO_BUILTIN=IMPLEMENTED',
+            '39_RANDOM_PERSONALITY_TRAITS=PASS','THREE_SQLITE_REOPENS=PASS',
+            'SAME_SIGNING_CERT=PASS','MAP_PACKAGED=PASS',
+            'PHYSICAL_GALAXY_A57_TEST=NOT_PERFORMED',''])
+          Path('final/BUILD_PROOF.txt').write_text(proof)
+          print('DND_MODULAR_UPGRADE_PASS',a[2],b[2])
+          PY
+          (cd final && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+      - name: Check branch consistency and reserve unique releases
+        run: |
+          set -euo pipefail
+          current="$(gh api repos/${{ github.repository }}/git/ref/heads/fix/dnd-6620-species-monk-audit-20261027 --jq '.object.sha')"
+          test "$current" = "$GITHUB_SHA" || { echo SOURCE_SHA_NOT_LATEST; exit 1; }
+          ! gh release view "$PACK_TAG" >/dev/null 2>&1 || { echo RULEPACK_RELEASE_EXISTS; exit 1; }
+          ! gh release view "$TAG" >/dev/null 2>&1 || { echo APK_RELEASE_EXISTS; exit 1; }
+      - name: Publish signed content-only 2024 rulepack
+        run: |
+          set -euo pipefail
+          gh release create "$PACK_TAG" final/DND_2024_RULEPACK_V1.json \
+            final/DND_2024_RULEPACK_V1.json.sig final/DND_2024_RULEPACK_V1.json.sha256 \
+            --target "$GITHUB_SHA" --title "Braseiro D&D 2024 — Pacote modular assinado 1" \
+            --notes "Catálogo PHB 2024 existente: 12/12 classes, 10/10 espécies e 16/16 antecedentes preservados. Sem bytecode, scripts, regras novas não compiladas, alteração de personagem ou migração. Assinado com a mesma chave do APK D&D. Exige versãoCode >= 202700032."
+      - name: Publish real upgradeable modular Android APK
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "final/$APK_NAME" "final/$APK_NAME.sha256" \
+            final/BUILD_PROOF.txt final/BADGING.txt final/SIGNATURE.txt \
+            --target "$GITHUB_SHA" \
+            --title "Braseiro D&D 6.6.22 — atualizador modular assinado" \
+            --notes "Android Ubuntu hosted sem BRELGA. D&D2024 rulepacks signed by the installed APK signing key; verifies truncated and modified signatures; atomic storage, rollback, startup restore; generator reads modular PHB2024 class/species/background catalogs; new D&D releases verified by code and certificate; saves and Mystara untouched; full JVM regressions; physical Galaxy A57 test NOT PERFORMED. Signed catalog includes 12 classes, 10 species and 16 backgrounds; supported on Android API 24+; packages only extend data already supported by the engine and cannot inject arbitrary new spells, actions or mechanics." 
+          echo "APK_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/$APK_NAME"

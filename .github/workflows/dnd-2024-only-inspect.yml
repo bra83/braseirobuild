@@ -1,0 +1,39 @@
+name: DnD 2024 Only UI Inspection
+on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-2024-only-inspect.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Identify actual creation mode UI and data source
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          p=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java')
+          a=p.read_text().splitlines()
+          terms=re.compile(r'PROFILE_2014|PROFILE_HYBRID|PROFILE_2024|rulesProfile|rulesSource|rules_source|randomComplete\(|perfil.*regras|rulesProfileSpinner|5e 2014|Híbrido compatível|5\.5e revisada|new String\[\].*2024',re.I)
+          found=[i for i,s in enumerate(a) if terms.search(s)]
+          print('UI_INSPECT_BEGIN lines',len(a),'hits',len(found))
+          ranges=[(2861,2885)]
+          for i,line in enumerate(a):
+              if 'collectCharacterSheet(' in line and 'private ' in line:
+                  ranges.append((max(1,i-1),min(len(a),i+22)))
+              if 'buildSelectableMechanics(' in line and 'private ' in line:
+                  ranges.append((max(1,i-1),min(len(a),i+19)))
+          for start,end in ranges:
+              print('--- MAIN RANGE '+str(start)+'-'+str(end)+' ---')
+              for j in range(start-1,min(len(a),end)):
+                  print(f'{j+1}: {a[j]}')
+          print('UI_INSPECT_END')
+          PY

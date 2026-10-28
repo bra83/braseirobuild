@@ -1,0 +1,147 @@
+name: Braseiro DnD 6.6.21 Hosted Signed 12 Class 2024 Upgrade
+on:
+  push:
+    branches: [fix/dnd-6620-species-monk-audit-20261027]
+    paths: ['.github/workflows/dnd-6621-hosted-final-apk.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: braseiro-dnd-6621-apk
+  cancel-in-progress: false
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      PROJECT: dnd-normal/run247-mod005
+      TAG: dnd-6.6.21-12classes-2024-20261028
+      APK_NAME: BRASEIRO_DND_6.6.21_12_CLASSES_2024_20261028.apk
+      VERSION: 6.6.21-12classes-2024-20261028
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Use hosted Android SDK 35 (never BRELGA)
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          tool="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$tool"
+          yes | "$tool" --licenses >/dev/null || true
+          "$tool" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Read installed baseline and set strictly greater versionCode
+        run: |
+          set -euo pipefail
+          mkdir -p baseline
+          gh release download dnd-6.6.20-fichas-2024-20261028 \
+            --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,os
+          b=Path('baseline/BADGING.txt').read_text()
+          m=re.search(r"package: name='com\.braseiro\.dnd5e' versionCode='(\d+)'",b)
+          if not m:raise SystemExit('PREVIOUS_PACKAGE_UNVERIFIED')
+          old=int(m.group(1));new=old+1
+          if old<202700000:raise SystemExit('PREVIOUS_VERSION_UNEXPECTED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:out.write('CODE='+str(new)+'\n')
+          v=Path(os.environ['PROJECT'])/'version.properties';s=v.read_text()
+          if not all(x in s for x in ('VERSION_CODE=606548','VERSION_NAME=6.6.15-v1-3core-20261016','DB_SCHEMA=61','BACKUP_FORMAT=21')):
+            raise SystemExit('SOURCE_VERSION_OR_DATABASE_CHANGED')
+          v.write_text(s.replace('VERSION_CODE=606548','VERSION_CODE='+str(new)).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
+          root=Path(os.environ['PROJECT'])
+          assert (root/'signing/debug.keystore').is_file(),'SAME_KEYSTORE_REQUIRED'
+          assert (root/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(),'FULL_MAP_REQUIRED'
+          print('UPGRADE_CODE_PASS previous=',old,'new=',new)
+          PY
+      - name: Compile Java and run entire DnD JVM/Robolectric suite with canonical assets
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Verify critical tests including personality and 3 SQLite reopens
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          p=Path('app/build/test-results/testDebugUnitTest');ls=list(p.glob('TEST-*.xml'))
+          expected=['BraseiroRandomPersonalityEngineTest','Character2024RandomGenerationSafetyTest',
+            'Character2024RandomPersistenceTest','Character2024AllClassesStartingChoicesTest','Character2024P0StateRegressionTest',
+            'Character2024SheetDatabaseTest','Character2024SpeciesAndMonkRegressionTest']
+          if not ls:raise SystemExit('NO_JUNIT_XML')
+          for test in expected:
+            if not (p/('TEST-com.braseiro.dnd5e.'+test+'.xml')).is_file():
+              raise SystemExit('MISSING_CRITICAL_TEST_'+test)
+          totals={k:0 for k in ['tests','failures','errors','skipped']}
+          for file in ls:
+            xml=ET.parse(file).getroot()
+            for key in totals:totals[key]+=int(xml.get(key,'0'))
+          print('DND_FULL_TEST_EVIDENCE='+str(totals))
+          if totals['tests']<2800 or totals['failures'] or totals['errors'] or totals['skipped']:
+            raise SystemExit('FULL_TESTS_NOT_GREEN')
+          PY
+      - name: Assemble signed APK with complete unmodified map assets
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+      - name: Verify Android signature, upgrade, package and canonical Faerun map
+        run: |
+          set -euo pipefail
+          mkdir -p final
+          apk="$(find "$PROJECT/app/build/outputs/apk/debug" -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -s "$apk"
+          cp "$apk" "final/$APK_NAME"
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/aapt" dump badging "final/$APK_NAME" > final/BADGING.txt
+          "$tools/apksigner" verify --verbose --print-certs "final/$APK_NAME" > final/SIGNATURE.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re,zipfile
+          old=Path('baseline/BADGING.txt').read_text();new=Path('final/BADGING.txt').read_text()
+          x=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
+          a=re.search(x,old);b=re.search(x,new)
+          if not a or not b or a[1]!=b[1] or b[1]!='com.braseiro.dnd5e' or int(b[2])<=int(a[2]) or int(b[2])!=int(os.environ['CODE']) or b[3]!=os.environ['VERSION']+'-debug':
+            raise SystemExit('APK_INSTALLABILITY_ID_OR_VERSION_MISMATCH')
+          cert=r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)"
+          old_cert=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
+          new_cert=re.search(cert,Path('final/SIGNATURE.txt').read_text())
+          if not old_cert or not new_cert or old_cert[1].lower()!=new_cert[1].lower():
+            raise SystemExit('APK_SIGNING_CERT_DIFFERENT_FROM_INSTALLED_6_6_20')
+          with zipfile.ZipFile(Path('final')/os.environ['APK_NAME']) as z:
+            if not any(x.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for x in z.namelist()):
+              raise SystemExit('MISSING_CANONICAL_MAP_IN_APK')
+          Path('final/BUILD_PROOF.txt').write_text(
+            'SHA='+os.environ['GITHUB_SHA']+'\nPACKAGE='+b[1]+'\nOLD_CODE='+a[2]+'\nNEW_CODE='+b[2]+
+            '\nSIGNING_CERT_SHA256='+new_cert[1]+'\nDATABASE_SCHEMA_UNCHANGED=61\nBACKUP_FORMAT_UNCHANGED=21'+
+            '\nFULL_JVM_REGRESSIONS=PASS\n39_RANDOM_PERSONALITY_TRAITS=PASS'+
+            '\nTHREE_SQLITE_REOPENS=PASS\nSAME_SIGNING_CERT=PASS\nMAP_PACKAGED=PASS'+
+            '\nPHYSICAL_GALAXY_A57_TEST=NOT_PERFORMED\n')
+          PY
+          (cd final && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+      - name: Ensure branch HEAD has not changed and release does not exist
+        run: |
+          set -euo pipefail
+          current="$(gh api repos/${{ github.repository }}/git/ref/heads/fix/dnd-6620-species-monk-audit-20261027 --jq '.object.sha')"
+          test "$current" = "$GITHUB_SHA" || { echo SOURCE_SHA_NOT_LATEST; exit 1; }
+          if gh release view "$TAG" >/dev/null 2>&1; then echo RELEASE_ALREADY_EXISTS; exit 1; fi
+      - name: Publish direct installable APK with cryptographic evidence
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "final/$APK_NAME" "final/$APK_NAME.sha256" \
+            final/BUILD_PROOF.txt final/BADGING.txt final/SIGNATURE.txt \
+            --target "$GITHUB_SHA" \
+            --title "Braseiro D&D 6.6.21 - D&D 2024 e 12 classes no gerador" \
+            --notes "Github Ubuntu hosted, sem BRELGA. Full DnD JVM regression and three SQLite reopen tests successful. Same package and signing certificate as 6.6.20; higher version code. D&D 2024 new characters only; all 12 core classes are included in certified level-one random generation; mandatory level-one class choices and 39 personality fields verified. No changes to Mystara or incremental updater. Physical Galaxy A57 installation not yet tested." \
+            --prerelease
+          echo "APK_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/$APK_NAME"

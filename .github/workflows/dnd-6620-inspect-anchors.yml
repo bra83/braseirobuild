@@ -1,0 +1,37 @@
+name: DnD 6.6.20 Inspect UI Anchors (read-only)
+on:
+  push:
+    branches:
+      - fix/dnd-6620-species-monk-audit-20261027
+    paths:
+      - '.github/workflows/dnd-6620-inspect-anchors.yml'
+permissions:
+  contents: read
+jobs:
+  ui-anchors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Read-only anchors for P0 import and sheet UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          f=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java')
+          lines=f.read_text().splitlines()
+          targets=['decodeCharacterJson(', 'REQ_IMPORT_CHARACTER', 'completeCharacterSheetMechanics(',
+                   'collectCharacterSheet(', 'show2024SpeciesConfigurator(', 'show2024BackgroundAbilitySelector(', 'randomComplete(', 'Ficha aleatória', 'ficha aleatória',
+                   'private JSONObject collectCharacterSheet(', 'private void applyCharacterSeed(',
+                   'private JSONObject completeCharacterSheetMechanics(',
+                   'private void applyCharacterSeed', 'private JSONObject collectCharacterSheet']
+          for term in targets:
+              matches=[i for i,s in enumerate(lines) if term in s]
+              print('\n=== '+term+' occurrences='+str(len(matches))+' ===')
+              for i in matches[:3]:
+                  a=max(i-12,0);b=min(i+48,len(lines))
+                  for j in range(a,b):
+                      print(f'{j+1}: {lines[j]}')
+          PY

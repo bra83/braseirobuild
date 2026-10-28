@@ -17,7 +17,7 @@ public final class CharacterRulesValidator {
             "guerreiro","ladino","mago","monge","paladino","patrulheiro","artificer","artífice","artifice"));
     private static final Set<String> SPECIES = new HashSet<String>(Arrays.asList(
             "anão","anao","elfo","halfling","humano","gnomo","draconato","meio-elfo",
-            "meio-orc","tiefling","aasimar","goliath","orc","owlin"));
+            "meio-orc","tiefling","tiferino","pequenino","golias","aasimar","goliath","orc","owlin"));
     private static final Set<String> BACKGROUNDS_2014 = new HashSet<String>(Arrays.asList(
             "acólito","artesão de guilda","artista","charlatão","criminoso","eremita",
             "forasteiro","herói do povo","marinheiro","nobre","órfão","sábio","soldado","estudante de lorehold","estudante de prismari","estudante de quandrix","estudante de silverquill","estudante de witherbloom"));
@@ -81,11 +81,36 @@ public final class CharacterRulesValidator {
                 JSONObject repaired=Character2024SheetReconciler.reconcile(new JSONObject(normalized.toString()));
                 if(hadSkills&&!oldSkills.equals(repaired.optString("skills")))
                     errors.put("Perícias inconsistentes com as proficiências estruturadas.");
-                if(hadSaves&&!oldSaves.equals(repaired.optString("saving_throws")))
-                    errors.put("Salvaguardas inconsistentes com as proficiências estruturadas.");
+                if(hadSaves&&!oldSaves.equals(repaired.optString("saving_throws"))){
+                    if(Character2024ClassContract.isGeneratedLevelOne(normalized) &&
+                            Character2024ClassContract.hasCorrectLevelOneSaves(repaired))
+                        warnings.put("Salvaguardas de ficha aleatória legada reparadas de acordo com a classe 2024.");
+                    else
+                        errors.put("Salvaguardas inconsistentes com as proficiências estruturadas.");
+                }
                 if(!hadSkills||!hadSaves)
                     warnings.put("Ficha legada reconciliada com proficiências estruturadas antes do salvamento.");
                 normalized=repaired;
+                // Never certify internally consistent but CLASS-INCOMPATIBLE saves.
+                // This independent rules gate catches the Sorcerer WIS/CHA regression.
+                if(level==1 && !Character2024ClassContract.hasCorrectLevelOneSaves(normalized))
+                    errors.put("Proficiências em salvaguardas incompatíveis com a classe inicial 2024.");
+                String coreClass=baseClassName(normalized.optString("class_name"));
+                if(("Feiticeiro".equalsIgnoreCase(coreClass)||"Mago".equalsIgnoreCase(coreClass)) &&
+                        level==1 && !lower(normalized.optString("proficiencies")).contains("armas simples"))
+                    errors.put("Proficiência em armas incompleta para a classe 2024: requer armas simples.");
+                if(!normalized.optString("species_mechanics_coherence_error","").isEmpty())
+                    errors.put(normalized.optString("species_mechanics_coherence_error"));
+                if(normalized.optBoolean("species_narrative_review_required",false))
+                    warnings.put("Biografia menciona uma espécie anterior. Revise a narrativa antes de jogar.");
+                int unresolved=normalized.optInt("creation_missing_choice_count",0);
+                if(unresolved>0)
+                    warnings.put("Criação INCOMPLETA: "+unresolved+" escolhas mecânicas pendentes: "+
+                        normalized.optJSONArray("creation_missing_choices").toString());
+                if(normalized.optBoolean("inventory_review_required",false))
+                    warnings.put("Inventário textual preservado. Confirme a posse dos itens antes de converter para o inventário estruturado.");
+                if(normalized.optBoolean("mage_armor_confirmation_pending",false))
+                    warnings.put("O texto diz Armadura Arcana ativa, mas a conjuração não foi confirmada; CA de combate mantida.");
             }
             boolean compiledBackground=CharacterOptionCatalogEngine.lookupBackground(normalized.optString("background")).optBoolean("known",false)||EberronForgeCompleteEngine.supportsBackground(normalized.optString("background"))||ForgottenRealmsHeroesEngine.supportsBackground(normalized.optString("background"));
             if(revised&&!BACKGROUNDS_2024.contains(background)&&!compiledBackground)errors.put("O antecedente não pertence à lista revisada nem aos suplementos compilados.");

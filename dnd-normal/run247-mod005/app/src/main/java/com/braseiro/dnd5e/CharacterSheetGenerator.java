@@ -256,12 +256,48 @@ public final class CharacterSheetGenerator {
     }
 
     public JSONObject randomComplete(String profile, String[] speciesOptions, List<JSONObject> existing) {
+        // New fully automatic creation is 2024-only. Legacy profiles remain
+        // readable/editable; never silently migrate an existing sheet.
+        if(!DndRulesEngine.PROFILE_2024.equals(DndRulesEngine.canonicalProfile(profile))){
+            JSONObject blocked=new JSONObject();
+            try{
+                blocked.put("rules_source",DndRulesEngine.canonicalProfile(profile));
+                blocked.put("generation_status","blocked");
+                blocked.put("generation_valid",false);
+                blocked.put("generation_blocked_reason",
+                    "Novas fichas aleatórias aceitam apenas D&D 2024. " +
+                    "Fichas 2014 e híbridas existentes continuam preservadas.");
+            }catch(org.json.JSONException ignored){}
+            return blocked;
+        }
+        // Rejected candidates must NEVER reach the sheet editor. Some random
+        // combinations have no legal unchosen proficiency (e.g. Elf Keen Senses
+        // after all three choices were already granted by class/background).
+        // Reroll the entire candidate, then fail closed if no legal combination
+        // could be certified. Never grant a substitute outside the PHB options.
+        JSONObject last=new JSONObject();
+        int maxAttempts=rules.is2024(profile)?8:1;
+        for(int attempt=0;attempt<maxAttempts;attempt++){
+            last=randomCompleteAttempt(profile,speciesOptions,existing);
+            if(last.optBoolean("generation_valid",false))return last;
+        }
+        return last;
+    }
+
+    private JSONObject randomCompleteAttempt(String profile, String[] speciesOptions,
+                                             List<JSONObject> existing) {
         try {
-            String species = chooseBalanced(speciesOptions, existing, "species");
-            String cls = chooseBalanced(selectableClasses(profile), existing, "class_name");
-            String background = chooseBalanced(rules.is2024(profile)?BACKGROUNDS_2024:backgroundPool2014(), existing, "background");
-            JSONObject sheet = baseComplete(profile, species, cls, background, 1);
-            String subclass=randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
+            String[] legalSpecies=CharacterRandom2024Rules.legalSpecies(profile,speciesOptions);
+            String[] legalClasses=CharacterRandom2024Rules.legalClasses(profile,selectableClasses(profile));
+            if(legalSpecies.length==0||legalClasses.length==0)
+                throw new IllegalStateException("Não há espécie ou classe com mecânicas certificadas nesse perfil.");
+            String species = chooseBalanced(legalSpecies, existing, "species");
+            String cls = chooseBalanced(legalClasses, existing, "class_name");
+            String background = chooseBalanced(rules.is2024(profile)?Dnd2024RulePackCatalog.backgroundPool():BACKGROUNDS, existing, "background");
+            JSONObject sheet = baseComplete(profile, species, cls, background, 1,true);
+            // Trace the source catalog for newly generated 2024 sheets only; do not migrate saves.
+            sheet.put("dnd2024_rulepack_revision",Dnd2024RulePackCatalog.revision());
+            String subclass=rules.is2024(profile)?"":randomSubclass(cls,1,profile,random);if(subclass.length()>0){sheet.put("class_name",cls+" — "+subclass);sheet.put("features",sheet.optString("features")+"\nSubclasse de nível 1: "+subclass+".");CrossBookSubclassRuntimeEngine.applyToSheet(sheet);}
             sheet.put("name", randomName(species));
             sheet.put("nickname", chance(58) ? randomNickname(cls) : "");
             sheet.put("title", chance(38) ? randomTitle(cls) : "");
@@ -275,9 +311,19 @@ public final class CharacterSheetGenerator {
                     sheet.optInt("life_terms", 2), species, cls, background));
             syncLifeDetails(sheet, true);
             sheet.put("history", mergeHistory(sheet.optString("history"), sheet.optString("life_path")));
-            return ensureComplete(sheet);
+            // One coherent, editable personality archetype for all 39 dimensions.
+            // Never affects spells, skills, items or mechanical statistics.
+            BraseiroRandomPersonalityEngine.applyToNewRandom(sheet,random);
+            JSONObject assembled=ensureComplete(sheet);
+            return CharacterRandom2024Rules.certify(
+                CharacterRandom2024Rules.finalizeNew2024(assembled,random));
         } catch (Exception e) {
-            return new JSONObject();
+            JSONObject blocked=new JSONObject();
+            try{
+                blocked.put("generation_status","blocked").put("generation_valid",false)
+                    .put("generation_blocked_reason",String.valueOf(e.getMessage()));
+            }catch(Exception ignored){}
+            return blocked;
         }
     }
 
@@ -286,6 +332,11 @@ public final class CharacterSheetGenerator {
     }
 
     public JSONObject baseComplete(String profile, String species, String cls, String background, int level) {
+        return baseComplete(profile,species,cls,background,level,false);
+    }
+
+    private JSONObject baseComplete(String profile, String species, String cls,
+                                    String background, int level,boolean fullyRandom) {
         JSONObject o = new JSONObject();
         try {
             level = clamp(level, 1, 20);
@@ -299,6 +350,8 @@ public final class CharacterSheetGenerator {
             o.put("str", scores[0]); o.put("dex", scores[1]); o.put("con", scores[2]);
             o.put("int_score", scores[3]); o.put("wis", scores[4]); o.put("cha", scores[5]);
             applyOriginAbilityBonuses(o);
+            if(fullyRandom&&rules.is2024(o.optString("rules_source")))
+                CharacterRandom2024Rules.chooseBackgroundAbilitiesBeforeMechanics(o,random);
             applyMechanics(o);
             o.put("life_origin", "Cidade mercantil");
             o.put("life_career", careerForClass(o.optString("class_name")));
@@ -586,7 +639,7 @@ public final class CharacterSheetGenerator {
         o.put("hit_dice", level + "d" + rules.classHitDie(cls));
         o.put("saving_throws", savingThrows(cls, o));
         String skills = skillsFor(cls, o.optString("background"), o);
-        o.put("skills", skills); o.put("proficiencies", proficienciesFor(cls));
+        o.put("skills", skills); o.put("proficiencies", proficienciesFor(cls, o.optString("rules_source")));
         o.put("passive_senses", passiveSenses(o, skills));
         o.put("languages", languagesFor(o.optString("species"),o.optString("rules_source")));
         o.put("tools", toolsFor(o.optString("background"), cls,o.optString("rules_source")));
@@ -839,7 +892,8 @@ public final class CharacterSheetGenerator {
     private String savingThrows(String cls, JSONObject o) {
         String c = norm(cls);String first = "Força", second = "Constituição";
         if (c.contains("bardo")) { first="Destreza"; second="Carisma"; }
-        else if (c.contains("bruxo") || c.contains("feiticeiro") || c.contains("paladino")) { first="Sabedoria"; second="Carisma"; }
+        else if (c.contains("feiticeiro")) { first="Constituição"; second="Carisma"; }
+        else if (c.contains("bruxo") || c.contains("paladino")) { first="Sabedoria"; second="Carisma"; }
         else if (c.contains("clerigo")) { first="Sabedoria"; second="Carisma"; }
         else if (c.contains("druida")) { first="Inteligência"; second="Sabedoria"; }
         else if (c.equals("xama")) { first="Sabedoria"; second="Carisma"; }
@@ -979,8 +1033,26 @@ public final class CharacterSheetGenerator {
         return "Atacante Selvagem";
     }
 
-    private String proficienciesFor(String cls) {
+    private String proficienciesFor(String cls,String profile) {
         String c = norm(cls);
+        if(rules.is2024(profile)){
+            // PHB 2024 class-wide weapon/armor proficiencies. No fallback to
+            // 2014 weapon subsets or to the vague "consult the manual" label.
+            switch(c){
+                case "barbaro": return "Armaduras leves e médias, escudos, armas simples e marciais";
+                case "bardo": return "Armaduras leves, armas simples, três instrumentos musicais";
+                case "bruxo": return "Armaduras leves, armas simples, focos arcanos";
+                case "clerigo": return "Armaduras leves e médias, escudos, armas simples, símbolo sagrado";
+                case "druida": return "Armaduras leves, escudos, armas simples, kit de herbalismo, foco druídico";
+                case "feiticeiro": return "Sem armaduras; armas simples; focos arcanos";
+                case "guerreiro": return "Todas as armaduras, escudos, armas simples e marciais";
+                case "ladino": return "Armaduras leves, armas simples, armas marciais leves ou com Acuidade, ferramentas de ladrão";
+                case "mago": return "Sem armaduras; armas simples; focos arcanos";
+                case "monge": return "Sem armaduras; armas simples e armas marciais leves; um instrumento musical ou ferramenta de artesão";
+                case "paladino": return "Todas as armaduras, escudos, armas simples e marciais";
+                case "patrulheiro": return "Armaduras leves e médias, escudos, armas simples e marciais";
+            }
+        }
         if (c.contains("barbar")) return "Armaduras leves e médias, escudos, armas simples e marciais";
         if (c.contains("guerreiro") || c.contains("paladino")) return "Todas as armaduras, escudos, armas simples e marciais";
         if (c.contains("ladino")) return "Armaduras leves, armas simples, armas finesse selecionadas, ferramentas de ladrão";
@@ -1012,7 +1084,7 @@ public final class CharacterSheetGenerator {
         }
         if (c.contains("paladino")) return "Espada longa | "+signed(str+pb)+" | 1d8"+signed(str)+" cortante | versátil\nAzagaia | "+signed(str+pb)+" | 1d6"+signed(str)+" perfurante | 9/36 m\n"+unarmed;
         if (c.contains("patrulheiro")) return "Cimitarra | "+signed(dex+pb)+" | 1d6"+signed(dex)+" cortante | finesse, leve\nEspada curta | "+signed(dex+pb)+" | 1d6"+signed(dex)+" perfurante | finesse, leve\nArco longo | "+signed(dex+pb)+" | 1d8"+signed(dex)+" perfurante | 45/180 m\n"+unarmed;
-        if (c.contains("monge")) return "Lança | "+signed(str+pb)+" | 1d6"+signed(str)+" perfurante | versátil\nAdaga | "+signed(dex+pb)+" | 1d4"+signed(dex)+" perfurante | finesse, leve\n"+unarmed;
+        if (c.contains("monge")) return revised?Character2024SheetConsistencyGuard.monkAttacks(o):"Lança | "+signed(str+pb)+" | 1d6"+signed(str)+" perfurante | versátil\nAdaga | "+signed(dex+pb)+" | 1d4"+signed(dex)+" perfurante | finesse, leve\n"+unarmed;
         if (revised && c.contains("feiticeiro")) return "Lança | "+signed(str+pb)+" | 1d6"+signed(str)+" perfurante | versátil\nAdaga | "+signed(dex+pb)+" | 1d4"+signed(dex)+" perfurante | finesse, leve\nTruque de ataque | "+signed(spellMod(o,cls)+pb)+" | conforme magia | alcance da magia";
         if (revised && c.contains("bruxo")) return "Foice | "+signed(str+pb)+" | 1d4"+signed(str)+" cortante | leve\nAdaga | "+signed(dex+pb)+" | 1d4"+signed(dex)+" perfurante | finesse, leve\nTruque de ataque | "+signed(spellMod(o,cls)+pb)+" | conforme magia | alcance da magia";
         if (revised && c.contains("mago")) return "Bordão | "+signed(str+pb)+" | 1d6"+signed(str)+" contundente | versátil 1d8\nAdaga | "+signed(dex+pb)+" | 1d4"+signed(dex)+" perfurante | finesse, leve\nTruque de ataque | "+signed(spellMod(o,cls)+pb)+" | conforme magia | alcance da magia";
@@ -1032,7 +1104,13 @@ public final class CharacterSheetGenerator {
         else if (c.contains("bardo")) b.append("Inspiração de Bardo; Conjuração; recursos do antecedente");
         else if (c.contains("guerreiro")) b.append("Retomar o Fôlego; Estilo de Luta").append(revised?"; Maestria de Armas":"");
         else if (c.contains("mago")) b.append("Conjuração; Recuperação Arcana; Livro de Magias");
+        else if (revised&&level==1&&c.contains("feiticeiro")) b.append("Conjuração; Feitiçaria Inata (2 usos por descanso longo)");
+        else if (revised&&level==1&&c.contains("bruxo")) b.append("Magia de Pacto; Invocação Mística");
+        else if (revised&&level==1&&c.contains("druida")) b.append("Conjuração; Druídico; Ordem Primal");
+        else if (revised&&level==1&&c.contains("paladino")) b.append("Imposição das Mãos; Conjuração; Maestria de Armas");
+        else if (revised&&level==1&&c.contains("patrulheiro")) b.append("Conjuração; Inimigo Predileto; Maestria de Armas");
         else if (c.contains("clerigo")) b.append("Conjuração Divina; Canalizar Divindade quando disponível");
+        else if (c.contains("monge")) b.append("Artes Marciais; Defesa sem Armadura").append(level>=2?(revised?"; Foco do Monge; Movimento sem Armadura; Metabolismo Sobrenatural":"; Ki; Movimento sem Armadura"):"");
         else if (c.contains("cozinheiro")) b.append("Bolsa de Cozinheiro; Petiscos; Temperos Aromáticos; pacote compilado Cozinheiro ativo");
         else if (c.contains("cacador de sangue")) b.append("Perdição do Caçador; Ritual Vermelho").append(level>=2?"; Sangue Maldito":"").append(level>=3?"; Ordem do Caçador de Sangue":"");
         else if (c.contains("necromante")) b.append("Conjuração; Recuperação de Magia Negra; Canalizar Necromancia").append(level>=2?"; Caminho de Necromante":"");
@@ -1060,7 +1138,9 @@ public final class CharacterSheetGenerator {
         if (c.contains("clerigo")) return "Espaços: 2 de 1º círculo\nTruques: Chama Sagrada, Orientação, Taumaturgia\nPreparadas: Curar Ferimentos, Palavra Curativa, Bênção, Santuário";
         if (c.contains("druida")) return "Espaços: 2 de 1º círculo\nTruques: Druidismo, Bordão Místico\nPreparadas: Curar Ferimentos, Fogo das Fadas, Enredar, Falar com Animais";
         if (c.contains("bruxo")) return "Espaços de pacto: 1 de 1º círculo\nTruques: Rajada Mística, Mãos Mágicas\nConhecidas: Repreensão Infernal, Bruxaria";
-        if (c.contains("feiticeiro")) return "Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nConhecidas: Escudo, Orbe Cromática";
+        if (c.contains("feiticeiro")) return rules.is2024(profile)
+            ?"Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nPreparadas: Escudo, Mísseis Mágicos"
+            :"Espaços: 2 de 1º círculo\nTruques: Raio de Fogo, Prestidigitação, Mãos Mágicas, Luz\nConhecidas: Escudo, Orbe Cromática";
         if (c.contains("paladino")) return rules.is2024(profile)?"Espaços: 2 de 1º círculo\nPreparadas: Bênção, Curar Ferimentos":"Conjuração começa no nível 2 no perfil 2014; recursos atuais são marciais.";
         if (c.contains("patrulheiro")) return rules.is2024(profile)?"Espaços: 2 de 1º círculo\nPreparadas: Marca do Caçador, Curar Ferimentos":"Conjuração começa no nível 2 no perfil 2014; recursos atuais são marciais.";
         return "Magias e espaços conforme a classe, o nível e os manuais habilitados.";
