@@ -38,7 +38,7 @@ jobs:
           b=(root/'BarbaraSupervisor.java').read_text()
           m=(root/'MasterOrchestrator.java').read_text()
           a=(root/'MainActivity.java').read_text()
-          ctor=b.split('public BarbaraSupervisor(Context ctx)',1)[1].split('private synchronized void initialize()',1)[0]
+          ctor=b.split('public BarbaraSupervisor(Context ctx)',1)[1].split('}',1)[0]
           assert 'initialize();' not in ctor, 'Barbara constructor must never start Python'
           plan=b.split('public JSONObject plan(String action,String importance,boolean narrative,boolean nonAdvancing,String occasion,String inputChannel,String requestedSystem)',1)[1]
           assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Background plan must await Barbara'
