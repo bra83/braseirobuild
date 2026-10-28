@@ -221,6 +221,14 @@ public final class BraseiroAdventureStore {
             "world_scope TEXT NOT NULL, character_id INTEGER NOT NULL, region TEXT NOT NULL, "+
             "sentiment TEXT NOT NULL, score INTEGER NOT NULL, updated_at INTEGER NOT NULL, "+
             "PRIMARY KEY(world_scope,character_id,region,sentiment))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_knowledge ("+
+            "world_scope TEXT NOT NULL, fact_key TEXT NOT NULL, npc_id INTEGER NOT NULL, "+
+            "knowledge_kind TEXT NOT NULL, source_npc_id INTEGER NOT NULL, "+
+            "learned_day INTEGER NOT NULL, PRIMARY KEY(world_scope,fact_key,npc_id))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_attitudes ("+
+            "world_scope TEXT NOT NULL, hero_id INTEGER NOT NULL, npc_id INTEGER NOT NULL, "+
+            "sentiment TEXT NOT NULL, score INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,hero_id,npc_id,sentiment))");
         String prefix=db.getActiveMapProfile()+":%";
         root.put("braseiroAdventurePackages",new JSONArray(db.queryList(
             "SELECT * FROM braseiro_adventure_packages WHERE scope LIKE ?",new String[]{prefix})));
@@ -230,6 +238,10 @@ public final class BraseiroAdventureStore {
             "SELECT * FROM braseiro_adventure_causal_facts WHERE world_scope LIKE ?",new String[]{prefix})));
         root.put("braseiroHeroRegionalReputation",new JSONArray(db.queryList(
             "SELECT * FROM braseiro_hero_regional_reputation WHERE world_scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroNpcKnowledge",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_hero_npc_knowledge WHERE world_scope LIKE ?",new String[]{prefix})));
+        root.put("braseiroNpcHeroAttitudes",new JSONArray(db.queryList(
+            "SELECT * FROM braseiro_hero_npc_attitudes WHERE world_scope LIKE ?",new String[]{prefix})));
     }
     /** Called inside AppDb's existing verified, atomic BACKUP21 restoration. */
     public synchronized void restorePortableBackup(SQLiteDatabase sql,JSONObject root,String profile)throws Exception{
@@ -242,15 +254,27 @@ public final class BraseiroAdventureStore {
             "world_scope TEXT NOT NULL, character_id INTEGER NOT NULL, region TEXT NOT NULL, "+
             "sentiment TEXT NOT NULL, score INTEGER NOT NULL, updated_at INTEGER NOT NULL, "+
             "PRIMARY KEY(world_scope,character_id,region,sentiment))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_knowledge ("+
+            "world_scope TEXT NOT NULL, fact_key TEXT NOT NULL, npc_id INTEGER NOT NULL, "+
+            "knowledge_kind TEXT NOT NULL, source_npc_id INTEGER NOT NULL, "+
+            "learned_day INTEGER NOT NULL, PRIMARY KEY(world_scope,fact_key,npc_id))");
+        sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_hero_npc_attitudes ("+
+            "world_scope TEXT NOT NULL, hero_id INTEGER NOT NULL, npc_id INTEGER NOT NULL, "+
+            "sentiment TEXT NOT NULL, score INTEGER NOT NULL, "+
+            "PRIMARY KEY(world_scope,hero_id,npc_id,sentiment))");
         String prefix=profile+":%";
         for(String table:new String[]{"braseiro_adventure_npc_ledger","braseiro_adventure_packages"})
             sql.delete(table,"scope LIKE ?",new String[]{prefix});
         sql.delete("braseiro_adventure_causal_facts","world_scope LIKE ?",new String[]{prefix});
         sql.delete("braseiro_hero_regional_reputation","world_scope LIKE ?",new String[]{prefix});
+        sql.delete("braseiro_hero_npc_knowledge","world_scope LIKE ?",new String[]{prefix});
+        sql.delete("braseiro_hero_npc_attitudes","world_scope LIKE ?",new String[]{prefix});
         String[] keys={"braseiroAdventurePackages","braseiroAdventureNpcLedger",
-            "braseiroAdventureCausalFacts","braseiroHeroRegionalReputation"};
+            "braseiroAdventureCausalFacts","braseiroHeroRegionalReputation",
+            "braseiroNpcKnowledge","braseiroNpcHeroAttitudes"};
         String[] tables={"braseiro_adventure_packages","braseiro_adventure_npc_ledger",
-            "braseiro_adventure_causal_facts","braseiro_hero_regional_reputation"};
+            "braseiro_adventure_causal_facts","braseiro_hero_regional_reputation",
+            "braseiro_hero_npc_knowledge","braseiro_hero_npc_attitudes"};
         for(int group=0;group<keys.length;group++){
             JSONArray rows=root.optJSONArray(keys[group]);if(rows==null)continue;
             for(int i=0;i<rows.length();i++){
