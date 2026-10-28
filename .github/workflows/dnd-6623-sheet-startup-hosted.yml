@@ -58,7 +58,7 @@ jobs:
           source=version.read_text()
           for expected in ['VERSION_CODE=606548','VERSION_NAME=6.6.15-v1-3core-20261016','DB_SCHEMA=61','BACKUP_FORMAT=21']:
               assert expected in source, 'Unexpected version/schema: '+expected
-          old=re.search(r"package: name='com\\.braseiro\\.dnd5e' versionCode='(\\d+)'",Path('baseline/BADGING.txt').read_text())
+          old=re.search(r"package: name='com\.braseiro\.dnd5e' versionCode='(\d+)'",Path('baseline/BADGING.txt').read_text())
           assert old and int(old[1])+1==int(os.environ['CODE']), 'Upgrade version code mismatch'
           assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
           assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
@@ -112,7 +112,7 @@ jobs:
           assert a and b and a[1]==b[1]=='com.braseiro.dnd5e'
           assert int(b[2])==int(os.environ['CODE']) and int(b[2])>int(a[2])
           assert b[3]==os.environ['VERSION']+'-debug'
-          cert=r'Signer #1 certificate SHA-256 digest:\\s*([0-9a-fA-F]+)'
+          cert=r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)'
           prev,now=re.search(cert,Path('baseline/SIGNATURE.txt').read_text()),re.search(cert,Path('out/SIGNATURE.txt').read_text())
           assert prev and now and prev[1].lower()==now[1].lower(),'Different APK signer'
           with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
