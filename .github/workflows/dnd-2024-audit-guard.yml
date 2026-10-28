@@ -1,0 +1,47 @@
+name: D&D 2024 Species + Monk Audit Guard
+on:
+  pull_request:
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetConsistencyGuard.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterSheetGenerator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SpeciesAndMonkRegressionTest.java'
+      - '.github/workflows/dnd-2024-audit-guard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install SDK
+        run: |
+          set -euo pipefail
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$sdkmanager"
+          yes | "$sdkmanager" --licenses >/dev/null || true
+          "$sdkmanager" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+      - name: Compile D&D Java
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Regression from both uploaded character sheets
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests com.braseiro.dnd5e.Character2024SpeciesAndMonkRegressionTest \
+            --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
+            --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
