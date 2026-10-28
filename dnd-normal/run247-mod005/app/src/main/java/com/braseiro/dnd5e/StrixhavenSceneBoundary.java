@@ -47,9 +47,14 @@ public final class StrixhavenSceneBoundary {
                 : enterNewLocation(activeScene);
         for (String key : new String[] {
                 "strixhaven_map_id", "strixhaven_poi_id",
-                "strixhaven_exploration_x", "strixhaven_exploration_y",
-                "adventure_profile", "world_region"}) {
+                "strixhaven_exploration_x", "strixhaven_exploration_y"}) {
             next.remove(key);
+        }
+        // Never erase a real Faerun snapshot's campaign metadata.
+        // Only a fallback copied from the campus can carry stale campus markers.
+        if (!validSnapshot) {
+            next.remove("adventure_profile");
+            next.remove("world_region");
         }
         // Do not preserve Strixhaven-specific travel labels after returning.
         if (!validSnapshot) {
