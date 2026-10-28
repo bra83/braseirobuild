@@ -53,8 +53,7 @@ public class Character2024SpeciesAndMonkRegressionTest {
         assertTrue(sheet.getBoolean("human_extra_origin_feat_pending"));
         assertTrue(sheet.getBoolean("species_narrative_review_required"));
         assertTrue(sheet.getString("history").contains("Urdunnir")); // Never rewrite bio.
-        assertEquals(1,sheet.getJSONArray("species_mechanics_repair_log").length()+0
-            - (sheet.getJSONArray("species_mechanics_repair_log").length()==2?1:0));
+        assertEquals(2,sheet.getJSONArray("species_mechanics_repair_log").length());
     }
     @Test public void monk2024UsesDexAndMartialArtsDieNotStrength() throws Exception {
         JSONObject sheet=Character2024SheetReconciler.reconcile(mara());
