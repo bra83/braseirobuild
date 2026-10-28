@@ -51,9 +51,9 @@ public class DndReleaseSelectorTest {
     }
     @Test public void acceptsVerifiedPublishedNewCodeProof() {
         assertEquals(202700031L,DndReleaseSelector.verifiedCode(
-            "NEW_CODE=202700031\\nPACKAGE=com.braseiro.dnd5e\\n","com.braseiro.dnd5e"));
+            "NEW_CODE=202700031\nPACKAGE=com.braseiro.dnd5e\n","com.braseiro.dnd5e"));
         assertEquals(-1L,DndReleaseSelector.verifiedCode(
-            "NEW_CODE=202700031\\nPACKAGE=com.braseiro.other\\n","com.braseiro.dnd5e"));
+            "NEW_CODE=202700031\nPACKAGE=com.braseiro.other\n","com.braseiro.dnd5e"));
     }
     @Test public void absentProofUrlCannotBeAssumedNewer() throws Exception {
         JSONObject noProof=release("dnd-6.6.18",false,false,true,true);
