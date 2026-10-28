@@ -61,7 +61,7 @@ public final class Dnd2024RulePackManager {
     }
     private PublicKey signingPublicKey()throws Exception{
         PackageManager pm=app.getPackageManager();
-        PackageInfo p=pm.getPackageInfo(app.getPackageName(),PackageManager.GET_SIGNING_CERTIFICATES);
+        PackageInfo p=pm.getPackageInfo(app.getPackageName(),Build.VERSION.SDK_INT>=28 ? PackageManager.GET_SIGNING_CERTIFICATES : PackageManager.GET_SIGNATURES);
         Signature[] signers;
         if(Build.VERSION.SDK_INT>=28)
             signers=p.signingInfo==null?null:p.signingInfo.getApkContentsSigners();
