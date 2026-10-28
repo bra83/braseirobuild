@@ -25,7 +25,7 @@ jobs:
           terms=re.compile(r'PROFILE_2014|PROFILE_HYBRID|PROFILE_2024|rulesProfile|rulesSource|rules_source|randomComplete\(|perfil.*regras|rulesProfileSpinner|5e 2014|Híbrido compatível|5\.5e revisada|new String\[\].*2024',re.I)
           found=[i for i,s in enumerate(a) if terms.search(s)]
           print('UI_INSPECT_BEGIN lines',len(a),'hits',len(found))
-          ranges=[(1139,1197),(2409,2415),(2739,2751),(2767,2777),(2795,2804),(2845,2869)]
+          ranges=[(2861,2885)]\n          for i,line in enumerate(a):\n              if 'collectCharacterSheet(' in line and 'private ' in line:\n                  ranges.append((max(1,i-1),min(len(a),i+22)))\n              if 'buildSelectableMechanics(' in line and 'private ' in line:\n                  ranges.append((max(1,i-1),min(len(a),i+19)))
           for start,end in ranges:
               print('--- MAIN RANGE '+str(start)+'-'+str(end)+' ---')
               for j in range(start-1,min(len(a),end)):
