@@ -49,7 +49,8 @@ public final class Dnd2024RulePackManager {
     private static AtomicFile previous(Context c){return new AtomicFile(new File(directory(c),"previous.json"));}
 
     static boolean verifyBytes(byte[] bytes, byte[] signed, PublicKey key)throws Exception{
-        if(bytes==null||signed==null||key==null||bytes.length==0||bytes.length>MAX_BYTES||signed.length>1024)
+        if(bytes==null||signed==null||key==null||bytes.length==0||bytes.length>MAX_BYTES||
+           signed.length<32||signed.length>1024)
             return false;
         String algorithm="EC".equalsIgnoreCase(key.getAlgorithm())?"SHA256withECDSA":
             "RSA".equalsIgnoreCase(key.getAlgorithm())?"SHA256withRSA":"";
