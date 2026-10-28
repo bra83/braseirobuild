@@ -4,12 +4,14 @@ on:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetConsistencyGuard.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterMageArmorState.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRandom2024Rules.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024CreationReadiness.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterSheetGenerator.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SpeciesAndMonkRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024P0StateRegressionTest.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024RandomGenerationSafetyTest.java'
       - '.github/workflows/dnd-2024-audit-guard.yml'
   workflow_dispatch:
 permissions:
@@ -46,6 +48,7 @@ jobs:
           ./gradlew :app:testDebugUnitTest \
             --tests com.braseiro.dnd5e.Character2024SpeciesAndMonkRegressionTest \
             --tests com.braseiro.dnd5e.Character2024P0StateRegressionTest \
+            --tests com.braseiro.dnd5e.Character2024RandomGenerationSafetyTest \
             --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
