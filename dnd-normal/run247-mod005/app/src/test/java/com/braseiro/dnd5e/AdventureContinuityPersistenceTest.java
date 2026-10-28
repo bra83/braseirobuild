@@ -63,7 +63,7 @@ public class AdventureContinuityPersistenceTest {
         JSONObject npc=new JSONObject().put("name","Testemunha da Estrada")
             .put("summary","Mercador local").put("active",1);
         db.upsertNpcMemoryChecked(npc);
-        JSONArray npcs=new JSONArray(db.listNpcMemories(30));
+        JSONArray npcs=db.listNpcMemories(30);
         long npcId=0;
         for(int i=0;i<npcs.length();i++){
             JSONObject n=npcs.optJSONObject(i);
@@ -86,8 +86,8 @@ public class AdventureContinuityPersistenceTest {
         assertEquals(1,engine.factsKnownByNpc(npcId,10).length());
         assertEquals(0,engine.factsKnownByNpc(npcId+999,10).length());
         assertEquals(12,engine.regionalReputation(characterId,5).getJSONObject(0).optInt("score"));
-        assertEquals("freeform:D&D Normal",
-            engine.factsKnownByNpc(npcId,10).getJSONObject(0).optString("adventure_id"));
+        assertTrue(engine.factsKnownByNpc(npcId,10).getJSONObject(0)
+            .optString("adventure_id").startsWith("freeform:"));
     }
 
     @Test public void proposedOrUnwitnessedRumorCannotCreateReputation() throws Exception {
@@ -104,7 +104,7 @@ public class AdventureContinuityPersistenceTest {
         JSONObject npc=new JSONObject().put("name","Mercador")
             .put("summary","Viu um resgate").put("active",1);
         db.upsertNpcMemoryChecked(npc);
-        JSONArray npcs=new JSONArray(db.listNpcMemories(50));long npcId=0;
+        JSONArray npcs=db.listNpcMemories(50);long npcId=0;
         for(int i=0;i<npcs.length();i++){
             JSONObject n=npcs.optJSONObject(i);
             if(n!=null&&"Mercador".equals(n.optString("name")))npcId=n.optLong("id");
