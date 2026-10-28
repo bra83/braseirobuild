@@ -272,7 +272,9 @@ public final class Character2024SheetReconciler {
             derive(sheet,skills,saves);
             applyAbilityChoice(sheet);
             originFeats(sheet);
-            sheet.put("sheet_2024_reconciler_version",1);
+            CharacterMageArmorState.reconcile(sheet);
+            Character2024CreationReadiness.evaluate(sheet);
+            sheet.put("sheet_2024_reconciler_version",2);
         }catch(Exception error){
             throw new IllegalStateException("A ficha 2024 não pôde ser reconciliada sem perda de dados.",error);
         }
@@ -310,6 +312,8 @@ public final class Character2024SheetReconciler {
             derive(sheet,selected,saveSet);
             applyAbilityChoice(sheet);
             originFeats(sheet);
+            CharacterMageArmorState.reconcile(sheet);
+            Character2024CreationReadiness.evaluate(sheet);
         }catch(Exception failure){
             throw new IllegalStateException("Não foi possível registrar as escolhas de perícias e salvaguardas.",failure);
         }
