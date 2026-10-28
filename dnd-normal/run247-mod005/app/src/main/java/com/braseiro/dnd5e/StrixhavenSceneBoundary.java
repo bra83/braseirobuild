@@ -47,7 +47,8 @@ public final class StrixhavenSceneBoundary {
                 : enterNewLocation(activeScene);
         for (String key : new String[] {
                 "strixhaven_map_id", "strixhaven_poi_id",
-                "strixhaven_exploration_x", "strixhaven_exploration_y"}) {
+                "strixhaven_exploration_x", "strixhaven_exploration_y",
+                "adventure_profile", "world_region"}) {
             next.remove(key);
         }
         // Do not preserve Strixhaven-specific travel labels after returning.
