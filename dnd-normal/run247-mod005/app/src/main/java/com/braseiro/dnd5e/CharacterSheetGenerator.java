@@ -1033,6 +1033,7 @@ public final class CharacterSheetGenerator {
         else if (c.contains("guerreiro")) b.append("Retomar o Fôlego; Estilo de Luta").append(revised?"; Maestria de Armas":"");
         else if (c.contains("mago")) b.append("Conjuração; Recuperação Arcana; Livro de Magias");
         else if (c.contains("clerigo")) b.append("Conjuração Divina; Canalizar Divindade quando disponível");
+        else if (c.contains("monge")) b.append("Artes Marciais; Defesa sem Armadura").append(level>=2?(revised?"; Foco do Monge; Movimento sem Armadura; Metabolismo Sobrenatural":"; Ki; Movimento sem Armadura"):"");
         else if (c.contains("cozinheiro")) b.append("Bolsa de Cozinheiro; Petiscos; Temperos Aromáticos; pacote compilado Cozinheiro ativo");
         else if (c.contains("cacador de sangue")) b.append("Perdição do Caçador; Ritual Vermelho").append(level>=2?"; Sangue Maldito":"").append(level>=3?"; Ordem do Caçador de Sangue":"");
         else if (c.contains("necromante")) b.append("Conjuração; Recuperação de Magia Negra; Canalizar Necromancia").append(level>=2?"; Caminho de Necromante":"");
