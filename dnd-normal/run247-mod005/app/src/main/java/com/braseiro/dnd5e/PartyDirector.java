@@ -45,6 +45,24 @@ public final class PartyDirector {
         return out;
     }
 
+    /** Explicit invitation: player and NPC must both opt in while present on campus. */
+    public JSONObject inviteStrixhavenClassmate(String npcName,boolean playerInvited,
+                                                 boolean npcAccepted)throws Exception{
+        return new KvotheCampaignPartyBridge(db).inviteCampusNpc(npcName,playerInvited,npcAccepted);
+    }
+
+    /** Player-selected three existing character sheets at D040; not a scripted teleport. */
+    public JSONObject recruitKvotheFriendsAtMarco(long wilemId,long simmonId,long auriId,
+                                                   boolean playerConfirmed,
+                                                   boolean allAccepted)throws Exception{
+        return new KvotheCampaignPartyBridge(db).recruitAtMarco(
+            wilemId,simmonId,auriId,playerConfirmed,allAccepted);
+    }
+
+    public JSONObject kvotheCampaignPolicy(){
+        return new KvotheCampaignPartyBridge(db).context();
+    }
+
     public long recruitHero(long characterId,String recruitmentType)throws Exception{
         ensureFounderMembership();
         JSONObject hero=db.getCharacter(characterId);if(hero.length()==0)throw new IllegalArgumentException("Herói inexistente.");
@@ -159,6 +177,7 @@ public final class PartyDirector {
     public JSONObject compactStateForPrompt(int maxChars){
         JSONObject out=new JSONObject();try{
             JSONObject state=db.getPartyState();JSONObject party=new JSONObject();party.put("marching_order",parseArray(state.optString("marching_order_json","[]")));party.put("roles",parseObject(state.optString("roles_json","{}")));party.put("company_resources",parseObject(state.optString("company_resources_json","{}")));party.put("subgroups",parseArray(state.optString("subgroups_json","[]")));party.put("relations",parseArray(state.optString("relations_json","[]")));party.put("session_preferences",parseObject(state.optString("session_preferences_json","{}")));party.put("knowledge_mode",state.optString("knowledge_mode","jogador_total"));party.put("default_control_mode",CompanionAgencyEngine.mode(state.optString("default_control_mode","manual")));out.put("party",party);
+            out.put("kvothe_strixhaven_party_policy",kvotheCampaignPolicy());
             out.put("roster",activeRoster());JSONArray heroes=new JSONArray();for(JSONObject h:rosterHeroes()){
                 JSONObject control=db.getCharacterControl(h.optLong("id"));JSONObject x=new JSONObject();x.put("id",h.optLong("id"));x.put("name",h.optString("name"));x.put("class",h.optString("class_name"));x.put("level",h.optInt("level",1));x.put("hp",h.optInt("hp"));x.put("max_hp",h.optInt("max_hp"));x.put("ac",h.optInt("ac"));x.put("control_mode",CompanionAgencyEngine.mode(control.optString("control_mode","manual")));x.put("tactics",parseObject(control.optString("tactics_json","{}")));x.put("personal_goal",control.optString("personal_goal"));x.put("arc_status",control.optString("arc_status","active"));x.put("arc_notes",control.optString("arc_notes"));x.put("last_major_choice",control.optString("last_major_choice"));heroes.put(x);
             }
