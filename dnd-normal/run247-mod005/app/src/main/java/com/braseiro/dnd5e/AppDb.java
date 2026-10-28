@@ -106,7 +106,7 @@ public class AppDb extends SQLiteOpenHelper {
     /** PREPARED após reinício é um estado seguro: SQLite não confirmou nenhuma consequência. */
     public JSONObject sceneCommitRecoveryState(){
         JSONObject out=new JSONObject();try{
-            SQLiteDatabase sql=getWritableDatabase();ensureBarbaraHardeningSchema(sql);String w=getActiveMapProfile();
+            SQLiteDatabase sql=getWritableDatabase();/* v61 schema is guaranteed by SQLiteOpenHelper; recovery must not execute DDL at every startup. */String w=getActiveMapProfile();
             List<JSONObject> open=queryList("SELECT commit_id,transaction_id,status,attempt_count,last_error,updated_at FROM scene_commit_journal WHERE world_profile=? AND status IN ('PREPARED','COMMITTING') ORDER BY updated_at DESC LIMIT 100",new String[]{w});
             JSONArray retryable=new JSONArray(),blocked=new JSONArray(),reconciled=new JSONArray(),discarded=new JSONArray();
             for(JSONObject r:open){String id=r.optString("commit_id"),status=r.optString("status");long txId=r.optLong("transaction_id",0);
@@ -6832,7 +6832,7 @@ public class AppDb extends SQLiteOpenHelper {
 
     private synchronized void ensureWorldProfileData(String profile){
         if(worldProfileDataBootstrapped)return;
-        SQLiteDatabase db=getWritableDatabase();createWorldProfileTables(db);String p=normalizeMapProfile(profile);ContentValues c=new ContentValues();c.put("world_profile",p);c.put("name","mystara".equals(p)?"Crônica de Mystara":"Nova Campanha");c.put("rules_profile","mystara".equals(p)?"Rules Cyclopedia (BECMI)":"5.5e revisada (2024/2025)");c.put("tone","mystara".equals(p)?"Aventura clássica":"Fantasia heroica");c.put("feats",0);c.put("multiclass",0);c.put("flanking",0);c.put("notes","");db.insertWithOnConflict("campaign_profiles",null,c,SQLiteDatabase.CONFLICT_IGNORE);ContentValues state=new ContentValues();state.put("world_profile",p);db.insertWithOnConflict("story_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("combat_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("scene_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);
+        SQLiteDatabase db=getWritableDatabase();/* onCreate/onUpgrade v61 already own schema creation. Never rerun the expensive legacy NPC/profile backfill on every launch. */String p=normalizeMapProfile(profile);ContentValues c=new ContentValues();c.put("world_profile",p);c.put("name","mystara".equals(p)?"Crônica de Mystara":"Nova Campanha");c.put("rules_profile","mystara".equals(p)?"Rules Cyclopedia (BECMI)":"5.5e revisada (2024/2025)");c.put("tone","mystara".equals(p)?"Aventura clássica":"Fantasia heroica");c.put("feats",0);c.put("multiclass",0);c.put("flanking",0);c.put("notes","");db.insertWithOnConflict("campaign_profiles",null,c,SQLiteDatabase.CONFLICT_IGNORE);ContentValues state=new ContentValues();state.put("world_profile",p);db.insertWithOnConflict("story_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("combat_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);db.insertWithOnConflict("scene_state_profiles",null,state,SQLiteDatabase.CONFLICT_IGNORE);
         worldProfileDataBootstrapped=true;
     }
     private synchronized void ensureMapWorldState(String profile){
