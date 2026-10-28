@@ -276,6 +276,10 @@ public final class CharacterRandom2024Rules {
             JSONArray mastery=new JSONArray();
             if(same(cls,"Bárbaro")){
                 mastery.put("Machado grande").put("Machadinha");
+            }else if(same(cls,"Guerreiro")){
+                // Fighter 2024: three weapon mastery choices from the three
+                // distinct initial weapons actually granted by class option A.
+                mastery.put("Espada grande").put("Mangual").put("Azagaia");
             }else if(same(cls,"Ladino")){
                 mastery.put("Espada curta").put("Arco curto");
             }else if(same(cls,"Patrulheiro")){
