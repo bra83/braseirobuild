@@ -154,13 +154,32 @@ public final class WilemCookbookEngine {
         if(!acquisitionConfirmed)throw new IllegalStateException("A compra ou coleta precisa estar confirmada; nao criar recursos do nada");
         final JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
         if(ing.length()==0)throw new IllegalArgumentException("Ingrediente desconhecido");
-        String src=source==null?"":source.trim().toLowerCase(Locale.ROOT);
+        final String src=source==null?"":source.trim().toLowerCase(Locale.ROOT);
         if(!(src.equals("mercado_pago")||src.equals("coleta_confirmada")||src.equals("recompensa_confirmada")))
             throw new IllegalArgumentException("Fonte nao confirmada");
+        if("monstro".equals(ing.optString("category"))||"magico".equals(ing.optString("category")))
+            throw new IllegalStateException("Ingrediente especial exige colheita ou evento do mundo validado; nao pode ser registrado como aquisicao livre");
         final JSONObject[] result={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject state=state();requireReceipt(state,receipt);
             JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
+            int paidCp=0;
+            if("mercado_pago".equals(src)){
+                // A ficha 2024 tem a carteira canonica inventory_currency_gp.
+                // Converter para centavos inteiros evita saldo negativo e arredondamentos.
+                if(!sheet.has("inventory_currency_gp"))
+                    throw new IllegalStateException("Carteira 2024 ausente; compra nao pode criar ingredientes sem pagar");
+                double balanceGp=sheet.optDouble("inventory_currency_gp",-1d);
+                if(balanceGp<0d||!Double.isFinite(balanceGp))
+                    throw new IllegalStateException("Saldo de moedas invalido");
+                long balanceCp=Math.round(balanceGp*100d);
+                if(Math.abs(balanceGp*100d-balanceCp)>.001d)
+                    throw new IllegalStateException("Saldo monetario sem precisao de cobre");
+                paidCp=Math.multiplyExact(amount,ing.optInt("suggested_price_cp",-1));
+                if(paidCp<0||balanceCp<paidCp)
+                    throw new IllegalStateException("Moedas insuficientes para pagar "+paidCp+" PC");
+                sheet.put("inventory_currency_gp",(balanceCp-paidCp)/100d);
+            }
             String key="wilem_ing_"+ingredientId;int found=-1;
             for(int i=0;i<items.length();i++){JSONObject x=items.optJSONObject(i);
                 if(x!=null&&(key.equals(x.optString("id"))||ing.optString("name").equalsIgnoreCase(x.optString("name")))){if(found>=0)throw new IllegalStateException("Ingrediente ambiguo no inventario");found=i;}
@@ -171,9 +190,10 @@ public final class WilemCookbookEngine {
             sheet.put("inventory_ledger",items).put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
             remember(state,receipt);write(db.getWritableDatabase(),ownerId(),state);
-            String cost=src.equals("mercado_pago")?"Compra JA PAGA, registrar gasto externo: "+(amount*ing.optInt("suggested_price_cp",0))+" PC sugeridos.":"Coleta/recompensa confirmada.";
+            String cost=src.equals("mercado_pago")?"Pagamento debitado da carteira 2024: "+paidCp+" PC.":"Coleta/recompensa confirmada pelo usuario; requer evidencia narrativa.";
             db.addJournalFact("Wilem encontrou ingredientes",ing.optString("name")+" x"+amount+"; "+cost+" Origem: "+sceneLocation(db),"culinaria",receipt,"wilem_cookbook");
-            result[0]=new JSONObject().put("acquired",true).put("quantity",amount).put("item",item).put("money_auto_debited",false);
+            result[0]=new JSONObject().put("acquired",true).put("quantity",amount).put("item",item)
+                .put("money_auto_debited",src.equals("mercado_pago")).put("paid_copper",paidCp);
         }});
         return result[0];
     }

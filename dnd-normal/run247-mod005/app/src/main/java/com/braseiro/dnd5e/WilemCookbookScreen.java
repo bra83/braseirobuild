@@ -119,7 +119,7 @@ public final class WilemCookbookScreen {
         if(items==null||items.length()==0)body.addView(text("Sem ingredientes contabilizados na ficha.",14,TEXT));
         else for(int i=0;i<items.length();i++){JSONObject x=items.optJSONObject(i);if(x!=null)body.addView(text("• "+x.optString("name")+"  ×"+x.optInt("quantity"),15,TEXT));}
         Button acquire=btn("REGISTRAR INGREDIENTE OBTIDO");acquire.setEnabled(enabled);acquire.setOnClickListener(v->acquireDialog());body.addView(acquire);
-        body.addView(text("Batatas, cebolas, legumes, farinha e sal podem ser encontrados em mercados, feiras, hortas e com mercadores. Precos sugeridos nao representam debito automatico.",12,MUTED));
+        body.addView(text("Compras debitam o saldo em PO da ficha 2024 (convertido para PC); sem saldo, a compra e bloqueada. Partes de monstros e componentes arcanos exigem evento/colheita integrado, nunca registro livre.",12,MUTED));
     }
     private void acquireDialog(){
         JSONArray all=WilemCookbookCatalog.ingredients();String[] labels=new String[all.length()],ids=new String[all.length()];
@@ -128,7 +128,7 @@ public final class WilemCookbookScreen {
         EditText quantity=new EditText(activity);quantity.setInputType(2);quantity.setHint("Quantidade (1 a 30)");form.addView(quantity);
         String[] sources={"coleta_confirmada","mercado_pago","recompensa_confirmada"};
         Spinner source=new Spinner(activity);source.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,sources));form.addView(source);
-        CheckBox check=new CheckBox(activity);check.setText("Confirmo que o ingrediente foi obtido no mundo (e pago, se comprado)");form.addView(check);
+        CheckBox check=new CheckBox(activity);check.setText("Confirmo uma fonte real da cena. Compras debitam automaticamente as moedas da ficha; nao confirmar pagamentos feitos fora do sistema.");form.addView(check);
         new AlertDialog.Builder(activity).setTitle("Registrar ingrediente").setView(form).setNegativeButton("Voltar",null)
             .setPositiveButton("ADICIONAR",(d,w)->{
                 try{if(!check.isChecked())throw new IllegalStateException("Confirme a aquisicao antes de registrar");

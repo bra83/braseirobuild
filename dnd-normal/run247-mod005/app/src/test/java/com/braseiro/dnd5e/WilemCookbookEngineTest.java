@@ -86,6 +86,25 @@ public class WilemCookbookEngineTest {
         assertEquals(1,book.pantry().optJSONArray("items").getJSONObject(0).optInt("quantity"));
         assertEquals(1,db.listJournal().stream().filter(j->j.optString("title").startsWith("Mesa de Wilem")).count());
     }
+    @Test public void marketPurchaseDebitsCanonicalGoldAtomically()throws Exception{
+        join();
+        JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
+        sheet.put("inventory_currency_gp",1d);
+        db.updateCharacterSheetChecked(wilem,sheet.toString());
+        JSONObject bought=book.acquire("batata",2,"mercado_pago",true,receipt());
+        assertTrue(bought.optBoolean("money_auto_debited"));
+        assertEquals(4,bought.getInt("paid_copper"));
+        JSONObject paid=new JSONObject(db.getCharacter(wilem).getString("sheet_json"));
+        assertEquals(0.96d,paid.getDouble("inventory_currency_gp"),.00001d);
+        int before=book.pantry().optJSONArray("items").getJSONObject(0).getInt("quantity");
+        try{book.acquire("batata",30,"mercado_pago",true,receipt());fail("not enough copper");}
+        catch(IllegalStateException expected){}
+        assertEquals(before,book.pantry().optJSONArray("items").getJSONObject(0).getInt("quantity"));
+        assertEquals(0.96d,new JSONObject(db.getCharacter(wilem).getString("sheet_json"))
+            .getDouble("inventory_currency_gp"),.00001d);
+        try{book.acquire("carne_aranha",1,"coleta_confirmada",true,receipt());fail("unearned monster meat");}
+        catch(IllegalStateException expected){}
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
