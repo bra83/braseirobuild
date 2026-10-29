@@ -88,6 +88,8 @@ public class WilemCookbookEngineTest {
     }
     @Test public void marketPurchaseDebitsCanonicalGoldAtomically()throws Exception{
         join();
+        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",12)
+            .put("location","Mercado de Strixhaven"));
         JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
         sheet.put("inventory_currency_gp",1d);
         db.updateCharacterSheetChecked(wilem,sheet.toString());
@@ -105,6 +107,78 @@ public class WilemCookbookEngineTest {
         try{book.acquire("carne_aranha",1,"coleta_confirmada",true,receipt());fail("unearned monster meat");}
         catch(IllegalStateException expected){}
     }
+    @Test public void marketRequiresWorldPlaceAndEnforcesStock()throws Exception{
+        join();
+        JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
+        sheet.put("inventory_currency_gp",100d);
+        db.updateCharacterSheetChecked(wilem,sheet.toString());
+        try{book.acquire("cebola",1,"mercado_pago",true,receipt());fail("No vendor in scene");}
+        catch(IllegalStateException expected){}
+        db.saveSceneState(new JSONObject().put("day_number",4).put("clock_hour",12)
+            .put("location","Feira de Halruaa"));
+        assertEquals(12,book.acquire("cebola",12,"mercado_pago",true,receipt()).getInt("quantity"));
+        try{book.acquire("cebola",1,"mercado_pago",true,receipt());fail("No infinite market stock");}
+        catch(IllegalStateException expected){}
+        db.saveSceneState(new JSONObject().put("day_number",5).put("clock_hour",12)
+            .put("location","Feira de Halruaa"));
+        assertTrue(book.acquire("cebola",1,"mercado_pago",true,receipt()).getBoolean("money_auto_debited"));
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
+        assertEquals(2,book.state().getJSONArray("purchases").length());
+    }
+    @Test public void forageUsesPhysicalD20AndEnvironmentalAvailabilityWithoutDuplicates()throws Exception{
+        join();
+        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",13)
+            .put("location","Horta na escola de Strixhaven"));
+        JSONArray available=book.forageableIngredients();assertTrue(available.length()>0);
+        boolean potato=false;
+        for(int i=0;i<available.length();i++)
+            if("batata".equals(available.getJSONObject(i).optString("ingredient_id")))potato=true;
+        assertTrue(potato);
+        java.util.List<Integer> faces=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult d20=new Dice3DOverlay.RollResult(
+            faces,faces,20,20,"20","","d20","Normal",100,93433L,"test",
+            RollIntegrity.signature("d20",faces,0,93433L,20));
+        JSONObject harvested=book.forageWithPhysicalRoll("batata",d20,receipt());
+        assertTrue(harvested.getBoolean("success"));assertTrue(harvested.getInt("quantity")>0);
+        try{book.forageWithPhysicalRoll("batata",d20,receipt());fail("Duplicate same day resource");}
+        catch(IllegalStateException expected){}
+        db.saveSceneState(new JSONObject().put("day_number",2).put("clock_hour",13)
+            .put("location","Horta na escola de Strixhaven"));
+        assertTrue(book.forageWithPhysicalRoll("batata",d20,receipt()).getBoolean("success"));
+        try{book.forageWithPhysicalRoll("sal",d20,receipt());fail("No sal extraction from garden");}
+        catch(IllegalStateException expected){}
+    }
+    @Test public void appliedWorldEventGrantsArcaneIngredientExactlyOnce()throws Exception{
+        join();
+        JSONObject reward=new JSONObject().put("wilem_ingredient",
+            new JSONObject().put("ingredient_id","essencia_feerica")
+                .put("quantity",2).put("recipient_character_id",wilem));
+        long eventId=db.addWorldEventStructured(new JSONObject().put("title","Tesouro feerico identificado")
+            .put("description","Exploracao concluida")
+            .put("consequence_json",reward));
+        assertTrue(eventId>0);
+        assertEquals(0,book.worldRewardOffers().length());
+        db.markWorldEventConsequence(eventId,true,"");
+        assertEquals(1,book.worldRewardOffers().length());
+        JSONObject claimed=book.claimWorldReward(eventId,receipt());
+        assertEquals("essencia_feerica",claimed.getString("ingredient_id"));
+        assertEquals(0,book.worldRewardOffers().length());
+        try{book.claimWorldReward(eventId,receipt());fail("Claim replay");}
+        catch(IllegalStateException expected){}
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
+        assertEquals(0,book.worldRewardOffers().length());
+        assertEquals(1,book.pantry().getJSONArray("items").length());
+        assertEquals(2,book.pantry().getJSONArray("items").getJSONObject(0).getInt("quantity"));
+    }
+    @Test public void twoActiveWilemsDoNotSilentlyReassignTheRecipeBook()throws Exception{
+        join();
+        long duplicate=db.addCharacter("Willem","Anão","Guerreiro",1,8,8,12,12,12,10,10,10,10,true,"");
+        db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",duplicate)
+            .put("status","active").put("party_role","companion").put("recruitment_type","player_confirmed"));
+        assertEquals(0,book.ownerId());
+        assertFalse(book.canCook());
+    }
+
     @Test public void monsterHarvestRequiresRealDefeatedCreatureAndCannotDuplicate()throws Exception{
         join();
         long body=db.addCombatant("Javali selvagem",9,0,8,12,"",false);
