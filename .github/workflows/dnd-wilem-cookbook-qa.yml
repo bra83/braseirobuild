@@ -21,12 +21,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android SDK setup
-        uses: android-actions/setup-android@v3
-      - name: Verify SDK platform
+      - name: Inspect hosted Android SDK
         run: |
           set -euo pipefail
-          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0' || true
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+          ls -d /usr/local/lib/android/sdk/platforms/* /usr/local/lib/android/sdk/build-tools/* 2>/dev/null || true
+          if [ -z "${ANDROID_HOME:-}" ]; then
+            echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+            echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+          fi
       - name: Verify 300 recipe contracts
         working-directory: dnd-normal/run247-mod005
         run: |
