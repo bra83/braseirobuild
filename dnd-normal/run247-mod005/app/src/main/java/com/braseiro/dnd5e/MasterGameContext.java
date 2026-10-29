@@ -53,7 +53,6 @@ public final class MasterGameContext {
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(80)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
             root.put("kvothe_strixhaven_party_policy",new KvotheCampaignPartyBridge(db).context());
-            root.put("wilem_cookbook",new WilemCookbookEngine(db).masterView());
             root.put("quests",WorldContextSelector.select(db.listQuests("active",1000),contextFocus,40,"title","objective","stage","stakes"));
             root.put("factions",WorldContextSelector.select(db.listFactions(1000),contextFocus,40,"name","agenda","current_plan","location"));
             root.put("guilds",new GuildEngine(db).promptView(contextFocus,40));
@@ -102,7 +101,6 @@ public final class MasterGameContext {
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(50)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
             root.put("kvothe_strixhaven_party_policy",new KvotheCampaignPartyBridge(db).context());
-            root.put("wilem_cookbook",new WilemCookbookEngine(db).masterView());
             root.put("quests",WorldContextSelector.select(db.listQuests("active",1000),contextFocus,30,"title","objective","stage","stakes"));
             root.put("factions",WorldContextSelector.select(db.listFactions(1000),contextFocus,30,"name","agenda","current_plan","location"));
             root.put("guilds",new GuildEngine(db).promptView(contextFocus,30));
