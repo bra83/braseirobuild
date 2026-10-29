@@ -179,6 +179,34 @@ public class WilemCookbookEngineTest {
         assertFalse(book.canCook());
     }
 
+    @Test public void sharedMealCreditsOneDayOfProvisionsOnlyOnceWithoutCreatingRations()throws Exception{
+        join();
+        JSONObject party=db.getPartyState();
+        JSONObject resources=new JSONObject().put("track_travel_resources",true)
+            .put("provisions_days",3).put("water_days",3)
+            .put("wilem_provisions_credit_day",1);
+        party.put("company_resources_json",resources.toString());db.savePartyState(party);
+        TravelRulesEngine travel=new TravelRulesEngine(db);
+        JSONObject first=travel.previewElapsedTimeResources(24d,"wilem-meal-travel");
+        assertTrue(first.optBoolean("wilem_meal_credit_applied"));
+        assertEquals(3,first.optInt("provisions_after"));
+        assertEquals(2,first.optInt("water_after"));
+        assertTrue(travel.commit(first));
+        JSONObject after=new JSONObject(db.getPartyState().optString("company_resources_json","{}"));
+        assertEquals(1,after.getInt("wilem_provisions_credit_used_day"));
+        assertEquals(3,after.getInt("provisions_days"));
+        assertEquals(2,after.getInt("water_days"));
+        // A mesma confirmacao repetida nao pode descontar a mesma agua.
+        assertTrue(travel.commit(first));
+        JSONObject replay=new JSONObject(db.getPartyState().optString("company_resources_json","{}"));
+        assertEquals(3,replay.getInt("provisions_days"));
+        assertEquals(2,replay.getInt("water_days"));
+        JSONObject second=travel.previewElapsedTimeResources(24d,"wilem-new-travel");
+        assertFalse(second.optBoolean("wilem_meal_credit_applied"));
+        assertEquals(2,second.optInt("provisions_after"));
+        assertEquals(1,second.optInt("water_after"));
+    }
+
     @Test public void monsterHarvestRequiresRealDefeatedCreatureAndCannotDuplicate()throws Exception{
         join();
         long body=db.addCombatant("Javali selvagem",9,0,8,12,"",false);
