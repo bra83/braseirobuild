@@ -75,12 +75,39 @@ public final class WilemCookbookEngine {
         Cursor cursor=sql.rawQuery("SELECT state_json FROM wilem_recipe_books WHERE world_profile=? AND character_id=?",
             new String[]{profile(),String.valueOf(id)});
         try{
-            if(cursor.moveToFirst())return object(cursor.getString(0));
+            if(cursor.moveToFirst()){JSONObject current=object(cursor.getString(0));reconcileBaitExpirations(current);return current;}
         }finally{cursor.close();}
         try{
             JSONObject initial=fresh(id);write(sql,id,initial);return initial;
         }catch(Exception e){throw new IllegalStateException("Nao foi possivel inicializar o caderno",e);}
     }
+
+    /** Nao apaga condicoes alheias: somente a que tem recibo do nosso motor. */
+    private void reconcileBaitExpirations(JSONObject state){
+        JSONArray baits=state.optJSONArray("baits");if(baits==null)return;
+        double hour=worldHour(db);int combatRound=db.getCombatState().optInt("round_no",1);boolean changed=false;
+        for(int i=0;i<baits.length();i++){JSONObject b=baits.optJSONObject(i);if(b==null||!"resolvida".equals(b.optString("status"))||!b.optBoolean("effect_applied"))continue;
+            boolean due=hour>=b.optDouble("ends_world_hour",1e12)||combatRound>=b.optInt("ends_combat_round",Integer.MAX_VALUE);
+            if(!due)continue;
+            long targetId=b.optLong("target_id",0);JSONObject target=db.getCombatant(targetId);
+            JSONObject resources=object(target.optString("resources_json","{}"));
+            if(b.optString("id").equals(resources.optString("wilem_bait_source"))){
+                String cond=b.optString("applied_condition");String[] parts=target.optString("conditions").split(",");
+                StringBuilder next=new StringBuilder();boolean removed=false;
+                for(String part:parts){String item=part.trim();if(!removed&&item.equalsIgnoreCase(cond)){removed=true;continue;}
+                    if(!item.isEmpty()){if(next.length()>0)next.append(",");next.append(item);}
+                }
+                try{if(removed)db.updateConditionsChecked(targetId,next.toString());resources.remove("wilem_bait_source");
+                    ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+                    db.getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
+                        new String[]{String.valueOf(targetId),profile()});
+                }catch(Exception ignored){/* Mantem registro para reconciliacao posterior */continue;}
+            }
+            try{b.put("status","expirada");changed=true;}catch(Exception ignored){}
+        }
+        if(changed)try{write(db.getWritableDatabase(),ownerId(),state);}catch(Exception ignored){}
+    }
+
     private void write(SQLiteDatabase sql,long id,JSONObject state)throws Exception{
         ContentValues c=new ContentValues();c.put("world_profile",profile());c.put("character_id",id);
         c.put("state_json",state.toString());c.put("updated_at",System.currentTimeMillis());
@@ -156,6 +183,22 @@ public final class WilemCookbookEngine {
                 .put("source",informant.trim()).put("text",note.trim()).put("status","ouvido")
                 .put("heard_world_hour",worldHour(db));st.getJSONArray("rumors").put(rumor);
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            
+            // Usa a rede canonica de rumores: local, distorcao, cronologia e conhecimento por heroi.
+            AppDb.ensureSixZeroSchema(db.getWritableDatabase());
+            ContentValues circulating=new ContentValues();
+            circulating.put("world_profile",profile());circulating.put("rumor_key","culinary:"+receipt);
+            circulating.put("source_event_key",receipt);
+            circulating.put("origin_location",sceneLocation(db));circulating.put("current_region",sceneLocation(db));
+            circulating.put("statement",note.trim());circulating.put("truth_level","nao_confirmada");
+            circulating.put("distortion",10);circulating.put("confidence",55);circulating.put("secrecy",25);
+            circulating.put("status","circulating");int day=Math.max(1,db.getSceneState().optInt("day_number",1));
+            circulating.put("born_day",day);circulating.put("expires_day",day+90);
+            circulating.put("carriers_json",new JSONArray().put(sceneLocation(db)).toString());
+            circulating.put("mutations_json",new JSONArray().put(note.trim()).toString());
+            circulating.put("updated_at",System.currentTimeMillis());
+            long rumorId=db.getWritableDatabase().insertOrThrow("rumors",null,circulating);
+            new RumorNetworkEngine(db).teachHero(rumorId,ownerId(),informant.trim(),day);
             db.addJournalFact("Boato culinario: "+informant,rumor.toString(),"boato",receipt,"wilem_cookbook");result[0]=rumor;
         }});
         return result[0];
@@ -171,6 +214,14 @@ public final class WilemCookbookEngine {
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject state=state();requireReceipt(state,receipt);
             int heroLevel=hero().optInt("level",1);if(heroLevel<r.optInt("tier"))throw new IllegalStateException("Conhecimento avancado demais para o nivel");
+            
+            boolean heard=false;JSONArray rumors=state.optJSONArray("rumors");
+            for(int i=0;rumors!=null&&i<rumors.length();i++){
+                JSONObject hint=rumors.optJSONObject(i);
+                if(hint!=null&&recipeId.equals(hint.optString("recipe_id"))&&"ouvido".equals(hint.optString("status")))heard=true;
+            }
+            if(!heard && !contains(state.optJSONArray("known"),recipeId))
+                throw new IllegalStateException("Receita precisa ser ouvida em jogo ou aprendida por pesquisa confirmada pelo Mestre");
             JSONArray known=state.getJSONArray("known");if(!contains(known,recipeId))known.put(recipeId);
             state.getJSONArray("discoveries").put(new JSONObject().put("recipe_id",recipeId)
                 .put("evidence",evidence.trim()).put("location",sceneLocation(db)).put("world_hour",worldHour(db)));
@@ -325,17 +376,40 @@ public final class WilemCookbookEngine {
             if(!immune&&failed){if(effect.equals("isca_sonolencia"))condition="inconsciente";else if(effect.equals("isca_tontura"))condition="envenenado";else if(effect.equals("isca_lentidao"))condition="lento";}
             if(!condition.isEmpty()){
                 String before=target.optString("conditions","");String next=before.isEmpty()?condition:before+","+condition;
+                
                 db.updateConditionsChecked(combatantId,next);
+                JSONObject resources=object(target.optString("resources_json","{}"));
+                resources.put("wilem_bait_source",baitId);
+                ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
+                db.getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
+                    new String[]{String.valueOf(combatantId),profile()});
             }
             bait.put("status","resolvida").put("consumed",true).put("target_id",combatantId)
                 .put("save_total",constitutionSaveTotal).put("effect_applied",!condition.isEmpty())
-                .put("resolved_world_hour",worldHour(db));
+                .put("resolved_world_hour",worldHour(db)).put("applied_condition",condition)
+                .put("ends_world_hour",worldHour(db)+(1d/60d))
+                .put("ends_combat_round",db.getCombatState().optInt("round_no",1)+1);
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Isca testada: "+recipe.optString("name"),bait.toString(),"isca",receipt,"wilem_cookbook");
             result[0]=bait;
         }});
         return result[0];
     }
+
+    public synchronized JSONObject addNote(final String title,final String text,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem deve estar na companhia para escrever");
+        if(title==null||title.trim().length()<2||text==null||text.trim().length()<2)throw new IllegalArgumentException("Titulo e texto necessarios");
+        final JSONObject[] out={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject state=state();requireReceipt(state,receipt);
+            JSONObject note=new JSONObject().put("title",title.trim()).put("text",text.trim())
+              .put("location",sceneLocation(db)).put("world_hour",worldHour(db));
+            state.getJSONArray("notes").put(note);remember(state,receipt);write(db.getWritableDatabase(),ownerId(),state);
+            out[0]=note;
+        }});
+        return out[0];
+    }
+
     public JSONObject masterView(){
         JSONObject out=new JSONObject();
         try{
@@ -344,7 +418,8 @@ public final class WilemCookbookEngine {
             JSONArray nearby=new JSONArray();JSONArray rumors=st.optJSONArray("rumors");
             for(int i=0;rumors!=null&&i<rumors.length();i++){JSONObject rum=rumors.optJSONObject(i);if(rum==null)continue;
                 String where=rum.optString("location","").toLowerCase(Locale.ROOT);
-                if(location.toLowerCase(Locale.ROOT).contains(where)||where.toLowerCase(Locale.ROOT).contains(location.toLowerCase(Locale.ROOT)))nearby.put(rum);
+                if(!location.trim().isEmpty()&&!where.trim().isEmpty()&&
+                   (location.toLowerCase(Locale.ROOT).contains(where)||where.contains(location.toLowerCase(Locale.ROOT))))nearby.put(rum);
             }
             out.put("available",true).put("owner","Wilem").put("owner_id",id).put("party_active",canCook())
                 .put("catalog_size",WilemCookbookCatalog.catalogSize()).put("known",st.optJSONArray("known"))
