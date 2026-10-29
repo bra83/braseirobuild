@@ -34,6 +34,20 @@ public class WilemCookbookEngineTest {
     }
     @After public void cleanup(){if(db!=null)db.close();if(context!=null)context.deleteDatabase(name);}
     private String receipt(){return WilemCookbookEngine.newReceipt();}
+    private void seedIngredient(String ingredientId,int count)throws Exception{
+        JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
+        JSONArray inv=sheet.optJSONArray("inventory_ledger");
+        if(inv==null)inv=new JSONArray();
+        JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
+        assertTrue("unknown test ingredient "+ingredientId,ing.length()>0);
+        inv.put(new JSONObject().put("id","wilem_ing_"+ingredientId)
+            .put("name",ing.optString("name")).put("cookbook_ingredient_id",ingredientId)
+            .put("quantity",count));
+        sheet.put("inventory_ledger",inv)
+            .put("inventory_load",InventoryLedgerEngine.totals(inv,db.getCharacter(wilem).optInt("str",10),false));
+        db.updateCharacterSheetChecked(wilem,sheet.toString());
+    }
+
     private void join()throws Exception{
         db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",wilem).put("status","active")
             .put("party_role","companion").put("recruitment_type","player_confirmed"));
@@ -65,12 +79,15 @@ public class WilemCookbookEngineTest {
     }
     @Test public void receiptsInventoryAndMealsSurviveReopen()throws Exception{
         join();
+        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",12).put("location","Mercado de Strixhaven"));
+        JSONObject paySheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
+        paySheet.put("inventory_currency_gp",1d);db.updateCharacterSheetChecked(wilem,paySheet.toString());
         String receipt=receipt();
-        book.acquire("batata",2,"coleta_confirmada",true,receipt);
-        try{book.acquire("batata",2,"coleta_confirmada",true,receipt);fail("receipt replay");}
+        book.acquire("batata",2,"mercado_pago",true,receipt);
+        try{book.acquire("batata",2,"mercado_pago",true,receipt);fail("receipt replay");}
         catch(IllegalStateException expected){}
-        book.acquire("agua",1,"coleta_confirmada",true,receipt());
-        book.acquire("cebola",1,"coleta_confirmada",true,receipt());
+        book.acquire("agua",1,"mercado_pago",true,receipt());
+        book.acquire("cebola",1,"mercado_pago",true,receipt());
         assertEquals(2,book.pantry().optJSONArray("items").getJSONObject(0).optInt("quantity"));
         System.out.println("WILEM_BEFORE_COOK "+book.pantry()+" SHEET "+db.getCharacter(wilem).optString("sheet_json"));
         JSONObject batch=book.cook("com_batata_0",0,true,true,receipt());
@@ -170,6 +187,17 @@ public class WilemCookbookEngineTest {
         assertEquals(1,book.pantry().getJSONArray("items").length());
         assertEquals(2,book.pantry().getJSONArray("items").getJSONObject(0).getInt("quantity"));
     }
+    @Test public void noManualFreeIngredientCreationEvenWithConfirmedCheckbox()throws Exception{
+        join();
+        for(String src:new String[]{"coleta_confirmada","recompensa_confirmada"}){
+            try{book.acquire("batata",1,src,true,receipt());fail("Free creation: "+src);}
+            catch(IllegalStateException expected){}
+        }
+        assertEquals(0,book.pantry().getJSONArray("items").length());
+        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",12)
+            .put("location","Mercado de Strixhaven"));
+        assertEquals(0,book.forageableIngredients().length());
+    }
     @Test public void twoActiveWilemsDoNotSilentlyReassignTheRecipeBook()throws Exception{
         join();
         long duplicate=db.addCharacter("Willem","Anão","Guerreiro",1,8,8,12,12,12,10,10,10,10,true,"");
@@ -245,7 +273,7 @@ public class WilemCookbookEngineTest {
         assertTrue(book.harvestWithPhysicalRoll(body,"carne_javali",harvested,receipt())
             .getBoolean("success"));
         for(String id:new String[]{"sal","agua","batata","cebola"})
-            book.acquire(id,1,"coleta_confirmada",true,receipt());
+            seedIngredient(id,1);
         java.util.List<Integer> low=java.util.Collections.singletonList(1);
         Dice3DOverlay.RollResult badPrep=new Dice3DOverlay.RollResult(
             low,low,1,1,"1","","d20","Normal",100,85232L,"test",
@@ -298,8 +326,7 @@ public class WilemCookbookEngineTest {
         assertEquals(0,book.pantry().getJSONArray("items").length());
     }
     @Test public void fantasyBaitRequiresExplicitConsumptionAndSave()throws Exception{
-        join();book.acquire("mel",1,"recompensa_confirmada",true,receipt());
-        book.acquire("maça",1,"coleta_confirmada",true,receipt());
+        join();seedIngredient("mel",1);seedIngredient("maça",1);
         try{book.cook("isca_mel",12,true,true,receipt());fail("manual d20 must be rejected");}
         catch(IllegalStateException expected){}
         java.util.List<Integer> faces=java.util.Collections.singletonList(12);
