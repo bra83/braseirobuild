@@ -821,6 +821,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         root.addView(header,new LinearLayout.LayoutParams(-1,dp(54)));
         shellNavScroll=new HorizontalScrollView(this);final HorizontalScrollView navScroll=shellNavScroll;navScroll.setHorizontalScrollBarEnabled(false);LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);nav.setPadding(dp(4),dp(3),dp(4),dp(3));
         String[] names=isStrixhavenAdventure()?new String[]{"Aventura","Mestre IA","Dados","Combate","Heróis","Companhia","Mundo Vivo","Diário","Manuais","Áudio","Config"}:new String[]{"Aventura","Mestre IA","Combate","Companhia","Mundo Vivo","Guildas","Mapa","Dados","Heróis","Diário","Manuais","Tokens","Áudio","Config"};
+        // Caderno pessoal: somente D&D e apenas quando a ficha de Wilem existe.
+        if(!isMystaraWorld() && new WilemCookbookEngine(db).ownerExists()) {String[] withBook=java.util.Arrays.copyOf(names,names.length+1);withBook[names.length]="Caderno";names=withBook;}
         if(!isMystaraWorld() && new WilemCookbookEngine(db).ownerExists()){
             String[] extended=java.util.Arrays.copyOf(names,names.length+1);
             extended[names.length]="Caldeirão";names=extended;
@@ -901,7 +903,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ui.post(new Runnable(){public void run(){boolean rendered=false;try{renderScreen(n);rendered=true;lastSuccessfulScreen=n;}catch(final Throwable e){AppLog.e("Navigation","Falha ao abrir a tela "+n+".",e);screenCache.remove(n);screenCacheTime.remove(n);content.removeAllViews();LinearLayout box=new LinearLayout(MainActivity.this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(18),dp(24),dp(18),dp(24));box.addView(text("Não foi possível abrir "+n,20,RED,true));box.addView(text("A tela foi isolada para o aplicativo continuar aberto. "+safeUiError(e),13,MUTED,false));Button retry=button("TENTAR NOVAMENTE",GOLD);retry.setTextColor(Color.BLACK);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(n);}});box.addView(retry);Button safe=button("VOLTAR PARA "+lastSuccessfulScreen.toUpperCase(Locale.US),PANEL2);safe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(lastSuccessfulScreen);}});box.addView(safe);content.addView(box,new FrameLayout.LayoutParams(-1,-1));}finally{navigationInProgress=false;if(rendered)cacheCurrentScreen();}}});
     }
 
-    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
+    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Caderno".equals(n))showWilemCookbook();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
 
     private static String safeUiError(Throwable error){String message=error==null?"Falha desconhecida.":error.getMessage();if(message==null||message.trim().length()==0)message=error==null?"Falha desconhecida.":error.getClass().getSimpleName();message=message.replaceAll("[\r\n]+"," ").trim();return message.length()>280?message.substring(0,280)+"…":message;}
 
@@ -2421,6 +2423,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         content.removeAllViews();
         WilemCookbookScreen screen=new WilemCookbookScreen(this,db,new Runnable(){
             public void run(){screenCache.remove("Caldeirão");screenCacheTime.remove("Caldeirão");showWilemCookbook();}
+        });
+        content.addView(screen.render(),new FrameLayout.LayoutParams(-1,-1));
+    }
+
+    private void showWilemCookbook(){
+        if(isMystaraWorld() || !new WilemCookbookEngine(db).ownerExists()) {toast("O caderno e exclusivo da ficha de Wilem.");navigate("Heróis");return;}
+        content.removeAllViews();
+        WilemCookbookScreen screen=new WilemCookbookScreen(this,db,()->{
+            screenCache.remove("Caderno");screenCacheTime.remove("Caderno");
+            if(content!=null){content.removeAllViews();content.addView(new WilemCookbookScreen(this,db,null).render(),new FrameLayout.LayoutParams(-1,-1));}
         });
         content.addView(screen.render(),new FrameLayout.LayoutParams(-1,-1));
     }
