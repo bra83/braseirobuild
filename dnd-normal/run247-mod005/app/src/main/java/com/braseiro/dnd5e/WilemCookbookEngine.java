@@ -55,7 +55,7 @@ public final class WilemCookbookEngine {
     }
     private JSONObject fresh(long id)throws Exception{
         JSONArray rumors=new JSONArray();
-        rumors.put(new JSONObject().put("recipe_id","mon_cor uja_urso_0".replace(" ","")).put("location","Biblioteca de Strixhaven").put("source","anotacao de aula").put("text","Talvez uma carne monstruosa possa sustentar um grupo apos uma travessia. Precisa de pesquisa.").put("status","hipotese"));
+        rumors.put(new JSONObject().put("recipe_id","mon_cor uja_urso_0").put("location","Biblioteca de Strixhaven").put("source","anotacao de aula").put("text","Talvez uma carne monstruosa possa sustentar um grupo apos uma travessia. Precisa de pesquisa.").put("status","hipotese"));
         rumors.put(new JSONObject().put("recipe_id","mon_aranha_1").put("location","Laboratorio de historia natural").put("source","estudantes de zoologia").put("text","Partes de aranha exigem remocao cuidadosa das glandulas. Nao experimentar sem identificar.").put("status","hipotese"));
         rumors.put(new JSONObject().put("recipe_id","mon_basilisco_4").put("location","Marco do Percurso").put("source","viajante ainda desconhecido").put("text","Dizem existir uma receita de basilisco, mas nao ha provas.").put("status","a_ouvir"));
         rumors.put(new JSONObject().put("recipe_id","isca_mel_fantasia").put("location","Feira de mercadores feericos").put("source","rumor nao confirmado").put("text","Um confeiteiro conhece doces que deixam certas criaturas sonolentas.").put("status","a_ouvir"));
@@ -416,7 +416,7 @@ public final class WilemCookbookEngine {
             JSONArray batches=st.getJSONArray("cooked");JSONObject batch=null;
             for(int i=0;i<batches.length();i++){JSONObject b=batches.optJSONObject(i);if(b!=null&&batchId.equals(b.optString("id"))){batch=b;break;}}
             if(batch==null||!"isca".equals(batch.optString("kind"))||batch.optInt("remaining",0)<1)throw new IllegalStateException("Isca indisponivel");
-            JSONObject bait=new JSONObject().put("id",receipt).put("recipe_id",batch.optString("recipe_id"))
+            JSONObject bait=new JSONObject().put("id",receipt).put("recipe_id",batch.optString("recipe_id")).put("batch_quality",batch.optString("result"))
                 .put("position",location.trim()).put("scene",sceneLocation(db)).put("world_hour",worldHour(db))
                 .put("consumed",false).put("status","armada");batch.put("remaining",batch.optInt("remaining")-1);
             st.getJSONArray("baits").put(bait);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
@@ -441,22 +441,46 @@ public final class WilemCookbookEngine {
             JSONObject recipe=WilemCookbookCatalog.recipeById(bait.optString("recipe_id"));
             String effect=recipe.optString("effect_key"),condition="";
             boolean failed=constitutionSaveTotal<recipe.optInt("dc");
-            if(!immune&&failed){if(effect.equals("isca_sonolencia"))condition="inconsciente";else if(effect.equals("isca_tontura"))condition="envenenado";else if(effect.equals("isca_lentidao"))condition="lento";}
+            boolean failedCooking="somente_risco".equals(bait.optString("batch_quality","somente_risco"));
+            if(!immune&&failed&&!failedCooking){
+                if(effect.equals("isca_sonolencia"))condition="inconsciente";
+                else if(effect.equals("isca_tontura"))condition="envenenado";
+                else if(effect.equals("isca_lentidao"))condition="caido";
+            }
             if(!condition.isEmpty()){
-                String before=target.optString("conditions","");String next=before.isEmpty()?condition:before+","+condition;
-                
-                db.updateConditionsChecked(combatantId,next);
-                JSONObject resources=object(target.optString("resources_json","{}"));
-                resources.put("wilem_bait_source",baitId);
-                ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
-                db.getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
-                    new String[]{String.valueOf(combatantId),profile()});
+                // Timers need an active encounter to expire on the target's next turn.
+                if(db.getCombatState().optInt("running",0)!=1)
+                    throw new IllegalStateException("Efeito de isca temporario requer encontro ativo para expirar automaticamente.");
+                String before=target.optString("conditions","");
+                if(ConditionTokenGuard.has(before,condition))
+                    throw new IllegalStateException("Condicao preexistente nao pode ser atribuida a esta isca.");
+                String next=before.isEmpty()?condition:before+","+condition;
+                JSONArray timers=MonsterConditionTimerLedger.parse(target.optString("condition_timers_json","[]"));
+                for(int i=0;i<timers.length();i++){
+                    JSONObject t=timers.optJSONObject(i);
+                    if(t!=null&&ConditionTokenGuard.has(t.optString("name"),condition))
+                        throw new IllegalStateException("Conflito com temporizador de outra fonte");
+                }
+                JSONObject timed=new JSONObject().put("schema",MonsterConditionTimerLedger.SCHEMA)
+                    .put("name",condition).put("rounds",1)
+                    .put("source_actor_id",ownerId()).put("trigger","target_turn_start")
+                    .put("source_statblock","wilem_cookbook")
+                    .put("source_action",effect).put("source_receipt",receipt);
+                timers.put(timed);MonsterConditionTimerLedger.parse(timers.toString());
+                JSONObject res=object(target.optString("resources_json","{}"));
+                res.put("wilem_bait_source",baitId);
+                db.updateCombatantAdvancedChecked(combatantId,target.optInt("temp_hp",0),
+                    target.optString("concentration"),target.optInt("reaction_used",0)==1,
+                    target.optInt("death_success",0),target.optInt("death_fail",0),
+                    next,timers.toString(),target.optString("resistances"),
+                    target.optString("vulnerabilities"),target.optString("immunities"),res.toString());
             }
             bait.put("status","resolvida").put("consumed",true).put("target_id",combatantId)
                 .put("save_total",constitutionSaveTotal).put("effect_applied",!condition.isEmpty())
                 .put("resolved_world_hour",worldHour(db)).put("applied_condition",condition)
                 .put("ends_world_hour",worldHour(db)+(1d/60d))
-                .put("ends_combat_round",db.getCombatState().optInt("round_no",1)+1);
+                .put("ends_combat_round",db.getCombatState().optInt("round_no",1)+1)
+                 .put("failed_cooking",failedCooking);
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Isca testada: "+recipe.optString("name"),bait.toString(),"isca",receipt,"wilem_cookbook");
             result[0]=bait;
