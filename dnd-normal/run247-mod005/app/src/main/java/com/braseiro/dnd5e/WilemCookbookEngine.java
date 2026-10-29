@@ -414,6 +414,8 @@ public final class WilemCookbookEngine {
     private static String normalizeCreature(String s){
         String val=java.text.Normalizer.normalize(s==null?"":s,java.text.Normalizer.Form.NFD)
             .replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT);
+        // Tokens do combate podem ter #2 ou (3) apos o nome da mesma especie.
+        val=val.replaceAll("\\s*(?:#?\\d+|\\(\\d+\\))\\s*$","");
         return val.replaceAll("[^a-z0-9]+"," ").trim();
     }
     private static String speciesForIngredient(JSONObject ingredient){
@@ -428,7 +430,9 @@ public final class WilemCookbookEngine {
         for(JSONObject body:db.listCombatants()){
             if(body.optInt("is_player",0)==1||body.optInt("hp",1)>0||
                 body.optInt("max_hp",0)<=0||body.optLong("id",0)<=0)continue;
-            if(object(body.optString("resources_json","{}")).optBoolean("wilem_harvested",false))continue;
+            JSONObject life=object(body.optString("resources_json","{}"));
+            if(life.optBoolean("wilem_harvested",false)||
+                life.optBoolean("stable",false)||life.optBoolean("nonlethal_knockout",false))continue;
             for(int i=0;i<ingredients.length();i++){
                 JSONObject ing=ingredients.optJSONObject(i);
                 if(ing==null||!"monstro".equals(ing.optString("category")))continue;
@@ -436,6 +440,7 @@ public final class WilemCookbookEngine {
                 try{out.put(new JSONObject().put("combatant_id",body.optLong("id"))
                     .put("creature",body.optString("name"))
                     .put("ingredient_id",ing.optString("id"))
+                    .put("anatomy",ing.optJSONObject("anatomy"))
                     .put("dc",8+Math.min(8,ing.optInt("tier",1))));}
                 catch(Exception e){throw new IllegalStateException("Candidato de colheita invalido",e);}
             }
@@ -475,6 +480,8 @@ public final class WilemCookbookEngine {
                 .equals(normalizeCreature(speciesForIngredient(ing))))
                 throw new IllegalStateException("A anatomia desse corpo nao corresponde ao ingrediente");
             JSONObject provenance=object(body.optString("resources_json","{}"));
+            if(provenance.optBoolean("stable",false)||provenance.optBoolean("nonlethal_knockout",false))
+                throw new IllegalStateException("Criatura inconsciente ou estabilizada nao pode ser colhida");
             if(provenance.optBoolean("wilem_harvested",false))
                 throw new IllegalStateException("Essa criatura ja foi examinada; colheita duplicada");
             int dc=8+Math.min(8,ing.optInt("tier",1));
@@ -492,7 +499,9 @@ public final class WilemCookbookEngine {
                 JSONObject part=new JSONObject().put("id","wilem_ing_"+ingredientId+"_body_"+combatantId)
                     .put("cookbook_ingredient_id",ingredientId).put("name",ing.optString("name"))
                     .put("quantity",1).put("harvested_from_combatant_id",combatantId)
-                    .put("harvest_receipt",receipt).put("harvested_world_hour",worldHour(db))
+                    .put("harvest_receipt",receipt)
+                    .put("anatomy_cut",ing.optJSONObject("anatomy")==null?"":ing.optJSONObject("anatomy").optString("cut"))
+                    .put("harvested_world_hour",worldHour(db))
                     .put("expires_world_hour",worldHour(db)+24d);
                 inv.put(part);
                 sheet.put("inventory_ledger",inv)
@@ -506,7 +515,8 @@ public final class WilemCookbookEngine {
                 .put("dice_total",calc.total).put("wisdom_modifier",wisdomModifier)
                 .put("total",total).put("dc",dc).put("success",success)
                 .put("world_hour",worldHour(db)).put("location",sceneLocation(db))
-                .put("roll_signature",dice.integritySignature);
+                .put("roll_signature",dice.integritySignature)
+                .put("anatomy",ing.optJSONObject("anatomy"));
             records.put(entry);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Colheita de Wilem: "+body.optString("name"),
                 "Resultado "+total+" vs CD "+dc+"; "+(success?"1 parte aproveitavel":"nenhum alimento seguro"),
