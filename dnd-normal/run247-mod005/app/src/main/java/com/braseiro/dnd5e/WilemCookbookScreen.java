@@ -174,7 +174,7 @@ public final class WilemCookbookScreen {
             JSONObject chosen=bodies.optJSONObject(targets.getSelectedItemPosition());
             JSONObject anatomy=chosen==null?null:chosen.optJSONObject("anatomy");
             anatomyHelp.setText(anatomy==null?"Corte nao registrado":
-                anatomy.optString("cut")+"\\n"+anatomy.optString("warning"));
+                anatomy.optString("cut")+"\n"+anatomy.optString("warning"));
         };
         targets.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
             public void onItemSelected(android.widget.AdapterView<?> p,View v,int pos,long id){syncAnatomy.run();}
