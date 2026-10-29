@@ -337,7 +337,7 @@ public final class WilemCookbookEngine {
                         !"nenhum".equals(active.optString("effect_key"))&&magic)
                         throw new IllegalStateException("Ja ha beneficio culinario especial ativo; nao acumular");
                 }
-                if(magic)old.put(effect);sheet.put("meal_effects",old);
+                if(magic||effect.optBoolean("poisoned_after_consumption",false))old.put(effect);sheet.put("meal_effects",old);
 
                 sheet.put("last_nourishing_meal_world_hour",worldHour(db));
                 sheet.put("nourished_until_world_hour",worldHour(db)+24d);
@@ -352,12 +352,25 @@ public final class WilemCookbookEngine {
                         if(!conditions.toLowerCase(Locale.ROOT).contains("envenenado"))
                             db.updateConditionsChecked(combatant.optLong("id"),
                                 conditions.isEmpty()?"envenenado":conditions+",envenenado");
+                        JSONObject provenance=object(combatant.optString("resources_json","{}"));
+                        provenance.put("wilem_meal_poison_receipt",receipt);
+                        ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
+                        db.getWritableDatabase().update("combatants",source,"world_profile=? AND id=?",
+                            new String[]{profile(),String.valueOf(combatant.optLong("id"))});
                     }
                 }
                 if(magic&&"pv_temporarios".equals(effect.optString("effect_key"))){
                     ContentValues cv=new ContentValues();cv.put("temp_hp",Math.max(recipe.optInt("effect_value",1),0));
                     db.getWritableDatabase().update("combatants",cv,"world_profile=? AND source_kind='character' AND source_id=? AND temp_hp<?",
                         new String[]{profile(),String.valueOf(targetId),String.valueOf(recipe.optInt("effect_value",1))});
+                    for(JSONObject combatant:db.listCombatants())if("character".equalsIgnoreCase(combatant.optString("source_kind"))
+                        &&combatant.optLong("source_id")==targetId){
+                        JSONObject provenance=object(combatant.optString("resources_json","{}"));
+                        provenance.put("wilem_temp_hp_receipt",receipt);
+                        ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
+                        db.getWritableDatabase().update("combatants",source,"world_profile=? AND id=?",
+                            new String[]{profile(),String.valueOf(combatant.optLong("id"))});
+                    }
                 }
             }
 
@@ -463,11 +476,56 @@ public final class WilemCookbookEngine {
         return out[0];
     }
 
+
+    /** Limpeza temporal de efeitos culinarios com origem verificada, sem apagar buffs alheios. */
+    private void reconcileMeals(){
+        double now=worldHour(db);
+        for(JSONObject hero:db.listActiveCharacters()){
+            long id=hero.optLong("id");JSONObject sheet=object(hero.optString("sheet_json","{}"));
+            JSONArray effects=sheet.optJSONArray("meal_effects");if(effects==null||effects.length()==0)continue;
+            JSONArray still=new JSONArray();boolean modified=false;
+            for(int i=0;i<effects.length();i++){
+                JSONObject effect=effects.optJSONObject(i);if(effect==null)continue;
+                boolean expired=effect.optDouble("ends_world_hour",Double.MAX_VALUE)<=now;
+                boolean riskExpired=effect.optDouble("risk_ends_world_hour",Double.MAX_VALUE)<=now;
+                if(expired&&(!effect.optBoolean("poisoned_after_consumption",false)||riskExpired)){modified=true;}
+                else still.put(effect);
+                if(!expired&&!riskExpired)continue;
+                for(JSONObject combatant:db.listCombatants()){
+                    if(!"character".equalsIgnoreCase(combatant.optString("source_kind"))||combatant.optLong("source_id")!=id)continue;
+                    JSONObject provenance=object(combatant.optString("resources_json","{}"));
+                    String receipt=effect.optString("receipt");
+                    try{
+                        if(riskExpired&&receipt.equals(provenance.optString("wilem_meal_poison_receipt"))){
+                            StringBuilder conditions=new StringBuilder();
+                            for(String part:combatant.optString("conditions","").split(",")){
+                                if(part.trim().equalsIgnoreCase("envenenado"))continue;
+                                if(!part.trim().isEmpty()){if(conditions.length()>0)conditions.append(",");conditions.append(part.trim());}
+                            }
+                            db.updateConditionsChecked(combatant.optLong("id"),conditions.toString());
+                            provenance.remove("wilem_meal_poison_receipt");
+                        }
+                        if(expired&&receipt.equals(provenance.optString("wilem_temp_hp_receipt"))){
+                            ContentValues hp=new ContentValues();hp.put("temp_hp",0);
+                            db.getWritableDatabase().update("combatants",hp,"id=? AND world_profile=?",
+                                new String[]{String.valueOf(combatant.optLong("id")),profile()});
+                            provenance.remove("wilem_temp_hp_receipt");
+                        }
+                        ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
+                        db.getWritableDatabase().update("combatants",source,"id=? AND world_profile=?",
+                            new String[]{String.valueOf(combatant.optLong("id")),profile()});
+                    }catch(Exception ignored){}
+                }
+            }
+            if(modified)try{sheet.put("meal_effects",still);db.updateCharacterSheetChecked(id,sheet.toString());}catch(Exception ignored){}
+        }
+    }
+
     public JSONObject masterView(){
         JSONObject out=new JSONObject();
         try{
             long id=ownerId();if(id<=0)return out.put("available",false);
-            JSONObject st=state();String location=sceneLocation(db);
+            reconcileMeals();JSONObject st=state();String location=sceneLocation(db);
             JSONArray nearby=new JSONArray();JSONArray rumors=st.optJSONArray("rumors");
             for(int i=0;rumors!=null&&i<rumors.length();i++){JSONObject rum=rumors.optJSONObject(i);if(rum==null)continue;
                 String where=rum.optString("location","").toLowerCase(Locale.ROOT);
