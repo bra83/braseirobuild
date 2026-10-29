@@ -243,12 +243,23 @@ public final class WilemCookbookScreen {
                     true,true,immune.isChecked(),Integer.parseInt(save.getText().toString()),WilemCookbookEngine.newReceipt());changed();
             }catch(Exception e){fail(e);}}).show();
     }
+    private void noteDialog(){
+        LinearLayout f=vertical();EditText title=new EditText(activity);title.setHint("Assunto");f.addView(title);
+        EditText body=new EditText(activity);body.setHint("Observacao, historia ou desenho descrito por Wilem");body.setMinLines(4);f.addView(body);
+        new AlertDialog.Builder(activity).setTitle("Nova anotacao").setView(f).setNegativeButton("Voltar",null)
+            .setPositiveButton("SALVAR",(d,w)->{
+                try{book.addNote(title.getText().toString(),body.getText().toString(),
+                    WilemCookbookEngine.newReceipt());changed();}catch(Exception e){fail(e);}
+            }).show();
+    }
     private void showNotes(LinearLayout body,JSONObject st){
         body.addView(text("ANOTACOES E DESCOBERTAS",19,GOLD));
         JSONArray notes=st.optJSONArray("notes");for(int i=0;notes!=null&&i<notes.length();i++){
             JSONObject x=notes.optJSONObject(i);if(x!=null){LinearLayout p=panel();p.addView(text(x.optString("title"),16,GOLD));p.addView(text(x.optString("text"),13,TEXT));body.addView(p);}
         }
         JSONArray experiments=st.optJSONArray("experiments");
+        Button write=btn("+ ESCREVER NO CADERNO");write.setEnabled(book.canCook());
+        write.setOnClickListener(v->noteDialog());body.addView(write);
         body.addView(text("Tentativas: "+(experiments==null?0:experiments.length()),14,MUTED));
         for(int i=Math.max(0,(experiments==null?0:experiments.length())-10);experiments!=null&&i<experiments.length();i++){
             JSONObject x=experiments.optJSONObject(i);if(x!=null)body.addView(text(WilemCookbookCatalog.recipeById(x.optString("recipe_id")).optString("name")+" • "+x.optString("result"),13,TEXT));
