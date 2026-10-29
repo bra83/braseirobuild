@@ -95,6 +95,11 @@ public final class WilemCookbookScreen {
             items.append("• ").append(x.optString("name",key)).append(" x").append(needs.optInt(key,1)).append("\n");
         }
         form.addView(text(items.toString(),13,Color.DKGRAY));
+        JSONArray steps=r.optJSONArray("steps");
+        if(steps!=null){StringBuilder directions=new StringBuilder("PREPARO:\n");
+            for(int i=0;i<steps.length();i++)directions.append(i+1).append(". ").append(steps.optString(i)).append("\n");
+            form.addView(text(directions.toString(),13,Color.DKGRAY));
+        }
         form.addView(text("Efeito: "+r.optString("effect_key")+". Porcoes nao se acumulam. Um preparo incomum segue CD com beneficio e risco.",13,Color.DKGRAY));
         EditText roll=new EditText(activity);roll.setHint("Resultado do seu d20 (1 a 20); 0 para receita comum");roll.setInputType(2);form.addView(roll);
         CheckBox fire=new CheckBox(activity);fire.setText("Tenho fogo/fonte de calor");fire.setChecked(true);form.addView(fire);
