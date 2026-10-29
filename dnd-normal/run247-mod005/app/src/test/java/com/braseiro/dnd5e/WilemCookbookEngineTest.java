@@ -72,10 +72,13 @@ public class WilemCookbookEngineTest {
         book.acquire("agua",1,"coleta_confirmada",true,receipt());
         book.acquire("cebola",1,"coleta_confirmada",true,receipt());
         assertEquals(2,book.pantry().optJSONArray("items").getJSONObject(0).optInt("quantity"));
+        System.out.println("WILEM_BEFORE_COOK "+book.pantry()+" SHEET "+db.getCharacter(wilem).optString("sheet_json"));
         JSONObject batch=book.cook("com_batata_0",0,true,true,receipt());
+        System.out.println("WILEM_AFTER_COOK "+book.pantry()+" SHEET "+db.getCharacter(wilem).optString("sheet_json"));
         assertTrue(batch.optBoolean("completed"));assertEquals(4,batch.optInt("remaining"));
         JSONObject meal=book.serve(batch.getString("id"),wilem,"",true,"Contou uma historia da primeira aula",receipt());
         assertTrue(meal.optBoolean("food"));assertEquals("nenhum",meal.optString("effect_key"));
+        System.out.println("WILEM_AFTER_SERVE "+book.pantry()+" SHEET "+db.getCharacter(wilem).optString("sheet_json"));
         assertEquals(1,book.pantry().optJSONArray("items").getJSONObject(0).optInt("quantity"));
         JSONObject before=book.state();assertEquals(1,before.optJSONArray("meals").length());
         db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
