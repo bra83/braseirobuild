@@ -55,7 +55,7 @@ public final class WilemCookbookEngine {
     }
     private JSONObject fresh(long id)throws Exception{
         JSONArray rumors=new JSONArray();
-        rumors.put(new JSONObject().put("recipe_id","mon_cor uja_urso_0").put("location","Biblioteca de Strixhaven").put("source","anotacao de aula").put("text","Talvez uma carne monstruosa possa sustentar um grupo apos uma travessia. Precisa de pesquisa.").put("status","hipotese"));
+        rumors.put(new JSONObject().put("recipe_id","mon_coruja_urso_0").put("location","Biblioteca de Strixhaven").put("source","anotacao de aula").put("text","Talvez uma carne monstruosa possa sustentar um grupo apos uma travessia. Precisa de pesquisa.").put("status","hipotese"));
         rumors.put(new JSONObject().put("recipe_id","mon_aranha_1").put("location","Laboratorio de historia natural").put("source","estudantes de zoologia").put("text","Partes de aranha exigem remocao cuidadosa das glandulas. Nao experimentar sem identificar.").put("status","hipotese"));
         rumors.put(new JSONObject().put("recipe_id","mon_basilisco_4").put("location","Marco do Percurso").put("source","viajante ainda desconhecido").put("text","Dizem existir uma receita de basilisco, mas nao ha provas.").put("status","a_ouvir"));
         rumors.put(new JSONObject().put("recipe_id","isca_mel_fantasia").put("location","Feira de mercadores feericos").put("source","rumor nao confirmado").put("text","Um confeiteiro conhece doces que deixam certas criaturas sonolentas.").put("status","a_ouvir"));
