@@ -243,7 +243,11 @@ public final class WilemCookbookEngine {
             boolean matches=false;
             for(String tag:ing.optString("source_locations").split(",")){
                 String normalized=normalizeCreature(tag);
-                if(!normalized.isEmpty()&&place.contains(normalized)){matches=true;break;}
+                // Mercados e comerciantes sao fontes de compra, NUNCA coleta gratis.
+                if(normalized.equals("mercado")||normalized.equals("feira")||
+                   normalized.equals("mercador")||normalized.equals("apicultor")||
+                   normalized.equals("moinho")||normalized.isEmpty())continue;
+                if(place.contains(normalized)){matches=true;break;}
             }
             if(!matches)continue;
             String attempt=day+":"+place+":"+ing.optString("id");
@@ -340,8 +344,11 @@ public final class WilemCookbookEngine {
         final JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
         if(ing.length()==0)throw new IllegalArgumentException("Ingrediente desconhecido");
         final String src=source==null?"":source.trim().toLowerCase(Locale.ROOT);
-        if(!(src.equals("mercado_pago")||src.equals("coleta_confirmada")||src.equals("recompensa_confirmada")))
-            throw new IllegalArgumentException("Fonte nao confirmada");
+        // Fluxos manuais antigos nao sao mais autorizados a criar comida gratuitamente.
+        // Coleta -> forageWithPhysicalRoll; recompensas -> claimWorldReward;
+        // partes de criaturas -> harvestWithPhysicalRoll.
+        if(!src.equals("mercado_pago"))
+            throw new IllegalStateException("Aquisicao manual desativada: use coleta fisica, evento aplicado ou colheita de criatura");
         if("monstro".equals(ing.optString("category"))||"magico".equals(ing.optString("category")))
             throw new IllegalStateException("Ingrediente especial exige colheita ou evento do mundo validado; nao pode ser registrado como aquisicao livre");
         final JSONObject[] result={new JSONObject()};
@@ -395,7 +402,7 @@ public final class WilemCookbookEngine {
                     .put("quantity",amount).put("paid_copper",paidCp).put("receipt",receipt));
             }
             remember(state,receipt);write(db.getWritableDatabase(),ownerId(),state);
-            String cost=src.equals("mercado_pago")?"Pagamento debitado da carteira 2024: "+paidCp+" PC.":"Coleta/recompensa confirmada pelo usuario; requer evidencia narrativa.";
+            String cost="Pagamento debitado da carteira 2024: "+paidCp+" PC.";
             db.addJournalFact("Wilem encontrou ingredientes",ing.optString("name")+" x"+amount+"; "+cost+" Origem: "+sceneLocation(db),"culinaria",receipt,"wilem_cookbook");
             result[0]=new JSONObject().put("acquired",true).put("quantity",amount).put("item",item)
                 .put("money_auto_debited",src.equals("mercado_pago")).put("paid_copper",paidCp);
