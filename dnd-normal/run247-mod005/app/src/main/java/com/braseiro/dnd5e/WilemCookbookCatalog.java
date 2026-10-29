@@ -78,6 +78,40 @@ public final class WilemCookbookCatalog {
         {"isca_fermento","Massa de perfume feerico","farinha:1;mel:1;oleo:1","chamar","0","12","onivoro","Aroma distante dependente de vento e apetite."},
         {"isca_brasa","Costela defumada de trilha","carne_caca:1;ervas:1;sal:1","chamar","0","12","carnivoro","Fumaca e aroma tambem podem chamar criaturas indesejadas."}
     };
+    // Cada familia de criatura tem um corte, procedimento e risco anatomico proprios.
+    // Orientacoes ficticias de jogo: nao sao instrucoes para manipular animais reais.
+    private static final String[][] ANATOMY={
+        {"javali","Lombo de javali","Separar musculatura longe das presas; descartar tecido lesionado"},
+        {"lobo","Corte dorsal de lobo terrivel","Separar nervuras do dorso sem tocar saliva ou presas"},
+        {"aranha","Musculatura de patas de aranha","Isolar bolsas glandulares e fiandeiras antes da retirada"},
+        {"crocodilo","Musculo da cauda de crocodilo","Evitar placas e espinhos osseos; conferir interior da cauda"},
+        {"sapo","Musculatura da coxa de sapo","Isolar pele e secrecoes sem contato com o caldo"},
+        {"escorpiao","Musculatura interna da pinça","Manter ferrao e glandula do veneno completamente isolados"},
+        {"coruja_urso","Musculatura do peito da coruja-urso","Separar tendons grossos e plumagem em varias camadas"},
+        {"ankheg","Corte abdominal de ankheg","Nao misturar secrecoes acidas da mandibula ao alimento"},
+        {"bico_machado","Musculatura do peito do bico de machado","Retirar ossos finos, plumas e cartilagem das garras"},
+        {"caranguejo","Musculatura das pinças do caranguejo","Abrir carapaca sem danificar a porcao interna"},
+        {"cobra","Corte dorsal de cobra gigante","Afastar presas, glandulas e couro antes do corte"},
+        {"lagarto","Musculatura da cauda de lagarto","Verificar espinhos e desprendimento da cauda"},
+        {"morcego","Musculatura peitoral de morcego","Separar membranas de voo e nao recolher tecido doente"},
+        {"lagosta","Musculatura da cauda de lagosta","Abrir carapaca e retirar partes escuras da cavidade"},
+        {"urso","Corte do ombro do urso da neblina","Descartar tecido marcado por nevoa sobrenatural desconhecida"},
+        {"bulette","Musculatura profunda de bulette","Romper somente placas nao mineralizadas; evitar laminas dorsais"},
+        {"chuul","Musculatura de pinça de chuul","Isolar tentaculos e secrecoes paralisantes em saco distinto"},
+        {"basilisco","Corte de cauda de basilisco","Exigir identificacao arcana antes de remover tecido petrificado"},
+        {"quimera","Musculatura da anca de quimera","Identificar a origem anatomica; descartar glandulas do fogo"},
+        {"verme","Fibra muscular do verme purpura","Isolar ferrão e secrecoes do trato subterraneo"},
+        {"salamandra","Musculatura do tronco da salamandra","Usar protecao magica contra calor antes da inspecao"},
+        {"elemental_agua","Fibra feerica do peixe das aguas","Conservar a amostra em agua da origem e testar estabilidade"},
+        {"hidra","Musculatura de pescoco de hidra","Isolar tecido em regeneracao e descartar partes instaveis"},
+        {"serpente_mar","Corte dorsal de serpente marinha","Separar placas salinas, espinhos e glandulas costeiras"}
+    };
+    private static JSONObject anatomy(String id)throws Exception{
+        for(String[] row:ANATOMY)if(("carne_"+row[0]).equals(id))
+            return new JSONObject().put("cut",row[1]).put("warning",row[2])
+                .put("required","Identificar especie, confirmar derrota e realizar um teste fisico unico por corpo.");
+        return new JSONObject();
+    }
     private static JSONObject ingredient(String id,String name,String sources,int copper,String category,int tier,String note)throws Exception{
         return new JSONObject().put("id",id).put("name",name).put("source_locations",sources)
             .put("suggested_price_cp",copper).put("category",category).put("tier",tier)
@@ -87,7 +121,12 @@ public final class WilemCookbookCatalog {
         JSONArray arr=new JSONArray();
         try{
             for(String[] c:COMMON)arr.put(ingredient(c[0],c[1],c[2],Integer.parseInt(c[3]),c[4],0,"Comum; oferta sujeita a estacao e contexto local."));
-            for(String[] m:MONSTERS)arr.put(ingredient("carne_"+m[0],"Parte culinaria de "+m[1],m[2],0,"monstro",Integer.parseInt(m[3]),"Exige colheita, identificacao e respeito a ecologia."));
+            for(String[] m:MONSTERS){
+                String id="carne_"+m[0];
+                arr.put(ingredient(id,"Parte culinaria de "+m[1],m[2],0,"monstro",
+                    Integer.parseInt(m[3]),"Exige colheita, identificacao e respeito a ecologia.")
+                    .put("anatomy",anatomy(id)));
+            }
             String[][] arcane={{"essencia_feerica","Essencia feerica"},{"esporo_onirico","Esporo onirico"},{"cristal_vertigem","Cristal da vertigem"},{"po_lua_palido","Po de lua palida"},{"sal_azul_arcano","Sal azul arcano"},{"fungo_sonho","Fungo do sonho"}};
             for(String[] a:arcane)arr.put(ingredient(a[0],a[1],"pesquisa,boato,aventura",0,"magico",5,"Material inventado para fantasia; nunca corresponde a substancia real."));
         }catch(Exception e){throw new IllegalStateException("Catalogo de ingredientes invalido",e);}
