@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.29 Wilem Cookbook APK
+name: Braseiro DnD 6.6.30 Wilem Harvest APK
 on:
   push:
     branches: [feature/dnd-wilem-cookbook-20261029]
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 150
     env:
       PROJECT: dnd-normal/run247-mod005
-      TAG: dnd-6.6.29-wilem-cookbook-20261029
-      APK_NAME: BRASEIRO_DND_6.6.29_WILEM_CADERNO.apk
-      VERSION: 6.6.29-wilem-cookbook-20261029
-      CODE: '202700039'
+      TAG: dnd-6.6.30-wilem-harvest-20261029
+      APK_NAME: BRASEIRO_DND_6.6.30_WILEM_COLHEITA.apk
+      VERSION: 6.6.30-wilem-harvest-20261029
+      CODE: '202700040'
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p baseline out
-          gh release download dnd-6.6.28-kvothe-strixhaven-marco-20261028 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          gh release download dnd-6.6.29-wilem-cookbook-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
           python3 - <<'PY'
           import os,re
           from pathlib import Path
@@ -62,7 +62,7 @@ jobs:
           assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
           assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
           version.write_text(source.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE']).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
-          print('DND_6629_VERSION_AND_SCHEMA_PASS')
+          print('DND_6630_VERSION_AND_SCHEMA_PASS')
           PY
       - name: Guard v61 fast startup and copyable diagnostics
         run: |
@@ -93,8 +93,8 @@ jobs:
           assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Narrative Barbara policy bypass'
           assert 'masterOrchestrator.warmBarbaraAsync()' in activity
           assert all(marker in master for marker in ['MASTER_CORE_CREATED','MASTER_CANON_SEEDED','MASTER_ADVENTURES_REGISTERED','MASTER_RULES_REGISTERED','MASTER_MONSTERS_REGISTERED'])
-          print('DND_6629_LAZY_BARBARA_GATE_PASS')
-          print('DND_6629_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
+          print('DND_6630_LAZY_BARBARA_GATE_PASS')
+          print('DND_6630_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
           PY
       - name: Compile and test full D&D rules engine
         working-directory: ${{ env.PROJECT }}
@@ -123,7 +123,7 @@ jobs:
               r=ET.parse(p).getroot()
               for k in stats:stats[k]+=int(r.get(k,0))
           assert stats['tests']>=2910 and not any(stats[x] for x in ['failures','errors','skipped']),str(stats)
-          print('DND_6629_TESTS_PASS',stats)
+          print('DND_6630_TESTS_PASS',stats)
           PY
       - name: Build debug APK (same installed signer and package)
         working-directory: ${{ env.PROJECT }}
@@ -152,7 +152,7 @@ jobs:
           with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
               assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist())
           Path('out/BUILD_PROOF.txt').write_text('COMMIT='+os.environ['GITHUB_SHA']+'\nPACKAGE=com.braseiro.dnd5e\nVERSION_CODE='+b[2]+'\nNEW_CODE='+b[2]+'\nCERT_SHA256='+now[1]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\nSHEET_RULES_TESTS=PASS\nKVOTHE_STORY_JVM=PASS\nNPC_MEMORY_SQLITE=PASS\nNPC_SOCIAL_PROPAGATION_SQLITE=PASS\nKVOTHE_STRIXHAVEN_D040_GATE=PASS\nSTARTUP_PHYSICAL_BENCHMARK=NOT_PERFORMED\nBARBARA_CHAQUOPY_OFF_MAIN=PASS\n')
-          print('DND_6629_UPGRADE_SIGNER_MAP_PASS')
+          print('DND_6630_UPGRADE_SIGNER_MAP_PASS')
           PY
           (cd out && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
       - name: Publish only a fully verified upgrade
@@ -163,5 +163,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.29 — O Caldeirao de Wilem" \
-            --notes "Caderno exclusivo de Wilem com 300 entradas culinarias originais, inventario canônico, notas e historico de refeicoes. Limitacoes ainda abertas: aquisicoes comuns compradas debitam a carteira 2024 de forma atomica, recompensas/coletas ainda requerem confirmacao contextual; colheita limitada a especies reconhecidas e corpos derrotados (um teste fisico por carcaça); salvaguardas de consumidores e integracao completa da anatomia/ambiente ainda nao certificadas; d20 fisico com assinatura no preparo especial. Culinaria opcional: nao substitui regras oficiais D&D 2024. Mesma assinatura e pacote de 6.6.28, versionCode crescente, suites Android/SQLite/JVM completas aprovadas antes de publicar. Homologacao fisica nao realizada."
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.30 — Colheita de Wilem" \
+            --notes "Caderno exclusivo de Wilem com 300 entradas culinarias originais, inventario canônico, notas e historico de refeicoes. Limitacoes ainda abertas: aquisicoes comuns compradas debitam a carteira 2024 de forma atomica, recompensas/coletas ainda requerem confirmacao contextual; colheita limitada a especies reconhecidas e corpos derrotados (um teste fisico por carcaça); salvaguardas de consumidores e integracao completa da anatomia/ambiente ainda nao certificadas; d20 fisico com assinatura no preparo especial. Culinaria opcional: nao substitui regras oficiais D&D 2024. Mesma assinatura e pacote de 6.6.29, versionCode crescente, suites Android/SQLite/JVM completas aprovadas antes de publicar. Homologacao fisica nao realizada."
