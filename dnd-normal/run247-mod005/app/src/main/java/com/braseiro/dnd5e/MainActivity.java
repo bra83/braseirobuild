@@ -893,8 +893,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
         // Core play screens must reflect SQLite after returning from another screen.
-        boolean liveCoreScreen=!isMystaraWorld()&&!isStrixhavenAdventure()&&
-            ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n));
+        boolean liveCoreScreen="Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
+            ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n)));
         View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
         navigationInProgress=true;showNavigationPlaceholder(n);
@@ -2448,6 +2448,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             identity.addView(info,new LinearLayout.LayoutParams(0,-2,1));card.addView(identity);
             String concept=sheet.optString("concept").trim();if(concept.length()>0)card.addView(text(concept,13,TEXT,false));
             LinearLayout vitals=new LinearLayout(this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
+             if("wilem".equalsIgnoreCase(ch.optString("name"))||"willem".equalsIgnoreCase(ch.optString("name"))){
+                Button notebook=button("ABRIR O CADERNO DE RECEITAS",PANEL2);
+                notebook.setOnClickListener(v->navigate("Caldeirão"));
+                card.addView(notebook);
+             }
             final JSONObject resourceSheet=parseJsonObject(ch.optString("sheet_json","{}"));
             int hdMax=resourceSheet.optInt("hit_dice_max",ch.optInt("level",1)),hdSpent=resourceSheet.optInt("hit_dice_spent",0);JSONArray slotsCur=resourceSheet.optJSONArray("spell_slots_current"),slotsMax=resourceSheet.optJSONArray("spell_slots_max");String resourceLine="Dados de Vida disponíveis "+Math.max(0,hdMax-hdSpent)+"/"+hdMax;if(slotsCur!=null&&slotsMax!=null)resourceLine+=" • Slots "+compactSlots(slotsCur)+"/"+compactSlots(slotsMax);JSONObject pact=resourceSheet.optJSONObject("pact_magic");if(pact!=null)resourceLine+=" • Pacto "+pact.optInt("current")+"/"+pact.optInt("max")+" (nível "+pact.optInt("slot_level")+")";card.addView(text(resourceLine,12,MUTED,false));
             String structured=structuredResourceSummary(resourceSheet);if(structured.length()>0)card.addView(text("Recursos de classe: "+structured,12,MUTED,false));
