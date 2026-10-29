@@ -293,6 +293,42 @@ public class WilemCookbookEngineTest {
         assertEquals("physical3d",served.getJSONObject("constitution_save_proof").getString("source"));
         assertEquals(1,book.state().getJSONArray("meals").length());
     }
+    @Test public void knownConditionImmunityOverridesUnsafeBaitSelection()throws Exception{
+        join();
+        JSONObject st=book.state();
+        st.getJSONArray("baits").put(new JSONObject().put("id","bait-immune")
+            .put("recipe_id","isca_mel_fantasia")
+            .put("status","armada").put("batch_quality","somente_beneficio"));
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{st.toString(),"dnd",wilem});
+        long target=db.addCombatant("Lobo insone",9,12,12,12,"",false);
+        db.updateCombatantAdvancedChecked(target,0,"",false,0,0,"","[]",
+            "","","",new JSONObject().put("condition_immunities","unconscious").toString());
+        java.util.List<Integer> low=java.util.Collections.singletonList(1);
+        Dice3DOverlay.RollResult roll=new Dice3DOverlay.RollResult(
+            low,low,1,1,"1","","d20","Normal",100,124331L,"test",
+            RollIntegrity.signature("d20",low,0,124331L,1));
+        JSONObject resolved=book.resolveBaitWithPhysicalSave("bait-immune",target,
+            true,true,false,roll,0,true,receipt());
+        assertTrue(resolved.optBoolean("immunity_auto_detected"));
+        assertFalse(resolved.optBoolean("effect_applied"));
+        assertEquals("",resolved.optString("applied_condition"));
+    }
+    @Test public void everyMonsterIngredientHasUniqueAnatomicalCut()throws Exception{
+        JSONArray ingredients=WilemCookbookCatalog.ingredients();
+        java.util.HashSet<String> cuts=new java.util.HashSet<String>();int count=0;
+        for(int i=0;i<ingredients.length();i++){
+            JSONObject ing=ingredients.getJSONObject(i);
+            if(!"monstro".equals(ing.optString("category")))continue;
+            JSONObject anatomy=ing.optJSONObject("anatomy");assertNotNull(anatomy);
+            assertTrue(anatomy.optString("cut").length()>5);
+            assertTrue(anatomy.optString("warning").length()>12);
+            assertTrue(cuts.add(anatomy.optString("cut")));
+            count++;
+        }
+        assertEquals(24,count);
+    }
     @Test public void magicalBaitCannotResolveWithTypedD20AndRecordsPhysicalProof()throws Exception{
         join();
         JSONObject state=book.state();
