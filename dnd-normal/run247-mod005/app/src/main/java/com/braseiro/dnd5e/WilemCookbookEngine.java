@@ -272,9 +272,9 @@ public final class WilemCookbookEngine {
             boolean special=!recipe.optString("type").equals("cotidiana");
             
             if(special&&roll<1)throw new IllegalArgumentException("D20 explicitamente rolado e obrigatorio para comida especial ou isca");
-            String tools=hero().optString("tools","")+" "+sheet.optString("tools","");
+            String tools=hero().optString("tools","")+" "+sheet.optString("tools","")+" "+sheet.optString("tool_proficiencies","")+" "+sheet.optString("proficiencies","");
             int proficiency=tools.toLowerCase(Locale.ROOT).contains("cozinh")?
-                Math.max(2,hero().optInt("proficiency_bonus",2)):0;
+                Math.max(2,2+(Math.max(1,hero().optInt("level",1))-1)/4):0;
             int check=roll+proficiency+Math.floorDiv(hero().optInt("wis",10)-10,2);
             String result=!special?"refeicao_comum":check>=recipe.optInt("dc")+5?"somente_beneficio":
                 check>=recipe.optInt("dc")?"beneficio_com_risco":"somente_risco";
@@ -388,8 +388,10 @@ public final class WilemCookbookEngine {
                 if(everyone){
                     JSONObject party=db.getPartyState(),resources=object(party.optString("company_resources_json","{}"));
                     if(resources.optInt("wilem_provisions_credit_day",0)!=currentDay){
-                        resources.put("provisions_days",Math.max(0,resources.optInt("provisions_days",0))+1)
-                            .put("wilem_provisions_credit_day",currentDay)
+                        // Refeicoes consumidas nao fabricam provisoes no inventario.
+                        // Registram saciedade coletiva para o motor de viagem/descanso.
+                        resources.put("wilem_provisions_credit_day",currentDay)
+                            .put("last_shared_meal_world_hour",worldHour(db))
                             .put("last_shared_meal_location",sceneLocation(db));
                         party.put("company_resources_json",resources.toString());db.savePartyState(party);
                     }
