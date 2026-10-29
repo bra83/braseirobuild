@@ -1,4 +1,4 @@
-name: Braseiro DnD 6.6.31 Wilem Rules Integration APK
+name: Braseiro DnD 6.6.32 Wilem World Closure APK
 on:
   push:
     branches: [feature/dnd-wilem-cookbook-20261029]
@@ -23,10 +23,10 @@ jobs:
     timeout-minutes: 150
     env:
       PROJECT: dnd-normal/run247-mod005
-      TAG: dnd-6.6.31-wilem-integracao-20261029
-      APK_NAME: BRASEIRO_DND_6.6.31_WILEM_INTEGRACAO.apk
-      VERSION: 6.6.31-wilem-integracao-20261029
-      CODE: '202700041'
+      TAG: dnd-6.6.32-wilem-fechamento-20261029
+      APK_NAME: BRASEIRO_DND_6.6.32_WILEM_FECHAMENTO.apk
+      VERSION: 6.6.32-wilem-fechamento-20261029
+      CODE: '202700042'
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p baseline out
-          gh release download dnd-6.6.30-wilem-harvest-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          gh release download dnd-6.6.31-wilem-integracao-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
           python3 - <<'PY'
           import os,re
           from pathlib import Path
@@ -64,7 +64,7 @@ jobs:
           assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
           assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
           version.write_text(source.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE']).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
-          print('DND_6631_VERSION_AND_SCHEMA_PASS')
+          print('DND_6632_VERSION_AND_SCHEMA_PASS')
           PY
       - name: Guard v61 fast startup and copyable diagnostics
         run: |
@@ -95,8 +95,8 @@ jobs:
           assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Narrative Barbara policy bypass'
           assert 'masterOrchestrator.warmBarbaraAsync()' in activity
           assert all(marker in master for marker in ['MASTER_CORE_CREATED','MASTER_CANON_SEEDED','MASTER_ADVENTURES_REGISTERED','MASTER_RULES_REGISTERED','MASTER_MONSTERS_REGISTERED'])
-          print('DND_6631_LAZY_BARBARA_GATE_PASS')
-          print('DND_6631_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
+          print('DND_6632_LAZY_BARBARA_GATE_PASS')
+          print('DND_6632_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
           PY
       - name: Compile and test full D&D rules engine
         working-directory: ${{ env.PROJECT }}
@@ -125,7 +125,7 @@ jobs:
               r=ET.parse(p).getroot()
               for k in stats:stats[k]+=int(r.get(k,0))
           assert stats['tests']>=2910 and not any(stats[x] for x in ['failures','errors','skipped']),str(stats)
-          print('DND_6631_TESTS_PASS',stats)
+          print('DND_6632_TESTS_PASS',stats)
           PY
       - name: Build debug APK (same installed signer and package)
         working-directory: ${{ env.PROJECT }}
@@ -154,7 +154,7 @@ jobs:
           with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
               assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist())
           Path('out/BUILD_PROOF.txt').write_text('COMMIT='+os.environ['GITHUB_SHA']+'\nPACKAGE=com.braseiro.dnd5e\nVERSION_CODE='+b[2]+'\nNEW_CODE='+b[2]+'\nCERT_SHA256='+now[1]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\nSHEET_RULES_TESTS=PASS\nKVOTHE_STORY_JVM=PASS\nNPC_MEMORY_SQLITE=PASS\nNPC_SOCIAL_PROPAGATION_SQLITE=PASS\nKVOTHE_STRIXHAVEN_D040_GATE=PASS\nSTARTUP_PHYSICAL_BENCHMARK=NOT_PERFORMED\nBARBARA_CHAQUOPY_OFF_MAIN=PASS\n')
-          print('DND_6631_UPGRADE_SIGNER_MAP_PASS')
+          print('DND_6632_UPGRADE_SIGNER_MAP_PASS')
           PY
           (cd out && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
       - name: Publish only a fully verified upgrade
@@ -165,5 +165,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.31 — Integracao das Regras de Wilem" \
-            --notes "Caderno exclusivo de Wilem com 300 entradas culinarias originais, inventario canônico, notas e historico de refeicoes. Compras comuns debitam a carteira 2024 de forma atomica; colheita restrita a criaturas derrotadas e identificadas, uma tentativa por corpo. D20 fisico e comprovacao de rolagem obrigatorios no preparo, no consumo arriscado de herois e na salvaguarda de iscas magicas. Resistencia ao frio e concentracao aplicadas nas regras de combate; efeitos de origem alheia preservados. Limitacoes: coleta/recompensa comum ainda requer confirmacao contextual; modificador CON de criaturas para iscas deve ser confirmado no statblock pelo Mestre; anatomia/ecologia detalhada, estabelecimentos/NPCs vendedores e teste fisico Android ainda nao homologados. Culinaria opcional: nao substitui regras oficiais D&D 2024. Mesma assinatura e pacote de 6.6.30, versionCode crescente, suites Android/SQLite/JVM completas aprovadas antes de publicar. Homologacao fisica nao realizada."
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.32 — Fechamento do Caldeirao de Wilem" \
+            --notes "Fechamento funcional do Caderno de Wilem integrado ao mundo persistente: 300 receitas originais com descoberta contextual; aquisicao manual gratuita desativada; compra so no mercado/mercador real da cena com estoque diario e carteira 2024; coleta verificavel por local/atlas com d20 fisico, recibo e limite por dia; recompensa de evento aplicado, inclusive materiais feericos, resgatavel uma unica vez; 24 cortes anatomicos distintos, colheita unificada a corpos derrotados, sem explorar criaturas inconscientes; efeitos no combate, salvaguardas fisicas, imunidades compiladas, clima e consumo de provisoes com idempotencia; memoria narrativa e diario persistentes. Regras culinarias opcionais e originais, nao oficiais D&D 2024. Pacote, assinatura e esquema de dados existentes preservados. Todos os gates automatizados devem passar antes da publicacao; unico teste de homologacao pendente e o aparelho Android fisico."
