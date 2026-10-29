@@ -559,9 +559,10 @@ public final class WilemCookbookEngine {
                         if(!"character".equalsIgnoreCase(combatant.optString("source_kind"))||
                             combatant.optLong("source_id")!=targetId)continue;
                         String conditions=combatant.optString("conditions","");
-                        if(!conditions.toLowerCase(Locale.ROOT).contains("envenenado"))
-                            db.updateConditionsChecked(combatant.optLong("id"),
-                                conditions.isEmpty()?"envenenado":conditions+",envenenado");
+                        // Nao se apropriar de condicoes ja existentes causadas por outras fontes.
+                        if(ConditionTokenGuard.has(conditions,"envenenado"))continue;
+                        db.updateConditionsChecked(combatant.optLong("id"),
+                            conditions.isEmpty()?"envenenado":conditions+",envenenado");
                         JSONObject provenance=object(combatant.optString("resources_json","{}"));
                         provenance.put("wilem_meal_poison_receipt",receipt);
                         ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
@@ -570,13 +571,15 @@ public final class WilemCookbookEngine {
                     }
                 }
                 if(magic&&"pv_temporarios".equals(effect.optString("effect_key"))){
-                    ContentValues cv=new ContentValues();cv.put("temp_hp",Math.max(recipe.optInt("effect_value",1),0));
-                    db.getWritableDatabase().update("combatants",cv,"world_profile=? AND source_kind='character' AND source_id=? AND temp_hp<?",
-                        new String[]{profile(),String.valueOf(targetId),String.valueOf(recipe.optInt("effect_value",1))});
+                    int amount=Math.max(recipe.optInt("effect_value",1),0);
                     for(JSONObject combatant:db.listCombatants())if("character".equalsIgnoreCase(combatant.optString("source_kind"))
                         &&combatant.optLong("source_id")==targetId){
+                        if(combatant.optInt("temp_hp",0)>=amount)continue;
+                        ContentValues hp=new ContentValues();hp.put("temp_hp",amount);
+                        db.getWritableDatabase().update("combatants",hp,"world_profile=? AND id=?",
+                            new String[]{profile(),String.valueOf(combatant.optLong("id"))});
                         JSONObject provenance=object(combatant.optString("resources_json","{}"));
-                        provenance.put("wilem_temp_hp_receipt",receipt);
+                        provenance.put("wilem_temp_hp_receipt",receipt).put("wilem_temp_hp_initial",amount);
                         ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
                         db.getWritableDatabase().update("combatants",source,"world_profile=? AND id=?",
                             new String[]{profile(),String.valueOf(combatant.optLong("id"))});
@@ -742,10 +745,15 @@ public final class WilemCookbookEngine {
                             provenance.remove("wilem_meal_poison_receipt");
                         }
                         if(expired&&receipt.equals(provenance.optString("wilem_temp_hp_receipt"))){
-                            ContentValues hp=new ContentValues();hp.put("temp_hp",0);
-                            db.getWritableDatabase().update("combatants",hp,"id=? AND world_profile=?",
-                                new String[]{String.valueOf(combatant.optLong("id")),profile()});
+                            int original=provenance.optInt("wilem_temp_hp_initial",-1);
+                            int current=combatant.optInt("temp_hp",0);
+                            if(original>0&&current>0&&current<=original){
+                                ContentValues hp=new ContentValues();hp.put("temp_hp",0);
+                                db.getWritableDatabase().update("combatants",hp,"id=? AND world_profile=?",
+                                    new String[]{String.valueOf(combatant.optLong("id")),profile()});
+                            }
                             provenance.remove("wilem_temp_hp_receipt");
+                            provenance.remove("wilem_temp_hp_initial");
                         }
                         ContentValues source=new ContentValues();source.put("resources_json",provenance.toString());
                         db.getWritableDatabase().update("combatants",source,"id=? AND world_profile=?",

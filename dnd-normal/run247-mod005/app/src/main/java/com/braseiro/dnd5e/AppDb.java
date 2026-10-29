@@ -2990,6 +2990,14 @@ public class AppDb extends SQLiteOpenHelper {
             if("mystara".equals(getActiveMapProfile())){int hp=Math.max(0,c.optInt("hp")-amount);ContentValues v=new ContentValues();v.put("hp",hp);v.put("temp_hp",0);recordCombatReceipt(receiptResources,operationToken,signature,id);v.put("resources_json",receiptResources.toString());
                 requireCombatantWrite(getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",new String[]{String.valueOf(id),getActiveMapProfile()}));return getCombatant(id).put("applied_damage",amount);}
             String res=c.optString("resistances"),vul=c.optString("vulnerabilities"),imm=c.optString("immunities"),conditions=c.optString("conditions");if(ConditionRulesEngine.resistantToAllDamage(conditions))res=(res.trim().isEmpty()?"all":res+", all");
+            // Efeito culinario opcional: resistencia ao frio so para consumidor ativo e identificado.
+            if("cold".equals(DamageTypeNormalizer.canonical(damageType))){
+                JSONObject mealHero="character".equalsIgnoreCase(c.optString("source_kind"))?
+                    getCharacter(c.optLong("source_id",0)):
+                    (c.optInt("is_player",0)==1?findCharacterByName(c.optString("name")):new JSONObject());
+                if(mealHero.length()>0&&WilemCookbookEffectRules.coldResistance(mealHero,getSceneState()))
+                    res=res.trim().isEmpty()?"cold":res+", cold";
+            }
             DndRulesEngine rules=new DndRulesEngine();JSONObject dmg=rules.applyDamage(c.optInt("hp"),c.optInt("max_hp",1),c.optInt("temp_hp"),amount,damageType,res,vul,imm);int before=c.optInt("hp"),after=dmg.optInt("hp_after",before),temp=dmg.optInt("temp_hp_after",c.optInt("temp_hp"));int fail=c.optInt("death_fail"),succ=c.optInt("death_success");JSONObject resources=receiptResources;boolean dead=resources.optBoolean("dead",false),stable=resources.optBoolean("stable",false);
             int applied=dmg.optInt("applied_damage",0),absorbed=dmg.optInt("absorbed_by_temp_hp",0),hpDamage=Math.max(0,applied-absorbed);
             if(applied>0&&resources.optBoolean("nonlethal_knockout",false))clearRecoverySchedule(resources);
@@ -5908,15 +5916,21 @@ public class AppDb extends SQLiteOpenHelper {
             int durationRounds=Math.max(1,pending.optInt("duration_rounds",14400));
             int currentRound=Math.max(castRound,getCombatState().optInt("round",castRound));
             SpellConcentrationDurationRules.Outcome outcome;
+            JSONObject mealHero="character".equalsIgnoreCase(c.optString("source_kind"))?
+                getCharacter(c.optLong("source_id",0)):
+                (c.optInt("is_player",0)==1?findCharacterByName(c.optString("name")):new JSONObject());
+            int culinaryBonus=mealHero.length()==0?0:
+                WilemCookbookEffectRules.concentrationSaveBonus(mealHero,getSceneState());
             try{outcome=SpellConcentrationDurationRules.resolve(concentrationProfile,castRound,durationRounds,
-                currentRound,damage,d20,constitutionSaveBonus,
+                currentRound,damage,d20,constitutionSaveBonus+culinaryBonus,
                 ConditionRulesEngine.incapacitated(c.optString("conditions","")));}
             catch(IllegalArgumentException invalid){return c.put("concentration_save_blocked",invalid.getMessage());}
             JSONObject r=new JSONObject().put("damage",outcome.damage).put("dc",outcome.dc)
                 .put("save_required",outcome.saveRequired).put("concentration_maintained",outcome.maintained)
                 .put("concentration_ended",outcome.ended).put("expired",outcome.expired)
                 .put("natural",outcome.d20).put("save_bonus",outcome.saveBonus)
-                .put("total",outcome.total).put("rules_profile",concentrationProfile);
+                .put("total",outcome.total).put("rules_profile",concentrationProfile)
+                .put("wilem_meal_concentration_bonus",culinaryBonus);
             JSONArray queue=resources.optJSONArray("concentration_save_queue");
             if(!r.optBoolean("concentration_maintained",false)){resources.remove("concentration_save_pending");resources.remove("concentration_save_queue");}
             else if(queue!=null&&queue.length()>1){JSONArray next=new JSONArray();for(int i=1;i<queue.length();i++)next.put(queue.opt(i));resources.put("concentration_save_queue",next);JSONObject head=next.optJSONObject(0);if(head!=null)resources.put("concentration_save_pending",new JSONObject(head.toString()));else resources.remove("concentration_save_pending");r.put("additional_concentration_saves_pending",next.length());}
