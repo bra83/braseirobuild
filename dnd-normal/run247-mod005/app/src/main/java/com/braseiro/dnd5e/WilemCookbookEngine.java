@@ -470,10 +470,46 @@ public final class WilemCookbookEngine {
                                           final String conversation,final String receipt)throws Exception{
         return serveWithSave(batchId,targetId,guestName,shelter,conversation,-1,receipt);
     }
+    /** Bloqueia totais arbitrarios de salvaguardas: somente d20 fisico pode produzir resultado mecanico. */
     public synchronized JSONObject serveWithSave(final String batchId,final long targetId,
                                           final String guestName,final boolean shelter,
                                           final String conversation,final int constitutionSaveTotal,
                                           final String receipt)throws Exception{
+        if(constitutionSaveTotal>=0)
+            throw new IllegalStateException("Salvaguarda digitada nao e aceita; use a mesa de dados fisicos");
+        return serveInternal(batchId,targetId,guestName,shelter,conversation,-1,null,receipt);
+    }
+
+    public synchronized JSONObject serveWithPhysicalSave(final String batchId,final long targetId,
+                                          final String guestName,final boolean shelter,
+                                          final String conversation,final Dice3DOverlay.RollResult roll,
+                                          final String receipt)throws Exception{
+        if(targetId<=0||db.findActivePartyHero(targetId).length()==0)
+            throw new IllegalArgumentException("Salvaguarda culinaria automatica requer consumidor na companhia");
+        if(roll==null||!"d20".equals(roll.formula)||!"Normal".equals(roll.mode))
+            throw new IllegalArgumentException("Salvaguarda fisica d20 normal obrigatoria");
+        DiceRollSpec spec=DiceRollSpec.parse(roll.formula,roll.mode);
+        java.util.List<Integer> faces=spec.requirePhysicalAgreement(roll.rolls,roll.physicalFaces);
+        DiceRollSpec.Result verified=spec.resolve(faces);
+        if(verified.natural<1||verified.natural>20||verified.natural!=roll.natural
+            ||verified.total!=roll.total
+            ||!RollIntegrity.signature(spec.formula,roll.physicalFaces,spec.modifier,roll.physicsSeed,roll.total)
+                .equals(roll.integritySignature))
+            throw new IllegalStateException("Resultado fisico de salvaguarda invalido");
+        int bonus=new DndRulesEngine().savingThrowBonus(db.getCharacter(targetId),"Constitution");
+        JSONObject proof=new JSONObject().put("kind","constitution_save")
+            .put("source","physical3d").put("actor_character_id",targetId)
+            .put("d20",verified.natural).put("bonus",bonus)
+            .put("total",verified.natural+bonus).put("signature",roll.integritySignature)
+            .put("physics_seed",roll.physicsSeed);
+        return serveInternal(batchId,targetId,guestName,shelter,conversation,
+            verified.natural+bonus,proof,receipt);
+    }
+
+    private JSONObject serveInternal(final String batchId,final long targetId,
+                                          final String guestName,final boolean shelter,
+                                          final String conversation,final int constitutionSaveTotal,
+                                          final JSONObject saveProof,final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para servir");
         if(targetId>0&&db.findActivePartyHero(targetId).length()==0)throw new IllegalArgumentException("Alvo nao esta na companhia");
         if(targetId==0&&(guestName==null||guestName.trim().length()<2))throw new IllegalArgumentException("Identifique o convidado");
@@ -497,9 +533,11 @@ public final class WilemCookbookEngine {
 
                 .put("requires_risk_resolution",batch.optString("result").contains("risco"));
             if(batch.optString("result").contains("risco")){
-                if(constitutionSaveTotal<0)throw new IllegalArgumentException("Teste de Constituicao do consumidor e obrigatorio para risco culinario");
+                if(constitutionSaveTotal<0||saveProof==null||targetId<=0)
+                    throw new IllegalArgumentException("Refeicao de risco exige salvaguarda fisica do heroi na companhia");
                 boolean poisoned=constitutionSaveTotal<Math.max(10,recipe.optInt("dc",10)-2);
-                effect.put("constitution_save_total",constitutionSaveTotal).put("poisoned_after_consumption",poisoned)
+                effect.put("constitution_save_total",constitutionSaveTotal).put("constitution_save_proof",saveProof)
+                    .put("poisoned_after_consumption",poisoned)
                     .put("risk_ends_world_hour",worldHour(db)+1d);
             }
             if(targetId>0){JSONObject ch=db.getCharacter(targetId),sheet=object(ch.optString("sheet_json","{}"));

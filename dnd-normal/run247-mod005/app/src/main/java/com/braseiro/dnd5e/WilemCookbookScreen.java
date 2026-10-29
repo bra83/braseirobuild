@@ -260,15 +260,31 @@ public final class WilemCookbookScreen {
         EditText story=new EditText(activity);story.setHint("Conversa ou historia que aconteceu a mesa");story.setMinLines(2);f.addView(story);
         CheckBox shelter=new CheckBox(activity);shelter.setText("Ha fogo e abrigo adequados");f.addView(shelter);
         boolean risk=batch.optString("result").contains("risco");
-        EditText save=new EditText(activity);save.setInputType(2);
-        save.setHint("Total da salvaguarda de Constituicao do consumidor");
-        if(risk)f.addView(save);
+        if(risk)f.addView(text("Preparo de risco: selecione um heroi da companhia. O aplicativo rola o d20 fisico e aplica o bonus de salvaguarda de Constituicao da ficha; convidados sem ficha mecanica nao recebem efeito automaticamente.",13,Color.DKGRAY));
         new AlertDialog.Builder(activity).setTitle("Servir prato").setView(f).setNegativeButton("Voltar",null)
             .setPositiveButton("SERVIR",(d,w)->{try{
                 int choice=who.getSelectedItemPosition();long target=choice==0?0:heroes.get(choice-1).optLong("id");
-                int conTotal=risk?Integer.parseInt(save.getText().toString().trim()):-1;
-                book.serveWithSave(batch.optString("id"),target,guest.getText().toString(),shelter.isChecked(),
-                    story.getText().toString(),conTotal,WilemCookbookEngine.newReceipt());changed();
+                final String prepared=batch.optString("id"),guestName=guest.getText().toString();
+                final boolean covered=shelter.isChecked();
+                final String note=story.getText().toString();
+                if(!risk){
+                    book.serve(prepared,target,guestName,covered,note,WilemCookbookEngine.newReceipt());changed();
+                }else{
+                    if(target<=0)throw new IllegalStateException("Selecione um heroi para resolver a salvaguarda");
+                    String actor=db.getCharacter(target).optString("name","Heroi");
+                    Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
+                        "d20","Normal",actor,target,new Dice3DOverlay.Callback(){
+                            private boolean completed=false;
+                            public void onResult(Dice3DOverlay.RollResult rolled){
+                                if(completed)return;completed=true;
+                                try{book.serveWithPhysicalSave(prepared,target,guestName,covered,note,
+                                    rolled,WilemCookbookEngine.newReceipt());changed();}
+                                catch(Exception e){fail(e);}
+                            }
+                            public void onError(String error){fail(new IllegalStateException(error));}
+                            public void onCancel(){}
+                        });
+                }
             }catch(Exception e){fail(e);}}).show();
     }
     private void showBaits(LinearLayout body,JSONObject st,boolean enabled){

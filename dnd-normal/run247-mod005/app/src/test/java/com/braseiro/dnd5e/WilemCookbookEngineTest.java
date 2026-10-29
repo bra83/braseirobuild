@@ -128,6 +128,41 @@ public class WilemCookbookEngineTest {
         assertEquals(1,book.state().getJSONArray("harvests").length());
         assertEquals(1,book.pantry().getJSONArray("items").length());
     }
+    @Test public void riskyMealRejectsTypedSaveAndUsesVerifiedPhysicalRoll()throws Exception{
+        join();
+        db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",kvothe)
+            .put("status","active").put("party_role","companion").put("recruitment_type","player_confirmed"));
+        book.recordRumor("mon_javali_0","Cozinheiro",
+            "Uma refeicao de javali requer pesquisa e conservacao.",receipt());
+        book.confirmDiscovery("mon_javali_0","Receita obtida em pesquisa comprovada",receipt());
+        long body=db.addCombatant("Javali selvagem",9,0,8,12,"",false);
+        java.util.List<Integer> high=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult harvested=new Dice3DOverlay.RollResult(
+            high,high,20,20,"20","","d20","Normal",100,85231L,"test",
+            RollIntegrity.signature("d20",high,0,85231L,20));
+        assertTrue(book.harvestWithPhysicalRoll(body,"carne_javali",harvested,receipt())
+            .getBoolean("success"));
+        for(String id:new String[]{"sal","agua","batata","cebola"})
+            book.acquire(id,1,"coleta_confirmada",true,receipt());
+        java.util.List<Integer> low=java.util.Collections.singletonList(1);
+        Dice3DOverlay.RollResult badPrep=new Dice3DOverlay.RollResult(
+            low,low,1,1,"1","","d20","Normal",100,85232L,"test",
+            RollIntegrity.signature("d20",low,0,85232L,1));
+        JSONObject prepared=book.cookWithPhysicalRoll("mon_javali_0",badPrep,true,true,receipt());
+        assertTrue(prepared.optString("result").contains("risco"));
+        try{book.serveWithSave(prepared.getString("id"),kvothe,"",false,
+            "Cena",20,receipt());fail("Typed save blocked");}
+        catch(IllegalStateException expected){}
+        assertEquals(0,book.state().getJSONArray("meals").length());
+        Dice3DOverlay.RollResult goodSave=new Dice3DOverlay.RollResult(
+            high,high,20,20,"20","","d20","Normal",100,85233L,"test",
+            RollIntegrity.signature("d20",high,0,85233L,20));
+        JSONObject served=book.serveWithPhysicalSave(prepared.getString("id"),kvothe,"",
+            false,"Historia a mesa",goodSave,receipt());
+        assertFalse(served.optBoolean("poisoned_after_consumption"));
+        assertEquals("physical3d",served.getJSONObject("constitution_save_proof").getString("source"));
+        assertEquals(1,book.state().getJSONArray("meals").length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
