@@ -21,17 +21,19 @@ public final class WilemCookbookEngine {
     public WilemCookbookEngine(AppDb database){if(database==null)throw new IllegalArgumentException("AppDb ausente");db=database;}
 
     public long ownerId(){
-        long fallback=0;
+        long fallback=0,active=0;
         for(JSONObject c:db.listCharacters()){
             String n=c.optString("name","").trim().toLowerCase(Locale.ROOT);
             if(n.equals("wilem")||n.equals("willem")){
                 long candidate=c.optLong("id",0);
                 if(candidate<=0)continue;
-                if(db.findActivePartyHero(candidate).length()>0)return candidate;
+                if(db.findActivePartyHero(candidate).length()>0){
+                    if(active!=0)return 0;active=candidate;
+                }
                 if(fallback==0)fallback=candidate;else fallback=-1;
             }
         }
-        return Math.max(0,fallback);
+        return active>0?active:Math.max(0,fallback);
     }
     public boolean ownerExists(){return ownerId()>0;}
     public boolean canCook(){
@@ -73,6 +75,8 @@ public final class WilemCookbookEngine {
             .put("rumors",rumors).put("notes",notes).put("experiments",new JSONArray())
             .put("cooked",new JSONArray()).put("meals",new JSONArray()).put("baits",new JSONArray()).put("harvests",new JSONArray())
             .put("receipts",new JSONArray()).put("discoveries",new JSONArray())
+            .put("purchases",new JSONArray()).put("forage_attempts",new JSONArray())
+            .put("world_reward_claims",new JSONArray())
             .put("created_world_hour",worldHour(db));
     }
     public synchronized JSONObject state(){
@@ -147,6 +151,187 @@ public final class WilemCookbookEngine {
         }
         try{return new JSONObject().put("items",out).put("owner_id",ownerId());}catch(Exception e){return new JSONObject();}
     }
+    /** Ofertas do mundo, nao numeros inventados na interface. */
+    public JSONArray worldRewardOffers(){
+        JSONArray offers=new JSONArray();
+        if(!canCook())return offers;
+        JSONObject st=state();JSONArray claimed=st.optJSONArray("world_reward_claims");
+        for(JSONObject ev:db.listWorldEvents(1000)){
+            if(!"resolved".equals(ev.optString("status"))
+                ||!"applied".equals(ev.optString("consequence_status")))continue;
+            JSONObject grant=object(ev.optString("consequence_json","{}")).optJSONObject("wilem_ingredient");
+            if(grant==null)continue;
+            String id=grant.optString("ingredient_id");
+            int qty=grant.optInt("quantity",0);
+            long recipient=grant.optLong("recipient_character_id",ownerId());
+            long eventId=ev.optLong("id");
+            if(qty<1||qty>30||recipient!=ownerId()
+                ||WilemCookbookCatalog.ingredientById(id).length()==0
+                ||contains(claimed,"event:"+eventId))continue;
+            try{offers.put(new JSONObject().put("event_id",eventId)
+                .put("event_title",ev.optString("title")).put("ingredient_id",id)
+                .put("quantity",qty));}
+            catch(Exception e){throw new IllegalStateException("Oferta de evento invalida",e);}
+        }
+        return offers;
+    }
+
+    /** Consome recompensa estruturada JA resolvida pelo motor de eventos. Nunca duplica. */
+    public synchronized JSONObject claimWorldReward(final long eventId,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject st=state();requireReceipt(st,receipt);
+            JSONObject ev=db.getWorldEvent(eventId);
+            if(ev.length()==0||!"resolved".equals(ev.optString("status"))
+                ||!"applied".equals(ev.optString("consequence_status")))
+                throw new IllegalStateException("Evento do mundo nao resolvido e aplicado");
+            JSONObject grant=object(ev.optString("consequence_json","{}")).optJSONObject("wilem_ingredient");
+            if(grant==null)throw new IllegalStateException("Este evento nao tem recompensa culinaria");
+            String id=grant.optString("ingredient_id");int qty=grant.optInt("quantity",0);
+            if(qty<1||qty>30||grant.optLong("recipient_character_id",ownerId())!=ownerId())
+                throw new IllegalStateException("Recompensa nao pertence ao cozinheiro");
+            JSONObject ingredient=WilemCookbookCatalog.ingredientById(id);
+            if(ingredient.length()==0)throw new IllegalStateException("Ingrediente do evento desconhecido");
+            JSONArray claims=st.optJSONArray("world_reward_claims");
+            if(claims==null){claims=new JSONArray();st.put("world_reward_claims",claims);}
+            String claim="event:"+eventId;
+            if(contains(claims,claim))throw new IllegalStateException("Recompensa do evento ja resgatada");
+            JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
+            String key="wilem_ing_"+id;int found=-1;
+            for(int i=0;i<items.length();i++){
+                JSONObject x=items.optJSONObject(i);
+                if(x!=null&&(key.equals(x.optString("id"))
+                    ||(ingredient.optString("name").equalsIgnoreCase(x.optString("name"))
+                        &&x.optString("harvest_receipt").isEmpty()))){
+                    if(found>=0)throw new IllegalStateException("Ingredientes duplicados no inventario");
+                    found=i;
+                }
+            }
+            JSONObject item=found>=0?items.getJSONObject(found):
+                new JSONObject().put("id",key).put("name",ingredient.optString("name"))
+                    .put("cookbook_ingredient_id",id).put("quantity",0);
+            item.put("quantity",item.optInt("quantity",0)+qty).put("cookbook_ingredient_id",id);
+            if(found>=0)items.put(found,item);else items.put(item);
+            sheet.put("inventory_ledger",items)
+                .put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
+            db.updateCharacterSheetChecked(ownerId(),sheet.toString());
+            claims.put(claim);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            db.addJournalFact("Recompensa culinaria: "+ev.optString("title"),
+                ingredient.optString("name")+" x"+qty+"; evento aplicado #"+eventId,
+                "culinaria",receipt,"wilem_cookbook");
+            result[0]=new JSONObject().put("event_id",eventId).put("ingredient_id",id)
+                .put("quantity",qty).put("claimed",true);
+        }});
+        return result[0];
+    }
+
+    /** Ambiente atual e sua ecologia determinam os materiais coletaveis. */
+    public JSONArray forageableIngredients(){
+        JSONArray out=new JSONArray();
+        if(!canCook())return out;
+        String place=normalizeCreature(sceneLocation(db));
+        if(place.length()<2)return out;
+        JSONArray all=WilemCookbookCatalog.ingredients();
+        JSONObject st=state();JSONArray tried=st.optJSONArray("forage_attempts");
+        int day=db.getSceneState().optInt("day_number",1);
+        for(int i=0;i<all.length();i++){
+            JSONObject ing=all.optJSONObject(i);
+            if(ing==null||ing.optInt("tier",0)>0||
+               "magico".equals(ing.optString("category"))||
+               "monstro".equals(ing.optString("category")))continue;
+            boolean matches=false;
+            for(String tag:ing.optString("source_locations").split(",")){
+                String normalized=normalizeCreature(tag);
+                if(!normalized.isEmpty()&&place.contains(normalized)){matches=true;break;}
+            }
+            if(!matches)continue;
+            String attempt=day+":"+place+":"+ing.optString("id");
+            if(contains(tried,attempt))continue;
+            try{out.put(new JSONObject().put("ingredient_id",ing.optString("id"))
+                .put("name",ing.optString("name")).put("dc",12)
+                .put("location",sceneLocation(db)));}
+            catch(Exception e){throw new IllegalStateException("Coleta disponivel invalida",e);}
+        }
+        return out;
+    }
+
+    /** Teste unico por item/local/dia, d20 vinculado a Sabedoria real e inventario atomico. */
+    public synchronized JSONObject forageWithPhysicalRoll(final String ingredientId,
+        final Dice3DOverlay.RollResult dice,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
+        if(dice==null||!"d20".equals(dice.formula)||!"Normal".equals(dice.mode))
+            throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
+        DiceRollSpec spec=DiceRollSpec.parse(dice.formula,dice.mode);
+        java.util.List<Integer> faces=spec.requirePhysicalAgreement(dice.rolls,dice.physicalFaces);
+        DiceRollSpec.Result check=spec.resolve(faces);
+        if(check.natural!=dice.natural||check.total!=dice.total
+            ||check.natural<1||check.natural>20
+            ||!RollIntegrity.signature(spec.formula,dice.physicalFaces,spec.modifier,
+                dice.physicsSeed,dice.total).equals(dice.integritySignature))
+            throw new IllegalStateException("Dado fisico de coleta invalido");
+        final JSONObject[] result={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject st=state();requireReceipt(st,receipt);
+            JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
+            boolean available=false;
+            JSONArray options=forageableIngredients();
+            for(int i=0;i<options.length();i++)
+                if(ingredientId.equals(options.optJSONObject(i).optString("ingredient_id")))available=true;
+            if(!available||ing.length()==0)throw new IllegalStateException("Coleta sem recurso ecologico disponivel aqui hoje");
+            int day=db.getSceneState().optInt("day_number",1);
+            String place=normalizeCreature(sceneLocation(db));
+            String attempt=day+":"+place+":"+ingredientId;
+            int total=check.natural+Math.floorDiv(hero().optInt("wis",10)-10,2);
+            int qty=total>=12?1+Math.min(2,(total-12)/5):0;
+            if(qty>0){
+                JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
+                String key="wilem_ing_"+ingredientId;int found=-1;
+                for(int i=0;i<items.length();i++){
+                    JSONObject x=items.optJSONObject(i);
+                    if(x!=null&&key.equals(x.optString("id"))){found=i;break;}
+                }
+                JSONObject item=found>=0?items.getJSONObject(found):
+                    new JSONObject().put("id",key).put("name",ing.optString("name"))
+                        .put("cookbook_ingredient_id",ingredientId).put("quantity",0);
+                item.put("quantity",item.optInt("quantity",0)+qty);
+                if(found>=0)items.put(found,item);else items.put(item);
+                sheet.put("inventory_ledger",items)
+                    .put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
+                db.updateCharacterSheetChecked(ownerId(),sheet.toString());
+            }
+            JSONArray attempts=st.optJSONArray("forage_attempts");
+            if(attempts==null){attempts=new JSONArray();st.put("forage_attempts",attempts);}
+            attempts.put(attempt);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            db.addJournalFact("Coleta de Wilem em "+sceneLocation(db),
+                "Material: "+ing.optString("name")+"; quantidade: "+qty+"; d20: "+
+                check.natural+"; total: "+total,"culinaria",receipt,"wilem_cookbook");
+            result[0]=new JSONObject().put("quantity",qty).put("success",qty>0)
+                .put("total",total).put("location",sceneLocation(db))
+                .put("roll_signature",dice.integritySignature);
+        }});
+        return result[0];
+    }
+
+    private boolean marketAtScene(){
+        String place=normalizeCreature(sceneLocation(db));
+        if(place.contains("mercado")||place.contains("feira")||
+           place.contains("armazem")||place.contains("loja")||
+           place.contains("emporio"))return true;
+        JSONArray npcs=db.listSceneNpcs(100);
+        for(int i=0;i<npcs.length();i++){
+            JSONObject npc=npcs.optJSONObject(i);
+            if(npc==null||npc.optInt("active",0)!=1)continue;
+            String details=normalizeCreature(npc.optString("profession")+" "+
+                npc.optString("occupation")+" "+npc.optString("role")+" "+
+                npc.optString("description"));
+            if(details.contains("mercador")||details.contains("comerciante")||
+                details.contains("vendedor")||details.contains("feirante"))
+                return true;
+        }
+        return false;
+    }
+
     public synchronized JSONObject acquire(final String ingredientId,final int amount,final String source,
                                            final boolean acquisitionConfirmed,final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para obter ingredientes em seu nome");
@@ -165,6 +350,19 @@ public final class WilemCookbookEngine {
             JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
             int paidCp=0;
             if("mercado_pago".equals(src)){
+                if(!marketAtScene())
+                    throw new IllegalStateException("Nao ha mercado ou mercador confirmado na cena atual");
+                JSONArray buys=state.optJSONArray("purchases");
+                int sold=0,day=db.getSceneState().optInt("day_number",1);
+                String place=normalizeCreature(sceneLocation(db));
+                for(int k=0;buys!=null&&k<buys.length();k++){
+                    JSONObject purchase=buys.optJSONObject(k);
+                    if(purchase!=null&&day==purchase.optInt("day")&&
+                        place.equals(purchase.optString("location"))&&
+                        ingredientId.equals(purchase.optString("ingredient_id")))
+                        sold+=purchase.optInt("quantity");
+                }
+                if(sold+amount>12)throw new IllegalStateException("Estoque diario local esgotado; limite de 12 unidades por item");
                 // A ficha 2024 tem a carteira canonica inventory_currency_gp.
                 // Converter para centavos inteiros evita saldo negativo e arredondamentos.
                 if(!sheet.has("inventory_currency_gp"))
@@ -189,6 +387,13 @@ public final class WilemCookbookEngine {
             if(found>=0)items.put(found,item);else items.put(item);
             sheet.put("inventory_ledger",items).put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
+            if("mercado_pago".equals(src)){
+                JSONArray purchases=state.optJSONArray("purchases");
+                if(purchases==null){purchases=new JSONArray();state.put("purchases",purchases);}
+                purchases.put(new JSONObject().put("day",db.getSceneState().optInt("day_number",1))
+                    .put("location",normalizeCreature(sceneLocation(db))).put("ingredient_id",ingredientId)
+                    .put("quantity",amount).put("paid_copper",paidCp).put("receipt",receipt));
+            }
             remember(state,receipt);write(db.getWritableDatabase(),ownerId(),state);
             String cost=src.equals("mercado_pago")?"Pagamento debitado da carteira 2024: "+paidCp+" PC.":"Coleta/recompensa confirmada pelo usuario; requer evidencia narrativa.";
             db.addJournalFact("Wilem encontrou ingredientes",ing.optString("name")+" x"+amount+"; "+cost+" Origem: "+sceneLocation(db),"culinaria",receipt,"wilem_cookbook");
