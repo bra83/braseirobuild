@@ -105,6 +105,29 @@ public class WilemCookbookEngineTest {
         try{book.acquire("carne_aranha",1,"coleta_confirmada",true,receipt());fail("unearned monster meat");}
         catch(IllegalStateException expected){}
     }
+    @Test public void monsterHarvestRequiresRealDefeatedCreatureAndCannotDuplicate()throws Exception{
+        join();
+        long body=db.addCombatant("Javali selvagem",9,0,8,12,"",false);
+        java.util.List<Integer> faces=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult dice=new Dice3DOverlay.RollResult(
+            faces,faces,20,20,"20","","d20","Normal",120,8675309L,"test",
+            RollIntegrity.signature("d20",faces,0,8675309L,20));
+        JSONObject harvested=book.harvestWithPhysicalRoll(body,"carne_javali",dice,receipt());
+        assertTrue(harvested.optBoolean("success"));
+        JSONArray current=book.pantry().getJSONArray("items");
+        assertEquals(1,current.length());assertEquals("carne_javali",current.getJSONObject(0).getString("cookbook_ingredient_id"));
+        assertEquals(1,book.state().getJSONArray("harvests").length());
+        try{book.harvestWithPhysicalRoll(body,"carne_javali",dice,receipt());fail("double harvest");}
+        catch(IllegalStateException expected){}
+        assertEquals(1,book.pantry().getJSONArray("items").length());
+        long alive=db.addCombatant("Javali selvagem",7,8,8,12,"",false);
+        try{book.harvestWithPhysicalRoll(alive,"carne_javali",dice,receipt());fail("living creature");}
+        catch(IllegalStateException expected){}
+        assertEquals(1,book.state().getJSONArray("harvests").length());
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
+        assertEquals(1,book.state().getJSONArray("harvests").length());
+        assertEquals(1,book.pantry().getJSONArray("items").length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}

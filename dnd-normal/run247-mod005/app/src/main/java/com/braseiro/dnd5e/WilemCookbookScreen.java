@@ -135,8 +135,48 @@ public final class WilemCookbookScreen {
         JSONArray items=book.pantry().optJSONArray("items");
         if(items==null||items.length()==0)body.addView(text("Sem ingredientes contabilizados na ficha.",14,TEXT));
         else for(int i=0;i<items.length();i++){JSONObject x=items.optJSONObject(i);if(x!=null)body.addView(text("• "+x.optString("name")+"  ×"+x.optInt("quantity"),15,TEXT));}
+        JSONArray bodies=book.harvestableCorpses();
+        if(bodies.length()>0){
+            Button harvest=btn("COLHER PARTE DE CRIATURA DERROTADA (D20)");
+            harvest.setEnabled(enabled);harvest.setOnClickListener(v->harvestDialog(bodies));
+            body.addView(harvest);
+        }else body.addView(text("Nao ha carcaças elegiveis de monstros registrados no combate. Uma criatura precisa ter sido derrotada e identificada no mundo.",12,MUTED));
         Button acquire=btn("REGISTRAR INGREDIENTE OBTIDO");acquire.setEnabled(enabled);acquire.setOnClickListener(v->acquireDialog());body.addView(acquire);
         body.addView(text("Compras debitam o saldo em PO da ficha 2024 (convertido para PC); sem saldo, a compra e bloqueada. Partes de monstros e componentes arcanos exigem evento/colheita integrado, nunca registro livre.",12,MUTED));
+    }
+    private void harvestDialog(JSONArray bodies){
+        if(!book.canCook()){fail(new IllegalStateException("Wilem nao esta na companhia"));return;}
+        String[] labels=new String[bodies.length()];
+        for(int i=0;i<bodies.length();i++){
+            JSONObject b=bodies.optJSONObject(i);
+            labels[i]=b.optString("creature")+" (CD "+b.optInt("dc")+")";
+        }
+        LinearLayout form=vertical();
+        Spinner targets=new Spinner(activity);
+        targets.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,labels));
+        form.addView(targets);
+        form.addView(text("A colheita usa a face fisica do d20 e a Sabedoria de Wilem. Cada criatura derrotada permite uma unica tentativa, mesmo quando falha. Parte fresca estraga em 24 horas.",13,Color.DKGRAY));
+        new AlertDialog.Builder(activity).setTitle("Examinar criatura abatida").setView(form)
+            .setNegativeButton("Cancelar",null).setPositiveButton("ROLAR D20",(dialog,which)->{
+                JSONObject target=bodies.optJSONObject(targets.getSelectedItemPosition());
+                if(target==null){fail(new IllegalStateException("Criatura ausente"));return;}
+                Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
+                    "d20","Normal","Wilem",book.ownerId(),new Dice3DOverlay.Callback(){
+                        private boolean used=false;
+                        public void onResult(Dice3DOverlay.RollResult rolled){
+                            if(used)return;used=true;
+                            try{JSONObject result=book.harvestWithPhysicalRoll(target.optLong("combatant_id"),
+                                target.optString("ingredient_id"),rolled,WilemCookbookEngine.newReceipt());
+                                Toast.makeText(activity,result.optBoolean("success")?
+                                    "Parte aproveitavel adicionada à ficha de Wilem":
+                                    "Falha de extração: corpo examinado, sem alimento seguro",Toast.LENGTH_LONG).show();
+                                changed();
+                            }catch(Exception e){fail(e);}
+                        }
+                        public void onError(String message){fail(new IllegalStateException(message));}
+                        public void onCancel(){}
+                    });
+            }).show();
     }
     private void acquireDialog(){
         JSONArray all=WilemCookbookCatalog.ingredients();String[] labels=new String[all.length()],ids=new String[all.length()];

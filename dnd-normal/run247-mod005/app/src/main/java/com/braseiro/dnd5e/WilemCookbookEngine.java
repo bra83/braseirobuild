@@ -71,7 +71,7 @@ public final class WilemCookbookEngine {
             .put("text","Meu caldeirao e meus utensilios ja pertencem ao equipamento. Sem reproduzi-los na despensa."));
         return new JSONObject().put("schema",1).put("owner_id",id).put("known",WilemCookbookCatalog.starterIds())
             .put("rumors",rumors).put("notes",notes).put("experiments",new JSONArray())
-            .put("cooked",new JSONArray()).put("meals",new JSONArray()).put("baits",new JSONArray())
+            .put("cooked",new JSONArray()).put("meals",new JSONArray()).put("baits",new JSONArray()).put("harvests",new JSONArray())
             .put("receipts",new JSONArray()).put("discoveries",new JSONArray())
             .put("created_world_hour",worldHour(db));
     }
@@ -197,6 +197,112 @@ public final class WilemCookbookEngine {
         }});
         return result[0];
     }
+
+    /** Corpos sao consultados no combate persistido, jamais por nome digitado. */
+    private static String normalizeCreature(String s){
+        String val=java.text.Normalizer.normalize(s==null?"":s,java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT);
+        return val.replaceAll("[^a-z0-9]+"," ").trim();
+    }
+    private static String speciesForIngredient(JSONObject ingredient){
+        String name=ingredient.optString("name");
+        String prefix="Parte culinaria de ";
+        return name.startsWith(prefix)?name.substring(prefix.length()):"";
+    }
+    public JSONArray harvestableCorpses(){
+        JSONArray out=new JSONArray();
+        if(!canCook())return out;
+        JSONArray ingredients=WilemCookbookCatalog.ingredients();
+        for(JSONObject body:db.listCombatants()){
+            if(body.optInt("is_player",0)==1||body.optInt("hp",1)>0||
+                body.optInt("max_hp",0)<=0||body.optLong("id",0)<=0)continue;
+            if(object(body.optString("resources_json","{}")).optBoolean("wilem_harvested",false))continue;
+            for(int i=0;i<ingredients.length();i++){
+                JSONObject ing=ingredients.optJSONObject(i);
+                if(ing==null||!"monstro".equals(ing.optString("category")))continue;
+                if(!normalizeCreature(body.optString("name")).equals(normalizeCreature(speciesForIngredient(ing))))continue;
+                try{out.put(new JSONObject().put("combatant_id",body.optLong("id"))
+                    .put("creature",body.optString("name"))
+                    .put("ingredient_id",ing.optString("id"))
+                    .put("dc",8+Math.min(8,ing.optInt("tier",1))));}
+                catch(Exception e){throw new IllegalStateException("Candidato de colheita invalido",e);}
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Extracao conservadora de uma unidade por corpo derrotado.
+     * A falha consome a unica tentativa; o mesmo corpo nao pode gerar material infinitamente.
+     * Apenas especies textualmente confirmadas no catalogo sao elegiveis.
+     */
+    public synchronized JSONObject harvestWithPhysicalRoll(final long combatantId,
+              final String ingredientId,final Dice3DOverlay.RollResult dice,
+              final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
+        if(dice==null||!"d20".equals(dice.formula)||!"Normal".equals(dice.mode))
+            throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
+        DiceRollSpec spec=DiceRollSpec.parse(dice.formula,dice.mode);
+        java.util.List<Integer> canonical=spec.requirePhysicalAgreement(dice.rolls,dice.physicalFaces);
+        DiceRollSpec.Result calc=spec.resolve(canonical);
+        if(calc.natural<1||calc.natural>20||calc.natural!=dice.natural||calc.total!=dice.total||
+           !RollIntegrity.signature(spec.formula,dice.physicalFaces,spec.modifier,dice.physicsSeed,dice.total)
+               .equals(dice.integritySignature))
+            throw new IllegalStateException("Dado nao corresponde a face fisica assinada");
+        final JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
+        if(!"monstro".equals(ing.optString("category")))
+            throw new IllegalArgumentException("Ingrediente nao e uma parte culinaria de criatura");
+        final JSONObject[] outcome={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject st=state();requireReceipt(st,receipt);
+            JSONObject body=db.getCombatant(combatantId);
+            if(body.length()==0||body.optInt("is_player",0)==1||body.optInt("hp",1)>0||
+                body.optInt("max_hp",0)<=0)
+                throw new IllegalStateException("Corpo abatido elegivel nao encontrado no combate");
+            if(!normalizeCreature(body.optString("name"))
+                .equals(normalizeCreature(speciesForIngredient(ing))))
+                throw new IllegalStateException("A anatomia desse corpo nao corresponde ao ingrediente");
+            JSONObject provenance=object(body.optString("resources_json","{}"));
+            if(provenance.optBoolean("wilem_harvested",false))
+                throw new IllegalStateException("Essa criatura ja foi examinada; colheita duplicada");
+            int dc=8+Math.min(8,ing.optInt("tier",1));
+            int wisdomModifier=Math.floorDiv(hero().optInt("wis",10)-10,2);
+            int total=calc.natural+wisdomModifier;
+            boolean success=total>=dc;
+            provenance.put("wilem_harvested",true).put("wilem_harvest_receipt",receipt);
+            ContentValues marker=new ContentValues();marker.put("resources_json",provenance.toString());
+            if(db.getWritableDatabase().update("combatants",marker,"id=? AND world_profile=?",
+               new String[]{String.valueOf(combatantId),profile()})!=1)
+                throw new IllegalStateException("Nao foi possivel marcar a carcaça utilizada");
+            if(success){
+                JSONObject ch=hero(),sheet=sheet();
+                JSONArray inv=new JSONArray(ledger(sheet).toString());
+                JSONObject part=new JSONObject().put("id","wilem_ing_"+ingredientId+"_body_"+combatantId)
+                    .put("cookbook_ingredient_id",ingredientId).put("name",ing.optString("name"))
+                    .put("quantity",1).put("harvested_from_combatant_id",combatantId)
+                    .put("harvest_receipt",receipt).put("harvested_world_hour",worldHour(db))
+                    .put("expires_world_hour",worldHour(db)+24d);
+                inv.put(part);
+                sheet.put("inventory_ledger",inv)
+                    .put("inventory_load",InventoryLedgerEngine.totals(inv,ch.optInt("str",10),false));
+                db.updateCharacterSheetChecked(ownerId(),sheet.toString());
+            }
+            JSONArray records=st.optJSONArray("harvests");
+            if(records==null){records=new JSONArray();st.put("harvests",records);}
+            JSONObject entry=new JSONObject().put("id",receipt).put("combatant_id",combatantId)
+                .put("creature",body.optString("name")).put("ingredient_id",ingredientId)
+                .put("dice_total",calc.total).put("wisdom_modifier",wisdomModifier)
+                .put("total",total).put("dc",dc).put("success",success)
+                .put("world_hour",worldHour(db)).put("location",sceneLocation(db))
+                .put("roll_signature",dice.integritySignature);
+            records.put(entry);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            db.addJournalFact("Colheita de Wilem: "+body.optString("name"),
+                "Resultado "+total+" vs CD "+dc+"; "+(success?"1 parte aproveitavel":"nenhum alimento seguro"),
+                "culinaria",receipt,"wilem_cookbook");
+            outcome[0]=entry;
+        }});
+        return outcome[0];
+    }
     public synchronized JSONObject recordRumor(final String recipeId,final String informant,final String note,
                                                 final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para ouvir e anotar");
@@ -257,22 +363,29 @@ public final class WilemCookbookEngine {
         }});
         return out[0];
     }
-    private static int stock(JSONArray ledger,String ingredientId){
+    private static int stock(JSONArray ledger,String ingredientId,double atHour){
         String id="wilem_ing_"+ingredientId;int qty=0;
         JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
         for(int i=0;i<ledger.length();i++){
-            JSONObject item=ledger.optJSONObject(i);if(item!=null&&(id.equals(item.optString("id"))||ing.optString("name").equalsIgnoreCase(item.optString("name"))))qty+=Math.max(0,item.optInt("quantity",0));
+            JSONObject item=ledger.optJSONObject(i);if(item!=null&&(id.equals(item.optString("id"))||
+            ingredientId.equals(item.optString("cookbook_ingredient_id"))||
+            ing.optString("name").equalsIgnoreCase(item.optString("name")))&&
+            (!item.has("expires_world_hour")||atHour<item.optDouble("expires_world_hour",0d)))
+            qty+=Math.max(0,item.optInt("quantity",0));
         }return qty;
     }
-    private static JSONArray subtract(JSONArray ledger,JSONObject ingredients,int multiplier)throws Exception{
+    private static JSONArray subtract(JSONArray ledger,JSONObject ingredients,int multiplier,double atHour)throws Exception{
         JSONArray out=new JSONArray(ledger.toString());JSONArray names=ingredients.names();
         if(names==null)throw new IllegalArgumentException("Receita sem ingredientes");
         for(int j=0;j<names.length();j++){
             String ingredient=names.getString(j);int needed=ingredients.getInt(ingredient)*multiplier;
-            if(needed<1||stock(out,ingredient)<needed)throw new IllegalStateException("Falta "+ingredient+" x"+needed);
+            if(needed<1||stock(out,ingredient,atHour)<needed)throw new IllegalStateException("Falta "+ingredient+" x"+needed+" (ou ingrediente estragado)");
             JSONObject ref=WilemCookbookCatalog.ingredientById(ingredient);
             for(int i=0;i<out.length()&&needed>0;i++){JSONObject x=out.optJSONObject(i);if(x==null)continue;
-                if(("wilem_ing_"+ingredient).equals(x.optString("id"))||ref.optString("name").equalsIgnoreCase(x.optString("name"))){
+                if((("wilem_ing_"+ingredient).equals(x.optString("id"))||
+                    ingredient.equals(x.optString("cookbook_ingredient_id"))||
+                    ref.optString("name").equalsIgnoreCase(x.optString("name")))&&
+                    (!x.has("expires_world_hour")||atHour<x.optDouble("expires_world_hour",0d))){
                     int spent=Math.min(needed,Math.max(0,x.optInt("quantity",0)));x.put("quantity",x.optInt("quantity",0)-spent);needed-=spent;
                 }
             }
@@ -322,7 +435,7 @@ public final class WilemCookbookEngine {
             JSONObject st=state();requireReceipt(st,receipt);
             if(!contains(st.getJSONArray("known"),recipeId))throw new IllegalStateException("Receita nao aprendida");
             if(hero().optInt("level",1)<recipe.optInt("tier",0))throw new IllegalStateException("Nivel abaixo do recomendado");
-            JSONObject ch=hero(),sheet=sheet();JSONArray after=subtract(ledger(sheet),recipe.getJSONObject("ingredients"),1);
+            JSONObject ch=hero(),sheet=sheet();JSONArray after=subtract(ledger(sheet),recipe.getJSONObject("ingredients"),1,worldHour(db));
             sheet.put("inventory_ledger",after).put("inventory_load",InventoryLedgerEngine.totals(after,ch.optInt("str",10),false));
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
             boolean special=!recipe.optString("type").equals("cotidiana");
