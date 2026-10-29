@@ -305,7 +305,13 @@ public final class WilemCookbookScreen {
         JSONArray ids=st.optJSONArray("known");JSONArray hints=st.optJSONArray("rumors");ArrayList<String> options=new ArrayList<String>(),titles=new ArrayList<String>();
         if(ids!=null)for(int i=0;i<ids.length();i++)addOption(options,titles,ids.optString(i));
         if(hints!=null)for(int i=0;i<hints.length();i++){JSONObject x=hints.optJSONObject(i);if(x!=null)addOption(options,titles,x.optString("recipe_id"));}
-        if(options.isEmpty())return;
+        // Pistas dinamicas do Mestre no local: sem revelar receitas antes da descoberta.
+        JSONArray contextual=book.masterView().optJSONArray("rumor_candidates");
+        if(contextual!=null)for(int i=0;i<contextual.length();i++){
+            JSONObject clue=contextual.optJSONObject(i);
+            if(clue!=null)addOption(options,titles,clue.optString("recipe_id"));
+        }
+        if(options.isEmpty()){fail(new IllegalStateException("Nenhum boato culinario contextual disponivel neste local"));return;}
         LinearLayout f=vertical();Spinner sp=new Spinner(activity);sp.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,titles));f.addView(sp);
         EditText informant=new EditText(activity);informant.setHint("Quem contou?");f.addView(informant);
         EditText note=new EditText(activity);note.setHint("O que Wilem ouviu?");note.setMinLines(3);f.addView(note);
