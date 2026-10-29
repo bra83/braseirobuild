@@ -547,6 +547,35 @@ public final class WilemCookbookEngine {
         }
     }
 
+    /**
+     * O Mestre pode apresentar pistas culinarias CONTEXTUAIS, sem revelacao gratuita
+     * de formula, efeito, preparo ou verdade oculta. Deterministico por local.
+     */
+    private JSONArray sceneRumorCandidates(String location,JSONArray known,int heroLevel){
+        JSONArray out=new JSONArray(),all=WilemCookbookCatalog.recipes();
+        String where=location==null?"":location.toLowerCase(Locale.ROOT);
+        if(where.trim().length()<3)return out;
+        boolean foodPlace=where.contains("taverna")||where.contains("pousada")||
+            where.contains("mercado")||where.contains("feira")||where.contains("marco")||
+            where.contains("cozinha")||where.contains("restaurante")||where.contains("strixhaven");
+        int seed=Math.abs(where.hashCode()%Math.max(1,all.length()));
+        for(int offset=0;offset<all.length()&&out.length()<5;offset++){
+            JSONObject r=all.optJSONObject((offset+seed)%all.length());if(r==null)continue;
+            if(contains(known,r.optString("id"))||r.optInt("tier",0)>heroLevel+2)continue;
+            String origin=r.optString("origin").toLowerCase(Locale.ROOT);
+            boolean nature=where.contains("floresta")||where.contains("pantano")||
+                where.contains("bosque")||where.contains("caverna")||where.contains("lago")||
+                where.contains("montanha")||where.contains("deserto")||where.contains("litoral");
+            if(!foodPlace&&!nature)continue;
+            if(!foodPlace&&!origin.contains(where.trim())&&!where.contains(origin))continue;
+            try{out.put(new JSONObject().put("recipe_id",r.optString("id"))
+                .put("hint",r.optString("name")).put("rumor_location",location)
+                .put("knowledge_status","nao_conhecido_nao_verificado")
+                .put("require_npc_witness_or_source",true));}catch(Exception ignored){}
+        }
+        return out;
+    }
+
     public JSONObject masterView(){
         JSONObject out=new JSONObject();
         try{
@@ -562,6 +591,7 @@ public final class WilemCookbookEngine {
                 .put("catalog_size",WilemCookbookCatalog.catalogSize()).put("known",st.optJSONArray("known"))
                 .put("nearby_rumors",nearby).put("recent_meals",tail(st.optJSONArray("meals"),6))
                 .put("active_baits",tail(st.optJSONArray("baits"),6))
+                .put("rumor_candidates",canCook()?sceneRumorCandidates(location,st.optJSONArray("known"),hero().optInt("level",1)):new JSONArray())
                 .put("rules","Culinaria oficial 2024 + regras originais opcionais. Refeicoes comuns alimentam; poderes exigem teste e recibo. Rumor nao e verdade revelada. Isca nao atinge sem ingestao e salvaguarda.")
                 .put("read_only",!canCook());
         }catch(Exception e){try{out.put("error",e.getMessage());}catch(Exception ignored){}}
