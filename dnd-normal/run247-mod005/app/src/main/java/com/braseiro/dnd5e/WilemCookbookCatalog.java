@@ -116,7 +116,14 @@ public final class WilemCookbookCatalog {
                     if(j==0&&!c[0].equals("cebola"))ingredients+=";cebola:1";
                     if(j==3&&!c[0].equals("farinha"))ingredients+=";farinha:1";
                     if(j==4&&!c[0].equals("sal"))ingredients+=";sal:1";
-                    String name=methods[j]+" de "+c[1].toLowerCase(Locale.ROOT);
+                    String kind=c[4],baseName=c[1].toLowerCase(Locale.ROOT);
+                    String[] variant=methods;
+                    if("doce".equals(kind)||"fruta".equals(kind))variant=new String[]{"Compota","Doce assado","Torta doce","Calda","Marmita adocicada"};
+                    else if("tempero".equals(kind))variant=new String[]{"Pasta temperada","Caldo aromatizado","Conserva de","Molho","Mistura seca de"};
+                    else if("agua".equals(kind))variant=new String[]{"Agua fervida","Caldo claro","Infusao de ervas","Caldo de viagem","Garrafa purificada de"};
+                    else if("gordura".equals(kind))variant=new String[]{"Conserva em","Molho com","Legumes dourados em","Pao untado com","Panela com"};
+                    else if("grao".equals(kind))variant=new String[]{"Mingau","Sopa de","Pao de","Torta de","Racao seca de"};
+                    String name=variant[j]+" "+baseName;
                     out.put(recipe("com_"+c[0]+"_"+j,name,ingredients,"cotidiana",0,
                         j==3?10:8,20+j*10,j==4?2:4,"alimentacao",0,0,
                         "mercados e lares","Sacia a fome, oferece abrigo social e permite uma conversa a mesa; efeitos magicos: nenhum."));
