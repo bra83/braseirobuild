@@ -102,7 +102,47 @@ public final class WilemCookbookCatalog {
           .put("effect_value",value).put("effect_minutes",duration).put("origin",origin)
           .put("description",description).put("source","braseiro_original").put("original_rule",true);
         JSONObject costs=new JSONObject();for(String raw:ingredients.split(";")){String[] pair=raw.split(":");if(pair.length==2)costs.put(pair[0],Integer.parseInt(pair[1]));}
-        return r.put("ingredients",costs).put("warm_meal",!kind.equals("isca"));
+        // Procedimentos concretos por familia: cozinhar nao e um simples botao de buff.
+        JSONArray steps=new JSONArray();
+        String method=name.toLowerCase(Locale.ROOT);
+        if(kind.equals("isca")){
+            steps.put("Verificar a dieta e o comportamento da criatura-alvo antes de escolher o alimento.");
+            steps.put("Separar apenas ingredientes reconhecidos no inventario, mantendo componentes arcanos isolados.");
+            steps.put("Preparar no caldeirao ou junto ao fogo sem misturar o alimento com o da companhia.");
+            steps.put("Posicionar a isca no cenario. O Mestre resolve atracao, ingestao, imunidades e salvaguarda.");
+        }else if(method.contains("assado")||method.contains("espetinh")||method.contains("dourado")){
+            steps.put("Examinar cada ingrediente, separar partes comestiveis e lavar vegetais com agua potavel.");
+            steps.put("Cortar em porcoes regulares; temperar com os ingredientes efetivamente disponiveis.");
+            steps.put("Aquecer o fogo e assar ou dourar, virando as porcoes ate estarem cozidas.");
+            steps.put("Dividir o rendimento, servir enquanto quente e registrar quem compartilhou a refeicao.");
+        }else if(method.contains("torta")||method.contains("pao")||method.contains("bolinho")){
+            steps.put("Peneirar a farinha, juntar os ingredientes indicados e formar uma massa uniforme.");
+            steps.put("Preparar o recheio separadamente; usar somente partes de criatura comprovadamente comestiveis.");
+            steps.put("Fechar a massa e assar sobre calor constante, observando tempo e seguranca do preparo.");
+            steps.put("Deixar assentar, cortar o numero de porcoes registrado e compartilhar.");
+        }else if(method.contains("defumado")||method.contains("conserva")||method.contains("racao seca")){
+            steps.put("Selecionar ingredientes frescos e verificar se o sal e a fonte de calor bastam.");
+            steps.put("Cortar em pedacos pequenos, preparar as partes comestiveis e temperar.");
+            steps.put("Desidratar, cozinhar ou defumar conforme a tecnica descrita pelo Mestre, sem presumir conservacao indefinida.");
+            steps.put("Embalar com data e origem; conferir validade ao servir.");
+        }else if(method.contains("compota")||method.contains("doce")||method.contains("calda")){
+            steps.put("Lavar as frutas ou ingredientes doces e retirar partes improprias.");
+            steps.put("Aquecer lentamente com a agua disponivel, mexendo para nao queimar.");
+            steps.put("Reduzir ate alcancar a consistencia desejada, usando mel apenas se estiver entre os ingredientes.");
+            steps.put("Servir ou armazenar por curto periodo, registrando quantas porcoes renderam.");
+        }else if(method.contains("infusao")||method.contains("cha")){
+            steps.put("Conferir identificacao dos vegetais e procedencia da agua; nao usar fungos desconhecidos.");
+            steps.put("Aquecer agua potavel ate ferver e retirar da chama.");
+            steps.put("Deixar as folhas ou ervas em infusao, coar e provar somente depois de verificar a seguranca.");
+            steps.put("Servir quente, oferecendo hospitalidade e anotando reacoes.");
+        }else{
+            steps.put("Identificar partes comestiveis; lavar os vegetais e separar os ingredientes conforme a lista.");
+            steps.put("Cortar raizes, carnes ou fungos em pedacos regulares; separar os temperos.");
+            steps.put("Aquecer o caldeirao, cozinhar os ingredientes no caldo ate ficarem prontos e ajustar a consistencia.");
+            steps.put("Dividir em porcoes e servir quente. Alimentacao e convivencia valem independentemente de efeitos especiais.");
+        }
+        r.put("steps",steps).put("ingredients",costs).put("warm_meal",!kind.equals("isca"));
+        return r;
     }
     public static JSONArray recipes(){
         JSONArray out=new JSONArray();
