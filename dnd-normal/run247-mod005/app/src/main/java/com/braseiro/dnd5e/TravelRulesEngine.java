@@ -287,6 +287,8 @@ public final class TravelRulesEngine {
                 JSONObject party=db.getPartyState();JSONObject resources=parseObject(party.optString("company_resources_json","{}"));
                 resources.put("provisions_days",Math.max(0,resourceUse.optInt("provisions_after",resources.optInt("provisions_days",0))));
                 resources.put("water_days",Math.max(0,resourceUse.optInt("water_after",resources.optInt("water_days",0))));
+                if(resourceUse.optBoolean("wilem_meal_credit_applied",false))
+                    resources.put("wilem_provisions_credit_used_day",resourceUse.optInt("wilem_meal_credit_day"));
                 party.put("company_resources_json",resources.toString());db.savePartyState(party);
             }
             JSONArray changes=report.optJSONArray("exhaustion_changes");
@@ -340,7 +342,28 @@ public final class TravelRulesEngine {
             boolean enabled=resources.optBoolean("track_travel_resources",false);
             double before=Math.max(0d,state.optDouble("resource_elapsed_hours",0d));double total=before+Math.max(0d,elapsedHours);int days=(int)Math.floor(total/24d+1e-9);double after=total-days*24d;
             int provisions=Math.max(0,resources.optInt("provisions_days",0)),water=Math.max(0,resources.optInt("water_days",0));
-            out.put("resource_time_report",true).put("classification",RULE_OPTIONAL).put("enabled",enabled).put("mechanics_apply",enabled&&elapsedHours>0d).put("elapsed_hours",round2(elapsedHours)).put("accumulated_hours_before",round2(before)).put("accumulated_hours_after",round2(after)).put("days",days).put("days_consumed",days).put("provisions_before",provisions).put("provisions_after",Math.max(0,provisions-days)).put("water_before",water).put("water_after",Math.max(0,water-days)).put("insufficient_provisions",enabled&&days>provisions).put("insufficient_water",enabled&&days>water).put("action_signature",sig).put("idempotent",sig.equals(state.optString("last_resource_signature","")));
+            // A refeicao compartilhada e uma substituicao de suprimento de UM dia, nao cria racoes.
+            // O recibo de uso evita que o mesmo jantar pague mais de um dia de viagem.
+            int sceneDay=db.getSceneState().optInt("day_number",1);
+            int mealDay=resources.optInt("wilem_provisions_credit_day",0);
+            boolean mealCredit=enabled&&days>0&&mealDay==sceneDay
+                &&resources.optInt("wilem_provisions_credit_used_day",0)!=mealDay;
+            int rationsSpent=Math.max(0,days-(mealCredit?1:0));
+            out.put("resource_time_report",true).put("classification",RULE_OPTIONAL)
+                .put("enabled",enabled).put("mechanics_apply",enabled&&elapsedHours>0d)
+                .put("elapsed_hours",round2(elapsedHours))
+                .put("accumulated_hours_before",round2(before))
+                .put("accumulated_hours_after",round2(after))
+                .put("days",days).put("days_consumed",days)
+                .put("provisions_before",provisions).put("provisions_after",Math.max(0,provisions-rationsSpent))
+                .put("water_before",water).put("water_after",Math.max(0,water-days))
+                .put("insufficient_provisions",enabled&&rationsSpent>provisions)
+                .put("insufficient_water",enabled&&days>water)
+                .put("wilem_meal_credit_applied",mealCredit)
+                .put("wilem_meal_credit_day",mealCredit?mealDay:0)
+                .put("provisions_days_consumed",rationsSpent)
+                .put("action_signature",sig)
+                .put("idempotent",sig.equals(state.optString("last_resource_signature","")));
             if(!enabled)out.put("reason","O controle automático de provisões e água é uma regra de logística opcional e está desativado nos Recursos da Companhia.");
             else out.put("basis","Os campos representam dias de suprimento para toda a companhia; um dia é consumido a cada 24 horas efetivamente decorridas.");
             out.put("_state_commit",enabled?new JSONObject().put("resource_elapsed_hours",after).put("last_resource_signature",sig):new JSONObject());
@@ -475,7 +498,14 @@ public final class TravelRulesEngine {
         for(JSONObject x:map.values())out.put(x);return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
-    private boolean coldProtected(JSONObject hero,boolean revised){String all=fold(hero.optString("resistances")+" "+hero.optString("immunities")+" "+hero.optString("notes")+" "+hero.optString("equipment")+" "+hero.optString("sheet_json"));if(contains(all,"resistencia a frio","resistência a frio","imunidade a frio","cold resistance","cold immunity"))return true;return !revised&&contains(all,"roupa de frio","roupas de frio","cold weather gear");}
+    private boolean coldProtected(JSONObject hero,boolean revised){
+        if(WilemCookbookEffectRules.coldResistance(hero,db.getSceneState()))return true;
+        String all=fold(hero.optString("resistances")+" "+hero.optString("immunities")+" "+
+            hero.optString("notes")+" "+hero.optString("equipment")+" "+hero.optString("sheet_json"));
+        if(contains(all,"resistencia a frio","resistência a frio","imunidade a frio",
+            "cold resistance","cold immunity"))return true;
+        return !revised&&contains(all,"roupa de frio","roupas de frio","cold weather gear");
+    }
 
     private int constitutionSaveBonus(JSONObject hero){return dnd.savingThrowBonus(hero,"Constituição");}
 
