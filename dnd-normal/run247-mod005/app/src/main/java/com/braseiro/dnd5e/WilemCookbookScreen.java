@@ -197,11 +197,16 @@ public final class WilemCookbookScreen {
         EditText guest=new EditText(activity);guest.setHint("Nome do convidado, se houver");f.addView(guest);
         EditText story=new EditText(activity);story.setHint("Conversa ou historia que aconteceu a mesa");story.setMinLines(2);f.addView(story);
         CheckBox shelter=new CheckBox(activity);shelter.setText("Ha fogo e abrigo adequados");f.addView(shelter);
+        boolean risk=batch.optString("result").contains("risco");
+        EditText save=new EditText(activity);save.setInputType(2);
+        save.setHint("Total da salvaguarda de Constituicao do consumidor");
+        if(risk)f.addView(save);
         new AlertDialog.Builder(activity).setTitle("Servir prato").setView(f).setNegativeButton("Voltar",null)
             .setPositiveButton("SERVIR",(d,w)->{try{
                 int choice=who.getSelectedItemPosition();long target=choice==0?0:heroes.get(choice-1).optLong("id");
-                book.serve(batch.optString("id"),target,guest.getText().toString(),shelter.isChecked(),
-                    story.getText().toString(),WilemCookbookEngine.newReceipt());changed();
+                int conTotal=risk?Integer.parseInt(save.getText().toString().trim()):-1;
+                book.serveWithSave(batch.optString("id"),target,guest.getText().toString(),shelter.isChecked(),
+                    story.getText().toString(),conTotal,WilemCookbookEngine.newReceipt());changed();
             }catch(Exception e){fail(e);}}).show();
     }
     private void showBaits(LinearLayout body,JSONObject st,boolean enabled){
