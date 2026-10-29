@@ -141,8 +141,19 @@ public final class WilemCookbookScreen {
             harvest.setEnabled(enabled);harvest.setOnClickListener(v->harvestDialog(bodies));
             body.addView(harvest);
         }else body.addView(text("Nao ha carcaças elegiveis de monstros registrados no combate. Uma criatura precisa ter sido derrotada e identificada no mundo.",12,MUTED));
-        Button acquire=btn("REGISTRAR INGREDIENTE OBTIDO");acquire.setEnabled(enabled);acquire.setOnClickListener(v->acquireDialog());body.addView(acquire);
-        body.addView(text("Compras debitam o saldo em PO da ficha 2024 (convertido para PC); sem saldo, a compra e bloqueada. Partes de monstros e componentes arcanos exigem evento/colheita integrado, nunca registro livre.",12,MUTED));
+        Button buy=btn("COMPRAR EM MERCADO / MERCADOR DA CENA");buy.setEnabled(enabled);
+        buy.setOnClickListener(v->acquireDialog());body.addView(buy);
+        JSONArray forage=book.forageableIngredients();
+        if(forage.length()>0){
+            Button collect=btn("COLETAR NO AMBIENTE (D20)");collect.setEnabled(enabled);
+            collect.setOnClickListener(v->forageDialog(forage));body.addView(collect);
+        }else body.addView(text("A coleta so aparece quando o ambiente da cena combina com a origem do ingrediente. Cada item so admite uma tentativa por dia e local.",12,MUTED));
+        JSONArray rewards=book.worldRewardOffers();
+        if(rewards.length()>0){
+            Button claim=btn("RESGATAR RECOMPENSA DE AVENTURA");claim.setEnabled(enabled);
+            claim.setOnClickListener(v->claimRewardDialog(rewards));body.addView(claim);
+        }
+        body.addView(text("Compras verificam a cena, debitam a carteira canonica e respeitam estoque local. Coleta exige d20 fisico; materiais arcanos e tesouros exigem evento de mundo aplicado. Ingredientes nao nascem de um checkbox.",12,MUTED));
     }
     private void harvestDialog(JSONArray bodies){
         if(!book.canCook()){fail(new IllegalStateException("Wilem nao esta na companhia"));return;}
@@ -179,18 +190,84 @@ public final class WilemCookbookScreen {
             }).show();
     }
     private void acquireDialog(){
-        JSONArray all=WilemCookbookCatalog.ingredients();String[] labels=new String[all.length()],ids=new String[all.length()];
-        for(int i=0;i<all.length();i++){JSONObject x=all.optJSONObject(i);labels[i]=x.optString("name");ids[i]=x.optString("id");}
-        LinearLayout form=vertical();Spinner ingredient=new Spinner(activity);ingredient.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,labels));form.addView(ingredient);
-        EditText quantity=new EditText(activity);quantity.setInputType(2);quantity.setHint("Quantidade (1 a 30)");form.addView(quantity);
-        String[] sources={"coleta_confirmada","mercado_pago","recompensa_confirmada"};
-        Spinner source=new Spinner(activity);source.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,sources));form.addView(source);
-        CheckBox check=new CheckBox(activity);check.setText("Confirmo uma fonte real da cena. Compras debitam automaticamente as moedas da ficha; nao confirmar pagamentos feitos fora do sistema.");form.addView(check);
-        new AlertDialog.Builder(activity).setTitle("Registrar ingrediente").setView(form).setNegativeButton("Voltar",null)
-            .setPositiveButton("ADICIONAR",(d,w)->{
-                try{if(!check.isChecked())throw new IllegalStateException("Confirme a aquisicao antes de registrar");
-                    book.acquire(ids[ingredient.getSelectedItemPosition()],Integer.parseInt(quantity.getText().toString().trim()),
-                        sources[source.getSelectedItemPosition()],true,WilemCookbookEngine.newReceipt());changed();
+        JSONArray all=WilemCookbookCatalog.ingredients();
+        ArrayList<String> ids=new ArrayList<String>(),names=new ArrayList<String>();
+        for(int i=0;i<all.length();i++){
+            JSONObject ing=all.optJSONObject(i);
+            if(ing==null||ing.optInt("tier",0)>0)continue;
+            ids.add(ing.optString("id"));
+            names.add(ing.optString("name")+" — "+ing.optInt("suggested_price_cp")+" PC/un.");
+        }
+        LinearLayout form=vertical();
+        Spinner ingredient=new Spinner(activity);
+        ingredient.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));
+        form.addView(ingredient);
+        EditText quantity=new EditText(activity);quantity.setInputType(2);
+        quantity.setHint("Quantidade (1 a 12, sujeita a estoque)");form.addView(quantity);
+        form.addView(text("Compra real: requer mercado/feira/loja ou mercador registrado na cena. O sistema debita moedas do inventario de Wilem e registra a transacao.",13,Color.DKGRAY));
+        new AlertDialog.Builder(activity).setTitle("Comprar ingrediente")
+            .setView(form).setNegativeButton("Voltar",null).setPositiveButton("COMPRAR",(d,w)->{
+                try{
+                    book.acquire(ids.get(ingredient.getSelectedItemPosition()),
+                        Integer.parseInt(quantity.getText().toString().trim()),
+                        "mercado_pago",true,WilemCookbookEngine.newReceipt());changed();
+                }catch(Exception e){fail(e);}
+            }).show();
+    }
+    private void forageDialog(JSONArray candidates){
+        String[] descriptions=new String[candidates.length()];
+        for(int i=0;i<candidates.length();i++){
+            JSONObject x=candidates.optJSONObject(i);
+            descriptions[i]=x.optString("name")+" (CD "+x.optInt("dc")+")";
+        }
+        LinearLayout form=vertical();Spinner item=new Spinner(activity);
+        item.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,descriptions));
+        form.addView(item);
+        form.addView(text("Recurso do ambiente atual; uma unica tentativa por ingrediente/local/dia. A Sabedoria de Wilem modifica o d20 fisico. Uma falha nao fornece ingredientes.",13,Color.DKGRAY));
+        new AlertDialog.Builder(activity).setTitle("Coleta ecologica")
+            .setView(form).setNegativeButton("Voltar",null)
+            .setPositiveButton("ROLAR D20",(d,w)->{
+                JSONObject chosen=candidates.optJSONObject(item.getSelectedItemPosition());
+                if(chosen==null){fail(new IllegalStateException("Ingrediente indisponivel"));return;}
+                Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
+                    "d20","Normal","Wilem",book.ownerId(),new Dice3DOverlay.Callback(){
+                        private boolean done=false;
+                        public void onResult(Dice3DOverlay.RollResult rolled){
+                            if(done)return;done=true;
+                            try{
+                                JSONObject found=book.forageWithPhysicalRoll(chosen.optString("ingredient_id"),
+                                    rolled,WilemCookbookEngine.newReceipt());
+                                Toast.makeText(activity,found.optBoolean("success")?
+                                    "Coleta: "+found.optInt("quantity")+" unidade(s)":
+                                    "Coleta sem sucesso; tentativa do dia registrada",Toast.LENGTH_LONG).show();
+                                changed();
+                            }catch(Exception e){fail(e);}
+                        }
+                        public void onError(String message){fail(new IllegalStateException(message));}
+                        public void onCancel(){}
+                    });
+            }).show();
+    }
+    private void claimRewardDialog(JSONArray available){
+        String[] descriptions=new String[available.length()];
+        for(int i=0;i<available.length();i++){
+            JSONObject x=available.optJSONObject(i);
+            JSONObject ing=WilemCookbookCatalog.ingredientById(x.optString("ingredient_id"));
+            descriptions[i]=x.optString("event_title")+" — "+
+                ing.optString("name")+" x"+x.optInt("quantity");
+        }
+        LinearLayout form=vertical();Spinner event=new Spinner(activity);
+        event.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,descriptions));
+        form.addView(event);
+        form.addView(text("Somente eventos com consequencia mecanica aplicada e recompensa culinaria estruturada. Cada evento so concede esta recompensa uma vez.",13,Color.DKGRAY));
+        new AlertDialog.Builder(activity).setTitle("Recompensa confirmada no mundo")
+            .setView(form).setNegativeButton("Voltar",null)
+            .setPositiveButton("RESGATAR",(d,w)->{
+                try{
+                    JSONObject selected=available.optJSONObject(event.getSelectedItemPosition());
+                    if(selected==null)throw new IllegalStateException("Evento nao encontrado");
+                    book.claimWorldReward(selected.optLong("event_id"),WilemCookbookEngine.newReceipt());
+                    changed();
                 }catch(Exception e){fail(e);}
             }).show();
     }
