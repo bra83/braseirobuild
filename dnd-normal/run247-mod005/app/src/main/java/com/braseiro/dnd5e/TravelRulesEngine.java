@@ -149,7 +149,7 @@ public final class TravelRulesEngine {
             for(int absoluteHour=firstExtra;absoluteHour<=finalHour;absoluteHour++){
                 if(absoluteHour<=8)continue;
                 int dc=10+(absoluteHour-8);
-                appendConstitutionSaves(saves,"marcha_forcada",dc,signature+"|forced|"+absoluteHour,revised);
+                appendConstitutionSaves(saves,"marcha_forcada",dc,signature+"|forced|"+absoluteHour,revised,0d);
             }
         }
         appendWeatherSaves(saves,weather,hours,signature,revised);
@@ -485,12 +485,15 @@ public final class TravelRulesEngine {
 
     private void appendWeatherSaves(JSONArray saves,String weather,double hours,String sig,boolean revised)throws Exception{
         String w=fold(weather);if(!contains(w,"frio extremo","extreme cold"))return;
-        int whole=(int)Math.floor(hours+1e-9);for(int h=1;h<=whole;h++)appendConstitutionSaves(saves,"frio_extremo",10,sig+"|cold|"+h,revised);
+        int whole=(int)Math.floor(hours+1e-9);
+        double start=WilemCookbookEffectRules.worldHour(db.getSceneState());
+        for(int h=1;h<=whole;h++)
+            appendConstitutionSaves(saves,"frio_extremo",10,sig+"|cold|"+h,revised,start+h);
     }
 
-    private void appendConstitutionSaves(JSONArray saves,String cause,int dc,String seed,boolean revised)throws Exception{/*BR_JSON_WRAP*/try{
+    private void appendConstitutionSaves(JSONArray saves,String cause,int dc,String seed,boolean revised,double atWorldHour)throws Exception{/*BR_JSON_WRAP*/try{
         for(JSONObject hero:db.listActiveCharacters()){
-            if("frio_extremo".equals(cause)&&coldProtected(hero,revised))continue;
+            if("frio_extremo".equals(cause)&&coldProtected(hero,revised,atWorldHour))continue;
             int roll=deterministicDie(seed+"|"+hero.optLong("id"),20);int bonus=constitutionSaveBonus(hero);int total=roll+bonus;
             saves.put(new JSONObject().put("character_id",hero.optLong("id")).put("character",hero.optString("name")).put("cause",cause).put("die",roll).put("constitution_modifier",bonus).put("total",total).put("dc",dc).put("success",total>=dc).put("failure_effect","1 nível de Exaustão").put("classification",RULE_RAW));
         }
@@ -502,8 +505,8 @@ public final class TravelRulesEngine {
         for(JSONObject x:map.values())out.put(x);return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
-    private boolean coldProtected(JSONObject hero,boolean revised){
-        if(WilemCookbookEffectRules.coldResistance(hero,db.getSceneState()))return true;
+    private boolean coldProtected(JSONObject hero,boolean revised,double atWorldHour){
+        if(WilemCookbookEffectRules.coldResistanceAt(hero,atWorldHour))return true;
         String all=fold(hero.optString("resistances")+" "+hero.optString("immunities")+" "+
             hero.optString("notes")+" "+hero.optString("equipment")+" "+hero.optString("sheet_json"));
         if(contains(all,"resistencia a frio","resistência a frio","imunidade a frio",

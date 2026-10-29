@@ -42,6 +42,16 @@ public final class WilemCookbookEffectRules {
     public static boolean coldResistance(JSONObject hero,JSONObject scene){
         return typedBonus(hero,scene,"resistencia_frio")>0;
     }
+    public static boolean coldResistanceAt(JSONObject hero,double hour){
+        if(hero==null)return false;
+        JSONArray effects=sheet(hero).optJSONArray("meal_effects");
+        for(int i=0;effects!=null&&i<effects.length();i++){
+            JSONObject e=effects.optJSONObject(i);
+            if(e!=null&&"resistencia_frio".equals(e.optString("effect_key"))&&
+                e.optInt("effect_value",0)>0&&e.optDouble("ends_world_hour",0)>hour)return true;
+        }
+        return false;
+    }
     private static int typedBonus(JSONObject hero,JSONObject scene,String key){
         if(hero==null||scene==null)return 0;
         double hour=worldHour(scene);JSONArray effects=sheet(hero).optJSONArray("meal_effects");int best=0;
