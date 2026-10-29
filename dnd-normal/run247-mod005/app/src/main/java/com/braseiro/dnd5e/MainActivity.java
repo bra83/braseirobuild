@@ -821,7 +821,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         root.addView(header,new LinearLayout.LayoutParams(-1,dp(54)));
         shellNavScroll=new HorizontalScrollView(this);final HorizontalScrollView navScroll=shellNavScroll;navScroll.setHorizontalScrollBarEnabled(false);LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);nav.setPadding(dp(4),dp(3),dp(4),dp(3));
         String[] names=isStrixhavenAdventure()?new String[]{"Aventura","Mestre IA","Dados","Combate","Heróis","Companhia","Mundo Vivo","Diário","Manuais","Áudio","Config"}:new String[]{"Aventura","Mestre IA","Combate","Companhia","Mundo Vivo","Guildas","Mapa","Dados","Heróis","Diário","Manuais","Tokens","Áudio","Config"};
-        if(!isMystaraWorld()&&new WilemCookbookEngine(db).ownerExists()){String[] more=java.util.Arrays.copyOf(names,names.length+1);more[names.length]="Caderno";names=more;}
         if(!isMystaraWorld() && new WilemCookbookEngine(db).ownerExists()){
             String[] extended=java.util.Arrays.copyOf(names,names.length+1);
             extended[names.length]="Caldeirão";names=extended;
