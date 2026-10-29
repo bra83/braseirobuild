@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 610" role="img" aria-label="Nabo, batata, cebola, cogumelos e olho de monstro com setas para um caldeirao no fogo">
+<defs>
+ <radialGradient id="paper"><stop stop-color="#f6e6ba"/><stop offset="1" stop-color="#c6a777"/></radialGradient>
+ <linearGradient id="iron" x2=".7" y2="1"><stop stop-color="#59544d"/><stop offset=".52" stop-color="#272724"/><stop offset="1" stop-color="#100f0d"/></linearGradient>
+ <linearGradient id="turn" x2="0" y2="1"><stop stop-color="#775576"/><stop offset=".43" stop-color="#d0b7a0"/><stop offset="1" stop-color="#e4c68f"/></linearGradient>
+ <linearGradient id="potato" x2=".3" y2="1"><stop stop-color="#a87a4f"/><stop offset="1" stop-color="#d4b17b"/></linearGradient>
+ <linearGradient id="fire" x2="0" y2="1"><stop stop-color="#ffe292"/><stop offset=".52" stop-color="#eb923c"/><stop offset="1" stop-color="#bc4625"/></linearGradient>
+ <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="3" seed="7"/><feColorMatrix values="0 0 0 0 .42 0 0 0 0 .31 0 0 0 0 .19 0 0 0 .16 0"/></filter>
+ <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4 0 8Z" fill="#5d402b"/></marker>
+</defs>
+<rect x="4" y="4" width="832" height="602" rx="24" fill="url(#paper)" stroke="#735034" stroke-width="12"/>
+<rect x="8" y="8" width="825" height="590" rx="22" filter="url(#grain)" opacity=".32"/>
+<g fill="none" stroke="#5b3b2a" stroke-width="3" opacity=".75"><path d="M48 35V575"/><path d="M35 80Q55 85 35 96M35 172Q55 177 35 188M35 264Q55 269 35 280M35 356Q55 361 35 372M35 448Q55 453 35 464M35 540Q55 545 35 556"/></g>
+<g stroke="#574332" stroke-linecap="round" stroke-linejoin="round">
+ <!-- turnip -->
+ <path d="M170 158Q110 121 130 74Q182 30 227 87Q234 139 170 158Z" fill="url(#turn)" stroke-width="4"/>
+ <path d="M167 158Q166 177 154 190" fill="none" stroke-width="4"/>
+ <path d="M169 88Q153 39 123 24Q114 72 158 93M173 86Q169 28 199 15Q211 67 177 96M177 96Q205 47 229 35Q238 82 180 105" fill="#7d8c53" stroke-width="3"/>
+ <path d="M160 53L169 93M194 45L174 87M141 58L165 89" stroke-width="2"/>
+ <!-- potatoes -->
+ <path d="M348 126Q319 71 363 57Q403 42 423 79Q444 120 407 143Q372 155 348 126Z" fill="url(#potato)" stroke-width="4"/>
+ <g fill="#785c3c" stroke="none"><circle cx="363" cy="84" r="5"/><circle cx="408" cy="98" r="5"/><circle cx="377" cy="126" r="4"/><circle cx="390" cy="69" r="3"/></g>
+ <!-- onion -->
+ <path d="M559 142Q498 131 512 88Q520 60 548 50L548 25L559 42L571 22L580 51Q608 66 609 94Q607 143 559 142Z" fill="#ba8753" stroke-width="4"/>
+ <path d="M559 48Q531 87 544 135M559 47Q581 93 565 139M571 53Q598 83 589 125" fill="none" stroke-width="2.6"/>
+ <!-- monster eye -->
+ <circle cx="702" cy="97" r="43" fill="#ede0cb" stroke="#6d4c3b" stroke-width="4"/>
+ <circle cx="702" cy="97" r="24" fill="#7c9564" stroke-width="4"/>
+ <circle cx="702" cy="97" r="12" fill="#221f18"/><circle cx="707" cy="89" r="5" fill="#eee7cd" stroke="none"/>
+ <path d="M661 87L646 78M664 115L647 123M745 82L758 76M741 112L761 117" stroke="#c27368" stroke-width="3"/>
+ <!-- mushrooms -->
+ <path d="M244 240V183Q224 178 220 199Q231 196 242 195M242 240L274 240L269 190Q300 180 306 205L270 211L274 241" fill="#d1bb91" stroke-width="3"/>
+ <path d="M198 184Q206 141 255 148Q280 151 288 186Z" fill="#906749" stroke-width="4"/>
+ <path d="M251 205Q262 171 298 178Q316 183 324 205Z" fill="#a87e5b" stroke-width="4"/>
+ <g fill="none" stroke="#694a35" stroke-width="2"><path d="M209 174Q242 163 274 177M266 194Q290 188 309 199"/></g>
+ <!-- fantasy leaf and gland -->
+ <path d="M600 210Q568 192 586 166Q610 154 627 177Q642 201 615 222Z" fill="#85846a" stroke-width="3"/>
+ <path d="M606 169Q611 190 609 218M606 190L585 177M610 203L625 184" fill="none" stroke-width="2"/>
+ <path d="M692 200Q678 168 709 156Q747 155 749 196Q752 229 720 231Q693 230 692 200Z" fill="#5c4a64" stroke-width="3"/>
+ <path d="M697 200Q714 183 747 194" fill="none" stroke="#bba981" stroke-width="3"/>
+</g>
+<g fill="none" stroke="#6c472e" stroke-width="5" marker-end="url(#arrow)" stroke-linecap="round"><path d="M168 209Q230 266 322 353"/><path d="M392 170Q393 260 401 347"/><path d="M553 162Q510 280 473 349"/><path d="M701 166Q633 259 510 345"/><path d="M263 253Q317 302 347 357"/><path d="M715 254Q620 310 548 366"/></g>
+<!-- rustic wood -->
+<g stroke="#432d22" stroke-width="15" stroke-linecap="round" fill="none"><path d="M312 375L220 532M522 375L617 532M311 375L522 375"/></g>
+<g stroke="#a67c4b" stroke-width="3" fill="none"><path d="M235 515L313 379M600 513L520 378M325 371H503"/></g>
+<path d="M409 382V399" stroke="#433a2f" stroke-width="11"/>
+<path d="M365 433Q349 387 413 393Q466 395 460 431" fill="none" stroke="#292522" stroke-width="8"/>
+<path d="M325 443Q321 418 350 414L473 414Q494 419 497 441L489 495Q481 525 411 528Q341 524 334 497Z" fill="url(#iron)" stroke="#140f0c" stroke-width="7"/>
+<ellipse cx="411" cy="439" rx="85" ry="22" fill="#947346" stroke="#171411" stroke-width="7"/>
+<g fill="#ceb782"><circle cx="379" cy="432" r="10"/><ellipse cx="420" cy="448" rx="13" ry="8"/><circle cx="450" cy="429" r="8"/></g>
+<g stroke="#b5b7a2" stroke-width="4" fill="none" opacity=".83"><path d="M366 408Q334 387 365 368Q391 345 372 328"/><path d="M417 406Q440 385 421 365Q401 348 423 331"/><path d="M456 414Q480 390 459 365"/></g>
+<g stroke="#5a3221" stroke-width="9" stroke-linecap="round"><path d="M320 549L498 579M501 547L325 577"/></g>
+<path d="M376 561Q355 531 387 516Q379 536 399 540Q398 514 422 498Q445 524 432 546Q454 524 475 544Q475 573 424 578Q389 582 376 561Z" fill="url(#fire)" stroke="#bd6137" stroke-width="3"/>
+<g fill="#969080" stroke="#66523b" stroke-width="3"><ellipse cx="326" cy="574" rx="27" ry="15"/><ellipse cx="374" cy="593" rx="27" ry="13"/><ellipse cx="456" cy="594" rx="29" ry="13"/><ellipse cx="509" cy="573" rx="29" ry="13"/></g>
+<g fill="#57412a" opacity=".65"><circle cx="105" cy="298" r="3"/><circle cx="126" cy="321" r="3"/><circle cx="731" cy="337" r="3"/><circle cx="761" cy="364" r="2"/><circle cx="170" cy="394" r="3"/></g>
+<g font-family="serif" fill="#71532f" opacity=".72"><text x="77" y="55" font-size="30">✧</text><text x="782" y="52" font-size="35">☾</text><text x="87" y="520" font-size="31">✦</text><text x="740" y="501" font-size="32">✦</text></g>
+</svg>
