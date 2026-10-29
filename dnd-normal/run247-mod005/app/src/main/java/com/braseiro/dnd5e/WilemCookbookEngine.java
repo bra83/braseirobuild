@@ -270,7 +270,12 @@ public final class WilemCookbookEngine {
             sheet.put("inventory_ledger",after).put("inventory_load",InventoryLedgerEngine.totals(after,ch.optInt("str",10),false));
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
             boolean special=!recipe.optString("type").equals("cotidiana");
-            int check=roll+Math.max(0,2+(hero().optInt("wis",10)-10)/2);
+            
+            if(special&&roll<1)throw new IllegalArgumentException("D20 explicitamente rolado e obrigatorio para comida especial ou isca");
+            String tools=hero().optString("tools","")+" "+sheet.optString("tools","");
+            int proficiency=tools.toLowerCase(Locale.ROOT).contains("cozinh")?
+                Math.max(2,hero().optInt("proficiency_bonus",2)):0;
+            int check=roll+proficiency+Math.floorDiv(hero().optInt("wis",10)-10,2);
             String result=!special?"refeicao_comum":check>=recipe.optInt("dc")+5?"somente_beneficio":
                 check>=recipe.optInt("dc")?"beneficio_com_risco":"somente_risco";
             JSONObject batch=new JSONObject().put("id",receipt).put("recipe_id",recipeId)
@@ -291,6 +296,12 @@ public final class WilemCookbookEngine {
     public synchronized JSONObject serve(final String batchId,final long targetId,
                                           final String guestName,final boolean shelter,
                                           final String conversation,final String receipt)throws Exception{
+        return serveWithSave(batchId,targetId,guestName,shelter,conversation,-1,receipt);
+    }
+    public synchronized JSONObject serveWithSave(final String batchId,final long targetId,
+                                          final String guestName,final boolean shelter,
+                                          final String conversation,final int constitutionSaveTotal,
+                                          final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para servir");
         if(targetId>0&&db.findActivePartyHero(targetId).length()==0)throw new IllegalArgumentException("Alvo nao esta na companhia");
         if(targetId==0&&(guestName==null||guestName.trim().length()<2))throw new IllegalArgumentException("Identifique o convidado");
@@ -311,7 +322,14 @@ public final class WilemCookbookEngine {
                     worldHour(db)+(recipe.optInt("effect_minutes",0)/60d))
                 .put("effect_key",magic?recipe.optString("effect_key"):"nenhum")
                 .put("effect_value",magic?recipe.optInt("effect_value",0):0)
+
                 .put("requires_risk_resolution",batch.optString("result").contains("risco"));
+            if(batch.optString("result").contains("risco")){
+                if(constitutionSaveTotal<0)throw new IllegalArgumentException("Teste de Constituicao do consumidor e obrigatorio para risco culinario");
+                boolean poisoned=constitutionSaveTotal<Math.max(10,recipe.optInt("dc",10)-2);
+                effect.put("constitution_save_total",constitutionSaveTotal).put("poisoned_after_consumption",poisoned)
+                    .put("risk_ends_world_hour",worldHour(db)+1d);
+            }
             if(targetId>0){JSONObject ch=db.getCharacter(targetId),sheet=object(ch.optString("sheet_json","{}"));
                 JSONArray old=sheet.optJSONArray("meal_effects");if(old==null)old=new JSONArray();
                 for(int i=0;i<old.length();i++){JSONObject active=old.optJSONObject(i);
@@ -320,15 +338,50 @@ public final class WilemCookbookEngine {
                         throw new IllegalStateException("Ja ha beneficio culinario especial ativo; nao acumular");
                 }
                 if(magic)old.put(effect);sheet.put("meal_effects",old);
+
                 sheet.put("last_nourishing_meal_world_hour",worldHour(db));
+                sheet.put("nourished_until_world_hour",worldHour(db)+24d);
+                if(shelter && recipe.optBoolean("warm_meal",false))sheet.put("warmth_with_shelter_until_world_hour",worldHour(db)+1d);
                 db.updateCharacterSheetChecked(targetId,sheet.toString());
+
+                if(effect.optBoolean("poisoned_after_consumption",false)){
+                    for(JSONObject combatant:db.listCombatants()){
+                        if(!"character".equalsIgnoreCase(combatant.optString("source_kind"))||
+                            combatant.optLong("source_id")!=targetId)continue;
+                        String conditions=combatant.optString("conditions","");
+                        if(!conditions.toLowerCase(Locale.ROOT).contains("envenenado"))
+                            db.updateConditionsChecked(combatant.optLong("id"),
+                                conditions.isEmpty()?"envenenado":conditions+",envenenado");
+                    }
+                }
                 if(magic&&"pv_temporarios".equals(effect.optString("effect_key"))){
                     ContentValues cv=new ContentValues();cv.put("temp_hp",Math.max(recipe.optInt("effect_value",1),0));
                     db.getWritableDatabase().update("combatants",cv,"world_profile=? AND source_kind='character' AND source_id=? AND temp_hp<?",
                         new String[]{profile(),String.valueOf(targetId),String.valueOf(recipe.optInt("effect_value",1))});
                 }
             }
+
             batch.put("remaining",batch.optInt("remaining")-1);
+            // A companhia so recebe credito de um dia de provisoes quando TODOS os
+            // herois presentes comeram no dia. Nao credita convidados nem repete no mesmo dia.
+            if(targetId>0){
+                List<JSONObject> roster=new PartyDirector(db).activeHeroRoster();boolean everyone=!roster.isEmpty();
+                int currentDay=Math.max(1,db.getSceneState().optInt("day_number",1));
+                for(JSONObject member:roster){
+                    JSONObject data=db.getCharacter(member.optLong("id"));
+                    JSONObject memberSheet=object(data.optString("sheet_json","{}"));
+                    if(memberSheet.optDouble("last_nourishing_meal_world_hour",-24d)<(currentDay-1)*24d)everyone=false;
+                }
+                if(everyone){
+                    JSONObject party=db.getPartyState(),resources=object(party.optString("company_resources_json","{}"));
+                    if(resources.optInt("wilem_provisions_credit_day",0)!=currentDay){
+                        resources.put("provisions_days",Math.max(0,resources.optInt("provisions_days",0))+1)
+                            .put("wilem_provisions_credit_day",currentDay)
+                            .put("last_shared_meal_location",sceneLocation(db));
+                        party.put("company_resources_json",resources.toString());db.savePartyState(party);
+                    }
+                }
+            }
             st.getJSONArray("meals").put(effect.put("conversation_note",conversation==null?"":conversation.trim()));
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Mesa de Wilem: "+who,
