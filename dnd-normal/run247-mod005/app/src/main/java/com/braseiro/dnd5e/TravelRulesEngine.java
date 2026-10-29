@@ -275,6 +275,10 @@ public final class TravelRulesEngine {
             JSONObject currentState=db.getTravelRulesState();
             String reportSignature=report.optString("action_signature","");
             if(reportSignature.length()>0&&reportSignature.equals(currentState.optString("last_signature","")))return true;
+            // Preview de recursos pode ser confirmado diretamente, sem assinatura de viagem.
+            // Reusar o mesmo relatorio nunca deve descontar agua ou racoes uma segunda vez.
+            if(report.optBoolean("resource_time_report",false)&&reportSignature.length()>0&&
+                reportSignature.equals(currentState.optString("last_resource_signature","")))return true;
             String expectedPreState=report.optString("pre_state_fingerprint","");
             if(expectedPreState.length()>0&&!expectedPreState.equals(stateFingerprint(currentState,db.getSceneState(),db.getMapState()))){
                 db.addAuditEvent("erro_regras_viagem","Relatório de viagem obsoleto","O estado mudou entre a prévia e a confirmação.","{}",report.toString(),false);return false;
