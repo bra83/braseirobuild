@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x ./gradlew
-          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.WilemCookbookEngineTest --no-daemon --stacktrace --console=plain
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.WilemCookbook*Test' --no-daemon --stacktrace --console=plain
       - name: Compile APK without publishing or replacing release
         working-directory: dnd-normal/run247-mod005
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace --console=plain
