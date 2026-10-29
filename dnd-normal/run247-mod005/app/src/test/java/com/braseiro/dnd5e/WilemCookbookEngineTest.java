@@ -141,6 +141,22 @@ public class WilemCookbookEngineTest {
         assertTrue(book.harvestWithPhysicalRoll(creature,"carne_javali",dice,receipt())
             .getBoolean("success"));
     }
+    @Test public void contextualRumorOpensRealDiscoveryWithoutUnlockingEverything()throws Exception{
+        join();
+        db.saveSceneState(new JSONObject().put("day_number",1)
+            .put("location","Mercado de Strixhaven"));
+        JSONObject view=book.masterView();
+        JSONArray offers=view.getJSONArray("rumor_candidates");
+        assertTrue(offers.length()>0);
+        String recipeId=offers.getJSONObject(0).getString("recipe_id");
+        assertFalse(book.state().getJSONArray("known").toString().contains("\""+recipeId+"\""));
+        book.recordRumor(recipeId,"Cozinheiro da taverna",
+            "Ouvi a descricao de um preparo incomum que vale investigar.",receipt());
+        book.confirmDiscovery(recipeId,
+            "Pesquisei a receita e reproduzi as instrucoes em uma bancada de cozinha.",receipt());
+        assertTrue(book.state().getJSONArray("known").toString().contains("\""+recipeId+"\""));
+        assertEquals(11,book.state().getJSONArray("known").length());
+    }
     @Test public void marketRequiresWorldPlaceAndEnforcesStock()throws Exception{
         join();
         JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
