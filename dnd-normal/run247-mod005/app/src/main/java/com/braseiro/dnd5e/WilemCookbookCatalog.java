@@ -147,27 +147,52 @@ public final class WilemCookbookCatalog {
     public static JSONArray recipes(){
         JSONArray out=new JSONArray();
         try{
-            // 24 x 5 = 120 receitas cotidianas; nutrientes sao distintos de poderes.
-            String[] methods={"Ensopado","Caldo","Assado","Torta rustica","Refeicao de viagem"};
-            int m=0;
-            for(String[] c:COMMON){
-                for(int j=0;j<methods.length;j++){
-                    String ingredients=c[0]+":1"+(c[0].equals("agua")?"":";agua:1");
-                    if(j==0&&!c[0].equals("cebola"))ingredients+=";cebola:1";
-                    if(j==3&&!c[0].equals("farinha"))ingredients+=";farinha:1";
-                    if(j==4&&!c[0].equals("sal"))ingredients+=";sal:1";
-                    String kind=c[4],baseName=c[1].toLowerCase(Locale.ROOT);
-                    String[] variant=methods;
-                    if("doce".equals(kind)||"fruta".equals(kind))variant=new String[]{"Compota","Doce assado","Torta doce","Calda","Marmita adocicada"};
-                    else if("tempero".equals(kind))variant=new String[]{"Pasta temperada","Caldo aromatizado","Conserva de","Molho","Mistura seca de"};
-                    else if("agua".equals(kind))variant=new String[]{"Agua fervida","Caldo claro","Infusao de ervas","Caldo de viagem","Garrafa purificada de"};
-                    else if("gordura".equals(kind))variant=new String[]{"Conserva em","Molho com","Legumes dourados em","Pao untado com","Panela com"};
-                    else if("grao".equals(kind))variant=new String[]{"Mingau","Sopa de","Pao de","Torta de","Racao seca de"};
-                    String name=variant[j]+" "+baseName;
+            // 24 pratos base x cinco variacoes de ingredientes = 120 receitas
+            // de cozinha caseira plausivel, com insumos facilmente encontrados.
+            String[][] bases={
+                {"Ensopado de batatas","batata:2;cebola:1;agua:1", "35"},
+                {"Sopa de cebola","cebola:2;agua:1;sal:1", "30"},
+                {"Creme rustico de nabo","nabo:2;agua:1;sal:1", "35"},
+                {"Caldo de cenoura","cenoura:2;agua:1", "30"},
+                {"Repolho refogado","repolho:2;oleo:1", "25"},
+                {"Alho assado com pao","alho:2;farinha:1;agua:1", "35"},
+                {"Sopa de cogumelos","cogumelo:2;agua:1", "35"},
+                {"Feijao de panela","feijao:2;agua:1;sal:1", "50"},
+                {"Lentilhas guisadas","lentilha:2;agua:1;cebola:1", "40"},
+                {"Mingau de cevada","cevada:2;agua:1", "30"},
+                {"Arroz soltinho","arroz:2;agua:1", "30"},
+                {"Abobora assada","abobora:2;oleo:1", "35"},
+                {"Beterrabas cozidas","beterraba:2;agua:1", "35"},
+                {"Macas ao forno","maça:2;agua:1", "25"},
+                {"Pao de mel","mel:1;farinha:2;agua:1", "45"},
+                {"Omelete da fogueira","ovos:2;oleo:1", "20"},
+                {"Queijo tostado com pao","queijo:2;farinha:1;agua:1", "25"},
+                {"Peixe na brasa","peixe:2;sal:1", "35"},
+                {"Assado de caca","carne_caca:2;sal:1", "45"},
+                {"Cha de ervas","ervas:1;agua:1", "15"},
+                {"Pao de frigideira","farinha:2;agua:1;sal:1", "30"},
+                {"Raizes conservadas em sal","nabo:1;cenoura:1;sal:1", "25"},
+                {"Caldo de legumes em agua potavel","agua:2;batata:1;cebola:1", "30"},
+                {"Legumes dourados no oleo","oleo:1;cenoura:1;batata:1", "25"}
+            };
+            String[] versions={""," com ervas"," com alho"," com cebola"," com queijo"};
+            for(int i=0;i<COMMON.length;i++){
+                String[] c=COMMON[i],base=bases[i];
+                for(int j=0;j<5;j++){
+                    String ingredients=base[1];
+                    if(j>0){
+                        String[] extras={"","ervas","alho","cebola","queijo"};
+                        String extra=extras[j];
+                        if(!ingredients.contains(extra+":"))ingredients+=";"+extra+":1";
+                    }
+                    // Doce, frutas e cha nao combinam com alho/queijo; substituir por acompanhamentos culinarios reais.
+                    boolean sweet=c[0].equals("maça")||c[0].equals("mel")||c[0].equals("ervas");
+                    String name=base[0]+versions[j];
+                    if(sweet&&j==2){name=base[0]+" com mel";ingredients=base[1]+(base[1].contains("mel:")?"":";mel:1");}
+                    if(sweet&&j==4){name=base[0]+" com maca";ingredients=base[1]+(base[1].contains("maça:")?"":";maça:1");}
                     out.put(recipe("com_"+c[0]+"_"+j,name,ingredients,"cotidiana",0,
-                        j==3?10:8,20+j*10,j==4?2:4,"alimentacao",0,0,
-                        "mercados e lares","Sacia a fome, oferece abrigo social e permite uma conversa a mesa; efeitos magicos: nenhum."));
-                    m++;
+                        j>=3?10:8,Integer.parseInt(base[2])+j*5,4,"alimentacao",0,0,
+                        "hortas, mercados e lares","Comida de verdade: saciedade, convivencia e descanso. Sem bonus magico."));
                 }
             }
             // 24 x 7 = 168 receitas de criatura, com variacao de tecnica.
