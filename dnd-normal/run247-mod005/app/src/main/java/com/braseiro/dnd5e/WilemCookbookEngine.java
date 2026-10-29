@@ -226,11 +226,38 @@ public final class WilemCookbookEngine {
         return result[0];
     }
 
+    private String forageEnvironment(){
+        String where=normalizeCreature(sceneLocation(db));
+        JSONObject map=db.getMapState();
+        String packageId=map.optString("map_package_id","");
+        String hex=db.getSceneState().optString("hex_id",
+            map.optString("current_hex_id",""));
+        if(packageId.isEmpty()||hex.isEmpty())return where;
+        JSONObject area=db.getMapHex(packageId,hex);
+        if(area.length()==0)return where;
+        String terrain=normalizeCreature(area.optString("terrain_primary")+" "+
+            area.optString("terrain_secondary"));
+        terrain=terrain.replace("forest","floresta").replace("woods","floresta")
+            .replace("river","rio").replace("lake","lago")
+            .replace("plains","prado").replace("swamp","pantano")
+            .replace("farm","fazenda").replace("orchard","pomar");
+        return (where+" "+terrain).trim();
+    }
+    private String forageLocationKey(){
+        JSONObject map=db.getMapState();
+        String hex=db.getSceneState().optString("hex_id",
+            map.optString("current_hex_id",""));
+        if(!map.optString("map_package_id","").isEmpty()&&!hex.isEmpty()&&
+            db.getMapHex(map.optString("map_package_id"),hex).length()>0)
+            return "atlas:"+map.optString("map_package_id")+":"+hex;
+        return "scene:"+normalizeCreature(sceneLocation(db));
+    }
+
     /** Ambiente atual e sua ecologia determinam os materiais coletaveis. */
     public JSONArray forageableIngredients(){
         JSONArray out=new JSONArray();
         if(!canCook())return out;
-        String place=normalizeCreature(sceneLocation(db));
+        String place=forageEnvironment();
         if(place.length()<2)return out;
         JSONArray all=WilemCookbookCatalog.ingredients();
         JSONObject st=state();JSONArray tried=st.optJSONArray("forage_attempts");
@@ -250,7 +277,7 @@ public final class WilemCookbookEngine {
                 if(place.contains(normalized)){matches=true;break;}
             }
             if(!matches)continue;
-            String attempt=day+":"+place+":"+ing.optString("id");
+            String attempt=day+":"+forageLocationKey()+":"+ing.optString("id");
             if(contains(tried,attempt))continue;
             try{out.put(new JSONObject().put("ingredient_id",ing.optString("id"))
                 .put("name",ing.optString("name")).put("dc",12)
@@ -284,7 +311,7 @@ public final class WilemCookbookEngine {
                 if(ingredientId.equals(options.optJSONObject(i).optString("ingredient_id")))available=true;
             if(!available||ing.length()==0)throw new IllegalStateException("Coleta sem recurso ecologico disponivel aqui hoje");
             int day=db.getSceneState().optInt("day_number",1);
-            String place=normalizeCreature(sceneLocation(db));
+            String place=forageLocationKey();
             String attempt=day+":"+place+":"+ingredientId;
             int total=check.natural+Math.floorDiv(hero().optInt("wis",10)-10,2);
             int qty=total>=12?1+Math.min(2,(total-12)/5):0;
