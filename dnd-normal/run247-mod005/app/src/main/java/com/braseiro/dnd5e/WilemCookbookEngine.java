@@ -21,11 +21,17 @@ public final class WilemCookbookEngine {
     public WilemCookbookEngine(AppDb database){if(database==null)throw new IllegalArgumentException("AppDb ausente");db=database;}
 
     public long ownerId(){
+        long fallback=0;
         for(JSONObject c:db.listCharacters()){
             String n=c.optString("name","").trim().toLowerCase(Locale.ROOT);
-            if(n.equals("wilem")||n.equals("willem"))return c.optLong("id",0);
+            if(n.equals("wilem")||n.equals("willem")){
+                long candidate=c.optLong("id",0);
+                if(candidate<=0)continue;
+                if(db.findActivePartyHero(candidate).length()>0)return candidate;
+                if(fallback==0)fallback=candidate;else fallback=-1;
+            }
         }
-        return 0;
+        return Math.max(0,fallback);
     }
     public boolean ownerExists(){return ownerId()>0;}
     public boolean canCook(){
@@ -582,7 +588,7 @@ public final class WilemCookbookEngine {
             long id=ownerId();if(id<=0)return out.put("available",false);
             reconcileMeals();JSONObject st=state();String location=sceneLocation(db);
             JSONArray nearby=new JSONArray();JSONArray rumors=st.optJSONArray("rumors");
-            for(int i=0;rumors!=null&&i<rumors.length();i++){JSONObject rum=rumors.optJSONObject(i);if(rum==null)continue;
+            for(int i=0;rumors!=null&&i<rumors.length();i++){JSONObject rum=rumors.optJSONObject(i);if(rum==null||"a_ouvir".equals(rum.optString("status")))continue;
                 String where=rum.optString("location","").toLowerCase(Locale.ROOT);
                 if(!location.trim().isEmpty()&&!where.trim().isEmpty()&&
                    (location.toLowerCase(Locale.ROOT).contains(where)||where.contains(location.toLowerCase(Locale.ROOT))))nearby.put(rum);

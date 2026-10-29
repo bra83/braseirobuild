@@ -49,6 +49,19 @@ public final class WilemCookbookCatalogTest {
             if("cotidiana".equals(r.getString("type")))assertEquals("alimentacao",r.getString("effect_key"));
         }
     }
+    @Test public void sweetVariationsAreDistinctAndDoNotMixInappropriateIngredients() throws Exception {
+        for(String id:new String[]{"maça","mel","ervas"}){
+            Set<String> unique=new HashSet<>();
+            for(int j=0;j<5;j++){
+                JSONObject r=WilemCookbookCatalog.recipeById("com_"+id+"_"+j);
+                String name=r.getString("name").toLowerCase();
+                assertFalse(name,name.contains("cebola"));assertFalse(name,name.contains("alho"));
+                if(id.equals("ervas"))assertFalse(name,name.contains("queijo"));
+                assertTrue(name,unique.add(r.getJSONObject("ingredients").toString()));
+            }
+        }
+        assertEquals(3,WilemCookbookCatalog.recipeById("com_cebola_3").getJSONObject("ingredients").getInt("cebola"));
+    }
     @Test public void sleepingBaitsAreMagicalAndRequireExplicitSaves() throws Exception {
         JSONArray recipes=WilemCookbookCatalog.recipes();int count=0;
         for(int i=0;i<recipes.length();i++){

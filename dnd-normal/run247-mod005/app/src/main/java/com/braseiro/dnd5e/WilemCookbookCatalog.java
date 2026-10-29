@@ -144,6 +144,18 @@ public final class WilemCookbookCatalog {
         r.put("steps",steps).put("ingredients",costs).put("warm_meal",!kind.equals("isca"));
         return r;
     }
+    /** Atualiza a quantidade do ingrediente existente em vez de duplicar a variacao. */
+    private static String extra(String base,String id){
+        StringBuilder out=new StringBuilder();boolean found=false;
+        for(String pair:base.split(";")){
+            String[] p=pair.split(":");if(p.length!=2)throw new IllegalArgumentException("Ingrediente invalido");
+            if(out.length()>0)out.append(';');
+            if(id.equals(p[0])){out.append(id).append(':').append(Integer.parseInt(p[1])+1);found=true;}
+            else out.append(pair);
+        }
+        if(!found)out.append(';').append(id).append(":1");
+        return out.toString();
+    }
     public static JSONArray recipes(){
         JSONArray out=new JSONArray();
         try{
@@ -176,20 +188,30 @@ public final class WilemCookbookCatalog {
                 {"Legumes dourados no oleo","oleo:1;cenoura:1;batata:1", "25"}
             };
             String[] versions={""," com ervas"," com alho"," com cebola"," com queijo"};
+            String[] addons={"","ervas","alho","cebola","queijo"};
             for(int i=0;i<COMMON.length;i++){
                 String[] c=COMMON[i],base=bases[i];
                 for(int j=0;j<5;j++){
-                    String ingredients=base[1];
-                    if(j>0){
-                        String[] extras={"","ervas","alho","cebola","queijo"};
-                        String extra=extras[j];
-                        if(!ingredients.contains(extra+":"))ingredients+=";"+extra+":1";
-                    }
-                    // Doce, frutas e cha nao combinam com alho/queijo; substituir por acompanhamentos culinarios reais.
-                    boolean sweet=c[0].equals("maça")||c[0].equals("mel")||c[0].equals("ervas");
                     String name=base[0]+versions[j];
-                    if(sweet&&j==2){name=base[0]+" com mel";ingredients=base[1]+(base[1].contains("mel:")?"":";mel:1");}
-                    if(sweet&&j==4){name=base[0]+" com maca";ingredients=base[1]+(base[1].contains("maça:")?"":";maça:1");}
+                    String ingredients=j==0?base[1]:extra(base[1],addons[j]);
+                    // Doces e infusoes recebem variantes proprias e comestiveis.
+                    if("maça".equals(c[0])){
+                        String[] labels={""," com mel"," com queijo"," com crosta de farinha"," com cevada tostada"};
+                        String[] adds={"","mel","queijo","farinha","cevada"};
+                        name=base[0]+labels[j];ingredients=j==0?base[1]:extra(base[1],adds[j]);
+                    }else if("mel".equals(c[0])){
+                        String[] labels={""," com maca"," com ovos"," com queijo"," com cevada"};
+                        String[] adds={"","maça","ovos","queijo","cevada"};
+                        name=base[0]+labels[j];ingredients=j==0?base[1]:extra(base[1],adds[j]);
+                    }else if("ervas".equals(c[0])){
+                        String[] labels={""," com mel"," com maca"," de infusao forte"," com maca e mel"};
+                        name=base[0]+labels[j];
+                        if(j==0)ingredients=base[1];
+                        else if(j==1)ingredients=extra(base[1],"mel");
+                        else if(j==2)ingredients=extra(base[1],"maça");
+                        else if(j==3)ingredients=extra(base[1],"ervas");
+                        else ingredients=extra(extra(base[1],"maça"),"mel");
+                    }
                     out.put(recipe("com_"+c[0]+"_"+j,name,ingredients,"cotidiana",0,
                         j>=3?10:8,Integer.parseInt(base[2])+j*5,4,"alimentacao",0,0,
                         "hortas, mercados e lares","Comida de verdade: saciedade, convivencia e descanso. Sem bonus magico."));

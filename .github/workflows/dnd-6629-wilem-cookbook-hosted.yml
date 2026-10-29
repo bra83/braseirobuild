@@ -158,9 +158,10 @@ jobs:
       - name: Publish only a fully verified upgrade
         run: |
           set -euo pipefail
-          current="$(gh api repos/${{ github.repository }}/git/ref/heads/release/dnd-6.6.29-wilem-cookbook-20261029 --jq '.object.sha')"
+          current="$(gh api repos/${{ github.repository }}/git/ref/heads/feature/dnd-wilem-cookbook-20261029 --jq '.object.sha')"
+          test "$GITHUB_REF_NAME" = 'feature/dnd-wilem-cookbook-20261029' || { echo 'INVALID_RELEASE_SOURCE'; exit 1; }
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
             --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.29 — O Caldeirao de Wilem" \
-            --notes "Caderno exclusivo de Wilem com 300 receitas originais, 120 pratos comuns, 168 refeicoes de criaturas, 12 iscas fantasticas, preparo e inventario canonico SQLite, boatos por local, historias compartilhadas, ilustracao no app e integracao ao Mestre. Culinaria opcional: nao substitui regras oficiais D&D 2024. Mesma assinatura e pacote de 6.6.28, versionCode crescente, suites Android/SQLite/JVM completas aprovadas antes de publicar. Homologacao fisica nao realizada."
+            --notes "Caderno exclusivo de Wilem com 300 entradas culinarias originais, inventario canônico, notas e historico de refeicoes. Limitacoes ainda abertas: aquisicoes requerem evidencias de mundo (compras nao debitam automaticamente), colheita de criaturas e ligacao dos testes ao motor de dados. Culinaria opcional: nao substitui regras oficiais D&D 2024. Mesma assinatura e pacote de 6.6.28, versionCode crescente, suites Android/SQLite/JVM completas aprovadas antes de publicar. Homologacao fisica nao realizada."
