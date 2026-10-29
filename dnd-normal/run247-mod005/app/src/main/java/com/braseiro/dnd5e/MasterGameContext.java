@@ -48,6 +48,7 @@ public final class MasterGameContext {
             root.put("database_health",db.healthCheck());
             root.put("audio",audioDiagnostic==null?new JSONObject():audioDiagnostic);
             root.put("party_state",db.getPartyState());
+            root.put("wilem_cookbook",new WilemCookbookEngine(db).masterView());
             root.put("party_actions",new JSONArray(db.listPartyActions("queued",40)));
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(80)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
@@ -113,6 +114,7 @@ public final class MasterGameContext {
             root.put("animal_companions",new AnimalCompanionStateEngine(db).snapshotAll(24));
             root.put("world_6",new WorldSixCoordinator(db).context());
             root.put("party_state",db.getPartyState());
+            root.put("wilem_cookbook",new WilemCookbookEngine(db).masterView());
             root.put("party_actions",new JSONArray(db.listPartyActions("queued",40)));
             root.put("travel_rules_state",db.getTravelRulesState());
             root.put("manual_catalog",compactRows(db.listManuals(""),20,new String[]{"id","title","category","rule_profile","enabled","indexed","rag_status","rag_page_count","source"},700));
