@@ -124,6 +124,23 @@ public class WilemCookbookEngineTest {
         try{book.acquire("carne_aranha",1,"coleta_confirmada",true,receipt());fail("unearned monster meat");}
         catch(IllegalStateException expected){}
     }
+    @Test public void unconsciousCreatureCannotBeHarvestedAndNumberedTokenUsesSameSpecies()throws Exception{
+        join();
+        long creature=db.addCombatant("Javali selvagem #2",9,0,8,12,"",false);
+        db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
+            "","","",new JSONObject().put("stable",true).toString());
+        java.util.List<Integer> faces=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult dice=new Dice3DOverlay.RollResult(
+            faces,faces,20,20,"20","","d20","Normal",100,95512L,"test",
+            RollIntegrity.signature("d20",faces,0,95512L,20));
+        try{book.harvestWithPhysicalRoll(creature,"carne_javali",dice,receipt());
+            fail("Creature still stabilized");}
+        catch(IllegalStateException expected){}
+        db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
+            "","","",new JSONObject().put("stable",false).toString());
+        assertTrue(book.harvestWithPhysicalRoll(creature,"carne_javali",dice,receipt())
+            .getBoolean("success"));
+    }
     @Test public void marketRequiresWorldPlaceAndEnforcesStock()throws Exception{
         join();
         JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));

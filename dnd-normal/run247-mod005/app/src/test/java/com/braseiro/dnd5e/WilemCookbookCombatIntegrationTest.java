@@ -49,6 +49,8 @@ public final class WilemCookbookCombatIntegrationTest {
         assertTrue(WilemCookbookEffectRules.coldResistance(db.getCharacter(hero),db.getSceneState()));
         JSONObject first=db.applyCombatantDamage(combatant,9,"frio",false);
         assertEquals(4,first.optInt("applied_damage",-1)); // Resistência reduz dano pela metade, arredondando para baixo.
+        assertTrue(WilemCookbookEffectRules.coldResistanceAt(db.getCharacter(hero),now+1d));
+        assertFalse(WilemCookbookEffectRules.coldResistanceAt(db.getCharacter(hero),now+3d));
         effect("resistencia_frio",now-1d);
         assertFalse(WilemCookbookEffectRules.coldResistance(db.getCharacter(hero),db.getSceneState()));
         JSONObject second=db.applyCombatantDamage(combatant,9,"cold",false);
