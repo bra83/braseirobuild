@@ -868,12 +868,61 @@ public final class WilemCookbookEngine {
             constitutionSaveTotal,null,receipt);
     }
 
+    private static JSONObject authoritativeMonsterConSave(JSONObject creature){
+        JSONObject res=object(creature.optString("resources_json","{}"));
+        String id=res.optString("block_id","");
+        if(id.isEmpty()||!"statblock".equalsIgnoreCase(creature.optString("source_kind")))return new JSONObject();
+        JSONObject p=CompiledStatblockEngine.runtimeProfile(id);
+        if(!p.optBoolean("found",false))return new JSONObject();
+        JSONObject saves=p.optJSONObject("saving_throws"),abilities=p.optJSONObject("abilities");
+        int bonus=Integer.MIN_VALUE;
+        if(saves!=null){
+            for(String key:new String[]{"con","constitution","Constitution","CON"})
+                if(saves.opt(key) instanceof Number){bonus=saves.optInt(key);break;}
+        }
+        if(bonus==Integer.MIN_VALUE&&abilities!=null){
+            for(String key:new String[]{"con","constitution","Constitution","CON"}){
+                if(abilities.opt(key) instanceof Number){
+                    bonus=Math.floorDiv(abilities.optInt(key)-10,2);break;
+                }
+            }
+        }
+        JSONObject out=new JSONObject();
+        if(bonus!=Integer.MIN_VALUE&&bonus>= -20&&bonus<=30)
+            try{out.put("known",true).put("bonus",bonus).put("block_id",id);}
+            catch(Exception ignored){}
+        return out;
+    }
+
+    private static boolean monsterConditionImmune(JSONObject target,String condition){
+        JSONObject res=object(target.optString("resources_json","{}"));
+        String declared=res.optString("condition_immunities","");
+        if(!res.optString("block_id").isEmpty()){
+            JSONObject p=CompiledStatblockEngine.runtimeProfile(res.optString("block_id"));
+            if(p.optBoolean("found",false))
+                declared+=","+p.optString("condition_immunities","");
+        }
+        return ConditionTokenGuard.has(declared,condition)||
+            ("inconsciente".equals(condition)&&
+                (ConditionTokenGuard.has(declared,"unconscious")
+                 ||declared.toLowerCase(Locale.ROOT).contains("sleep immunity")||
+                   declared.toLowerCase(Locale.ROOT).contains("immune to sleep")))||
+            ("envenenado".equals(condition)&&ConditionTokenGuard.has(declared,"poisoned"))||
+            ("caido".equals(condition)&&ConditionTokenGuard.has(declared,"prone"));
+    }
+
     public synchronized JSONObject resolveBaitWithPhysicalSave(final String baitId,final long combatantId,
         final boolean consumed,final boolean compatibleDiet,final boolean immune,
         final Dice3DOverlay.RollResult roll,final int conBonus,
         final boolean refereeConfirmedBonus,final String receipt)throws Exception{
-        if(!refereeConfirmedBonus||conBonus< -20||conBonus>30)
-            throw new IllegalArgumentException("O bonus de salvaguarda precisa vir da ficha da criatura e ser confirmado pelo Mestre");
+        JSONObject target=db.getCombatant(combatantId);
+        if(target.length()==0)throw new IllegalArgumentException("Criatura do combate nao encontrada");
+        JSONObject authoritative=authoritativeMonsterConSave(target);
+        int effectiveBonus=authoritative.optBoolean("known",false)?
+            authoritative.optInt("bonus"):conBonus;
+        if((!authoritative.optBoolean("known",false)&&!refereeConfirmedBonus)
+            ||effectiveBonus< -20||effectiveBonus>30)
+            throw new IllegalArgumentException("Constituicao exige statblock compilado ou confirmacao explicita do Mestre");
         if(roll==null||!"d20".equals(roll.formula)||!"Normal".equals(roll.mode))
             throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
         DiceRollSpec spec=DiceRollSpec.parse(roll.formula,roll.mode);
@@ -884,10 +933,13 @@ public final class WilemCookbookEngine {
                 .equals(roll.integritySignature))
             throw new IllegalStateException("D20 nao corresponde ao resultado fisico registrado");
         JSONObject proof=new JSONObject().put("source","physical3d").put("dice",checked.natural)
-            .put("save_bonus",conBonus).put("total",checked.natural+conBonus)
+            .put("save_bonus",effectiveBonus).put("total",checked.natural+effectiveBonus)
+            .put("bonus_authority",authoritative.optBoolean("known",false)?
+                "compiled_statblock":"referee_verified")
+            .put("block_id",authoritative.optString("block_id"))
             .put("signature",roll.integritySignature).put("physics_seed",roll.physicsSeed);
         return resolveBaitInternal(baitId,combatantId,consumed,compatibleDiet,immune,
-            checked.natural+conBonus,proof,receipt);
+            checked.natural+effectiveBonus,proof,receipt);
     }
 
     private JSONObject resolveBaitInternal(final String baitId,final long combatantId,
@@ -915,6 +967,8 @@ public final class WilemCookbookEngine {
                 else if(effect.equals("isca_tontura"))condition="envenenado";
                 else if(effect.equals("isca_lentidao"))condition="caido";
             }
+            boolean autoImmune=!condition.isEmpty()&&monsterConditionImmune(target,condition);
+            if(autoImmune)condition="";
             if(!condition.isEmpty()){
                 // Timers need an active encounter to expire on the target's next turn.
                 if(db.getCombatState().optInt("running",0)!=1)
@@ -950,7 +1004,7 @@ public final class WilemCookbookEngine {
                 .put("resolved_world_hour",worldHour(db)).put("applied_condition",condition)
                 .put("ends_world_hour",worldHour(db)+(1d/60d))
                 .put("ends_combat_round",db.getCombatState().optInt("round_no",1)+1)
-                 .put("failed_cooking",failedCooking);
+                 .put("failed_cooking",failedCooking).put("immunity_auto_detected",autoImmune);
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Isca testada: "+recipe.optString("name"),bait.toString(),"isca",receipt,"wilem_cookbook");
             result[0]=bait;
