@@ -34,7 +34,7 @@ public final class WilemCookbookEngine {
         return c.length()>0&&c.optInt("active",0)==1&&db.findActivePartyHero(id).length()>0;
     }
     private String profile(){return db.getActiveMapProfile();}
-    private void ensureTable(SQLiteDatabase sql){
+    public static void ensureSchema(SQLiteDatabase sql){
         sql.execSQL("CREATE TABLE IF NOT EXISTS wilem_recipe_books ("+
             "world_profile TEXT NOT NULL, character_id INTEGER NOT NULL,"+
             "state_json TEXT NOT NULL DEFAULT '{}', updated_at INTEGER NOT NULL DEFAULT 0,"+
@@ -71,7 +71,7 @@ public final class WilemCookbookEngine {
     }
     public synchronized JSONObject state(){
         long id=ownerId();if(id<=0)return new JSONObject();
-        SQLiteDatabase sql=db.getWritableDatabase();ensureTable(sql);
+        SQLiteDatabase sql=db.getWritableDatabase();ensureSchema(sql);
         Cursor cursor=sql.rawQuery("SELECT state_json FROM wilem_recipe_books WHERE world_profile=? AND character_id=?",
             new String[]{profile(),String.valueOf(id)});
         try{
