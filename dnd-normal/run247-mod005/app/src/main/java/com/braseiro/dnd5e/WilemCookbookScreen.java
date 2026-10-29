@@ -311,20 +311,52 @@ public final class WilemCookbookScreen {
             }).show();
     }
     private void resolveBaitDialog(JSONObject bait){
-        List<JSONObject> monsters=new ArrayList<JSONObject>();for(JSONObject c:db.listCombatants())
-            if(c.optInt("is_player",0)==0)monsters.add(c);
-        if(monsters.isEmpty()){Toast.makeText(activity,"Nenhum monstro presente no encontro",Toast.LENGTH_LONG).show();return;}
-        String[] names=new String[monsters.size()];for(int i=0;i<names.length;i++)names[i]=monsters.get(i).optString("name");
-        LinearLayout f=vertical();Spinner target=new Spinner(activity);target.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));f.addView(target);
-        EditText save=new EditText(activity);save.setInputType(2);save.setHint("Total da salvaguarda CON do monstro");f.addView(save);
-        CheckBox consumed=new CheckBox(activity);consumed.setText("Mestre confirmou que comeu e dieta compativel");f.addView(consumed);
-        CheckBox immune=new CheckBox(activity);immune.setText("Monstro e imune a este efeito");f.addView(immune);
-        new AlertDialog.Builder(activity).setTitle("Resolucao de isca").setView(f)
-            .setNegativeButton("Voltar",null).setPositiveButton("REGISTRAR",(d,w)->{try{
-                if(!consumed.isChecked())throw new IllegalStateException("Consumo e dieta devem ser confirmados");
-                book.resolveBait(bait.optString("id"),monsters.get(target.getSelectedItemPosition()).optLong("id"),
-                    true,true,immune.isChecked(),Integer.parseInt(save.getText().toString()),WilemCookbookEngine.newReceipt());changed();
-            }catch(Exception e){fail(e);}}).show();
+        List<JSONObject> monsters=new ArrayList<JSONObject>();
+        for(JSONObject c:db.listCombatants())if(c.optInt("is_player",0)==0&&c.optInt("hp",0)>0)monsters.add(c);
+        if(monsters.isEmpty()){Toast.makeText(activity,"Nenhuma criatura viva registrada no combate",Toast.LENGTH_LONG).show();return;}
+        JSONObject recipe=WilemCookbookCatalog.recipeById(bait.optString("recipe_id"));
+        boolean requiresSave=recipe.optBoolean("requires_save",false);
+        String[] names=new String[monsters.size()];
+        for(int i=0;i<names.length;i++)names[i]=monsters.get(i).optString("name");
+        LinearLayout f=vertical();Spinner target=new Spinner(activity);
+        target.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));f.addView(target);
+        EditText bonus=new EditText(activity);bonus.setInputType(android.text.InputType.TYPE_CLASS_NUMBER|android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);
+        bonus.setHint("Bonus de salvaguarda CON do statblock (ex.: +2, -1)");
+        if(requiresSave)f.addView(bonus);
+        CheckBox confirmedBonus=new CheckBox(activity);
+        confirmedBonus.setText("Conferi o bonus no statblock desta criatura");
+        if(requiresSave)f.addView(confirmedBonus);
+        CheckBox consumed=new CheckBox(activity);
+        consumed.setText("O Mestre confirmou ingestao real e dieta compativel");f.addView(consumed);
+        CheckBox immune=new CheckBox(activity);immune.setText("Criatura imune a este efeito");f.addView(immune);
+        new AlertDialog.Builder(activity).setTitle("Resolver isca").setView(f)
+            .setNegativeButton("Voltar",null).setPositiveButton(requiresSave?"ROLAR SALVAGUARDA":"REGISTRAR CONSUMO",(dialog,which)->{
+                try{
+                    if(!consumed.isChecked())throw new IllegalStateException("Consumo e dieta precisam ser confirmados");
+                    JSONObject chosen=monsters.get(target.getSelectedItemPosition());
+                    final long combatant=chosen.optLong("id");
+                    final boolean immuneNow=immune.isChecked();
+                    if(!requiresSave){
+                        book.resolveBait(bait.optString("id"),combatant,true,true,immuneNow,0,
+                            WilemCookbookEngine.newReceipt());changed();
+                        return;
+                    }
+                    if(!confirmedBonus.isChecked())throw new IllegalStateException("Confirme o bonus do statblock");
+                    final int saveBonus=Integer.parseInt(bonus.getText().toString().trim());
+                    Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
+                        "d20","Normal",chosen.optString("name"),0,new Dice3DOverlay.Callback(){
+                            private boolean completed=false;
+                            public void onResult(Dice3DOverlay.RollResult rolled){
+                                if(completed)return;completed=true;
+                                try{book.resolveBaitWithPhysicalSave(bait.optString("id"),combatant,true,true,
+                                    immuneNow,rolled,saveBonus,true,WilemCookbookEngine.newReceipt());changed();}
+                                catch(Exception e){fail(e);}
+                            }
+                            public void onError(String message){fail(new IllegalStateException(message));}
+                            public void onCancel(){}
+                        });
+                }catch(Exception e){fail(e);}
+            }).show();
     }
     private void noteDialog(){
         LinearLayout f=vertical();EditText title=new EditText(activity);title.setHint("Assunto");f.addView(title);

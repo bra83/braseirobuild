@@ -638,9 +638,40 @@ public final class WilemCookbookEngine {
         return result[0];
     }
     /** Nunca incapacita so por colocacao: exige alvo real, ingestao confirmada e salvaguarda. */
+    /** Iscas comuns nao exigem salvaguarda; as magicas requerem dado fisico. */
     public synchronized JSONObject resolveBait(final String baitId,final long combatantId,
         final boolean consumed,final boolean compatibleDiet,final boolean immune,
         final int constitutionSaveTotal,final String receipt)throws Exception{
+        return resolveBaitInternal(baitId,combatantId,consumed,compatibleDiet,immune,
+            constitutionSaveTotal,null,receipt);
+    }
+
+    public synchronized JSONObject resolveBaitWithPhysicalSave(final String baitId,final long combatantId,
+        final boolean consumed,final boolean compatibleDiet,final boolean immune,
+        final Dice3DOverlay.RollResult roll,final int conBonus,
+        final boolean refereeConfirmedBonus,final String receipt)throws Exception{
+        if(!refereeConfirmedBonus||conBonus< -20||conBonus>30)
+            throw new IllegalArgumentException("O bonus de salvaguarda precisa vir da ficha da criatura e ser confirmado pelo Mestre");
+        if(roll==null||!"d20".equals(roll.formula)||!"Normal".equals(roll.mode))
+            throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
+        DiceRollSpec spec=DiceRollSpec.parse(roll.formula,roll.mode);
+        java.util.List<Integer> faces=spec.requirePhysicalAgreement(roll.rolls,roll.physicalFaces);
+        DiceRollSpec.Result checked=spec.resolve(faces);
+        if(checked.natural<1||checked.natural>20||checked.natural!=roll.natural||checked.total!=roll.total
+            ||!RollIntegrity.signature(spec.formula,roll.physicalFaces,spec.modifier,roll.physicsSeed,roll.total)
+                .equals(roll.integritySignature))
+            throw new IllegalStateException("D20 nao corresponde ao resultado fisico registrado");
+        JSONObject proof=new JSONObject().put("source","physical3d").put("dice",checked.natural)
+            .put("save_bonus",conBonus).put("total",checked.natural+conBonus)
+            .put("signature",roll.integritySignature).put("physics_seed",roll.physicsSeed);
+        return resolveBaitInternal(baitId,combatantId,consumed,compatibleDiet,immune,
+            checked.natural+conBonus,proof,receipt);
+    }
+
+    private JSONObject resolveBaitInternal(final String baitId,final long combatantId,
+        final boolean consumed,final boolean compatibleDiet,final boolean immune,
+        final int constitutionSaveTotal,final JSONObject saveProof,
+        final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem nao esta na companhia");
         if(!consumed||!compatibleDiet)throw new IllegalStateException("Isca nao consumida por alvo compativel");
         if(combatantId<=0||constitutionSaveTotal<0)throw new IllegalArgumentException("Alvo e salvaguarda explicita obrigatorios");
@@ -652,6 +683,8 @@ public final class WilemCookbookEngine {
             if(bait==null||!"armada".equals(bait.optString("status")))throw new IllegalStateException("Isca nao armada ou ja consumida");
             JSONObject target=db.getCombatant(combatantId);if(target.length()==0||target.optInt("is_player",0)==1)throw new IllegalArgumentException("Alvo de monstro invalido");
             JSONObject recipe=WilemCookbookCatalog.recipeById(bait.optString("recipe_id"));
+            if(recipe.optBoolean("requires_save",false)&&saveProof==null)
+                throw new IllegalStateException("Isca fantastica requer salvaguarda com d20 fisico e bonus confirmado");
             String effect=recipe.optString("effect_key"),condition="";
             boolean failed=constitutionSaveTotal<recipe.optInt("dc");
             boolean failedCooking="somente_risco".equals(bait.optString("batch_quality","somente_risco"));
@@ -689,7 +722,9 @@ public final class WilemCookbookEngine {
                     target.optString("vulnerabilities"),target.optString("immunities"),res.toString());
             }
             bait.put("status","resolvida").put("consumed",true).put("target_id",combatantId)
-                .put("save_total",constitutionSaveTotal).put("effect_applied",!condition.isEmpty())
+                .put("save_total",constitutionSaveTotal)
+                .put("save_proof",saveProof==null?new JSONObject():saveProof)
+                .put("effect_applied",!condition.isEmpty())
                 .put("resolved_world_hour",worldHour(db)).put("applied_condition",condition)
                 .put("ends_world_hour",worldHour(db)+(1d/60d))
                 .put("ends_combat_round",db.getCombatState().optInt("round_no",1)+1)
