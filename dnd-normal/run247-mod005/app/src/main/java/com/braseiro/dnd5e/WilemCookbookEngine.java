@@ -1050,7 +1050,18 @@ public final class WilemCookbookEngine {
                 .put("nearby_rumors",nearby).put("recent_meals",tail(st.optJSONArray("meals"),6))
                 .put("active_baits",tail(st.optJSONArray("baits"),6))
                 .put("rumor_candidates",canCook()?sceneRumorCandidates(location,st.optJSONArray("known"),hero().optInt("level",1)):new JSONArray())
-                .put("rules","Culinaria oficial 2024 + regras originais opcionais. Refeicoes comuns alimentam; poderes exigem teste e recibo. Rumor nao e verdade revelada. Isca nao atinge sem ingestao e salvaguarda.")
+                .put("market_available",canCook()&&marketAtScene())
+                .put("forage_opportunities",canCook()?forageableIngredients():new JSONArray())
+                .put("unclaimed_world_rewards",canCook()?worldRewardOffers():new JSONArray())
+                .put("world_event_reward_contract",new JSONObject()
+                    .put("type","world_event")
+                    .put("consequence_json",new JSONObject().put("wilem_ingredient",
+                        new JSONObject().put("ingredient_id","id_do_catalogo")
+                            .put("quantity",1).put("recipient_character_id",id)))
+                    .put("status_required","resolved")
+                    .put("consequence_status_required","applied")
+                    .put("rule","Criar evento real por historia/importacao; entregar somente depois da aplicacao. Nao inventar recompensa nem declarar evento aplicado sem causa."))
+                .put("rules","Caderno de Wilem: regras de culinaria opcionais e originais compativeis com D&D 2024, nunca conteudo oficial. Comprar somente em mercado/mercador presente com carteira e estoque; coletar so recursos do ambiente com teste fisico e limite diario; recompensa especial so mediante evento do mundo realmente aplicado. Refeicoes comuns alimentam; poderes exigem teste e recibo. Rumor nao e verdade revelada. Isca nao atinge sem ingestao e salvaguarda.")
                 .put("read_only",!canCook());
         }catch(Exception e){try{out.put("error",e.getMessage());}catch(Exception ignored){}}
         return out;
