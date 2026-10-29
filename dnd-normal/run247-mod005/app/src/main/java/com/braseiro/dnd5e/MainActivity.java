@@ -821,6 +821,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         root.addView(header,new LinearLayout.LayoutParams(-1,dp(54)));
         shellNavScroll=new HorizontalScrollView(this);final HorizontalScrollView navScroll=shellNavScroll;navScroll.setHorizontalScrollBarEnabled(false);LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);nav.setPadding(dp(4),dp(3),dp(4),dp(3));
         String[] names=isStrixhavenAdventure()?new String[]{"Aventura","Mestre IA","Dados","Combate","Heróis","Companhia","Mundo Vivo","Diário","Manuais","Áudio","Config"}:new String[]{"Aventura","Mestre IA","Combate","Companhia","Mundo Vivo","Guildas","Mapa","Dados","Heróis","Diário","Manuais","Tokens","Áudio","Config"};
+        if(!isMystaraWorld() && new WilemCookbookEngine(db).ownerExists()){
+            String[] extended=java.util.Arrays.copyOf(names,names.length+1);
+            extended[names.length]="Caldeirão";names=extended;
+        }
         for(int i=0;i<names.length;i++){final String n=names[i];Button b=navButton(navLabel(n));b.setContentDescription("Abrir "+navLabel(n));b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate(n);}});nav.addView(b);}navScroll.addView(nav);root.addView(navScroll,new LinearLayout.LayoutParams(-1,dp(50)));
         content=new FrameLayout(this);root.addView(content,new LinearLayout.LayoutParams(-1,0,1));
         statusText=text("Pronto.",12,MUTED,false);statusText.setSingleLine(false);statusText.setMaxLines(2);statusText.setEllipsize(TextUtils.TruncateAt.END);statusText.setGravity(Gravity.CENTER_VERTICAL);statusText.setPadding(dp(12),dp(4),dp(12),dp(4));statusText.setBackgroundColor(STATUS_BG);root.addView(statusText,new LinearLayout.LayoutParams(-1,dp(44)));
@@ -897,7 +901,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ui.post(new Runnable(){public void run(){boolean rendered=false;try{renderScreen(n);rendered=true;lastSuccessfulScreen=n;}catch(final Throwable e){AppLog.e("Navigation","Falha ao abrir a tela "+n+".",e);screenCache.remove(n);screenCacheTime.remove(n);content.removeAllViews();LinearLayout box=new LinearLayout(MainActivity.this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(18),dp(24),dp(18),dp(24));box.addView(text("Não foi possível abrir "+n,20,RED,true));box.addView(text("A tela foi isolada para o aplicativo continuar aberto. "+safeUiError(e),13,MUTED,false));Button retry=button("TENTAR NOVAMENTE",GOLD);retry.setTextColor(Color.BLACK);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(n);}});box.addView(retry);Button safe=button("VOLTAR PARA "+lastSuccessfulScreen.toUpperCase(Locale.US),PANEL2);safe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(lastSuccessfulScreen);}});box.addView(safe);content.addView(box,new FrameLayout.LayoutParams(-1,-1));}finally{navigationInProgress=false;if(rendered)cacheCurrentScreen();}}});
     }
 
-    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else showSettings();}
+    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
 
     private static String safeUiError(Throwable error){String message=error==null?"Falha desconhecida.":error.getMessage();if(message==null||message.trim().length()==0)message=error==null?"Falha desconhecida.":error.getClass().getSimpleName();message=message.replaceAll("[\r\n]+"," ").trim();return message.length()>280?message.substring(0,280)+"…":message;}
 
@@ -2411,6 +2415,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }
     }
     private void spendStructuredClassResourceDialog(final long characterId,final JSONObject sheet){final JSONObject all=sheet.optJSONObject("class_resources");if(all==null||all.length()==0){toast("Sem recurso de classe estruturado.");return;}final java.util.ArrayList<String> keys=new java.util.ArrayList<String>();java.util.Iterator<String>it=all.keys();while(it.hasNext()){String k=it.next();JSONObject r=all.optJSONObject(k);if(r!=null&&r.has("max"))keys.add(k);}if(keys.isEmpty()){toast("Sem recurso limitado disponível.");return;}final String[] labels=new String[keys.size()];for(int i=0;i<keys.size();i++){JSONObject r=all.optJSONObject(keys.get(i));labels[i]=keys.get(i).replace('_',' ')+"  "+r.optInt("current",0)+"/"+r.optInt("max",0);}new AlertDialog.Builder(this).setTitle("Gastar recurso").setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){final String key=keys.get(which);positiveNumberDialog("Gastar "+key.replace('_',' '),"Quantidade",new NumberAction(){public void run(int n){JSONObject r=applyGuidedCharacterResource(characterId,"class_resource",key,n);if(!r.optBoolean("accepted",false))toast("Gasto bloqueado: "+r.optString("authority"));else toast("Recurso gasto e persistido.");showHeroes();}});}}).show();}
+
+    private void showWilemCookbook(){
+        if(isMystaraWorld()){showCampaign();return;}
+        content.removeAllViews();
+        WilemCookbookScreen screen=new WilemCookbookScreen(this,db,new Runnable(){
+            public void run(){screenCache.remove("Caldeirão");screenCacheTime.remove("Caldeirão");showWilemCookbook();}
+        });
+        content.addView(screen.render(),new FrameLayout.LayoutParams(-1,-1));
+    }
 
     private void showHeroes(){
         if(isMystaraWorld()){showMystaraHeroes();return;}
