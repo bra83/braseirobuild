@@ -150,7 +150,7 @@ public final class WilemCookbookCatalog {
             // 24 pratos base x cinco variacoes de ingredientes = 120 receitas
             // de cozinha caseira plausivel, com insumos facilmente encontrados.
             String[][] bases={
-                {"Ensopado de batatas","batata:2;cebola:1;agua:1", "35"},
+                {"Ensopado de batatas","batata:1;cebola:1;agua:1", "35"},
                 {"Sopa de cebola","cebola:2;agua:1;sal:1", "30"},
                 {"Creme rustico de nabo","nabo:2;agua:1;sal:1", "35"},
                 {"Caldo de cenoura","cenoura:2;agua:1", "30"},
