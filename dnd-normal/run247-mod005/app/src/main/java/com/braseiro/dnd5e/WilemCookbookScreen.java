@@ -160,13 +160,27 @@ public final class WilemCookbookScreen {
         String[] labels=new String[bodies.length()];
         for(int i=0;i<bodies.length();i++){
             JSONObject b=bodies.optJSONObject(i);
-            labels[i]=b.optString("creature")+" (CD "+b.optInt("dc")+")";
+            JSONObject anatomy=b.optJSONObject("anatomy");
+            labels[i]=b.optString("creature")+" — "+
+                (anatomy==null?"parte identificada":anatomy.optString("cut"))+" (CD "+b.optInt("dc")+")";
         }
         LinearLayout form=vertical();
         Spinner targets=new Spinner(activity);
         targets.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,labels));
         form.addView(targets);
-        form.addView(text("A colheita usa a face fisica do d20 e a Sabedoria de Wilem. Cada criatura derrotada permite uma unica tentativa, mesmo quando falha. Parte fresca estraga em 24 horas.",13,Color.DKGRAY));
+        form.addView(text("Cada especie possui um corte anatomico e cautelas proprias. A colheita requer uma criatura realmente derrotada (nao estabilizada); Sabedoria e d20 fisico. Uma tentativa por corpo, inclusive em falha. A parte estraga em 24 horas.",13,Color.DKGRAY));
+        TextView anatomyHelp=text("",13,Color.DKGRAY);form.addView(anatomyHelp);
+        Runnable syncAnatomy=()->{
+            JSONObject chosen=bodies.optJSONObject(targets.getSelectedItemPosition());
+            JSONObject anatomy=chosen==null?null:chosen.optJSONObject("anatomy");
+            anatomyHelp.setText(anatomy==null?"Corte nao registrado":
+                anatomy.optString("cut")+"\\n"+anatomy.optString("warning"));
+        };
+        targets.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+            public void onItemSelected(android.widget.AdapterView<?> p,View v,int pos,long id){syncAnatomy.run();}
+            public void onNothingSelected(android.widget.AdapterView<?> p){}
+        });
+        syncAnatomy.run();
         new AlertDialog.Builder(activity).setTitle("Examinar criatura abatida").setView(form)
             .setNegativeButton("Cancelar",null).setPositiveButton("ROLAR D20",(dialog,which)->{
                 JSONObject target=bodies.optJSONObject(targets.getSelectedItemPosition());
