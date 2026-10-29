@@ -1,0 +1,47 @@
+name: DnD Wilem Cookbook QA
+on:
+  push:
+    branches:
+      - feature/dnd-wilem-cookbook-20261029
+    paths:
+      - 'dnd-normal/run247-mod005/**'
+      - '.github/workflows/dnd-wilem-cookbook-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cookbook-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout existing Braseiro DnD project
+        uses: actions/checkout@v4
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK setup
+        uses: android-actions/setup-android@v3
+      - name: Verify SDK platform
+        run: |
+          set -euo pipefail
+          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0' || true
+      - name: Verify 300 recipe contracts
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.WilemCookbookEngineTest --no-daemon --stacktrace --console=plain
+      - name: Compile APK without publishing or replacing release
+        working-directory: dnd-normal/run247-mod005
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace --console=plain
+      - name: Upload QA report and APK if passing
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-wilem-cookbook-validation
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/*.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/**
+          retention-days: 7
