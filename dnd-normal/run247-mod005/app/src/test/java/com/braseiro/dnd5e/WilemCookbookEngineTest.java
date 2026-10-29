@@ -163,6 +163,31 @@ public class WilemCookbookEngineTest {
         assertEquals("physical3d",served.getJSONObject("constitution_save_proof").getString("source"));
         assertEquals(1,book.state().getJSONArray("meals").length());
     }
+    @Test public void magicalBaitCannotResolveWithTypedD20AndRecordsPhysicalProof()throws Exception{
+        join();
+        JSONObject state=book.state();
+        state.getJSONArray("baits").put(new JSONObject().put("id","bait-physical-test")
+            .put("recipe_id","isca_mel_fantasia").put("status","armada")
+            .put("batch_quality","somente_beneficio"));
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{state.toString(),"dnd",wilem});
+        long target=db.addCombatant("Lobo faminto",9,12,12,12,"",false);
+        try{
+            book.resolveBait("bait-physical-test",target,true,true,false,1,receipt());
+            fail("Typed magical save must be denied");
+        }catch(IllegalStateException expected){}
+        java.util.List<Integer> faces=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult dice=new Dice3DOverlay.RollResult(
+            faces,faces,20,20,"20","","d20","Normal",110,85234L,"test",
+            RollIntegrity.signature("d20",faces,0,85234L,20));
+        JSONObject result=book.resolveBaitWithPhysicalSave("bait-physical-test",target,
+            true,true,false,dice,2,true,receipt());
+        assertEquals(22,result.getInt("save_total"));
+        assertFalse(result.getBoolean("effect_applied"));
+        assertEquals("physical3d",result.getJSONObject("save_proof").getString("source"));
+        assertEquals("resolvida",result.getString("status"));
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
