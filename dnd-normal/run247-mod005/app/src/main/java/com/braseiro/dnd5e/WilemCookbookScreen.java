@@ -101,14 +101,31 @@ public final class WilemCookbookScreen {
             form.addView(text(directions.toString(),13,Color.DKGRAY));
         }
         form.addView(text("Efeito: "+r.optString("effect_key")+". Porcoes nao se acumulam. Um preparo incomum segue CD com beneficio e risco.",13,Color.DKGRAY));
-        EditText roll=new EditText(activity);roll.setHint("Resultado do seu d20 (1 a 20); 0 para receita comum");roll.setInputType(2);form.addView(roll);
+        boolean special=!"cotidiana".equals(r.optString("type"));
+        form.addView(text(special?"O preparo usa a mesa 3D fisica: a face do d20, e nao um numero digitado, determina o teste.":"Comida comum: nao exige rolagem nem concede bonus magico.",13,Color.DKGRAY));
         CheckBox fire=new CheckBox(activity);fire.setText("Tenho fogo/fonte de calor");fire.setChecked(true);form.addView(fire);
         CheckBox utensils=new CheckBox(activity);utensils.setText("Utensilios de Wilem disponiveis");utensils.setChecked(true);form.addView(utensils);
         AlertDialog dialog=new AlertDialog.Builder(activity).setTitle(r.optString("name")).setView(form)
             .setNegativeButton("Fechar",null).setPositiveButton("PREPARAR",(x,w)->{
-                try{if(!enabled)throw new IllegalStateException("Wilem nao esta na party");
-                    String txt=roll.getText().toString().trim();if(txt.isEmpty())throw new IllegalArgumentException("Informe o d20 (ou 0 para receita comum)");
-                    book.cook(r.optString("id"),Integer.parseInt(txt),fire.isChecked(),utensils.isChecked(),WilemCookbookEngine.newReceipt());changed();
+                try{
+                    if(!enabled)throw new IllegalStateException("Wilem nao esta na party");
+                    final String recipeId=r.optString("id");
+                    final boolean hasFire=fire.isChecked(),hasTools=utensils.isChecked();
+                    if(!special){
+                        book.cook(recipeId,0,hasFire,hasTools,WilemCookbookEngine.newReceipt());changed();
+                    }else{
+                        Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
+                            "d20","Normal","Wilem",book.ownerId(),new Dice3DOverlay.Callback(){
+                                private boolean used=false;
+                                public void onResult(Dice3DOverlay.RollResult rolled){
+                                    if(used)return;used=true;
+                                    try{book.cookWithPhysicalRoll(recipeId,rolled,hasFire,hasTools,WilemCookbookEngine.newReceipt());changed();}
+                                    catch(Exception e){fail(e);}
+                                }
+                                public void onError(String message){fail(new IllegalStateException(message));}
+                                public void onCancel(){/* Sem rolagem concluida: nenhum ingrediente consumido. */}
+                            });
+                    }
                 }catch(Exception e){fail(e);}
             }).create();dialog.show();dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
     }

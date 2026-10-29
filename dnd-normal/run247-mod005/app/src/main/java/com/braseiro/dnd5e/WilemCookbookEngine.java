@@ -279,8 +279,38 @@ public final class WilemCookbookEngine {
             if(needed>0)throw new IllegalStateException("Estoque inconsistente");
         }return out;
     }
+    /** Caminho legado exclusivamente para comidas comuns, que nao exigem teste. */
     public synchronized JSONObject cook(final String recipeId,final int roll,final boolean fire,
                                          final boolean utensils,final String receipt)throws Exception{
+        JSONObject recipe=WilemCookbookCatalog.recipeById(recipeId);
+        if(recipe.length()==0)throw new IllegalArgumentException("Receita desconhecida");
+        if(!"cotidiana".equals(recipe.optString("type")))
+            throw new IllegalStateException("Preparo extraordinario exige d20 fisico auditavel, nao valor digitado");
+        return cookInternal(recipeId,0,fire,utensils,receipt,null);
+    }
+    /** A face fisica e a unica fonte do d20 em pratos monstruosos e iscas. */
+    public synchronized JSONObject cookWithPhysicalRoll(final String recipeId,
+             final Dice3DOverlay.RollResult dice,final boolean fire,
+             final boolean utensils,final String receipt)throws Exception{
+        if(dice==null||!"d20".equals(dice.formula)||!"Normal".equals(dice.mode))
+            throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
+        DiceRollSpec spec=DiceRollSpec.parse(dice.formula,dice.mode);
+        java.util.List<Integer> canonical=spec.requirePhysicalAgreement(dice.rolls,dice.physicalFaces);
+        DiceRollSpec.Result reconstructed=spec.resolve(canonical);
+        if(reconstructed.natural<1||reconstructed.natural>20||reconstructed.natural!=dice.natural||
+            reconstructed.total!=dice.total||
+            !RollIntegrity.signature(spec.formula,dice.physicalFaces,spec.modifier,dice.physicsSeed,dice.total)
+                .equals(dice.integritySignature))
+            throw new IllegalStateException("Integridade do d20 fisico nao confirmada");
+        JSONObject proof=new JSONObject().put("source","physical3d").put("formula",dice.formula)
+            .put("natural",dice.natural).put("total",dice.total)
+            .put("seed",dice.physicsSeed).put("signature",dice.integritySignature)
+            .put("faces",new JSONArray(dice.physicalFaces));
+        return cookInternal(recipeId,dice.natural,fire,utensils,receipt,proof);
+    }
+    private JSONObject cookInternal(final String recipeId,final int roll,final boolean fire,
+                                   final boolean utensils,final String receipt,
+                                   final JSONObject rollProof)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem deve estar presente na companhia");
         if(!utensils)throw new IllegalStateException("Utensilios nao disponiveis");
         final JSONObject recipe=WilemCookbookCatalog.recipeById(recipeId);
@@ -297,7 +327,8 @@ public final class WilemCookbookEngine {
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
             boolean special=!recipe.optString("type").equals("cotidiana");
             
-            if(special&&roll<1)throw new IllegalArgumentException("D20 explicitamente rolado e obrigatorio para comida especial ou isca");
+            if(special&&(rollProof==null||!"physical3d".equals(rollProof.optString("source"))))
+                throw new IllegalStateException("D20 fisico verificado obrigatorio para comida especial ou isca");
             String tools=hero().optString("tools","")+" "+sheet.optString("tools","")+" "+sheet.optString("tool_proficiencies","")+" "+sheet.optString("proficiencies","");
             int proficiency=tools.toLowerCase(Locale.ROOT).contains("cozinh")?
                 Math.max(2,2+(Math.max(1,hero().optInt("level",1))-1)/4):0;
@@ -310,7 +341,9 @@ public final class WilemCookbookEngine {
                 .put("source","wilem_cookbook").put("kind",recipe.optString("type"));
             st.getJSONArray("cooked").put(batch);
             st.getJSONArray("experiments").put(new JSONObject().put("recipe_id",recipeId)
-                .put("roll",roll).put("check",check).put("result",result).put("world_hour",worldHour(db)));
+                .put("roll",roll).put("check",check).put("result",result).put("world_hour",worldHour(db))
+                .put("roll_origin",rollProof==null?"sem_rolagem_comida_comum":"physical3d")
+                .put("roll_proof",rollProof==null?new JSONObject():rollProof));
             remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Wilem cozinhou: "+recipe.optString("name"),
                 "Porcoes: "+recipe.optInt("servings")+"; resultado: "+result+"; local: "+sceneLocation(db),

@@ -115,7 +115,14 @@ public class WilemCookbookEngineTest {
     @Test public void fantasyBaitRequiresExplicitConsumptionAndSave()throws Exception{
         join();book.acquire("mel",1,"recompensa_confirmada",true,receipt());
         book.acquire("maça",1,"coleta_confirmada",true,receipt());
-        JSONObject bait=book.cook("isca_mel",12,true,true,receipt());
+        try{book.cook("isca_mel",12,true,true,receipt());fail("manual d20 must be rejected");}
+        catch(IllegalStateException expected){}
+        java.util.List<Integer> faces=java.util.Collections.singletonList(12);
+        Dice3DOverlay.RollResult physical=new Dice3DOverlay.RollResult(
+            faces,faces,12,12,"12","","d20","Normal",120,12345L,"test",
+            RollIntegrity.signature("d20",faces,0,12345L,12));
+        JSONObject bait=book.cookWithPhysicalRoll("isca_mel",physical,true,true,receipt());
+        assertEquals("physical3d",book.state().getJSONArray("experiments").getJSONObject(0).getString("roll_origin"));
         JSONObject placed=book.setBait(bait.getString("id"),"Entrada do bosque",receipt());
         long creature=db.addCombatant("Lobo faminto",9,8,8,12,"",false);
         try{book.resolveBait(placed.getString("id"),creature,false,true,false,1,receipt());fail("No ingestion");}
