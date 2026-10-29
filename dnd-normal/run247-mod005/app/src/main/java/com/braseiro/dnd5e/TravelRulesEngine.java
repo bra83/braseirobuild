@@ -350,7 +350,7 @@ public final class TravelRulesEngine {
             // O recibo de uso evita que o mesmo jantar pague mais de um dia de viagem.
             int sceneDay=db.getSceneState().optInt("day_number",1);
             int mealDay=resources.optInt("wilem_provisions_credit_day",0);
-            boolean mealCredit=enabled&&days>0&&mealDay==sceneDay
+            boolean mealCredit=!isMystaraWorld()&&enabled&&days>0&&mealDay==sceneDay
                 &&resources.optInt("wilem_provisions_credit_used_day",0)!=mealDay;
             int rationsSpent=Math.max(0,days-(mealCredit?1:0));
             out.put("resource_time_report",true).put("classification",RULE_OPTIONAL)
