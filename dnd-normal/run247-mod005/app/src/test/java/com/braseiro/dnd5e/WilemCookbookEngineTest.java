@@ -97,7 +97,7 @@ public class WilemCookbookEngineTest {
         JSONObject paid=new JSONObject(db.getCharacter(wilem).getString("sheet_json"));
         assertEquals(0.96d,paid.getDouble("inventory_currency_gp"),.00001d);
         int before=book.pantry().optJSONArray("items").getJSONObject(0).getInt("quantity");
-        try{book.acquire("batata",30,"mercado_pago",true,receipt());fail("not enough copper");}
+        try{book.acquire("queijo",30,"mercado_pago",true,receipt());fail("not enough copper");}
         catch(IllegalStateException expected){}
         assertEquals(before,book.pantry().optJSONArray("items").getJSONObject(0).getInt("quantity"));
         assertEquals(0.96d,new JSONObject(db.getCharacter(wilem).getString("sheet_json"))
