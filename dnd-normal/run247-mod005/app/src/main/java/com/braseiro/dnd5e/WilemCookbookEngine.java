@@ -1182,6 +1182,10 @@ public final class WilemCookbookEngine {
                                 if(!part.trim().isEmpty()){if(conditions.length()>0)conditions.append(",");conditions.append(part.trim());}
                             }
                             db.updateConditionsChecked(combatant.optLong("id"),conditions.toString());
+                            // Manual condition updates prune typed timers and can mutate
+                            // concentration resources; reload before clearing our own marker.
+                            provenance=object(db.getCombatant(combatant.optLong("id"))
+                                .optString("resources_json","{}"));
                             provenance.remove("wilem_meal_poison_receipt");
                         }
                         if(expired&&receipt.equals(provenance.optString("wilem_temp_hp_receipt"))){
