@@ -49,6 +49,11 @@ public final class KvotheCampaignPartyBridge {
         JSONObject result=new JSONObject().put("member_kind","npc").put("joined",false);
         JSONObject scene=db.getSceneState();
         if(!inCampus(scene))return result.put("reason","not_on_strixhaven_campus");
+        KvotheCanonical2024.restoreIfNeeded(db);
+        int protagonistLevel=0;
+        for(JSONObject h:db.listActiveCharacters())if("Kvothe".equalsIgnoreCase(h.optString("name")))
+            protagonistLevel=h.optInt("level",1);
+        if(protagonistLevel>0)StrixhavenFriends2024.syncBeforeMarco(db,protagonistLevel);
         if(!playerInvited||!npcAccepted)return result.put("reason","invitation_or_npc_consent_missing");
         if(name==null||name.trim().isEmpty())return result.put("reason","npc_name_missing");
         JSONObject npc=db.findNpcMemoryByName(name.trim());
@@ -136,6 +141,25 @@ public final class KvotheCampaignPartyBridge {
             .put("inventory_unchanged",true);
     }
 
+    /** Promote the three canonical NPC sheets. No hero rows exist before this
+     * explicitly accepted D040 transition; afterward their XP is independent. */
+    public JSONObject recruitAtMarco(boolean playerConfirmed,boolean allAccepted)throws Exception{
+        KvotheCanonical2024.restoreIfNeeded(db);
+        if(!atMarco(db.getSceneState(),db.getMapState())||
+            inCampus(db.getSceneState()))
+            return new JSONObject().put("joined",false).put("reason","not_at_marco_d040");
+        int level=0;
+        for(JSONObject h:db.listActiveCharacters())if("Kvothe".equalsIgnoreCase(h.optString("name")))
+            level=h.optInt("level",0);
+        if(level<1)return new JSONObject().put("joined",false).put("reason","protagonist_sheet_missing");
+        for(String name:new String[]{"Wilem","Simmon","Auri"})
+            if(db.findNpcMemoryByName(name).length()==0)
+                return new JSONObject().put("joined",false).put("reason","student_npc_not_established")
+                    .put("name",name);
+        StrixhavenFriends2024.syncBeforeMarco(db,level);
+        return StrixhavenFriends2024.promoteAtMarco(db,playerConfirmed,allAccepted);
+    }
+
     /** No surprise companions: simply tells the Master what is possible now. */
     public JSONObject context() {
         JSONObject out=new JSONObject();
@@ -146,6 +170,14 @@ public final class KvotheCampaignPartyBridge {
             boolean hasKvothe=false;
             for(JSONObject h:heroes)if("kvothe".equals(norm(h.optString("name"))))hasKvothe=true;
             if(!hasKvothe)return out.put("enabled",false);
+            out.put("kvothe_canonical",KvotheCanonical2024.restoreIfNeeded(db));
+            if(campus){
+                int kvotheLevel=0;
+                for(JSONObject hero:heroes)if("Kvothe".equalsIgnoreCase(hero.optString("name")))
+                    kvotheLevel=db.getCharacter(hero.optLong("id")).optInt("level",0);
+                if(kvotheLevel>0)out.put("strixhaven_npc_friends",
+                    StrixhavenFriends2024.syncBeforeMarco(db,kvotheLevel));
+            }
             out.put("enabled",true);
             JSONArray roster=new JSONArray();
             for(JSONObject h:heroes){
@@ -158,7 +190,7 @@ public final class KvotheCampaignPartyBridge {
                .put("active_hero_count",heroes.size()).put("active_heroes",roster)
                .put("campus_invites","NPCs acompanham por convite e aceite, podem recusar e partir. Nunca se tornam herois controlaveis automaticamente.")
                .put("marco_rendezvous",marco?"Encontro opcional. Wilem, Simmon e Auri precisam de fichas reais e aceite; somente o jogador decide pelo recrutamento.":"Nao antecipar reencontro nem teletransportar colegas.")
-               .put("player_agency","So personagens recrutados com fichas importadas entram no controle manual do jogador.")
+               .put("player_agency","Wilem, Simmon e Auri sao NPCs ate D040. No reencontro consentido, suas fichas NPC viram herois e passam a ter XP/progressao independentes.")
                .put("encounter_adaptation",encounterPolicy(heroes.size(),0,false));
         }catch(Exception ignored){AppLog.ignored("KvothePartyBridge","Contexto conservador de recrutamento.",ignored);}
         return out;
