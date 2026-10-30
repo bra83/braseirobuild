@@ -314,6 +314,42 @@ public final class KvotheStrixhavenPartyBridgeTest {
         }
     }
 
+    @Test public void personalDeedsAwardXpOnlyToThePromotedHeroAndCannotReplay()throws Exception{
+        scene("Strixhaven • Campus Central","",true);
+        bridge.context();
+        scene("Marco do Percurso","D040",false);
+        JSONObject scene=db.getSceneState();
+        scene.put("present_npcs_json",new JSONArray().put("Wilem")
+            .put("Simmon").put("Auri").toString());db.saveSceneState(scene);
+        JSONObject joined=bridge.recruitAtMarco(true,true);
+        assertTrue(joined.toString(),joined.optBoolean("joined"));
+        JSONArray ids=joined.getJSONArray("hero_ids");
+        long wilemId=ids.getLong(0),simmonId=ids.getLong(1),auriId=ids.getLong(2);
+        String receipt="wilem-solo-deed-receipt-2024";
+        JSONObject reward=new PartyDirector(db).awardKvotheFriendIndividualXp(
+            wilemId,300,"Wilem salvou a caravana sozinho",receipt);
+        assertEquals(300,reward.optInt("xp_after"));
+        assertTrue(reward.optBoolean("level_up_pending"));
+        assertEquals(1,db.getCharacter(wilemId).optInt("level"));
+        assertEquals(300,new JSONObject(db.getCharacter(wilemId)
+            .getString("sheet_json")).optInt("xp"));
+        for(long id:new long[]{simmonId,auriId,kvothe})
+            assertEquals(0,new JSONObject(db.getCharacter(id).getString("sheet_json"))
+                .optInt("xp",0));
+        try{
+            new PartyDirector(db).awardKvotheFriendIndividualXp(
+                wilemId,300,"Wilem salvou a caravana sozinho",receipt);
+            fail("Duplicate feat cannot grant XP twice");
+        }catch(IllegalStateException expected){}
+        try{
+            new PartyDirector(db).awardKvotheFriendIndividualXp(
+                kvothe,300,"Kvothe salvou a caravana",receipt+"-kvothe");
+            fail("Personal companion XP cannot apply to player hero Kvothe");
+        }catch(IllegalStateException expected){}
+        assertEquals(300,new JSONObject(db.getCharacter(wilemId)
+            .getString("sheet_json")).optInt("xp"));
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
