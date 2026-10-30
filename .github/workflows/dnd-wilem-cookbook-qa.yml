@@ -30,12 +30,15 @@ jobs:
             echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
             echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
           fi
-      - name: Verify 300 recipe contracts
+      - name: Verify recipe contracts and Kvothe NPC-to-hero progression
         working-directory: dnd-normal/run247-mod005
         run: |
           set -euo pipefail
           chmod +x ./gradlew
-          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.WilemCookbook*Test' --no-daemon --stacktrace --console=plain
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.WilemCookbook*Test' \
+            --tests 'com.braseiro.dnd5e.KvotheStrixhavenPartyBridgeTest' \
+            --no-daemon --stacktrace --console=plain
       - name: Compile APK without publishing or replacing release
         working-directory: dnd-normal/run247-mod005
         run: ./gradlew :app:assembleDebug --no-daemon --stacktrace --console=plain
