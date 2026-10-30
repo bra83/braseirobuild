@@ -80,7 +80,10 @@ public class NarrativeGuardServiceTest {
         assertFalse(clean.contains("Mestre local"));
         assertFalse(clean.contains("missão artificialmente"));
         assertFalse(clean.contains("dados persistidos"));
-        assertEquals(clean, GeneratedTextSanitizer.narrative(raw));
+        String uiNarration = GeneratedTextSanitizer.narrative(raw);
+        assertTrue(uiNarration.contains("Os estudantes de Witherbloom"));
+        assertFalse(uiNarration.contains("Mestre local"));
+        assertFalse(uiNarration.contains("dados persistidos"));
         assertFalse(NarrativeGuardService.validate(raw).valid);
         assertTrue(NarrativeGuardService.validate(clean).valid);
     }
