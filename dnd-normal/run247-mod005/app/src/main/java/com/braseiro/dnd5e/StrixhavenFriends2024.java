@@ -374,6 +374,23 @@ public final class StrixhavenFriends2024 {
             stats.put("strixhaven_2024_sheet",sheet);
             stats.put("strixhaven_friend_status","pre_marco_npc");
             stats.put("friend_of","Kvothe");
+            // A real NPC needs usable combat/roleplay mechanics NOW, not only
+            // a character sheet hidden inside stats_json awaiting D040.
+            JSONObject abilities=new JSONObject();
+            for(String abilityKey:ABILITY_KEYS)
+                abilities.put(abilityKey,sheet.optInt(abilityKey,10));
+            stats.put("level",sheet.optInt("level",1))
+                .put("class_name",sheet.optString("class_name"))
+                .put("species",sheet.optString("species"))
+                .put("ability_scores",abilities)
+                .put("saving_throw_proficiencies",
+                    sheet.optJSONArray("saving_throw_proficiencies"))
+                .put("skill_proficiencies",sheet.optJSONArray("skill_proficiencies"))
+                .put("max_hp",sheet.optInt("max_hp",1));
+            // Combat damage is a persistent event; a campus synchronization
+            // must NEVER heal an injured NPC just by reloading the context.
+            if(!stats.has("hp"))stats.put("hp",sheet.optInt("hp",1));
+            if(!stats.has("ac"))stats.put("ac",sheet.optInt("ac",10));
             JSONObject updated=npc.length()>0?new JSONObject(npc.toString()):new JSONObject()
                 .put("name",name).put("active",1)
                 .put("last_seen","Strixhaven • Campus Central")
