@@ -14,6 +14,15 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect actual Faerun exit call sites and map movement API
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e
+          echo 'EXIT_PATH_REFERENCES'
+          rg -n -C 13 --max-columns 170 'StrixhavenSceneBoundary.returnToFaerun|exitToFaerun\(|\.graduate\(|returnToFaerun\(' "$root" | head -210 || true
+          echo 'MAP_MOVEMENT_SIGNATURES'
+          rg -n --max-columns 160 'saveAtlasPositionForProfile|saveMapTravelStateForProfile|setCurrentHex|saveMapState|saveAtlasPosition|current_hex_id' "$root/StrixhavenSceneBoundary.java" "$root/MapPackageManager.java" "$root/MapBoardView.java" "$root/StrixhavenAdventureProfile.java" | head -75 || true
       - name: Locate canonical city and hex records without rewriting the atlas
         shell: bash
         run: |
