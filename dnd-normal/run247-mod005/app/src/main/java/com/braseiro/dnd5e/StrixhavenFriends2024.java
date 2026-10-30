@@ -185,7 +185,9 @@ public final class StrixhavenFriends2024 {
         sheet.put("inventory_ledger",inventory).put("inventory_ledger_status","structured_entries_only");
         sheet.put("inventory","Equipamento inicial do pacote de classe A; antecedente B (50 PO); itens pessoais identificados")
             .put("equipment",sheet.optString("inventory"));
-        return sheet;
+        if(i==1)sheet.put("monk_class_tool_choice","Flauta");
+        JSONObject complete=CharacterResourceStateEngine.ensure(sheet,CLASSES[i],1,"5e 2024");
+        return Character2024SheetReconciler.reconcile(complete);
     }
     private static void addItem(JSONArray inventory,String id,String name,int amount,String source)throws Exception{
         inventory.put(new JSONObject().put("id",id).put("name",name).put("quantity",amount)
@@ -216,6 +218,29 @@ public final class StrixhavenFriends2024 {
                         throw new IllegalStateException("Progressão NPC inválida: "+name+
                             " "+transition.optString("level_up_blocked"));
                     upgraded=transition.getJSONObject("state_after");
+                    int level=upgraded.optInt("level",1);
+                    // Dwarf Toughness grants one additional hit point for every
+                    // Barbarian level, including levels earned while still an NPC.
+                    if(index==0){
+                        upgraded.put("max_hp",upgraded.optInt("max_hp")+1);
+                        upgraded.put("hp",upgraded.optInt("hp")+1);
+                    }
+                    if(level>=3){
+                        String subclass=FUTURE_SUBCLASSES[index];
+                        if(!Core2024SubclassRuntimeEngine.isSubclassSelectionValid(
+                            CLASSES[index],level,subclass))
+                            throw new IllegalStateException("Subclasse 2024 nao validada: "+subclass);
+                        upgraded.put("subclass_name",subclass);
+                    }
+                    upgraded=CharacterResourceStateEngine.ensure(upgraded,
+                        CLASSES[index],level,"5e 2024");
+                    if(level<=3){
+                        // Levels 2 and 3 have no unselected ASI/feat in these
+                        // predefined builds. Level 3 subclass was validated.
+                        upgraded.put("level_up_choices_pending",false)
+                            .put("pending_level_up_choices",new JSONArray());
+                    }
+                    Character2024SheetReconciler.reconcile(upgraded);
                 }
                 sheet=upgraded;
             }
