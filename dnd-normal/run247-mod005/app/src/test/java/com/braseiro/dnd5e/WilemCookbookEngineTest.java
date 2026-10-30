@@ -48,6 +48,25 @@ public class WilemCookbookEngineTest {
         db.updateCharacterSheetChecked(wilem,sheet.toString());
     }
 
+    private void openMarket(String place,int day,String revision,int potato,int onion,int water,int cheese)throws Exception{
+        JSONArray stock=new JSONArray();
+        for(Object[] row:new Object[][]{{"batata",potato,2},{"cebola",onion,2},{"agua",water,0},{"queijo",cheese,5}})
+            if((int)row[1]>0)stock.put(new JSONObject().put("ingredient_id",row[0])
+                .put("quantity",row[1]).put("price_cp",row[2]));
+        db.upsertNpcMemory(new JSONObject().put("name","Mina Mercadora")
+            .put("active",1).put("stats_json",new JSONObject().put("revision",revision)
+                .put("wilem_market_stock",stock).toString()));
+        db.saveSceneState(new JSONObject().put("day_number",day).put("clock_hour",12)
+            .put("location",place)
+            .put("present_npcs_json",new JSONArray().put("Mina Mercadora").toString()));
+    }
+    private void forageNode(String place,int day,int stock)throws Exception{
+        JSONObject node=new JSONObject().put("type","wilem_forage_node")
+            .put("id","stryx-garden-1").put("ingredient_id","batata")
+            .put("quantity",stock).put("revision","one-harvest");
+        db.saveSceneState(new JSONObject().put("day_number",day).put("clock_hour",13)
+            .put("location",place).put("clues_json",new JSONArray().put(node).toString()));
+    }
     private void join()throws Exception{
         db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",wilem).put("status","active")
             .put("party_role","companion").put("recruitment_type","player_confirmed"));
@@ -79,7 +98,7 @@ public class WilemCookbookEngineTest {
     }
     @Test public void receiptsInventoryAndMealsSurviveReopen()throws Exception{
         join();
-        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",12).put("location","Mercado de Strixhaven"));
+        openMarket("Mercado de Strixhaven",1,"opening-stock",10,6,6,0);
         JSONObject paySheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
         paySheet.put("inventory_currency_gp",1d);db.updateCharacterSheetChecked(wilem,paySheet.toString());
         String receipt=receipt();
@@ -105,8 +124,7 @@ public class WilemCookbookEngineTest {
     }
     @Test public void marketPurchaseDebitsCanonicalGoldAtomically()throws Exception{
         join();
-        db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",12)
-            .put("location","Mercado de Strixhaven"));
+        openMarket("Mercado de Strixhaven",1,"opening-stock",10,6,0,30);
         JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
         sheet.put("inventory_currency_gp",1d);
         db.updateCharacterSheetChecked(wilem,sheet.toString());
@@ -164,13 +182,14 @@ public class WilemCookbookEngineTest {
         db.updateCharacterSheetChecked(wilem,sheet.toString());
         try{book.acquire("cebola",1,"mercado_pago",true,receipt());fail("No vendor in scene");}
         catch(IllegalStateException expected){}
-        db.saveSceneState(new JSONObject().put("day_number",4).put("clock_hour",12)
-            .put("location","Feira de Halruaa"));
+        openMarket("Feira de Halruaa",4,"initial-stock",0,12,0,0);
         assertEquals(12,book.acquire("cebola",12,"mercado_pago",true,receipt()).getInt("quantity"));
         try{book.acquire("cebola",1,"mercado_pago",true,receipt());fail("No infinite market stock");}
         catch(IllegalStateException expected){}
-        db.saveSceneState(new JSONObject().put("day_number",5).put("clock_hour",12)
-            .put("location","Feira de Halruaa"));
+        openMarket("Feira de Halruaa",5,"initial-stock",0,12,0,0);
+        try{book.acquire("cebola",1,"mercado_pago",true,receipt());fail("No auto-restock next day");}
+        catch(IllegalStateException expected){}
+        openMarket("Feira de Halruaa",5,"new-shipment-2",0,4,0,0);
         assertTrue(book.acquire("cebola",1,"mercado_pago",true,receipt()).getBoolean("money_auto_debited"));
         db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
         assertEquals(2,book.state().getJSONArray("purchases").length());
@@ -179,6 +198,8 @@ public class WilemCookbookEngineTest {
         join();
         db.saveSceneState(new JSONObject().put("day_number",1).put("clock_hour",13)
             .put("location","Horta na escola de Strixhaven"));
+        assertEquals(0,book.forageableIngredients().length());
+        forageNode("Horta na escola de Strixhaven",1,5);
         JSONArray available=book.forageableIngredients();assertTrue(available.length()>0);
         boolean potato=false;
         for(int i=0;i<available.length();i++)
@@ -192,8 +213,7 @@ public class WilemCookbookEngineTest {
         assertTrue(harvested.getBoolean("success"));assertTrue(harvested.getInt("quantity")>0);
         try{book.forageWithPhysicalRoll("batata",d20,receipt());fail("Duplicate same day resource");}
         catch(IllegalStateException expected){}
-        db.saveSceneState(new JSONObject().put("day_number",2).put("clock_hour",13)
-            .put("location","Horta na escola de Strixhaven"));
+        forageNode("Horta na escola de Strixhaven",2,5);
         assertTrue(book.forageWithPhysicalRoll("batata",d20,receipt()).getBoolean("success"));
         try{book.forageWithPhysicalRoll("sal",d20,receipt());fail("No sal extraction from garden");}
         catch(IllegalStateException expected){}
@@ -342,8 +362,9 @@ public class WilemCookbookEngineTest {
         Dice3DOverlay.RollResult roll=new Dice3DOverlay.RollResult(
             low,low,1,1,"1","","d20","Normal",100,124331L,"test",
             RollIntegrity.signature("d20",low,0,124331L,1));
+        book.registerMonsterConstitution(target,10,0,receipt());
         JSONObject resolved=book.resolveBaitWithPhysicalSave("bait-immune",target,
-            true,true,false,roll,0,true,receipt());
+            true,true,false,roll,999,false,receipt());
         assertTrue(resolved.optBoolean("immunity_auto_detected"));
         assertFalse(resolved.optBoolean("effect_applied"));
         assertEquals("",resolved.optString("applied_condition"));
@@ -380,8 +401,9 @@ public class WilemCookbookEngineTest {
         Dice3DOverlay.RollResult dice=new Dice3DOverlay.RollResult(
             faces,faces,20,20,"20","","d20","Normal",110,85234L,"test",
             RollIntegrity.signature("d20",faces,0,85234L,20));
+        book.registerMonsterConstitution(target,14,0,receipt());
         JSONObject result=book.resolveBaitWithPhysicalSave("bait-physical-test",target,
-            true,true,false,dice,2,true,receipt());
+            true,true,false,dice,999,false,receipt());
         assertEquals(22,result.getInt("save_total"));
         assertFalse(result.getBoolean("effect_applied"));
         assertEquals("physical3d",result.getJSONObject("save_proof").getString("source"));
