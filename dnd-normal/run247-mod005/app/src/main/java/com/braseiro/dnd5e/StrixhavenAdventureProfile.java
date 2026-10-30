@@ -52,7 +52,30 @@ public final class StrixhavenAdventureProfile {
     public static boolean isActive(Context context){return new StrixhavenAdventureProfile(context).isActive();}
 
     public void activate(){if(prefs!=null){SharedPreferences.Editor e=prefs.edit().putString(PREF_PROFILE,PROFILE_STRIXHAVEN);String existing=prefs.getString(PREF_MAP,"");if(existing==null||existing.trim().length()==0)e.putString(PREF_MAP,"university");e.apply();}}
-    public void exitToFaerun(){if(prefs!=null)prefs.edit().putString(PREF_PROFILE,PROFILE_FREE_FAERUN).apply();}
+    /** All three Strixhaven exit buttons use this profile transition.
+     * A first-ever exit places Kvothe in Yartar, whereas later temporary
+     * returns retain his current Faerun map location. */
+    public void exitToFaerun(){
+        boolean leaving=isActive();
+        if(prefs==null || !prefs.edit().putString(PREF_PROFILE,PROFILE_FREE_FAERUN).commit())return;
+        finalizeFirstFaerunArrival(leaving);
+    }
+    private void finalizeFirstFaerunArrival(boolean leaving){
+        if(!leaving || context==null || prefs==null)return;
+        if(!StrixhavenFaerunArrivalEngine.requestFirstArrival(prefs))return;
+        AppDb arrivalDb=null;
+        try{
+            arrivalDb=new AppDb(context);
+            arrivalDb.setActiveMapProfile("dnd");
+            if(StrixhavenFaerunArrivalEngine.applyPending(arrivalDb,prefs))
+                prefs.edit().putString("last_scene_cast_preview","[]").apply();
+        }catch(Exception error){
+            // The pending flag survives a missing Atlas. MapPackageManager
+            // will finish the position once the verified map is imported.
+            AppLog.e("StrixhavenArrival",
+                "Primeira chegada a Yartar ainda pendente da validacao do Atlas.",error);
+        }finally{if(arrivalDb!=null)arrivalDb.close();}
+    }
 
     public int year(){return prefs==null?1:Math.max(1,Math.min(4,prefs.getInt(PREF_YEAR,1)));}
     public int semester(){return prefs==null?1:Math.max(1,Math.min(2,prefs.getInt(PREF_SEMESTER,1)));}
@@ -101,7 +124,15 @@ public final class StrixhavenAdventureProfile {
     public String collegeLabel(){String c=college();if(c.length()==0)return "";return MAP_LABELS[indexForId(c)];}
     public boolean canGraduate(){return year()==4&&semester()==2&&hasCollege()&&!graduated();}
     public boolean graduated(){return prefs!=null&&prefs.getBoolean(PREF_GRADUATED,false);}
-    public boolean graduate(){if(prefs==null||!canGraduate())return false;String c=college();prefs.edit().putBoolean(PREF_GRADUATED,true).putString(PREF_GRADUATED_COLLEGE,c).putString(PREF_PROFILE,PROFILE_FREE_FAERUN).apply();return true;}
+    public boolean graduate(){
+        if(prefs==null||!canGraduate())return false;
+        boolean leaving=isActive();String c=college();
+        if(!prefs.edit().putBoolean(PREF_GRADUATED,true)
+                .putString(PREF_GRADUATED_COLLEGE,c)
+                .putString(PREF_PROFILE,PROFILE_FREE_FAERUN).commit())return false;
+        finalizeFirstFaerunArrival(leaving);
+        return true;
+    }
     public JSONObject academicHistory(){/*BR_JSON_WRAP*/try{JSONObject out=new JSONObject();try{if(graduated()){String c=prefs==null?"":prefs.getString(PREF_GRADUATED_COLLEGE,college());out.put("institution","Universidade de Strixhaven").put("graduated",true).put("college_id",c).put("college",c.length()==0?"":MAP_LABELS[indexForId(c)]).put("completed_years",4).put("completed_semesters",8).put("continuity_policy","Histórico acadêmico persistente; não substitui regras, níveis ou benefícios mecânicos sem fonte do host/RAG.");}}catch(Exception ignored){AppLog.ignored("StrixhavenProfile","Falha tolerada ao montar histórico acadêmico.",ignored);}return out;}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     public JSONObject mapProjection(){/*BR_JSON_WRAP*/try{
