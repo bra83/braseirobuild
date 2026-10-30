@@ -11113,15 +11113,30 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     if(request==REQ_IMPORT_BRASEIRO_ADVENTURE){
         if(result!=RESULT_OK||data==null||data.getData()==null){toast("Importação de aventura cancelada.");return;}
         if(isMystaraWorld()){toast("Mystara está congelado; importe apenas no D&D Normal.");return;}
-        try{
-            Uri uri=data.getData();
-            long count=sizeOf(uri);if(count>2_000_000L)throw new Exception("JSON excede 2 MB.");
-            InputStream in=getContentResolver().openInputStream(uri);if(in==null)throw new Exception("Não foi possível abrir o arquivo.");
-            String raw;try{raw=readAll(in);}finally{in.close();}
-            JSONObject resultImport=new BraseiroAdventureStore(db).importJson(raw);
-            toast("Aventura importada: "+resultImport.optString("title"));
-            showCampaign();
-        }catch(Exception ex){toast("Aventura recusada: "+String.valueOf(ex.getMessage()));}
+        final Uri fileUri=data.getData();
+        toast("Importando aventura em segundo plano...");
+        // SAF I/O, JSON validation and SQLite transaction cannot block input dispatch.
+        AppExecutors.serial().execute(()->{
+            try{
+                long count=sizeOf(fileUri);
+                if(count>2_000_000L)throw new Exception("JSON excede 2 MB.");
+                InputStream in=getContentResolver().openInputStream(fileUri);
+                if(in==null)throw new Exception("Não foi possível abrir o arquivo.");
+                String raw;
+                try{raw=readAll(in);}finally{in.close();}
+                final JSONObject imported=new BraseiroAdventureStore(db).importJson(raw);
+                ui.post(()->{
+                    if(isFinishing()||isDestroyed())return;
+                    toast("Aventura importada: "+imported.optString("title"));
+                    showCampaign();
+                });
+            }catch(final Exception ex){
+                ui.post(()->{
+                    if(isFinishing()||isDestroyed())return;
+                    toast("Aventura recusada: "+String.valueOf(ex.getMessage()));
+                });
+            }
+        });
         return;
     }
     if(request==REQ_DICE_FACE_IMAGE){
