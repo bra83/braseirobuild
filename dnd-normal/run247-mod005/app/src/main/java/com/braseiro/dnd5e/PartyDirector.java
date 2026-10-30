@@ -59,6 +59,12 @@ public final class PartyDirector {
             wilemId,simmonId,auriId,playerConfirmed,allAccepted);
     }
 
+    /** Canonical NPC-to-hero transfer; only possible after a consented D040 meeting. */
+    public JSONObject recruitKvotheFriendsAtMarco(boolean playerConfirmed,
+                                                  boolean allAccepted)throws Exception{
+        return new KvotheCampaignPartyBridge(db).recruitAtMarco(playerConfirmed,allAccepted);
+    }
+
     public JSONObject kvotheCampaignPolicy(){
         return new KvotheCampaignPartyBridge(db).context();
     }
