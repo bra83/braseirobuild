@@ -14,6 +14,19 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Locate async atlas install callback and showMap method
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e
+          echo '<<<ASYNC_ATLAS_INSTALL>>>'
+          grep -nE 'void ensureBundledMapForProfileAsync|ensureBundledMapForProfileAsync\(|void showMap\(|void showCampaign\(' "$root/MainActivity.java" | head -45
+          echo '<<<MAP_INSTALL_BLOCK>>>'
+          grep -nE -C 12 'private void ensureBundledMapForProfileAsync' "$root/MainActivity.java" | head -55 || true
+          echo '<<<SHOW_MAP_BLOCK>>>'
+          grep -nE -C 6 'private void showMap\(' "$root/MainActivity.java" | head -30 || true
+          echo '<<<APPDB_ATLAS_NEIGHBOR>>>'
+          sed -n '7252,7274p' "$root/AppDb.java"
       - name: Inspect complete exit method and AppDb atlas mutators
         shell: bash
         run: |
