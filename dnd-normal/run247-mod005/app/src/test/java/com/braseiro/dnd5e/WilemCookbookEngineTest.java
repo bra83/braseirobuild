@@ -626,6 +626,22 @@ public class WilemCookbookEngineTest {
         assertFalse(res.has("concentration_save_queue"));
         assertEquals(0,new JSONArray(after.getString("condition_timers_json")).length());
     }
+    @Test public void forageRollCannotSwitchToAnotherSceneOrRestockRevision()throws Exception{
+        join();
+        forageNode("Campo de nabos",1,5);
+        JSONObject selected=book.forageableIngredients().getJSONObject(0);
+        assertEquals("batata",selected.optString("ingredient_id"));
+        db.saveSceneState(new JSONObject().put("location","Bosque distante")
+            .put("day_number",1).put("clues_json",new JSONArray().put(new JSONObject()
+                .put("type","wilem_forage_node").put("id","bosque-outro-recurso")
+                .put("ingredient_id","batata").put("location","Bosque distante")
+                .put("revision","first").put("quantity",3)).toString()));
+        try{book.forageWithPhysicalRoll("batata",selected.optString("source_key"),
+            selected.optString("stock_revision"),d20(20,82631L),receipt());
+            fail("Old resource roll must not become harvest in another place");}
+        catch(IllegalStateException expected){}
+        assertEquals(0,book.pantry().getJSONArray("items").length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
