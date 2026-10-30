@@ -62,6 +62,48 @@ public class NarrativeGuardServiceTest {
         assertTrue(resClean.errors.isEmpty());
     }
 
+
+    @Test
+    public void blocksLeakedMasterInstructionsFromStrixhavenWithoutDestroyingTheScene() {
+        String raw = "Os estudantes de Witherbloom cuidam das mudas raras no jardim.\n\n"
+                + "O Mestre local não move ninguém automaticamente para o centro do conflito. "
+                + "Ele estabelece o chão e as distâncias para a próxima ação.\n\n"
+                + "Não existe uma missão artificialmente acrescentada só para dar direção a esta abertura. "
+                + "Se o estado da campanha ainda não definiu um objetivo específico, a cena permanece honesta. "
+                + "A companhia pode primeiro descobrir o que o lugar oferece. "
+                + "Isso evita que o sistema invente uma urgência nos dados persistidos.\n\n"
+                + "Um aprendiz atravessa o gramado carregando livros debaixo do braço.";
+        assertTrue(NarrativeGuardService.containsInternalLeak(raw));
+        String clean = NarrativeGuardService.sanitize(raw);
+        assertTrue(clean.contains("Os estudantes de Witherbloom"));
+        assertTrue(clean.contains("Um aprendiz atravessa"));
+        assertFalse(clean.contains("Mestre local"));
+        assertFalse(clean.contains("missão artificialmente"));
+        assertFalse(clean.contains("dados persistidos"));
+        String uiNarration = GeneratedTextSanitizer.narrative(raw);
+        assertTrue(uiNarration.contains("Os estudantes de Witherbloom"));
+        assertFalse(uiNarration.contains("Mestre local"));
+        assertFalse(uiNarration.contains("dados persistidos"));
+        assertFalse(NarrativeGuardService.validate(raw).valid);
+        assertTrue(NarrativeGuardService.validate(clean).valid);
+    }
+
+    @Test
+    public void doesNotMistakeOrdinaryInWorldMasterOrMissionTalkForMetadata() {
+        String narration = "O mestre de Witherbloom espera ao lado da torre. "
+                + "A missão dos estudantes é catalogar as mudas antes do anoitecer.";
+        assertFalse(NarrativeGuardService.containsInternalLeak(narration));
+        assertEquals(narration, NarrativeGuardService.sanitize(narration));
+    }
+
+    @Test
+    public void dropsEntireAnswerWhenItIsOnlyInternalPolicyText() {
+        String raw = "Se o estado da campanha ainda não definiu um objetivo específico, "
+                + "a cena permanece honesta sobre isso.";
+        assertTrue(NarrativeGuardService.containsInternalLeak(raw));
+        assertEquals("", NarrativeGuardService.sanitize(raw));
+    }
+
     @Test
     public void humanMasterNarrativeProfileEmbodiments() {
         JSONObject contract = HumanMasterNarrativeProfile.contract();
