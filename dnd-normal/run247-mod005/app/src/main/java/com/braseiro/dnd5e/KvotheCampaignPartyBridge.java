@@ -90,6 +90,16 @@ public final class KvotheCampaignPartyBridge {
             return result.put("reason","not_at_marco_d040");
         if(!playerConfirmed||!allAccepted)
             return result.put("reason","meeting_and_consent_not_confirmed");
+        // Companheiros nao entram com nivel diferente: a transicao 2024 de
+        // ficha/level-up deve ser validada antes do encontro, nunca improvisada.
+        int protagonistLevel=0;
+        for(JSONObject member:party.activeHeroRoster()){
+            if("kvothe".equals(norm(member.optString("name")))){
+                protagonistLevel=db.getCharacter(member.optLong("id")).optInt("level",0);
+                break;
+            }
+        }
+        if(protagonistLevel<1)return result.put("reason","protagonist_sheet_missing");
         long[] ids={wilemId,simmonId,auriId};
         String[] names={"Wilem","Simmon","Auri"};
         Set<Long> distinct=new HashSet<Long>();
@@ -101,6 +111,12 @@ public final class KvotheCampaignPartyBridge {
                     !norm(names[i]).equals(norm(hero.optString("name"))))
                 return result.put("reason","missing_matching_hero_sheet")
                              .put("required_character",names[i]);
+            if(hero.optInt("level",0)!=protagonistLevel)
+                return result.put("reason","companion_level_mismatch")
+                    .put("required_character",names[i])
+                    .put("required_level",protagonistLevel)
+                    .put("actual_level",hero.optInt("level",0))
+                    .put("next_step","Validar progressao D&D 2024 e atualizar a ficha do companheiro antes de recrutar");
         }
         final JSONArray idsJoined=new JSONArray();
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){
