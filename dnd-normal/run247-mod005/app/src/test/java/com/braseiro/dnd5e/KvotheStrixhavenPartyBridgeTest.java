@@ -350,6 +350,27 @@ public final class KvotheStrixhavenPartyBridgeTest {
             .getString("sheet_json")).optInt("xp"));
     }
 
+    @Test public void npcStatsExposeReal2024LevelAndContextCannotHealAnInjury()throws Exception{
+        scene("Strixhaven • Campus Central","",true);
+        bridge.context();
+        JSONObject npc=db.findNpcMemoryByName("Wilem");
+        JSONObject stats=new JSONObject(npc.getString("stats_json"));
+        assertEquals(1,stats.optInt("level"));
+        assertEquals("Bárbaro",stats.optString("class_name"));
+        assertEquals(17,stats.getJSONObject("ability_scores").optInt("str"));
+        assertEquals(15,stats.optInt("max_hp"));
+        stats.put("hp",4);
+        JSONObject wounded=new JSONObject(npc.toString()).put("stats_json",stats.toString());
+        db.upsertNpcMemory(wounded);
+        bridge.context();
+        JSONObject refreshed=new JSONObject(db.findNpcMemoryByName("Wilem")
+            .getString("stats_json"));
+        assertEquals(4,refreshed.optInt("hp"));
+        assertEquals(1,refreshed.optInt("level"));
+        assertEquals(15,refreshed.optInt("max_hp"));
+        assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
