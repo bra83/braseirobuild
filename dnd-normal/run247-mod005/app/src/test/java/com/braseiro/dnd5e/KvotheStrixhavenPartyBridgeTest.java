@@ -273,6 +273,47 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals(4,new PartyDirector(db).activeHeroRoster().size());
     }
 
+    @Test public void firstYearLevelFourNpcAsisAreLegalAndReunionMaintainsParity()throws Exception{
+        scene("Strixhaven • Campus Central","",true);
+        bridge.context();
+        android.content.ContentValues leveled=new android.content.ContentValues();
+        leveled.put("level",4);
+        db.getWritableDatabase().update("characters",leveled,"id=?",
+            new String[]{String.valueOf(kvothe)});
+        JSONObject heroSheet=new JSONObject(db.getCharacter(kvothe).getString("sheet_json"));
+        heroSheet.put("level",4);db.updateCharacterSheetChecked(kvothe,heroSheet.toString());
+        JSONArray friends=bridge.context().getJSONArray("strixhaven_npc_friends");
+        assertEquals(3,friends.length());
+        for(int i=0;i<friends.length();i++){
+            JSONObject state=friends.getJSONObject(i);
+            assertEquals(4,state.optInt("level"));
+            assertFalse("Preconfigured 2024 ASI should be resolved",state.optBoolean("requires_level_choices"));
+            JSONObject memory=db.findNpcMemoryByName(state.optString("name"));
+            JSONObject sheet=new JSONObject(memory.getString("stats_json"))
+                .getJSONObject("strixhaven_2024_sheet");
+            assertEquals(4,sheet.optInt("level"));
+            assertEquals(1,sheet.getJSONArray("npc_level_decisions").length());
+            assertEquals(2,sheet.getJSONArray("npc_level_decisions")
+                .getJSONObject(0).getJSONArray("ability_increases").length());
+        }
+        assertEquals(19,new JSONObject(db.findNpcMemoryByName("Wilem")
+            .getString("stats_json")).getJSONObject("strixhaven_2024_sheet").getInt("str"));
+        assertEquals(19,new JSONObject(db.findNpcMemoryByName("Simmon")
+            .getString("stats_json")).getJSONObject("strixhaven_2024_sheet").getInt("dex"));
+        assertEquals(19,new JSONObject(db.findNpcMemoryByName("Auri")
+            .getString("stats_json")).getJSONObject("strixhaven_2024_sheet").getInt("wis"));
+        scene("Marco do Percurso","D040",false);
+        JSONObject st=db.getSceneState();st.put("present_npcs_json",
+            new JSONArray().put("Wilem").put("Simmon").put("Auri").toString());
+        db.saveSceneState(st);
+        JSONObject accepted=bridge.recruitAtMarco(true,true);
+        assertTrue(accepted.toString(),accepted.optBoolean("joined"));
+        for(int i=0;i<3;i++){
+            long id=accepted.getJSONArray("hero_ids").getLong(i);
+            assertEquals(4,db.getCharacter(id).optInt("level"));
+        }
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
