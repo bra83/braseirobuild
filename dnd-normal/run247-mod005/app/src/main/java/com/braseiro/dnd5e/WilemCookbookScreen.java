@@ -141,8 +141,11 @@ public final class WilemCookbookScreen {
             harvest.setEnabled(enabled);harvest.setOnClickListener(v->harvestDialog(bodies));
             body.addView(harvest);
         }else body.addView(text("Nao ha carcaças elegiveis de monstros registrados no combate. Uma criatura precisa ter sido derrotada e identificada no mundo.",12,MUTED));
-        Button buy=btn("COMPRAR EM MERCADO / MERCADOR DA CENA");buy.setEnabled(enabled);
-        buy.setOnClickListener(v->acquireDialog());body.addView(buy);
+        JSONArray market=book.marketOffers();
+        Button buy=btn("COMPRAR DE VENDEDOR COM ESTOQUE REAL");
+        buy.setEnabled(enabled&&market.length()>0);
+        buy.setOnClickListener(v->acquireDialog(market));body.addView(buy);
+        if(market.length()==0)body.addView(text("Nenhum estoque de comerciante registrado na cena. O Mestre deve cadastrar mercadorias no NPC ou no estabelecimento do atlas; nomes como 'Mercado' nao criam estoque.",12,MUTED));
         JSONArray forage=book.forageableIngredients();
         if(forage.length()>0){
             Button collect=btn("COLETAR NO AMBIENTE (D20)");collect.setEnabled(enabled);
@@ -153,7 +156,7 @@ public final class WilemCookbookScreen {
             Button claim=btn("RESGATAR RECOMPENSA DE AVENTURA");claim.setEnabled(enabled);
             claim.setOnClickListener(v->claimRewardDialog(rewards));body.addView(claim);
         }
-        body.addView(text("Compras verificam a cena, debitam a carteira canonica e respeitam estoque local. Coleta exige d20 fisico; materiais arcanos e tesouros exigem evento de mundo aplicado. Ingredientes nao nascem de um checkbox.",12,MUTED));
+        body.addView(text("Compras consomem mercadorias reais do vendedor, debitam a carteira e preservam estoque entre dias e reaberturas. Coleta vem do hex do atlas ou de fonte fisica registrada, com dado fisico e limite de recurso. Componentes magicos exigem evento aplicado.",12,MUTED));
     }
     private void harvestDialog(JSONArray bodies){
         if(!book.canCook()){fail(new IllegalStateException("Wilem nao esta na companhia"));return;}
@@ -203,28 +206,30 @@ public final class WilemCookbookScreen {
                     });
             }).show();
     }
-    private void acquireDialog(){
-        JSONArray all=WilemCookbookCatalog.ingredients();
-        ArrayList<String> ids=new ArrayList<String>(),names=new ArrayList<String>();
-        for(int i=0;i<all.length();i++){
-            JSONObject ing=all.optJSONObject(i);
-            if(ing==null||ing.optInt("tier",0)>0)continue;
-            ids.add(ing.optString("id"));
-            names.add(ing.optString("name")+" — "+ing.optInt("suggested_price_cp")+" PC/un.");
+    private void acquireDialog(JSONArray offers){
+        if(offers==null||offers.length()==0){
+            fail(new IllegalStateException("Nenhum vendedor da cena tem mercadoria disponivel"));return;
         }
-        LinearLayout form=vertical();
-        Spinner ingredient=new Spinner(activity);
-        ingredient.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));
-        form.addView(ingredient);
+        String[] names=new String[offers.length()];
+        for(int i=0;i<offers.length();i++){
+            JSONObject o=offers.optJSONObject(i);
+            names[i]=o.optString("seller")+" · "+o.optString("name")+
+                " · "+o.optInt("price_cp")+" PC/un. · "+o.optInt("quantity")+" em estoque";
+        }
+        LinearLayout form=vertical();Spinner offered=new Spinner(activity);
+        offered.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));
+        form.addView(offered);
         EditText quantity=new EditText(activity);quantity.setInputType(2);
-        quantity.setHint("Quantidade (1 a 12, sujeita a estoque)");form.addView(quantity);
-        form.addView(text("Compra real: requer mercado/feira/loja ou mercador registrado na cena. O sistema debita moedas do inventario de Wilem e registra a transacao.",13,Color.DKGRAY));
-        new AlertDialog.Builder(activity).setTitle("Comprar ingrediente")
+        quantity.setHint("Quantidade (ate o estoque do vendedor)");form.addView(quantity);
+        form.addView(text("Somente mercadorias pertencentes a um NPC presente na cena ou loja real do atlas. O dinheiro e o estoque sao debitados na mesma transacao.",13,Color.DKGRAY));
+        new AlertDialog.Builder(activity).setTitle("Negociar com comerciante")
             .setView(form).setNegativeButton("Voltar",null).setPositiveButton("COMPRAR",(d,w)->{
                 try{
-                    book.acquire(ids.get(ingredient.getSelectedItemPosition()),
+                    JSONObject selected=offers.optJSONObject(offered.getSelectedItemPosition());
+                    if(selected==null)throw new IllegalStateException("Oferta nao encontrada");
+                    book.buyFromMarket(selected.optString("ingredient_id"),
                         Integer.parseInt(quantity.getText().toString().trim()),
-                        "mercado_pago",true,WilemCookbookEngine.newReceipt());changed();
+                        selected.optString("source_key"),WilemCookbookEngine.newReceipt());changed();
                 }catch(Exception e){fail(e);}
             }).show();
     }
@@ -418,11 +423,33 @@ public final class WilemCookbookScreen {
         LinearLayout f=vertical();Spinner target=new Spinner(activity);
         target.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,names));f.addView(target);
         EditText bonus=new EditText(activity);bonus.setInputType(android.text.InputType.TYPE_CLASS_NUMBER|android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);
-        bonus.setHint("Bonus de salvaguarda CON do statblock (ex.: +2, -1)");
-        if(requiresSave)f.addView(bonus);
+        bonus.setHint("Constituicao da criatura (atributo de 1 a 30; nao o modificador)");
+        EditText proficiency=new EditText(activity);
+        proficiency.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        proficiency.setHint("Proficiencia na salvaguarda de CON (0 se nao possuir)");
         CheckBox confirmedBonus=new CheckBox(activity);
-        confirmedBonus.setText("Conferi o bonus no statblock desta criatura");
-        if(requiresSave)f.addView(confirmedBonus);
+        confirmedBonus.setText("O Mestre conferiu os atributos da criatura e autoriza o registro na ficha persistente");
+        TextView mechanics=text("",13,Color.DKGRAY);
+        if(requiresSave){
+            f.addView(mechanics);f.addView(bonus);f.addView(proficiency);f.addView(confirmedBonus);
+            Runnable showMechanics=()->{
+                JSONObject selected=monsters.get(target.getSelectedItemPosition());
+                JSONObject known=book.monsterSaveInfo(selected.optLong("id"));
+                boolean missing=!known.optBoolean("known",false);
+                mechanics.setText(missing?
+                    "Esta criatura nao tem Constituicao mecanica registrada. Informe o atributo uma unica vez para sua ficha persistente; depois os testes serao automaticos.":
+                    "CON automatico da ficha: "+known.optInt("bonus")+
+                    " ("+known.optString("authority")+"). Nenhuma digitacao necessaria.");
+                bonus.setVisibility(missing?View.VISIBLE:View.GONE);
+                proficiency.setVisibility(missing?View.VISIBLE:View.GONE);
+                confirmedBonus.setVisibility(missing?View.VISIBLE:View.GONE);
+            };
+            target.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+                public void onItemSelected(android.widget.AdapterView<?> parent,View v,int position,long id){showMechanics.run();}
+                public void onNothingSelected(android.widget.AdapterView<?> parent){}
+            });
+            showMechanics.run();
+        }
         CheckBox consumed=new CheckBox(activity);
         consumed.setText("O Mestre confirmou ingestao real e dieta compativel");f.addView(consumed);
         CheckBox immune=new CheckBox(activity);immune.setText("Criatura imune a este efeito");f.addView(immune);
@@ -438,15 +465,23 @@ public final class WilemCookbookScreen {
                             WilemCookbookEngine.newReceipt());changed();
                         return;
                     }
-                    if(!confirmedBonus.isChecked())throw new IllegalStateException("Confirme o bonus do statblock");
-                    final int saveBonus=Integer.parseInt(bonus.getText().toString().trim());
+                    JSONObject known=book.monsterSaveInfo(combatant);
+                    if(!known.optBoolean("known")){
+                        if(!confirmedBonus.isChecked())throw new IllegalStateException("Confirme os valores da ficha da criatura");
+                        int conScore=Integer.parseInt(bonus.getText().toString().trim());
+                        int prof=proficiency.getText().toString().trim().isEmpty()?0:
+                            Integer.parseInt(proficiency.getText().toString().trim());
+                        known=book.registerMonsterConstitution(combatant,conScore,prof,
+                            WilemCookbookEngine.newReceipt());
+                    }
+                    if(!known.optBoolean("known"))throw new IllegalStateException("Ficha da criatura ainda incompleta");
                     Dice3DOverlay.roll(activity,activity.getSharedPreferences("settings",Activity.MODE_PRIVATE),
                         "d20","Normal",chosen.optString("name"),0,new Dice3DOverlay.Callback(){
                             private boolean completed=false;
                             public void onResult(Dice3DOverlay.RollResult rolled){
                                 if(completed)return;completed=true;
                                 try{book.resolveBaitWithPhysicalSave(bait.optString("id"),combatant,true,true,
-                                    immuneNow,rolled,saveBonus,true,WilemCookbookEngine.newReceipt());changed();}
+                                    immuneNow,rolled,0,false,WilemCookbookEngine.newReceipt());changed();}
                                 catch(Exception e){fail(e);}
                             }
                             public void onError(String message){fail(new IllegalStateException(message));}
