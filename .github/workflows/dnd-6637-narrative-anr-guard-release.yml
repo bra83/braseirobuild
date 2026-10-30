@@ -103,6 +103,9 @@ jobs:
           assert 'heartbeatPending.compareAndSet(false, true)' in monitor
           assert 'last_ui_block_stack' in monitor and 'thread.getStackTrace()' in monitor
           assert 'blocksObservedStrixhavenMetaInstructionsWithoutLosingRealScene' in tests
+          import_handler=activity.split('if(request==REQ_IMPORT_BRASEIRO_ADVENTURE){',1)[1].split('if(request==REQ_DICE_FACE_IMAGE){',1)[0]
+          assert 'AppExecutors.serial().execute' in import_handler, 'Adventure SQLite import still blocks UI'
+          assert 'ui.post' in import_handler and 'importJson(raw)' in import_handler
           print('DND_6637_NARRATIVE_AND_ANR_DIAGNOSTIC_GATE_PASS')
           print('DND_6637_LAZY_BARBARA_GATE_PASS')
           print('DND_6637_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
@@ -176,5 +179,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.37 — Inicializacao otimizada do Mestre" \
-             --notes "Braseiro D&D 6.6.37: sanitizacao de narracao de Strixhaven/IA impede instrucoes internas de aparecerem no pergaminho; preserva paragrafos legitimos; testes reproduzem a captura. Monitor de UI agora mantem apenas 1 pulso pendente e registra a stack da thread principal quando atrasos se aproximam do limite Android ANR, evitando geracao repetitiva de tarefas de diagnostico. Nao suprime dialogos do Android e nao promete eliminar ANRs sem tracelog do Galaxy A57. Mantem a base 6.6.36, mesmo pacote e assinatura, versao superior 202700047, sem migracao de SQLite; suites Java e assinatura verificadas no build. Teste fisico no aparelho ainda necessario."
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.37 — Narração protegida e diagnóstico ANR" \
+             --notes "Braseiro D&D 6.6.37: sanitizacao de narracao de Strixhaven/IA impede instrucoes internas de aparecerem no pergaminho; preserva paragrafos legitimos; testes reproduzem a captura. Importação JSON e gravação em SQLite saem da thread principal. Monitor de UI agora mantem apenas 1 pulso pendente e registra a stack da thread principal quando atrasos se aproximam do limite Android ANR, evitando geracao repetitiva de tarefas de diagnostico. Nao suprime dialogos do Android e nao promete eliminar ANRs sem tracelog do Galaxy A57. Mantem a base 6.6.36, mesmo pacote e assinatura, versao superior 202700047, sem migracao de SQLite; suites Java e assinatura verificadas no build. Teste fisico no aparelho ainda necessario."
