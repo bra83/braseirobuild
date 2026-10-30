@@ -255,6 +255,7 @@ public final class WilemCookbookScreen {
                             if(done)return;done=true;
                             try{
                                 JSONObject found=book.forageWithPhysicalRoll(chosen.optString("ingredient_id"),
+                                    chosen.optString("source_key"),chosen.optString("stock_revision"),
                                     rolled,WilemCookbookEngine.newReceipt());
                                 Toast.makeText(activity,found.optBoolean("success")?
                                     "Coleta: "+found.optInt("quantity")+" unidade(s)":
