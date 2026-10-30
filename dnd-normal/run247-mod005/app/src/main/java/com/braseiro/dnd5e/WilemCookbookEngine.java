@@ -840,30 +840,106 @@ public final class WilemCookbookEngine {
             constitutionSaveTotal,null,receipt);
     }
 
-    private static JSONObject authoritativeMonsterConSave(JSONObject creature){
-        JSONObject res=object(creature.optString("resources_json","{}"));
-        String id=res.optString("block_id","");
-        if(id.isEmpty()||!"statblock".equalsIgnoreCase(creature.optString("source_kind")))return new JSONObject();
-        JSONObject p=CompiledStatblockEngine.runtimeProfile(id);
-        if(!p.optBoolean("found",false))return new JSONObject();
-        JSONObject saves=p.optJSONObject("saving_throws"),abilities=p.optJSONObject("abilities");
-        int bonus=Integer.MIN_VALUE;
-        if(saves!=null){
-            for(String key:new String[]{"con","constitution","Constitution","CON"})
-                if(saves.opt(key) instanceof Number){bonus=saves.optInt(key);break;}
+    private static int explicitConBonus(JSONObject data){
+        if(data==null)return Integer.MIN_VALUE;
+        JSONObject saves=data.optJSONObject("saving_throws");
+        if(saves==null)saves=data.optJSONObject("saving_throw_bonuses");
+        if(saves==null)saves=data.optJSONObject("save_bonuses");
+        if(saves!=null)for(String k:new String[]{"con","constitution","Constitution","CON"}){
+            if(saves.opt(k) instanceof Number)return saves.optInt(k);
         }
-        if(bonus==Integer.MIN_VALUE&&abilities!=null){
-            for(String key:new String[]{"con","constitution","Constitution","CON"}){
-                if(abilities.opt(key) instanceof Number){
-                    bonus=Math.floorDiv(abilities.optInt(key)-10,2);break;
-                }
+        if(data.opt("save_con_bonus") instanceof Number)return data.optInt("save_con_bonus");
+        JSONObject abilities=data.optJSONObject("abilities");
+        if(abilities==null)abilities=data.optJSONObject("ability_scores");
+        if(abilities!=null)for(String k:new String[]{"con","constitution","Constitution","CON"}){
+            if(abilities.opt(k) instanceof Number){
+                int score=abilities.optInt(k);
+                if(score>=1&&score<=30)return Math.floorDiv(score-10,2);
             }
         }
-        JSONObject out=new JSONObject();
-        if(bonus!=Integer.MIN_VALUE&&bonus>= -20&&bonus<=30)
-            try{out.put("known",true).put("bonus",bonus).put("block_id",id);}
-            catch(Exception ignored){}
-        return out;
+        for(String k:new String[]{"con","constitution","Constitution","CON"}){
+            if(data.opt(k) instanceof Number){
+                int score=data.optInt(k);
+                if(score>=1&&score<=30)return Math.floorDiv(score-10,2);
+            }
+        }
+        return Integer.MIN_VALUE;
+    }
+    private JSONObject authoritativeMonsterConSave(JSONObject creature){
+        JSONObject resources=object(creature.optString("resources_json","{}"));
+        String blockId=resources.optString("block_id","");
+        if("statblock".equalsIgnoreCase(creature.optString("source_kind"))&&!blockId.isEmpty()){
+            JSONObject compiled=CompiledStatblockEngine.runtimeProfile(blockId);
+            if(compiled.optBoolean("found",false)){
+                int bonus=explicitConBonus(compiled);
+                if(bonus!=Integer.MIN_VALUE)return saveInfo(bonus,"compiled_statblock",blockId);
+            }
+        }
+        if("npc".equalsIgnoreCase(creature.optString("source_kind"))&&creature.optLong("source_id")>0){
+            JSONObject npc=db.getNpcMemory(creature.optLong("source_id"));
+            if(npc.length()>0&&npc.optInt("active",0)==1){
+                int bonus=explicitConBonus(object(npc.optString("stats_json","{}")));
+                if(bonus!=Integer.MIN_VALUE)return saveInfo(bonus,"npc_canonical_stats",String.valueOf(npc.optLong("id")));
+            }
+        }
+        // Monster creation/editor can persist a complete encounter statblock in resources_json.
+        int canonical=explicitConBonus(resources);
+        if(canonical!=Integer.MIN_VALUE)return saveInfo(canonical,"encounter_stats",String.valueOf(creature.optLong("id")));
+        JSONObject established=resources.optJSONObject("wilem_constitution_profile");
+        if(established!=null&&"master_confirmed".equals(established.optString("authority"))){
+            int score=established.optInt("score",0),prof=established.optInt("proficiency_bonus",0);
+            if(score>=1&&score<=30&&prof>=0&&prof<=9)
+                return saveInfo(Math.floorDiv(score-10,2)+prof,
+                    "master_confirmed_profile",String.valueOf(creature.optLong("id")));
+        }
+        return new JSONObject();
+    }
+    private static JSONObject saveInfo(int bonus,String authority,String origin){
+        JSONObject result=new JSONObject();
+        if(bonus< -20||bonus>30)return result;
+        try{return result.put("known",true).put("bonus",bonus)
+            .put("authority",authority).put("block_id",origin);}
+        catch(Exception e){return new JSONObject();}
+    }
+    public JSONObject monsterSaveInfo(long combatantId){
+        JSONObject creature=db.getCombatant(combatantId);
+        if(creature.length()==0||creature.optInt("is_player",0)==1)return new JSONObject();
+        return authoritativeMonsterConSave(creature);
+    }
+    /** One-time reusable monster Constitution PROFILE, never an arbitrary per-roll total. */
+    public synchronized JSONObject registerMonsterConstitution(final long combatantId,
+        final int score,final int proficiencyBonus,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem nao esta na companhia");
+        if(score<1||score>30||proficiencyBonus<0||proficiencyBonus>9)
+            throw new IllegalArgumentException("Valor de Constituicao ou proficiencia fora do intervalo D&D");
+        final JSONObject[] out={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+            JSONObject st=state();requireReceipt(st,receipt);
+            JSONObject creature=db.getCombatant(combatantId);
+            if(creature.length()==0||creature.optInt("is_player",0)==1||creature.optInt("hp",0)<=0)
+                throw new IllegalStateException("Criatura viva do combate ausente");
+            if(monsterSaveInfo(combatantId).optBoolean("known"))
+                throw new IllegalStateException("Criatura ja possui valores mecanicos cadastrados");
+            JSONObject res=object(creature.optString("resources_json","{}"));
+            res.put("wilem_constitution_profile",new JSONObject()
+                .put("score",score).put("proficiency_bonus",proficiencyBonus)
+                .put("authority","master_confirmed").put("receipt",receipt));
+            db.updateCombatantAdvancedChecked(combatantId,creature.optInt("temp_hp",0),
+                creature.optString("concentration"),
+                creature.optInt("reaction_used",0)==1,
+                creature.optInt("death_success",0),creature.optInt("death_fail",0),
+                creature.optString("conditions"),creature.optString("condition_timers_json","[]"),
+                creature.optString("resistances"),creature.optString("vulnerabilities"),
+                creature.optString("immunities"),res.toString());
+            remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            db.addJournalFact("Ficha mecanica de criatura identificada",
+                creature.optString("name")+": CON "+score+" e proficiencia de salvaguarda "+
+                proficiencyBonus+"; recibo "+receipt,"combate",receipt,"wilem_cookbook");
+            out[0]=monsterSaveInfo(combatantId);
+            if(!out[0].optBoolean("known"))
+                throw new IllegalStateException("Valor da criatura nao persistiu");
+        }});
+        return out[0];
     }
 
     private static boolean monsterConditionImmune(JSONObject target,String condition){
@@ -890,11 +966,9 @@ public final class WilemCookbookEngine {
         JSONObject target=db.getCombatant(combatantId);
         if(target.length()==0)throw new IllegalArgumentException("Criatura do combate nao encontrada");
         JSONObject authoritative=authoritativeMonsterConSave(target);
-        int effectiveBonus=authoritative.optBoolean("known",false)?
-            authoritative.optInt("bonus"):conBonus;
-        if((!authoritative.optBoolean("known",false)&&!refereeConfirmedBonus)
-            ||effectiveBonus< -20||effectiveBonus>30)
-            throw new IllegalArgumentException("Constituicao exige statblock compilado ou confirmacao explicita do Mestre");
+        if(!authoritative.optBoolean("known",false))
+            throw new IllegalStateException("Criatura sem CON mecanica. Cadastre o atributo na ficha do combate antes de rolar.");
+        final int effectiveBonus=authoritative.optInt("bonus");
         if(roll==null||!"d20".equals(roll.formula)||!"Normal".equals(roll.mode))
             throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
         DiceRollSpec spec=DiceRollSpec.parse(roll.formula,roll.mode);
@@ -906,8 +980,7 @@ public final class WilemCookbookEngine {
             throw new IllegalStateException("D20 nao corresponde ao resultado fisico registrado");
         JSONObject proof=new JSONObject().put("source","physical3d").put("dice",checked.natural)
             .put("save_bonus",effectiveBonus).put("total",checked.natural+effectiveBonus)
-            .put("bonus_authority",authoritative.optBoolean("known",false)?
-                "compiled_statblock":"referee_verified")
+            .put("bonus_authority",authoritative.optString("authority"))
             .put("block_id",authoritative.optString("block_id"))
             .put("signature",roll.integritySignature).put("physics_seed",roll.physicsSeed);
         return resolveBaitInternal(baitId,combatantId,consumed,compatibleDiet,immune,
