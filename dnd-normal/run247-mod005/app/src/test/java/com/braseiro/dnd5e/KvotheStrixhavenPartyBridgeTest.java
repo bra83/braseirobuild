@@ -196,6 +196,9 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertTrue(auri.optBoolean("druid_martial_weapon_training"));
         assertEquals(15,auri.getInt("ac")); // Leather 11+2 DEX+2 shield
         assertEquals(5,auri.getJSONArray("skill_proficiencies").length());
+        assertTrue(auri.getString("spells").contains("Preparadas de classe (4):"));
+        assertTrue(auri.getString("spells").contains(
+            "Falar com Animais sempre preparada, sem consumir uma das quatro escolhas"));
         // PHB 2024 Guide grants Stealth + Survival, never Arcana + History.
         java.util.HashMap<String,String> auriSkills=new java.util.HashMap<>();
         JSONArray auriProfs=auri.getJSONArray("skill_proficiencies");
