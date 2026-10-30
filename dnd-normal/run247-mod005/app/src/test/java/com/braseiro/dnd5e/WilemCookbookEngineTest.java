@@ -346,6 +346,37 @@ public class WilemCookbookEngineTest {
         assertEquals("physical3d",served.getJSONObject("constitution_save_proof").getString("source"));
         assertEquals(1,book.state().getJSONArray("meals").length());
     }
+    @Test public void physicalConstitutionSaveMayHaveNegativeTotalWithoutBeingDiscarded()throws Exception{
+        join();
+        long fragile=db.addCharacter("Personagem de teste","Humano","Mago",1,
+            7,7,10,8,8,1,10,10,10,true,"");
+        db.upsertPartyMembership(new JSONObject().put("actor_kind","hero")
+            .put("character_id",fragile).put("status","active")
+            .put("party_role","companion").put("recruitment_type","player_confirmed"));
+        int bonus=new DndRulesEngine().savingThrowBonus(db.getCharacter(fragile),"Constitution");
+        assertTrue("Low Constitution must produce negative saving throw modifier",bonus< -1);
+        JSONObject state=book.state();
+        String batchId="negative-con-save-recipe";
+        state.getJSONArray("cooked").put(new JSONObject().put("id",batchId)
+            .put("recipe_id","mon_javali_0").put("remaining",1)
+            .put("kind","monstruosa").put("result","beneficio_com_risco")
+            .put("expires_world_hour",WilemCookbookEffectRules.worldHour(db.getSceneState())+5d));
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{state.toString(),"dnd",wilem});
+        java.util.List<Integer> faces=java.util.Collections.singletonList(1);
+        Dice3DOverlay.RollResult dice=new Dice3DOverlay.RollResult(
+            faces,faces,1,1,"1","","d20","Normal",100,91273L,"test",
+            RollIntegrity.signature("d20",faces,0,91273L,1));
+        JSONObject served=book.serveWithPhysicalSave(batchId,fragile,"",false,
+            "Teste de CON negativo registrado com dados fisicos",dice,receipt());
+        assertEquals(1+bonus,served.getInt("constitution_save_total"));
+        assertTrue("Valid signed negative total must not block the meal",
+            served.getBoolean("poisoned_after_consumption"));
+        assertEquals("physical3d",served.getJSONObject("constitution_save_proof")
+            .getString("source"));
+        assertEquals(1,book.state().getJSONArray("meals").length());
+    }
     @Test public void knownConditionImmunityOverridesUnsafeBaitSelection()throws Exception{
         join();
         JSONObject st=book.state();
