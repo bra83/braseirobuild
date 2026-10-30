@@ -307,6 +307,24 @@ public final class MapPackageManager {
                     } catch (Exception e) {
                         AppLog.w("MapPackage", "Falha tolerada ao instalar Newarre no pacote de mapa.", e);
                     }
+                    // The first post-Strixhaven arrival may have been deferred
+                    // until the 2025 Atlas finished indexing. A city record and
+                    // valid token center are required: no fabricated placement.
+                    if ("dnd".equalsIgnoreCase(worldProfile)) {
+                        try {
+                            android.content.SharedPreferences settings =
+                                context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+                            if (StrixhavenFaerunArrivalEngine.pending(settings)
+                                    && !StrixhavenAdventureProfile.isActive(context)) {
+                                StrixhavenFaerunArrivalEngine.applyPending(appDb, settings);
+                            }
+                        } catch (Exception arrivalError) {
+                            // A valid imported atlas must NOT be deleted merely
+                            // because a separate campaign arrival is pending.
+                            AppLog.e("StrixhavenArrival",
+                                "A chegada a Yartar sera revalidada na proxima abertura.", arrivalError);
+                        }
+                    }
                     if (callback != null) callback.onSuccess(new ImportResult(packageId, mapId, worldProfile, atlasProfile != null ? (atlasProfile.setting.length()>0?atlasProfile.setting+" — Atlas":atlasProfile.logicalMapId) : geometry.getLabel(), imageUri,
                             overlayUri, vectorUri.length() > 0 ? vectorUri : vectorGzipUri, indexUri, overlayMode,
                             manifestJson, currentHexId, tokenX, tokenY, hexCount, locationCount));
