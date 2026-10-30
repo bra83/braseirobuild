@@ -59,6 +59,34 @@ public class StrixhavenFaerunArrivalEngineTest {
         prefs.edit().clear().commit();
     }
 
+    @Test public void realStrixhavenProfileExitSchedulesOnlyFirstVerifiedLanding()
+            throws Exception {
+        Context ctx=RuntimeEnvironment.getApplication();
+        SharedPreferences settings=ctx.getSharedPreferences("settings",Context.MODE_PRIVATE);
+        settings.edit().remove(StrixhavenFaerunArrivalEngine.DONE_PREF)
+            .remove(StrixhavenFaerunArrivalEngine.PENDING_PREF)
+            .remove(StrixhavenAdventureProfile.PREF_PROFILE).commit();
+        try {
+            StrixhavenAdventureProfile profile=new StrixhavenAdventureProfile(ctx);
+            profile.activate();
+            assertTrue(profile.isActive());
+            profile.exitToFaerun();
+            assertFalse(profile.isActive());
+            assertTrue(StrixhavenFaerunArrivalEngine.pending(settings));
+            // A later campus visit must preserve the previous Faerun journey.
+            settings.edit().putBoolean(StrixhavenFaerunArrivalEngine.DONE_PREF,true)
+                .remove(StrixhavenFaerunArrivalEngine.PENDING_PREF).commit();
+            profile.activate();
+            profile.exitToFaerun();
+            assertFalse(StrixhavenFaerunArrivalEngine.pending(settings));
+            assertTrue(settings.getBoolean(StrixhavenFaerunArrivalEngine.DONE_PREF,false));
+        } finally {
+            settings.edit().remove(StrixhavenFaerunArrivalEngine.DONE_PREF)
+                .remove(StrixhavenFaerunArrivalEngine.PENDING_PREF)
+                .remove(StrixhavenAdventureProfile.PREF_PROFILE).commit();
+        }
+    }
+
     @Test public void noPositionIsCreatedWithoutAnExplicitPlayerExit() throws Exception {
         Context ctx=RuntimeEnvironment.getApplication();
         String name="yartar-unrequested-"+Long.toHexString(System.nanoTime())+".db";
