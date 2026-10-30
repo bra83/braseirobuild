@@ -191,6 +191,9 @@ public final class KvotheStrixhavenPartyBridgeTest {
         JSONObject auri=StrixhavenFriends2024.initialSheet("Auri");
         assertEquals("Elfo",auri.getString("species"));
         assertEquals("Druida",auri.getString("class_name"));
+        assertEquals("Guardião",auri.getString("druid_primal_order_choice"));
+        assertTrue(auri.optBoolean("druid_medium_armor_training"));
+        assertTrue(auri.optBoolean("druid_martial_weapon_training"));
         assertEquals(15,auri.getInt("ac")); // Leather 11+2 DEX+2 shield
         assertEquals(5,auri.getJSONArray("skill_proficiencies").length());
         // PHB 2024 Guide grants Stealth + Survival, never Arcana + History.
