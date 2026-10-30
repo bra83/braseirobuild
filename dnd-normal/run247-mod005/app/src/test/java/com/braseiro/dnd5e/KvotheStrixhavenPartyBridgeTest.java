@@ -195,6 +195,84 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals(5,auri.getJSONArray("skill_proficiencies").length());
     }
 
+    @Test public void tieflingKvotheRestoresHumanWithoutLosingPlayerChoices()throws Exception{
+        JSONObject before=new JSONObject(db.getCharacter(kvothe).optString("sheet_json","{}"));
+        before.put("rules_source","5e 2024").put("species","Tiferino")
+            .put("personality_profile",new JSONObject().put("traits",new JSONArray()
+                .put(new JSONObject().put("id","lealdade"))))
+            .put("inventory_ledger",new JSONArray()
+                .put(new JSONObject().put("id","alaude").put("quantity",1)));
+        db.updateCharacterSheetChecked(kvothe,before.toString());
+        android.content.ContentValues species=new android.content.ContentValues();
+        species.put("species","Tiferino");
+        db.getWritableDatabase().update("characters",species,"id=?",
+            new String[]{String.valueOf(kvothe)});
+        JSONObject repaired=KvotheCanonical2024.restoreIfNeeded(db);
+        assertTrue(repaired.toString(),repaired.optBoolean("changed"));
+        JSONObject hero=db.getCharacter(kvothe);
+        assertEquals("Humano",hero.optString("species"));
+        assertEquals(8,hero.optInt("str"));
+        assertEquals(16,hero.optInt("dex"));
+        assertEquals(13,hero.optInt("con"));
+        assertEquals(15,hero.optInt("int_score"));
+        assertEquals(10,hero.optInt("wis"));
+        assertEquals(13,hero.optInt("cha"));
+        JSONObject restored=new JSONObject(hero.optString("sheet_json","{}"));
+        assertEquals("Humano",restored.optString("species"));
+        assertEquals("Médio",restored.optString("size"));
+        assertEquals(27,restored.getJSONObject("ability_purchase").getInt("cost"));
+        assertEquals(5,restored.getJSONArray("skill_proficiencies").length());
+        assertEquals(2,restored.getJSONArray("selected_origin_feats").length());
+        assertEquals(1,restored.getJSONObject("personality_profile")
+            .getJSONArray("traits").length());
+        assertEquals("alaude",restored.getJSONArray("inventory_ledger")
+            .getJSONObject(0).getString("id"));
+        assertFalse(KvotheCanonical2024.restoreIfNeeded(db).optBoolean("changed"));
+    }
+
+    @Test public void strixhavenFriendsFollowLevelThreeBeforeJoiningButNotAfter()throws Exception{
+        scene("Strixhaven • Campus Central","",true);
+        bridge.context();
+        // Explicit 2024 level increase in the protagonist's persisted campaign.
+        android.content.ContentValues leveled=new android.content.ContentValues();
+        leveled.put("level",3);
+        db.getWritableDatabase().update("characters",leveled,"id=?",
+            new String[]{String.valueOf(kvothe)});
+        JSONObject sheet=new JSONObject(db.getCharacter(kvothe).getString("sheet_json"));
+        sheet.put("level",3);
+        db.updateCharacterSheetChecked(kvothe,sheet.toString());
+        JSONObject context=bridge.context();
+        JSONArray friends=context.getJSONArray("strixhaven_npc_friends");
+        assertEquals(3,friends.length());
+        for(int i=0;i<friends.length();i++){
+            JSONObject summary=friends.getJSONObject(i);
+            assertEquals(3,summary.optInt("level"));
+            assertFalse(summary.optBoolean("requires_level_choices"));
+            JSONObject student=db.findNpcMemoryByName(summary.getString("name"));
+            JSONObject candidate=new JSONObject(student.getString("stats_json"))
+                .getJSONObject("strixhaven_2024_sheet");
+            assertEquals(3,candidate.optInt("level"));
+            assertTrue(Core2024SubclassRuntimeEngine.isSubclassSelectionValid(
+                candidate.optString("class_name"),3,candidate.optString("subclass_name")));
+        }
+        assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+        scene("Marco do Percurso","D040",false);
+        JSONObject atMarco=db.getSceneState();
+        atMarco.put("present_npcs_json",new JSONArray().put("Wilem")
+            .put("Simmon").put("Auri").toString());db.saveSceneState(atMarco);
+        JSONObject joined=bridge.recruitAtMarco(true,true);
+        assertTrue(joined.toString(),joined.optBoolean("joined"));
+        long wilemId=joined.getJSONArray("hero_ids").getLong(0);
+        int beforeLevel=db.getCharacter(wilemId).optInt("level");
+        // A later gain for Kvothe never changes an independently recruited hero.
+        leveled.put("level",4);
+        db.getWritableDatabase().update("characters",leveled,"id=?",
+            new String[]{String.valueOf(kvothe)});
+        assertEquals(3,beforeLevel);
+        assertEquals(3,db.getCharacter(wilemId).optInt("level"));
+        assertEquals(4,new PartyDirector(db).activeHeroRoster().size());
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
