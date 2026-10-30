@@ -128,6 +128,13 @@ public final class KvotheStrixhavenPartyBridgeTest {
         scene("Strixhaven • Campus Central","",true);
         JSONObject campus=bridge.context();
         assertTrue(campus.toString(),campus.optBoolean("enabled"));
+        JSONObject arrival=campus.getJSONObject("post_strixhaven_arrival");
+        assertEquals("Yartar",arrival.getString("city"));
+        assertEquals("DM28",arrival.getString("hex_id"));
+        assertEquals("yartar",arrival.getString("atlas_location_id"));
+        assertEquals("DO40",arrival.getString("rendezvous_hex_id"));
+        assertTrue(arrival.optBoolean("rendezvous_is_optional"));
+        assertTrue(arrival.optBoolean("must_not_auto_recruit_companions"));
         JSONArray friends=campus.getJSONArray("strixhaven_npc_friends");
         assertEquals(3,friends.length());
         for(String name:new String[]{"Wilem","Simmon","Auri"}){
