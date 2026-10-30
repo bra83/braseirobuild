@@ -108,6 +108,22 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals(0,new PartyDirector(db).availableHeroesToRecruit().length());
     }
 
+    @Test public void recruitmentRejectsLevelMismatchWithoutSilentlyChangingSheets()throws Exception{
+        scene("Marco do Percurso","D040",false);
+        wilem=db.addCharacter("Wilem","Anão","Bárbaro",2,14,14,14,
+            16,10,12,8,11,10,true,"");
+        simmon=hero("Simmon","Golias");
+        auri=hero("Auri","Elfo");
+        JSONObject rejected=bridge.recruitAtMarco(wilem,simmon,auri,true,true);
+        assertFalse(rejected.optBoolean("joined"));
+        assertEquals("companion_level_mismatch",rejected.optString("reason"));
+        assertEquals("Wilem",rejected.optString("required_character"));
+        assertEquals(1,rejected.optInt("required_level"));
+        assertEquals(2,rejected.optInt("actual_level"));
+        assertEquals(2,db.getCharacter(wilem).optInt("level"));
+        assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
