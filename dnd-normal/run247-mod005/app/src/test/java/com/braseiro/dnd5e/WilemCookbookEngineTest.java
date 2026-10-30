@@ -161,8 +161,12 @@ public class WilemCookbookEngineTest {
     }
     @Test public void contextualRumorOpensRealDiscoveryWithoutUnlockingEverything()throws Exception{
         join();
+        db.upsertNpcMemory(new JSONObject().put("name","Cozinheiro da taverna")
+            .put("active",1).put("stats_json",new JSONObject()
+                .put("wilem_recipe_rumors",new JSONArray().put("mon_javali_0")).toString()));
         db.saveSceneState(new JSONObject().put("day_number",1)
-            .put("location","Mercado de Strixhaven"));
+            .put("location","Mercado de Strixhaven")
+            .put("present_npcs_json",new JSONArray().put("Cozinheiro da taverna").toString()));
         JSONObject view=book.masterView();
         JSONArray offers=view.getJSONArray("rumor_candidates");
         assertTrue(offers.length()>0);
@@ -174,6 +178,28 @@ public class WilemCookbookEngineTest {
             "Pesquisei a receita e reproduzi as instrucoes em uma bancada de cozinha.",receipt());
         assertTrue(book.state().getJSONArray("known").toString().contains("\""+recipeId+"\""));
         assertEquals(11,book.state().getJSONArray("known").length());
+    }
+    @Test public void culinaryRumorCannotBeInventedFromLocationOrTypedInformant()throws Exception{
+        join();
+        db.saveSceneState(new JSONObject().put("location","Taverna do Caminho")
+            .put("present_npcs_json","[]"));
+        assertEquals(0,book.masterView().getJSONArray("rumor_candidates").length());
+        try{
+            book.recordRumor("mon_javali_0","Cozinheiro imaginario",
+                "Ouvi uma receita secreta na taverna",receipt());
+            fail("A typed imaginary informant is not valid world evidence");
+        }catch(IllegalStateException expected){}
+        db.upsertNpcMemory(new JSONObject().put("name","Viajante")
+            .put("active",1).put("stats_json","{}"));
+        db.saveSceneState(new JSONObject().put("location","Taverna do Caminho")
+            .put("present_npcs_json",new JSONArray().put("Viajante").toString()));
+        assertEquals(0,book.masterView().getJSONArray("rumor_candidates").length());
+        try{
+            book.recordRumor("mon_javali_0","Viajante",
+                "Ouvi uma receita secreta na taverna",receipt());
+            fail("Presence without registered knowledge cannot unlock a recipe");
+        }catch(IllegalStateException expected){}
+        assertEquals(10,book.state().getJSONArray("known").length());
     }
     @Test public void marketRequiresWorldPlaceAndEnforcesStock()throws Exception{
         join();
@@ -315,6 +341,11 @@ public class WilemCookbookEngineTest {
         join();
         db.upsertPartyMembership(new JSONObject().put("actor_kind","hero").put("character_id",kvothe)
             .put("status","active").put("party_role","companion").put("recruitment_type","player_confirmed"));
+        db.upsertNpcMemory(new JSONObject().put("name","Cozinheiro")
+            .put("active",1).put("stats_json",new JSONObject()
+                .put("wilem_recipe_rumors",new JSONArray().put("mon_javali_0")).toString()));
+        db.saveSceneState(new JSONObject().put("location","Cozinha da estalagem")
+            .put("present_npcs_json",new JSONArray().put("Cozinheiro").toString()));
         book.recordRumor("mon_javali_0","Cozinheiro",
             "Uma refeicao de javali requer pesquisa e conservacao.",receipt());
         book.confirmDiscovery("mon_javali_0","Receita obtida em pesquisa comprovada",receipt());
