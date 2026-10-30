@@ -180,6 +180,23 @@ public final class WilemCookbookCatalog {
             steps.put("Aquecer o caldeirao, cozinhar os ingredientes no caldo ate ficarem prontos e ajustar a consistencia.");
             steps.put("Dividir em porcoes e servir quente. Alimentacao e convivencia valem independentemente de efeitos especiais.");
         }
+        if("monstruosa".equals(kind)){
+            JSONArray required=costs.names();
+            for(int i=0;required!=null&&i<required.length();i++){
+                String ingredientId=required.optString(i);
+                if(!ingredientId.startsWith("carne_"))continue;
+                JSONObject part=anatomy(ingredientId);
+                if(part.length()==0)throw new IllegalStateException("Corte de monstro sem anatomia: "+ingredientId);
+                // Cada especie conserva seu risco de abate/corte, inclusive quando
+                // o mesmo metodo culinario e utilizado por duas criaturas.
+                steps.put(0,"Identificar e examinar a especie antes do preparo. "+
+                    "Corte proprio: "+part.optString("cut")+". "+
+                    "Cuidado anatomico: "+part.optString("warning")+".");
+                r.put("anatomy",part).put("monster_ingredient_id",ingredientId);
+                break;
+            }
+            if(!r.has("anatomy"))throw new IllegalStateException("Receita monstruosa sem origem anatomica");
+        }
         r.put("steps",steps).put("ingredients",costs).put("warm_meal",!kind.equals("isca"));
         return r;
     }
