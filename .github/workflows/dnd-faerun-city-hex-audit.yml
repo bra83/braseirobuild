@@ -1,0 +1,50 @@
+name: DnD Faerun City Hex Audit
+on:
+  push:
+    branches:
+      - feature/dnd-wilem-cookbook-20261029
+    paths:
+      - '.github/workflows/dnd-faerun-city-hex-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read-bundled-atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate canonical city and hex records without rewriting the atlas
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import zipfile,json,os
+          p='dnd-normal/run247-mod005/app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip'
+          with zipfile.ZipFile(p) as z:
+            names=z.namelist()
+            print('ZIP_ENTRIES',len(names),flush=True)
+            interest=[n for n in names if any(s in n.lower() for s in ('location','local','profile','map_manifest','canonical_catalog'))]
+            print('ATLAS_MEMBERS', json.dumps([(n,z.getinfo(n).file_size) for n in interest[:50]],ensure_ascii=False),flush=True)
+            targets=('yartar','triboar','waterdeep','westbridge','red larch','newarre','amphail')
+            def scan(value,parent='',depth=0):
+              if depth>7:return
+              if isinstance(value,dict):
+                name=str(value.get('name',value.get('nome',value.get('label',''))))
+                if any(t in name.casefold() for t in targets):
+                  wanted={k:v for k,v in value.items() if k in ('name','nome','id','type','tipo','region','hexId','hex_id','canonicalPosition','packagePlacement','placement','population','populacao','location')}
+                  print('CITY_RECORD',json.dumps(wanted,ensure_ascii=False)[:2400],flush=True)
+                for k,v in value.items():
+                  if isinstance(v,(dict,list)):scan(v,parent+'/'+k,depth+1)
+              elif isinstance(value,list):
+                for v in value:scan(v,parent,depth+1)
+            for n in interest:
+              if not n.lower().endswith('.json') or z.getinfo(n).file_size>45_000_000:continue
+              try:
+                data=json.loads(z.read(n))
+                print('SCAN_JSON',n,z.getinfo(n).file_size,flush=True)
+                scan(data)
+                if 'profile' in n.lower() and isinstance(data,dict):
+                  print('GRID_PROFILE',json.dumps(data.get('grid',{}),ensure_ascii=False)[:1500],flush=True)
+              except Exception as exc:
+                print('CANNOT_PARSE',n,str(exc)[:200],flush=True)
+          PY
