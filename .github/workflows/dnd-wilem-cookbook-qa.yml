@@ -38,6 +38,8 @@ jobs:
           ./gradlew :app:testDebugUnitTest \
             --tests 'com.braseiro.dnd5e.WilemCookbook*Test' \
             --tests 'com.braseiro.dnd5e.KvotheStrixhavenPartyBridgeTest' \
+            --tests 'com.braseiro.dnd5e.StrixhavenFaerunArrivalEngineTest' \
+            --tests 'com.braseiro.dnd5e.StrixhavenSceneBoundaryRobolectricTest' \
             --no-daemon --stacktrace --console=plain
       - name: Compile APK without publishing or replacing release
         working-directory: dnd-normal/run247-mod005
