@@ -294,6 +294,12 @@ public final class WilemCookbookEngine {
     /** Physical dice, canonical environmental source, finite supply, one attempt/day. */
     public synchronized JSONObject forageWithPhysicalRoll(final String ingredientId,
         final Dice3DOverlay.RollResult dice,final String receipt)throws Exception{
+        return forageWithPhysicalRoll(ingredientId,null,null,dice,receipt);
+    }
+    /** The UI binds a physical d20 to the exact resource identified before rolling. */
+    public synchronized JSONObject forageWithPhysicalRoll(final String ingredientId,
+        final String expectedSourceKey,final String expectedRevision,
+        final Dice3DOverlay.RollResult dice,final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
         if(dice==null||!"d20".equals(dice.formula)||!"Normal".equals(dice.mode))
             throw new IllegalArgumentException("Rolagem fisica d20 normal obrigatoria");
@@ -310,6 +316,10 @@ public final class WilemCookbookEngine {
             JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
             JSONObject offer=WilemWorldSupply.forageOffer(db,ing);
             if(offer.length()==0)throw new IllegalStateException("Nao existe recurso ecologico validado no local");
+            if(expectedSourceKey!=null&&!expectedSourceKey.trim().isEmpty()&&
+                (!expectedSourceKey.equals(offer.optString("source_key"))||
+                 !String.valueOf(expectedRevision).equals(offer.optString("stock_revision"))))
+                throw new IllegalStateException("O recurso da cena mudou entre a escolha e a rolagem; nova verificacao necessaria");
             int day=db.getSceneState().optInt("day_number",1);
             String attempt=day+":"+offer.optString("source_key")+":"+
                 offer.optString("stock_revision")+":"+ingredientId;
