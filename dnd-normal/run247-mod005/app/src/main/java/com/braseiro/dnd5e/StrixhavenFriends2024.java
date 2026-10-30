@@ -385,11 +385,16 @@ public final class StrixhavenFriends2024 {
                 .put("ability_scores",abilities)
                 .put("saving_throw_proficiencies",
                     sheet.optJSONArray("saving_throw_proficiencies"))
-                .put("skill_proficiencies",sheet.optJSONArray("skill_proficiencies"))
-                .put("max_hp",sheet.optInt("max_hp",1));
-            // Combat damage is a persistent event; a campus synchronization
-            // must NEVER heal an injured NPC just by reloading the context.
-            if(!stats.has("hp"))stats.put("hp",sheet.optInt("hp",1));
+                .put("skill_proficiencies",sheet.optJSONArray("skill_proficiencies"));
+            // Preserve the NPC's existing wounds (missing HP) even when its
+            // maximum grows through a real level-up. Re-rendering at the
+            // same level must not heal or reset combat damage.
+            int oldMax=Math.max(1,stats.optInt("max_hp",sheet.optInt("max_hp",1)));
+            int oldHp=Math.max(0,Math.min(oldMax,stats.optInt("hp",oldMax)));
+            int missingHp=oldMax-oldHp;
+            int nextMax=Math.max(1,sheet.optInt("max_hp",1));
+            stats.put("max_hp",nextMax)
+                .put("hp",Math.max(0,nextMax-missingHp));
             if(!stats.has("ac"))stats.put("ac",sheet.optInt("ac",10));
             JSONObject updated=npc.length()>0?new JSONObject(npc.toString()):new JSONObject()
                 .put("name",name).put("active",1)
