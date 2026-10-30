@@ -560,6 +560,8 @@ public final class WilemCookbookEngine {
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para ouvir e anotar");
         if(WilemCookbookCatalog.recipeById(recipeId).length()==0)throw new IllegalArgumentException("Receita desconhecida pelo catalogo");
         if(informant==null||informant.trim().length()<2||note==null||note.trim().length()<8)throw new IllegalArgumentException("Fonte e conteudo do boato obrigatorios");
+        if(!presentInformantKnowsRecipe(recipeId,informant))
+            throw new IllegalStateException("Boato precisa vir de NPC presente com conhecimento culinario registrado no mundo");
         final JSONObject[] result={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject st=state();requireReceipt(st,receipt);
@@ -1228,31 +1230,63 @@ public final class WilemCookbookEngine {
         }
     }
 
-    /**
-     * O Mestre pode apresentar pistas culinarias CONTEXTUAIS, sem revelacao gratuita
-     * de formula, efeito, preparo ou verdade oculta. Deterministico por local.
+    /** Uma pista culinaria exige NPC persistente presente e fonte declarada.
+     * O texto da cena, sozinho, nao prova que alguem conhece uma receita.
+     * O mestre pode atribuir "wilem_recipe_rumors" ao stats_json de um NPC real.
      */
+    private static boolean knowsCulinaryRumor(JSONObject stats,String recipeId){
+        if(stats==null||recipeId==null||recipeId.isEmpty())return false;
+        JSONArray rumors=stats.optJSONArray("wilem_recipe_rumors");
+        for(int i=0;rumors!=null&&i<rumors.length();i++){
+            Object item=rumors.opt(i);
+            String id=item instanceof JSONObject?((JSONObject)item).optString("recipe_id"):String.valueOf(item);
+            if(recipeId.equals(id))return true;
+        }
+        return false;
+    }
+    private boolean presentInformantKnowsRecipe(String recipeId,String informant){
+        if(informant==null||informant.trim().isEmpty())return false;
+        JSONObject npc=db.findNpcMemoryByName(informant.trim());
+        if(npc.length()==0||npc.optInt("active",0)!=1||
+            !knowsCulinaryRumor(object(npc.optString("stats_json","{}")),recipeId))
+            return false;
+        JSONArray present=db.listSceneNpcs(200);
+        for(int i=0;i<present.length();i++){
+            JSONObject candidate=present.optJSONObject(i);
+            if(candidate!=null&&NpcIdentityNormalizer.key(informant).equals(
+                    NpcIdentityNormalizer.key(candidate.optString("name"))))
+                return true;
+        }
+        return false;
+    }
     private JSONArray sceneRumorCandidates(String location,JSONArray known,int heroLevel){
-        JSONArray out=new JSONArray(),all=WilemCookbookCatalog.recipes();
-        String where=location==null?"":location.toLowerCase(Locale.ROOT);
-        if(where.trim().length()<3)return out;
-        boolean foodPlace=where.contains("taverna")||where.contains("pousada")||
-            where.contains("mercado")||where.contains("feira")||where.contains("marco")||
-            where.contains("cozinha")||where.contains("restaurante")||where.contains("strixhaven");
-        int seed=Math.abs(where.hashCode()%Math.max(1,all.length()));
-        for(int offset=0;offset<all.length()&&out.length()<5;offset++){
-            JSONObject r=all.optJSONObject((offset+seed)%all.length());if(r==null)continue;
-            if(contains(known,r.optString("id"))||r.optInt("tier",0)>heroLevel+2)continue;
-            String origin=r.optString("origin").toLowerCase(Locale.ROOT);
-            boolean nature=where.contains("floresta")||where.contains("pantano")||
-                where.contains("bosque")||where.contains("caverna")||where.contains("lago")||
-                where.contains("montanha")||where.contains("deserto")||where.contains("litoral");
-            if(!foodPlace&&!nature)continue;
-            if(!foodPlace&&!origin.contains(where.trim())&&!where.contains(origin))continue;
-            try{out.put(new JSONObject().put("recipe_id",r.optString("id"))
-                .put("hint",r.optString("name")).put("rumor_location",location)
-                .put("knowledge_status","nao_conhecido_nao_verificado")
-                .put("require_npc_witness_or_source",true));}catch(Exception ignored){}
+        JSONArray out=new JSONArray();
+        if(location==null||location.trim().isEmpty())return out;
+        JSONArray present=db.listSceneNpcs(200);
+        java.util.HashSet<String> offered=new java.util.HashSet<String>();
+        for(int i=0;i<present.length()&&out.length()<12;i++){
+            JSONObject visitor=present.optJSONObject(i);
+            if(visitor==null)continue;
+            String name=visitor.optString("name","");
+            JSONObject npc=db.findNpcMemoryByName(name);
+            if(npc.length()==0||npc.optInt("active",0)!=1)continue;
+            JSONArray rumors=object(npc.optString("stats_json","{}"))
+                .optJSONArray("wilem_recipe_rumors");
+            for(int j=0;rumors!=null&&j<rumors.length()&&out.length()<12;j++){
+                Object raw=rumors.opt(j);
+                String recipeId=raw instanceof JSONObject?
+                    ((JSONObject)raw).optString("recipe_id"):String.valueOf(raw);
+                JSONObject recipe=WilemCookbookCatalog.recipeById(recipeId);
+                if(recipe.length()==0||contains(known,recipeId)||
+                    recipe.optInt("tier",0)>heroLevel+2||
+                    !offered.add(recipeId))continue;
+                try{out.put(new JSONObject().put("recipe_id",recipeId)
+                    .put("hint","Possivel preparo nao verificado")
+                    .put("informant",name).put("rumor_location",location)
+                    .put("knowledge_status","nao_conhecido_nao_verificado")
+                    .put("require_npc_witness_or_source",true));}
+                catch(Exception e){throw new IllegalStateException("Boato invalido",e);}
+            }
         }
         return out;
     }
