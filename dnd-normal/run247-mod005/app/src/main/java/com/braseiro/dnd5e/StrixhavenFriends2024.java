@@ -25,7 +25,7 @@ public final class StrixhavenFriends2024 {
     private static final int[] INITIAL_HP={15,9,10};
     private static final int[] INITIAL_AC={13,15,15};
     private static final double[] INITIAL_GOLD={65,61,59};
-    private static final String[] ORIGIN_FEATS={"Artifista","Brigão de Taverna","Iniciado em Magia (Druida)"};
+    private static final String[] ORIGIN_FEATS={"Artifista","Valentão de Taverna","Iniciado em Magia (Druida)"};
     private static final String[] FUTURE_SUBCLASSES={
         "Caminho da Árvore do Mundo","Caminho das Sombras","Círculo da Terra"
     };
@@ -94,8 +94,8 @@ public final class StrixhavenFriends2024 {
             .put("proficiency_bonus","+2")
             .put("initiative",signed(mod(FINAL[i][1])))
             .put("size","Médio")
-            .put("speed_m",i==1?10.5d:9d)
-            .put("speed",i==1?"10,5 m":"9 m")
+            .put("speed_m",i==0?9d:10.5d)
+            .put("speed",i==0?"9 m":"10,5 m")
             .put("class_levels",new JSONArray().put(new JSONObject()
                 .put("class_name",CLASSES[i]).put("level",1)))
             .put("subclass_future_at_level_3",FUTURE_SUBCLASSES[i])
@@ -175,7 +175,7 @@ public final class StrixhavenFriends2024 {
             addItem(inventory,"kit_herbalismo","Kit de herbalismo",1,"class_2024_option_A");
             sheet.put("tools","Kit de herbalismo; ferramentas de cartógrafo")
                 .put("proficiencies","Armas simples; armadura leve e escudos; kit de herbalismo; ferramentas de cartógrafo.")
-                .put("features","Elfa da Floresta 2024: Transe, Sentidos Aguçados (Percepção), Arte Druídica. Druida 2024: Conjuração, Druídico, Ordem Primal (Guardião). Guia: Iniciado em Magia (Druida).")
+                .put("features","Elfa da Floresta 2024: Transe, Sentidos Aguçados (Percepção), Druidismo. Druida 2024: Conjuração, Druídico, Ordem Primal (Guardião). Guia: Iniciado em Magia (Druida).")
                 .put("druid_primal_order_choice","Guardião")
                 .put("spell_slots_max",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
                 .put("spell_slots_current",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
@@ -186,8 +186,39 @@ public final class StrixhavenFriends2024 {
         sheet.put("inventory","Equipamento inicial do pacote de classe A; antecedente B (50 PO); itens pessoais identificados")
             .put("equipment",sheet.optString("inventory"));
         if(i==1)sheet.put("monk_class_tool_choice","Flauta");
+        // Every recorded starting choice is run through the compiled PHB 2024
+        // interpreter, rather than being claimed only in human-readable text.
+        if(i==0)sheet.put("dwarven_toughness_applied_level",1);
+        Core2024EberronCharacterEngine.apply2024SpeciesMechanics(sheet);
+        JSONObject speciesChoice=new JSONObject();
+        if(i==1)speciesChoice.put("ancestry","Nuvem");
+        if(i==2)speciesChoice.put("lineage","Floresta")
+            .put("ability","Sabedoria").put("skill","Percepção");
+        if(i>0 && !Core2024EberronCharacterEngine
+                .apply2024SpeciesChoice(sheet,speciesChoice).optBoolean("ok",false))
+            throw new IllegalStateException("Escolha de espécie 2024 incompleta: "+NAMES[i]);
+        sheet.put("selected_origin_feats",new JSONArray());
+        JSONObject featChoice=new JSONObject();
+        if(i==0)featChoice.put("tools",new JSONArray()
+            .put("Utensílios de cozinheiro")
+            .put("Ferramentas de ferreiro")
+            .put("Ferramentas de carpinteiro"));
+        if(i==2)featChoice.put("list","Druida").put("ability","Sabedoria")
+            .put("cantrips",new JSONArray().put("Resistência").put("Bordão Místico"))
+            .put("first_level_spell","Palavra Curativa");
+        if(!Core2024EberronCharacterEngine.applyOriginFeat(sheet,
+                ORIGIN_FEATS[i],featChoice).optBoolean("ok",false))
+            throw new IllegalStateException("Talento 2024 incompleto: "+NAMES[i]);
+        if(i==0)sheet.put("selected_weapon_masteries",new JSONArray()
+            .put("Machado grande").put("Machadinha"))
+            .put("weapon_masteries_known",2);
+        Core2024EberronCharacterEngine.apply2024SpeciesMechanics(sheet);
         JSONObject complete=CharacterResourceStateEngine.ensure(sheet,CLASSES[i],1,"5e 2024");
-        return Character2024SheetReconciler.reconcile(complete);
+        Character2024SheetReconciler.reconcile(complete);
+        if(!complete.optBoolean("creation_mechanically_ready",false))
+            throw new IllegalStateException("Ficha 2024 ainda pendente: "+NAMES[i]+
+                " "+complete.optJSONArray("creation_missing_choices"));
+        return complete;
     }
     private static void addItem(JSONArray inventory,String id,String name,int amount,String source)throws Exception{
         inventory.put(new JSONObject().put("id",id).put("name",name).put("quantity",amount)
@@ -224,6 +255,7 @@ public final class StrixhavenFriends2024 {
                     if(index==0){
                         upgraded.put("max_hp",upgraded.optInt("max_hp")+1);
                         upgraded.put("hp",upgraded.optInt("hp")+1);
+                        upgraded.put("dwarven_toughness_applied_level",level);
                     }
                     if(level>=3){
                         String subclass=FUTURE_SUBCLASSES[index];
