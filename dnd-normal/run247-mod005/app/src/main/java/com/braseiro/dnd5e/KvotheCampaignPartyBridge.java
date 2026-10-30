@@ -184,6 +184,17 @@ public final class KvotheCampaignPartyBridge {
                     StrixhavenFriends2024.syncBeforeMarco(db,kvotheLevel));
             }
             out.put("enabled",true);
+            out.put("post_strixhaven_arrival",new JSONObject()
+                .put("city","Yartar")
+                .put("hex_id","DM28")
+                .put("atlas_location_id","yartar")
+                .put("world_profile","dnd")
+                .put("region","Vale do Dessarin")
+                .put("role","primeira chegada a Faerun apos o prologo")
+                .put("must_not_auto_recruit_companions",true)
+                .put("rendezvous_settlement","Newarre")
+                .put("rendezvous_hex_id",NewarreAndWaystoneEngine.HEX_ID)
+                .put("rendezvous_is_optional",true));
             JSONArray roster=new JSONArray();
             for(JSONObject h:heroes){
                 long id=h.optLong("id");
