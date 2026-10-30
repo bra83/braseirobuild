@@ -30,10 +30,10 @@ public final class StrixhavenFriends2024 {
         "Caminho da Árvore do Mundo","Caminho das Sombras","Círculo da Terra"
     };
     private static final String[][] CLASS_SKILLS={
-        {"Atletismo","Sobrevivência"},{"Furtividade","Intuição"},{"Natureza","Sobrevivência"}
+        {"Atletismo","Sobrevivência"},{"Furtividade","Intuição"},{"Natureza","Adestrar Animais"}
     };
     private static final String[][] BACKGROUND_SKILLS={
-        {"Investigação","Persuasão"},{"Acrobacia","Percepção"},{"Arcanismo","História"}
+        {"Investigação","Persuasão"},{"Acrobacia","Percepção"},{"Furtividade","Sobrevivência"}
     };
     private static final String[] EXTRA_ELF_SKILLS={"Percepção"};
     private static final String[][] SAVE_SKILLS={
