@@ -65,6 +65,14 @@ public final class PartyDirector {
         return new KvotheCampaignPartyBridge(db).recruitAtMarco(playerConfirmed,allAccepted);
     }
 
+    /** Unique in-world feat: XP is awarded to one recruited companion only,
+     * never to Kvothe or other party members by association. */
+    public JSONObject awardKvotheFriendIndividualXp(long characterId,int xp,
+            String confirmedFeat,String receipt)throws Exception{
+        return StrixhavenFriends2024.awardIndependentHeroXp(
+            db,characterId,xp,confirmedFeat,receipt);
+    }
+
     public JSONObject kvotheCampaignPolicy(){
         return new KvotheCampaignPartyBridge(db).context();
     }
