@@ -1015,13 +1015,20 @@ public final class WilemCookbookEngine {
             catch(Exception ignored){return false;}
         }
         if(ConditionTokenGuard.has(text,condition))return true;
-        if("inconsciente".equals(condition)){
-            for(String part:text.split("[,;\\n]+")){
-                String candidate=part.trim().toLowerCase(Locale.ROOT);
-                if(candidate.equals("sleep immunity")||candidate.equals("immune to sleep")||
-                    candidate.equals("imune a sono")||candidate.equals("imunidade a sono"))
-                    return true;
+        for(String part:text.split("[,;\\n]+")){
+            String candidate=part.trim().toLowerCase(Locale.ROOT);
+            if(candidate.startsWith("not ")||candidate.startsWith("nao "))
+                continue; // Explicitly denied immunity never becomes real immunity.
+            String label=candidate;
+            for(String prefix:new String[]{"immune to ","imune a ","imune ao ",
+                "imunidade a ","imunidade ao ","immunity to "}){
+                if(label.startsWith(prefix)){label=label.substring(prefix.length());break;}
             }
+            if(ConditionTokenGuard.canonical(label).equals(ConditionTokenGuard.canonical(condition)))
+                return true;
+            if("inconsciente".equals(condition)&&
+                (label.equals("sleep")||label.equals("sono")||label.equals("sleep immunity")))
+                return true;
         }
         return false;
     }
