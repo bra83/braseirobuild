@@ -47,6 +47,10 @@ public final class WilemCookbookEngine {
             "world_profile TEXT NOT NULL, character_id INTEGER NOT NULL,"+
             "state_json TEXT NOT NULL DEFAULT '{}', updated_at INTEGER NOT NULL DEFAULT 0,"+
             "PRIMARY KEY(world_profile,character_id))");
+        // A sliding list of 120 recent receipts alone is not an anti-replay ledger.
+        sql.execSQL("CREATE TABLE IF NOT EXISTS wilem_receipt_ledger ("+
+            "world_profile TEXT NOT NULL, character_id INTEGER NOT NULL,"+
+            "receipt TEXT NOT NULL, PRIMARY KEY(world_profile,character_id,receipt))");
         WilemWorldSupply.ensureSchema(sql);
     }
     private static JSONObject object(String json){
@@ -78,6 +82,7 @@ public final class WilemCookbookEngine {
             .put("receipts",new JSONArray()).put("discoveries",new JSONArray())
             .put("purchases",new JSONArray()).put("forage_attempts",new JSONArray())
             .put("world_reward_claims",new JSONArray())
+            .put("durable_receipts_v2",true)
             .put("created_world_hour",worldHour(db));
     }
     public synchronized JSONObject state(){
@@ -86,7 +91,26 @@ public final class WilemCookbookEngine {
         Cursor cursor=sql.rawQuery("SELECT state_json FROM wilem_recipe_books WHERE world_profile=? AND character_id=?",
             new String[]{profile(),String.valueOf(id)});
         try{
-            if(cursor.moveToFirst()){JSONObject current=object(cursor.getString(0));reconcileBaitExpirations(current);return current;}
+            if(cursor.moveToFirst()){
+                JSONObject current=object(cursor.getString(0));
+                // Preserve the last 120 receipts from older installations in the
+                // durable ledger before recording any new operation.
+                if(!current.optBoolean("durable_receipts_v2",false)){
+                    JSONArray previous=current.optJSONArray("receipts");
+                    for(int i=0;previous!=null&&i<previous.length();i++){
+                        String old=previous.optString(i,"").trim();
+                        if(old.length()>=12){
+                            ContentValues row=new ContentValues();
+                            row.put("world_profile",profile());row.put("character_id",id);
+                            row.put("receipt",old);
+                            sql.insertWithOnConflict("wilem_receipt_ledger",null,row,SQLiteDatabase.CONFLICT_IGNORE);
+                        }
+                    }
+                    try{current.put("durable_receipts_v2",true);write(sql,id,current);}
+                    catch(Exception e){throw new IllegalStateException("Registro de recibos antigos nao migrou",e);}
+                }
+                reconcileBaitExpirations(current);return current;
+            }
         }finally{cursor.close();}
         try{
             JSONObject initial=fresh(id);write(sql,id,initial);return initial;
@@ -125,14 +149,29 @@ public final class WilemCookbookEngine {
         if(sql.insertWithOnConflict("wilem_recipe_books",null,c,SQLiteDatabase.CONFLICT_REPLACE)<0)
             throw new IllegalStateException("Caderno nao persistiu");
     }
-    private static void remember(JSONObject state,String receipt)throws Exception{
+    private void remember(JSONObject state,String receipt)throws Exception{
+        requireReceipt(state,receipt);
+        ContentValues row=new ContentValues();row.put("world_profile",profile());
+        row.put("character_id",ownerId());row.put("receipt",receipt);
+        if(db.getWritableDatabase().insertWithOnConflict(
+                "wilem_receipt_ledger",null,row,SQLiteDatabase.CONFLICT_IGNORE)<0)
+            throw new IllegalStateException("Recibo repetido; operacao nao pode ser aplicada novamente");
         JSONArray a=state.optJSONArray("receipts");if(a==null)a=new JSONArray();
-        a.put(receipt);JSONArray trimmed=new JSONArray();for(int i=Math.max(0,a.length()-120);i<a.length();i++)trimmed.put(a.opt(i));
-        state.put("receipts",trimmed);
+        a.put(receipt);JSONArray trimmed=new JSONArray();
+        for(int i=Math.max(0,a.length()-120);i<a.length();i++)trimmed.put(a.opt(i));
+        state.put("receipts",trimmed).put("durable_receipts_v2",true);
     }
-    private static void requireReceipt(JSONObject state,String receipt){
-        if(receipt==null||receipt.trim().length()<12)throw new IllegalArgumentException("Identidade da operacao ausente");
-        if(contains(state.optJSONArray("receipts"),receipt))throw new IllegalStateException("Operacao ja confirmada; repeticao bloqueada");
+    private void requireReceipt(JSONObject state,String receipt){
+        if(receipt==null||receipt.trim().length()<12)
+            throw new IllegalArgumentException("Identidade da operacao ausente");
+        if(contains(state.optJSONArray("receipts"),receipt))
+            throw new IllegalStateException("Operacao ja confirmada; repeticao bloqueada");
+        try(Cursor c=db.getWritableDatabase().rawQuery(
+            "SELECT 1 FROM wilem_receipt_ledger WHERE world_profile=? AND character_id=? AND receipt=? LIMIT 1",
+            new String[]{profile(),String.valueOf(ownerId()),receipt})){
+            if(c.moveToFirst())
+                throw new IllegalStateException("Recibo persistente ja foi utilizado; repeticao bloqueada");
+        }
     }
     private JSONObject hero(){return db.getCharacter(ownerId());}
     private JSONObject sheet(){return object(hero().optString("sheet_json","{}"));}
