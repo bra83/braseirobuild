@@ -124,6 +124,77 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
     }
 
+    @Test public void studentFriendsStayNpcBeforeD040AndBecomeIndependentHeroesAtMeeting()throws Exception{
+        scene("Strixhaven • Campus Central","",true);
+        JSONObject campus=bridge.context();
+        assertTrue(campus.toString(),campus.optBoolean("enabled"));
+        JSONArray friends=campus.getJSONArray("strixhaven_npc_friends");
+        assertEquals(3,friends.length());
+        for(String name:new String[]{"Wilem","Simmon","Auri"}){
+            JSONObject npc=db.findNpcMemoryByName(name);
+            assertEquals(1,npc.optInt("active",0));
+            JSONObject saved=new JSONObject(npc.getString("stats_json"))
+                .getJSONObject("strixhaven_2024_sheet");
+            assertEquals(1,saved.optInt("level"));
+            assertEquals("pre_marco_npc",new JSONObject(npc.getString("stats_json"))
+                .optString("strixhaven_friend_status"));
+        }
+        assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+        assertEquals("not_at_marco_d040",
+            bridge.recruitAtMarco(true,true).optString("reason"));
+        scene("Marco do Percurso","D040",false);
+        JSONObject blocked=bridge.recruitAtMarco(true,true);
+        assertEquals("student_npc_not_present",blocked.optString("reason"));
+        assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+        JSONObject arrived=db.getSceneState();
+        arrived.put("present_npcs_json",new JSONArray()
+            .put("Wilem").put("Simmon").put("Auri").toString());
+        db.saveSceneState(arrived);
+        assertEquals("meeting_and_consent_not_confirmed",
+            bridge.recruitAtMarco(false,true).optString("reason"));
+        JSONObject accepted=bridge.recruitAtMarco(true,true);
+        assertTrue(accepted.toString(),accepted.optBoolean("joined"));
+        assertTrue(accepted.optBoolean("independent_progression"));
+        assertEquals(3,accepted.getJSONArray("hero_ids").length());
+        assertEquals(4,new PartyDirector(db).activeHeroRoster().size());
+        for(String name:new String[]{"Wilem","Simmon","Auri"}){
+            JSONObject npc=db.findNpcMemoryByName(name);
+            assertEquals(0,npc.optInt("active",1));
+            JSONObject hero=null;
+            for(JSONObject found:db.listActiveCharacters())
+                if(name.equals(found.optString("name")))hero=found;
+            assertNotNull(hero);
+            assertEquals(1,hero.optInt("level"));
+            assertEquals("manual",db.getCharacterControl(hero.optLong("id"))
+                .optString("control_mode"));
+            JSONObject sheet=new JSONObject(hero.getString("sheet_json"));
+            assertEquals("independent_hero",
+                sheet.getJSONObject("npc_lifecycle").getString("phase"));
+        }
+    }
+    @Test public void friendsUseValid27PointBuyAnd2024StartingClasses()throws Exception{
+        for(String name:new String[]{"Wilem","Simmon","Auri"}){
+            JSONObject sheet=StrixhavenFriends2024.initialSheet(name);
+            assertEquals("5e 2024",sheet.getString("rules_source"));
+            assertEquals(27,sheet.getJSONObject("ability_purchase").getInt("cost"));
+            assertEquals("",sheet.getString("subclass_name"));
+            assertTrue(sheet.getJSONArray("skill_proficiencies").length()>=4);
+        }
+        JSONObject wilem=StrixhavenFriends2024.initialSheet("Wilem");
+        assertEquals("Anão",wilem.getString("species"));
+        assertEquals(15,wilem.getInt("max_hp")); // Dwarf 2024 +1 HP per level
+        assertEquals("Bárbaro",wilem.getString("class_name"));
+        JSONObject simmon=StrixhavenFriends2024.initialSheet("Simmon");
+        assertEquals("Golias",simmon.getString("species"));
+        assertEquals("Monge",simmon.getString("class_name"));
+        assertEquals("Médio",simmon.getString("size"));
+        JSONObject auri=StrixhavenFriends2024.initialSheet("Auri");
+        assertEquals("Elfo",auri.getString("species"));
+        assertEquals("Druida",auri.getString("class_name"));
+        assertEquals(15,auri.getInt("ac")); // Leather 11+2 DEX+2 shield
+        assertEquals(5,auri.getJSONArray("skill_proficiencies").length());
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
