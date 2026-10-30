@@ -558,6 +558,39 @@ public class WilemCookbookEngineTest {
         db.saveSceneState(elsewhere);
         assertEquals(0,book.forageableIngredients().length());
     }
+    @Test public void receiptsCannotReplayAfterSlidingWindowOrDatabaseReopen()throws Exception{
+        join();
+        String first="wilem-receipt-unique-first-"+System.nanoTime();
+        book.addNote("Primeira anotacao","Historico da cozinha",first);
+        for(int i=0;i<131;i++)book.addNote("Anotacao "+i,
+            "Registro persistente "+i,"wilem-receipt-unique-"+i+"-"+name);
+        assertFalse("Old receipt is outside the 120-element display cache",
+            book.state().getJSONArray("receipts").toString().contains(first));
+        try{book.addNote("Nota duplicada","Nunca duplicar",first);
+            fail("Sliding window must not defeat unique durable ledger");}
+        catch(IllegalStateException expected){}
+        int before=book.state().getJSONArray("notes").length();
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
+        try{book.addNote("Nota apos reabrir","Nao repetir recibo",first);
+            fail("Reopening must not reset durable receipt ledger");}
+        catch(IllegalStateException expected){}
+        assertEquals(before,book.state().getJSONArray("notes").length());
+    }
+    @Test public void legacyWindowReceiptsMigrateWithoutLosingPreviousState()throws Exception{
+        join();
+        JSONObject old=book.state();
+        old.put("durable_receipts_v2",false);
+        String legacy="wilem-legacy-locked-receipt";
+        old.getJSONArray("receipts").put(legacy);
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{old.toString(),"dnd",wilem});
+        assertTrue(book.state().optBoolean("durable_receipts_v2"));
+        try{book.addNote("Reuso legado","Nao pode repetir",legacy);
+            fail("Old receipt must migrate to SQLite ledger");}
+        catch(IllegalStateException expected){}
+        assertEquals(old.getJSONArray("notes").length(),book.state().getJSONArray("notes").length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
