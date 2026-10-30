@@ -40,9 +40,65 @@ public final class NarrativeGuardService {
         }
     }
 
+
+    /*
+     * Gate for instructional prose accidentally emitted by the model as story.
+     * Detection is paragraph-scoped: a legitimate character saying "o mundo"
+     * or "personagens" is not enough to trigger it. Separate internal context
+     * from what a character could have seen or heard.
+     */
+    private static final Pattern DIRECTIVE_LEAK = Pattern.compile(
+        "(?iu)(?:quando um novo reino,?\\s*templo,?\\s*povo|"
+        +"dever[aá] ganhar contexto no momento em que importar|"
+        +"ser despejado como uma sequ[eê]ncia de nomes|"
+        +"o presente imediato,? ent[aã]o,? ganha prioridade|"
+        +"a companhia pode interromper uma rotina|"
+        +"o mundo n[aã]o pausa enquanto essa decis[aã]o|"
+        +"[eé] nesse ponto que a apresenta[cç][aã]o termina|"
+        +"sem fingir conhecimento que ningu[eé]m recebeu|"
+        +"contexto suficiente para agir sem fingir conhecimento|"
+        +"foco de regras para a abertura|"
+        +"refer[eê]ncia do cat[aá]logo:|"
+        +"ponto inicial catalogado desta aventura|"
+        +"scene_state\\.present_npcs|host_world_authority|duplicate_gemini_call)"
+    );
+
+    private static final Pattern RULE_META = Pattern.compile(
+        "(?iu)(?:^|[.!?]\\s+)(?:o mestre deve|a narra[cç][aã]o deve|"
+        +"a cena deve|n[aã]o revele|n[aã]o antecipe|n[aã]o force|"
+        +"n[aã]o invente|deve ser apresentado|dever[aá] aparecer|"
+        +"contextualize |descreva primeiro|priorize o presente imediato)"
+    );
+
+    public static boolean containsInstructionLeak(String text) {
+        if(text==null||text.trim().isEmpty())return false;
+        // Strong signatures from real incident reports.
+        if(DIRECTIVE_LEAK.matcher(text).find())return true;
+        // A weaker imperative alone isn't proof; require another instruction
+        // signal or a clear rule-like imperative, not normal dialogue.
+        String lower=text.toLowerCase(java.util.Locale.ROOT);
+        return RULE_META.matcher(text).find()
+            && (lower.contains("jogador")||lower.contains("narrativa")
+                ||lower.contains("campanha")||lower.contains("personagem")
+                ||lower.contains("mestre")||lower.contains("roteiro"));
+    }
+
+    public static String removeInstructionLeaks(String text) {
+        if(text==null||text.trim().isEmpty())return "";
+        String[] paragraphs=text.replace("\r\n","\n").replace('\r','\n')
+            .split("\\n\\s*\\n",-1);
+        StringBuilder kept=new StringBuilder();
+        for(String paragraph:paragraphs){
+            if(paragraph.trim().isEmpty()||containsInstructionLeak(paragraph))continue;
+            if(kept.length()>0)kept.append("\n\n");
+            kept.append(paragraph.trim());
+        }
+        return kept.toString();
+    }
+
     public static String sanitize(String text) {
         if (text == null || text.trim().length() == 0) return "";
-        String clean = text.replace("\r\n", "\n").replace('\r', '\n');
+        String clean = removeInstructionLeaks(text);
 
         // Remove rótulos de interface vazados na prosa
         clean = UI_LABELS.matcher(clean).replaceAll("");
@@ -68,6 +124,7 @@ public final class NarrativeGuardService {
         if (text == null || text.trim().length() == 0) {
             return new ValidationResult(true, errors);
         }
+        if (containsInstructionLeak(text)) {errors.add("Diretrizes internas vazaram para a narração.");}
         if (AI_VOICE.matcher(text).find()) {
             errors.add("Voz de IA/meta detectada.");
         }
