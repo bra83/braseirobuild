@@ -369,6 +369,14 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals(1,refreshed.optInt("level"));
         assertEquals(15,refreshed.optInt("max_hp"));
         assertEquals(1,new PartyDirector(db).activeHeroRoster().size());
+        // On a genuine advancement the additional hit points are earned,
+        // but the eleven hit points of injury remain missing.
+        StrixhavenFriends2024.syncBeforeMarco(db,4);
+        JSONObject afterLevel=new JSONObject(db.findNpcMemoryByName("Wilem")
+            .getString("stats_json"));
+        assertEquals(4,afterLevel.optInt("level"));
+        assertTrue(afterLevel.optInt("max_hp")>15);
+        assertEquals(11,afterLevel.optInt("max_hp")-afterLevel.optInt("hp"));
     }
 
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
