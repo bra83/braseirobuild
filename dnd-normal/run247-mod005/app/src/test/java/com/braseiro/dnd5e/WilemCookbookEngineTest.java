@@ -533,8 +533,9 @@ public class WilemCookbookEngineTest {
         assertFalse(result.optBoolean("effect_applied"));
         // Negated descriptions cannot be interpreted as condition immunity.
         prepareSyntheticBait("bait-not-immune","isca_mel_fantasia","");
+        String persistedMechanics=db.getCombatant(creature).optString("resources_json","{}");
         db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
-            "","","not immune to sleep","{}");
+            "","","not immune to sleep",persistedMechanics);
         try{book.resolveBaitWithPhysicalSave("bait-not-immune",creature,true,true,
             false,d20(1,72513L),0,false,receipt());
             fail("Without immunity an actual active encounter is needed for the effect");}
