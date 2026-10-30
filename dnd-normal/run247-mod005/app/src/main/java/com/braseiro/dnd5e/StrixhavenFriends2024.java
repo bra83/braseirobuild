@@ -27,7 +27,7 @@ public final class StrixhavenFriends2024 {
     private static final double[] INITIAL_GOLD={65,61,59};
     private static final String[] ORIGIN_FEATS={"Artifista","Brigão de Taverna","Iniciado em Magia (Druida)"};
     private static final String[] FUTURE_SUBCLASSES={
-        "Caminho da Árvore do Mundo","Guerreiro das Sombras","Círculo da Terra"
+        "Caminho da Árvore do Mundo","Caminho das Sombras","Círculo da Terra"
     };
     private static final String[][] CLASS_SKILLS={
         {"Atletismo","Sobrevivência"},{"Furtividade","Intuição"},{"Natureza","Sobrevivência"}
