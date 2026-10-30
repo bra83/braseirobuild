@@ -785,8 +785,10 @@ public final class WilemCookbookEngine {
 
                 .put("requires_risk_resolution",batch.optString("result").contains("risco"));
             if(batch.optString("result").contains("risco")){
-                if(constitutionSaveTotal<0||saveProof==null||targetId<=0)
-                    throw new IllegalArgumentException("Refeicao de risco exige salvaguarda fisica do heroi na companhia");
+                if(saveProof==null||targetId<=0||
+                    !"physical3d".equals(saveProof.optString("source"))||
+                    saveProof.optInt("total",Integer.MIN_VALUE)!=constitutionSaveTotal)
+                    throw new IllegalArgumentException("Refeicao de risco exige salvaguarda fisica verificada do heroi na companhia");
                 boolean poisoned=constitutionSaveTotal<Math.max(10,recipe.optInt("dc",10)-2);
                 effect.put("constitution_save_total",constitutionSaveTotal).put("constitution_save_proof",saveProof)
                     .put("poisoned_after_consumption",poisoned)
