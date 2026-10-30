@@ -63,7 +63,7 @@ public class WilemCookbookEngineTest {
     private void forageNode(String place,int day,int stock)throws Exception{
         JSONObject node=new JSONObject().put("type","wilem_forage_node")
             .put("id","stryx-garden-1").put("ingredient_id","batata")
-            .put("quantity",stock).put("revision","one-harvest");
+            .put("location",place).put("quantity",stock).put("revision","one-harvest");
         db.saveSceneState(new JSONObject().put("day_number",day).put("clock_hour",13)
             .put("location",place).put("clues_json",new JSONArray().put(node).toString()));
     }
@@ -468,6 +468,94 @@ public class WilemCookbookEngineTest {
         assertEquals(1,book.forageWithPhysicalRoll("batata",d20,receipt()).getInt("quantity"));
         assertEquals(0,book.forageableIngredients().length());
         forageNode("Horta ao lado da escola",2,1);
+        assertEquals(0,book.forageableIngredients().length());
+    }
+    private void prepareSyntheticBait(String id,String recipe,String scene)throws Exception{
+        JSONObject st=book.state();
+        st.getJSONArray("baits").put(new JSONObject().put("id",id)
+            .put("recipe_id",recipe).put("status","armada")
+            .put("scene",scene).put("batch_quality","somente_beneficio"));
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{st.toString(),"dnd",wilem});
+    }
+    private Dice3DOverlay.RollResult d20(int face,long seed)throws Exception{
+        java.util.List<Integer> f=java.util.Collections.singletonList(face);
+        return new Dice3DOverlay.RollResult(f,f,face,face,String.valueOf(face),"","d20","Normal",
+            110,seed,"test",RollIntegrity.signature("d20",f,0,seed,face));
+    }
+    @Test public void aValidNegativePhysicalConstitutionTotalIsNotRejected()throws Exception{
+        join();prepareSyntheticBait("bait-neg-save","isca_mel_fantasia","");
+        long creature=db.addCombatant("Rato muito debilitado",10,8,8,10,"",false);
+        db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
+            "","","unconscious","{}");
+        assertEquals(-5,book.registerMonsterConstitution(creature,1,0,receipt()).getInt("bonus"));
+        JSONObject resolved=book.resolveBaitWithPhysicalSave("bait-neg-save",creature,true,true,
+            false,d20(1,98761L),999,false,receipt());
+        assertEquals(-4,resolved.getInt("save_total"));
+        assertTrue(resolved.getBoolean("immunity_auto_detected"));
+        assertFalse(resolved.getBoolean("effect_applied"));
+        assertEquals(-4,resolved.getJSONObject("save_proof").getInt("total"));
+    }
+    @Test public void allCanonicalImmunityOriginsApplyToBaits()throws Exception{
+        join();prepareSyntheticBait("bait-native-immunity","isca_mel_fantasia","");
+        long nativeCreature=db.addCombatant("Criatura imune",10,8,8,10,"",false);
+        db.updateCombatantAdvancedChecked(nativeCreature,0,"",false,0,0,"","[]",
+            "","","inconsciente","{}");
+        book.registerMonsterConstitution(nativeCreature,10,0,receipt());
+        JSONObject nativeResult=book.resolveBaitWithPhysicalSave("bait-native-immunity",
+            nativeCreature,true,true,false,d20(1,67342L),0,false,receipt());
+        assertTrue("Top level combatant immunity not respected",nativeResult.optBoolean("immunity_auto_detected"));
+        assertFalse(nativeResult.optBoolean("effect_applied"));
+
+        prepareSyntheticBait("bait-npc-immunity","isca_mel_fantasia","");
+        db.upsertNpcMemory(new JSONObject().put("name","Guardiao ancestral")
+            .put("active",1).put("stats_json",new JSONObject().put("con",12)
+                .put("condition_immunities",new JSONArray().put("unconscious")).toString()));
+        long npcId=db.findNpcMemoryByName("Guardiao ancestral").getLong("id");
+        long npc=db.addCombatantWithVisual("Guardiao ancestral",10,20,20,12,"",
+            false,"npc",npcId,"");
+        JSONObject npcResult=book.resolveBaitWithPhysicalSave("bait-npc-immunity",npc,
+            true,true,false,d20(1,67343L),0,false,receipt());
+        assertTrue("NPC declared condition immunity not respected",npcResult.optBoolean("immunity_auto_detected"));
+        assertEquals("npc_canonical_stats",npcResult.getJSONObject("save_proof").getString("bonus_authority"));
+    }
+    @Test public void baitCannotHitDifferentSceneOrDeadCreature()throws Exception{
+        join();
+        db.saveSceneState(new JSONObject().put("location","Floresta do Vale"));
+        prepareSyntheticBait("bait-far-away","isca_mel","Marco do Percurso");
+        long creature=db.addCombatant("Lobo",10,8,8,10,"",false);
+        try{book.resolveBait("bait-far-away",creature,true,true,false,0,receipt());
+            fail("A scene-bound bait cannot hit target in a different scene");}
+        catch(IllegalStateException expected){assertTrue(expected.getMessage().contains("cena"));}
+        assertEquals("armada",book.state().getJSONArray("baits").getJSONObject(0).getString("status"));
+        prepareSyntheticBait("bait-dead-target","isca_mel","Floresta do Vale");
+        long dead=db.addCombatant("Cadaver",10,0,8,10,"",false);
+        try{book.resolveBait("bait-dead-target",dead,true,true,false,0,receipt());
+            fail("Dead creature cannot ingest bait");}
+        catch(IllegalArgumentException expected){}
+    }
+    @Test public void sameHexDifferentPoiCannotSellGoods()throws Exception{
+        JSONObject actualScene=new JSONObject().put("location","Pousada Marco do Percurso");
+        JSONObject unrelatedShop=new JSONObject().put("location_id","merchant-01")
+            .put("name","Mercado de Red Larch");
+        assertFalse(WilemWorldSupply.atCurrentPointOfSale(actualScene,unrelatedShop));
+        assertFalse(WilemWorldSupply.atCurrentPointOfSale(
+            new JSONObject().put("location","Mercado"),unrelatedShop));
+        assertTrue(WilemWorldSupply.atCurrentPointOfSale(
+            new JSONObject().put("location","Mercado de Red Larch"),unrelatedShop));
+        assertTrue(WilemWorldSupply.atCurrentPointOfSale(
+            new JSONObject().put("location","merchant-01"),unrelatedShop));
+        assertFalse(WilemWorldSupply.atCurrentPointOfSale(
+            new JSONObject().put("location",""),unrelatedShop));
+    }
+    @Test public void forageNodeIsBoundToThePlaceWhereItWasFound()throws Exception{
+        join();forageNode("Horta de Strixhaven",3,3);
+        assertTrue(book.forageableIngredients().length()>0);
+        JSONObject elsewhere=db.getSceneState();
+        elsewhere.put("location","Quarto na pousada");
+        // Even if clue data leaks across scene transitions, it cannot grant ingredients.
+        db.saveSceneState(elsewhere);
         assertEquals(0,book.forageableIngredients().length());
     }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
