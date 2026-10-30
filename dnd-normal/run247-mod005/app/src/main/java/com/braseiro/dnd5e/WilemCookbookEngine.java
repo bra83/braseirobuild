@@ -942,21 +942,49 @@ public final class WilemCookbookEngine {
         return out[0];
     }
 
-    private static boolean monsterConditionImmune(JSONObject target,String condition){
-        JSONObject res=object(target.optString("resources_json","{}"));
-        String declared=res.optString("condition_immunities","");
-        if(!res.optString("block_id").isEmpty()){
-            JSONObject p=CompiledStatblockEngine.runtimeProfile(res.optString("block_id"));
-            if(p.optBoolean("found",false))
-                declared+=","+p.optString("condition_immunities","");
+    /** Only exact positive immunity tokens qualify; a sentence such as "not immune"
+     * must never produce a mechanical immunity. JSON arrays are accepted as well. */
+    private static boolean hasConditionImmunity(Object raw,String condition){
+        if(raw==null||raw==JSONObject.NULL)return false;
+        if(raw instanceof JSONArray){
+            JSONArray a=(JSONArray)raw;
+            for(int i=0;i<a.length();i++)if(hasConditionImmunity(a.opt(i),condition))return true;
+            return false;
         }
-        return ConditionTokenGuard.has(declared,condition)||
-            ("inconsciente".equals(condition)&&
-                (ConditionTokenGuard.has(declared,"unconscious")
-                 ||declared.toLowerCase(Locale.ROOT).contains("sleep immunity")||
-                   declared.toLowerCase(Locale.ROOT).contains("immune to sleep")))||
-            ("envenenado".equals(condition)&&ConditionTokenGuard.has(declared,"poisoned"))||
-            ("caido".equals(condition)&&ConditionTokenGuard.has(declared,"prone"));
+        String text=String.valueOf(raw).trim();
+        if(text.startsWith("[")){
+            try{return hasConditionImmunity(new JSONArray(text),condition);}
+            catch(Exception ignored){return false;}
+        }
+        if(ConditionTokenGuard.has(text,condition))return true;
+        if("inconsciente".equals(condition)){
+            for(String part:text.split("[,;\\n]+")){
+                String candidate=part.trim().toLowerCase(Locale.ROOT);
+                if(candidate.equals("sleep immunity")||candidate.equals("immune to sleep")||
+                    candidate.equals("imune a sono")||candidate.equals("imunidade a sono"))
+                    return true;
+            }
+        }
+        return false;
+    }
+    private static boolean immunityFrom(JSONObject obj,String condition){
+        return obj!=null&&(hasConditionImmunity(obj.opt("condition_immunities"),condition)||
+            hasConditionImmunity(obj.opt("immunities"),condition));
+    }
+    private boolean monsterConditionImmune(JSONObject target,String condition){
+        JSONObject res=object(target.optString("resources_json","{}"));
+        if(immunityFrom(target,condition)||immunityFrom(res,condition))return true;
+        String blockId=res.optString("block_id","");
+        if(!blockId.isEmpty()){
+            JSONObject p=CompiledStatblockEngine.runtimeProfile(blockId);
+            if(p.optBoolean("found",false)&&immunityFrom(p,condition))return true;
+        }
+        if("npc".equalsIgnoreCase(target.optString("source_kind"))&&target.optLong("source_id")>0){
+            JSONObject npc=db.getNpcMemory(target.optLong("source_id"));
+            if(npc.length()>0&&immunityFrom(object(npc.optString("stats_json","{}")),condition))
+                return true;
+        }
+        return false;
     }
 
     public synchronized JSONObject resolveBaitWithPhysicalSave(final String baitId,final long combatantId,
@@ -993,14 +1021,22 @@ public final class WilemCookbookEngine {
         final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem nao esta na companhia");
         if(!consumed||!compatibleDiet)throw new IllegalStateException("Isca nao consumida por alvo compativel");
-        if(combatantId<=0||constitutionSaveTotal<0)throw new IllegalArgumentException("Alvo e salvaguarda explicita obrigatorios");
+        // A CON baixa pode gerar salvaguarda total negativa (d20=1, bonus=-5).
+        // A validade do dado ja e provada pelo recibo fisico, nao pelo sinal do total.
+        if(combatantId<=0)throw new IllegalArgumentException("Alvo do combate obrigatorio");
         final JSONObject[] result={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject st=state();requireReceipt(st,receipt);JSONObject bait=null;
             JSONArray arr=st.getJSONArray("baits");
             for(int i=0;i<arr.length();i++){JSONObject x=arr.optJSONObject(i);if(x!=null&&baitId.equals(x.optString("id"))){bait=x;break;}}
             if(bait==null||!"armada".equals(bait.optString("status")))throw new IllegalStateException("Isca nao armada ou ja consumida");
-            JSONObject target=db.getCombatant(combatantId);if(target.length()==0||target.optInt("is_player",0)==1)throw new IllegalArgumentException("Alvo de monstro invalido");
+            JSONObject target=db.getCombatant(combatantId);
+            if(target.length()==0||target.optInt("is_player",0)==1||target.optInt("hp",0)<=0)
+                throw new IllegalArgumentException("Alvo deve ser criatura viva do combate");
+            String baitScene=bait.optString("scene","").trim();
+            String currentScene=sceneLocation(db).trim();
+            if(!baitScene.isEmpty()&&!baitScene.equalsIgnoreCase(currentScene))
+                throw new IllegalStateException("Isca nao esta na cena atual; nao pode afetar criatura distante");
             JSONObject recipe=WilemCookbookCatalog.recipeById(bait.optString("recipe_id"));
             if(recipe.optBoolean("requires_save",false)&&saveProof==null)
                 throw new IllegalStateException("Isca fantastica requer salvaguarda com d20 fisico e bonus confirmado");
