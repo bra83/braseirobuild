@@ -48,18 +48,26 @@ public final class KvotheCanonical2024 {
                 .put("species_choices_complete",true).put("species_choice_pending","")
                 .put("human_skill_choice","Atuação").put("human_extra_origin_feat_pending",false)
                 .put("resourceful_heroic_inspiration_on_long_rest",true)
-                .put("selected_origin_feats",new JSONArray().put("Sortudo").put("Músico"))
                 .put("origin_feat","Sortudo")
                 .put("musician_instruments",new JSONArray().put("Alaúde").put("Flauta").put("Lira"))
                 .put("kvothe_human_canonical_guard_version",1);
             // No extra infernal bloodline magic, trait or resistance survives a race change.
             for(String key:new String[]{"tiefling_lineage","tiefling_legacy","infernal_legacy",
                   "infernal_resistance","hellish_resistance","tiefling_spellcasting",
-                  "tiefling_magic","fiendish_legacy"})next.remove(key);
-            next.put("features","Humano 2024: Habilidoso (Atuação), Versátil (Músico), Engenhoso. "
-                +"Mago 2024: Conjuração, Adepto em Rituais, Recuperação Arcana. "
-                +"Andarilho 2024: Sortudo; Intuição, Furtividade, ferramentas de ladrão.");
+                  "tiefling_magic","fiendish_legacy","legacy_cantrip",
+                  "legacy_level3_spell","legacy_level5_spell",
+                  "thaumaturgy_cantrip","species_spellcasting_ability"})next.remove(key);
+            // A racial Darkvision entry is not a general Human trait; remove
+            // the old entry only when it was granted by the Tiefling ancestry.
+            if("Tiferino".equalsIgnoreCase(hero.optString("species")) ||
+                "Tiferino".equalsIgnoreCase(sheet.optString("species")))
+                next.remove("darkvision_m");
             if(level==1){
+                next.put("features","Humano 2024: Habilidoso (Atuação), Versátil (Músico), Engenhoso. "
+                    +"Mago 2024: Conjuração, Adepto em Rituais, Recuperação Arcana. "
+                    +"Andarilho 2024: Sortudo; Intuição, Furtividade, ferramentas de ladrão.");
+                next.put("selected_origin_feats",
+                    new JSONArray().put("Sortudo").put("Músico"));
                 JSONObject base=new JSONObject(),bonus=new JSONObject();
                 for(int i=0;i<KEYS.length;i++){
                     base.put(KEYS[i],BASE[i]);
