@@ -95,11 +95,20 @@ public final class WilemWorldSupply {
         }
         JSONObject cell=mapCell(db);
         if(cell.length()>0){
-            for(JSONObject poi:db.getMapLocationsForHex(cell.optString("package_id"),cell.optString("hex_id"))){
-                if(poi.optString("placement_status").toLowerCase(Locale.ROOT).contains("review"))continue;
-                JSONObject raw=obj(poi.optString("raw_json","{}"));
+            // A location shares a hex with many other POIs. A shop in the same
+            // region is NOT a shop the character is currently visiting.
+            String currentPlace=NpcIdentityNormalizer.key(db.getSceneState().optString("location",""));
+            if(!currentPlace.isEmpty())for(JSONObject poi:db.getMapLocationsForHex(
+                    cell.optString("package_id"),cell.optString("hex_id"))){
+                String placement=poi.optString("placement_status","").toLowerCase(Locale.ROOT);
+                if(placement.contains("review")||placement.contains("approx"))continue;
                 String id=poi.optString("location_id","").trim();
-                if(id.isEmpty())continue;
+                String registeredName=NpcIdentityNormalizer.key(poi.optString("name",""));
+                // Exact named location or its stable POI ID. A sub-string, the
+                // map hex alone, or an unrelated merchant never authorizes sale.
+                if(id.isEmpty()||(!currentPlace.equals(registeredName)&&
+                    !currentPlace.equals(NpcIdentityNormalizer.key(id))))continue;
+                JSONObject raw=obj(poi.optString("raw_json","{}"));
                 addOffers(db,out,"poi:"+cell.optString("package_id")+":"+id,
                     poi.optString("name",id),raw,null);
             }
