@@ -193,6 +193,20 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals("Druida",auri.getString("class_name"));
         assertEquals(15,auri.getInt("ac")); // Leather 11+2 DEX+2 shield
         assertEquals(5,auri.getJSONArray("skill_proficiencies").length());
+        // PHB 2024 Guide grants Stealth + Survival, never Arcana + History.
+        java.util.HashMap<String,String> auriSkills=new java.util.HashMap<>();
+        JSONArray auriProfs=auri.getJSONArray("skill_proficiencies");
+        for(int i=0;i<auriProfs.length();i++){
+            JSONObject proficiency=auriProfs.getJSONObject(i);
+            auriSkills.put(proficiency.getString("name"),proficiency.getString("source"));
+        }
+        assertEquals("background:Guia",auriSkills.get("Furtividade"));
+        assertEquals("background:Guia",auriSkills.get("Sobrevivência"));
+        assertEquals("class",auriSkills.get("Natureza"));
+        assertEquals("class",auriSkills.get("Adestrar Animais"));
+        assertEquals("elf:KeenSenses",auriSkills.get("Percepção"));
+        assertFalse(auriSkills.containsKey("Arcanismo"));
+        assertFalse(auriSkills.containsKey("História"));
     }
 
     @Test public void tieflingKvotheRestoresHumanWithoutLosingPlayerChoices()throws Exception{
