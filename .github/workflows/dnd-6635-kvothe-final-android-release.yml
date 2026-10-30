@@ -1,0 +1,164 @@
+name: Braseiro DnD 6.6.35 Kvothe Strixhaven Yartar APK
+on:
+  push:
+    branches: [feature/dnd-wilem-cookbook-20261029]
+    paths:
+      - '.github/workflows/dnd-6635-kvothe-final-android-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dnd-6635-kvothe-release
+  cancel-in-progress: true
+jobs:
+  build-validate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      PROJECT: dnd-normal/run247-mod005
+      TAG: dnd-6.6.35-kvothe-yartar-20261030
+      APK_NAME: BRASEIRO_DND_6.6.35_KVOTHE_YARTAR.apk
+      VERSION: 6.6.35-kvothe-yartar-20261030
+      CODE: '202700045'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install hosted Android SDK
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Enforce upgrade, signing and no SQLite migration
+        run: |
+          set -euo pipefail
+          mkdir -p baseline out
+          gh release download dnd-6.6.34-wilem-auditoria-integral-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          python3 - <<'PY'
+          import os,re
+          from pathlib import Path
+          proj=Path(os.environ['PROJECT'])
+          version=proj/'version.properties'
+          source=version.read_text()
+          for expected in ['VERSION_CODE=606548','VERSION_NAME=6.6.15-v1-3core-20261016','DB_SCHEMA=61','BACKUP_FORMAT=21']:
+              assert expected in source, 'Unexpected version/schema: '+expected
+          old=re.search(r"package: name='com\.braseiro\.dnd5e' versionCode='(\d+)'",Path('baseline/BADGING.txt').read_text())
+          assert old and int(old[1])+1==int(os.environ['CODE']), 'Upgrade version code mismatch'
+          assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
+          assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
+          version.write_text(source.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE']).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
+          print('DND_6635_VERSION_AND_SCHEMA_PASS')
+          PY
+      - name: Guard v61 fast startup and copyable diagnostics
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          project=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e')
+          db=(project/'AppDb.java').read_text()
+          activity=(project/'MainActivity.java').read_text()
+          app=(project/'BraseiroDndApplication.java').read_text()
+          trace=(project/'DndStartupTrace.java').read_text()
+          narrative=(project/'NarrativeContentEngine.java').read_text()
+          assert 'createWorldProfileTables(db);String p=normalizeMapProfile(profile)' not in db
+          assert 'v61 schema is guaranteed by SQLiteOpenHelper' in db
+          assert 'COPIAR TEMPOS DA ABERTURA' in activity
+          assert 'UI_EVENT_LOOP_READY' in activity and 'DATABASE_READY' in activity
+          assert 'DndStartupTrace.begin()' in app and 'RULEPACK_RESTORED' in app
+          assert 'APP' in trace and 'last_report' in trace
+          assert 'appDb.runInTransactionChecked(new AppDb.CheckedTransaction()' in narrative
+          hot=db.split('public JSONObject getNarrativeDiscovery(String kind,String stableKey)')[1].split('public ',1)[0]
+          assert 'ensureNarrativeDiscoverySchema' not in hot
+          supervisor=(project/'BarbaraSupervisor.java').read_text()
+          master=(project/'MasterOrchestrator.java').read_text()
+          assert 'public void warmUpAsync()' in supervisor
+          assert 'Python.start(new AndroidPlatform(context))' in supervisor
+          ctor=supervisor.split('public BarbaraSupervisor(Context ctx)',1)[1].split('}',1)[0]
+          assert 'initialize();' not in ctor, 'Synchronous Python startup returned to constructor'
+          plan=supervisor.split('public JSONObject plan(String action,String importance,boolean narrative,boolean nonAdvancing,String occasion,String inputChannel,String requestedSystem)',1)[1]
+          assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Narrative Barbara policy bypass'
+          assert 'masterOrchestrator.warmBarbaraAsync()' in activity
+          assert all(marker in master for marker in ['MASTER_CORE_CREATED','MASTER_CANON_SEEDED','MASTER_ADVENTURES_REGISTERED','MASTER_RULES_REGISTERED','MASTER_MONSTERS_REGISTERED'])
+          print('DND_6635_LAZY_BARBARA_GATE_PASS')
+          print('DND_6635_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
+          PY
+      - name: Compile and test full D&D rules engine
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Certify all baseline suites plus Wilem cookbook regression
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          folder=Path('app/build/test-results/testDebugUnitTest')
+          must=['Character2024ClassContractTest','Character2024RandomGenerationSafetyTest',
+                'Character2024RandomPersistenceTest','Character2024SheetReconcilerTest',
+                'Character2024AllClassesStartingChoicesTest','BraseiroRandomPersonalityEngineTest',
+                'BarbaraStartupLazyTest','NarrativeCanonPersistenceTest','SimulatedGameSessionNarrativeTest',
+                'BraseiroCharacterStoryTest','BraseiroPersonalityProfileTest',
+                'AdventureContinuityPersistenceTest','LivingContinuityCampaignTest','KvotheStrixhavenPartyBridgeTest','StrixhavenFaerunArrivalEngineTest',
+                'StrixhavenSceneBoundaryRobolectricTest',
+                 'WilemCookbookEngineTest','WilemCookbookCombatIntegrationTest']
+          for name in must:
+              assert (folder/('TEST-com.braseiro.dnd5e.'+name+'.xml')).is_file(), 'Missing test suite: '+name
+          reports=list(folder.glob('TEST-*.xml'))
+          stats={k:0 for k in ['tests','failures','errors','skipped']}
+          for p in reports:
+              r=ET.parse(p).getroot()
+              for k in stats:stats[k]+=int(r.get(k,0))
+          assert stats['tests']>=2910 and not any(stats[x] for x in ['failures','errors','skipped']),str(stats)
+          print('DND_6635_TESTS_PASS',stats)
+          PY
+      - name: Build debug APK (same installed signer and package)
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:assembleDebug --no-daemon --console=plain
+      - name: Validate package, version, signer and assets
+        run: |
+          set -euo pipefail
+          apk="$(find "$PROJECT/app/build/outputs/apk/debug" -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          test -s "$apk"
+          cp "$apk" "out/$APK_NAME"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "out/$APK_NAME" > out/BADGING.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "out/$APK_NAME" > out/SIGNATURE.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re,zipfile
+          older=Path('baseline/BADGING.txt').read_text()
+          newer=Path('out/BADGING.txt').read_text()
+          pattern=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
+          a,b=re.search(pattern,older),re.search(pattern,newer)
+          assert a and b and a[1]==b[1]=='com.braseiro.dnd5e'
+          assert int(b[2])==int(os.environ['CODE']) and int(b[2])>int(a[2])
+          assert b[3]==os.environ['VERSION']+'-debug'
+          cert=r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)'
+          prev,now=re.search(cert,Path('baseline/SIGNATURE.txt').read_text()),re.search(cert,Path('out/SIGNATURE.txt').read_text())
+          assert prev and now and prev[1].lower()==now[1].lower(),'Different APK signer'
+          with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
+              assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist())
+          Path('out/BUILD_PROOF.txt').write_text('COMMIT='+os.environ['GITHUB_SHA']+'\nPACKAGE=com.braseiro.dnd5e\nVERSION_CODE='+b[2]+'\nNEW_CODE='+b[2]+'\nCERT_SHA256='+now[1]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\nSHEET_RULES_TESTS=PASS\nKVOTHE_STORY_JVM=PASS\nNPC_MEMORY_SQLITE=PASS\nNPC_SOCIAL_PROPAGATION_SQLITE=PASS\nKVOTHE_STRIXHAVEN_DO40_AND_YARTAR_DM28=PASS\nSTARTUP_PHYSICAL_BENCHMARK=NOT_PERFORMED\nBARBARA_CHAQUOPY_OFF_MAIN=PASS\n')
+          print('DND_6635_UPGRADE_SIGNER_MAP_PASS')
+          PY
+          (cd out && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
+      - name: Publish only a fully verified upgrade
+        run: |
+          set -euo pipefail
+          current="$(gh api repos/${{ github.repository }}/git/ref/heads/feature/dnd-wilem-cookbook-20261029 --jq '.object.sha')"
+          test "$GITHUB_REF_NAME" = 'feature/dnd-wilem-cookbook-20261029' || { echo 'INVALID_RELEASE_SOURCE'; exit 1; }
+          test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
+          ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
+          gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.35 — Kvothe Humano, Strixhaven e chegada a Yartar" \
+             --notes "Atualizacao Android 6.6.35 na mesma assinatura e codigo superior a 6.6.34. Inclui Kvothe humano D&D 2024 e amigos NPCs de Strixhaven (Wilem, Simmon, Auri); reencontro opcional em Newarre DO40, nivel dos NPCs pareado antes do encontro e XP individual depois; primeira saida de Strixhaven em Yartar DM28 com token persistido no Atlas canonico; preservacao de PV e progresso, correcoes do Caderno de Wilem e retencao de dados v61. Publicacao condicionada a suite D&D completa (>2910 testes, zero falhas/erros/skips), compilacao real, verificador de assinatura Android com mesmo certificado SHA-256, aumento exato de versionCode e arquivo atlas incluso. Teste fisico Galaxy A57 nao realizado; esta publicacao nao afirma 100% homologacao do dispositivo."
