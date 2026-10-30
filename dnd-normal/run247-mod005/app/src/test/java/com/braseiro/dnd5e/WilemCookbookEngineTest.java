@@ -520,6 +520,30 @@ public class WilemCookbookEngineTest {
         assertTrue("NPC declared condition immunity not respected",npcResult.optBoolean("immunity_auto_detected"));
         assertEquals("npc_canonical_stats",npcResult.getJSONObject("save_proof").getString("bonus_authority"));
     }
+    @Test public void explicitImmunityPhrasesAreAcceptedButNegatedOnesAreNot()throws Exception{
+        join();
+        prepareSyntheticBait("bait-immune-prose","isca_mel_fantasia","");
+        long creature=db.addCombatant("Aranha imune",9,10,10,10,"",false);
+        db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
+            "","","immune to unconscious","{}");
+        book.registerMonsterConstitution(creature,10,0,receipt());
+        JSONObject result=book.resolveBaitWithPhysicalSave("bait-immune-prose",
+            creature,true,true,false,d20(1,72512L),0,false,receipt());
+        assertTrue(result.optBoolean("immunity_auto_detected"));
+        assertFalse(result.optBoolean("effect_applied"));
+        // Negated descriptions cannot be interpreted as condition immunity.
+        prepareSyntheticBait("bait-not-immune","isca_mel_fantasia","");
+        db.updateCombatantAdvancedChecked(creature,0,"",false,0,0,"","[]",
+            "","","not immune to sleep","{}");
+        try{book.resolveBaitWithPhysicalSave("bait-not-immune",creature,true,true,
+            false,d20(1,72513L),0,false,receipt());
+            fail("Without immunity an actual active encounter is needed for the effect");}
+        catch(IllegalStateException expected){
+            assertTrue(expected.getMessage().contains("encontro ativo"));
+        }
+        assertFalse("Failed resolution must not consume bait",
+            book.state().getJSONArray("baits").getJSONObject(1).optBoolean("consumed"));
+    }
     @Test public void baitCannotHitDifferentSceneOrDeadCreature()throws Exception{
         join();
         db.saveSceneState(new JSONObject().put("location","Floresta do Vale"));
