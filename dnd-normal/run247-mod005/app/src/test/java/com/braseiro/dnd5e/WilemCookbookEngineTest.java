@@ -409,6 +409,67 @@ public class WilemCookbookEngineTest {
         assertEquals("physical3d",result.getJSONObject("save_proof").getString("source"));
         assertEquals("resolvida",result.getString("status"));
     }
+    @Test public void npcStatsAutoCalculateConstitutionWithoutTypedBonus()throws Exception{
+        join();
+        db.upsertNpcMemory(new JSONObject().put("name","Crocodilo do Rio")
+            .put("active",1).put("stats_json",new JSONObject().put("con",16).toString()));
+        long npcId=db.findNpcMemoryByName("Crocodilo do Rio").getLong("id");
+        long target=db.addCombatantWithVisual("Crocodilo do Rio",10,25,25,13,
+            "",false,"npc",npcId,"");
+        JSONObject profile=book.monsterSaveInfo(target);
+        assertTrue(profile.optBoolean("known"));
+        assertEquals("npc_canonical_stats",profile.optString("authority"));
+        assertEquals(3,profile.optInt("bonus"));
+        try{book.registerMonsterConstitution(target,25,9,receipt());fail("Cannot overwrite NPC");}
+        catch(IllegalStateException expected){}
+    }
+    @Test public void unknownMonsterNeedsOnePersistentAbilityScoreAndCannotForgeRollBonus()throws Exception{
+        join();
+        long target=db.addCombatant("Batedor sem ficha",7,14,14,11,"",false);
+        assertFalse(book.monsterSaveInfo(target).optBoolean("known"));
+        try{book.registerMonsterConstitution(target,0,0,receipt());fail("Invalid D&D score");}
+        catch(IllegalArgumentException expected){}
+        assertEquals(3,book.registerMonsterConstitution(target,16,0,receipt()).getInt("bonus"));
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");
+        book=new WilemCookbookEngine(db);
+        assertEquals(3,book.monsterSaveInfo(target).getInt("bonus"));
+        assertEquals("master_confirmed_profile",book.monsterSaveInfo(target).getString("authority"));
+    }
+    @Test public void proseMarketCannotInventStockOrChargeMoney()throws Exception{
+        join();
+        db.saveSceneState(new JSONObject().put("location","Mercado de Strixhaven, loja e feira"));
+        assertEquals(0,book.marketOffers().length());
+        try{book.acquire("batata",1,"mercado_pago",true,receipt());fail("No stock");}
+        catch(IllegalStateException expected){}
+        assertEquals(0,book.pantry().getJSONArray("items").length());
+    }
+    @Test public void vendorPurchasesPersistStockAndRollbackInvalidAmount()throws Exception{
+        join();openMarket("Loja de Mina",2,"shipment-01",4,0,0,0);
+        JSONObject sheet=new JSONObject(db.getCharacter(wilem).optString("sheet_json","{}"));
+        sheet.put("inventory_currency_gp",1d);db.updateCharacterSheetChecked(wilem,sheet.toString());
+        JSONObject bought=book.buyFromMarket("batata",3,book.marketOffers().getJSONObject(0)
+            .getString("source_key"),receipt());
+        assertEquals(6,bought.getInt("paid_copper"));
+        assertEquals(1,book.marketOffers().getJSONObject(0).getInt("quantity"));
+        try{book.buyFromMarket("batata",2,bought.getString("source_key"),receipt());fail("Not enough stock");}
+        catch(IllegalStateException expected){}
+        assertEquals(.94d,new JSONObject(db.getCharacter(wilem).getString("sheet_json"))
+            .getDouble("inventory_currency_gp"),.0001);
+        db.close();db=new AppDb(context,name);db.setActiveMapProfile("dnd");book=new WilemCookbookEngine(db);
+        assertEquals(1,book.marketOffers().getJSONObject(0).getInt("quantity"));
+        assertEquals(3,book.pantry().getJSONArray("items").getJSONObject(0).getInt("quantity"));
+    }
+    @Test public void finiteForageNodeCannotDuplicateAcrossDayIfStockIsExhausted()throws Exception{
+        join();forageNode("Horta ao lado da escola",1,1);
+        java.util.List<Integer> faces=java.util.Collections.singletonList(20);
+        Dice3DOverlay.RollResult d20=new Dice3DOverlay.RollResult(
+            faces,faces,20,20,"20","","d20","Normal",100,2468L,"test",
+            RollIntegrity.signature("d20",faces,0,2468L,20));
+        assertEquals(1,book.forageWithPhysicalRoll("batata",d20,receipt()).getInt("quantity"));
+        assertEquals(0,book.forageableIngredients().length());
+        forageNode("Horta ao lado da escola",2,1);
+        assertEquals(0,book.forageableIngredients().length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
