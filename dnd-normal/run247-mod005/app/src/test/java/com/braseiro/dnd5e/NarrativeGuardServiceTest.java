@@ -80,4 +80,25 @@ public class NarrativeGuardServiceTest {
         assertTrue(instruction.contains("DINÂMICA DE CÂMERA - ZOOM CONSCIENTE (PILAR 4)"));
         assertTrue(instruction.contains("AGÊNCIA E DEVOLUÇÃO ORGÂNICA (PILAR 5 - ZERO MULETAS)"));
     }
+    @Test
+    public void blocksObservedStrixhavenMetaInstructionsWithoutLosingRealScene() {
+        String good="O piso do Biblioplex geme sob as botas de Kvothe. Uma pena risca papel do outro lado da sala.";
+        String leaked="Quando um novo reino, templo, povo, organização, divindade ou conflito aparecer, ele deverá ganhar contexto no momento em que importar, em vez de ser despejado como uma sequência de nomes. O presente imediato, então, ganha prioridade sobre qualquer enciclopédia. A companhia pode interromper uma rotina. O mundo não pausa enquanto essa decisão é tomada. É nesse ponto que a apresentação termina: não porque o lugar tenha sido explicado por completo, mas porque já existe contexto suficiente para agir sem fingir conhecimento que ninguém recebeu.";
+        assertTrue(NarrativeGuardService.containsInstructionLeak(leaked));
+        assertEquals(good, NarrativeGuardService.sanitize(good+"\n\n"+leaked));
+        assertEquals("", NarrativeGuardService.sanitize(leaked));
+        assertFalse(NarrativeGuardService.validate(leaked).valid);
+        assertEquals(good, GeneratedTextSanitizer.humanText(good+"\n\n"+leaked));
+    }
+
+    @Test
+    public void keepsRealDialogueAndSceneEvenWhenGameVocabularyIsUsed() {
+        String scene="Kvothe observa os alunos que cruzam o pátio. \""
+            +"O mestre de História deve estar na biblioteca\", comenta Wilem. "
+            +"Auri segue seu próprio caminho até o jardim.";
+        String clean=NarrativeGuardService.sanitize(scene);
+        assertEquals(scene, clean);
+        assertFalse(NarrativeGuardService.containsInstructionLeak(scene));
+    }
+
 }
