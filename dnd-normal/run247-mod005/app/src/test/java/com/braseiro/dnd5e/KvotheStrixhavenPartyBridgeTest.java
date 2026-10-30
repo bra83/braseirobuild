@@ -419,6 +419,21 @@ public final class KvotheStrixhavenPartyBridgeTest {
         assertEquals("Wilem",hero.optString("name"));
     }
 
+    @Test public void marcoUsesCanonicalDo40WithLegacyD040OnlyForSaveCompatibility()throws Exception{
+        scene("Marco do Percurso","DO40",false);
+        assertTrue("Real Faerun hex with the letter O must work",
+            KvotheCampaignPartyBridge.atMarco(db.getSceneState(),db.getMapState()));
+        scene("Marco do Percurso","D040",false);
+        assertTrue("Old saved numeric-zero alias is backwards-compatible",
+            KvotheCampaignPartyBridge.atMarco(db.getSceneState(),db.getMapState()));
+        scene("Yartar","DM28",false);
+        assertFalse("Yartar is NOT the rendezvous",
+            KvotheCampaignPartyBridge.atMarco(db.getSceneState(),db.getMapState()));
+        scene("Marco do Percurso","DM28",false);
+        assertFalse("Name without actual Newarre hex cannot teleport the party",
+            KvotheCampaignPartyBridge.atMarco(db.getSceneState(),db.getMapState()));
+    }
+
     @Test public void meetingCannotHappenAtWrongHexOrBeforeCampusExit() throws Exception {
         threeHeroes();
         scene("Marco do Percurso","D041",false);
