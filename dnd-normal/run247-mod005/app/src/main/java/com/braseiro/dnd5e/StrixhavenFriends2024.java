@@ -174,9 +174,11 @@ public final class StrixhavenFriends2024 {
             addItem(inventory,"pacote_explorador","Pacote de explorador",1,"class_2024_option_A");
             addItem(inventory,"kit_herbalismo","Kit de herbalismo",1,"class_2024_option_A");
             sheet.put("tools","Kit de herbalismo; ferramentas de cartógrafo")
-                .put("proficiencies","Armas simples; armadura leve e escudos; kit de herbalismo; ferramentas de cartógrafo.")
-                .put("features","Elfa da Floresta 2024: Transe, Sentidos Aguçados (Percepção), Druidismo. Druida 2024: Conjuração, Druídico, Ordem Primal (Guardião). Guia: Iniciado em Magia (Druida).")
+                .put("proficiencies","Armas simples e marciais (Ordem Primal Guardião); armadura leve e média; escudos; kit de herbalismo; ferramentas de cartógrafo.")
+                .put("features","Elfa da Floresta 2024: Transe, Sentidos Aguçados (Percepção), Druidismo. Druida 2024: Conjuração, Druídico, Ordem Primal (Guardião: armas marciais, armaduras médias). Guia: Iniciado em Magia (Druida).")
                 .put("druid_primal_order_choice","Guardião")
+                .put("druid_medium_armor_training",true)
+                .put("druid_martial_weapon_training",true)
                 .put("spell_slots_max",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
                 .put("spell_slots_current",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
                 .put("spells","Truques: Orientação, Produzir Chamas. Preparadas: Curar Ferimentos, Emaranhar, Fogo Feérico, Falar com Animais. Iniciado em Magia: Resistência, Bordão Místico, Palavra Curativa.")
