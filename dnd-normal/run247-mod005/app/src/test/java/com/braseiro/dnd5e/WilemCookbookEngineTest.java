@@ -591,6 +591,41 @@ public class WilemCookbookEngineTest {
         catch(IllegalStateException expected){}
         assertEquals(old.getJSONArray("notes").length(),book.state().getJSONArray("notes").length());
     }
+    @Test public void expiringBaitPreservesUnrelatedCombatResourcesAndPrunesOwnTimer()throws Exception{
+        join();
+        long enemy=db.addCombatant("Lobo em combate",8,12,12,10,"",false);
+        JSONObject resources=new JSONObject().put("wilem_bait_source","bait-expire")
+            .put("concentration_save_pending",true)
+            .put("concentration_save_queue",new JSONArray().put("magic"));
+        JSONArray timers=new JSONArray().put(new JSONObject()
+            .put("schema",MonsterConditionTimerLedger.SCHEMA)
+            .put("name","inconsciente").put("rounds",1)
+            .put("source_actor_id",wilem).put("trigger","target_turn_start")
+            .put("source_statblock","wilem_cookbook")
+            .put("source_action","isca_sonolencia").put("source_receipt","wilem-owned-test"));
+        db.updateCombatantAdvancedChecked(enemy,0,"",false,0,0,
+            "inconsciente,paralisado",timers.toString(),"","","",resources.toString());
+        // Simulate pending check after previous combat effects; manual condition
+        // removal must invalidate it rather than resurrecting stale resources.
+        db.getWritableDatabase().execSQL(
+            "UPDATE combatants SET resources_json=? WHERE id=?",
+            new Object[]{resources.toString(),enemy});
+        JSONObject state=book.state();
+        state.getJSONArray("baits").put(new JSONObject().put("id","bait-expire")
+            .put("status","resolvida").put("effect_applied",true)
+            .put("target_id",enemy).put("applied_condition","inconsciente")
+            .put("ends_world_hour",-1).put("ends_combat_round",100000));
+        db.getWritableDatabase().execSQL(
+            "UPDATE wilem_recipe_books SET state_json=? WHERE world_profile=? AND character_id=?",
+            new Object[]{state.toString(),"dnd",wilem});
+        assertEquals("expirada",book.state().getJSONArray("baits").getJSONObject(0).getString("status"));
+        JSONObject after=db.getCombatant(enemy),res=new JSONObject(after.getString("resources_json"));
+        assertEquals("paralisado",after.optString("conditions"));
+        assertFalse(res.has("wilem_bait_source"));
+        assertFalse(res.has("concentration_save_pending"));
+        assertFalse(res.has("concentration_save_queue"));
+        assertEquals(0,new JSONArray(after.getString("condition_timers_json")).length());
+    }
     @Test public void noIngredientCreatesNoFreeMealsAndTransactionRollsBack()throws Exception{
         join();int entries=book.state().getJSONArray("cooked").length();
         try{book.cook("com_batata_0",0,true,true,receipt());fail("No potatoes");}
