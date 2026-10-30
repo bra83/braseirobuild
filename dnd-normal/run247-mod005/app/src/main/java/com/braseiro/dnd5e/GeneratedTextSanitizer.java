@@ -54,10 +54,10 @@ public final class GeneratedTextSanitizer {
             }else out.append(fragment);
             i=end+1;
         }
-        return PortugueseNarrationSanitizer.sanitize(out.toString()
+        return NarrativeGuardService.sanitize(PortugueseNarrationSanitizer.sanitize(out.toString()
                 .replaceAll("\\s+", " ")
                 .replaceAll("\\s+([,.;:!?])", "$1")
-                .trim());
+                .trim()));
     }
 
     public static String narrative(String raw){
