@@ -181,7 +181,7 @@ public final class StrixhavenFriends2024 {
                 .put("druid_martial_weapon_training",true)
                 .put("spell_slots_max",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
                 .put("spell_slots_current",new JSONArray().put(2).put(0).put(0).put(0).put(0).put(0).put(0).put(0).put(0))
-                .put("spells","Truques: Orientação, Produzir Chamas. Preparadas: Curar Ferimentos, Emaranhar, Fogo Feérico, Falar com Animais. Iniciado em Magia: Resistência, Bordão Místico, Palavra Curativa.")
+                .put("spells","Truques de Druida: Orientação, Produzir Chamas. Preparadas de classe (4): Curar Ferimentos, Emaranhar, Fogo Feérico, Névoa Obscurecente. Druídico: Falar com Animais sempre preparada, sem consumir uma das quatro escolhas. Iniciado em Magia: Resistência, Bordão Místico, Palavra Curativa (sempre preparada e uma conjuração gratuita por descanso longo).")
                 .put("spellcasting","Sabedoria +3; CD 13; ataque +5; 2 espaços de 1º círculo.");
         }
         sheet.put("inventory_ledger",inventory).put("inventory_ledger_status","structured_entries_only");
