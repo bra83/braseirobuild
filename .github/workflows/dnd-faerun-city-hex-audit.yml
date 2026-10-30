@@ -14,6 +14,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect complete exit method and AppDb atlas mutators
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e
+          echo '<<<MAINACTIVITY_EXIT>>>'
+          sed -n '1228,1290p' "$root/MainActivity.java"
+          echo '<<<APPDB_ATLAS_API>>>'
+          grep -nE 'void saveAtlasPositionForProfile|void saveMapPackageStateForProfile|void saveSceneState|JSONObject getMapState|void saveMapTravelStateForProfile|boolean isValidMapHex|JSONObject getRawMapHex|void saveAtlasPosition|void saveMapState|JSONObject getMapPackageAny|setActiveMapProfile|String getActiveMapProfile' "$root/AppDb.java" | head -90
+          echo '<<<MAPBOARD_CALLERS>>>'
+          grep -nE 'saveAtlasPositionForProfile|saveMapPackageStateForProfile|saveMapTravelStateForProfile|saveAtlasPosition|current_hex_id' "$root/MapBoardView.java" "$root/MainActivity.java" | head -95
       - name: Inspect actual Faerun exit call sites and map movement API
         shell: bash
         run: |
