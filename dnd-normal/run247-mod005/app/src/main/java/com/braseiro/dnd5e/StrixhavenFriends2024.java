@@ -225,6 +225,38 @@ public final class StrixhavenFriends2024 {
             .put("source",source));
     }
 
+    /** A deliberately selected legal Ability Score Improvement feat for
+     * autonomous NPCs, not for the player's Kvothe. No ability rises above 20.
+     * Original point-buy provenance remains untouched; later ASIs are logged. */
+    private static void chooseNpcAsi(JSONObject sheet,int index,int level)throws Exception{
+        if(level!=4 && level!=8 && level!=12 && level!=16)return;
+        int[][] preferences={{0,2,1,4,5,3},{1,4,2,0,5,3},{4,2,1,3,5,0}};
+        JSONArray increases=new JSONArray();
+        int beforeCon=mod(sheet.optInt("con",10));
+        for(int point=0;point<2;point++){
+            boolean assigned=false;
+            for(int ability:preferences[index]){
+                String key=ABILITY_KEYS[ability];
+                int current=sheet.optInt(key,10);
+                if(current>=20)continue;
+                sheet.put(key,current+1);
+                increases.put(ABILITY_NAMES[ability]);
+                assigned=true;break;
+            }
+            if(!assigned)throw new IllegalStateException("Nenhum atributo elegivel para ASI");
+        }
+        int constitutionDelta=mod(sheet.optInt("con",10))-beforeCon;
+        if(constitutionDelta>0){
+            sheet.put("max_hp",sheet.optInt("max_hp",1)+level*constitutionDelta);
+            sheet.put("hp",sheet.optInt("hp",1)+level*constitutionDelta);
+        }
+        JSONArray choices=sheet.optJSONArray("npc_level_decisions");
+        if(choices==null){choices=new JSONArray();sheet.put("npc_level_decisions",choices);}
+        choices.put(new JSONObject().put("level",level)
+            .put("feat","Incremento no Valor de Habilidade")
+            .put("ability_increases",increases).put("source","PHB2024_NPC_autonomous"));
+    }
+
     public static JSONArray studentNames(){return new JSONArray().put("Wilem").put("Simmon").put("Auri");}
 
     /** Keep NPCs persistent outside the party; never replace memories or move them. */
@@ -266,9 +298,11 @@ public final class StrixhavenFriends2024 {
                     }
                     upgraded=CharacterResourceStateEngine.ensure(upgraded,
                         CLASSES[index],level,"5e 2024");
-                    if(level<=3){
-                        // Levels 2 and 3 have no unselected ASI/feat in these
-                        // predefined builds. Level 3 subclass was validated.
+                    chooseNpcAsi(upgraded,index,level);
+                    if(level<=18){
+                        // These NPCs make their own 2024 level choices. Levels
+                        // 4/8/12/16 take the logged, legal Ability Score
+                        // Improvement feat. No automatic PC choice is touched.
                         upgraded.put("level_up_choices_pending",false)
                             .put("pending_level_up_choices",new JSONArray());
                     }
