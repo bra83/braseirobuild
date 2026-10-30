@@ -308,23 +308,39 @@ public final class WilemCookbookScreen {
         Button add=btn("+ ANOTAR BOATO OUVIDO");add.setEnabled(enabled);add.setOnClickListener(v->rumorDialog(st));body.addView(add);
     }
     private void rumorDialog(JSONObject st){
-        JSONArray ids=st.optJSONArray("known");JSONArray hints=st.optJSONArray("rumors");ArrayList<String> options=new ArrayList<String>(),titles=new ArrayList<String>();
-        if(ids!=null)for(int i=0;i<ids.length();i++)addOption(options,titles,ids.optString(i));
-        if(hints!=null)for(int i=0;i<hints.length();i++){JSONObject x=hints.optJSONObject(i);if(x!=null)addOption(options,titles,x.optString("recipe_id"));}
-        // Pistas dinamicas do Mestre no local: sem revelar receitas antes da descoberta.
-        JSONArray contextual=book.masterView().optJSONArray("rumor_candidates");
-        if(contextual!=null)for(int i=0;i<contextual.length();i++){
-            JSONObject clue=contextual.optJSONObject(i);
-            if(clue!=null)addOption(options,titles,clue.optString("recipe_id"));
+        JSONArray clues=book.masterView().optJSONArray("rumor_candidates");
+        ArrayList<String> names=new ArrayList<String>();
+        ArrayList<String> ids=new ArrayList<String>();
+        ArrayList<String> informants=new ArrayList<String>();
+        for(int i=0;clues!=null&&i<clues.length();i++){
+            JSONObject clue=clues.optJSONObject(i);
+            if(clue==null)continue;
+            String id=clue.optString("recipe_id"),source=clue.optString("informant");
+            if(id.isEmpty()||source.isEmpty())continue;
+            JSONObject recipe=WilemCookbookCatalog.recipeById(id);
+            if(recipe.length()==0)continue;
+            ids.add(id);informants.add(source);
+            names.add("Boato de "+source+" — receita a investigar");
         }
-        if(options.isEmpty()){fail(new IllegalStateException("Nenhum boato culinario contextual disponivel neste local"));return;}
-        LinearLayout f=vertical();Spinner sp=new Spinner(activity);sp.setAdapter(new ArrayAdapter<String>(activity,android.R.layout.simple_spinner_dropdown_item,titles));f.addView(sp);
-        EditText informant=new EditText(activity);informant.setHint("Quem contou?");f.addView(informant);
-        EditText note=new EditText(activity);note.setHint("O que Wilem ouviu?");note.setMinLines(3);f.addView(note);
-        new AlertDialog.Builder(activity).setTitle("Boato em "+db.getSceneState().optString("location")).setView(f)
+        if(ids.isEmpty()){
+            fail(new IllegalStateException("Nao ha fonte culinaria presente com conhecimento confirmado no mundo; converse com um NPC ou registre uma anotacao"));
+            return;
+        }
+        LinearLayout f=vertical();
+        Spinner sp=new Spinner(activity);
+        sp.setAdapter(new ArrayAdapter<String>(activity,
+            android.R.layout.simple_spinner_dropdown_item,names));f.addView(sp);
+        EditText note=new EditText(activity);note.setHint("O que Wilem ouviu?");
+        note.setMinLines(3);f.addView(note);
+        new AlertDialog.Builder(activity).setTitle("Boato em "+
+            db.getSceneState().optString("location")).setView(f)
             .setNegativeButton("Voltar",null).setPositiveButton("REGISTRAR",(d,w)->{
-                try{book.recordRumor(options.get(sp.getSelectedItemPosition()),informant.getText().toString(),
-                    note.getText().toString(),WilemCookbookEngine.newReceipt());changed();}catch(Exception e){fail(e);}
+                try{
+                    int index=sp.getSelectedItemPosition();
+                    book.recordRumor(ids.get(index),informants.get(index),
+                        note.getText().toString(),WilemCookbookEngine.newReceipt());
+                    changed();
+                }catch(Exception e){fail(e);}
             }).show();
     }
     private void addOption(List<String> keys,List<String> names,String id){
