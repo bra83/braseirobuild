@@ -87,6 +87,12 @@ public final class StrixhavenFaerunArrivalEngine {
         next.put("present_npcs", new JSONArray());
         next.put("present_npcs_json", "[]");
         db.saveSceneState(next);
+        // This is a new first arrival, not the previous Faerun narration.
+        // Keep the campaign and character data, but do not present an old
+        // scene as if it were happening in Yartar.
+        db.saveStoryState(db.getStoryState().optInt("started", 0) == 1,
+            StrixhavenSceneBoundary.waitingForArrival(ARRIVAL_CITY),
+            "", "[]", "", "Chegada a Yartar apos Strixhaven");
 
         // Only mark completion when the map and scene really agree.
         if (!ARRIVAL_HEX.equalsIgnoreCase(
