@@ -132,10 +132,19 @@ public final class WilemCookbookEngine {
                 for(String part:parts){String item=part.trim();if(!removed&&item.equalsIgnoreCase(cond)){removed=true;continue;}
                     if(!item.isEmpty()){if(next.length()>0)next.append(",");next.append(item);}
                 }
-                try{if(removed)db.updateConditionsChecked(targetId,next.toString());resources.remove("wilem_bait_source");
-                    ContentValues v=new ContentValues();v.put("resources_json",resources.toString());
-                    db.getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
-                        new String[]{String.valueOf(targetId),profile()});
+                try{
+                    if(removed)db.updateConditionsChecked(targetId,next.toString());
+                    // updateConditionsChecked may itself change resources (concentration,
+                    // recovery queues); never overwrite that authoritative newer data.
+                    JSONObject latest=db.getCombatant(targetId);
+                    JSONObject latestResources=object(latest.optString("resources_json","{}"));
+                    if(b.optString("id").equals(latestResources.optString("wilem_bait_source"))){
+                        latestResources.remove("wilem_bait_source");
+                        ContentValues v=new ContentValues();v.put("resources_json",latestResources.toString());
+                        if(db.getWritableDatabase().update("combatants",v,"id=? AND world_profile=?",
+                            new String[]{String.valueOf(targetId),profile()})!=1)
+                            throw new IllegalStateException("Falha ao limpar a origem da isca");
+                    }
                 }catch(Exception ignored){/* Mantem registro para reconciliacao posterior */continue;}
             }
             try{b.put("status","expirada");changed=true;}catch(Exception ignored){}
