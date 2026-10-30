@@ -24,7 +24,7 @@ public final class MasterDeferredContentBootstrap {
     private static volatile String current="not_started";
     private MasterDeferredContentBootstrap(){}
 
-    public static void start(final MasterOrchestrator master) {
+    public static void start(final MasterOrchestrator master, final android.content.Context context) {
         if(master==null || !STARTED.compareAndSet(false,true))return;
         DndStartupTrace.mark("MASTER_CONTENT_SCHEDULED");
         WORKER.execute(() -> {
@@ -70,6 +70,7 @@ public final class MasterDeferredContentBootstrap {
                 ready=failures==0;
                 current=ready?"ready":"partial_failure";
                 DndStartupTrace.mark(ready?"MASTER_CONTENT_READY":"MASTER_CONTENT_FAILED");
+                if(context!=null)DndStartupTrace.persist(context);
             }
         });
     }
@@ -84,6 +85,7 @@ public final class MasterDeferredContentBootstrap {
         } finally {
             long duration=SystemClock.elapsedRealtime()-before;
             android.util.Log.i("MasterContent","module="+id+" duration_ms="+duration);
+            DndStartupTrace.mark("CONTENT_"+id.toUpperCase(java.util.Locale.ROOT));
         }
     }
 
