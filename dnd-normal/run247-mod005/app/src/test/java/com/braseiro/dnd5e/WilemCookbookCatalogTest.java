@@ -62,6 +62,27 @@ public final class WilemCookbookCatalogTest {
         }
         assertEquals(3,WilemCookbookCatalog.recipeById("com_cebola_3").getJSONObject("ingredients").getInt("cebola"));
     }
+    @Test public void monsterPreparationsCarrySpeciesSpecificHarvestWarnings()throws Exception{
+        JSONArray all=WilemCookbookCatalog.recipes();int count=0;
+        for(int i=0;i<all.length();i++){
+            JSONObject r=all.getJSONObject(i);
+            if(!"monstruosa".equals(r.optString("type")))continue;
+            count++;
+            JSONObject anatomy=r.getJSONObject("anatomy");
+            assertTrue(anatomy.getString("cut").length()>5);
+            assertTrue(anatomy.getString("warning").length()>12);
+            String ingredientId=r.getString("monster_ingredient_id");
+            JSONObject expected=WilemCookbookCatalog.ingredientById(ingredientId)
+                .getJSONObject("anatomy");
+            assertEquals(expected.getString("cut"),anatomy.getString("cut"));
+            assertEquals(expected.getString("warning"),anatomy.getString("warning"));
+            assertTrue(r.getJSONArray("steps").getString(0)
+                .contains(anatomy.getString("cut")));
+            assertTrue(r.getJSONArray("steps").getString(0)
+                .contains(anatomy.getString("warning")));
+        }
+        assertEquals(168,count);
+    }
     @Test public void sleepingBaitsAreMagicalAndRequireExplicitSaves() throws Exception {
         JSONArray recipes=WilemCookbookCatalog.recipes();int count=0;
         for(int i=0;i<recipes.length();i++){
