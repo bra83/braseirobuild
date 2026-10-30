@@ -257,6 +257,62 @@ public final class StrixhavenFriends2024 {
             .put("ability_increases",increases).put("source","PHB2024_NPC_autonomous"));
     }
 
+    /**
+     * Once D040 has promoted the NPC, individual confirmed achievements award
+     * XP to ONLY this hero. No party-wide level mirroring or automatic choices.
+     * Receipt replay is blocked inside the existing backed-up sheet JSON.
+     */
+    public static JSONObject awardIndependentHeroXp(AppDb db,final long characterId,
+            final int points,final String achievement,final String receipt)throws Exception{
+        if(db==null||characterId<=0||points<1||points>100000)
+            throw new IllegalArgumentException("Experiencia ou heroi invalido");
+        if(achievement==null||achievement.trim().length()<8||
+            receipt==null||receipt.trim().length()<12)
+            throw new IllegalArgumentException("Feito confirmado e recibo unico obrigatorios");
+        JSONObject hero=db.getCharacter(characterId);
+        if(hero.length()==0||index(hero.optString("name"))<0||
+           db.findActivePartyHero(characterId).length()==0)
+            throw new IllegalStateException("XP independente reservado aos herois recrutados em D040");
+        final JSONObject[] out={new JSONObject()};
+        db.runInTransactionChecked(new AppDb.CheckedTransaction(){
+            @Override public void run()throws Exception{
+                JSONObject current=db.getCharacter(characterId);
+                JSONObject sheet=new JSONObject(current.optString("sheet_json","{}"));
+                JSONObject lifecycle=sheet.optJSONObject("npc_lifecycle");
+                if(lifecycle==null||!"independent_hero".equals(lifecycle.optString("phase")))
+                    throw new IllegalStateException("Heroi nao foi promovido em D040");
+                JSONArray history=sheet.optJSONArray("independent_achievement_receipts");
+                if(history==null)history=new JSONArray();
+                for(int i=0;i<history.length();i++)
+                    if(receipt.equals(history.optString(i)))
+                        throw new IllegalStateException("Feito ja recebeu experiencia");
+                JSONObject awarded=DndProgressionEngine.awardXp(sheet,points);
+                if(awarded==null)throw new IllegalStateException("XP invalida");
+                history.put(receipt);
+                awarded.put("independent_achievement_receipts",history);
+                JSONArray deeds=awarded.optJSONArray("individual_achievements");
+                if(deeds==null)deeds=new JSONArray();
+                deeds.put(new JSONObject().put("receipt",receipt)
+                    .put("event",achievement.trim()).put("xp",points)
+                    .put("level_at_event",current.optInt("level",1))
+                    .put("day",db.getSceneState().optInt("day_number",1)));
+                awarded.put("individual_achievements",deeds);
+                awarded.put("progression",DndProgressionEngine.state(
+                    awarded,current.optInt("level",1)));
+                db.updateCharacterSheetChecked(characterId,awarded.toString());
+                db.addJournalFact("Feito individual: "+current.optString("name"),
+                    achievement.trim()+"; "+points+" XP",
+                    "progressao",receipt,"strixhaven_friends");
+                out[0]=new JSONObject().put("character_id",characterId)
+                    .put("xp_after",awarded.optInt("xp"))
+                    .put("level",current.optInt("level",1))
+                    .put("level_up_pending",awarded.getJSONObject("progression")
+                        .optBoolean("level_up_pending"));
+            }
+        });
+        return out[0];
+    }
+
     public static JSONArray studentNames(){return new JSONArray().put("Wilem").put("Simmon").put("Auri");}
 
     /** Keep NPCs persistent outside the party; never replace memories or move them. */
@@ -299,6 +355,11 @@ public final class StrixhavenFriends2024 {
                     upgraded=CharacterResourceStateEngine.ensure(upgraded,
                         CLASSES[index],level,"5e 2024");
                     chooseNpcAsi(upgraded,index,level);
+                    // A level-matched NPC enters the hero phase at the actual
+                    // 2024 XP floor of its current level, not with zero XP.
+                    upgraded.put("xp",Math.max(upgraded.optInt("xp",0),
+                        DndProgressionEngine.thresholdForLevel(level)));
+                    upgraded.put("progression",DndProgressionEngine.state(upgraded,level));
                     if(level<=18){
                         // These NPCs make their own 2024 level choices. Levels
                         // 4/8/12/16 take the logged, legal Ability Score
