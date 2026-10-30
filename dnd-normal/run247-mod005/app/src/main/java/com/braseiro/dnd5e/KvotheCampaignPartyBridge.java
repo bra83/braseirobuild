@@ -39,7 +39,12 @@ public final class KvotheCampaignPartyBridge {
         String hex=scene.optString("hex_id","");
         if(hex.trim().isEmpty()&&map!=null)hex=map.optString("current_hex_id","");
         String location=norm(scene.optString("location",""));
-        return "D040".equalsIgnoreCase(hex) &&
+        // DO40 (letra O) e a coordenada real do Atlas instalada por
+        // NewarreAndWaystoneEngine. D040 (numero zero) foi emitida por
+        // versoes antigas e e aceita SOMENTE como alias de compatibilidade.
+        boolean correctHex=NewarreAndWaystoneEngine.HEX_ID.equalsIgnoreCase(hex)
+            || "D040".equalsIgnoreCase(hex);
+        return correctHex &&
             (location.contains("marco do percurso")||location.contains("marco de percurso"));
     }
 
@@ -89,7 +94,7 @@ public final class KvotheCampaignPartyBridge {
                                      final long auriId,boolean playerConfirmed,
                                      boolean allAccepted)throws Exception {
         JSONObject result=new JSONObject().put("joined",false)
-            .put("location_required","Marco do Percurso, D040");
+            .put("location_required","Marco do Percurso, DO40");
         if(inCampus(db.getSceneState()))return result.put("reason","academic_prologue_not_exited");
         if(!atMarco(db.getSceneState(),db.getMapState()))
             return result.put("reason","not_at_marco_d040");
@@ -127,7 +132,7 @@ public final class KvotheCampaignPartyBridge {
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){
             @Override public void run() throws Exception {
                 for(long id:ids){
-                    long membership=party.recruitHero(id,"marco_d040_player_choice");
+                    long membership=party.recruitHero(id,"marco_do40_player_choice");
                     if(membership<=0)throw new IllegalStateException("Falha ao entrar na companhia.");
                     // Existing player UI supports three modes; the user owns all four.
                     db.saveCharacterControl(id,"manual","{}");
