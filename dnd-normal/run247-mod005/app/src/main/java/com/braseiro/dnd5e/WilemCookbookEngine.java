@@ -47,6 +47,7 @@ public final class WilemCookbookEngine {
             "world_profile TEXT NOT NULL, character_id INTEGER NOT NULL,"+
             "state_json TEXT NOT NULL DEFAULT '{}', updated_at INTEGER NOT NULL DEFAULT 0,"+
             "PRIMARY KEY(world_profile,character_id))");
+        WilemWorldSupply.ensureSchema(sql);
     }
     private static JSONObject object(String json){
         try{return new JSONObject(json==null?"{}":json);}catch(Exception e){return new JSONObject();}
@@ -226,68 +227,23 @@ public final class WilemCookbookEngine {
         return result[0];
     }
 
-    private String forageEnvironment(){
-        String where=normalizeCreature(sceneLocation(db));
-        JSONObject map=db.getMapState();
-        String packageId=map.optString("map_package_id","");
-        String hex=db.getSceneState().optString("hex_id",
-            map.optString("current_hex_id",""));
-        if(packageId.isEmpty()||hex.isEmpty())return where;
-        JSONObject area=db.getMapHex(packageId,hex);
-        if(area.length()==0)return where;
-        String terrain=normalizeCreature(area.optString("terrain_primary")+" "+
-            area.optString("terrain_secondary"));
-        terrain=terrain.replace("forest","floresta").replace("woods","floresta")
-            .replace("river","rio").replace("lake","lago")
-            .replace("plains","prado").replace("swamp","pantano")
-            .replace("farm","fazenda").replace("orchard","pomar");
-        return (where+" "+terrain).trim();
-    }
-    private String forageLocationKey(){
-        JSONObject map=db.getMapState();
-        String hex=db.getSceneState().optString("hex_id",
-            map.optString("current_hex_id",""));
-        if(!map.optString("map_package_id","").isEmpty()&&!hex.isEmpty()&&
-            db.getMapHex(map.optString("map_package_id"),hex).length()>0)
-            return "atlas:"+map.optString("map_package_id")+":"+hex;
-        return "scene:"+normalizeCreature(sceneLocation(db));
-    }
-
-    /** Ambiente atual e sua ecologia determinam os materiais coletaveis. */
+    /** Only real atlas terrain or an explicitly recorded scene resource can supply food. */
     public JSONArray forageableIngredients(){
-        JSONArray out=new JSONArray();
-        if(!canCook())return out;
-        String place=forageEnvironment();
-        if(place.length()<2)return out;
-        JSONArray all=WilemCookbookCatalog.ingredients();
+        JSONArray out=new JSONArray();if(!canCook())return out;
         JSONObject st=state();JSONArray tried=st.optJSONArray("forage_attempts");
         int day=db.getSceneState().optInt("day_number",1);
-        for(int i=0;i<all.length();i++){
-            JSONObject ing=all.optJSONObject(i);
-            if(ing==null||ing.optInt("tier",0)>0||
-               "magico".equals(ing.optString("category"))||
-               "monstro".equals(ing.optString("category")))continue;
-            boolean matches=false;
-            for(String tag:ing.optString("source_locations").split(",")){
-                String normalized=normalizeCreature(tag);
-                // Mercados e comerciantes sao fontes de compra, NUNCA coleta gratis.
-                if(normalized.equals("mercado")||normalized.equals("feira")||
-                   normalized.equals("mercador")||normalized.equals("apicultor")||
-                   normalized.equals("moinho")||normalized.isEmpty())continue;
-                if(place.contains(normalized)){matches=true;break;}
-            }
-            if(!matches)continue;
-            String attempt=day+":"+forageLocationKey()+":"+ing.optString("id");
-            if(contains(tried,attempt))continue;
-            try{out.put(new JSONObject().put("ingredient_id",ing.optString("id"))
-                .put("name",ing.optString("name")).put("dc",12)
-                .put("location",sceneLocation(db)));}
-            catch(Exception e){throw new IllegalStateException("Coleta disponivel invalida",e);}
+        JSONArray ingredients=WilemCookbookCatalog.ingredients();
+        for(int i=0;i<ingredients.length();i++){
+            JSONObject ing=ingredients.optJSONObject(i);
+            JSONObject offer=WilemWorldSupply.forageOffer(db,ing);
+            if(offer.length()==0)continue;
+            String attempt=day+":"+offer.optString("source_key")+":"+
+                offer.optString("stock_revision")+":"+ing.optString("id");
+            if(!contains(tried,attempt))out.put(offer);
         }
         return out;
     }
-
-    /** Teste unico por item/local/dia, d20 vinculado a Sabedoria real e inventario atomico. */
+    /** Physical dice, canonical environmental source, finite supply, one attempt/day. */
     public synchronized JSONObject forageWithPhysicalRoll(final String ingredientId,
         final Dice3DOverlay.RollResult dice,final String receipt)throws Exception{
         if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
@@ -296,26 +252,27 @@ public final class WilemCookbookEngine {
         DiceRollSpec spec=DiceRollSpec.parse(dice.formula,dice.mode);
         java.util.List<Integer> faces=spec.requirePhysicalAgreement(dice.rolls,dice.physicalFaces);
         DiceRollSpec.Result check=spec.resolve(faces);
-        if(check.natural!=dice.natural||check.total!=dice.total
-            ||check.natural<1||check.natural>20
-            ||!RollIntegrity.signature(spec.formula,dice.physicalFaces,spec.modifier,
-                dice.physicsSeed,dice.total).equals(dice.integritySignature))
+        if(check.natural!=dice.natural||check.total!=dice.total||check.natural<1||
+            check.natural>20||!RollIntegrity.signature(spec.formula,dice.physicalFaces,
+            spec.modifier,dice.physicsSeed,dice.total).equals(dice.integritySignature))
             throw new IllegalStateException("Dado fisico de coleta invalido");
         final JSONObject[] result={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
             JSONObject st=state();requireReceipt(st,receipt);
             JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
-            boolean available=false;
-            JSONArray options=forageableIngredients();
-            for(int i=0;i<options.length();i++)
-                if(ingredientId.equals(options.optJSONObject(i).optString("ingredient_id")))available=true;
-            if(!available||ing.length()==0)throw new IllegalStateException("Coleta sem recurso ecologico disponivel aqui hoje");
+            JSONObject offer=WilemWorldSupply.forageOffer(db,ing);
+            if(offer.length()==0)throw new IllegalStateException("Nao existe recurso ecologico validado no local");
             int day=db.getSceneState().optInt("day_number",1);
-            String place=forageLocationKey();
-            String attempt=day+":"+place+":"+ingredientId;
+            String attempt=day+":"+offer.optString("source_key")+":"+
+                offer.optString("stock_revision")+":"+ingredientId;
+            JSONArray attempts=st.optJSONArray("forage_attempts");
+            if(attempts==null){attempts=new JSONArray();st.put("forage_attempts",attempts);}
+            if(contains(attempts,attempt))throw new IllegalStateException("Este recurso ja foi investigado aqui hoje");
             int total=check.natural+Math.floorDiv(hero().optInt("wis",10)-10,2);
-            int qty=total>=12?1+Math.min(2,(total-12)/5):0;
-            if(qty>0){
+            int dc=offer.optInt("dc",12);
+            int quantity=total>=dc?Math.min(offer.optInt("quantity",0),1+Math.min(2,(total-dc)/5)):0;
+            if(quantity>0){
+                WilemWorldSupply.consumeForage(db,offer,quantity);
                 JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
                 String key="wilem_ing_"+ingredientId;int found=-1;
                 for(int i=0;i<items.length();i++){
@@ -325,114 +282,102 @@ public final class WilemCookbookEngine {
                 JSONObject item=found>=0?items.getJSONObject(found):
                     new JSONObject().put("id",key).put("name",ing.optString("name"))
                         .put("cookbook_ingredient_id",ingredientId).put("quantity",0);
-                item.put("quantity",item.optInt("quantity",0)+qty);
+                item.put("quantity",item.optInt("quantity",0)+quantity);
                 if(found>=0)items.put(found,item);else items.put(item);
                 sheet.put("inventory_ledger",items)
                     .put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
                 db.updateCharacterSheetChecked(ownerId(),sheet.toString());
             }
-            JSONArray attempts=st.optJSONArray("forage_attempts");
-            if(attempts==null){attempts=new JSONArray();st.put("forage_attempts",attempts);}
             attempts.put(attempt);remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
             db.addJournalFact("Coleta de Wilem em "+sceneLocation(db),
-                "Material: "+ing.optString("name")+"; quantidade: "+qty+"; d20: "+
-                check.natural+"; total: "+total,"culinaria",receipt,"wilem_cookbook");
-            result[0]=new JSONObject().put("quantity",qty).put("success",qty>0)
-                .put("total",total).put("location",sceneLocation(db))
+                ing.optString("name")+" x"+quantity+"; "+offer.optString("source_key")+
+                "; d20 "+check.natural+"; total "+total+" vs CD "+dc,
+                "culinaria",receipt,"wilem_cookbook");
+            result[0]=new JSONObject().put("quantity",quantity).put("success",quantity>0)
+                .put("total",total).put("dc",dc).put("source_key",offer.optString("source_key"))
                 .put("roll_signature",dice.integritySignature);
         }});
         return result[0];
     }
 
-    private boolean marketAtScene(){
-        String place=normalizeCreature(sceneLocation(db));
-        if(place.contains("mercado")||place.contains("feira")||
-           place.contains("armazem")||place.contains("loja")||
-           place.contains("emporio"))return true;
-        JSONArray npcs=db.listSceneNpcs(100);
-        for(int i=0;i<npcs.length();i++){
-            JSONObject npc=npcs.optJSONObject(i);
-            if(npc==null||npc.optInt("active",0)!=1)continue;
-            String details=normalizeCreature(npc.optString("profession")+" "+
-                npc.optString("occupation")+" "+npc.optString("role")+" "+
-                npc.optString("description"));
-            if(details.contains("mercador")||details.contains("comerciante")||
-                details.contains("vendedor")||details.contains("feirante"))
-                return true;
+    public JSONArray marketOffers(){return canCook()?WilemWorldSupply.marketOffers(db):new JSONArray();}
+
+    /** Legacy entry point: only one unambiguous stocked supplier may be chosen automatically. */
+    public synchronized JSONObject acquire(final String ingredientId,final int amount,final String source,
+        final boolean confirmed,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
+        if(!confirmed||!"mercado_pago".equals(source))
+            throw new IllegalStateException("Aquisicao manual nao aceita; exige oferta e pagamento registrado");
+        JSONArray offers=marketOffers();JSONObject matched=new JSONObject();
+        for(int i=0;i<offers.length();i++){
+            JSONObject o=offers.optJSONObject(i);
+            if(o!=null&&ingredientId.equals(o.optString("ingredient_id"))){
+                if(matched.length()>0)throw new IllegalStateException("Escolha qual vendedor possui o ingrediente");
+                matched=o;
+            }
         }
-        return false;
+        if(matched.length()==0)throw new IllegalStateException("Nenhum vendedor presente possui estoque registrado");
+        return buyFromMarket(ingredientId,amount,matched.optString("source_key"),receipt);
     }
 
-    public synchronized JSONObject acquire(final String ingredientId,final int amount,final String source,
-                                           final boolean acquisitionConfirmed,final String receipt)throws Exception{
-        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia para obter ingredientes em seu nome");
-        if(amount<1||amount>30)throw new IllegalArgumentException("Quantidade precisa ser entre 1 e 30");
-        if(!acquisitionConfirmed)throw new IllegalStateException("A compra ou coleta precisa estar confirmada; nao criar recursos do nada");
+    /** Transactional money + finite vendor stock + persistent hero inventory. */
+    public synchronized JSONObject buyFromMarket(final String ingredientId,final int amount,
+        final String sourceKey,final String receipt)throws Exception{
+        if(!canCook())throw new IllegalStateException("Wilem precisa estar na companhia");
+        if(amount<1||amount>10000)throw new IllegalArgumentException("Quantidade invalida");
         final JSONObject ing=WilemCookbookCatalog.ingredientById(ingredientId);
-        if(ing.length()==0)throw new IllegalArgumentException("Ingrediente desconhecido");
-        final String src=source==null?"":source.trim().toLowerCase(Locale.ROOT);
-        // Fluxos manuais antigos nao sao mais autorizados a criar comida gratuitamente.
-        // Coleta -> forageWithPhysicalRoll; recompensas -> claimWorldReward;
-        // partes de criaturas -> harvestWithPhysicalRoll.
-        if(!src.equals("mercado_pago"))
-            throw new IllegalStateException("Aquisicao manual desativada: use coleta fisica, evento aplicado ou colheita de criatura");
-        if("monstro".equals(ing.optString("category"))||"magico".equals(ing.optString("category")))
-            throw new IllegalStateException("Ingrediente especial exige colheita ou evento do mundo validado; nao pode ser registrado como aquisicao livre");
+        if(ing.length()==0||"monstro".equals(ing.optString("category"))||
+            "magico".equals(ing.optString("category")))
+            throw new IllegalStateException("Ingrediente sem venda comum autorizada");
         final JSONObject[] result={new JSONObject()};
         db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
-            JSONObject state=state();requireReceipt(state,receipt);
+            JSONObject st=state();requireReceipt(st,receipt);
+            JSONObject offer=WilemWorldSupply.offer(db,sourceKey,ingredientId);
+            if(offer.length()==0||amount>offer.optInt("quantity"))
+                throw new IllegalStateException("Vendedor ausente ou sem estoque para essa compra");
             JSONObject ch=hero(),sheet=sheet();JSONArray items=new JSONArray(ledger(sheet).toString());
-            int paidCp=0;
-            if("mercado_pago".equals(src)){
-                if(!marketAtScene())
-                    throw new IllegalStateException("Nao ha mercado ou mercador confirmado na cena atual");
-                JSONArray buys=state.optJSONArray("purchases");
-                int sold=0,day=db.getSceneState().optInt("day_number",1);
-                String place=normalizeCreature(sceneLocation(db));
-                for(int k=0;buys!=null&&k<buys.length();k++){
-                    JSONObject purchase=buys.optJSONObject(k);
-                    if(purchase!=null&&day==purchase.optInt("day")&&
-                        place.equals(purchase.optString("location"))&&
-                        ingredientId.equals(purchase.optString("ingredient_id")))
-                        sold+=purchase.optInt("quantity");
-                }
-                if(sold+amount>12)throw new IllegalStateException("Estoque diario local esgotado; limite de 12 unidades por item");
-                // A ficha 2024 tem a carteira canonica inventory_currency_gp.
-                // Converter para centavos inteiros evita saldo negativo e arredondamentos.
-                if(!sheet.has("inventory_currency_gp"))
-                    throw new IllegalStateException("Carteira 2024 ausente; compra nao pode criar ingredientes sem pagar");
-                double balanceGp=sheet.optDouble("inventory_currency_gp",-1d);
-                if(balanceGp<0d||!Double.isFinite(balanceGp))
-                    throw new IllegalStateException("Saldo de moedas invalido");
-                long balanceCp=Math.round(balanceGp*100d);
-                if(Math.abs(balanceGp*100d-balanceCp)>.001d)
-                    throw new IllegalStateException("Saldo monetario sem precisao de cobre");
-                paidCp=Math.multiplyExact(amount,ing.optInt("suggested_price_cp",-1));
-                if(paidCp<0||balanceCp<paidCp)
-                    throw new IllegalStateException("Moedas insuficientes para pagar "+paidCp+" PC");
-                sheet.put("inventory_currency_gp",(balanceCp-paidCp)/100d);
-            }
+            if(!sheet.has("inventory_currency_gp"))throw new IllegalStateException("Carteira 2024 ausente");
+            double gp=sheet.optDouble("inventory_currency_gp",-1d);
+            if(!Double.isFinite(gp)||gp<0d)throw new IllegalStateException("Saldo monetario invalido");
+            long balance=Math.round(gp*100d);
+            if(Math.abs(gp*100d-balance)>.001d)throw new IllegalStateException("Moedas sem precisao de cobre");
+            long cost=Math.multiplyExact((long)amount,(long)offer.optInt("price_cp",-1));
+            if(cost<0||balance<cost)throw new IllegalStateException("Moedas insuficientes");
+            WilemWorldSupply.sell(db.getWritableDatabase(),profile(),offer,amount);
+            sheet.put("inventory_currency_gp",(balance-cost)/100d);
             String key="wilem_ing_"+ingredientId;int found=-1;
-            for(int i=0;i<items.length();i++){JSONObject x=items.optJSONObject(i);
-                if(x!=null&&(key.equals(x.optString("id"))||ing.optString("name").equalsIgnoreCase(x.optString("name")))){if(found>=0)throw new IllegalStateException("Ingrediente ambiguo no inventario");found=i;}
+            for(int i=0;i<items.length();i++){
+                JSONObject item=items.optJSONObject(i);
+                if(item!=null&&(key.equals(item.optString("id"))||
+                    (ing.optString("name").equalsIgnoreCase(item.optString("name"))&&
+                        item.optString("harvest_receipt","").isEmpty()))){
+                    if(found>=0)throw new IllegalStateException("Ingrediente duplicado na ficha");
+                    found=i;
+                }
             }
-            JSONObject item=found>=0?items.getJSONObject(found):new JSONObject().put("id",key).put("name",ing.optString("name")).put("quantity",0);
-            item.put("quantity",item.optInt("quantity",0)+amount).put("cookbook_ingredient_id",ingredientId);
+            JSONObject item=found>=0?items.getJSONObject(found):
+                new JSONObject().put("id",key).put("name",ing.optString("name")).put("quantity",0);
+            item.put("quantity",item.optInt("quantity",0)+amount)
+                .put("cookbook_ingredient_id",ingredientId);
             if(found>=0)items.put(found,item);else items.put(item);
-            sheet.put("inventory_ledger",items).put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
+            sheet.put("inventory_ledger",items)
+                .put("inventory_load",InventoryLedgerEngine.totals(items,ch.optInt("str",10),false));
             db.updateCharacterSheetChecked(ownerId(),sheet.toString());
-            if("mercado_pago".equals(src)){
-                JSONArray purchases=state.optJSONArray("purchases");
-                if(purchases==null){purchases=new JSONArray();state.put("purchases",purchases);}
-                purchases.put(new JSONObject().put("day",db.getSceneState().optInt("day_number",1))
-                    .put("location",normalizeCreature(sceneLocation(db))).put("ingredient_id",ingredientId)
-                    .put("quantity",amount).put("paid_copper",paidCp).put("receipt",receipt));
-            }
-            remember(state,receipt);write(db.getWritableDatabase(),ownerId(),state);
-            String cost="Pagamento debitado da carteira 2024: "+paidCp+" PC.";
-            db.addJournalFact("Wilem encontrou ingredientes",ing.optString("name")+" x"+amount+"; "+cost+" Origem: "+sceneLocation(db),"culinaria",receipt,"wilem_cookbook");
-            result[0]=new JSONObject().put("acquired",true).put("quantity",amount).put("item",item)
-                .put("money_auto_debited",src.equals("mercado_pago")).put("paid_copper",paidCp);
+            JSONArray purchases=st.optJSONArray("purchases");
+            if(purchases==null){purchases=new JSONArray();st.put("purchases",purchases);}
+            purchases.put(new JSONObject().put("day",db.getSceneState().optInt("day_number",1))
+                .put("location",sceneLocation(db)).put("source_key",sourceKey)
+                .put("seller",offer.optString("seller"))
+                .put("stock_revision",offer.optString("stock_revision"))
+                .put("ingredient_id",ingredientId).put("quantity",amount)
+                .put("paid_copper",cost).put("receipt",receipt));
+            remember(st,receipt);write(db.getWritableDatabase(),ownerId(),st);
+            db.addJournalFact("Compra de Wilem com "+offer.optString("seller"),
+                ing.optString("name")+" x"+amount+"; "+cost+" PC, estoque consumido: "+
+                sourceKey,"culinaria",receipt,"wilem_cookbook");
+            result[0]=new JSONObject().put("acquired",true).put("quantity",amount)
+                .put("item",item).put("money_auto_debited",true).put("paid_copper",cost)
+                .put("source_key",sourceKey);
         }});
         return result[0];
     }
@@ -1148,7 +1093,13 @@ public final class WilemCookbookEngine {
                 .put("nearby_rumors",nearby).put("recent_meals",tail(st.optJSONArray("meals"),6))
                 .put("active_baits",tail(st.optJSONArray("baits"),6))
                 .put("rumor_candidates",canCook()?sceneRumorCandidates(location,st.optJSONArray("known"),hero().optInt("level",1)):new JSONArray())
-                .put("market_available",canCook()&&marketAtScene())
+                .put("market_available",canCook()&&marketOffers().length()>0)
+                .put("market_offers",marketOffers())
+                .put("merchant_stock_contract",new JSONObject()
+                    .put("npc_stats_json",new JSONObject().put("revision","restock-1")
+                        .put("wilem_market_stock",new JSONArray().put(new JSONObject()
+                            .put("ingredient_id","batata").put("quantity",8).put("price_cp",2))))
+                    .put("rule","Estoque pertence ao NPC presente ou ao POI do atlas; so pode mudar por uma acao de comercio ou evento de reabastecimento. Revisao nova exige causa do mundo."))
                 .put("forage_opportunities",canCook()?forageableIngredients():new JSONArray())
                 .put("unclaimed_world_rewards",canCook()?worldRewardOffers():new JSONArray())
                 .put("world_event_reward_contract",new JSONObject()
