@@ -1253,6 +1253,7 @@ public final class WilemCookbookEngine {
                     .put("scene_field","clues_json")
                     .put("node",new JSONObject().put("type","wilem_forage_node")
                         .put("id","id_unico_recurso").put("ingredient_id","batata")
+                        .put("location",sceneLocation(db))
                         .put("quantity",3).put("revision","colheita-1"))
                     .put("rule","O Mestre so registra um recurso realmente existente e acessivel na cena ou usa o bioma do hex confirmado no atlas; nao fabricar recursos pela mera palavra 'horta' no texto. A colheita consome estoque do mundo."))
                 .put("monster_constitution_contract",new JSONObject()
