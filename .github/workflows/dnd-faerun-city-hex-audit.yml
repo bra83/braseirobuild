@@ -14,6 +14,15 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect atlas async installation completion branch
+        shell: bash
+        run: |
+          root=dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e
+          echo '<<<MAP_ASYNC_METHOD>>>'
+          sed -n '10002,10055p' "$root/MainActivity.java"
+          echo '<<<STRIX_EXIT_UI_HANDLERS>>>'
+          sed -n '1328,1335p' "$root/MainActivity.java"
+          sed -n '1667,1675p' "$root/MainActivity.java"
       - name: Locate async atlas install callback and showMap method
         shell: bash
         run: |
