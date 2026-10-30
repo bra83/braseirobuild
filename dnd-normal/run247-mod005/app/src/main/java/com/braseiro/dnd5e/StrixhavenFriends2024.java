@@ -443,9 +443,16 @@ public final class StrixhavenFriends2024 {
                 if(name.equalsIgnoreCase(label))witnessed=true;
             }
             if(!witnessed)return result.put("reason","student_npc_not_present").put("name",name);
-            JSONObject sheet=new JSONObject(npc.optString("stats_json","{}"))
-                .optJSONObject("strixhaven_2024_sheet");
-            if(sheet==null)return result.put("reason","student_sheet_missing").put("name",name);
+            JSONObject stats=new JSONObject(npc.optString("stats_json","{}"));
+            JSONObject source=stats.optJSONObject("strixhaven_2024_sheet");
+            if(source==null)return result.put("reason","student_sheet_missing").put("name",name);
+            JSONObject sheet=new JSONObject(source.toString());
+            // Carry the NPC's actual injuries and defenses into the playable
+            // hero. The canonical NPC sheet may still contain maximum HP.
+            int maxHp=Math.max(1,sheet.optInt("max_hp",1));
+            sheet.put("hp",Math.max(0,Math.min(maxHp,stats.optInt("hp",
+                sheet.optInt("hp",maxHp)))));
+            sheet.put("ac",stats.optInt("ac",sheet.optInt("ac",10)));
             if(sheet.optInt("level",0)!=kvotheLevel)
                 return result.put("reason","student_level_mismatch").put("name",name)
                     .put("expected_level",kvotheLevel).put("actual_level",sheet.optInt("level",0));
