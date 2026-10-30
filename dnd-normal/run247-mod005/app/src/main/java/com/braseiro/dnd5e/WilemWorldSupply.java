@@ -80,6 +80,15 @@ public final class WilemWorldSupply {
             catch(Exception e){throw new IllegalStateException("Oferta de comercio invalida",e);}
         }
     }
+    /** POI-local sale requires the precise scene place, not mere hex adjacency. */
+    static boolean atCurrentPointOfSale(JSONObject scene,JSONObject poi){
+        if(scene==null||poi==null)return false;
+        String current=NpcIdentityNormalizer.key(scene.optString("location",""));
+        String poiName=NpcIdentityNormalizer.key(poi.optString("name",""));
+        String poiId=NpcIdentityNormalizer.key(poi.optString("location_id",""));
+        return !current.isEmpty()&&((!poiName.isEmpty()&&current.equals(poiName))||
+            (!poiId.isEmpty()&&current.equals(poiId)));
+    }
     public static JSONArray marketOffers(AppDb db){
         JSONArray out=new JSONArray();
         JSONArray npcs=db.listSceneNpcs(200);
@@ -97,17 +106,15 @@ public final class WilemWorldSupply {
         if(cell.length()>0){
             // A location shares a hex with many other POIs. A shop in the same
             // region is NOT a shop the character is currently visiting.
-            String currentPlace=NpcIdentityNormalizer.key(db.getSceneState().optString("location",""));
-            if(!currentPlace.isEmpty())for(JSONObject poi:db.getMapLocationsForHex(
+            JSONObject currentScene=db.getSceneState();
+            if(!currentScene.optString("location","").trim().isEmpty())
+                for(JSONObject poi:db.getMapLocationsForHex(
                     cell.optString("package_id"),cell.optString("hex_id"))){
                 String placement=poi.optString("placement_status","").toLowerCase(Locale.ROOT);
                 if(placement.contains("review")||placement.contains("approx"))continue;
                 String id=poi.optString("location_id","").trim();
-                String registeredName=NpcIdentityNormalizer.key(poi.optString("name",""));
-                // Exact named location or its stable POI ID. A sub-string, the
-                // map hex alone, or an unrelated merchant never authorizes sale.
-                if(id.isEmpty()||(!currentPlace.equals(registeredName)&&
-                    !currentPlace.equals(NpcIdentityNormalizer.key(id))))continue;
+                // The hero must actually be at this establishment, not just at its hex.
+                if(id.isEmpty()||!atCurrentPointOfSale(currentScene,poi))continue;
                 JSONObject raw=obj(poi.optString("raw_json","{}"));
                 addOffers(db,out,"poi:"+cell.optString("package_id")+":"+id,
                     poi.optString("name",id),raw,null);
@@ -179,7 +186,9 @@ public final class WilemWorldSupply {
             if(n!=null&&"wilem_forage_node".equals(n.optString("type"))&&
                 ingredientId.equals(n.optString("ingredient_id"))&&
                 n.optInt("quantity",0)>0&&n.optString("id").trim().length()>=3&&
-                (n.optString("location").isEmpty()||n.optString("location").equals(scene.optString("location"))))
+                !n.optString("location","").trim().isEmpty()&&
+                NpcIdentityNormalizer.key(n.optString("location")).equals(
+                    NpcIdentityNormalizer.key(scene.optString("location"))))
                 return n;
         }
         return new JSONObject();
