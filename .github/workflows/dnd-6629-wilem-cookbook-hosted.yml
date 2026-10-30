@@ -1,10 +1,11 @@
-name: Braseiro DnD 6.6.33 Wilem Canonical World Inventory APK
+name: Braseiro DnD 6.6.34 Wilem Audited World APK
 on:
   push:
     branches: [feature/dnd-wilem-cookbook-20261029]
     paths:
       - '.github/workflows/dnd-6629-wilem-cookbook-hosted.yml'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/WilemCookbook*.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/WilemWorldSupply.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/WilemCookbookEffectRules.java'
@@ -23,10 +24,10 @@ jobs:
     timeout-minutes: 150
     env:
       PROJECT: dnd-normal/run247-mod005
-      TAG: dnd-6.6.33-wilem-estoque-canonico-20261029
-      APK_NAME: BRASEIRO_DND_6.6.33_WILEM_ESTOQUE_CANONICO.apk
-      VERSION: 6.6.33-wilem-estoque-canonico-20261029
-      CODE: '202700043'
+      TAG: dnd-6.6.34-wilem-auditoria-integral-20261029
+      APK_NAME: BRASEIRO_DND_6.6.34_WILEM_AUDITORIA_INTEGRAL.apk
+      VERSION: 6.6.34-wilem-auditoria-integral-20261029
+      CODE: '202700044'
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p baseline out
-          gh release download dnd-6.6.32-wilem-fechamento-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
+          gh release download dnd-6.6.33-wilem-estoque-canonico-20261029 --dir baseline --pattern 'BADGING.txt' --pattern 'SIGNATURE.txt'
           python3 - <<'PY'
           import os,re
           from pathlib import Path
@@ -64,7 +65,7 @@ jobs:
           assert (proj/'signing/debug.keystore').is_file(), 'Missing stable signing key'
           assert (proj/'app/src/main/assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').is_file(), 'Missing packaged map'
           version.write_text(source.replace('VERSION_CODE=606548','VERSION_CODE='+os.environ['CODE']).replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME='+os.environ['VERSION']))
-          print('DND_6633_VERSION_AND_SCHEMA_PASS')
+          print('DND_6634_VERSION_AND_SCHEMA_PASS')
           PY
       - name: Guard v61 fast startup and copyable diagnostics
         run: |
@@ -95,8 +96,8 @@ jobs:
           assert 'initialize();' in plan.split('String storyOccasion=',1)[0], 'Narrative Barbara policy bypass'
           assert 'masterOrchestrator.warmBarbaraAsync()' in activity
           assert all(marker in master for marker in ['MASTER_CORE_CREATED','MASTER_CANON_SEEDED','MASTER_ADVENTURES_REGISTERED','MASTER_RULES_REGISTERED','MASTER_MONSTERS_REGISTERED'])
-          print('DND_6633_LAZY_BARBARA_GATE_PASS')
-          print('DND_6633_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
+          print('DND_6634_LAZY_BARBARA_GATE_PASS')
+          print('DND_6634_STARTUP_FASTPATH_DIAGNOSTICS_PASS')
           PY
       - name: Compile and test full D&D rules engine
         working-directory: ${{ env.PROJECT }}
@@ -116,7 +117,8 @@ jobs:
                 'Character2024AllClassesStartingChoicesTest','BraseiroRandomPersonalityEngineTest',
                 'BarbaraStartupLazyTest','NarrativeCanonPersistenceTest','SimulatedGameSessionNarrativeTest',
                 'BraseiroCharacterStoryTest','BraseiroPersonalityProfileTest',
-                'AdventureContinuityPersistenceTest','LivingContinuityCampaignTest','KvotheStrixhavenPartyBridgeTest']
+                'AdventureContinuityPersistenceTest','LivingContinuityCampaignTest','KvotheStrixhavenPartyBridgeTest',
+                 'WilemCookbookEngineTest','WilemCookbookCombatIntegrationTest']
           for name in must:
               assert (folder/('TEST-com.braseiro.dnd5e.'+name+'.xml')).is_file(), 'Missing test suite: '+name
           reports=list(folder.glob('TEST-*.xml'))
@@ -125,7 +127,7 @@ jobs:
               r=ET.parse(p).getroot()
               for k in stats:stats[k]+=int(r.get(k,0))
           assert stats['tests']>=2910 and not any(stats[x] for x in ['failures','errors','skipped']),str(stats)
-          print('DND_6633_TESTS_PASS',stats)
+          print('DND_6634_TESTS_PASS',stats)
           PY
       - name: Build debug APK (same installed signer and package)
         working-directory: ${{ env.PROJECT }}
@@ -154,7 +156,7 @@ jobs:
           with zipfile.ZipFile(Path('out')/os.environ['APK_NAME']) as z:
               assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist())
           Path('out/BUILD_PROOF.txt').write_text('COMMIT='+os.environ['GITHUB_SHA']+'\nPACKAGE=com.braseiro.dnd5e\nVERSION_CODE='+b[2]+'\nNEW_CODE='+b[2]+'\nCERT_SHA256='+now[1]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\nSHEET_RULES_TESTS=PASS\nKVOTHE_STORY_JVM=PASS\nNPC_MEMORY_SQLITE=PASS\nNPC_SOCIAL_PROPAGATION_SQLITE=PASS\nKVOTHE_STRIXHAVEN_D040_GATE=PASS\nSTARTUP_PHYSICAL_BENCHMARK=NOT_PERFORMED\nBARBARA_CHAQUOPY_OFF_MAIN=PASS\n')
-          print('DND_6633_UPGRADE_SIGNER_MAP_PASS')
+          print('DND_6634_UPGRADE_SIGNER_MAP_PASS')
           PY
           (cd out && sha256sum "$APK_NAME" > "$APK_NAME.sha256")
       - name: Publish only a fully verified upgrade
@@ -165,5 +167,5 @@ jobs:
           test "$current" = "$GITHUB_SHA" || { echo 'BRANCH_CHANGED_BUILD_NOT_PUBLISHED'; exit 1; }
           ! gh release view "$TAG" >/dev/null 2>&1 || { echo 'TAG_ALREADY_PUBLISHED'; exit 1; }
           gh release create "$TAG" "out/$APK_NAME" "out/$APK_NAME.sha256" out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
-            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.33 — Fontes e Estoque Canonicos do Mundo" \
-            --notes "Caldeirao de Wilem integrado a fontes reais do mundo: nenhum mercado validado por nome de cena, nenhum limite ficticio de 12 unidades, inventario finito por NPC ou estabelecimento real do atlas, precos e quantidades do vendedor, revisao explicita para reabastecimento, moedas e estoque debitados atomicamente; coleta somente de habitat confirmado no hex ou node de recurso registrado na cena, limites consumidos em SQLite, d20 fisico e prova; criaturas usam salvaguarda de CON do statblock compilado, NPC canonico, encontro persistido ou perfil mecanico validado uma vez pelo Mestre, nunca numero arbitrario em cada rolagem. Mantidas 300 receitas, preparo, efeitos, boatos, anatomia e preservacao de dados das versoes anteriores. Extensao opcional de D&D 2024, sem alterar Mystara. Certificacao automatizada D&D, inventario, persistencia, assinatura e upgrade exigida para publicacao; teste fisico no aparelho nao realizado."
+            --target "$GITHUB_SHA" --title "Braseiro D&D 6.6.34 — Auditoria de Integridade do Caldeirao" \
+             --notes "Caldeirao de Wilem v6.6.34: corrigidas imunidades declaradas no combatente, NPC, recursos e statblock; salvaguardas fisicas de CON negativas; acesso a mercados restrito ao local exato, nao ao hex; iscas bloqueadas contra mortos e fora da cena; coleta ligada a fonte e revisao presentes durante o roll; recibos unicos persistentes em SQLite alem da janela de 120 e migracao dos anteriores; expiracao de efeitos sem sobrescrever concentracao ou temporizadores. Mantidos catalogo de 300 receitas, estoque real, carteira 2024, dados fisicos, efeitos, anatomia, recompensas, campanhas e Mystara intactos. Publicacao condicionada a testes D&D completos, regressao Wilem, compilacao, assinatura e prova de atualizacao. Homologacao fisica no Galaxy A57 nao realizada."
