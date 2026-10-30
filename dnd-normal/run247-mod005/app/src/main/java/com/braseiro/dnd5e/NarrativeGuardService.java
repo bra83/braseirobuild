@@ -27,6 +27,21 @@ public final class NarrativeGuardService {
     private static final Pattern AI_VOICE = Pattern.compile(
             "(?iu)\\b(?:como uma ia|como inteligência artificial|assistente virtual|prompt|pipeline|json)\\b");
 
+
+    // Instruções operacionais não pertencem à ficção. Os padrões são deliberadamente
+    // específicos: falar de uma missão ou de um mestre dentro do mundo é permitido.
+    private static final Pattern INTERNAL_DIRECTIVES = Pattern.compile(
+            "(?iu)(?:\\b(?:estado da campanha|dados persistidos|motor bárbara|motor barbara|"
+            + "missão artificialmente acrescentada|missao artificialmente acrescentada|"
+            + "ausência de um trilho|ausencia de um trilho|o sistema invente|"
+            + "a cena permanece honesta|autoridade do aplicativo|contexto operacional|"
+            + "continu[íi]dade preservada no banco local|host_world_authority|"
+            + "scene_state|npc_updates|ponto inicial catalogado desta aventura|"
+            + "foco de regras para a abertura)\\b"
+            + "|\\bo mestre (?:local|virtual)\\b[^.!?\\n]{0,180}"
+            + "\\b(?:move|movimenta|teletransporta|automaticamente)\\b"
+            + "|\\bele estabelece o chão\\b)");
+
     private static final Pattern EMOTION_HIJACK = Pattern.compile(
             "(?iu)\\b(?:você sente medo|você fica impressionado|você odeia|vocês sentem pavor)\\b");
 
@@ -40,6 +55,11 @@ public final class NarrativeGuardService {
         }
     }
 
+    public static boolean containsInternalLeak(String text) {
+        return text != null && (INTERNAL_DIRECTIVES.matcher(text).find()
+                || AI_VOICE.matcher(text).find());
+    }
+
     public static String sanitize(String text) {
         if (text == null || text.trim().length() == 0) return "";
         String clean = text.replace("\r\n", "\n").replace('\r', '\n');
@@ -47,6 +67,17 @@ public final class NarrativeGuardService {
         // Remove rótulos de interface vazados na prosa
         clean = UI_LABELS.matcher(clean).replaceAll("");
         clean = SUGGESTION_HEADERS.matcher(clean).replaceAll("");
+
+        // Não tente recortar um pedaço de instrução: descarte todo o parágrafo
+        // contaminado, preservando parágrafos narrativos e sua pontuação.
+        StringBuilder fictionalParagraphs = new StringBuilder();
+        for (String paragraph : clean.split("\\n\\s*\\n", -1)) {
+            if (containsInternalLeak(paragraph)) continue;
+            if (paragraph.trim().length() == 0) continue;
+            if (fictionalParagraphs.length() > 0) fictionalParagraphs.append("\n\n");
+            fictionalParagraphs.append(paragraph.trim());
+        }
+        clean = fictionalParagraphs.toString();
 
         // Remove metalinguagem de software
         clean = SOFTWARE_METALANGUAGE.matcher(clean).replaceAll("");
@@ -70,6 +101,9 @@ public final class NarrativeGuardService {
         }
         if (AI_VOICE.matcher(text).find()) {
             errors.add("Voz de IA/meta detectada.");
+        }
+        if (INTERNAL_DIRECTIVES.matcher(text).find()) {
+            errors.add("Instruções internas do Mestre detectadas no texto público.");
         }
         if (EMOTION_HIJACK.matcher(text).find()) {
             errors.add("Sequestro de emoção do herói detectado.");
