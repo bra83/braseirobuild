@@ -55,8 +55,8 @@ public final class GeneratedTextSanitizer {
             i=end+1;
         }
         return NarrativeGuardService.sanitize(PortugueseNarrationSanitizer.sanitize(out.toString()
-                .replaceAll("\\s+", " ")
-                .replaceAll("\\s+([,.;:!?])", "$1")
+                .replaceAll("[ \\t]+", " ")
+                .replaceAll("[ \\t]+([,.;:!?])", "$1")
                 .trim()));
     }
 
