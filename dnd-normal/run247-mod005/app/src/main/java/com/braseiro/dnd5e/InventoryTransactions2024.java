@@ -126,6 +126,8 @@ public final class InventoryTransactions2024 {
             record(state,eventId,"coins_adjust",source,actor,
                 new JSONObject().put("delta_cp",deltaCp)
                     .put("before_cp",before).put("after_cp",after));
+            CharacterInventory2024.reconcile(state);
+            CharacterInventory2024.publishInventorySummary(state);
             return CharacterInventory2024.reconcile(state);
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("coin_transaction_failed",e);}
