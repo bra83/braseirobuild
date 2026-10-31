@@ -70,7 +70,75 @@ public final class MasterOrchestrator {
         this(database,partyDirector,worldEngine,governor,null);
     }
     public MasterOrchestrator(AppDb database,PartyDirector partyDirector,WorldStateEngine worldEngine,AiQuotaGovernor governor,Context context){
-        db=database;party=partyDirector;world=worldEngine;quota=governor;firewall=new KnowledgeFirewall(db);rules=new MasterRulesArbiter(db);npcAgency=new NpcAgencyEngine(db,context==null?null:new NpcPersonalityCatalog(context));guilds=new GuildEngine(db);memory=new MasterMemoryEngine(db);cognition=new MasterCognitiveEngine(db,party,rules);validator=new MasterResponseValidator(db,firewall,rules,npcAgency);environmentalDirector=new EnvironmentalDirector(db);gameContext=new MasterGameContext(db);discoveryDirector=new NarrativeDiscoveryDirector(db);strixhavenProfile=context==null?null:new StrixhavenAdventureProfile(context);barbara=context==null?null:new BarbaraSupervisor(context);startupMark("MASTER_CORE_CREATED");narrativeEngine=new NarrativeContentEngine(db);try{narrativeEngine.seedOfficialCanon();}catch(Exception ignored){}startupMark("MASTER_CANON_SEEDED");adventureEngine=new com.braseiro.dnd5e.adventure.AdventureEngine(db,this,world);try{for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.FaerunAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.RavenloftAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.RavenloftShortAdventureCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.LorwynAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.EberronAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.NetherilAdventureModuleCatalog.all())adventureEngine.installModule(module);}catch(Exception ignored){}startupMark("MASTER_ADVENTURES_REGISTERED");try{TashaCompiledSourceRulesEngine.install();TashaSpellRuntimeEngine.install();TashaArtificerRuntimeEngine.install();TashaSubclassRuntimeEngine.install();CrossBookSubclassRuntimeEngine.install();Core2024EberronCharacterEngine.install();Core2024ClassRuntimeEngine.install();HomebrewClassRuntimeEngine.install();HomebrewClassRuntimeEngine.installRun138();HomebrewSubclassRuntimeEngine.install();VoloSubraceHandbookEngine.install();VoloSubraceRun139Engine.install();VoloSubraceRun140Engine.install();VoloRacialFeatRuntimeEngine.install();Run141SpeciesFeatRuntimeEngine.install();Run141CompactCharacterOptionEngine.install();Run143ForgottenSecretsEngine.install();Run149ForgottenSecretsSpellEngine.install();EberronForgeCompleteEngine.install();ForgottenRealmsHeroesEngine.install();RuneterraClassRuntimeEngine.install();ArcanaUnleashedRun143Engine.install();ArcanaUnleashedRun144Engine.install();ArcanaUnleashedRun145ItemEngine.install();ArcanaUnleashedRun145BestiaryEngine.install();RavenloftBestiaryRuntimeEngine.install();LorwynBestiaryRuntimeEngine.install();ArcanaUnleashedRun147EvolvingItemsEngine.install();TashaItemRuntimeEngine.install();TashaArtifactRuntimeEngine.install();TashaSupplementalRuntimeEngine.install();}catch(Exception ignored){}startupMark("MASTER_RULES_REGISTERED");try{TashaFeatCompiledRulesEngine.install();}catch(Exception ignored){}try{TashaMimicColonyEngine.installStatblocks();}catch(Exception ignored){}try{installSrd51BestiaryBatch();}catch(Exception ignored){}startupMark("MASTER_MONSTERS_REGISTERED");
+        db=database;party=partyDirector;world=worldEngine;quota=governor;firewall=new KnowledgeFirewall(db);rules=new MasterRulesArbiter(db);npcAgency=new NpcAgencyEngine(db,context==null?null:new NpcPersonalityCatalog(context));guilds=new GuildEngine(db);memory=new MasterMemoryEngine(db);cognition=new MasterCognitiveEngine(db,party,rules);validator=new MasterResponseValidator(db,firewall,rules,npcAgency);environmentalDirector=new EnvironmentalDirector(db);gameContext=new MasterGameContext(db);discoveryDirector=new NarrativeDiscoveryDirector(db);strixhavenProfile=context==null?null:new StrixhavenAdventureProfile(context);barbara=context==null?null:new BarbaraSupervisor(context);startupMark("MASTER_CORE_CREATED");narrativeEngine=new NarrativeContentEngine(db);try{narrativeEngine.seedOfficialCanon();}catch(Exception ignored){}startupMark("MASTER_CANON_SEEDED");adventureEngine=new com.braseiro.dnd5e.adventure.AdventureEngine(db,this,world);try{for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.FaerunAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.RavenloftAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.RavenloftShortAdventureCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.LorwynAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.EberronAdventureModuleCatalog.all())adventureEngine.installModule(module);for(com.braseiro.dnd5e.adventure.AdventureModule module:com.braseiro.dnd5e.adventure.NetherilAdventureModuleCatalog.all())adventureEngine.installModule(module);}catch(Exception ignored){}startupMark("MASTER_ADVENTURES_REGISTERED");beginCatalogRegistration(context);
+    }
+
+
+    // A instalação completa de regras e bestiários levava ~30s na thread
+    // principal. Catálogos são registries estáticos: carregue somente uma vez
+    // por processo, em executor próprio e prioridade de fundo.
+    private static final java.util.concurrent.atomic.AtomicBoolean CATALOG_STARTED =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+    private static final java.util.concurrent.CountDownLatch CATALOG_READY =
+            new java.util.concurrent.CountDownLatch(1);
+    private static volatile String catalogStatus = "pending";
+
+    public static boolean catalogsReady() { return CATALOG_READY.getCount() == 0L; }
+    public static String catalogsStatus() { return catalogStatus; }
+
+    private void beginCatalogRegistration(final Context context) {
+        if (!CATALOG_STARTED.compareAndSet(false, true)) return;
+        Runnable job = new Runnable() {
+            @Override public void run() {
+                try {
+                    if (context != null) {
+                        android.os.Process.setThreadPriority(
+                            android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                        // Priorizar a primeira renderização antes da pré-carga.
+                        try { Thread.sleep(300L); }
+                        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+                    }
+                    catalogStatus = "loading";
+                    registerFullCatalogs();
+                    catalogStatus = "ready";
+                } catch (Throwable error) {
+                    catalogStatus = "failed";
+                    AppLog.e("MasterOrchestrator","Falha no registro assíncrono dos catálogos.",error);
+                } finally {
+                    CATALOG_READY.countDown();
+                    if (context != null) {
+                        try { DndStartupTrace.persist(context.getApplicationContext()); }
+                        catch (Exception ignored) {}
+                    }
+                }
+            }
+        };
+        if (context == null) job.run(); // Keep headless/JVM tests deterministic.
+        else AppExecutors.catalogs().execute(job);
+    }
+
+    private static void awaitCatalogsForNarration() {
+        if (catalogsReady()) {
+            if ("failed".equals(catalogStatus))
+                throw new IllegalStateException("Catálogos D&D indisponíveis; nenhuma ação foi aplicada.");
+            return;
+        }
+        // NEVER make Android's UI wait for the 30s catalog installation.
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
+            throw new IllegalStateException("Regras ainda carregando. A ação deve ser preparada fora da interface.");
+        try {
+            if (!CATALOG_READY.await(120L, java.util.concurrent.TimeUnit.SECONDS))
+                throw new IllegalStateException("Tempo limite ao preparar os catálogos D&D.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Preparação das regras interrompida.", e);
+        }
+        if ("failed".equals(catalogStatus))
+            throw new IllegalStateException("Catálogos D&D indisponíveis; nenhuma ação foi aplicada.");
+    }
+
+    private void registerFullCatalogs() {
+try{TashaCompiledSourceRulesEngine.install();TashaSpellRuntimeEngine.install();TashaArtificerRuntimeEngine.install();TashaSubclassRuntimeEngine.install();CrossBookSubclassRuntimeEngine.install();Core2024EberronCharacterEngine.install();Core2024ClassRuntimeEngine.install();HomebrewClassRuntimeEngine.install();HomebrewClassRuntimeEngine.installRun138();HomebrewSubclassRuntimeEngine.install();VoloSubraceHandbookEngine.install();VoloSubraceRun139Engine.install();VoloSubraceRun140Engine.install();VoloRacialFeatRuntimeEngine.install();Run141SpeciesFeatRuntimeEngine.install();Run141CompactCharacterOptionEngine.install();Run143ForgottenSecretsEngine.install();Run149ForgottenSecretsSpellEngine.install();EberronForgeCompleteEngine.install();ForgottenRealmsHeroesEngine.install();RuneterraClassRuntimeEngine.install();ArcanaUnleashedRun143Engine.install();ArcanaUnleashedRun144Engine.install();ArcanaUnleashedRun145ItemEngine.install();ArcanaUnleashedRun145BestiaryEngine.install();RavenloftBestiaryRuntimeEngine.install();LorwynBestiaryRuntimeEngine.install();ArcanaUnleashedRun147EvolvingItemsEngine.install();TashaItemRuntimeEngine.install();TashaArtifactRuntimeEngine.install();TashaSupplementalRuntimeEngine.install();}catch(Exception ignored){}startupMark("MASTER_RULES_REGISTERED");try{TashaFeatCompiledRulesEngine.install();}catch(Exception ignored){}try{TashaMimicColonyEngine.installStatblocks();}catch(Exception ignored){}try{installSrd51BestiaryBatch();}catch(Exception ignored){}startupMark("MASTER_MONSTERS_REGISTERED");
     }
 
     /** Start Chaquopy off-main after first UI frame. Mechanics remain installed. */
@@ -82,6 +150,7 @@ public final class MasterOrchestrator {
 
     public Plan prepare(String mode,String rawAction,String mapContext,JSONObject audio,JSONObject ruleRetrieval){return prepare(mode,rawAction,mapContext,audio,ruleRetrieval,null);}
     public Plan prepare(String mode,String rawAction,String mapContext,JSONObject audio,JSONObject ruleRetrieval,String inputChannel){
+        awaitCatalogsForNarration();
         // Antes de qualquer cognição/tempo/NPC, elimina drift legado entre cena e Atlas.
         // Assim nenhum subsistema recebe uma cidade antiga associada ao hex atual.
         final boolean strixhavenActive=strixhavenProfile!=null&&strixhavenProfile.isActive();
