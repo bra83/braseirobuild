@@ -8,6 +8,10 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterInventory2024.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/InventoryTransactions2024.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/InventoryLedgerEngine.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/CharacterInventory2024Test.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetReconcilerTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetDatabaseTest.java'
       - '.github/workflows/dnd-2024-sheet-regression-gate.yml'
@@ -52,4 +56,5 @@ jobs:
         run: |
           ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
+            --tests com.braseiro.dnd5e.CharacterInventory2024Test \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
