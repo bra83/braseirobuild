@@ -136,7 +136,12 @@ public final class CharacterInventory2024 {
     }
 
     private static JSONArray cloneArray(JSONArray a){
-        return a==null?new JSONArray():new JSONArray(a.toString());
+        try{return a==null?new JSONArray():new JSONArray(a.toString());}
+        catch(Exception e){throw new IllegalArgumentException("invalid_inventory_json",e);}
+    }
+    private static JSONObject cloneObject(JSONObject o){
+        try{return new JSONObject(o.toString());}
+        catch(Exception e){throw new IllegalArgumentException("invalid_sheet_json",e);}
     }
 
     private static boolean carried(JSONObject row){
@@ -297,7 +302,7 @@ public final class CharacterInventory2024 {
         if(receipt.isEmpty())throw new IllegalArgumentException("inventory_event_id_required");
         if(!Character2024SheetReconciler.applies(input))
             throw new IllegalArgumentException("requires_2024_sheet");
-        JSONObject sheet=reconcile(new JSONObject(input.toString())); // migrate before first loot transaction
+        JSONObject sheet=reconcile(cloneObject(input)); // migrate before first loot transaction
         JSONArray applied=cloneArray(sheet.optJSONArray("inventory_event_receipts"));
         for(int i=0;i<applied.length();i++)if(receipt.equals(applied.optString(i)))
             return reconcile(sheet); // replay, never duplicate gain/loss
