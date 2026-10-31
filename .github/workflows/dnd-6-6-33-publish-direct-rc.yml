@@ -21,14 +21,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run watch 41186777056 --repo "$GITHUB_REPOSITORY" --exit-status --interval 10
+          gh run watch 41186318781 --repo "$GITHUB_REPOSITORY" --exit-status --interval 10
       - name: Download the exact tested APK, not a rebuild
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p candidate
-          gh run download 41186777056 --repo "$GITHUB_REPOSITORY" --name BRASEIRO-DND-6-6-33-RACE-CHARON-GATE --dir candidate
+          gh run download 41186318781 --repo "$GITHUB_REPOSITORY" --name BRASEIRO-DND-6-6-33-RACE-CHARON-GATE --dir candidate
           test -s candidate/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk
           (cd candidate && sha256sum -c SHA256SUMS.txt)
           grep -q "versionCode='203300501'" candidate/BADGING.txt
@@ -38,6 +38,10 @@ jobs:
         run: |
           set -euo pipefail
           TAG="dnd-6.6.33-race-charon-audit-rc"
-          SHA="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/41186777056" --jq '.head_sha')"
-          NOTES="Versão candidata de teste 6.6.33. Correções de continuidade Charon/Kokoro e concorrência de commits de IA. Este arquivo é exatamente o APK aprovado no CI 41186777056, com SHA256, assinatura e versionCode 203300501 conferidos. Instalar sobre o app existente sem desinstalar e sem limpar dados. Ainda requer teste físico no Galaxy A57 (ANR e TTS reais)."
-          gh release create "$TAG" candidate/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk candidate/SHA256SUMS.txt candidate/BADGING.txt candidate/SIGNATURE.txt --repo "$GITHUB_REPOSITORY" --target "$SHA" --title "Braseiro D&D 6.6.33 - correção Charon/ANR (candidato)" --notes "$NOTES" --prerelease
+          SHA="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/41186318781" --jq '.head_sha')"
+          NOTES="Versão candidata de teste 6.6.33. Correções de continuidade Charon/Kokoro e concorrência de commits de IA. Este arquivo é exatamente o APK aprovado no CI 41186318781, com SHA256, assinatura e versionCode 203300501 conferidos. Instalar sobre o app existente sem desinstalar e sem limpar dados. Ainda requer teste físico no Galaxy A57 (ANR e TTS reais)."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Existing verified release found; not overwriting assets."
+          else
+            gh release create "$TAG" candidate/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk candidate/SHA256SUMS.txt candidate/BADGING.txt candidate/SIGNATURE.txt --repo "$GITHUB_REPOSITORY" --target "$SHA" --title "Braseiro D&D 6.6.33 - correção Charon/ANR (candidato)" --notes "$NOTES" --prerelease
+          fi
