@@ -8,6 +8,7 @@ public final class BraseiroDndApplication extends Application {
         DndStartupTrace.begin();
         super.onCreate();
         DndStartupTrace.mark("ANDROID_APPLICATION_READY");
+        DndUiStallMonitor.start(this);
         new Dnd2024RulePackManager(this).restore();
         DndStartupTrace.mark("RULEPACK_RESTORED");
     }
