@@ -78,7 +78,7 @@ public final class StrixhavenCampusView extends View {
         final float sx=tokenX,sy=tokenY,tx=clamp01(x),ty=clamp01(y);ValueAnimator a=ValueAnimator.ofFloat(0f,1f);a.setDuration(520L);a.addUpdateListener(animation->{float t=(Float)animation.getAnimatedValue();tokenX=sx+(tx-sx)*t;tokenY=sy+(ty-sy)*t;invalidate();});a.start();
     }
 
-    @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.rgb(18,14,11));if(bitmap==null){labelTextPaint.setColor(Color.rgb(230,207,160));canvas.drawText("Preparando mapa de Strixhaven…",getWidth()/2f,getHeight()/2f,labelTextPaint);return;}computeMatrix();canvas.drawBitmap(bitmap,imageMatrix,imagePaint);
+    @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.rgb(18,14,11));if(bitmap==null){int prevColor=labelTextPaint.getColor();labelTextPaint.setColor(Color.rgb(230,207,160));canvas.drawText("Preparando mapa de Strixhaven…",getWidth()/2f,getHeight()/2f,labelTextPaint);labelTextPaint.setColor(prevColor);return;}computeMatrix();canvas.drawBitmap(bitmap,imageMatrix,imagePaint);
         if(selectedX>=0f){float[] a=mapPoint(tokenX,tokenY),b=mapPoint(selectedX,selectedY);canvas.drawLine(a[0],a[1],b[0],b[1],routePaint);}
         for(StrixhavenLocationCatalog.Hotspot h:hotspots)drawHotspot(canvas,h);
         drawMeeple(canvas,tokenX,tokenY);
