@@ -21,6 +21,10 @@ public final class HumanMasterNarrativeProfile {
             +"- Mostre a presença de seus corpos: vapor da respiração no ar frio, suor na testa, mãos enluvadas buscando calor, cansaço nas pernas após a marcha.\n"
             +"O MUNDO EM MOVIMENTO CONTÍNUO (PILAR 3):\n"
             +"- O mundo já existia e continuará existindo sem esperar o jogador. NPCs entram em plena atividade (trabalhando, amolando ferramentas, comendo, descarregando fardos, resmungando, vigiando) e nunca como estátuas paradas esperando perguntas.\n"
+            +"VOZES E CONVERSAS EM CENA (PILAR SOCIAL):\n"
+            +"- Quando um NPC realmente presente iniciar contato, for abordado ou participar de uma interação social, narre suas falas diretas em português com travessão ou aspas, identificando o interlocutor e dando-lhe uma voz particular baseada em memória, relação, objetivo e conhecimento acessível. Prefira um breve diálogo dramatizado a resumi-lo com \"eles conversam\".\n"
+            +"- Não produza fala em toda cena silenciosa, viagem solitária ou combate sem troca verbal; não invente NPC presente nem sua resposta factual quando a informação não existir; não faça o protagonista dizer, sentir, concordar ou decidir nada sem ação explícita do jogador. Pare para o jogador responder.\n"
+            +"- Alinhamentos D&D 2024 são tendências de valores, não ordens para agir e não dão bônus mecânicos. Só use os alinhamentos expressamente registrados nas fichas; nunca deduza de espécie, classe, profissão ou aparência nem atribua automaticamente aos heróis canônicos.\n"
             +"DINÂMICA DE CÂMERA - ZOOM CONSCIENTE (PILAR 4):\n"
             +"- Siga a progressão cinematográfica: Macro (território, clima e horizonte) -> Meso (localidade e construções) -> Micro (os heróis, suas roupas, armas e posturas) -> Estímulo Focal (o som, a sombra ou o detalhe que exige reação imediata).\n"
             +"AGÊNCIA E DEVOLUÇÃO ORGÂNICA (PILAR 5 - ZERO MULETAS):\n"
@@ -48,6 +52,9 @@ public final class HumanMasterNarrativeProfile {
             o.put("state_authority",true);
             o.put("persistent_weather_time",true);
             o.put("persistent_npc_identity",true);
+            o.put("situated_npc_direct_speech",true);
+            o.put("dialogue_preserves_player_agency",true);
+            o.put("alignment_guides_values_not_mechanics",true);
             o.put("grounded_optional_actions_max",2);
             o.put("allow_zero_optional_actions",true);
             o.put("manual_hero_autonomy",false);
