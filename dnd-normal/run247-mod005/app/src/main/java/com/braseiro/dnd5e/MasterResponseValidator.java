@@ -58,8 +58,16 @@ public final class MasterResponseValidator {
         if(rawNarration.trim().length()==0){
             e.put("narration","A cena aguarda a ação da companhia.");
         }else{
+            boolean internalLeak=NarrativeGuardService.containsInternalLeak(rawNarration);
             String sanitizedNarration=NarrativeGuardService.sanitize(rawNarration);
             if(!sanitizedNarration.equals(rawNarration))e.put("narration",sanitizedNarration);
+            if(internalLeak){
+                // Uma resposta contaminada jamais pode avançar a campanha.
+                if(sanitizedNarration.trim().length()==0)
+                    e.put("narration","A narração foi bloqueada por conter instruções internas. Nenhuma ação foi aplicada; tente novamente.");
+                e.put("options",new JSONArray());
+                throw new IllegalStateException("Vazamento de instruções do Mestre na resposta pública.");
+            }
             NarrativeGuardService.ValidationResult vRes=NarrativeGuardService.validate(sanitizedNarration);
             if(!vRes.valid){for(String err:vRes.errors)warnings.put("Guard Narrativo: "+err);}
         }
@@ -176,7 +184,7 @@ public final class MasterResponseValidator {
     }catch(RuntimeException __brRuntimeFailure106){throw __brRuntimeFailure106;}catch(Exception __brCheckedFailure106){throw new IllegalStateException(__brCheckedFailure106);}}
 
     private static void requireValid(JSONObject report,String component)throws Exception{if(report==null||!report.optBoolean("valid",false))throw new IllegalStateException(component+" não confirmou uma validação segura.");}
-    private static void clearStructuredMutations(JSONObject e)throws Exception{/*BR_JSON_WRAP*/try{for(String key:new String[]{"state_updates","npc_updates","npc_cognition_updates","knowledge_updates","quest_updates","faction_updates","guild_updates","clock_updates","world_events","event_resolutions","pending_resolutions","journal_updates","map_updates","tactical_updates"})e.put(key,new JSONArray());e.put("combat",new JSONObject().put("action","none"));e.put("scene_state",new JSONObject());e.put("_local_tick",new JSONObject());e.put("_deferred_until_test",true);}catch(RuntimeException __brRuntimeFailure106){throw __brRuntimeFailure106;}catch(Exception __brCheckedFailure106){throw new IllegalStateException(__brCheckedFailure106);}}
+    private static void clearStructuredMutations(JSONObject e)throws Exception{/*BR_JSON_WRAP*/try{for(String key:new String[]{"state_updates","npc_updates","npc_cognition_updates","knowledge_updates","quest_updates","faction_updates","guild_updates","clock_updates","world_events","event_resolutions","pending_resolutions","journal_updates","map_updates","tactical_updates"})e.put(key,new JSONArray());e.put("combat",new JSONObject().put("action","none"));e.put("scene_state",new JSONObject());e.put("options",new JSONArray());e.put("_local_tick",new JSONObject());e.put("_deferred_until_test",true);}catch(RuntimeException __brRuntimeFailure106){throw __brRuntimeFailure106;}catch(Exception __brCheckedFailure106){throw new IllegalStateException(__brCheckedFailure106);}}
 
     private JSONObject findCombatantById(long id){if(id<=0)return new JSONObject();for(JSONObject row:db.listCombatants())if(row.optLong("id")==id)return row;return new JSONObject();}
     private void validateOptions(JSONObject e,JSONArray warnings)throws Exception{/*BR_JSON_WRAP*/try{JSONArray source=e.optJSONArray("options"),out=new JSONArray();if(source!=null)for(int i=0;i<source.length()&&out.length()<2;i++){JSONObject o=source.optJSONObject(i);if(o==null)continue;String action=o.optString("action",o.optString("description","")).trim();if(action.length()==0)continue;JSONObject x=new JSONObject();x.put("label",trim(o.optString("label","Sugestão"),80));x.put("description",trim(o.optString("description"),180));x.put("action",trim(action,300));if(o.optJSONObject("test")!=null)x.put("test",o.optJSONObject("test"));out.put(x);}e.put("options",out);}catch(RuntimeException __brRuntimeFailure106){throw __brRuntimeFailure106;}catch(Exception __brCheckedFailure106){throw new IllegalStateException(__brCheckedFailure106);}}
