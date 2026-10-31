@@ -69,7 +69,8 @@ public final class CharacterInventory2024 {
         weight(5,"corda de 15 m","corda de 15m","rope","corda");
         weight(0.5,"poção de cura","potion of healing");
         weight(4,"cajado","staff (arcane focus)");
-        weight(1,"saco","pouch");
+        weight(1,"saco de moedas","pouch");
+        weight(0.5,"saco","sack");
     }
 
     public static String normalize(String s){
