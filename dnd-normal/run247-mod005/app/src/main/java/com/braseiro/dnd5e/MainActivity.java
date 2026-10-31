@@ -125,7 +125,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static final String STATE_CURRENT_SCREEN="state_current_screen_v1";
     private static final String STATE_NARRATOR_DRAFT="state_narrator_draft_v1";
     private int BG,PANEL,PANEL2,GOLD,TEXT,MUTED,RED,GREEN,HEADER_BG,STATUS_BG,CARD_STROKE,INPUT_BG,INPUT_STROKE,HINT;
-    private AppDb db;
+    /* package */ AppDb db;
     private SharedPreferences prefs;
     private SecureSecretStore secrets;
     private GeminiService gemini;
@@ -135,7 +135,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private NarrativeAudioEngine narrativeAudio;
     private AudioDiagnosticsRepository audioDiagnostics;
     private AudioSessionCoordinator audioSessionCoordinator;
-    private AudioSessionCoordinator.Session activeAudioSession;
+    /* package */ AudioSessionCoordinator.Session activeAudioSession;
     private MasterGameContext masterGameContext;
     private AiQuotaGovernor aiQuotaGovernor;
     private TtsCache ttsCache;
@@ -196,10 +196,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int nativeNarrationQueueIndex=0;
     private long nativeNarrationSession=0L;
     private boolean nativeNarrationBedStarted=false;
-    private long charonNarrationGeneration=0L;
+    /* package */ long charonNarrationGeneration=0L;
     private long charonPreparationGeneration=0L;
     private long charonVoiceStartedSession=-1L;
     private boolean charonFallbackInProgress=false;
+    /* package */ long activeFallbackSession=-1L;
     private GeminiService.SpeechRequest activeCharonRequest;
     private volatile boolean adventureStartRunning=false;
     private volatile boolean adventurePreflightRunning=false;
@@ -218,7 +219,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String nativeTtsActiveEnginePackage="";
     private boolean nativeTtsRefreshAudioOnReady=false;
     private String pendingRequestedNativeNarration="";
-    private final NarrationPlaybackStateMachine narrationStateMachine=new NarrationPlaybackStateMachine();
+    /* package */ final NarrationPlaybackStateMachine narrationStateMachine=new NarrationPlaybackStateMachine();
     private Handler ui;
     private FrameLayout content;
     private LinearLayout shellRoot;
@@ -228,10 +229,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private boolean strixhavenDrawerExpanded=true;
     private boolean strixhavenControlsExpanded=true;
     private TextView strixhavenNarrationOutput;
-    private TextView statusText;
+    /* package */ TextView statusText;
     private String currentScreen="Aventura";
     private String lastSuccessfulScreen="Aventura";
-    private String lastNarration="";
+    /* package */ String lastNarration="";
     private String lastPrompt="";
     private ImageView sceneImage;
     private TextView narratorOutput;
@@ -272,7 +273,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private long lastStreamUiAt=0L;
     private int lastStreamUiLength=0;
     private volatile long lastStreamPostAt=0L;
-    private long aiRequestGeneration=0L;
+    /* package */ long aiRequestGeneration=0L;
     private long aiPipelineGeneration=0L;
     // RUN188_GEMINI_EXPLICIT_OFFLINE: offline may run ONLY after a direct tap.
     private boolean manualOfflineNextRequest=false;
@@ -365,6 +366,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             gemini=new GeminiService(this);gemini.resetTtsPrimaryCircuit();drive=new DriveService(this);manualFolderScanner=new SafFolderScanner(this);DndStartupTrace.mark("PDF_ENGINE_INIT_BEGIN");localManualIndexer=new LocalManualIndexer(this,db,drive);DndStartupTrace.mark("PDF_ENGINE_INIT_END");tokenPdfLibrary=new TokenPdfLibrary(this);mapPackageManager=new MapPackageManager(this,db);accountManager=AccountManager.get(this);if(!prefs.getBoolean("npc_token_folder_47_migrated",false)){String old=prefs.getString("token_folder","");SharedPreferences.Editor tokenMigration=prefs.edit().putBoolean("npc_token_folder_47_migrated",true);if(old.length()==0||DEFAULT_TOKEN_FOLDER.equals(old))tokenMigration.putString("token_folder",DEFAULT_TOKEN_IMAGE_FOLDER);tokenMigration.apply();}
             prefs.edit().putBoolean("audio_background_playback",false).putBoolean("audio_background_disabled_3_7",true).apply();try{stopService(new Intent(this,AudioPlaybackService.class));}catch(Exception e){AppLog.w("MainActivity","Não foi possível encerrar um serviço de áudio legado.",e);}audio=AudioPlaybackService.controller(this);audioDiagnostics=new AudioDiagnosticsRepository(this);audioSessionCoordinator=new AudioSessionCoordinator(audioDiagnostics);npcTokenAutoBinder=new NpcTokenAutoBinder(this,db,drive);masterGameContext=new MasterGameContext(db);aiQuotaGovernor=new AiQuotaGovernor(this);DndStartupTrace.mark("TTS_CACHE_INIT_BEGIN");ttsCache=new TtsCache(this);DndStartupTrace.mark("TTS_CACHE_INIT_END");partyDirector=new PartyDirector(db);worldStateEngine=new WorldStateEngine(db);livingWorldEngine=new LivingWorldEngine(db);livingWorldCatchUpEngine=new LivingWorldCatchUpEngine(db);worldSixCoordinator=new WorldSixCoordinator(db);emergentCampaignDirector=new EmergentCampaignDirector(db);livingSettlementEngine=new LivingSettlementEngine(db);npcWorldSpreader=new NpcWorldSpreaderEngine(db);rumorNetworkEngine=new RumorNetworkEngine(db);worldHistoryEngine=new WorldHistoryEngine(db);campaignLegacyEngine=new CampaignLegacyEngine(db);npcVoiceDirector=new NpcVoiceDirector(db);tacticalSceneGenerator=new ProceduralTacticalSceneGenerator(db);localTableServer=new LocalTableServer(db);guildEngine=new GuildEngine(db);DndStartupTrace.mark("MASTER_INIT_BEGIN");masterOrchestrator=new MasterOrchestrator(db,partyDirector,worldStateEngine,aiQuotaGovernor,this);DndStartupTrace.mark("MASTER_INIT_END");adventureEngine=masterOrchestrator.getAdventureEngine();ruleRetrievalEngine=new RuleRetrievalEngine(db);offlineMaster=new OfflineMasterEngine();stateTransactionManager=new StateTransactionManager(db);consequenceEngine=new ConsequenceEngine(db);worldDomainEventLedger=new WorldDomainEventLedger(db);rulesEngine=new DndRulesEngine();mystaraRules=new MystaraRulesEngine();characterGenerator=new CharacterSheetGenerator(rulesEngine);characterRulesValidator=new CharacterRulesValidator();sceneStateEngine=new SceneStateEngine(db);environmentalDirector=new EnvironmentalDirector(db);travelRulesEngine=new TravelRulesEngine(db);taskQueue=new ResilientTaskQueue(this,db);mythicOracle=new MythicOracle(this);
             DndStartupTrace.mark("ENGINES_READY");AndroidTtsBackend.migratePreferences(this,prefs);
+            narrationStateMachine.setListener(new NarrationPlaybackStateMachine.Listener(){
+                public void onStateChanged(NarrationPlaybackStateMachine.State oldState,NarrationPlaybackStateMachine.State newState,NarrationPlaybackStateMachine machine){}
+                public void onVoiceSourceChanged(final NarrationPlaybackStateMachine.VoiceSource oldSource,final NarrationPlaybackStateMachine.VoiceSource newSource){
+                    if(ui!=null&&newSource!=null&&newSource!=NarrationPlaybackStateMachine.VoiceSource.NONE){
+                        ui.post(new Runnable(){public void run(){
+                            if(newSource==NarrationPlaybackStateMachine.VoiceSource.CHARON){
+                                setStatus("Charon narrando • música e ambiência ao fundo • SFX apenas nos eventos da fala.");
+                            }else if(newSource==NarrationPlaybackStateMachine.VoiceSource.KOKORO){
+                                setStatus("Braseiro Kokoro PT-BR narrando • áudio inteligente sincronizado.");
+                            }else if(newSource==NarrationPlaybackStateMachine.VoiceSource.ANDROID_TTS){
+                                setStatus("Voz do Android narrando • áudio inteligente sincronizado.");
+                            }
+                        }});
+                    }
+                }
+                public void onPlaybackProgress(int chunkIndex,int totalChunks,int spokenChars){}
+            });
             audio.setStatus(new AudioController.Status(){public void onStatus(final String text){ui.post(new Runnable(){public void run(){setBackgroundStatus(text);}});}});audio.setVolumes(prefs.getInt("vol_amb",35)/100f,prefs.getInt("vol_weather",28)/100f,prefs.getInt("vol_music",14)/100f,prefs.getInt("vol_sfx",80)/100f,prefs.getInt("vol_voice",100)/100f);
             resumeAudioImportMonitor();
             loadStoryState();DndStartupTrace.mark("STORY_STATE_READY");scheduleSceneNpcTokenBinding();String storedImage=prefs.getString(PREF_SCENE_IMAGE_URI,"");String storedFingerprint=prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,"");String currentFingerprint=currentSceneVisualFingerprint();if(storedImage.length()>0&&storedFingerprint.equals(currentFingerprint)){Uri candidate=Uri.parse(storedImage);if(ImageStorageManager.isReadable(this,candidate))sharedImageUri=candidate;else clearSceneImageReference();}else if(storedImage.length()>0){clearSceneImageReference();}            String restoredScreen=state==null?"":state.getString(STATE_CURRENT_SCREEN,"");
@@ -6429,15 +6447,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         JSONArray extracted=NarratedNpcExtractor.extract(narration,12);for(int i=0;i<extracted.length();i++){JSONObject npc=extracted.optJSONObject(i);if(npc==null)continue;String key=normalizeForNameMatch(npc.optString("name",""));if(key.length()<2||seen.contains(key))continue;try{appendPreviewNpc(out,seen,npc);}catch(Exception error){AppLog.w("SceneCast","Falha ao registrar NPC explícito da narração.",error);}}
     }
 
-    private void synchronizeVisualSceneCast(){
-        if(currentSceneCastPreview==null||currentSceneCastPreview.length()==0)return;
+    private void synchronizeVisualSceneCast(){synchronizeVisualSceneCastWith(currentSceneCastPreview);}
+    private void synchronizeVisualSceneCastWith(JSONArray castPreview){
+        if(castPreview==null||castPreview.length()==0)return;
         try{
             JSONObject scene=db.getSceneState();JSONArray merged=new JSONArray();HashSet<String> seen=new HashSet<String>();appendPersistentSceneNpcs(merged,seen,scene.opt("present_npcs"));appendPersistentSceneNpcs(merged,seen,scene.opt("present_npcs_json"));
-            for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject npc=currentSceneCastPreview.optJSONObject(i);if(npc!=null)appendPreviewNpc(merged,seen,npc);}
+            for(int i=0;i<castPreview.length();i++){JSONObject npc=castPreview.optJSONObject(i);if(npc!=null)appendPreviewNpc(merged,seen,npc);}
             scene.put("present_npcs",merged);if(scene.optString("hex_id","").length()==0)scene.put("hex_id",db.getMapState().optString("current_hex_id",""));db.saveSceneState(scene);
             String where=scene.optString("location",NarrativeLocationNaturalizer.currentNarrativeLabel(db));String hex=scene.optString("hex_id","");
-            for(int i=0;i<currentSceneCastPreview.length();i++){
-                JSONObject visible=currentSceneCastPreview.optJSONObject(i);if(visible==null)continue;String name=visible.optString("name","").trim();if(name.length()==0||isReservedSceneIdentity(name))continue;
+            for(int i=0;i<castPreview.length();i++){
+                JSONObject visible=castPreview.optJSONObject(i);if(visible==null)continue;String name=visible.optString("name","").trim();if(name.length()==0||isReservedSceneIdentity(name))continue;
                 // Figurantes derivados apenas da prosa pertencem à cena, não à memória mundial.
                 // Isso mantém a barra fiel sem criar NPCs permanentes chamados "Velho" ou "Corredores".
                 if(visible.optBoolean("transient",false)||visible.optBoolean("anonymous",false))continue;
@@ -7232,74 +7251,342 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
 
-    private void handleAiResponse(String raw,String action){
-        JSONObject rawAgencyEnvelope=parseAiEnvelope(raw);
-        JSONObject env=copyJsonObject(rawAgencyEnvelope);if(masterOrchestrator!=null)env=masterOrchestrator.validateEnvelope(env,action);
+    private static final class AiResponseUiPayload {
+        final long requestGen;
+        final boolean nonAdvancing;
+        final boolean masterEnvelopeValid;
+        final boolean changes;
+        final long transactionId;
+        final JSONObject env;
+        final String lastNarration;
+        final JSONArray currentOptions;
+        final JSONArray currentSceneCastPreview;
+        final String lastVisualPrompt;
+        final JSONObject lastAudioPlan;
+        final JSONObject pendingTest;
+        final JSONObject lastMasterSupport;
+        final String statusMessage;
+        final boolean combatNarration;
+        final boolean invalidateVisual;
+
+        AiResponseUiPayload(long requestGen, boolean nonAdvancing, boolean masterEnvelopeValid,
+                            boolean changes, long transactionId, JSONObject env, String lastNarration,
+                            JSONArray currentOptions, JSONArray currentSceneCastPreview,
+                            String lastVisualPrompt, JSONObject lastAudioPlan, JSONObject pendingTest,
+                            JSONObject lastMasterSupport, String statusMessage,
+                            boolean combatNarration, boolean invalidateVisual) {
+            this.requestGen = requestGen;
+            this.nonAdvancing = nonAdvancing;
+            this.masterEnvelopeValid = masterEnvelopeValid;
+            this.changes = changes;
+            this.transactionId = transactionId;
+            this.env = env;
+            this.lastNarration = lastNarration;
+            this.currentOptions = currentOptions;
+            this.currentSceneCastPreview = currentSceneCastPreview;
+            this.lastVisualPrompt = lastVisualPrompt;
+            this.lastAudioPlan = lastAudioPlan;
+            this.pendingTest = pendingTest;
+            this.lastMasterSupport = lastMasterSupport;
+            this.statusMessage = statusMessage;
+            this.combatNarration = combatNarration;
+            this.invalidateVisual = invalidateVisual;
+        }
+    }
+
+    /* package */ void handleAiResponse(final String raw, final String action) {
+        final long requestGen = aiRequestGeneration;
+        AppExecutors.io().execute(new Runnable() {
+            public void run() {
+                processAiResponseInBackground(raw, action, requestGen);
+            }
+        });
+    }
+
+    /* package */ void processAiResponseInBackground(final String raw, final String action, final long requestGen) {
+        if (requestGen != aiRequestGeneration) return;
+        try {
+            JSONObject rawAgencyEnvelope = parseAiEnvelope(raw);
+        JSONObject env = copyJsonObject(rawAgencyEnvelope);
+        if (masterOrchestrator != null) env = masterOrchestrator.validateEnvelope(env, action);
+
         // RUN220: a curated proposal is an intention, never a simultaneous
         // mechanical event. Fail closed even if the same proposal was staged
         // in a previous request (the replay must not execute its side-effects).
-        if(!masterSideQueryActive&&"Narrador".equals(lastAiMode)&&!activeTurnNonAdvancing(action)){
-            String agencyConflict=CompanionProposalIsolationGuard.reject(rawAgencyEnvelope,safeActiveCharacters(),db);
-            if(!agencyConflict.isEmpty()){
-                JSONObject agencyVerdict=env.optJSONObject("_master_validation");
-                int captured=(agencyVerdict!=null&&agencyVerdict.optBoolean("valid",false))
-                    ?CompanionAgencyEngine.stageCurated(db,rawAgencyEnvelope,safeActiveCharacters()):0;
-                aiBusy=false;streamingNarration="";clearFailedGeminiRequest();
-                setStatus("Curadoria: intenção separada de mudanças mecânicas ("+agencyConflict+"). "
-                    +captured+" proposta(s) válida(s) nova(s), nenhuma consequência aplicada.");
-                showPartyDirector();return;
+        if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
+            String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
+            if (!agencyConflict.isEmpty()) {
+                JSONObject agencyVerdict = env.optJSONObject("_master_validation");
+                final int captured = (agencyVerdict != null && agencyVerdict.optBoolean("valid", false))
+                        ? CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters()) : 0;
+                final String conflictMsg = agencyConflict;
+                ui.post(new Runnable() {
+                    public void run() {
+                        if (requestGen != aiRequestGeneration) return;
+                        aiBusy = false;
+                        streamingNarration = "";
+                        clearFailedGeminiRequest();
+                        setStatus("Curadoria: intenção separada de mudanças mecânicas (" + conflictMsg + "). "
+                                + captured + " proposta(s) válida(s) nova(s), nenhuma consequência aplicada.");
+                        showPartyDirector();
+                    }
+                });
+                return;
             }
         }
+
         // RUN189: a curated intention is captured BEFORE narration/state commit.
         // Neither the proposal nor any effects accompanying it are accepted now.
-        if(!masterSideQueryActive&&"Narrador".equals(lastAiMode)&&!activeTurnNonAdvancing(action)){
-            try{
-                JSONObject verdict=env.optJSONObject("_master_validation");
-                if(verdict!=null&&verdict.optBoolean("valid",false)){
-                    int captured=CompanionAgencyEngine.stageCurated(db,rawAgencyEnvelope,safeActiveCharacters());
-                    if(captured>0){
-                        aiBusy=false;streamingNarration="";clearFailedGeminiRequest();
-                        setStatus("Curadoria: "+captured+" proposta(s) pendente(s). Nenhuma consequência da resposta foi aplicada.");
-                        showPartyDirector();return;
+        if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
+            try {
+                JSONObject verdict = env.optJSONObject("_master_validation");
+                if (verdict != null && verdict.optBoolean("valid", false)) {
+                    final int captured = CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters());
+                    if (captured > 0) {
+                        ui.post(new Runnable() {
+                            public void run() {
+                                if (requestGen != aiRequestGeneration) return;
+                                aiBusy = false;
+                                streamingNarration = "";
+                                clearFailedGeminiRequest();
+                                setStatus("Curadoria: " + captured + " proposta(s) pendente(s). Nenhuma consequência da resposta foi aplicada.");
+                                showPartyDirector();
+                            }
+                        });
+                        return;
                     }
                 }
-            }catch(Exception e){AppLog.e("CompanionAgency","Falha ao armazenar propostas, sem alterar a campanha",e);}
+            } catch (Exception e) {
+                AppLog.e("CompanionAgency", "Falha ao armazenar propostas, sem alterar a campanha", e);
+            }
         }
-        if(masterSideQueryActive){
-            String answer=completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration",raw)));String question=masterSideQueryText;JSONObject sideRetrieval=copyJsonObject(activeRuleRetrieval);JSONArray sideCitations=copyJsonArray(lastRagCitations);
-            JSONObject previousSupport=copyJsonObject(lastMasterSupport);JSONObject support=MasterSupportPanelEngine.build(env,sideRetrieval,sideCitations,db.getSceneState(),safeActiveCharacters(),currentOptions,pendingTest,question,isMystaraWorld(),"GM_HELP");lastMasterSupport=MasterSupportPanelEngine.withAnswer(support,question,answer,sideRetrieval,sideCitations);lastMasterSupport=appendMasterConversationHistory(previousSupport,lastMasterSupport,question,answer);prefs.edit().putString("last_master_support_json",lastMasterSupport.toString()).apply();saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(),question,answer));
-            if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,answer,env,pendingAiInputChars,raw==null?0:raw.length());db.addAuditEvent("consulta_auxiliar","Pergunta ao Mestre sem avanço",question,"{}",lastMasterSupport.toString(),false);restoreAfterMasterSideQuery();clearFailedGeminiRequest();setStatus("Pergunta respondida no quadro azul. A aventura permaneceu exatamente no mesmo ponto.");if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();return;
+
+        if (masterSideQueryActive) {
+            String answer = completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration", raw)));
+            String question = masterSideQueryText;
+            JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
+            JSONArray sideCitations = copyJsonArray(lastRagCitations);
+            JSONObject previousSupport = copyJsonObject(lastMasterSupport);
+            JSONObject support = MasterSupportPanelEngine.build(env, sideRetrieval, sideCitations, db.getSceneState(), safeActiveCharacters(), currentOptions, pendingTest, question, isMystaraWorld(), "GM_HELP");
+            JSONObject withAns = MasterSupportPanelEngine.withAnswer(support, question, answer, sideRetrieval, sideCitations);
+            final JSONObject finalSupport = appendMasterConversationHistory(previousSupport, withAns, question, answer);
+            prefs.edit().putString("last_master_support_json", finalSupport.toString()).apply();
+            saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), question, answer));
+            if (masterOrchestrator != null) masterOrchestrator.afterAccepted(activeMasterPlan, answer, env, pendingAiInputChars, raw == null ? 0 : raw.length());
+            db.addAuditEvent("consulta_auxiliar", "Pergunta ao Mestre sem avanço", question, "{}", finalSupport.toString(), false);
+            ui.post(new Runnable() {
+                public void run() {
+                    if (requestGen != aiRequestGeneration) return;
+                    lastMasterSupport = finalSupport;
+                    restoreAfterMasterSideQuery();
+                    clearFailedGeminiRequest();
+                    setStatus("Pergunta respondida no quadro azul. A aventura permaneceu exatamente no mesmo ponto.");
+                    if (isStrixhavenAdventure()) showStrixhavenSession();
+                    else if ("Mestre IA".equals(currentScreen)) showNarrator();
+                }
+            });
+            return;
         }
-        boolean nonAdvancing="Narrador".equals(lastAiMode)&&env.optBoolean("_non_advancing",activeTurnNonAdvancing(action));
-        JSONObject finalValidation=env.optJSONObject("_master_validation");boolean masterEnvelopeValid=finalValidation!=null&&finalValidation.optBoolean("valid",false);
-        JSONArray previousOptions=currentOptions==null?new JSONArray():currentOptions;JSONArray previousCast=copyJsonArray(currentSceneCastPreview);String previousVisual=lastVisualPrompt==null?"":lastVisualPrompt;JSONObject previousAudio=lastAudioPlan==null?new JSONObject():copyJsonObject(lastAudioPlan);JSONObject previousPendingTest=pendingTest==null?new JSONObject():copyJsonObject(pendingTest);
-        JSONArray optionHistory=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());optionHistory=SceneOptionDiversifier.appendHistory(optionHistory,previousOptions);JSONArray opts=env.optJSONArray("options");ChoiceSplit choiceSplit=splitNarrationChoices(GeneratedTextSanitizer.narrative(env.optString("narration",raw)),opts);lastNarration=completeNarrationSafely(choiceSplit.narration);lastNarration=AtlasScenePositionReconciler.repairNarration(lastNarration,env);if(isStrixhavenAdventure()){processStrixhavenOfficialProgress(env,lastNarration);lastNarration=StrixhavenOfficialCampaignRuntime.stripMarkers(lastNarration);}if(hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Vazamento de instruções internas detectado na narração; bloqueando alterações mecânicas e higienizando prosa.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);masterEnvelopeValid=false;nonAdvancing=true;}
-        if(nonAdvancing){
-            currentSceneCastPreview=previousCast;lastVisualPrompt=previousVisual;lastAudioPlan=previousAudio;pendingTest=previousPendingTest;currentOptions=previousOptions;saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(),action,lastNarration));
-        }else{
-            currentSceneCastPreview=buildSceneCastPreview(env);mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();
-            lastVisualPrompt=env.optString("visual_prompt","").trim();if(lastVisualPrompt.length()==0)lastVisualPrompt=sanitizeVisualSource(lastNarration);invalidateSceneImageIfContextChanged();lastAudioPlan=env.optJSONObject("audio_plan");if(lastAudioPlan==null)lastAudioPlan=new JSONObject();JSONObject pt=masterEnvelopeValid?env.optJSONObject("pending_test"):null;if(pt!=null&&pt.optBoolean("required",true)&&activeMasterPromotionTurnId.length()>0){try{pt.put("origin_master_turn_id",activeMasterPromotionTurnId).put("origin_master_question",activeMasterPromotionQuestion);}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao vincular teste à consulta azul.",ignored);}}pendingTest=pt!=null&&pt.optBoolean("required",true)?ensurePendingTestIdentity(pt,action):new JSONObject();if(activeMasterPromotionTurnId.length()>0){if(pendingTest.length()>0){try{updateMasterConversationTurn(activeMasterPromotionTurnId,"awaiting_roll",new JSONObject().put("test_key",pendingTest.optString("test_key")).put("test_label",testLabel(pendingTest)).put("test_ability",pendingTest.optString("ability")).put("test_skill",pendingTest.optString("skill")).put("test_mode",normalizeRollMode(pendingTest.optString("mode","Normal"))).put("test_dc",pendingTest.optInt("dc",0)).put("test_source_rule_id",pendingTest.optString("source_rule_id")));}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao marcar teste aguardando rolagem.",ignored);}activeMasterPromotionTurnId="";activeMasterPromotionQuestion="";activeMasterPromotionFromRoll=false;}else{JSONObject resolutionDetails=new JSONObject();try{resolutionDetails.put(activeMasterPromotionFromRoll?"resolved_after_roll":"resolved_without_roll",true).put("resolution_excerpt",masterConversationResolutionExcerpt(lastNarration)).put("resolution_scene_fingerprint",currentMasterConversationSceneFingerprint());}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao detalhar resolução da tentativa.",ignored);}updateMasterConversationTurn(activeMasterPromotionTurnId,"resolved",resolutionDetails);activeMasterPromotionTurnId="";activeMasterPromotionQuestion="";activeMasterPromotionFromRoll=false;}}
-            if(db.getCombatState().optInt("running",0)==1){JSONObject cs=db.getCombatState();String combatPhase=cs.optString("state","");if(pendingTest.length()>0){if(CombatStateMachine.ACTIVE_ROUND.equals(combatPhase))db.transitionCombatState(CombatStateMachine.RESOLVING,new JSONObject());db.transitionCombatState(CombatStateMachine.AWAITING_ROLL,pendingTest);}else if(CombatStateMachine.RESOLVING.equals(combatPhase)||CombatStateMachine.AWAITING_ROLL.equals(combatPhase))db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND,new JSONObject());}
-            boolean narrativeResponse="Narrador".equals(lastAiMode);JSONObject projectedScene=projectSceneForSuggestions(env,currentSceneCastPreview);JSONArray diversifiedOptions=narrativeResponse?SceneOptionDiversifier.ensureAlways(choiceSplit.options,optionHistory,lastNarration,action,projectedScene,db.getMasterRuntimeState().optInt("beat_no",0)+1):new JSONArray();currentOptions=diversifiedOptions;db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory,currentOptions).toString());
-            if(isOpeningNarrationRequest(action)){prefs.edit().putString("recent_opening_texts_"+activeWorldProfile(),AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_"+activeWorldProfile(),"[]"),lastNarration)).apply();adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE,"Primeira cena persistida");}
-            if(narrativeResponse){rememberNarrativeText(lastNarration);saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(),action,lastNarration,env,projectedScene));}
+
+        boolean nonAdvancing = "Narrador".equals(lastAiMode) && env.optBoolean("_non_advancing", activeTurnNonAdvancing(action));
+        JSONObject finalValidation = env.optJSONObject("_master_validation");
+        boolean masterEnvelopeValid = finalValidation != null && finalValidation.optBoolean("valid", false);
+
+        JSONArray previousOptions = currentOptions == null ? new JSONArray() : currentOptions;
+        JSONArray previousCast = copyJsonArray(currentSceneCastPreview);
+        String previousVisual = lastVisualPrompt == null ? "" : lastVisualPrompt;
+        JSONObject previousAudio = lastAudioPlan == null ? new JSONObject() : copyJsonObject(lastAudioPlan);
+        JSONObject previousPendingTest = pendingTest == null ? new JSONObject() : copyJsonObject(pendingTest);
+
+        JSONArray optionHistory = SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());
+        optionHistory = SceneOptionDiversifier.appendHistory(optionHistory, previousOptions);
+        JSONArray opts = env.optJSONArray("options");
+        ChoiceSplit choiceSplit = splitNarrationChoices(GeneratedTextSanitizer.narrative(env.optString("narration", raw)), opts);
+        String calculatedNarration = completeNarrationSafely(choiceSplit.narration);
+        calculatedNarration = AtlasScenePositionReconciler.repairNarration(calculatedNarration, env);
+        if (isStrixhavenAdventure()) {
+            processStrixhavenOfficialProgress(env, calculatedNarration);
+            calculatedNarration = StrixhavenOfficialCampaignRuntime.stripMarkers(calculatedNarration);
+        }
+        if (hasInternalNarrationLeak(calculatedNarration)) {
+            AppLog.w("MainActivity", "Vazamento de instruções internas detectado na narração; bloqueando alterações mecânicas e higienizando prosa.");
+            calculatedNarration = GeneratedTextSanitizer.narrative(calculatedNarration);
+            masterEnvelopeValid = false;
+            nonAdvancing = true;
+        }
+
+        JSONArray newCast;
+        String newVisualPrompt;
+        JSONObject newAudioPlan;
+        JSONObject newPendingTest;
+        JSONArray newOptions;
+        boolean invalidateVisual = false;
+
+        if (nonAdvancing) {
+            newCast = previousCast;
+            newVisualPrompt = previousVisual;
+            newAudioPlan = previousAudio;
+            newPendingTest = previousPendingTest;
+            newOptions = previousOptions;
+            saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), action, calculatedNarration));
+        } else {
+            newCast = buildSceneCastPreview(env);
+            mergeNarratedKnownNpcs(newCast, calculatedNarration);
+            mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
+            synchronizeVisualSceneCastWith(newCast);
+            prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+            newVisualPrompt = env.optString("visual_prompt", "").trim();
+            if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
+            invalidateVisual = true;
+            newAudioPlan = env.optJSONObject("audio_plan");
+            if (newAudioPlan == null) newAudioPlan = new JSONObject();
+            JSONObject pt = masterEnvelopeValid ? env.optJSONObject("pending_test") : null;
+            if (pt != null && pt.optBoolean("required", true) && activeMasterPromotionTurnId.length() > 0) {
+                try {
+                    pt.put("origin_master_turn_id", activeMasterPromotionTurnId).put("origin_master_question", activeMasterPromotionQuestion);
+                } catch (Exception ignored) {
+                    AppLog.ignored("MasterConversation", "Falha ao vincular teste à consulta azul.", ignored);
+                }
+            }
+            newPendingTest = pt != null && pt.optBoolean("required", true) ? ensurePendingTestIdentity(pt, action) : new JSONObject();
+            if (activeMasterPromotionTurnId.length() > 0) {
+                if (newPendingTest.length() > 0) {
+                    try {
+                        updateMasterConversationTurn(activeMasterPromotionTurnId, "awaiting_roll", new JSONObject().put("test_key", newPendingTest.optString("test_key")).put("test_label", testLabel(newPendingTest)).put("test_ability", newPendingTest.optString("ability")).put("test_skill", newPendingTest.optString("skill")).put("test_mode", normalizeRollMode(newPendingTest.optString("mode", "Normal"))).put("test_dc", newPendingTest.optInt("dc", 0)).put("test_source_rule_id", newPendingTest.optString("source_rule_id")));
+                    } catch (Exception ignored) {
+                        AppLog.ignored("MasterConversation", "Falha ao marcar teste aguardando rolagem.", ignored);
+                    }
+                    activeMasterPromotionTurnId = "";
+                    activeMasterPromotionQuestion = "";
+                    activeMasterPromotionFromRoll = false;
+                } else {
+                    JSONObject resolutionDetails = new JSONObject();
+                    try {
+                        resolutionDetails.put(activeMasterPromotionFromRoll ? "resolved_after_roll" : "resolved_without_roll", true).put("resolution_excerpt", masterConversationResolutionExcerpt(calculatedNarration)).put("resolution_scene_fingerprint", currentMasterConversationSceneFingerprint());
+                    } catch (Exception ignored) {
+                        AppLog.ignored("MasterConversation", "Falha ao detalhar resolução da tentativa.", ignored);
+                    }
+                    updateMasterConversationTurn(activeMasterPromotionTurnId, "resolved", resolutionDetails);
+                    activeMasterPromotionTurnId = "";
+                    activeMasterPromotionQuestion = "";
+                    activeMasterPromotionFromRoll = false;
+                }
+            }
+            if (db.getCombatState().optInt("running", 0) == 1) {
+                JSONObject cs = db.getCombatState();
+                String combatPhase = cs.optString("state", "");
+                if (newPendingTest.length() > 0) {
+                    if (CombatStateMachine.ACTIVE_ROUND.equals(combatPhase)) db.transitionCombatState(CombatStateMachine.RESOLVING, new JSONObject());
+                    db.transitionCombatState(CombatStateMachine.AWAITING_ROLL, newPendingTest);
+                } else if (CombatStateMachine.RESOLVING.equals(combatPhase) || CombatStateMachine.AWAITING_ROLL.equals(combatPhase)) {
+                    db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND, new JSONObject());
+                }
+            }
+            boolean narrativeResponse = "Narrador".equals(lastAiMode);
+            JSONObject projectedScene = projectSceneForSuggestions(env, newCast);
+            newOptions = narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray();
+            db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory, newOptions).toString());
+            if (isOpeningNarrationRequest(action)) {
+                prefs.edit().putString("recent_opening_texts_" + activeWorldProfile(), AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_" + activeWorldProfile(), "[]"), calculatedNarration)).apply();
+                adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE, "Primeira cena persistida");
+            }
+            if (narrativeResponse) {
+                rememberNarrativeText(calculatedNarration);
+                saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(), action, calculatedNarration, env, projectedScene));
+            }
             scheduleSceneNpcTokenBinding();
         }
-        prefs.edit().putString("last_ai_response_mode",lastAiMode).apply();
-        if(lastRagCitations!=null&&lastRagCitations.length()>0)try{env.put("sources",lastRagCitations);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
-        JSONObject sourceAudit=lastAiUsedRag?buildRagSourceAudit(lastRagCitations):characterRulesValidator.auditAiAnswer(lastAiMode,env,lastAiManuals);JSONObject previousMasterSupport=copyJsonObject(lastMasterSupport);lastMasterSupport=MasterSupportPanelEngine.build(env,activeRuleRetrieval,lastRagCitations,db.getSceneState(),safeActiveCharacters(),currentOptions,pendingTest,action,isMystaraWorld(),activeInputChannel());lastMasterSupport=preserveMasterConversationHistory(previousMasterSupport,lastMasterSupport);prefs.edit().putString("last_source_audit",sourceAudit.toString()).putString("last_audio_plan",lastAudioPlan.toString()).putString("last_master_support_json",lastMasterSupport.toString()).apply();db.addAuditEvent("ia",nonAdvancing?"Esclarecimento do Mestre — "+lastAiMode:"Resposta do Mestre — "+lastAiMode,sourceAudit.optString("warning",lastNarration.length()>140?lastNarration.substring(0,140):lastNarration),"{}",sourceAudit.toString(),false);
-        boolean changes=!nonAdvancing&&(masterOrchestrator!=null?masterOrchestrator.hasStructuredChanges(env):(stateTransactionManager!=null&&stateTransactionManager.hasChanges(env)));long transactionId=-1;if(changes&&stateTransactionManager!=null){transactionId=stateTransactionManager.stage(env,lastNarration,action);if(transactionId<=0){changes=false;prefs.edit().putString("last_state_update_summary","Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();db.addAuditEvent("segurança","Consequências não preparadas","Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.","{}",env.toString(),false);}}if(!changes)prefs.edit().putString("last_state_update_summary",transactionId<=0?prefs.getString("last_state_update_summary",""):"").apply();else prefs.edit().putString("last_state_update_summary","Consequências aguardando sua confirmação.").apply();if(!nonAdvancing)persistStory(action);
-        if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,env,pendingAiInputChars,raw==null?0:raw.length());
-        if(!nonAdvancing&&masterEnvelopeValid&&"Narrador".equals(lastAiMode)){
-            // Only observe ACCEPTED narrative. The transaction manager retains exclusive
-            // authority over actual state, NPC, quest, rules and world mutations.
-            try{HumanMasterDynamicDirector.accepted(this,db,db.getSceneState(),action,lastNarration,env,
-                isStrixhavenAdventure()?"Strixhaven":(isMystaraWorld()?"Mystara":"D&D"));}
-            catch(Throwable dynamicError){AppLog.w("DynamicMaster","Falha de memória auxiliar isolada; cena preservada.",dynamicError);}
+
+        prefs.edit().putString("last_ai_response_mode", lastAiMode).apply();
+        if (lastRagCitations != null && lastRagCitations.length() > 0) {
+            try { env.put("sources", lastRagCitations); } catch (Exception ignored) { AppLog.ignored("MainActivity", "Falha tolerada; a execução continuou.", ignored); }
         }
-        if(!nonAdvancing){JSONObject responseCombat=env.optJSONObject("combat");String responseCombatAction=responseCombat==null?"none":responseCombat.optString("action","none").toLowerCase(Locale.ROOT);boolean combatNarration=db.getCombatState().optInt("running",0)==1||"start".equals(responseCombatAction)||"update".equals(responseCombatAction);if(combatNarration&&lastNarration!=null&&lastNarration.trim().length()>0)prefs.edit().putString("last_combat_narration",lastNarration).apply();}
+        JSONObject sourceAudit = lastAiUsedRag ? buildRagSourceAudit(lastRagCitations) : characterRulesValidator.auditAiAnswer(lastAiMode, env, lastAiManuals);
+        JSONObject previousMasterSupport = copyJsonObject(lastMasterSupport);
+        JSONObject newSupport = MasterSupportPanelEngine.build(env, activeRuleRetrieval, lastRagCitations, db.getSceneState(), safeActiveCharacters(), newOptions, newPendingTest, action, isMystaraWorld(), activeInputChannel());
+        newSupport = preserveMasterConversationHistory(previousMasterSupport, newSupport);
+        prefs.edit().putString("last_source_audit", sourceAudit.toString()).putString("last_audio_plan", newAudioPlan.toString()).putString("last_master_support_json", newSupport.toString()).apply();
+        db.addAuditEvent("ia", nonAdvancing ? "Esclarecimento do Mestre — " + lastAiMode : "Resposta do Mestre — " + lastAiMode, sourceAudit.optString("warning", calculatedNarration.length() > 140 ? calculatedNarration.substring(0, 140) : calculatedNarration), "{}", sourceAudit.toString(), false);
+
+        boolean changes = !nonAdvancing && (masterOrchestrator != null ? masterOrchestrator.hasStructuredChanges(env) : (stateTransactionManager != null && stateTransactionManager.hasChanges(env)));
+        long transactionId = -1;
+        if (changes && stateTransactionManager != null) {
+            transactionId = stateTransactionManager.stage(env, calculatedNarration, action);
+            if (transactionId <= 0) {
+                changes = false;
+                prefs.edit().putString("last_state_update_summary", "Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();
+                db.addAuditEvent("segurança", "Consequências não preparadas", "Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.", "{}", env.toString(), false);
+            }
+        }
+        if (!changes) {
+            prefs.edit().putString("last_state_update_summary", transactionId <= 0 ? prefs.getString("last_state_update_summary", "") : "").apply();
+        } else {
+            prefs.edit().putString("last_state_update_summary", "Consequências aguardando sua confirmação.").apply();
+        }
+        if (!nonAdvancing) {
+            db.saveStoryState(calculatedNarration.length() > 0, calculatedNarration, newVisualPrompt,
+                    newOptions == null ? "[]" : newOptions.toString(),
+                    newPendingTest == null || newPendingTest.length() == 0 ? "" : newPendingTest.toString(),
+                    action == null ? "" : action);
+        }
+        if (masterOrchestrator != null) {
+            masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
+        }
+        if (!nonAdvancing && masterEnvelopeValid && "Narrador".equals(lastAiMode)) {
+            try {
+                HumanMasterDynamicDirector.accepted(this, db, db.getSceneState(), action, calculatedNarration, env,
+                        isStrixhavenAdventure() ? "Strixhaven" : (isMystaraWorld() ? "Mystara" : "D&D"));
+            } catch (Throwable dynamicError) {
+                AppLog.w("DynamicMaster", "Falha de memória auxiliar isolada; cena preservada.", dynamicError);
+            }
+        }
+
+        boolean combatNarration = false;
+        if (!nonAdvancing) {
+            JSONObject responseCombat = env.optJSONObject("combat");
+            String responseCombatAction = responseCombat == null ? "none" : responseCombat.optString("action", "none").toLowerCase(Locale.ROOT);
+            combatNarration = db.getCombatState().optInt("running", 0) == 1 || "start".equals(responseCombatAction) || "update".equals(responseCombatAction);
+        }
+
+        String statusMsg = nonAdvancing ? "Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto."
+                : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
+                : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
+
+        final AiResponseUiPayload payload = new AiResponseUiPayload(
+                requestGen, nonAdvancing, masterEnvelopeValid, changes, transactionId, env,
+                calculatedNarration, newOptions, newCast, newVisualPrompt, newAudioPlan,
+                newPendingTest, newSupport, statusMsg, combatNarration, invalidateVisual
+        );
+
+        ui.post(new Runnable() {
+            public void run() {
+                applyAiResponseToUi(payload, requestGen);
+            }
+        });
+        } catch (Throwable t) {
+            AppLog.e("MainActivity", "Erro no processamento em segundo plano da resposta de IA", t);
+        }
+    }
+
+    private void applyAiResponseToUi(final AiResponseUiPayload payload, final long requestGen) {
+        if (requestGen != aiRequestGeneration || payload == null) return;
+        this.lastNarration = payload.lastNarration;
+        this.currentOptions = payload.currentOptions;
+        this.currentSceneCastPreview = payload.currentSceneCastPreview;
+        this.lastVisualPrompt = payload.lastVisualPrompt;
+        this.lastAudioPlan = payload.lastAudioPlan;
+        this.pendingTest = payload.pendingTest;
+        this.lastMasterSupport = payload.lastMasterSupport;
+        if (payload.invalidateVisual) invalidateSceneImageIfContextChanged();
+        if (payload.combatNarration && payload.lastNarration != null && payload.lastNarration.trim().length() > 0) {
+            prefs.edit().putString("last_combat_narration", payload.lastNarration).apply();
+        }
         clearFailedGeminiRequest();
-        setStatus(nonAdvancing?"Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto.":(!masterEnvelopeValid?"Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito.":(changes?"Cena pronta. Revise todas as consequências antes de aplicá-las.":"Cena pronta. Nenhuma mudança persistente foi proposta.")));if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();if(changes)showTransactionReviewDialog(transactionId,env);
+        setStatus(payload.statusMessage);
+        if (isStrixhavenAdventure()) showStrixhavenSession();
+        else if ("Mestre IA".equals(currentScreen)) showNarrator();
+        else if ("Combate".equals(currentScreen)) showCombat();
+        if (payload.changes) showTransactionReviewDialog(payload.transactionId, payload.env);
     }
 
     private void showTransactionReviewDialog(final long transactionId,final JSONObject envelope){
@@ -8329,11 +8616,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String extractPartialNarration(String raw){return sanitizeNarrationPayload(extractJsonStringValue(raw,new String[]{"narration","naration","narracao","narração","narrativa"}));}
 
 
-    private void cancelNarrationAudio(){charonPreparationGeneration++;narrationStateMachine.onCancel();
+    /* package */ void cancelNarrationAudio(){charonPreparationGeneration++;narrationStateMachine.onCancel();
         GeminiService.SpeechRequest request=activeCharonRequest;activeCharonRequest=null;if(request!=null)request.cancel();
         AudioSessionCoordinator.Session cancelled=activeAudioSession;if(audioSessionCoordinator!=null)audioSessionCoordinator.cancel("novo PLAY ou parada");if(cancelled!=null&&smartAudio!=null)smartAudio.finishPlaybackSession(cancelled.sessionId,"cancelled");activeAudioSession=null;
         if(audio!=null){audio.endPlaybackSession();audio.stopVoice();audio.setExternalVoiceActive(false);}
-        pendingRequestedNativeNarration="";charonNarrationGeneration++;charonVoiceStartedSession=-1L;charonFallbackInProgress=false;
+        pendingRequestedNativeNarration="";charonNarrationGeneration++;charonVoiceStartedSession=-1L;charonFallbackInProgress=false;activeFallbackSession=-1L;
         try{if(nativeTts!=null)nativeTts.stop();}catch(Throwable ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
         synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.clear();nativeVoiceStartedUtterances.clear();nativeVoicePendingChunks=0;}
         nativeNarrationQueue.clear();nativeChapterStartIndexes.clear();nativeNarrationQueueIndex=0;nativeNarrationSession++;nativeNarrationBedStarted=false;
@@ -8344,7 +8631,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void resumeBackgroundWorkAfterNarration(){if(!narrationPausedRag)return;narrationPausedRag=false;if("narration".equals(ragPauseReason)){ragPauseRequested=false;ragPauseReason="";if(localManualIndexer!=null)localManualIndexer.clearCancelRequest();}}
     private void resetRagPauseState(){ragPauseRequested=false;ragPauseReason="";narrationPausedRag=false;if(localManualIndexer!=null)localManualIndexer.clearCancelRequest();}
 
-    private void beginCoordinatedAudioSession(String backend,String text){
+    /* package */ void beginCoordinatedAudioSession(String backend,String text){
         if(audioSessionCoordinator==null)return;
         String scene="scene_"+Integer.toHexString((text==null?"":text).hashCode());
         activeAudioSession=audioSessionCoordinator.begin(scene);
@@ -8447,10 +8734,13 @@ private void speakGemini(String text){
         }catch(Throwable error){AppLog.e("NativeTts","Falha ao enviar trecho para a voz Android.",error);abortNativeNarrationAfterTtsError("A voz Android falhou ao receber o trecho atual.");}
     }
     private void abortNativeNarrationAfterTtsError(String message){
+        if(activeFallbackSession!=-1L){narrationStateMachine.onError(message);activeFallbackSession=-1L;}
         failCoordinatedAudioSession("android-tts-error");nativeNarrationQueue.clear();nativeChapterStartIndexes.clear();nativeNarrationQueueIndex=0;nativeVoicePendingChunks=0;nativeNarrationBedStarted=false;if(audio!=null)audio.setExternalVoiceActive(false);if(narrativeAudio!=null)narrativeAudio.endNarration();resumeBackgroundWorkAfterNarration();setStatus(message==null?"A engine TTS encerrou a narração com erro.":message);
     }
 
-    private void finishNativeNarration(){completeCoordinatedAudioSession();nativeNarrationQueue.clear();nativeChapterStartIndexes.clear();nativeNarrationQueueIndex=0;nativeVoicePendingChunks=0;nativeNarrationBedStarted=false;audio.setExternalVoiceActive(false);if(narrativeAudio!=null)narrativeAudio.endNarration();resumeBackgroundWorkAfterNarration();setStatus("Narração concluída. Música e ambiência permanecem suavemente na cena; PLAY repete tudo.");}
+    /* package */ void finishNativeNarration(){
+        if(activeFallbackSession!=-1L){narrationStateMachine.onChunkPlaybackCompleted(narrationStateMachine.getTotalChunks()-1,activeFallbackSession);activeFallbackSession=-1L;}
+        completeCoordinatedAudioSession();nativeNarrationQueue.clear();nativeChapterStartIndexes.clear();nativeNarrationQueueIndex=0;nativeVoicePendingChunks=0;nativeNarrationBedStarted=false;audio.setExternalVoiceActive(false);if(narrativeAudio!=null)narrativeAudio.endNarration();resumeBackgroundWorkAfterNarration();setStatus("Narração concluída. Música e ambiência permanecem suavemente na cena; PLAY repete tudo.");}
 
     private boolean isCurrentAudioSession(AudioSessionCoordinator.Session coordinated){
         return coordinated!=null&&audioSessionCoordinator!=null&&audioSessionCoordinator.isCurrent(coordinated)&&coordinated==activeAudioSession;
@@ -8469,7 +8759,8 @@ private void speakGemini(String text){
         }
         if(aiQuotaGovernor!=null&&!aiQuotaGovernor.canCallTts(1)){
             final String remaining=joinVoiceChunks(chunks.subList(index,chunks.size()));
-            if(charonVoiceStartedSession!=session){audio.stopVoice();if(narrativeAudio!=null)narrativeAudio.cancelNarration();failCoordinatedAudioSession("tts-local-limit");resumeBackgroundWorkAfterNarration();fallbackToNativeNarration(remaining,session,"Limite local de Charon atingido.");}
+            narrationStateMachine.onSynthesisFailed(index,session,"Limite local de Charon atingido.",429,true);
+            if(charonVoiceStartedSession!=session){fallbackToNativeNarration(remaining,session,"Limite local de Charon atingido.");}
             else continueCharonRemainderWithNativeAfterQueuedVoice(remaining,session,coordinated,"Limite local de Charon atingido após o início.");
             return;
         }
@@ -8500,7 +8791,8 @@ private void speakGemini(String text){
                         synthesizeChunk(chunks,index+1,session,coordinated);
                     }catch(Exception e){
                         String remaining=joinVoiceChunks(chunks.subList(index,chunks.size()));
-                        if(charonVoiceStartedSession!=session){audio.stopVoice();if(narrativeAudio!=null)narrativeAudio.cancelNarration();failCoordinatedAudioSession("voice-start-error");resumeBackgroundWorkAfterNarration();fallbackToNativeNarration(remaining,session,e.getMessage());}
+                        narrationStateMachine.onSynthesisFailed(index,session,e.getMessage(),500,false);
+                        if(charonVoiceStartedSession!=session){fallbackToNativeNarration(remaining,session,e.getMessage());}
                         else continueCharonRemainderWithNativeAfterQueuedVoice(remaining,session,coordinated,"Falha ao iniciar um bloco Charon: "+e.getMessage());
                     }
                 }});
@@ -8535,19 +8827,19 @@ private void speakGemini(String text){
         waitForCharonQueueThenContinueNative(remaining,session,coordinated,System.currentTimeMillis()+120000L);
     }
 
-    private void waitForCharonQueueThenContinueNative(final String remaining,final long session,final AudioSessionCoordinator.Session coordinated,final long deadlineMs){
-        if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;
+    /* package */ void waitForCharonQueueThenContinueNative(final String remaining,final long session,final AudioSessionCoordinator.Session coordinated,final long deadlineMs){
+        if(session!=charonNarrationGeneration||(coordinated!=null&&!isCurrentAudioSession(coordinated)))return;
         if(audio!=null&&audio.isVoiceActive()&&System.currentTimeMillis()<deadlineMs){
             ui.postDelayed(new Runnable(){public void run(){waitForCharonQueueThenContinueNative(remaining,session,coordinated,deadlineMs);}},180L);
             return;
         }
         if(audio!=null&&audio.isVoiceActive())audio.stopVoice();
-        if(narrativeAudio!=null)narrativeAudio.endNarration();
-        completeCoordinatedAudioSession();resumeBackgroundWorkAfterNarration();
         String next=narrationStateMachine.getUnheardRemainingText();
         if(next.length()==0)next=remaining;
         if(next==null||next.trim().length()==0){
             narrationStateMachine.onChunkPlaybackCompleted(narrationStateMachine.getTotalChunks()-1,session);
+            if(narrativeAudio!=null)narrativeAudio.endNarration();
+            completeCoordinatedAudioSession();resumeBackgroundWorkAfterNarration();
             setStatus("Narração concluída.");return;
         }
         NarrationPlaybackStateMachine.VoiceSource fallbackSrc=isNativeKokoroEngine()?NarrationPlaybackStateMachine.VoiceSource.KOKORO:NarrationPlaybackStateMachine.VoiceSource.ANDROID_TTS;
@@ -8555,22 +8847,58 @@ private void speakGemini(String text){
         int unhIndex=narrationStateMachine.getFirstUnheardChunkIndex();
         int total=narrationStateMachine.getTotalChunks();
         setStatus("Continuando leitura a partir do bloco "+(unhIndex+1)+"/"+total+" com "+fallbackSrc.getLabel()+"…");
-        speakNativeNarrationWithSfx(next);
+        continuePlaybackWithNativeTts(next,session,true);
     }
 
     private void onCharonVoiceStarted(long session,String sentence,int durationMs,AudioSessionCoordinator.Session coordinated){
         if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;boolean firstStart=charonVoiceStartedSession!=session;charonVoiceStartedSession=session;if(firstStart&&charonLatencyTelemetry!=null)charonLatencyTelemetry.play();charonFallbackInProgress=false;audioSessionCoordinator.event(coordinated,"voice-started",new JSONObject());if(narrativeAudio!=null)narrativeAudio.onSyntheticChunkStart(sentence,durationMs);setStatus("Charon narrando • música e ambiência ao fundo • SFX apenas nos eventos da fala.");
     }
 
-    private void fallbackToNativeNarration(String text,long session,String reason){
+    /* package */ void fallbackToNativeNarration(String text,long session,String reason){
         if(session!=charonNarrationGeneration||charonFallbackInProgress)return;
         charonFallbackInProgress=true;
         AppLog.w("Charon","Fallback para TTS nativo: "+(reason==null?"sem detalhe":reason));
-        cancelNarrationAudio();
+        if(activeCharonRequest!=null){activeCharonRequest.cancel();activeCharonRequest=null;}
+        if(audio!=null){audio.stopVoice();audio.setExternalVoiceActive(false);}
         NarrationPlaybackStateMachine.VoiceSource fallbackSrc=isNativeKokoroEngine()?NarrationPlaybackStateMachine.VoiceSource.KOKORO:NarrationPlaybackStateMachine.VoiceSource.ANDROID_TTS;
         narrationStateMachine.onFallbackStarted(fallbackSrc,session);
         setStatus("Charon indisponível ("+(reason==null?"falha de conexão":reason)+"). Continuando com "+fallbackSrc.getLabel()+"…");
-        speakNativeNarrationWithSfx(text);
+        continuePlaybackWithNativeTts(text,session,true);
+    }
+
+    /* package */ void continuePlaybackWithNativeTts(final String text,final long session,final boolean isFallback){
+        final String clean=PortugueseNarrationSanitizer.sanitize(GeneratedTextSanitizer.narrative(stripMarkdown(text)));
+        if(clean.length()==0){
+            if(isFallback){
+                narrationStateMachine.onChunkPlaybackCompleted(narrationStateMachine.getTotalChunks()-1,session);
+                completeCoordinatedAudioSession();
+                resumeBackgroundWorkAfterNarration();
+            }
+            return;
+        }
+        if(!audioEngineReady)initializeAudioEngineAsync();
+        activeFallbackSession=isFallback?session:-1L;
+        if(nativeTts==null||!nativeTtsReady||!nativeTtsLanguageReady){
+            pendingRequestedNativeNarration=clean;
+            ensureNativeTtsInitialized();
+            setStatus("Preparando a voz "+(isNativeKokoroEngine()?"Braseiro Kokoro":"Android")+" para continuidade…");
+            return;
+        }
+        applyNativeNarrativeDelivery();
+        startAudioServiceSafely();
+        final List<String> chunks=nativeVoiceChunks(clean);
+        final long nativeSession=++nativeNarrationSession;
+        nativeNarrationQueue.clear();
+        nativeNarrationQueue.addAll(chunks);
+        nativeNarrationQueueIndex=0;
+        synchronized(nativeVoiceSentenceByUtterance){
+            nativeVoiceSentenceByUtterance.clear();
+            nativeVoiceStartedUtterances.clear();
+        }
+        nativeVoicePendingChunks=nativeNarrationQueue.size();
+        nativeNarrationBedStarted=true;
+        if(audio!=null)audio.setExternalVoiceActive(true);
+        speakNextNativeNarrationChunk();
     }
 
     private static List<String> plainVoiceChunks(List<String> chunks){ArrayList<String> out=new ArrayList<String>();if(chunks!=null)for(String c:chunks){String t=NpcVoiceDirector.text(c);if(t!=null&&!t.trim().isEmpty())out.add(t);}return out;}

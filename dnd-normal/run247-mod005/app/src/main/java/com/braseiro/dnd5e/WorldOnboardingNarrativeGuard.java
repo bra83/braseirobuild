@@ -77,8 +77,8 @@ public final class WorldOnboardingNarrativeGuard {
     }
 
     public static int minWords(String occasion){
-        if("campaign_opening".equals(occasion))return 300;if("first_arrival".equals(occasion))return 220;if("changed_return".equals(occasion))return 120;
-        if("poi_discovery".equals(occasion))return 110;if("geography_discovery".equals(occasion))return 110;if("weather_transition".equals(occasion))return 80;return 0;
+        if("campaign_opening".equals(occasion))return 450;if("first_arrival".equals(occasion))return 250;if("changed_return".equals(occasion))return 150;
+        if("poi_discovery".equals(occasion))return 130;if("geography_discovery".equals(occasion))return 130;if("weather_transition".equals(occasion))return 100;return 0;
     }
     public static int minParagraphs(String occasion){
         if("campaign_opening".equals(occasion))return 4;if("first_arrival".equals(occasion))return 3;if("changed_return".equals(occasion))return 2;

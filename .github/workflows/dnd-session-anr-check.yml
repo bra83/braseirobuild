@@ -48,10 +48,10 @@ jobs:
           import os
           p = Path('dnd-normal/run247-mod005/version.properties')
           s = p.read_text(encoding='utf-8')
-          assert 'VERSION_CODE=606548' in s and 'VERSION_NAME=6.6.15-v1-3core-20261016' in s, 'unexpected baseline'
-          code = 203200000 + int(os.environ['GITHUB_RUN_NUMBER'])
-          s=s.replace('VERSION_CODE=606548',f'VERSION_CODE={code}')
-          s=s.replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME=6.6.31-session-anr-maps-rc')
+          import re
+          code = 203200000 + int(os.environ.get('GITHUB_RUN_NUMBER', 500))
+          s=re.sub(r'VERSION_CODE=\d+',f'VERSION_CODE={code}',s)
+          s=re.sub(r'VERSION_NAME=[^\r\n]+','VERSION_NAME=6.6.32-definitive-leak-anr-tts',s)
           p.write_text(s,encoding='utf-8')
           print('CANDIDATE_VERSION_CODE',code)
           PY
