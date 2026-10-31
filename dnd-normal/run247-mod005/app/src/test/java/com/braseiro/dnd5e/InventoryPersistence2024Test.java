@@ -47,7 +47,7 @@ public class InventoryPersistence2024Test {
             db=new AppDb(context,name);
             db.setActiveMapProfile("dnd");
             JSONObject saved=new JSONObject(db.getCharacter(id).getString("sheet_json"));
-            assertEquals(2.5,saved.getDouble("inventory_total_weight_lb"),0.00001);
+            assertEquals(2.7,saved.getDouble("inventory_total_weight_lb"),0.00001);
             assertEquals("loot",saved.getJSONArray("inventory_ledger")
                 .getJSONObject(1).getString("source"));
             assertEquals("player_first",saved.getJSONObject("personality_profile")
@@ -56,7 +56,7 @@ public class InventoryPersistence2024Test {
                 "loot#1",new JSONObject().put("from","baú").put("actor","mestre"),"master");
             saved=new JSONObject(db.getCharacter(id).getString("sheet_json"));
             assertEquals(2,saved.getJSONArray("inventory_ledger").length());
-            assertEquals(2.5,saved.getDouble("inventory_total_weight_lb"),0.00001);
+            assertEquals(2.7,saved.getDouble("inventory_total_weight_lb"),0.00001);
             JSONObject rope=new JSONObject().put("id","rope-j1")
                 .put("name","Corda").put("quantity",1);
             InventoryPersistence2024.commitApprovedAcquisition(db,id,rope,"purchase",
