@@ -77,10 +77,12 @@ public final class GeneratedTextSanitizer {
         // destruindo as quebras pedidas ao Mestre e criando a “parede de texto” observada em jogo.
         String normalized=raw.replace('\r','\n').replaceAll("\\n{3,}","\n\n");
         String[] paragraphs=normalized.split("\\n\\s*\\n");StringBuilder out=new StringBuilder();
-        for(String paragraph:paragraphs){StringBuilder kept=new StringBuilder();String[] parts=paragraph.trim().split("(?<=[.!?…])\\s+|\\n+");
-            for(String part:parts){String p=part.trim();if(p.length()==0)continue;String n=p.toLowerCase(Locale.ROOT);
-                boolean internal=n.contains("ponto inicial catalogado desta aventura")||n.contains("referência do catálogo:")||n.contains("referencia do catalogo:")||n.contains("foco de regras para a abertura")||n.contains("scene_state.present_npcs")||n.contains("npc_updates")||n.contains("host_world_authority")||n.contains("duplicate_gemini_call")||n.contains("autoridade do aplicativo")||n.contains("continuidade preservada no banco local")||n.contains("sem depender de conexão externa")||n.contains("sem depender de conexao externa");
-                if(internal)continue;if(kept.length()>0)kept.append(' ');kept.append(p);
+        for(String paragraph:paragraphs){
+            if(NarrativeGuardService.containsInternalLeak(paragraph))continue;
+            StringBuilder kept=new StringBuilder();String[] parts=paragraph.trim().split("(?<=[.!?…])\\s+|\\n+");
+            for(String part:parts){String p=part.trim();if(p.length()==0)continue;
+                if(NarrativeGuardService.containsInternalLeak(p))continue;
+                if(kept.length()>0)kept.append(' ');kept.append(p);
             }
             if(kept.length()>0){if(out.length()>0)out.append("\n\n");out.append(kept);}
         }
