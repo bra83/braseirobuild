@@ -53,7 +53,14 @@ jobs:
         run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.NarrationPlaybackStateMachineTest --no-daemon --console=plain
       - name: Focused Charon native fallback integration
         working-directory: ${{ env.PROJECT }}
-        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CharonNativeFallbackIntegrationTest --no-daemon --console=plain
+        run: |
+          if ! ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CharonNativeFallbackIntegrationTest --no-daemon --console=plain; then
+            echo "=== ASSERTION DETAILS FROM JUNIT XML ==="
+            for f in app/build/test-results/testDebugUnitTest/*CharonNativeFallbackIntegrationTest*.xml; do
+              if test -f "$f"; then sed -n '/<failure/,/<\/failure>/p' "$f" | head -n 55; fi
+            done
+            exit 1
+          fi
       - name: Focused async response ANR integration
         working-directory: ${{ env.PROJECT }}
         run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.HandleAiResponseAsyncTest --no-daemon --console=plain
