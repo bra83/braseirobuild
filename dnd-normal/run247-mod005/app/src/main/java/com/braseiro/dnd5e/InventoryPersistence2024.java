@@ -23,8 +23,7 @@ public final class InventoryPersistence2024 {
         return sheet;
     }
     private static JSONObject commit(AppDb db,long id,JSONObject sheet,String actor)throws Exception{
-        JSONObject receipt=db.saveCharacterSheetAtomic(id,true,sheet,"",
-            actor==null||actor.trim().isEmpty()?"master":actor);
+        JSONObject receipt=db.saveCharacterSheetAtomic(id,true,sheet,"","manual"); // editor mode, not storyteller identity
         if(!receipt.optBoolean("character_saved",false) ||
                  receipt.optLong("character_id",-1)!=id)
             throw new IllegalStateException("character_sheet_commit_failed");
