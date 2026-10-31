@@ -46,6 +46,7 @@ public final class CharacterResourceStateEngine {
             if(!s.has("inventory_ledger"))s.put("inventory_ledger",new JSONArray());
             if(!s.has("inventory_ledger_status"))s.put("inventory_ledger_status","structured_entries_only");
             s.put("resource_state_version",1).put("rules_profile",DndRulesEngine.canonicalProfile(profile));
+            if(rules.is2024(profile))CharacterInventory2024.reconcile(s);
         }catch(Exception ignored){AppLog.ignored("CharacterResourceStateEngine","Falha ao estruturar recursos.",ignored);}return s;
     }
 
