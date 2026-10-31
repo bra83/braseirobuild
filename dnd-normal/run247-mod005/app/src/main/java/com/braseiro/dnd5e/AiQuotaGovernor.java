@@ -14,7 +14,7 @@ public final class AiQuotaGovernor {
     private final SharedPreferences prefs;
     private static final int DEFAULT_CALL_LIMIT=80;
     private static final int DEFAULT_CHAR_LIMIT=900000;
-    private static final int DEFAULT_TTS_LIMIT=24;
+    private static final int DEFAULT_TTS_LIMIT=150;
 
     public AiQuotaGovernor(Context context){
         prefs=context.getApplicationContext().getSharedPreferences("settings",Context.MODE_PRIVATE);
