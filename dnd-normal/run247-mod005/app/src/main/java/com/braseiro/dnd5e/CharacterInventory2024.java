@@ -297,7 +297,7 @@ public final class CharacterInventory2024 {
         if(receipt.isEmpty())throw new IllegalArgumentException("inventory_event_id_required");
         if(!Character2024SheetReconciler.applies(input))
             throw new IllegalArgumentException("requires_2024_sheet");
-        JSONObject sheet=new JSONObject(input.toString());
+        JSONObject sheet=reconcile(new JSONObject(input.toString())); // migrate before first loot transaction
         JSONArray applied=cloneArray(sheet.optJSONArray("inventory_event_receipts"));
         for(int i=0;i<applied.length();i++)if(receipt.equals(applied.optString(i)))
             return reconcile(sheet); // replay, never duplicate gain/loss
