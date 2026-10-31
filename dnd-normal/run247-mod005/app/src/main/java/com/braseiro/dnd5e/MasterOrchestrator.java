@@ -45,6 +45,9 @@ public final class MasterOrchestrator {
         private boolean fromCache;
         Plan(String prompt,String context,JSONObject tick,JSONObject cognition,JSONObject npcPreview,JSONObject environmentPreview,JSONObject retrieval,JSONObject grounding,boolean queued,boolean eco,boolean narr,boolean frozen,String intent,String aHash,String sHash,String key,boolean ready,String error,String bOccasion,String bLocation,String bImprint,String channel,JSONObject discovery,JSONArray actionIds){queuedActionIds=actionIds==null?new JSONArray():actionIds;userPrompt=prompt;compactContext=context;localTick=tick;cognitivePlan=cognition;npcTick=npcPreview;environmentalPlan=environmentPreview;ruleRetrieval=retrieval==null?new JSONObject():retrieval;groundingEnvelope=grounding==null?new JSONObject():grounding;usedPartyQueue=queued;economy=eco;narrative=narr;nonAdvancing=frozen;narrativeIntent=intent==null?"":intent;actionHash=aHash;stateHash=sHash;cacheKey=key;contextReady=ready;contextError=error==null?"":error;barbaraStoryOccasion=bOccasion==null?"continuation":bOccasion;barbaraLocation=bLocation==null?"":bLocation;barbaraImprint=bImprint==null?"":bImprint;inputChannel=channel==null?"":channel;discoveryDecision=discovery==null?new JSONObject():discovery;}
         public JSONObject getGroundingEnvelope(){return groundingEnvelope;}
+        public static Plan forTest(String prompt,String context,String occasion,String channel){
+            return new Plan(prompt,context,new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),false,false,true,false,"","","","",true,"",occasion,"","",channel,new JSONObject(),new JSONArray());
+        }
     }
 
     private final AppDb db;

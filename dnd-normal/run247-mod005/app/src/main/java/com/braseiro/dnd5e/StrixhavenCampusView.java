@@ -3,7 +3,6 @@ package com.braseiro.dnd5e;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -13,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,7 @@ public final class StrixhavenCampusView extends View {
     private final Matrix inverseMatrix=new Matrix();
     private final ScaleGestureDetector scaleDetector;
     private Bitmap bitmap;
+    private String pendingMapAsset = "";
     private List<StrixhavenLocationCatalog.Hotspot> hotspots=new ArrayList<StrixhavenLocationCatalog.Hotspot>();
     private Listener listener;
     private float tokenX=.5f,tokenY=.6f;
@@ -55,10 +54,21 @@ public final class StrixhavenCampusView extends View {
 
     public void setListener(Listener listener){this.listener=listener;}
     public void setMapAsset(String assetPath,List<StrixhavenLocationCatalog.Hotspot> hotspots,float tokenX,float tokenY){
-        if(bitmap!=null&&!bitmap.isRecycled())bitmap.recycle();bitmap=null;
-        try{InputStream in=getContext().getAssets().open(assetPath);bitmap=BitmapFactory.decodeStream(in);in.close();}catch(Exception ignored){AppLog.ignored("StrixhavenCampusView","Falha tolerada ao carregar mapa ilustrado: "+assetPath,ignored);}
+        // Old code decoded and recycled full-resolution bitmaps on the main thread
+        // for EVERY redraw/recreated view, causing recurrent Android ANRs.
+        pendingMapAsset=assetPath==null?"":assetPath;
+        bitmap=null;
         this.hotspots=hotspots==null?new ArrayList<StrixhavenLocationCatalog.Hotspot>():new ArrayList<StrixhavenLocationCatalog.Hotspot>(hotspots);
-        this.tokenX=clamp01(tokenX);this.tokenY=clamp01(tokenY);selectedX=-1f;selectedY=-1f;userScale=1f;panX=panY=0f;invalidate();
+        this.tokenX=clamp01(tokenX);this.tokenY=clamp01(tokenY);selectedX=-1f;selectedY=-1f;userScale=1f;panX=panY=0f;
+        invalidate();
+        StrixhavenMapBitmapCache.request(getContext(),pendingMapAsset,this);
+    }
+
+    // Called only on the UI handler, after an asynchronous decode or a cache hit.
+    void acceptDecodedMap(String assetPath,Bitmap ready){
+        if(!pendingMapAsset.equals(assetPath))return;
+        if(ready!=null&&!ready.isRecycled())bitmap=ready;
+        invalidate();
     }
     public void setTokenPosition(float x,float y){tokenX=clamp01(x);tokenY=clamp01(y);invalidate();}
     public void select(float x,float y){selectedX=clamp01(x);selectedY=clamp01(y);invalidate();}
@@ -68,7 +78,7 @@ public final class StrixhavenCampusView extends View {
         final float sx=tokenX,sy=tokenY,tx=clamp01(x),ty=clamp01(y);ValueAnimator a=ValueAnimator.ofFloat(0f,1f);a.setDuration(520L);a.addUpdateListener(animation->{float t=(Float)animation.getAnimatedValue();tokenX=sx+(tx-sx)*t;tokenY=sy+(ty-sy)*t;invalidate();});a.start();
     }
 
-    @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);if(bitmap==null)return;computeMatrix();canvas.drawColor(Color.rgb(18,14,11));canvas.drawBitmap(bitmap,imageMatrix,imagePaint);
+    @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.drawColor(Color.rgb(18,14,11));if(bitmap==null){int prevColor=labelTextPaint.getColor();labelTextPaint.setColor(Color.rgb(230,207,160));canvas.drawText("Preparando mapa de Strixhaven…",getWidth()/2f,getHeight()/2f,labelTextPaint);labelTextPaint.setColor(prevColor);return;}computeMatrix();canvas.drawBitmap(bitmap,imageMatrix,imagePaint);
         if(selectedX>=0f){float[] a=mapPoint(tokenX,tokenY),b=mapPoint(selectedX,selectedY);canvas.drawLine(a[0],a[1],b[0],b[1],routePaint);}
         for(StrixhavenLocationCatalog.Hotspot h:hotspots)drawHotspot(canvas,h);
         drawMeeple(canvas,tokenX,tokenY);
@@ -96,7 +106,7 @@ public final class StrixhavenCampusView extends View {
     private void handleTap(float vx,float vy){
         if(bitmap==null)return;computeMatrix();float[] pt={vx,vy};inverseMatrix.mapPoints(pt);float nx=pt[0]/bitmap.getWidth(),ny=pt[1]/bitmap.getHeight();if(nx<0f||nx>1f||ny<0f||ny>1f)return;StrixhavenLocationCatalog.Hotspot best=null;double bestD=Double.MAX_VALUE;for(StrixhavenLocationCatalog.Hotspot h:hotspots){double dx=h.x-nx,dy=h.y-ny,d=dx*dx+dy*dy;if(d<bestD){bestD=d;best=h;}}float tolerance=.085f/userScale;if(best!=null&&bestD<=tolerance*tolerance){selectedX=best.x;selectedY=best.y;invalidate();if(listener!=null)listener.onHotspotTapped(best);return;}selectedX=clamp01(nx);selectedY=clamp01(ny);invalidate();if(listener!=null)listener.onFreePointTapped(selectedX,selectedY);
     }
-    @Override protected void onDetachedFromWindow(){super.onDetachedFromWindow();if(bitmap!=null&&!bitmap.isRecycled()){bitmap.recycle();bitmap=null;}}
+    @Override protected void onDetachedFromWindow(){super.onDetachedFromWindow();bitmap=null;/* Cache owns shared decoded maps; never recycle a bitmap held by another view. */}
 
     private float minUserScale(){
         if(bitmap==null||getWidth()==0||getHeight()==0)return 1f;
