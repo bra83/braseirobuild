@@ -278,7 +278,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /* package */ volatile long aiRequestGeneration=0L;
     /* package */ volatile AiResponsePreCommitObserver preCommitObserverForTests;
     /* package */ interface AiResponsePreCommitObserver { void beforeCommit(long generation, String action); }
-    private long advanceAiRequestGeneration() {
+    /* package */ long advanceAiRequestGeneration() {
         synchronized (aiCommitLock) { return ++aiRequestGeneration; }
     }
     private long aiPipelineGeneration=0L;
