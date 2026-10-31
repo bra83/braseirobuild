@@ -46,8 +46,10 @@ public final class DndStartupTrace {
         SharedPreferences pref = context.getApplicationContext()
                 .getSharedPreferences(PREF, Context.MODE_PRIVATE);
         String saved = pref.getString(LAST, "");
-        return saved == null || saved.length() == 0
+        String startup = saved == null || saved.length() == 0
                 ? "Ainda nao existe medicao. Feche e abra o aplicativo novamente."
                 : saved;
+        String stall = DndUiStallMonitor.lastReport(context);
+        return stall.isEmpty() ? startup : startup + "\nULTIMO_TRAVAMENTO_DE_INTERFACE:\n" + stall;
     }
 }
