@@ -150,7 +150,8 @@ public final class CharacterInventory2024 {
         String location=normalize(row.optString("location",""));
         return !(location.equals("storage")||location.equals("stored")||location.equals("stash")
               ||location.equals("ground")||location.equals("dropped")||location.equals("depot")
-              ||location.equals("deposito")||location.equals("chao")||location.equals("montaria"));
+              ||location.equals("deposito")||location.equals("chao")||location.equals("montaria")
+              ||location.equals("extradimensional")||location.equals("extra dimensional"));
     }
 
     /**
@@ -270,13 +271,15 @@ public final class CharacterInventory2024 {
             JSONArray problems=new JSONArray();
             Set<String> ids=new HashSet<>();
             double known=0;
-            int count=0,unknown=0;
+            long count=0;
+            int unknown=0;
             for(int i=0;i<ledger.length();i++){
                 JSONObject original=ledger.optJSONObject(i);
                 if(original==null){problems.put("invalid_row:"+i);unknown++;updated.put(ledger.opt(i));continue;}
                 JSONObject row=new JSONObject(original.toString());
                 String id=row.optString("id","");
-                if(!id.isEmpty()&&!ids.add(id)){problems.put("duplicate_id:"+id);unknown++;}
+                if(id.isEmpty()){problems.put("missing_item_id:"+i);unknown++;}
+                else if(!ids.add(id)){problems.put("duplicate_id:"+id);unknown++;}
                 Object qtyValue=row.opt("quantity");
                 int qty=row.optInt("quantity",1);
                 if(qty<0||(qtyValue!=null && !(qtyValue instanceof Number))
@@ -286,6 +289,21 @@ public final class CharacterInventory2024 {
                 }
                 if(qty==0||!carried(row)){updated.put(row);continue;}
                 count+=qty;
+                // A named pack has a published total including its starter
+                // contents. Explicitly declared components must not be counted twice.
+                String includedIn=row.optString("weight_included_in_bundle_id","");
+                if(!includedIn.isEmpty()){
+                    boolean foundParent=false;
+                    for(int j=0;j<ledger.length();j++){
+                        JSONObject parent=ledger.optJSONObject(j);
+                        if(parent!=null && includedIn.equals(parent.optString("id",""))
+                              &&parent.optInt("quantity",1)>0&&carried(parent)){
+                            foundParent=true;break;
+                        }
+                    }
+                    if(foundParent){updated.put(row);continue;}
+                    problems.put("bundle_without_carried_parent:"+includedIn);
+                }
                 Object unit=row.opt("unit_weight_lb");
                 if(unit==null){
                     Double fromCatalog=catalogWeight(row.optString("name",""),id);
