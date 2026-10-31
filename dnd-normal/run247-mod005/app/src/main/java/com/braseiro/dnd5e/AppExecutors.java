@@ -11,6 +11,7 @@ public final class AppExecutors {
     private static final ExecutorService NETWORK = Executors.newFixedThreadPool(4, namedFactory("braseiro-network"));
     private static final ExecutorService SERIAL = Executors.newSingleThreadExecutor(namedFactory("braseiro-serial"));
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
+    private static final ExecutorService CATALOGS = Executors.newSingleThreadExecutor(namedFactory("braseiro-catalogs"));
 
     private AppExecutors() {}
 
@@ -19,6 +20,8 @@ public final class AppExecutors {
     public static ExecutorService serial() { return SERIAL; }
     /** Trabalho pesado de PDF fica serializado e isolado do IO geral para não saturar CPU/memória. */
     public static ExecutorService indexing() { return INDEXING; }
+    /** Registro pesado de regras e monstros, nunca executado na thread Android/UI. */
+    public static ExecutorService catalogs() { return CATALOGS; }
 
     private static ThreadFactory namedFactory(final String prefix) {
         return new ThreadFactory() {
