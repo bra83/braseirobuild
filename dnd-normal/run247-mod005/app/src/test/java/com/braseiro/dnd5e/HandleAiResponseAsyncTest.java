@@ -95,7 +95,7 @@ public class HandleAiResponseAsyncTest {
         validEnv.put("_master_validation", new JSONObject().put("valid", true));
 
         // Advance generation
-        long currentGen = ++activity.aiRequestGeneration;
+        long currentGen = activity.advanceAiRequestGeneration();
 
         // An older response arrives with a stale generation (currentGen - 1)
         JSONObject staleEnv = new JSONObject();
@@ -113,7 +113,7 @@ public class HandleAiResponseAsyncTest {
     @Test
     public void testConcurrentStaleResponseFinishingLastDoesNotOverwriteDatabaseOrUi() throws Exception {
         // Geração inicial
-        long genA = ++activity.aiRequestGeneration;
+        long genA = activity.advanceAiRequestGeneration();
 
         JSONObject envA = new JSONObject();
         envA.put("narration", "RESPOSTA_OBSOLETA_A: Este texto nunca deve aparecer no banco nem na UI.");
@@ -139,7 +139,8 @@ public class HandleAiResponseAsyncTest {
                     // Resposta A inicia o processamento com genA
                     aStarted.countDown();
                     // Aguarda a resposta B substituir A e terminar o processamento
-                    bFinished.await();
+                    if (!bFinished.await(30, java.util.concurrent.TimeUnit.SECONDS))
+                        throw new AssertionError("B did not complete within 30s");
                     // Resposta A tenta processar até o fim, terminando POR ÚLTIMO
                     activity.processAiResponseInBackground(envA.toString(), "Ação A", genA);
                 } catch (Exception ignored) {
@@ -149,19 +150,21 @@ public class HandleAiResponseAsyncTest {
             }
         });
 
+        threadA.setDaemon(true); // a failed regression may not stall the Gradle worker forever
         threadA.start();
-        aStarted.await();
+        assertTrue("A must start within 15s", aStarted.await(15, java.util.concurrent.TimeUnit.SECONDS));
 
-        // Resposta B substitui A (incrementa geração e processa primeiro)
-        long genB = ++activity.aiRequestGeneration;
-        activity.processAiResponseInBackground(envB.toString(), "Ação B", genB);
-
-        // Notifica thread A que B terminou
-        bFinished.countDown();
-
-        // Aguarda A terminar por último
-        aFinished.await();
-        threadA.join();
+        try {
+            // B replaces A, then commits; A is allowed to run only afterward.
+            long genB = activity.advanceAiRequestGeneration();
+            activity.processAiResponseInBackground(envB.toString(), "Ação B", genB);
+        } finally {
+            bFinished.countDown();
+        }
+        assertTrue("Old worker must finish within 30s",
+                aFinished.await(30, java.util.concurrent.TimeUnit.SECONDS));
+        threadA.join(2000L);
+        assertFalse("Old worker cannot keep JVM alive", threadA.isAlive());
 
         // Processa eventos da fila UI
         Shadows.shadowOf(Looper.getMainLooper()).idle();
@@ -214,6 +217,7 @@ public class HandleAiResponseAsyncTest {
                 aError.set(error);
             }
         }, "prepared-stale-reply-A");
+        workerA.setDaemon(true);
         workerA.start();
         try {
             assertTrue("A reached pre-commit fence before B", aPrepared.await(25, java.util.concurrent.TimeUnit.SECONDS));
