@@ -109,6 +109,10 @@ public final class CharacterRulesValidator {
                         normalized.optJSONArray("creation_missing_choices").toString());
                 if(normalized.optBoolean("inventory_review_required",false))
                     warnings.put("Inventário textual preservado. Confirme a posse dos itens antes de converter para o inventário estruturado.");
+                if(!normalized.optBoolean("inventory_weight_complete",false))
+                    warnings.put("Carga incompleta: existem itens sem peso verificável, inventário legado ambíguo ou capacidade desconhecida. Não exibir carga 0 como total.");
+                if(normalized.optBoolean("inventory_over_capacity",false))
+                    warnings.put("Peso transportado excede a capacidade de carga segundo D&D 2024.");
                 if(normalized.optBoolean("mage_armor_confirmation_pending",false))
                     warnings.put("O texto diz Armadura Arcana ativa, mas a conjuração não foi confirmada; CA de combate mantida.");
             }
