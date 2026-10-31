@@ -7226,7 +7226,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private String narrationQualityProblem(String raw,String userText){
         JSONObject env=parseAiEnvelope(raw);String narration=sanitizeNarrationPayload(env.optString("narration",raw)).trim();
-        if(hasInternalNarrationLeak(narration))return "vazamento de instruções internas do motor na narração";
+        if(env.optBoolean("_narration_leak_detected",false)||hasInternalNarrationLeak(narration))return "vazamento de instruções internas do motor na narração";
         String directed=BraseiroNarrativeDirector.qualityProblem(narration,recentNarrativeTexts(),userText,activeInputChannel());
         if(activeTurnNonAdvancing(userText))return directed;
         String tableDirected=LiveTableNarrativeDirector.qualityProblem(narration,braseiroNarrativeMemory(),db.getSceneState(),userText);
@@ -7238,7 +7238,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private boolean hasInternalNarrationLeak(String narration){
         if(narration==null)return false;
-        return NarrativeGuardService.containsInternalLeak(narration);
+        return NarrativeGuardService.containsAnyLeak(narration);
     }
 
     private String narrationQualityTarget(String userText){
@@ -7453,7 +7453,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if (isStrixhavenAdventure()) {
                 calculatedNarration = StrixhavenOfficialCampaignRuntime.stripMarkers(calculatedNarration);
             }
-            if (hasInternalNarrationLeak(calculatedNarration)) {
+            if (rawAgencyEnvelope.optBoolean("_narration_leak_detected",false) || hasInternalNarrationLeak(calculatedNarration)) {
                 AppLog.w("MainActivity", "Vazamento de instruções internas detectado na narração; bloqueando alterações mecânicas e higienizando prosa.");
                 calculatedNarration = GeneratedTextSanitizer.narrative(calculatedNarration);
                 masterEnvelopeValid = false;
@@ -8068,11 +8068,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             String clean=original.replaceFirst("(?s)^```(?:json)?\\s*","").replaceFirst("(?s)\\s*```$","");
             int a=clean.indexOf('{'),b=clean.lastIndexOf('}');if(a>=0&&b>a)clean=clean.substring(a,b+1);
             JSONObject o=new JSONObject(clean);normalizeEnvelopeAliases(o);
-            String narration=sanitizeNarrationPayload(o.optString("narration",""));if(narration.length()==0)narration=extractPartialNarration(original);o.put("narration",narration);
+            String sourceNarration=o.optString("narration","");boolean observedLeak=hasInternalNarrationLeak(sourceNarration);
+            String narration=sanitizeNarrationPayload(sourceNarration);if(narration.length()==0)narration=extractPartialNarration(original);o.put("narration",narration);
+            if(observedLeak||hasInternalNarrationLeak(narration))o.put("_narration_leak_detected",true);
             if(!o.has("options")||!(o.opt("options") instanceof JSONArray))o.put("options",new JSONArray());
             return o;
         }catch(Exception e){
-            try{String partial=extractPartialNarration(original);if(partial.length()==0)partial=sanitizeNarrationPayload(original);return new JSONObject().put("narration",partial).put("visual_prompt",sanitizeVisualSource(partial)).put("options",new JSONArray()).put("pending_test",JSONObject.NULL).put("state_updates",new JSONArray()).put("combat",new JSONObject().put("action","none"));}
+            try{String partial=extractPartialNarration(original);if(partial.length()==0)partial=sanitizeNarrationPayload(original);
+                boolean observedLeak=hasInternalNarrationLeak(partial);
+                JSONObject fallback=new JSONObject().put("narration",partial).put("visual_prompt",sanitizeVisualSource(partial)).put("options",new JSONArray()).put("pending_test",JSONObject.NULL).put("state_updates",new JSONArray()).put("combat",new JSONObject().put("action","none"));
+                if(observedLeak)fallback.put("_narration_leak_detected",true);
+                return fallback;}
             catch(Exception ignored){return new JSONObject();}
         }
     }
@@ -8087,11 +8093,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private String sanitizeNarrationPayload(String raw){
         if(raw==null)return "";String x=raw.trim();if(x.length()==0)return "";
-        if(x.startsWith("{")||x.contains("\"narration\"")||x.contains("\"naration\"")||x.contains("\"narracao\"")){String extracted=extractJsonStringValue(x,new String[]{"narration","naration","narracao","narração","narrativa"});if(extracted.length()>0)x=extracted;}
+        boolean structured=x.startsWith("{")||x.contains("\"narration\"")||x.contains("\"naration\"")||x.contains("\"narracao\"");
+        if(structured){String extracted=extractJsonStringValue(x,new String[]{"narration","naration","narracao","narração","narrativa"});if(extracted.length()>0)x=extracted;}
         x=x.replace("\\n","\n").replace("\\r","").replace("\\t"," ").replace("\\\"","\"");
         Matcher tail=Pattern.compile("(?s)\\s*\"?\\s*,\\s*\"(?:visual_prompt|visualPrompt|options|choices|pending_test|state_updates|combat|scene_state|npc_updates|npc_cognition_updates|knowledge_updates|quest_updates|faction_updates|guild_updates|clock_updates|world_events|event_resolutions|pending_resolutions|map_updates|tactical_updates|journal_updates|sources|rules_verified)\"\\s*:").matcher(x);if(tail.find())x=x.substring(0,tail.start());
-        x=x.replaceFirst("(?s)^\\s*\\{?\\s*\"?(?:narration|naration|narracao|narração|narrativa)\"?\\s*:\\s*\"?","");
-        x=x.replaceFirst("(?s)\"?\\s*\\}?\\s*$","").trim();
+        if(structured)x=x.replaceFirst("(?s)^\\s*\\{?\\s*\"?(?:narration|naration|narracao|narração|narrativa)\"?\\s*:\\s*\"?","");
+        if(structured)x=x.replaceFirst("(?s)\"?\\s*\\}?\\s*$","").trim();
         return x;
     }
 
