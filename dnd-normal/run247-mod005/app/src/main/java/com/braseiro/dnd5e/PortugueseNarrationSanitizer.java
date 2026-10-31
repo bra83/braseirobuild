@@ -98,7 +98,7 @@ public final class PortugueseNarrationSanitizer {
         addFolded(NO_SPLIT,("comporta contudo portanto embora apenas acaso agora ainda demais sobretudo entretanto " +
                 "caminho campanha personagem personagens aventura aventuras completo completa companhia compreender " +
                 "comportamento contemplar contato contexto conjunto contração controle corredor corrente consigo " +
-                "sobretudo entorno adiante durante mediante perante conforme").split("\\s+"));
+                "sobretudo entorno adiante durante mediante perante conforme amanhã amanha").split("\\s+"));
     }
 
     private PortugueseNarrationSanitizer(){}

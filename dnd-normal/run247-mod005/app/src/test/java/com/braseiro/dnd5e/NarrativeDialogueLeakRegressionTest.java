@@ -29,6 +29,7 @@ public class NarrativeDialogueLeakRegressionTest {
 
     @Test public void doesNotMistakeOrdinaryInWorldSpeechForEngineDirective() {
         String raw="— O mestre ferreiro chega amanhã — explica Auri.\n— Isso resolve o problema — responde Wilem.";
+        assertEquals("Auri chega amanhã.",PortugueseNarrationSanitizer.sanitize("Auri chega amanhã."));
         assertEquals(raw,GeneratedTextSanitizer.narrative(raw));
         assertFalse(NarrativeGuardService.containsAnyLeak(raw));
     }
