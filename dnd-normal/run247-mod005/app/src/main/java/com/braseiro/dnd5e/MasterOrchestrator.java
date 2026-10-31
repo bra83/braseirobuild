@@ -101,6 +101,7 @@ public final class MasterOrchestrator {
                     catalogStatus = "loading";
                     registerFullCatalogs();
                     catalogStatus = "ready";
+                    startupMark("MASTER_CATALOG_ASYNC_READY");
                 } catch (Throwable error) {
                     catalogStatus = "failed";
                     AppLog.e("MasterOrchestrator","Falha no registro assíncrono dos catálogos.",error);
@@ -115,6 +116,7 @@ public final class MasterOrchestrator {
         };
         if (context == null) job.run(); // Keep headless/JVM tests deterministic.
         else AppExecutors.catalogs().execute(job);
+        startupMark("MASTER_CATALOG_ASYNC_QUEUED");
     }
 
     private static void awaitCatalogsForNarration() {
@@ -138,7 +140,7 @@ public final class MasterOrchestrator {
     }
 
     private void registerFullCatalogs() {
-try{TashaCompiledSourceRulesEngine.install();TashaSpellRuntimeEngine.install();TashaArtificerRuntimeEngine.install();TashaSubclassRuntimeEngine.install();CrossBookSubclassRuntimeEngine.install();Core2024EberronCharacterEngine.install();Core2024ClassRuntimeEngine.install();HomebrewClassRuntimeEngine.install();HomebrewClassRuntimeEngine.installRun138();HomebrewSubclassRuntimeEngine.install();VoloSubraceHandbookEngine.install();VoloSubraceRun139Engine.install();VoloSubraceRun140Engine.install();VoloRacialFeatRuntimeEngine.install();Run141SpeciesFeatRuntimeEngine.install();Run141CompactCharacterOptionEngine.install();Run143ForgottenSecretsEngine.install();Run149ForgottenSecretsSpellEngine.install();EberronForgeCompleteEngine.install();ForgottenRealmsHeroesEngine.install();RuneterraClassRuntimeEngine.install();ArcanaUnleashedRun143Engine.install();ArcanaUnleashedRun144Engine.install();ArcanaUnleashedRun145ItemEngine.install();ArcanaUnleashedRun145BestiaryEngine.install();RavenloftBestiaryRuntimeEngine.install();LorwynBestiaryRuntimeEngine.install();ArcanaUnleashedRun147EvolvingItemsEngine.install();TashaItemRuntimeEngine.install();TashaArtifactRuntimeEngine.install();TashaSupplementalRuntimeEngine.install();}catch(Exception ignored){}startupMark("MASTER_RULES_REGISTERED");try{TashaFeatCompiledRulesEngine.install();}catch(Exception ignored){}try{TashaMimicColonyEngine.installStatblocks();}catch(Exception ignored){}try{installSrd51BestiaryBatch();}catch(Exception ignored){}startupMark("MASTER_MONSTERS_REGISTERED");
+try{TashaCompiledSourceRulesEngine.install();startupMark("MASTER_TASHA_SOURCE_REGISTERED");TashaSpellRuntimeEngine.install();TashaArtificerRuntimeEngine.install();TashaSubclassRuntimeEngine.install();CrossBookSubclassRuntimeEngine.install();Core2024EberronCharacterEngine.install();Core2024ClassRuntimeEngine.install();HomebrewClassRuntimeEngine.install();HomebrewClassRuntimeEngine.installRun138();HomebrewSubclassRuntimeEngine.install();VoloSubraceHandbookEngine.install();VoloSubraceRun139Engine.install();VoloSubraceRun140Engine.install();VoloRacialFeatRuntimeEngine.install();Run141SpeciesFeatRuntimeEngine.install();Run141CompactCharacterOptionEngine.install();Run143ForgottenSecretsEngine.install();Run149ForgottenSecretsSpellEngine.install();EberronForgeCompleteEngine.install();ForgottenRealmsHeroesEngine.install();RuneterraClassRuntimeEngine.install();ArcanaUnleashedRun143Engine.install();ArcanaUnleashedRun144Engine.install();ArcanaUnleashedRun145ItemEngine.install();ArcanaUnleashedRun145BestiaryEngine.install();RavenloftBestiaryRuntimeEngine.install();LorwynBestiaryRuntimeEngine.install();ArcanaUnleashedRun147EvolvingItemsEngine.install();TashaItemRuntimeEngine.install();TashaArtifactRuntimeEngine.install();TashaSupplementalRuntimeEngine.install();}catch(Exception ignored){}startupMark("MASTER_RULES_REGISTERED");try{TashaFeatCompiledRulesEngine.install();}catch(Exception ignored){}try{TashaMimicColonyEngine.installStatblocks();}catch(Exception ignored){}try{installSrd51BestiaryBatch();}catch(Exception ignored){}startupMark("MASTER_MONSTERS_REGISTERED");
     }
 
     /** Start Chaquopy off-main after first UI frame. Mechanics remain installed. */
