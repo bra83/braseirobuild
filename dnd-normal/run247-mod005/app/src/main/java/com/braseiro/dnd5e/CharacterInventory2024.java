@@ -204,11 +204,11 @@ public final class CharacterInventory2024 {
     public static JSONObject coinsFromCopper(long value){
         if(value<0)throw new IllegalArgumentException("negative_money");
         try{
-            // 2024 change is re-denominated only when a market transaction
-            // actually authorizes change, never on a passive sheet preview.
-            return new JSONObject().put("pp",value/1000)
-                .put("gp",(value%1000)/100).put("sp",(value%100)/10)
-                .put("cp",value%10).put("ep",0);
+            // 2024 change is re-denominated to gold/silver/copper only by an
+            // authorized transaction, never on a passive sheet preview.
+            return new JSONObject().put("gp",value/100)
+                .put("sp",(value%100)/10).put("cp",value%10)
+                .put("pp",0).put("ep",0);
         }catch(Exception e){throw new IllegalStateException(e);}
     }
 
