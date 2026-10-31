@@ -45,8 +45,7 @@ public final class CharacterInventory2024 {
         weight(58.5,"mochila de artista","pacote de artista","entertainer's pack");
         weight(29,"pacote de sacerdote","priest's pack");
         weight(2,"alaúde","alaude","lute","lira","lyre","martelo leve","machadinha","machadinhas");
-        weight(1,"flauta","flute","foco arcano (cristal)","cristal","arco?"); // named crystal focus
-        WEIGHTS.remove("arco"); // no ambiguous bow weight
+        weight(1,"flauta","flute","foco arcano (cristal)","cristal");
         weight(4,"roupas de viajante","roupas viajante","clothes, traveler's");
         weight(7,"saco de dormir","bedroll","machado grande","greataxe");
         weight(3,"cobertor","blanket","lança","spear","espada longa","longsword",
@@ -56,10 +55,8 @@ public final class CharacterInventory2024 {
         weight(6,"escudo","shield","espada grande","greatsword");
         weight(20,"camisão de malha","camisao de malha","chain shirt");
         weight(55,"cota de malha","chain mail");
-        weight(4,"maça","maca","mace","kit de corda","kit de herbalismo","herbalism kit",
-            "foco druídico (bordão de madeira)","wooden staff");
-        WEIGHTS.put(normalize("kit de herbalismo"),3d);
-        WEIGHTS.remove(normalize("kit de corda"));
+        weight(4,"maça","maca","mace","foco druídico (bordão de madeira)","wooden staff");
+        weight(3,"kit de herbalismo","herbalism kit");
         weight(2,"foice","sickle","mangual","flail","espada curta","shortsword",
             "arco curto","shortbow","arco longo","longbow","azagaia","azagaias","javelin","javelins");
         weight(1,"aljava","quiver","ferramentas de ladrão","thieves' tools");
@@ -69,11 +66,8 @@ public final class CharacterInventory2024 {
         weight(1,"foco arcano (varinha)","varinha","wand");
         weight(0,"foco druídico (raminho de visco)","raminho de visco","sprig of mistletoe");
         weight(8,"utensílios de cozinheiro","utensilios de cozinheiro","cook's utensils");
-        weight(2,"corda de 15 m","corda de 15m"); // intentionally replaced below with SRD2024 rope
         weight(5,"corda de 15 m","corda de 15m","rope","corda");
-        weight(2,"poção de cura","potion of healing"); // replaced with exact 2024 0.5 lb
         weight(0.5,"poção de cura","potion of healing");
-        weight(2,"cajado","staff (arcane focus)"); // corrected below for focus staff
         weight(4,"cajado","staff (arcane focus)");
         weight(1,"saco","pouch");
     }
@@ -198,7 +192,7 @@ public final class CharacterInventory2024 {
         try{
             JSONArray ledger=sheet.optJSONArray("inventory_ledger");
             if(ledger==null)ledger=new JSONArray();
-            JSONArray notes=new JSONArray();
+            JSONArray notes=cloneArray(sheet.optJSONArray("inventory_legacy_unresolved_notes"));
             boolean authoritative="structured_authoritative".equals(
                 sheet.optString("inventory_ledger_status",""));
             if(ledger.length()==0&&!authoritative&&
@@ -207,6 +201,7 @@ public final class CharacterInventory2024 {
                 String legacy=sheet.optString("inventory",sheet.optString("equipment",""));
                 JSONArray recovered=legacyItems(legacy,notes);
                 if(recovered.length()>0)ledger=recovered;
+                sheet.put("inventory_legacy_unresolved_notes",notes);
                 sheet.put("inventory_ledger_migration_version",1);
                 sheet.put("inventory_legacy_source_hash",legacy.hashCode());
             }
@@ -275,7 +270,8 @@ public final class CharacterInventory2024 {
             sheet.put("inventory_capacity_kg",validCapacity?capacity*KG_PER_LB:JSONObject.NULL);
             sheet.put("inventory_total_weight_lb",complete?known:JSONObject.NULL);
             sheet.put("inventory_total_weight_kg",complete?known*KG_PER_LB:JSONObject.NULL);
-            sheet.put("inventory_over_capacity",validCapacity&&known>capacity);
+            sheet.put("inventory_over_capacity",validCapacity&&known>capacity?Boolean.TRUE:
+                (complete&&validCapacity?Boolean.FALSE:JSONObject.NULL));
             sheet.put("inventory_weight_status",complete?"complete":"review_required");
             sheet.put("inventory_weight_display",complete?
                 String.format(Locale.ROOT,"%.2f lb (%.2f kg)",known,known*KG_PER_LB):
@@ -325,7 +321,16 @@ public final class CharacterInventory2024 {
                         ledger.optJSONObject(i)==null?"":ledger.optJSONObject(i).optString("id")))
                     throw new IllegalArgumentException("duplicate_item_id");
                 int qty=item.optInt("quantity",1);
-                if(qty<=0)throw new IllegalArgumentException("invalid_quantity");
+                if(qty<=0||(!(item.opt("quantity") instanceof Number)&&item.has("quantity"))
+                        ||(item.opt("quantity") instanceof Number&&
+                        ((Number)item.opt("quantity")).doubleValue()!=qty))
+                    throw new IllegalArgumentException("invalid_quantity");
+                if(item.has("unit_weight_lb")){
+                    Object w=item.opt("unit_weight_lb");
+                    if(!(w instanceof Number)||!Double.isFinite(((Number)w).doubleValue())
+                            ||((Number)w).doubleValue()<0)
+                        throw new IllegalArgumentException("invalid_weight");
+                }
                 for(int i=0;i<ledger.length();i++)next.put(ledger.opt(i));
                 next.put(new JSONObject(item.toString()));
             }else{
@@ -348,15 +353,28 @@ public final class CharacterInventory2024 {
                                 "equipped","location","container_id"}){
                             if(action.has(key))changed.put(key,action.opt(key));
                         }
+                        if(action.has("name")&&!action.has("unit_weight_lb")
+                                &&"srd2024_catalog".equals(changed.optString("weight_source"))){
+                            changed.remove("unit_weight_lb");changed.remove("weight_source");
+                        }
+                        if(action.optBoolean("clear_weight",false)){
+                            changed.remove("unit_weight_lb");changed.remove("weight_source");
+                        }
                     }else if(op.equals("move")){
                         if(!action.has("carried")&&!action.has("location"))
                             throw new IllegalArgumentException("location_required");
-                        if(action.has("carried"))changed.put("carried",action.opt("carried"));
+                        if(action.has("carried")){
+                            changed.put("carried",action.opt("carried"));
+                            if(!action.has("location")&&action.optBoolean("carried",false))changed.remove("location");
+                        }
                         if(action.has("location"))changed.put("location",action.opt("location"));
                     }else throw new IllegalArgumentException("unknown_inventory_operation");
                     if(changed.optString("name","").trim().isEmpty())
                         throw new IllegalArgumentException("item_name_required");
-                    if(changed.optInt("quantity",1)<0)
+                    Object quantity=changed.opt("quantity");
+                    int q=changed.optInt("quantity",1);
+                    if(q<0||(quantity!=null&&!(quantity instanceof Number))
+                            ||(quantity instanceof Number&&((Number)quantity).doubleValue()!=q))
                         throw new IllegalArgumentException("invalid_quantity");
                     if(changed.has("unit_weight_lb")){
                         Object w=changed.opt("unit_weight_lb");
@@ -370,6 +388,10 @@ public final class CharacterInventory2024 {
             sheet.put("inventory_ledger",next);
             sheet.put("inventory_ledger_status","structured_authoritative");
             sheet.put("inventory_ledger_migration_version",1);
+            if(action.optBoolean("resolve_legacy_notes",false)){
+                sheet.put("inventory_legacy_unresolved_notes",new JSONArray());
+                sheet.put("inventory_legacy_source_hash",sheet.optString("inventory","").hashCode());
+            }
             // The old descriptive inventory is retained for history; no resurrection.
             applied.put(receipt);
             sheet.put("inventory_event_receipts",applied);
