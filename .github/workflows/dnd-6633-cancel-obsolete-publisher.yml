@@ -1,0 +1,23 @@
+name: DnD 6.6.33 Cancel Obsolete Candidate Runs
+on:
+  push:
+    branches:
+      - fix/dnd-audit-race-charon-callbacks-20261031
+    paths:
+      - '.github/workflows/dnd-6633-cancel-obsolete-publisher.yml'
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel only superseded candidate and its publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run cancel 41186650917 --repo "$GITHUB_REPOSITORY" || true
+          gh run cancel 41186318781 --repo "$GITHUB_REPOSITORY" || true
+          echo "Kept 41186777056 and its publisher 41186804763 unchanged."
