@@ -76,13 +76,13 @@ public final class WorldOnboardingNarrativeGuard {
         return "";
     }
 
-    private static int minWords(String occasion){
-        if("campaign_opening".equals(occasion))return 1200;if("first_arrival".equals(occasion))return 850;if("changed_return".equals(occasion))return 600;
-        if("poi_discovery".equals(occasion))return 600;if("geography_discovery".equals(occasion))return 500;if("weather_transition".equals(occasion))return 350;return 0;
+    public static int minWords(String occasion){
+        if("campaign_opening".equals(occasion))return 450;if("first_arrival".equals(occasion))return 250;if("changed_return".equals(occasion))return 150;
+        if("poi_discovery".equals(occasion))return 130;if("geography_discovery".equals(occasion))return 130;if("weather_transition".equals(occasion))return 100;return 0;
     }
-    private static int minParagraphs(String occasion){
-        if("campaign_opening".equals(occasion))return 10;if("first_arrival".equals(occasion))return 8;if("changed_return".equals(occasion))return 6;
-        if("poi_discovery".equals(occasion))return 6;if("geography_discovery".equals(occasion))return 5;if("weather_transition".equals(occasion))return 4;return 1;
+    public static int minParagraphs(String occasion){
+        if("campaign_opening".equals(occasion))return 4;if("first_arrival".equals(occasion))return 3;if("changed_return".equals(occasion))return 2;
+        if("poi_discovery".equals(occasion))return 2;if("geography_discovery".equals(occasion))return 2;if("weather_transition".equals(occasion))return 2;return 1;
     }
     private static boolean containsAny(String text,String...terms){for(String term:terms)if(text.contains(term))return true;return false;}
     public static int countWords(String text){String clean=text==null?"":text.trim();return clean.length()==0?0:clean.split("\\s+").length;}
