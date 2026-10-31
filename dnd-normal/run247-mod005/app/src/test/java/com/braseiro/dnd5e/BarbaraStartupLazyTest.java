@@ -43,8 +43,13 @@ public final class BarbaraStartupLazyTest {
     }
 
     @Test public void masterConstructorKeepsRulesAndAdventureWithoutStartingPython() throws Exception {
+        long start = System.nanoTime();
         MasterOrchestrator master=new MasterOrchestrator(db,new PartyDirector(db),
             new WorldStateEngine(db),new AiQuotaGovernor(context),context);
+        long constructorMs = (System.nanoTime()-start)/1000000L;
+        assertTrue("Startup may not synchronously register a 30-second catalog: "+constructorMs+"ms",
+            constructorMs < 10000L);
+        assertNotNull("Catalog loading must be scheduled", MasterOrchestrator.catalogsStatus());
         assertNotNull("Adventures must remain installed",master.getAdventureEngine());
         assertNotNull("Canonical lore must remain ready",master.getNarrativeEngine().getEntity("faerun_harpers"));
         Field f=MasterOrchestrator.class.getDeclaredField("barbara");
