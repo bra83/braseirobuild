@@ -152,32 +152,77 @@ public final class CharacterInventory2024 {
               ||location.equals("deposito")||location.equals("chao")||location.equals("montaria"));
     }
 
-    private static JSONObject coins(JSONObject sheet){
-        JSONObject source=sheet.optJSONObject("coin_pieces");
-        if(source!=null)return source;
+    /**
+     * Recognizes the verified "Moedas atuais" entry on old Brazilian exports.
+     * Brazilian PP = peças de prata; PL = platina. Internally use ISO-like
+     * cp/sp/ep/gp/pp (PP in English means platinum).
+     */
+    private static JSONObject legacyCoins(JSONObject sheet){
         String raw=sheet.optString("inventory",sheet.optString("equipment",""));
-        Matcher line=Pattern.compile("(?im)^\\s*moedas atuais\\s*:\\s*([^\\n]+)").matcher(raw);
+        Matcher line=Pattern.compile("(?im)^\s*moedas atuais\s*:\s*([^\n]+)").matcher(raw);
         if(!line.find())return null;
         Matcher m=MONEY.matcher(line.group(1));
-        int count=0;
-        while(m.find()){
-            try{count=Math.addExact(count,Integer.parseInt(m.group(1)));}
-            catch(ArithmeticException|NumberFormatException bad){return null;}
+        JSONObject result=new JSONObject();
+        try{
+            while(m.find()){
+                long n=Long.parseLong(m.group(1));
+                String coin=m.group(2).toUpperCase(Locale.ROOT);
+                String key=coin.equals("PO")?"gp":coin.equals("PP")?"sp":
+                    coin.equals("PC")?"cp":coin.equals("PE")?"ep":"pp";
+                result.put(key,Math.addExact(result.optLong(key,0),n));
+            }
+            return result;
+        }catch(Exception invalid){return null;}
+    }
+
+    public static JSONObject coinPurse(JSONObject sheet){
+        JSONObject structured=sheet==null?null:sheet.optJSONObject("coin_pieces");
+        if(structured!=null)return cloneObject(structured);
+        if(sheet!=null&&!sheet.has("coin_pieces_migration_version"))
+            return legacyCoins(sheet);
+        return null;
+    }
+
+    public static long coinValueCp(JSONObject purse){
+        if(purse==null)throw new IllegalArgumentException("coin_purse_unknown");
+        long total=0L;
+        for(String key:new String[]{"cp","sp","ep","gp","pp"}){
+            Object raw=purse.opt(key);
+            if(raw==null)continue;
+            if(!(raw instanceof Number)||raw instanceof Double||raw instanceof Float)
+                throw new IllegalArgumentException("invalid_coin_amount");
+            long count=((Number)raw).longValue();
+            if(count<0)throw new IllegalArgumentException("negative_coins");
+            long value=key.equals("cp")?1:key.equals("sp")?10:
+                key.equals("ep")?50:key.equals("gp")?100:1000;
+            total=Math.addExact(total,Math.multiplyExact(count,value));
         }
-        try{return new JSONObject().put("count",count);}
-        catch(Exception bad){return null;}
+        return total;
+    }
+
+    public static JSONObject coinsFromCopper(long value){
+        if(value<0)throw new IllegalArgumentException("negative_money");
+        try{
+            // 2024 change is re-denominated only when a market transaction
+            // actually authorizes change, never on a passive sheet preview.
+            return new JSONObject().put("pp",value/1000)
+                .put("gp",(value%1000)/100).put("sp",(value%100)/10)
+                .put("cp",value%10).put("ep",0);
+        }catch(Exception e){throw new IllegalStateException(e);}
     }
 
     private static double coinWeight(JSONObject sheet){
-        JSONObject c=coins(sheet);
-        if(c==null)return 0d;
+        JSONObject c=coinPurse(sheet);
+        if(c==null)return 0d; // zero is tentative; incomplete state is tracked below
         if(c.has("count"))return Math.max(0,c.optInt("count",0))/50d;
         long total=0;
-        for(String key:new String[]{"cp","sp","ep","gp","pp","pc","po","pl"}){
+        for(String key:new String[]{"cp","sp","ep","gp","pp"}){
             Object v=c.opt(key);
             if(v==null)continue;
-            if(!(v instanceof Number)||((Number)v).longValue()<0)return Double.NaN;
-            total+=((Number)v).longValue();
+            if(!(v instanceof Number)||v instanceof Double||v instanceof Float
+                  ||((Number)v).longValue()<0)return Double.NaN;
+            try{total=Math.addExact(total,((Number)v).longValue());}
+            catch(ArithmeticException bad){return Double.NaN;}
         }
         return total/50d;
     }
@@ -198,6 +243,11 @@ public final class CharacterInventory2024 {
             JSONArray ledger=sheet.optJSONArray("inventory_ledger");
             if(ledger==null)ledger=new JSONArray();
             JSONArray notes=cloneArray(sheet.optJSONArray("inventory_legacy_unresolved_notes"));
+            if(!sheet.has("coin_pieces_migration_version")){
+                JSONObject parsed=legacyCoins(sheet);
+                if(parsed!=null)sheet.put("coin_pieces",parsed);
+                sheet.put("coin_pieces_migration_version",1);
+            }
             boolean authoritative="structured_authoritative".equals(
                 sheet.optString("inventory_ledger_status",""));
             if(ledger.length()==0&&!authoritative&&
