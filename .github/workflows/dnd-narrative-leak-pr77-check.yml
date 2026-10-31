@@ -1,13 +1,14 @@
-name: DnD Startup Async Catalogs 6.6.30 CI
+name: DnD Session ANR 6.6.31 CI
 on:
   push:
     branches:
-      - fix/dnd-startup-catalogs-off-main-20261031
+      - fix/dnd-session-anr-20261031
     paths:
       - '.github/workflows/dnd-narrative-leak-pr77-check.yml'
-      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java'
-      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppExecutors.java'
-      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/BarbaraStartupLazyTest.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/StrixhavenCampusView.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/StrixhavenMapBitmapCache.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/StrixhavenCampusViewAnrTest.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/DndUiStallMonitor.java'
   workflow_dispatch:
 
 permissions:
@@ -46,9 +47,9 @@ jobs:
           p = Path('dnd-normal/run247-mod005/version.properties')
           s = p.read_text(encoding='utf-8')
           assert 'VERSION_CODE=606548' in s and 'VERSION_NAME=6.6.15-v1-3core-20261016' in s, 'unexpected baseline'
-          code = 203100000 + int(os.environ['GITHUB_RUN_NUMBER'])
+          code = 203200000 + int(os.environ['GITHUB_RUN_NUMBER'])
           s=s.replace('VERSION_CODE=606548',f'VERSION_CODE={code}')
-          s=s.replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME=6.6.30-startup-async-catalogs-rc')
+          s=s.replace('VERSION_NAME=6.6.15-v1-3core-20261016','VERSION_NAME=6.6.31-session-anr-maps-rc')
           p.write_text(s,encoding='utf-8')
           print('CANDIDATE_VERSION_CODE',code)
           PY
@@ -58,9 +59,9 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew :app:compileDebugJavaWithJavac --no-daemon --console=plain
-      - name: Startup regression tests
+      - name: Strixhaven map async test
         working-directory: ${{ env.PROJECT }}
-        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.BarbaraStartupLazyTest --no-daemon --console=plain
+        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.StrixhavenCampusViewAnrTest --no-daemon --console=plain
       - name: All JVM tests
         working-directory: ${{ env.PROJECT }}
         run: ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
@@ -73,15 +74,15 @@ jobs:
           mkdir -p apk-pr77
           APK="$(find "$PROJECT/app/build/outputs/apk/debug" -maxdepth 1 -name '*.apk' -type f -print -quit)"
           test -s "$APK"
-          cp "$APK" "apk-pr77/BRASEIRO_DND_6.6.30_STARTUP_ASYNC_RC.apk"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "apk-pr77/BRASEIRO_DND_6.6.30_STARTUP_ASYNC_RC.apk" > apk-pr77/SIGNATURE.txt
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "apk-pr77/BRASEIRO_DND_6.6.30_STARTUP_ASYNC_RC.apk" > apk-pr77/BADGING.txt
+          cp "$APK" "apk-pr77/BRASEIRO_DND_6.6.31_SESSION_ANR_RC.apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "apk-pr77/BRASEIRO_DND_6.6.31_SESSION_ANR_RC.apk" > apk-pr77/SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "apk-pr77/BRASEIRO_DND_6.6.31_SESSION_ANR_RC.apk" > apk-pr77/BADGING.txt
           grep -q "package: name='com.braseiro.dnd5e'" apk-pr77/BADGING.txt
           (cd apk-pr77 && sha256sum *.apk > SHA256SUMS.txt)
       - name: Upload candidate and test proof
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO-DND-STARTUP-ASYNC-6-6-30
+          name: BRASEIRO-DND-SESSION-ANR-6-6-31
           path: apk-pr77/*
           retention-days: 7
           if-no-files-found: error
