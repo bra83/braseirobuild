@@ -91,20 +91,20 @@ public class CharacterInventory2024Test {
         assertNull(find(s,"torch-loot"));
     }
 
-    @Test public void purchasedPotionDebitsWalletOnceAndWeighsHalfPound()throws Exception{
+    @Test public void purchasedRopeDebitsWalletOnceAndWeighsFivePounds()throws Exception{
         JSONObject s=kvothe();
-        JSONObject auth=new JSONObject().put("cost_cp",5000).put("from","mercador")
+        JSONObject auth=new JSONObject().put("cost_cp",100).put("from","mercador")
             .put("actor","player").put("reason","comprou na feira");
         JSONObject p=InventoryTransactions2024.acquire(s,
-            item("potion-1","Poção de cura",1),"purchase","shop-77",auth);
-        assertEquals(950,CharacterInventory2024.coinValueCp(
+            item("rope-1","Corda",1),"purchase","shop-77",auth);
+        assertEquals(1350,CharacterInventory2024.coinValueCp(
             p.getJSONObject("coin_pieces")));
-        assertEquals(1,find(p,"potion-1").getInt("quantity"));
-        assertEquals("purchase",find(p,"potion-1").getString("source"));
-        assertEquals(52.76,p.getDouble("inventory_total_weight_lb"),0.00001);
+        assertEquals(1,find(p,"rope-1").getInt("quantity"));
+        assertEquals("purchase",find(p,"rope-1").getString("source"));
+        assertEquals(57.36,p.getDouble("inventory_total_weight_lb"),0.00001);
         JSONObject replay=InventoryTransactions2024.acquire(p,
-            item("potion-1","Poção de cura",1),"purchase","shop-77",auth);
-        assertEquals(950,CharacterInventory2024.coinValueCp(
+            item("rope-1","Corda",1),"purchase","shop-77",auth);
+        assertEquals(1350,CharacterInventory2024.coinValueCp(
             replay.getJSONObject("coin_pieces")));
         assertEquals(11,replay.getJSONArray("inventory_ledger").length());
         assertEquals(1,replay.getJSONArray("inventory_journal").length());
