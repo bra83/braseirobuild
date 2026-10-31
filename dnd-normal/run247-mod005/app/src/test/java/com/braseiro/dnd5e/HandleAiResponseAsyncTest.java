@@ -184,4 +184,53 @@ public class HandleAiResponseAsyncTest {
         assertEquals("A última ação persistida deve ser a da resposta B",
                 "Ação B", story.optString("last_action", ""));
     }
+
+    @Test
+    public void testPreparedOldResponseFinishingAfterNewerCommitCannotMutateStory() throws Exception {
+        final java.util.concurrent.CountDownLatch aPrepared = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch resumeA = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.atomic.AtomicReference<Throwable> aError = new java.util.concurrent.atomic.AtomicReference<>();
+        final JSONObject a = new JSONObject().put("narration", "A_ANTIGA: não pode modificar a campanha.")
+                .put("options", new JSONArray());
+        final JSONObject b = new JSONObject().put("narration", "B_ATUAL: o pátio de Strixhaven recebe os alunos.")
+                .put("options", new JSONArray());
+        final long genA = activity.advanceAiRequestGeneration();
+        activity.preCommitObserverForTests = (generation, action) -> {
+            if (generation == genA) {
+                aPrepared.countDown();
+                try {
+                    if (!resumeA.await(25, java.util.concurrent.TimeUnit.SECONDS))
+                        throw new AssertionError("A commit gate was not released");
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError("Interrupted pre-commit gate", ex);
+                }
+            }
+        };
+        Thread workerA = new Thread(() -> {
+            try {
+                activity.processAiResponseInBackground(a.toString(), "Ação A", genA);
+            } catch (Throwable error) {
+                aError.set(error);
+            }
+        }, "prepared-stale-reply-A");
+        workerA.start();
+        try {
+            assertTrue("A reached pre-commit fence before B", aPrepared.await(25, java.util.concurrent.TimeUnit.SECONDS));
+            final long genB = activity.advanceAiRequestGeneration();
+            activity.processAiResponseInBackground(b.toString(), "Ação B", genB);
+        } finally {
+            resumeA.countDown();
+            workerA.join(25000L);
+            activity.preCommitObserverForTests = null;
+        }
+        assertFalse("A thread must terminate", workerA.isAlive());
+        assertTrue("A must not crash", aError.get() == null);
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+        String persisted = activity.db.getStoryState().optString("last_narration", "");
+        assertTrue("Only B may reach SQLite", persisted.contains("B_ATUAL"));
+        assertFalse("A cannot reach SQLite", persisted.contains("A_ANTIGA"));
+        assertTrue("UI reflects B", activity.lastNarration.contains("B_ATUAL"));
+        assertFalse("UI cannot show A", activity.lastNarration.contains("A_ANTIGA"));
+    }
 }
