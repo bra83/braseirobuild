@@ -19,6 +19,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -145,7 +146,7 @@ public class CharonNativeFallbackIntegrationTest {
         assertEquals(-1L, activity.activeFallbackSession);
     }
     @Test
-    public void testFallbackWhenNativeTtsNotYetInitializedResumesOriginalSessionWithoutCancelingOrRepeating() {
+    public void testFallbackWhenNativeTtsNotYetInitializedResumesOriginalSessionWithoutCancelingOrRepeating() throws Exception {
         // 1. Simulate TTS engine NOT yet initialized
         activity.nativeTtsReady = false;
         activity.nativeTtsLanguageReady = false;
@@ -197,13 +198,35 @@ public class CharonNativeFallbackIntegrationTest {
         assertEquals("Geração da sessão original deve ser preservada", session, activity.charonNarrationGeneration);
         assertEquals("activeFallbackSession deve manter a sessão original", session, activity.activeFallbackSession);
 
-        // Process loop to complete native playback
+        // Exercise the listener actually registered on Android's TextToSpeech engine.
+        // Calling finishNativeNarration() directly would incorrectly mark a silent
+        // or interrupted playback as complete, hiding skipped utterances.
         Shadows.shadowOf(Looper.getMainLooper()).idle();
+        assertNotNull("O listener Android TTS real deve estar registrado", activity.nativeUtteranceProgressListener);
+        java.lang.reflect.Field queueField = MainActivity.class.getDeclaredField("nativeNarrationQueue");
+        queueField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<String> voiceQueue = (List<String>)queueField.get(activity);
+        assertTrue("A fila da voz nativa precisa conter os trechos restantes", voiceQueue.size() > 0);
+        String queuedText = String.join(" ", voiceQueue);
+        assertFalse("Nenhum trecho ouvido pode ser repetido", queuedText.contains("Primeiro trecho ouvido"));
+        assertTrue("O segundo trecho precisa estar na fila", queuedText.contains("Segundo trecho"));
+        assertTrue("O terceiro trecho precisa estar na fila", queuedText.contains("Terceiro trecho"));
 
-        // 3. Complete native playback (if not already completed by shadow TTS utterance callbacks)
-        if (activity.activeFallbackSession != -1L) {
-            activity.finishNativeNarration();
+        java.lang.reflect.Field idField = MainActivity.class.getDeclaredField("nativeNarrationSession");
+        idField.setAccessible(true);
+        long nativeSessionId = idField.getLong(activity);
+        int count = voiceQueue.size();
+        for (int i = 0; i < count; i++) {
+            String utteranceId = "narracao_" + nativeSessionId + "_" + i;
+            activity.nativeUtteranceProgressListener.onStart(utteranceId);
+            activity.nativeUtteranceProgressListener.onDone(utteranceId);
             Shadows.shadowOf(Looper.getMainLooper()).idle();
+            if (i < count - 1) {
+                assertEquals("Não pode marcar fim antes do último callback",
+                        NarrationPlaybackStateMachine.State.FALLBACK_PLAYING,
+                        activity.narrationStateMachine.getState());
+            }
         }
 
         assertEquals("Máquina de estados deve concluir com sucesso",
