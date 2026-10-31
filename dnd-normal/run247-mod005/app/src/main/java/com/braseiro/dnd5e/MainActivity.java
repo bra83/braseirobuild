@@ -185,7 +185,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private EnvironmentalDirector environmentalDirector;
     private TravelRulesEngine travelRulesEngine;
     private ResilientTaskQueue taskQueue;
-    private TextToSpeech nativeTts;
+    /* package */ TextToSpeech nativeTts;
     private AdventureEngine adventureEngine;
     private final HashMap<String,String> nativeVoiceSentenceByUtterance=new HashMap<String,String>();
     private final HashSet<String> nativeVoiceStartedUtterances=new HashSet<String>();
@@ -209,16 +209,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private volatile boolean skipAdventureStartCatalogMigrationOnce=false;
     private volatile boolean pendingAdventureStartFromMap=false;
     private volatile boolean pendingAdventureStartReset=false;
-    private volatile boolean nativeTtsReady=false;
+    /* package */ volatile boolean nativeTtsReady=false;
     private volatile boolean nativeTtsInitializing=false;
-    private volatile boolean nativeTtsLanguageReady=false;
+    /* package */ volatile boolean nativeTtsLanguageReady=false;
     private int nativeTtsInitAttempts=0;
     private long nativeTtsLastInitAt=0L;
-    private long nativeTtsInitGeneration=0L;
-    private String nativeTtsRequestedEnginePackage="";
+    /* package */ long nativeTtsInitGeneration=0L;
+    /* package */ String nativeTtsRequestedEnginePackage="";
     private String nativeTtsActiveEnginePackage="";
     private boolean nativeTtsRefreshAudioOnReady=false;
-    private String pendingRequestedNativeNarration="";
+    /* package */ String pendingRequestedNativeNarration="";
+    /* package */ final Object aiCommitLock=new Object();
     /* package */ final NarrationPlaybackStateMachine narrationStateMachine=new NarrationPlaybackStateMachine();
     private Handler ui;
     private FrameLayout content;
@@ -550,13 +551,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     public void onInit(int status){handleNativeTtsInit(nativeTtsInitGeneration,nativeTtsRequestedEnginePackage,status);}
 
-    private synchronized void handleNativeTtsInit(final long generation,final String requestedPackage,int status){
+    /* package */ synchronized void handleNativeTtsInit(final long generation,final String requestedPackage,int status){
         if(generation!=nativeTtsInitGeneration||!requestedPackage.equals(nativeTtsRequestedEnginePackage)){AppLog.i("NativeTts","Callback de inicialização obsoleto ignorado para "+requestedPackage+" • geração "+generation);return;}
         nativeTtsInitializing=false;
+        if(nativeTts==null&&status==TextToSpeech.SUCCESS){try{nativeTts=createNativeTts(requestedPackage);}catch(Throwable ignored){}}
         nativeTtsReady=status==TextToSpeech.SUCCESS && nativeTts!=null;
         nativeTtsLanguageReady=false;
         if(!nativeTtsReady){
             setStatus("A voz do Android não pôde ser iniciada. Uma nova tentativa será feita sem travar o app.");
+            if(activeFallbackSession!=-1L){abortNativeNarrationAfterTtsError("A voz do Android não pôde ser iniciada.");}
             final int attempt=nativeTtsInitAttempts;final long failedGeneration=generation;if(attempt<3&&ui!=null)ui.postDelayed(new Runnable(){public void run(){if(failedGeneration==nativeTtsInitGeneration)ensureNativeTtsInitialized();}},3800L);
             return;
         }
@@ -574,18 +577,34 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // Sherpa/Kokoro fornece as vozes reais pelo próprio TextToSpeech.voices;
         // setLanguage pode não refletir o modelo instalado e não deve invalidar o backend neural.
         if(isNativeKokoroEngine()&&!AndroidTtsBackend.realVoices(nativeTts).isEmpty())nativeTtsLanguageReady=true;
-        if(!nativeTtsLanguageReady){setStatus("A engine TTS selecionada não oferece voz utilizável em português.");return;}
+        if(!nativeTtsLanguageReady){
+            setStatus("A engine TTS selecionada não oferece voz utilizável em português.");
+            if(activeFallbackSession!=-1L){abortNativeNarrationAfterTtsError("A engine TTS selecionada não oferece voz utilizável em português.");}
+            return;
+        }
         configureNativeTtsVoice();
         nativeTtsInitAttempts=0;
-        nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
-            public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
-            public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
-            public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
-            public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
-        });
+        if(nativeTts!=null){
+            nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
+                public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
+                public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
+                public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
+                public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
+            });
+        }
         final String pending=pendingRequestedNativeNarration;pendingRequestedNativeNarration="";
         if(nativeTtsRefreshAudioOnReady){nativeTtsRefreshAudioOnReady=false;if("Áudio".equals(currentScreen))ui.postDelayed(new Runnable(){public void run(){showAudio();}},100L);}
-        if(pending.trim().length()>0)ui.postDelayed(new Runnable(){public void run(){speakNativeNarrationWithSfx(pending);}},80L);
+        if(pending.trim().length()>0){
+            if(activeFallbackSession!=-1L){
+                final long fallbackSession=activeFallbackSession;
+                ui.post(new Runnable(){public void run(){
+                    if(fallbackSession!=activeFallbackSession||fallbackSession!=charonNarrationGeneration)return;
+                    continuePlaybackWithNativeTts(pending,fallbackSession,true);
+                }});
+            }else{
+                ui.postDelayed(new Runnable(){public void run(){speakNativeNarrationWithSfx(pending);}},80L);
+            }
+        }
     }
 
     private void configureNativeTtsVoice(){
@@ -7307,262 +7326,295 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if (requestGen != aiRequestGeneration) return;
         try {
             JSONObject rawAgencyEnvelope = parseAiEnvelope(raw);
-        JSONObject env = copyJsonObject(rawAgencyEnvelope);
-        if (masterOrchestrator != null) env = masterOrchestrator.validateEnvelope(env, action);
+            JSONObject env = copyJsonObject(rawAgencyEnvelope);
+            if (masterOrchestrator != null) env = masterOrchestrator.validateEnvelope(env, action);
 
-        // RUN220: a curated proposal is an intention, never a simultaneous
-        // mechanical event. Fail closed even if the same proposal was staged
-        // in a previous request (the replay must not execute its side-effects).
-        if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
-            String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
-            if (!agencyConflict.isEmpty()) {
-                JSONObject agencyVerdict = env.optJSONObject("_master_validation");
-                final int captured = (agencyVerdict != null && agencyVerdict.optBoolean("valid", false))
-                        ? CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters()) : 0;
-                final String conflictMsg = agencyConflict;
-                ui.post(new Runnable() {
-                    public void run() {
+            // RUN220: a curated proposal is an intention, never a simultaneous
+            // mechanical event. Fail closed even if the same proposal was staged
+            // in a previous request (the replay must not execute its side-effects).
+            if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
+                String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
+                if (!agencyConflict.isEmpty()) {
+                    synchronized (aiCommitLock) {
                         if (requestGen != aiRequestGeneration) return;
-                        aiBusy = false;
-                        streamingNarration = "";
-                        clearFailedGeminiRequest();
-                        setStatus("Curadoria: intenção separada de mudanças mecânicas (" + conflictMsg + "). "
-                                + captured + " proposta(s) válida(s) nova(s), nenhuma consequência aplicada.");
-                        showPartyDirector();
-                    }
-                });
-                return;
-            }
-        }
-
-        // RUN189: a curated intention is captured BEFORE narration/state commit.
-        // Neither the proposal nor any effects accompanying it are accepted now.
-        if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
-            try {
-                JSONObject verdict = env.optJSONObject("_master_validation");
-                if (verdict != null && verdict.optBoolean("valid", false)) {
-                    final int captured = CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters());
-                    if (captured > 0) {
+                        JSONObject agencyVerdict = env.optJSONObject("_master_validation");
+                        final int captured = (agencyVerdict != null && agencyVerdict.optBoolean("valid", false))
+                                ? CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters()) : 0;
+                        final String conflictMsg = agencyConflict;
                         ui.post(new Runnable() {
                             public void run() {
                                 if (requestGen != aiRequestGeneration) return;
                                 aiBusy = false;
                                 streamingNarration = "";
                                 clearFailedGeminiRequest();
-                                setStatus("Curadoria: " + captured + " proposta(s) pendente(s). Nenhuma consequência da resposta foi aplicada.");
+                                setStatus("Curadoria: intenção separada de mudanças mecânicas (" + conflictMsg + "). "
+                                        + captured + " proposta(s) válida(s) nova(s), nenhuma consequência aplicada.");
                                 showPartyDirector();
                             }
                         });
-                        return;
                     }
+                    return;
                 }
-            } catch (Exception e) {
-                AppLog.e("CompanionAgency", "Falha ao armazenar propostas, sem alterar a campanha", e);
             }
-        }
 
-        if (masterSideQueryActive) {
-            String answer = completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration", raw)));
-            String question = masterSideQueryText;
-            JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
-            JSONArray sideCitations = copyJsonArray(lastRagCitations);
-            JSONObject previousSupport = copyJsonObject(lastMasterSupport);
-            JSONObject support = MasterSupportPanelEngine.build(env, sideRetrieval, sideCitations, db.getSceneState(), safeActiveCharacters(), currentOptions, pendingTest, question, isMystaraWorld(), "GM_HELP");
-            JSONObject withAns = MasterSupportPanelEngine.withAnswer(support, question, answer, sideRetrieval, sideCitations);
-            final JSONObject finalSupport = appendMasterConversationHistory(previousSupport, withAns, question, answer);
-            prefs.edit().putString("last_master_support_json", finalSupport.toString()).apply();
-            saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), question, answer));
-            if (masterOrchestrator != null) masterOrchestrator.afterAccepted(activeMasterPlan, answer, env, pendingAiInputChars, raw == null ? 0 : raw.length());
-            db.addAuditEvent("consulta_auxiliar", "Pergunta ao Mestre sem avanço", question, "{}", finalSupport.toString(), false);
-            ui.post(new Runnable() {
-                public void run() {
-                    if (requestGen != aiRequestGeneration) return;
-                    lastMasterSupport = finalSupport;
-                    restoreAfterMasterSideQuery();
-                    clearFailedGeminiRequest();
-                    setStatus("Pergunta respondida no quadro azul. A aventura permaneceu exatamente no mesmo ponto.");
-                    if (isStrixhavenAdventure()) showStrixhavenSession();
-                    else if ("Mestre IA".equals(currentScreen)) showNarrator();
-                }
-            });
-            return;
-        }
-
-        boolean nonAdvancing = "Narrador".equals(lastAiMode) && env.optBoolean("_non_advancing", activeTurnNonAdvancing(action));
-        JSONObject finalValidation = env.optJSONObject("_master_validation");
-        boolean masterEnvelopeValid = finalValidation != null && finalValidation.optBoolean("valid", false);
-
-        JSONArray previousOptions = currentOptions == null ? new JSONArray() : currentOptions;
-        JSONArray previousCast = copyJsonArray(currentSceneCastPreview);
-        String previousVisual = lastVisualPrompt == null ? "" : lastVisualPrompt;
-        JSONObject previousAudio = lastAudioPlan == null ? new JSONObject() : copyJsonObject(lastAudioPlan);
-        JSONObject previousPendingTest = pendingTest == null ? new JSONObject() : copyJsonObject(pendingTest);
-
-        JSONArray optionHistory = SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());
-        optionHistory = SceneOptionDiversifier.appendHistory(optionHistory, previousOptions);
-        JSONArray opts = env.optJSONArray("options");
-        ChoiceSplit choiceSplit = splitNarrationChoices(GeneratedTextSanitizer.narrative(env.optString("narration", raw)), opts);
-        String calculatedNarration = completeNarrationSafely(choiceSplit.narration);
-        calculatedNarration = AtlasScenePositionReconciler.repairNarration(calculatedNarration, env);
-        if (isStrixhavenAdventure()) {
-            processStrixhavenOfficialProgress(env, calculatedNarration);
-            calculatedNarration = StrixhavenOfficialCampaignRuntime.stripMarkers(calculatedNarration);
-        }
-        if (hasInternalNarrationLeak(calculatedNarration)) {
-            AppLog.w("MainActivity", "Vazamento de instruções internas detectado na narração; bloqueando alterações mecânicas e higienizando prosa.");
-            calculatedNarration = GeneratedTextSanitizer.narrative(calculatedNarration);
-            masterEnvelopeValid = false;
-            nonAdvancing = true;
-        }
-
-        JSONArray newCast;
-        String newVisualPrompt;
-        JSONObject newAudioPlan;
-        JSONObject newPendingTest;
-        JSONArray newOptions;
-        boolean invalidateVisual = false;
-
-        if (nonAdvancing) {
-            newCast = previousCast;
-            newVisualPrompt = previousVisual;
-            newAudioPlan = previousAudio;
-            newPendingTest = previousPendingTest;
-            newOptions = previousOptions;
-            saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), action, calculatedNarration));
-        } else {
-            newCast = buildSceneCastPreview(env);
-            mergeNarratedKnownNpcs(newCast, calculatedNarration);
-            mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
-            synchronizeVisualSceneCastWith(newCast);
-            prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
-            newVisualPrompt = env.optString("visual_prompt", "").trim();
-            if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
-            invalidateVisual = true;
-            newAudioPlan = env.optJSONObject("audio_plan");
-            if (newAudioPlan == null) newAudioPlan = new JSONObject();
-            JSONObject pt = masterEnvelopeValid ? env.optJSONObject("pending_test") : null;
-            if (pt != null && pt.optBoolean("required", true) && activeMasterPromotionTurnId.length() > 0) {
+            // RUN189: a curated intention is captured BEFORE narration/state commit.
+            // Neither the proposal nor any effects accompanying it are accepted now.
+            if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
                 try {
-                    pt.put("origin_master_turn_id", activeMasterPromotionTurnId).put("origin_master_question", activeMasterPromotionQuestion);
-                } catch (Exception ignored) {
-                    AppLog.ignored("MasterConversation", "Falha ao vincular teste à consulta azul.", ignored);
-                }
-            }
-            newPendingTest = pt != null && pt.optBoolean("required", true) ? ensurePendingTestIdentity(pt, action) : new JSONObject();
-            if (activeMasterPromotionTurnId.length() > 0) {
-                if (newPendingTest.length() > 0) {
-                    try {
-                        updateMasterConversationTurn(activeMasterPromotionTurnId, "awaiting_roll", new JSONObject().put("test_key", newPendingTest.optString("test_key")).put("test_label", testLabel(newPendingTest)).put("test_ability", newPendingTest.optString("ability")).put("test_skill", newPendingTest.optString("skill")).put("test_mode", normalizeRollMode(newPendingTest.optString("mode", "Normal"))).put("test_dc", newPendingTest.optInt("dc", 0)).put("test_source_rule_id", newPendingTest.optString("source_rule_id")));
-                    } catch (Exception ignored) {
-                        AppLog.ignored("MasterConversation", "Falha ao marcar teste aguardando rolagem.", ignored);
+                    JSONObject verdict = env.optJSONObject("_master_validation");
+                    if (verdict != null && verdict.optBoolean("valid", false)) {
+                        synchronized (aiCommitLock) {
+                            if (requestGen != aiRequestGeneration) return;
+                            final int captured = CompanionAgencyEngine.stageCurated(db, rawAgencyEnvelope, safeActiveCharacters());
+                            if (captured > 0) {
+                                ui.post(new Runnable() {
+                                    public void run() {
+                                        if (requestGen != aiRequestGeneration) return;
+                                        aiBusy = false;
+                                        streamingNarration = "";
+                                        clearFailedGeminiRequest();
+                                        setStatus("Curadoria: " + captured + " proposta(s) pendente(s). Nenhuma consequência da resposta foi aplicada.");
+                                        showPartyDirector();
+                                    }
+                                });
+                                return;
+                            }
+                        }
                     }
-                    activeMasterPromotionTurnId = "";
-                    activeMasterPromotionQuestion = "";
-                    activeMasterPromotionFromRoll = false;
-                } else {
-                    JSONObject resolutionDetails = new JSONObject();
+                } catch (Exception e) {
+                    AppLog.e("CompanionAgency", "Falha ao armazenar propostas, sem alterar a campanha", e);
+                }
+            }
+
+            if (masterSideQueryActive) {
+                String answer = completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration", raw)));
+                String question = masterSideQueryText;
+                JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
+                JSONArray sideCitations = copyJsonArray(lastRagCitations);
+                JSONObject previousSupport = copyJsonObject(lastMasterSupport);
+                JSONObject support = MasterSupportPanelEngine.build(env, sideRetrieval, sideCitations, db.getSceneState(), safeActiveCharacters(), currentOptions, pendingTest, question, isMystaraWorld(), "GM_HELP");
+                JSONObject withAns = MasterSupportPanelEngine.withAnswer(support, question, answer, sideRetrieval, sideCitations);
+                final JSONObject finalSupport = appendMasterConversationHistory(previousSupport, withAns, question, answer);
+                synchronized (aiCommitLock) {
+                    if (requestGen != aiRequestGeneration) return;
+                    prefs.edit().putString("last_master_support_json", finalSupport.toString()).apply();
+                    saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), question, answer));
+                    if (masterOrchestrator != null) masterOrchestrator.afterAccepted(activeMasterPlan, answer, env, pendingAiInputChars, raw == null ? 0 : raw.length());
+                    db.addAuditEvent("consulta_auxiliar", "Pergunta ao Mestre sem avanço", question, "{}", finalSupport.toString(), false);
+                    ui.post(new Runnable() {
+                        public void run() {
+                            if (requestGen != aiRequestGeneration) return;
+                            lastMasterSupport = finalSupport;
+                            restoreAfterMasterSideQuery();
+                            clearFailedGeminiRequest();
+                            setStatus("Pergunta respondida no quadro azul. A aventura permaneceu exatamente no mesmo ponto.");
+                            if (isStrixhavenAdventure()) showStrixhavenSession();
+                            else if ("Mestre IA".equals(currentScreen)) showNarrator();
+                        }
+                    });
+                }
+                return;
+            }
+
+            boolean nonAdvancing = "Narrador".equals(lastAiMode) && env.optBoolean("_non_advancing", activeTurnNonAdvancing(action));
+            JSONObject finalValidation = env.optJSONObject("_master_validation");
+            boolean masterEnvelopeValid = finalValidation != null && finalValidation.optBoolean("valid", false);
+
+            JSONArray previousOptions = currentOptions == null ? new JSONArray() : currentOptions;
+            JSONArray previousCast = copyJsonArray(currentSceneCastPreview);
+            String previousVisual = lastVisualPrompt == null ? "" : lastVisualPrompt;
+            JSONObject previousAudio = lastAudioPlan == null ? new JSONObject() : copyJsonObject(lastAudioPlan);
+            JSONObject previousPendingTest = pendingTest == null ? new JSONObject() : copyJsonObject(pendingTest);
+
+            JSONArray optionHistory = SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());
+            optionHistory = SceneOptionDiversifier.appendHistory(optionHistory, previousOptions);
+            JSONArray opts = env.optJSONArray("options");
+            ChoiceSplit choiceSplit = splitNarrationChoices(GeneratedTextSanitizer.narrative(env.optString("narration", raw)), opts);
+            String calculatedNarration = completeNarrationSafely(choiceSplit.narration);
+            calculatedNarration = AtlasScenePositionReconciler.repairNarration(calculatedNarration, env);
+            if (isStrixhavenAdventure()) {
+                calculatedNarration = StrixhavenOfficialCampaignRuntime.stripMarkers(calculatedNarration);
+            }
+            if (hasInternalNarrationLeak(calculatedNarration)) {
+                AppLog.w("MainActivity", "Vazamento de instruções internas detectado na narração; bloqueando alterações mecânicas e higienizando prosa.");
+                calculatedNarration = GeneratedTextSanitizer.narrative(calculatedNarration);
+                masterEnvelopeValid = false;
+                nonAdvancing = true;
+            }
+
+            JSONArray newCast;
+            String newVisualPrompt;
+            JSONObject newAudioPlan;
+            JSONObject newPendingTest;
+            JSONArray newOptions;
+            boolean invalidateVisual = false;
+
+            if (nonAdvancing) {
+                newCast = previousCast;
+                newVisualPrompt = previousVisual;
+                newAudioPlan = previousAudio;
+                newPendingTest = previousPendingTest;
+                newOptions = previousOptions;
+            } else {
+                newCast = buildSceneCastPreview(env);
+                mergeNarratedKnownNpcs(newCast, calculatedNarration);
+                mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
+                newVisualPrompt = env.optString("visual_prompt", "").trim();
+                if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
+                invalidateVisual = true;
+                newAudioPlan = env.optJSONObject("audio_plan");
+                if (newAudioPlan == null) newAudioPlan = new JSONObject();
+                JSONObject pt = masterEnvelopeValid ? env.optJSONObject("pending_test") : null;
+                if (pt != null && pt.optBoolean("required", true) && activeMasterPromotionTurnId.length() > 0) {
                     try {
-                        resolutionDetails.put(activeMasterPromotionFromRoll ? "resolved_after_roll" : "resolved_without_roll", true).put("resolution_excerpt", masterConversationResolutionExcerpt(calculatedNarration)).put("resolution_scene_fingerprint", currentMasterConversationSceneFingerprint());
+                        pt.put("origin_master_turn_id", activeMasterPromotionTurnId).put("origin_master_question", activeMasterPromotionQuestion);
                     } catch (Exception ignored) {
-                        AppLog.ignored("MasterConversation", "Falha ao detalhar resolução da tentativa.", ignored);
+                        AppLog.ignored("MasterConversation", "Falha ao vincular teste à consulta azul.", ignored);
                     }
-                    updateMasterConversationTurn(activeMasterPromotionTurnId, "resolved", resolutionDetails);
-                    activeMasterPromotionTurnId = "";
-                    activeMasterPromotionQuestion = "";
-                    activeMasterPromotionFromRoll = false;
                 }
+                newPendingTest = pt != null && pt.optBoolean("required", true) ? ensurePendingTestIdentity(pt, action) : new JSONObject();
             }
-            if (db.getCombatState().optInt("running", 0) == 1) {
-                JSONObject cs = db.getCombatState();
-                String combatPhase = cs.optString("state", "");
-                if (newPendingTest.length() > 0) {
-                    if (CombatStateMachine.ACTIVE_ROUND.equals(combatPhase)) db.transitionCombatState(CombatStateMachine.RESOLVING, new JSONObject());
-                    db.transitionCombatState(CombatStateMachine.AWAITING_ROLL, newPendingTest);
-                } else if (CombatStateMachine.RESOLVING.equals(combatPhase) || CombatStateMachine.AWAITING_ROLL.equals(combatPhase)) {
-                    db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND, new JSONObject());
-                }
-            }
+
             boolean narrativeResponse = "Narrador".equals(lastAiMode);
             JSONObject projectedScene = projectSceneForSuggestions(env, newCast);
             newOptions = narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray();
-            db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory, newOptions).toString());
-            if (isOpeningNarrationRequest(action)) {
-                prefs.edit().putString("recent_opening_texts_" + activeWorldProfile(), AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_" + activeWorldProfile(), "[]"), calculatedNarration)).apply();
-                adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE, "Primeira cena persistida");
+
+            JSONObject sourceAudit = lastAiUsedRag ? buildRagSourceAudit(lastRagCitations) : characterRulesValidator.auditAiAnswer(lastAiMode, env, lastAiManuals);
+            JSONObject previousMasterSupport = copyJsonObject(lastMasterSupport);
+            JSONObject newSupport = MasterSupportPanelEngine.build(env, activeRuleRetrieval, lastRagCitations, db.getSceneState(), safeActiveCharacters(), newOptions, newPendingTest, action, isMystaraWorld(), activeInputChannel());
+            newSupport = preserveMasterConversationHistory(previousMasterSupport, newSupport);
+
+            boolean combatNarration = false;
+            if (!nonAdvancing) {
+                JSONObject responseCombat = env.optJSONObject("combat");
+                String responseCombatAction = responseCombat == null ? "none" : responseCombat.optString("action", "none").toLowerCase(Locale.ROOT);
+                combatNarration = db.getCombatState().optInt("running", 0) == 1 || "start".equals(responseCombatAction) || "update".equals(responseCombatAction);
             }
-            if (narrativeResponse) {
-                rememberNarrativeText(calculatedNarration);
-                saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(), action, calculatedNarration, env, projectedScene));
+
+            boolean changes = !nonAdvancing && (masterOrchestrator != null ? masterOrchestrator.hasStructuredChanges(env) : (stateTransactionManager != null && stateTransactionManager.hasChanges(env)));
+            String statusMsg = nonAdvancing ? "Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto."
+                    : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
+                    : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
+
+            // COMMIT PHASE: Protected atomically under aiCommitLock with double-checked generation
+            synchronized (aiCommitLock) {
+                if (requestGen != aiRequestGeneration) {
+                    AppLog.w("MainActivity", "Descartando commit de resposta de IA obsoleta: requestGen=" + requestGen + ", ativa=" + aiRequestGeneration);
+                    return;
+                }
+
+                if (isStrixhavenAdventure()) {
+                    processStrixhavenOfficialProgress(env, calculatedNarration);
+                }
+
+                if (nonAdvancing) {
+                    saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), action, calculatedNarration));
+                } else {
+                    synchronizeVisualSceneCastWith(newCast);
+                    prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+                    if (activeMasterPromotionTurnId.length() > 0) {
+                        if (newPendingTest.length() > 0) {
+                            try {
+                                updateMasterConversationTurn(activeMasterPromotionTurnId, "awaiting_roll", new JSONObject().put("test_key", newPendingTest.optString("test_key")).put("test_label", testLabel(newPendingTest)).put("test_ability", newPendingTest.optString("ability")).put("test_skill", newPendingTest.optString("skill")).put("test_mode", normalizeRollMode(newPendingTest.optString("mode", "Normal"))).put("test_dc", newPendingTest.optInt("dc", 0)).put("test_source_rule_id", newPendingTest.optString("source_rule_id")));
+                            } catch (Exception ignored) {
+                                AppLog.ignored("MasterConversation", "Falha ao marcar teste aguardando rolagem.", ignored);
+                            }
+                            activeMasterPromotionTurnId = "";
+                            activeMasterPromotionQuestion = "";
+                            activeMasterPromotionFromRoll = false;
+                        } else {
+                            JSONObject resolutionDetails = new JSONObject();
+                            try {
+                                resolutionDetails.put(activeMasterPromotionFromRoll ? "resolved_after_roll" : "resolved_without_roll", true).put("resolution_excerpt", masterConversationResolutionExcerpt(calculatedNarration)).put("resolution_scene_fingerprint", currentMasterConversationSceneFingerprint());
+                            } catch (Exception ignored) {
+                                AppLog.ignored("MasterConversation", "Falha ao detalhar resolução da tentativa.", ignored);
+                            }
+                            updateMasterConversationTurn(activeMasterPromotionTurnId, "resolved", resolutionDetails);
+                            activeMasterPromotionTurnId = "";
+                            activeMasterPromotionQuestion = "";
+                            activeMasterPromotionFromRoll = false;
+                        }
+                    }
+                    if (db.getCombatState().optInt("running", 0) == 1) {
+                        JSONObject cs = db.getCombatState();
+                        String combatPhase = cs.optString("state", "");
+                        if (newPendingTest.length() > 0) {
+                            if (CombatStateMachine.ACTIVE_ROUND.equals(combatPhase)) db.transitionCombatState(CombatStateMachine.RESOLVING, new JSONObject());
+                            db.transitionCombatState(CombatStateMachine.AWAITING_ROLL, newPendingTest);
+                        } else if (CombatStateMachine.RESOLVING.equals(combatPhase) || CombatStateMachine.AWAITING_ROLL.equals(combatPhase)) {
+                            db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND, new JSONObject());
+                        }
+                    }
+                    if (narrativeResponse) {
+                        db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory, newOptions).toString());
+                    }
+                    if (isOpeningNarrationRequest(action)) {
+                        prefs.edit().putString("recent_opening_texts_" + activeWorldProfile(), AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_" + activeWorldProfile(), "[]"), calculatedNarration)).apply();
+                        adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE, "Primeira cena persistida");
+                    }
+                    if (narrativeResponse) {
+                        rememberNarrativeText(calculatedNarration);
+                        saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(), action, calculatedNarration, env, projectedScene));
+                    }
+                    scheduleSceneNpcTokenBinding();
+                }
+
+                prefs.edit().putString("last_ai_response_mode", lastAiMode).apply();
+                if (lastRagCitations != null && lastRagCitations.length() > 0) {
+                    try { env.put("sources", lastRagCitations); } catch (Exception ignored) { AppLog.ignored("MainActivity", "Falha tolerada; a execução continuou.", ignored); }
+                }
+                prefs.edit().putString("last_source_audit", sourceAudit.toString())
+                        .putString("last_audio_plan", newAudioPlan.toString())
+                        .putString("last_master_support_json", newSupport.toString()).apply();
+                db.addAuditEvent("ia", nonAdvancing ? "Esclarecimento do Mestre — " + lastAiMode : "Resposta do Mestre — " + lastAiMode, sourceAudit.optString("warning", calculatedNarration.length() > 140 ? calculatedNarration.substring(0, 140) : calculatedNarration), "{}", sourceAudit.toString(), false);
+
+                long transactionId = -1;
+                if (changes && stateTransactionManager != null) {
+                    transactionId = stateTransactionManager.stage(env, calculatedNarration, action);
+                    if (transactionId <= 0) {
+                        changes = false;
+                        prefs.edit().putString("last_state_update_summary", "Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();
+                        db.addAuditEvent("segurança", "Consequências não preparadas", "Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.", "{}", env.toString(), false);
+                    }
+                }
+                if (!changes) {
+                    prefs.edit().putString("last_state_update_summary", transactionId <= 0 ? prefs.getString("last_state_update_summary", "") : "").apply();
+                } else {
+                    prefs.edit().putString("last_state_update_summary", "Consequências aguardando sua confirmação.").apply();
+                }
+
+                if (!nonAdvancing) {
+                    db.saveStoryState(calculatedNarration.length() > 0, calculatedNarration, newVisualPrompt,
+                            newOptions == null ? "[]" : newOptions.toString(),
+                            newPendingTest == null || newPendingTest.length() == 0 ? "" : newPendingTest.toString(),
+                            action == null ? "" : action);
+                }
+
+                if (masterOrchestrator != null) {
+                    masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
+                }
+
+                if (!nonAdvancing && masterEnvelopeValid && "Narrador".equals(lastAiMode)) {
+                    try {
+                        HumanMasterDynamicDirector.accepted(this, db, db.getSceneState(), action, calculatedNarration, env,
+                                isStrixhavenAdventure() ? "Strixhaven" : (isMystaraWorld() ? "Mystara" : "D&D"));
+                    } catch (Throwable dynamicError) {
+                        AppLog.w("DynamicMaster", "Falha de memória auxiliar isolada; cena preservada.", dynamicError);
+                    }
+                }
+
+                final AiResponseUiPayload payload = new AiResponseUiPayload(
+                        requestGen, nonAdvancing, masterEnvelopeValid, changes, transactionId, env,
+                        calculatedNarration, newOptions, newCast, newVisualPrompt, newAudioPlan,
+                        newPendingTest, newSupport, statusMsg, combatNarration, invalidateVisual
+                );
+
+                ui.post(new Runnable() {
+                    public void run() {
+                        applyAiResponseToUi(payload, requestGen);
+                    }
+                });
             }
-            scheduleSceneNpcTokenBinding();
-        }
-
-        prefs.edit().putString("last_ai_response_mode", lastAiMode).apply();
-        if (lastRagCitations != null && lastRagCitations.length() > 0) {
-            try { env.put("sources", lastRagCitations); } catch (Exception ignored) { AppLog.ignored("MainActivity", "Falha tolerada; a execução continuou.", ignored); }
-        }
-        JSONObject sourceAudit = lastAiUsedRag ? buildRagSourceAudit(lastRagCitations) : characterRulesValidator.auditAiAnswer(lastAiMode, env, lastAiManuals);
-        JSONObject previousMasterSupport = copyJsonObject(lastMasterSupport);
-        JSONObject newSupport = MasterSupportPanelEngine.build(env, activeRuleRetrieval, lastRagCitations, db.getSceneState(), safeActiveCharacters(), newOptions, newPendingTest, action, isMystaraWorld(), activeInputChannel());
-        newSupport = preserveMasterConversationHistory(previousMasterSupport, newSupport);
-        prefs.edit().putString("last_source_audit", sourceAudit.toString()).putString("last_audio_plan", newAudioPlan.toString()).putString("last_master_support_json", newSupport.toString()).apply();
-        db.addAuditEvent("ia", nonAdvancing ? "Esclarecimento do Mestre — " + lastAiMode : "Resposta do Mestre — " + lastAiMode, sourceAudit.optString("warning", calculatedNarration.length() > 140 ? calculatedNarration.substring(0, 140) : calculatedNarration), "{}", sourceAudit.toString(), false);
-
-        boolean changes = !nonAdvancing && (masterOrchestrator != null ? masterOrchestrator.hasStructuredChanges(env) : (stateTransactionManager != null && stateTransactionManager.hasChanges(env)));
-        long transactionId = -1;
-        if (changes && stateTransactionManager != null) {
-            transactionId = stateTransactionManager.stage(env, calculatedNarration, action);
-            if (transactionId <= 0) {
-                changes = false;
-                prefs.edit().putString("last_state_update_summary", "Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();
-                db.addAuditEvent("segurança", "Consequências não preparadas", "Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.", "{}", env.toString(), false);
-            }
-        }
-        if (!changes) {
-            prefs.edit().putString("last_state_update_summary", transactionId <= 0 ? prefs.getString("last_state_update_summary", "") : "").apply();
-        } else {
-            prefs.edit().putString("last_state_update_summary", "Consequências aguardando sua confirmação.").apply();
-        }
-        if (!nonAdvancing) {
-            db.saveStoryState(calculatedNarration.length() > 0, calculatedNarration, newVisualPrompt,
-                    newOptions == null ? "[]" : newOptions.toString(),
-                    newPendingTest == null || newPendingTest.length() == 0 ? "" : newPendingTest.toString(),
-                    action == null ? "" : action);
-        }
-        if (masterOrchestrator != null) {
-            masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
-        }
-        if (!nonAdvancing && masterEnvelopeValid && "Narrador".equals(lastAiMode)) {
-            try {
-                HumanMasterDynamicDirector.accepted(this, db, db.getSceneState(), action, calculatedNarration, env,
-                        isStrixhavenAdventure() ? "Strixhaven" : (isMystaraWorld() ? "Mystara" : "D&D"));
-            } catch (Throwable dynamicError) {
-                AppLog.w("DynamicMaster", "Falha de memória auxiliar isolada; cena preservada.", dynamicError);
-            }
-        }
-
-        boolean combatNarration = false;
-        if (!nonAdvancing) {
-            JSONObject responseCombat = env.optJSONObject("combat");
-            String responseCombatAction = responseCombat == null ? "none" : responseCombat.optString("action", "none").toLowerCase(Locale.ROOT);
-            combatNarration = db.getCombatState().optInt("running", 0) == 1 || "start".equals(responseCombatAction) || "update".equals(responseCombatAction);
-        }
-
-        String statusMsg = nonAdvancing ? "Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto."
-                : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
-                : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
-
-        final AiResponseUiPayload payload = new AiResponseUiPayload(
-                requestGen, nonAdvancing, masterEnvelopeValid, changes, transactionId, env,
-                calculatedNarration, newOptions, newCast, newVisualPrompt, newAudioPlan,
-                newPendingTest, newSupport, statusMsg, combatNarration, invalidateVisual
-        );
-
-        ui.post(new Runnable() {
-            public void run() {
-                applyAiResponseToUi(payload, requestGen);
-            }
-        });
         } catch (Throwable t) {
             AppLog.e("MainActivity", "Erro no processamento em segundo plano da resposta de IA", t);
         }
@@ -10733,10 +10785,10 @@ private void speakGemini(String text){
             final SmartAudioLibrary libraryResult=loadedLibrary;final NarrativeAudioEngine engineResult=loadedEngine;final ReleaseReadinessManager readinessResult=loadedReadiness;final String errorResult=failure;
             if(ui!=null)ui.post(new Runnable(){public void run(){
                 audioEngineInitializing=false;
-                if(isFinishing()){if(engineResult!=null)engineResult.shutdown();return;}
+                if(isFinishing()||(Build.VERSION.SDK_INT>=17&&isDestroyed())){if(engineResult!=null)engineResult.shutdown();return;}
                 if(engineResult==null||libraryResult==null){audioEngineReady=false;audioEngineError=errorResult;setStatus("O app abriu, mas o catálogo de áudio não iniciou. Abra Áudio e toque em TENTAR INICIAR NOVAMENTE.");return;}
                 smartAudio=libraryResult;narrativeAudio=engineResult;releaseReadiness=readinessResult;audioEngineReady=true;audioEngineError="";
-                if(db!=null&&db.getStoryState().optInt("started",0)==0)narrativeAudio.stopAll();
+                try{if(db!=null&&db.getStoryState().optInt("started",0)==0)narrativeAudio.stopAll();}catch(Throwable ignored){AppLog.ignored("AudioInit","Falha tolerada ao verificar estado de início na inicialização de áudio.",ignored);}
                 String pending=pendingAudioNarration;boolean useCharon=pendingAudioCharon;pendingAudioNarration="";pendingAudioCharon=false;
                 int sounds=smartAudio.indexedSoundCount();
                 setBackgroundStatus(sounds>0?"Áudio pronto: "+sounds+" sons indexados.":"Áudio pronto, mas a biblioteca de sons está vazia. Escolha novamente a pasta de áudio.");

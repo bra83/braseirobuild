@@ -10,6 +10,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowTextToSpeech;
+import java.util.Locale;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +38,8 @@ public class CharonNativeFallbackIntegrationTest {
 
     @Before
     public void setUp() {
+        ShadowTextToSpeech.addLanguageAvailability(new Locale("pt", "BR"));
+        ShadowTextToSpeech.addLanguageAvailability(new Locale("pt"));
         controller = Robolectric.buildActivity(MainActivity.class).setup();
         activity = controller.get();
         Shadows.shadowOf(Looper.getMainLooper()).idle();
@@ -46,6 +50,8 @@ public class CharonNativeFallbackIntegrationTest {
         if (controller != null) {
             controller.pause().stop().destroy();
         }
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+        ShadowTextToSpeech.reset();
     }
 
     @Test
@@ -138,4 +144,73 @@ public class CharonNativeFallbackIntegrationTest {
         assertEquals(NarrationPlaybackStateMachine.State.CANCELLED, activity.narrationStateMachine.getState());
         assertEquals(-1L, activity.activeFallbackSession);
     }
+    @Test
+    public void testFallbackWhenNativeTtsNotYetInitializedResumesOriginalSessionWithoutCancelingOrRepeating() {
+        // 1. Simulate TTS engine NOT yet initialized
+        activity.nativeTtsReady = false;
+        activity.nativeTtsLanguageReady = false;
+
+        long session = ++activity.charonNarrationGeneration;
+        List<String> chunks = Arrays.asList(
+                "Primeiro trecho ouvido perfeitamente com a voz Charon.",
+                "Segundo trecho que sofreu falha de conexão na API.",
+                "Terceiro trecho a ser continuado pela voz nativa sem perda de estado."
+        );
+        activity.narrationStateMachine.startSession(session, session, chunks, true, NarrationPlaybackStateMachine.VoiceSource.CHARON);
+
+        // Chunk 0 finishes playing with Charon
+        activity.narrationStateMachine.onSynthesisRequested(0, session);
+        activity.narrationStateMachine.onChunkSynthesized(0, session);
+        activity.narrationStateMachine.onChunkPlaybackStarted(0, session);
+        activity.narrationStateMachine.onChunkPlaybackCompleted(0, session);
+
+        // Chunk 1 fails synthesis -> triggers fallback
+        activity.narrationStateMachine.onSynthesisFailed(1, session, "HTTP 503 Backend Unavailable", 503, false);
+        assertEquals(NarrationPlaybackStateMachine.State.FALLBACK_PENDING, activity.narrationStateMachine.getState());
+
+        String unheard = activity.narrationStateMachine.getUnheardRemainingText();
+        assertFalse("Não deve incluir trecho 0", unheard.contains("Primeiro trecho"));
+        assertTrue("Deve incluir trecho 1", unheard.contains("Segundo trecho"));
+        assertTrue("Deve incluir trecho 2", unheard.contains("Terceiro trecho"));
+
+        // Trigger fallback while nativeTts is not ready
+        activity.waitForCharonQueueThenContinueNative(unheard, session, activity.activeAudioSession, System.currentTimeMillis() + 1000L);
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+
+        // Verify state is FALLBACK_PLAYING and session is preserved in activeFallbackSession
+        assertEquals(NarrationPlaybackStateMachine.State.FALLBACK_PLAYING, activity.narrationStateMachine.getState());
+        assertEquals(session, activity.activeFallbackSession);
+        assertEquals(session, activity.charonNarrationGeneration);
+        assertFalse("pendingRequestedNativeNarration deve guardar o texto pendente", activity.pendingRequestedNativeNarration.isEmpty());
+
+        // 2. Now simulate Native TTS completing initialization (onInit SUCCESS)
+        if (activity.nativeTts == null) {
+            activity.nativeTts = new android.speech.tts.TextToSpeech(activity, null);
+        }
+        activity.nativeTtsReady = true;
+        activity.nativeTtsLanguageReady = true;
+        activity.handleNativeTtsInit(activity.nativeTtsInitGeneration, activity.nativeTtsRequestedEnginePackage, android.speech.tts.TextToSpeech.SUCCESS);
+
+        // CRITICAL: verify that initialization resumed the original session WITHOUT cancelNarrationAudio!
+        assertNotEquals("Máquina de estados NÃO pode ser cancelada pelo callback de inicialização",
+                NarrationPlaybackStateMachine.State.CANCELLED, activity.narrationStateMachine.getState());
+        assertEquals("Geração da sessão original deve ser preservada", session, activity.charonNarrationGeneration);
+        assertEquals("activeFallbackSession deve manter a sessão original", session, activity.activeFallbackSession);
+
+        // Process loop to complete native playback
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+
+        // 3. Complete native playback (if not already completed by shadow TTS utterance callbacks)
+        if (activity.activeFallbackSession != -1L) {
+            activity.finishNativeNarration();
+            Shadows.shadowOf(Looper.getMainLooper()).idle();
+        }
+
+        assertEquals("Máquina de estados deve concluir com sucesso",
+                NarrationPlaybackStateMachine.State.COMPLETED, activity.narrationStateMachine.getState());
+        assertEquals(-1L, activity.activeFallbackSession);
+        assertEquals("Geração original mantida após conclusão", session, activity.charonNarrationGeneration);
+        assertTrue("pendingRequestedNativeNarration deve ter sido consumido", activity.pendingRequestedNativeNarration.isEmpty());
+    }
 }
+

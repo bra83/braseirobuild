@@ -13,6 +13,7 @@ import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -41,6 +42,7 @@ public class HandleAiResponseAsyncTest {
         if (controller != null) {
             controller.pause().stop().destroy();
         }
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
     }
 
     @Test
@@ -107,5 +109,79 @@ public class HandleAiResponseAsyncTest {
         // Stale narration must NOT overwrite active narration
         assertFalse("Narração atrasada não pode sobrescrever a UI",
                 activity.lastNarration != null && activity.lastNarration.contains("Cena atrasada que não deve aparecer"));
+    }
+    @Test
+    public void testConcurrentStaleResponseFinishingLastDoesNotOverwriteDatabaseOrUi() throws Exception {
+        // Geração inicial
+        long genA = ++activity.aiRequestGeneration;
+
+        JSONObject envA = new JSONObject();
+        envA.put("narration", "RESPOSTA_OBSOLETA_A: Este texto nunca deve aparecer no banco nem na UI.");
+        envA.put("visual_prompt", "Visual A obsoleto");
+        envA.put("options", new JSONArray());
+        envA.put("_master_validation", new JSONObject().put("valid", true));
+
+        JSONObject envB = new JSONObject();
+        envB.put("narration", "RESPOSTA_LEGITIMA_B: Este texto DEVE estar salvo no banco e visível na UI.");
+        envB.put("visual_prompt", "Visual B legítimo");
+        envB.put("options", new JSONArray());
+        envB.put("_master_validation", new JSONObject().put("valid", true));
+
+        final java.util.concurrent.CountDownLatch aStarted = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch bFinished = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch aFinished = new java.util.concurrent.CountDownLatch(1);
+
+        // Thread para executar a resposta A
+        Thread threadA = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Resposta A inicia o processamento com genA
+                    aStarted.countDown();
+                    // Aguarda a resposta B substituir A e terminar o processamento
+                    bFinished.await();
+                    // Resposta A tenta processar até o fim, terminando POR ÚLTIMO
+                    activity.processAiResponseInBackground(envA.toString(), "Ação A", genA);
+                } catch (Exception ignored) {
+                } finally {
+                    aFinished.countDown();
+                }
+            }
+        });
+
+        threadA.start();
+        aStarted.await();
+
+        // Resposta B substitui A (incrementa geração e processa primeiro)
+        long genB = ++activity.aiRequestGeneration;
+        activity.processAiResponseInBackground(envB.toString(), "Ação B", genB);
+
+        // Notifica thread A que B terminou
+        bFinished.countDown();
+
+        // Aguarda A terminar por último
+        aFinished.await();
+        threadA.join();
+
+        // Processa eventos da fila UI
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+
+        // 1. Verificação da UI: Somente B pode estar na UI
+        assertNotNull(activity.lastNarration);
+        assertTrue("A UI deve refletir exclusivamente a resposta B",
+                activity.lastNarration.contains("RESPOSTA_LEGITIMA_B"));
+        assertFalse("A UI NUNCA pode ser contaminada pela resposta obsoleta A",
+                activity.lastNarration.contains("RESPOSTA_OBSOLETA_A"));
+
+        // 2. Verificação do Banco de Dados SQLite: Somente B pode estar persistido no AppDb
+        JSONObject story = activity.db.getStoryState();
+        assertNotNull(story);
+        String persistedNarration = story.optString("last_narration", "");
+        assertTrue("O banco de dados deve conter exclusivamente a narrativa da resposta B",
+                persistedNarration.contains("RESPOSTA_LEGITIMA_B"));
+        assertFalse("O banco de dados NUNCA pode ter sido sobrescrito pela resposta obsoleta A",
+                persistedNarration.contains("RESPOSTA_OBSOLETA_A"));
+        assertEquals("A última ação persistida deve ser a da resposta B",
+                "Ação B", story.optString("last_action", ""));
     }
 }
