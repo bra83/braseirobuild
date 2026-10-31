@@ -387,7 +387,10 @@ public final class CharacterInventory2024 {
                         throw new IllegalArgumentException("invalid_weight");
                 }
                 for(int i=0;i<ledger.length();i++)next.put(ledger.opt(i));
-                next.put(new JSONObject(item.toString()));
+                JSONObject acquired=new JSONObject(item.toString());
+                if(!acquired.has("source"))acquired.put("source",action.optString("source","manual"));
+                if(!acquired.has("acquisition_event_id"))acquired.put("acquisition_event_id",receipt);
+                next.put(acquired);
             }else{
                 if(id.isEmpty()||index<0)throw new IllegalArgumentException("item_not_found");
                 for(int i=0;i<ledger.length();i++){
