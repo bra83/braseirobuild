@@ -191,6 +191,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private final HashSet<String> nativeVoiceStartedUtterances=new HashSet<String>();
     private int nativeVoicePendingChunks=0;
     private final ArrayList<String> nativeNarrationQueue=new ArrayList<String>();
+    /* package */ final ArrayList<String> nativeVoiceCompletedUtterances=new ArrayList<String>();
+    /* package */ int nativeVoiceExpectedUtterances=0;
     private final HashSet<Integer> nativeChapterStartIndexes=new HashSet<Integer>();
     private boolean narrationPausedRag=false;
     private int nativeNarrationQueueIndex=0;
@@ -221,6 +223,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /* package */ String pendingRequestedNativeNarration="";
     /* package */ final Object aiCommitLock=new Object();
     /* package */ final NarrationPlaybackStateMachine narrationStateMachine=new NarrationPlaybackStateMachine();
+    /* package */ UtteranceProgressListener nativeUtteranceProgressListener;
     private Handler ui;
     private FrameLayout content;
     private LinearLayout shellRoot;
@@ -274,7 +277,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private long lastStreamUiAt=0L;
     private int lastStreamUiLength=0;
     private volatile long lastStreamPostAt=0L;
-    /* package */ long aiRequestGeneration=0L;
+    /* package */ volatile long aiRequestGeneration=0L;
+    /* package */ volatile AiResponsePreCommitObserver preCommitObserverForTests;
+    /* package */ interface AiResponsePreCommitObserver { void beforeCommit(long generation, String action); }
+    /* package */ long advanceAiRequestGeneration() {
+        synchronized (aiCommitLock) { return ++aiRequestGeneration; }
+    }
     private long aiPipelineGeneration=0L;
     // RUN188_GEMINI_EXPLICIT_OFFLINE: offline may run ONLY after a direct tap.
     private boolean manualOfflineNextRequest=false;
@@ -585,12 +593,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         configureNativeTtsVoice();
         nativeTtsInitAttempts=0;
         if(nativeTts!=null){
-            nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
+            nativeUtteranceProgressListener = new UtteranceProgressListener(){
                 public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
                 public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
-                public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
+                public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;nativeVoiceCompletedUtterances.add(completed);if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
                 public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
-            });
+            };
+            nativeTts.setOnUtteranceProgressListener(nativeUtteranceProgressListener);
         }
         final String pending=pendingRequestedNativeNarration;pendingRequestedNativeNarration="";
         if(nativeTtsRefreshAudioOnReady){nativeTtsRefreshAudioOnReady=false;if("Áudio".equals(currentScreen))ui.postDelayed(new Runnable(){public void run(){showAudio();}},100L);}
@@ -1310,7 +1319,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             editor.remove("dnd_faerun_image_before_strixhaven_v1")
                 .remove("dnd_faerun_image_fingerprint_before_strixhaven_v1").apply();
             StrixhavenAdventureProfile p=strixhavenProfile();p.exitToFaerun();
-            if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+            if(!aiBusy){advanceAiRequestGeneration();aiPipelineGeneration++;}
             sceneImageDecodeGeneration++;
             loadStoryState();
             screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
@@ -1323,7 +1332,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private void clearTravelSceneDisplay(String destination){
         cancelNarrationAudio();
-        if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+        if(!aiBusy){advanceAiRequestGeneration();aiPipelineGeneration++;}
         sceneImageDecodeGeneration++;
         currentSceneCastPreview=new JSONArray();
         currentOptions=new JSONArray();
@@ -7057,7 +7066,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     if(cached.length()>0&&!"Narrador".equals(mode)&&manualOfflinePipelineId!=preparationPipeline){pendingAiInputChars=0;aiBusy=false;handleAiResponse(cached,userText);setStatus("Resposta idêntica recuperada do cache local; nenhuma chamada Gemini foi consumida.");return;}
                     if(manualOfflinePipelineId==preparationPipeline){
                         manualOfflinePipelineId=-1L;
-                        ++aiRequestGeneration;
+                        advanceAiRequestGeneration();
                         runOfflineMaster(mode,userText,localHits,"escolha manual do jogador");
                         return;
                     }
@@ -7068,7 +7077,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }
                     // RUN182 REMOTE-FIRST: não bloquear a tentativa real por orçamento local.
                     // Telemetria/cota local continua sendo registrada, mas somente a API confirma 429/auth/rede.
-                    streamingNarration="";lastStreamUiAt=0L;lastStreamUiLength=0;lastStreamPostAt=0L;final long requestId=++aiRequestGeneration;if(narrativeAudio!=null)narrativeAudio.cancelNarration();
+                    streamingNarration="";lastStreamUiAt=0L;lastStreamUiLength=0;lastStreamPostAt=0L;final long requestId=advanceAiRequestGeneration();if(narrativeAudio!=null)narrativeAudio.cancelNarration();
                     boolean skippedSearch=activeRuleRetrieval.optBoolean("retrieval_skipped",false),ruleCacheHit=activeRuleRetrieval.optBoolean("cache_hit",false);
                     String writingStatus=ruleCacheHit?"Regra reutilizada do cache; o Mestre está escrevendo sem nova pesquisa…":(skippedSearch?"Contexto local suficiente; o Mestre está escrevendo sem pesquisar manuais…":(lastAiUsedRag?"Manuais consultados; o Mestre está escrevendo em uma única chamada…":"Consulta concluída sem prova suficiente; o Mestre continuará somente a ficção… "+(masterOrchestrator==null?"":masterOrchestrator.quotaStatus())));
                     updateAdventureStartupMessage(writingStatus);updateNarratorBusyUi();
@@ -7496,6 +7505,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
                     : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
 
+            // Deterministic test barrier after preparation, before the commit.
+            AiResponsePreCommitObserver observer = preCommitObserverForTests;
+            if (observer != null) observer.beforeCommit(requestGen, action);
             // COMMIT PHASE: Protected atomically under aiCommitLock with double-checked generation
             synchronized (aiCommitLock) {
                 if (requestGen != aiRequestGeneration) {
@@ -8006,7 +8018,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /** Pequeno construtor que evita espalhar try/catch só para montar JSON interno. */
     private static final class JSONObjectSafe{final JSONObject o=new JSONObject();JSONObjectSafe putSafe(String k,Object v){try{o.put(k,v);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}return this;}JSONObject value(){return o;}}
 
-    private void finalizeStreamingNarrationNow(){if(!aiBusy||streamingNarration.trim().length()==0)return;String problem=narrationQualityProblem(streamingNarration,lastPrompt);if(problem.length()>0){toast("O trecho ainda não forma uma cena cinematográfica completa.");setStatus("Texto parcial preservado na tela, mas não aplicado: "+problem+".");return;}aiRequestGeneration++;int received=streamingNarration.length();ChoiceSplit split=splitNarrationChoices(streamingNarration,new JSONArray());lastNarration=completeNarrationSafely(split.narration);lastVisualPrompt=sanitizeVisualSource(lastNarration);JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());history=SceneOptionDiversifier.appendHistory(history,currentOptions==null?new JSONArray():currentOptions);JSONArray streamedOptions=SceneOptionDiversifier.diversify(split.options,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);currentOptions=SceneOptionDiversifier.ensureAlways(streamedOptions,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(history,currentOptions).toString());pendingTest=new JSONObject();aiBusy=false;streamingNarration="";persistStory(lastPrompt);if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,pendingAiInputChars,received);setStatus("Cena completa encerrada com o texto já recebido.");showNarrator();}
+    private void finalizeStreamingNarrationNow(){if(!aiBusy||streamingNarration.trim().length()==0)return;String problem=narrationQualityProblem(streamingNarration,lastPrompt);if(problem.length()>0){toast("O trecho ainda não forma uma cena cinematográfica completa.");setStatus("Texto parcial preservado na tela, mas não aplicado: "+problem+".");return;}advanceAiRequestGeneration();int received=streamingNarration.length();ChoiceSplit split=splitNarrationChoices(streamingNarration,new JSONArray());lastNarration=completeNarrationSafely(split.narration);lastVisualPrompt=sanitizeVisualSource(lastNarration);JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());history=SceneOptionDiversifier.appendHistory(history,currentOptions==null?new JSONArray():currentOptions);JSONArray streamedOptions=SceneOptionDiversifier.diversify(split.options,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);currentOptions=SceneOptionDiversifier.ensureAlways(streamedOptions,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(history,currentOptions).toString());pendingTest=new JSONObject();aiBusy=false;streamingNarration="";persistStory(lastPrompt);if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,pendingAiInputChars,received);setStatus("Cena completa encerrada com o texto já recebido.");showNarrator();}
     private String completeNarrationSafely(String text){String x=PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(text==null?"":text.replace(" ▌","")).trim()).trim();if(x.length()==0)return "A cena aguarda a ação do grupo.";x=x.replace("\r","").replaceAll("[\u0000-\u0008\u000b\u000c\u000e-\u001f]+"," ").replaceAll("[ \t]+"," ").replaceAll("\n{3,}","\n\n").trim();int cut=Math.max(Math.max(x.lastIndexOf('.'),x.lastIndexOf('!')),Math.max(x.lastIndexOf('?'),x.lastIndexOf('…')));char last=x.charAt(x.length()-1);if(!(last=='.'||last=='!'||last=='?'||last=='…'||last=='”'||last=='\''||last==')')){if(cut>x.length()*0.55)x=x.substring(0,cut+1);else{x=x.replaceAll("[,;:\\-–—\\s]+$","");x=x+".";}}x=NarrativeLocationNaturalizer.naturalize(x,db);return x;}
 
     private JSONArray ensureSceneOptions(JSONArray source,String narration){JSONArray out=new JSONArray();try{if(source!=null)for(int i=0;i<source.length()&&out.length()<4;i++){JSONObject original=source.optJSONObject(i);if(original==null)continue;JSONObject o=copyJsonObject(original);String action=GeneratedTextSanitizer.scalar(o.optString("action"),"action");String label=GeneratedTextSanitizer.scalar(o.optString("label"),"label");String description=GeneratedTextSanitizer.scalar(o.optString("description"),"description");if(action.length()==0)action=label.length()>0?label:description;if(label.length()==0)label=action;if(action.length()==0)continue;o.put("action",action);o.put("label",label);o.put("description",description);out.put(o);}}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}return out;}
@@ -8766,7 +8778,7 @@ private void speakGemini(String text){
         cancelNarrationAudio();applyNativeNarrativeDelivery();beginCoordinatedAudioSession("Android TTS",clean);pauseBackgroundWorkForNarration();startAudioServiceSafely();final long session=++nativeNarrationSession;final List<String> chunks=nativeVoiceChunks(clean);setStatus("Voz do Android pronta • iniciando em "+chunks.size()+" bloco"+(chunks.size()==1?"":"s")+" contínuo"+(chunks.size()==1?"":"s")+"…");
         final NarrativeAudioEngine engine=narrativeAudio;
         if(engine!=null)engine.prepareSceneAsync(clean,environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt),db.getSceneState(),null);
-        ui.post(new Runnable(){public void run(){if(session!=nativeNarrationSession)return;if(engine!=null)engine.beginNarration(chunks);audio.setExternalVoiceActive(true);nativeNarrationQueue.clear();nativeNarrationQueue.addAll(chunks);nativeNarrationQueueIndex=0;synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.clear();nativeVoiceStartedUtterances.clear();}nativeVoicePendingChunks=nativeNarrationQueue.size();nativeNarrationBedStarted=true;setStatus("Voz do Android iniciando • "+audioLayersStatus()+".");speakNextNativeNarrationChunk();}});
+        ui.post(new Runnable(){public void run(){if(session!=nativeNarrationSession)return;if(engine!=null)engine.beginNarration(chunks);audio.setExternalVoiceActive(true);nativeNarrationQueue.clear();nativeNarrationQueue.addAll(chunks);nativeVoiceCompletedUtterances.clear();nativeVoiceExpectedUtterances=chunks.size();nativeNarrationQueueIndex=0;synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.clear();nativeVoiceStartedUtterances.clear();}nativeVoicePendingChunks=nativeNarrationQueue.size();nativeNarrationBedStarted=true;setStatus("Voz do Android iniciando • "+audioLayersStatus()+".");speakNextNativeNarrationChunk();}});
     }
 
     private void speakNextNativeNarrationChunk(){
@@ -8791,6 +8803,15 @@ private void speakGemini(String text){
     }
 
     /* package */ void finishNativeNarration(){
+        // Never mark the whole narration as heard unless every dispatched
+        // utterance completed through the Android TTS onDone callback.
+        if(nativeVoiceExpectedUtterances>0 &&
+           nativeVoiceCompletedUtterances.size()<nativeVoiceExpectedUtterances){
+            abortNativeNarrationAfterTtsError("A narração não foi concluída: "+
+                 nativeVoiceCompletedUtterances.size()+"/"+nativeVoiceExpectedUtterances+
+                 " trechos confirmados pelo mecanismo de voz.");
+            return;
+        }
         if(activeFallbackSession!=-1L){narrationStateMachine.onChunkPlaybackCompleted(narrationStateMachine.getTotalChunks()-1,activeFallbackSession);activeFallbackSession=-1L;}
         completeCoordinatedAudioSession();nativeNarrationQueue.clear();nativeChapterStartIndexes.clear();nativeNarrationQueueIndex=0;nativeVoicePendingChunks=0;nativeNarrationBedStarted=false;audio.setExternalVoiceActive(false);if(narrativeAudio!=null)narrativeAudio.endNarration();resumeBackgroundWorkAfterNarration();setStatus("Narração concluída. Música e ambiência permanecem suavemente na cena; PLAY repete tudo.");}
 
@@ -8942,6 +8963,8 @@ private void speakGemini(String text){
         final long nativeSession=++nativeNarrationSession;
         nativeNarrationQueue.clear();
         nativeNarrationQueue.addAll(chunks);
+        nativeVoiceCompletedUtterances.clear();
+        nativeVoiceExpectedUtterances=chunks.size();
         nativeNarrationQueueIndex=0;
         synchronized(nativeVoiceSentenceByUtterance){
             nativeVoiceSentenceByUtterance.clear();

@@ -1,0 +1,90 @@
+name: DnD 6.6.33 Race Charon Callback Gate
+on:
+  push:
+    branches:
+      - fix/dnd-audit-race-charon-callbacks-20261031
+    paths:
+      - '.github/workflows/dnd-6-6-33-race-charon-gate.yml'
+      - 'dnd-normal/run247-mod005/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dnd-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PROJECT: dnd-normal/run247-mod005
+    steps:
+      - name: Checkout DnD code
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK platform
+        run: |
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+      - name: Check version code without silently overriding it
+        run: |
+          set -euo pipefail
+          cat "$PROJECT/version.properties"
+          grep -q '^VERSION_CODE=203300501$' "$PROJECT/version.properties"
+          grep -q '^VERSION_NAME=6.6.33-race-charon-audit-rc$' "$PROJECT/version.properties"
+      - name: Compile Java (main and test sources)
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac :app:compileDebugUnitTestJavaWithJavac --no-daemon --console=plain
+      - name: Focused narrative leak regression
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.NarrativeDefinitiveLeakRegressionTest --no-daemon --console=plain
+      - name: Focused Charon playback state regression
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.NarrationPlaybackStateMachineTest --no-daemon --console=plain
+      - name: Focused Charon native fallback integration
+        working-directory: ${{ env.PROJECT }}
+        run: |
+          if ! ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CharonNativeFallbackIntegrationTest --no-daemon --console=plain; then
+            echo "=== ASSERTION DETAILS FROM JUNIT XML ==="
+            for f in app/build/test-results/testDebugUnitTest/*CharonNativeFallbackIntegrationTest*.xml; do
+              if test -f "$f"; then sed -n '/<failure/,/<\/failure>/p' "$f" | head -n 55; fi
+            done
+            exit 1
+          fi
+      - name: Focused async response ANR integration
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.HandleAiResponseAsyncTest --no-daemon --console=plain
+      - name: All JVM unit tests
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Signed debug APK
+        working-directory: ${{ env.PROJECT }}
+        run: ./gradlew :app:assembleDebug --no-daemon --console=plain
+      - name: Validate APK identity, version and signature
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          APK="$(find "$PROJECT/app/build/outputs/apk/debug" -name '*.apk' -type f -print -quit)"
+          test -s "$APK"
+          cp "$APK" dist/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs dist/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk > dist/SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/BRASEIRO_DND_6.6.33_RACE_CHARON_AUDIT_RC.apk > dist/BADGING.txt
+          grep -q "package: name='com.braseiro.dnd5e' versionCode='203300501'" dist/BADGING.txt
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+      - name: Upload candidate proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO-DND-6-6-33-RACE-CHARON-GATE
+          path: dist/*
+          retention-days: 7
+          if-no-files-found: error
