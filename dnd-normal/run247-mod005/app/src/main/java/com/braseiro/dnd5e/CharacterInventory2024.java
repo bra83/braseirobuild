@@ -365,6 +365,42 @@ public final class CharacterInventory2024 {
         return sheet;
     }
 
+    /** Public text projection; never infer gear from the old descriptive field again. */
+    public static void publishInventorySummary(JSONObject s){
+        if(s==null)throw new IllegalArgumentException("sheet_required");
+        try{
+            JSONArray ledger=s.optJSONArray("inventory_ledger");
+            if(ledger==null)ledger=new JSONArray();
+            StringBuilder view=new StringBuilder("Inventário atual (estruturado):");
+            for(int i=0;i<ledger.length();i++){
+                JSONObject row=ledger.optJSONObject(i);
+                if(row==null)continue;
+                int qty=row.optInt("quantity",1);
+                if(qty<=0)continue;
+                view.append("\n").append(qty).append(" × ").append(row.optString("name","item"));
+                if(!carried(row))view.append(" [guardado/não transportado]");
+                if(row.optBoolean("equipped",false))view.append(" [equipado]");
+            }
+            JSONObject purse=coinPurse(s);
+            if(purse!=null){
+                view.append("\nMoedas atuais: ");
+                for(String k:new String[]{"gp","sp","cp","ep","pp"}){
+                    long n=purse.optLong(k,0);
+                    if(n>0)view.append(n).append(" ").append(
+                        k.equals("gp")?"PO":k.equals("sp")?"PP":
+                        k.equals("cp")?"PC":k.equals("ep")?"PE":"PL").append("; ");
+                }
+            }
+            String projection=view.toString();
+            if(!s.has("inventory_original_description"))
+                s.put("inventory_original_description",s.optString("inventory",""));
+            s.put("inventory",projection);
+            s.put("equipment",projection);
+            s.put("inventory_live_summary",projection);
+            s.put("inventory_legacy_source_hash",projection.hashCode());
+        }catch(Exception e){throw new IllegalStateException("inventory_text_projection_failed",e);}
+    }
+
     /**
      * Idempotent atomic sheet mutation. Call at an authorized player/master
      * commit boundary, then persist the returned sheet in the same DB transaction.
@@ -477,6 +513,8 @@ public final class CharacterInventory2024 {
             // The old descriptive inventory is retained for history; no resurrection.
             applied.put(receipt);
             sheet.put("inventory_event_receipts",applied);
+            CharacterInventory2024.reconcile(sheet);
+            publishInventorySummary(sheet);
             return reconcile(sheet);
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("inventory_mutation_failed",e);}
