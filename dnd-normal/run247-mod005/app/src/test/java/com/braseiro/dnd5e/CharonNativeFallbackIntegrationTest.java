@@ -207,7 +207,7 @@ public class CharonNativeFallbackIntegrationTest {
         queueField.setAccessible(true);
         @SuppressWarnings("unchecked")
         List<String> voiceQueue = (List<String>)queueField.get(activity);
-        assertTrue("A fila da voz nativa precisa conter os trechos restantes", voiceQueue.size() > 0);
+        assertTrue("A fila precisa conter os trechos restantes; state=" + activity.narrationStateMachine.getState() + ", fallback=" + activity.activeFallbackSession + ", voiceReady=" + activity.nativeTtsReady + ", langReady=" + activity.nativeTtsLanguageReady + ", pending=" + activity.pendingRequestedNativeNarration.length(), voiceQueue.size() > 0);
         String queuedText = String.join(" ", voiceQueue);
         assertFalse("Nenhum trecho ouvido pode ser repetido", queuedText.contains("Primeiro trecho ouvido"));
         assertTrue("O segundo trecho precisa estar na fila", queuedText.contains("Segundo trecho"));
