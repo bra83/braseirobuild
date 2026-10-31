@@ -25,7 +25,7 @@ public final class CharacterInventory2024 {
     private CharacterInventory2024() {}
     private static final double KG_PER_LB=0.45359237d;
     private static final Pattern COUNT=Pattern.compile("^(\\d+)\\s+(.+)$");
-    private static final Pattern MONEY=Pattern.compile("(?i)(\\d+)\\s*(?:PO|PP|PC|PE|PL)\\b");
+    private static final Pattern MONEY=Pattern.compile("(?i)(\\d+)\\s*(PO|PP|PC|PE|PL)\\b");
     private static final Map<String,Double> WEIGHTS=new HashMap<>();
 
     private static void weight(double lb,String... aliases){
@@ -159,7 +159,7 @@ public final class CharacterInventory2024 {
      */
     private static JSONObject legacyCoins(JSONObject sheet){
         String raw=sheet.optString("inventory",sheet.optString("equipment",""));
-        Matcher line=Pattern.compile("(?im)^\s*moedas atuais\s*:\s*([^\n]+)").matcher(raw);
+        Matcher line=Pattern.compile("(?im)^\\s*moedas atuais\\s*:\\s*([^\\n]+)").matcher(raw);
         if(!line.find())return null;
         Matcher m=MONEY.matcher(line.group(1));
         JSONObject result=new JSONObject();
