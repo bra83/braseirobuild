@@ -221,6 +221,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /* package */ String pendingRequestedNativeNarration="";
     /* package */ final Object aiCommitLock=new Object();
     /* package */ final NarrationPlaybackStateMachine narrationStateMachine=new NarrationPlaybackStateMachine();
+    /* package */ UtteranceProgressListener nativeUtteranceProgressListener;
     private Handler ui;
     private FrameLayout content;
     private LinearLayout shellRoot;
@@ -274,7 +275,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private long lastStreamUiAt=0L;
     private int lastStreamUiLength=0;
     private volatile long lastStreamPostAt=0L;
-    /* package */ long aiRequestGeneration=0L;
+    /* package */ volatile long aiRequestGeneration=0L;
+    /* package */ volatile AiResponsePreCommitObserver preCommitObserverForTests;
+    /* package */ interface AiResponsePreCommitObserver { void beforeCommit(long generation, String action); }
+    private long advanceAiRequestGeneration() {
+        synchronized (aiCommitLock) { return ++aiRequestGeneration; }
+    }
     private long aiPipelineGeneration=0L;
     // RUN188_GEMINI_EXPLICIT_OFFLINE: offline may run ONLY after a direct tap.
     private boolean manualOfflineNextRequest=false;
@@ -585,12 +591,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         configureNativeTtsVoice();
         nativeTtsInitAttempts=0;
         if(nativeTts!=null){
-            nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
+            nativeUtteranceProgressListener = new UtteranceProgressListener(){
                 public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
                 public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
                 public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
                 public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
-            });
+            };
+            nativeTts.setOnUtteranceProgressListener(nativeUtteranceProgressListener);
         }
         final String pending=pendingRequestedNativeNarration;pendingRequestedNativeNarration="";
         if(nativeTtsRefreshAudioOnReady){nativeTtsRefreshAudioOnReady=false;if("Áudio".equals(currentScreen))ui.postDelayed(new Runnable(){public void run(){showAudio();}},100L);}
@@ -1310,7 +1317,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             editor.remove("dnd_faerun_image_before_strixhaven_v1")
                 .remove("dnd_faerun_image_fingerprint_before_strixhaven_v1").apply();
             StrixhavenAdventureProfile p=strixhavenProfile();p.exitToFaerun();
-            if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+            if(!aiBusy){advanceAiRequestGeneration();aiPipelineGeneration++;}
             sceneImageDecodeGeneration++;
             loadStoryState();
             screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
@@ -1323,7 +1330,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private void clearTravelSceneDisplay(String destination){
         cancelNarrationAudio();
-        if(!aiBusy){aiRequestGeneration++;aiPipelineGeneration++;}
+        if(!aiBusy){advanceAiRequestGeneration();aiPipelineGeneration++;}
         sceneImageDecodeGeneration++;
         currentSceneCastPreview=new JSONArray();
         currentOptions=new JSONArray();
@@ -7057,7 +7064,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     if(cached.length()>0&&!"Narrador".equals(mode)&&manualOfflinePipelineId!=preparationPipeline){pendingAiInputChars=0;aiBusy=false;handleAiResponse(cached,userText);setStatus("Resposta idêntica recuperada do cache local; nenhuma chamada Gemini foi consumida.");return;}
                     if(manualOfflinePipelineId==preparationPipeline){
                         manualOfflinePipelineId=-1L;
-                        ++aiRequestGeneration;
+                        advanceAiRequestGeneration();
                         runOfflineMaster(mode,userText,localHits,"escolha manual do jogador");
                         return;
                     }
@@ -7068,7 +7075,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }
                     // RUN182 REMOTE-FIRST: não bloquear a tentativa real por orçamento local.
                     // Telemetria/cota local continua sendo registrada, mas somente a API confirma 429/auth/rede.
-                    streamingNarration="";lastStreamUiAt=0L;lastStreamUiLength=0;lastStreamPostAt=0L;final long requestId=++aiRequestGeneration;if(narrativeAudio!=null)narrativeAudio.cancelNarration();
+                    streamingNarration="";lastStreamUiAt=0L;lastStreamUiLength=0;lastStreamPostAt=0L;final long requestId=advanceAiRequestGeneration();if(narrativeAudio!=null)narrativeAudio.cancelNarration();
                     boolean skippedSearch=activeRuleRetrieval.optBoolean("retrieval_skipped",false),ruleCacheHit=activeRuleRetrieval.optBoolean("cache_hit",false);
                     String writingStatus=ruleCacheHit?"Regra reutilizada do cache; o Mestre está escrevendo sem nova pesquisa…":(skippedSearch?"Contexto local suficiente; o Mestre está escrevendo sem pesquisar manuais…":(lastAiUsedRag?"Manuais consultados; o Mestre está escrevendo em uma única chamada…":"Consulta concluída sem prova suficiente; o Mestre continuará somente a ficção… "+(masterOrchestrator==null?"":masterOrchestrator.quotaStatus())));
                     updateAdventureStartupMessage(writingStatus);updateNarratorBusyUi();
@@ -7496,6 +7503,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
                     : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
 
+            // Deterministic test barrier after preparation, before the commit.
+            AiResponsePreCommitObserver observer = preCommitObserverForTests;
+            if (observer != null) observer.beforeCommit(requestGen, action);
             // COMMIT PHASE: Protected atomically under aiCommitLock with double-checked generation
             synchronized (aiCommitLock) {
                 if (requestGen != aiRequestGeneration) {
