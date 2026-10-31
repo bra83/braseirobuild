@@ -58,7 +58,7 @@ public final class MasterResponseValidator {
         if(rawNarration.trim().length()==0){
             e.put("narration","A cena aguarda a ação da companhia.");
         }else{
-            boolean internalLeak=NarrativeGuardService.containsInternalLeak(rawNarration);
+            boolean internalLeak=e.optBoolean("_narration_leak_detected",false)||NarrativeGuardService.containsAnyLeak(rawNarration);
             String sanitizedNarration=NarrativeGuardService.sanitize(rawNarration);
             if(!sanitizedNarration.equals(rawNarration))e.put("narration",sanitizedNarration);
             if(internalLeak){

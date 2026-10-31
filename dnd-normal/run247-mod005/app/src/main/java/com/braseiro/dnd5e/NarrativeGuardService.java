@@ -140,17 +140,36 @@ public final class NarrativeGuardService {
                 ||lower.contains("mestre")||lower.contains("roteiro"));
     }
 
+    /**
+     * Remove only leaked operational sentences, retaining legitimate dialogue,
+     * its speaker, line breaks and the remaining fiction. No dialogue generation.
+     */
     public static String removeInstructionLeaks(String text) {
         if(text==null||text.trim().isEmpty())return "";
-        String[] paragraphs=text.replace("\r\n","\n").replace('\r','\n')
-            .split("\\n\\s*\\n",-1);
-        StringBuilder kept=new StringBuilder();
-        for(String paragraph:paragraphs){
-            if(paragraph.trim().isEmpty()||containsInstructionLeak(paragraph))continue;
-            if(kept.length()>0)kept.append("\n\n");
-            kept.append(paragraph.trim());
+        StringBuilder out=new StringBuilder();
+        String normalized=text.replace("\r\n","\n").replace('\r','\n');
+        for(String paragraph:normalized.split("\\n\\s*\\n",-1)){
+            StringBuilder kept=new StringBuilder();
+            for(String line:paragraph.split("\\n",-1)){
+                if(line.trim().isEmpty())continue;
+                StringBuilder safeLine=new StringBuilder();
+                // Sentence-level salvage: don't erase an NPC's line when the
+                // same paragraph happens to contain a leaked GM directive.
+                for(String part:line.trim().split("(?<=[.!?…])\\s+(?=[\\p{L}“\"'—-])")){
+                    String sentence=part.trim();
+                    if(sentence.isEmpty()||containsInstructionLeak(sentence)||containsInternalLeak(sentence))continue;
+                    if(safeLine.length()>0)safeLine.append(' ');
+                    safeLine.append(sentence);
+                }
+                if(safeLine.length()>0){if(kept.length()>0)kept.append('\n');kept.append(safeLine);}
+            }
+            if(kept.length()>0){if(out.length()>0)out.append("\n\n");out.append(kept);}
         }
-        return kept.toString();
+        return out.toString().trim();
+    }
+
+    public static boolean containsAnyLeak(String text) {
+        return containsInternalLeak(text)||containsInstructionLeak(text);
     }
 
     public static boolean containsInternalLeak(String text) {

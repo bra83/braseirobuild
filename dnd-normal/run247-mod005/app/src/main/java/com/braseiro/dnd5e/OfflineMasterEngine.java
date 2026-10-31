@@ -54,7 +54,7 @@ public final class OfflineMasterEngine {
         String actor=hero0!=null?clean(hero0.optString("name","A companhia"),70):"A companhia";
         String heroArmor=hero0!=null?clean(hero0.optString("visual_description",hero0.optString("armor","")),90):"";
         String heroEquip=hero0!=null?clean(hero0.optString("equipment",hero0.optString("weapons","")),90):"";
-        String npc=npcs.length()>0?clean(npcs.optJSONObject(0).optString("name",""),70):"";
+        String npc=presentNpcName(scene);
         String verified=resultMarker(action);
         String occasion=plan==null?"continuation":plan.barbaraStoryOccasion;if(occasion==null||occasion.trim().length()==0)occasion="continuation";
         boolean opening=isOpeningDirective(action)||"campaign_opening".equals(occasion);
@@ -86,6 +86,8 @@ public final class OfflineMasterEngine {
                 text.append(actor).append(" firma ").append(lowerFirst(heroEquip)).append(" enquanto o vento move a barra das roupas. ");
             }
             if(npc.length()>0)text.append(npc).append(" está em atividade no local, percebe o movimento e reage com naturalidade. ");
+            String speaking=situatedSocialReply(declared,npc,danger);
+            if(speaking.length()>0)text.append("\n\n").append(speaking).append("\n\n");
             if(verified.length()>0){
                 if("sucesso".equals(verified))text.append("A tentativa funciona, e a situação se abre a partir desse resultado. ");
                 else if("falha".equals(verified))text.append("A tentativa não alcança o efeito pretendido, e a situação responde a essa ocorrência. ");
@@ -265,6 +267,36 @@ public final class OfflineMasterEngine {
     private static JSONObject firstObject(JSONObject a,JSONObject b){return a!=null?a:(b!=null?b:new JSONObject());}
     private static void copy(JSONObject from,JSONObject to,String... keys)throws Exception{/*BR_JSON_WRAP*/try{for(String key:keys)if(from.has(key))to.put(key,from.opt(key));}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
     private static String resultMarker(String action){String n=clean(action,900).toLowerCase(new Locale("pt","BR"));if(!n.contains("mecanica_local_verificada"))return "";if(n.contains("resultado=sucesso")||n.contains("resultado: sucesso"))return "sucesso";if(n.contains("resultado=falha")||n.contains("resultado: falha"))return "falha";return "resultado registrado";}
+    /** Only publicly present and named NPCs may speak in the offline fallback. */
+    static String presentNpcName(JSONObject scene) {
+        if(scene==null)return "";
+        JSONArray present=scene.optJSONArray("present_npcs");
+        if(present==null)try{present=new JSONArray(scene.optString("present_npcs_json","[]"));}catch(Exception ignored){return "";}
+        for(int i=0;present!=null&&i<present.length();i++){
+            Object value=present.opt(i);
+            if(value instanceof JSONObject){
+                JSONObject n=(JSONObject)value;
+                if(n.optBoolean("anonymous",false)||n.optBoolean("transient",false))continue;
+                String name=clean(n.optString("name",""),70);
+                if(!name.isEmpty())return name;
+            }else if(value instanceof String){
+                String name=clean((String)value,70);
+                if(!name.isEmpty()&&!name.equalsIgnoreCase("null"))return name;
+            }
+        }
+        return "";
+    }
+
+    /** An existing speaker can respond to an explicit approach without invented secrets. */
+    static String situatedSocialReply(String action,String npc,String danger) {
+        if(npc==null||npc.trim().isEmpty()||danger!=null&&!danger.trim().isEmpty())return "";
+        String a=action==null?"":action.toLowerCase(new Locale("pt","BR"));
+        if(!(a.contains("falo com")||a.contains("falar com")||a.contains("converso com")
+                ||a.contains("pergunto")||a.contains("cumprimento")||a.contains("saúdo")
+                ||a.contains("saudo")||a.contains("dialogo com")))return "";
+        return "— Estou ouvindo — responde "+clean(npc,70)+", deixando espaço para a conversa.";
+    }
+
     private static String lowerFirst(String value){if(value==null||value.length()==0)return "";return Character.toLowerCase(value.charAt(0))+value.substring(1);}
     private static String clean(String value,int max){String out=value==null?"":value.replace('\n',' ').replace('\r',' ').replaceAll("\\s+"," ").trim();if(out.length()<=max)return out;return out.substring(0,Math.max(1,max-1)).trim()+"…";}
 }

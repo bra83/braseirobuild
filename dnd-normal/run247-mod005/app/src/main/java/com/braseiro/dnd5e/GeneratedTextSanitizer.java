@@ -72,21 +72,8 @@ public final class GeneratedTextSanitizer {
     }
 
     private static String stripInternalNarrativeLeak(String raw){
-        if(raw==null||raw.trim().length()==0)return "";
-        // Preserve parágrafos: a 6.2.x filtrava por sentença e remontava tudo com espaços,
-        // destruindo as quebras pedidas ao Mestre e criando a “parede de texto” observada em jogo.
-        String normalized=raw.replace('\r','\n').replaceAll("\\n{3,}","\n\n");
-        String[] paragraphs=normalized.split("\\n\\s*\\n");StringBuilder out=new StringBuilder();
-        for(String paragraph:paragraphs){
-            if(NarrativeGuardService.containsInternalLeak(paragraph))continue;
-            StringBuilder kept=new StringBuilder();String[] parts=paragraph.trim().split("(?<=[.!?…])\\s+|\\n+");
-            for(String part:parts){String p=part.trim();if(p.length()==0)continue;
-                if(NarrativeGuardService.containsInternalLeak(p))continue;
-                if(kept.length()>0)kept.append(' ');kept.append(p);
-            }
-            if(kept.length()>0){if(out.length()>0)out.append("\n\n");out.append(kept);}
-        }
-        return out.toString().trim();
+        // Use a single paragraph/line preserving guard; never flatten NPC speech.
+        return NarrativeGuardService.removeInstructionLeaks(raw);
     }
 
     private static String scalar(String raw,String preferredKey,int depth){
