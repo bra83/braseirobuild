@@ -247,6 +247,11 @@ public final class CharacterInventory2024 {
             if(!sheet.has("coin_pieces_migration_version")){
                 JSONObject parsed=legacyCoins(sheet);
                 if(parsed!=null)sheet.put("coin_pieces",parsed);
+                else if(sheet.has("inventory_currency_gp")
+                        &&sheet.optInt("inventory_currency_gp",-1)>=0){
+                    sheet.put("coin_pieces",new JSONObject().put("gp",
+                        sheet.optInt("inventory_currency_gp",0)));
+                }
                 sheet.put("coin_pieces_migration_version",1);
             }
             boolean authoritative="structured_authoritative".equals(
