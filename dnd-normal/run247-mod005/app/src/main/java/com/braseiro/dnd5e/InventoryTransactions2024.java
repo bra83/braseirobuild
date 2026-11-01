@@ -26,7 +26,7 @@ public final class InventoryTransactions2024 {
         return false;
     }
     private static boolean kind(String source){
-        for(String value:new String[]{"purchase","find","loot","quest_reward",
+        for(String value:new String[]{"manual","purchase","find","loot","quest_reward",
                 "battle_reward","gift","craft","trade","master_grant","initial_gear"})
             if(value.equals(source))return true;
         return false;
