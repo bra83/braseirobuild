@@ -637,9 +637,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private float narrativeSpeechRate(){
         float base=AndroidTtsBackend.adjustedRate(NarrationPlaybackPolicy.ANDROID_SPEECH_RATE,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100));JSONObject plan=lastAudioPlan==null?new JSONObject():lastAudioPlan;String delivery=plan.optString("delivery","normal").trim().toLowerCase(Locale.ROOT);int intensity=Math.max(0,Math.min(5,plan.optInt("intensity",1)));
-        if("baixo".equals(delivery))return Math.max(0.72f,base*0.90f);
-        if("calmo".equals(delivery))return Math.max(0.76f,base*0.94f);
-        if("urgente".equals(delivery))return Math.min(1.28f,base*(1.03f+0.012f*intensity));
+        if("baixo".equals(delivery))return Math.max(0.35f,base*0.90f);
+        if("calmo".equals(delivery))return Math.max(0.35f,base*0.94f);
+        if("urgente".equals(delivery))return Math.min(2.0f,base*(1.03f+0.012f*intensity));
         return base;
     }
     private long narrativePauseMs(boolean chapter){
