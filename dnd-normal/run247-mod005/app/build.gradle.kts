@@ -150,7 +150,17 @@ android {
             isIncludeAndroidResources = true
             // XMM pins the full Faerun archive in assets; Robolectric materializes
             // large archives while traversing the full regression suite.
-            all { testTask -> testTask.maxHeapSize = "1024m" }
+            all { testTask ->
+                testTask.maxHeapSize = "1024m"
+                if (qaLiteAssets) {
+                    // Only these two tests require the 100 MB original map ZIP.
+                    // The workflow executes both separately with the real assets.
+                    // Running all 3,000 tests with that archive mounted in Robolectric
+                    // can stall the job for over an hour.
+                    testTask.filter.excludeTestsMatching("com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence")
+                    testTask.filter.excludeTestsMatching("com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing")
+                }
+            }
         }
     }
 

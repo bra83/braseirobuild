@@ -293,6 +293,8 @@ public final class CharacterRandom2024Rules {
                 sheet.put("weapon_mastery_choices_source",Core2024EberronCharacterEngine.PHB2024);
             }
             sheet.put("inventory_currency_gp",classGp+50);
+            sheet.put("coin_pieces",new JSONObject().put("gp",classGp+50));
+            sheet.put("coin_pieces_migration_version",1);
             sheet.put("inventory_ledger_status","new_character_class_A_background_B");
             sheet.put("inventory_review_required",false);
             sheet.put("equipment_class_option","A").put("equipment_background_option","B");

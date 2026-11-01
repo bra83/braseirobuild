@@ -1943,7 +1943,52 @@ public class AppDb extends SQLiteOpenHelper {
         if(next.has("eberron_resolved")&&!next.optBoolean("eberron_resolved",false))return next;
         if(next.has("frhof_resolved")&&!next.optBoolean("frhof_resolved",false))return next;
         int max=Math.max(1,next.optInt("max_hp",beforeRow.optInt("max_hp",1))),hp=Math.max(0,Math.min(max,next.optInt("hp",beforeRow.optInt("hp",max))));try{next.put("hp",hp).put("max_hp",max);}catch(Exception ignored){}ContentValues v=new ContentValues();v.put("hp",hp);v.put("max_hp",max);v.put("sheet_json",next.toString());v.put("updated_at",System.currentTimeMillis());getWritableDatabase().update("characters",v,"id=?",new String[]{String.valueOf(id)});String name=beforeRow.optString("name","");syncPlayerCombatantHp(name,hp);ContentValues combat=new ContentValues();combat.put("max_hp",max);getWritableDatabase().update("combatants",combat,"world_profile=? AND is_player=1 AND lower(name)=lower(?)",new String[]{getActiveMapProfile(),name});return next;}
-    public JSONObject addCharacterInventoryEntry(long id,String name,int quantity,double unitWeightLb,boolean equipped){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);try{JSONArray ledger=sheet.optJSONArray("inventory_ledger");if(ledger==null)ledger=new JSONArray();JSONObject item=new JSONObject().put("id","item_"+System.currentTimeMillis()).put("name",name==null?"Item":name.trim()).put("quantity",Math.max(0,quantity)).put("equipped",equipped);if(unitWeightLb>=0d)item.put("unit_weight_lb",unitWeightLb);ledger.put(item);sheet.put("inventory_ledger",ledger).put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));updateCharacterSheet(id,sheet.toString());return item.put("inventory_load",sheet.optJSONObject("inventory_load"));}catch(Exception e){AppLog.e("AppDb","Falha ao adicionar item estruturado.",e);return new JSONObject();}}
+    /** Existing +ITEM UI: atomic 2024 load with unique ID, preserves other editions. */
+    public JSONObject addCharacterInventoryEntry(final long id,final String name,final int quantity,
+                                                 final double unitWeightLb,final boolean equipped){
+        final JSONObject[] result={new JSONObject()};
+        try{
+            if(name==null||name.trim().isEmpty()||quantity<=0||!Double.isFinite(unitWeightLb))
+                throw new IllegalArgumentException("invalid_inventory_entry");
+            runInTransactionChecked(new CheckedTransaction(){public void run()throws Exception{
+                JSONObject row=getCharacter(id);
+                if(row.length()==0)throw new IllegalArgumentException("character_not_found");
+                JSONObject sheet=readCharacterSheet(row);
+                JSONObject item=new JSONObject()
+                    .put("id","item_"+java.util.UUID.randomUUID())
+                    .put("name",name.trim()).put("quantity",quantity)
+                    .put("equipped",equipped);
+                if(unitWeightLb>=0d)item.put("unit_weight_lb",unitWeightLb);
+                if(Character2024SheetReconciler.applies(sheet)){
+                    String token="ui-inventory-"+java.util.UUID.randomUUID();
+                    JSONObject action=new JSONObject()
+                        .put("operation","add").put("event_id",token)
+                        .put("item",item).put("source","manual");
+                    sheet=CharacterInventory2024.applyMutation(sheet,action);
+                    ContentValues visible=new ContentValues();
+                    visible.put("equipment",sheet.optString("inventory"));
+                    getWritableDatabase().update("characters",visible,
+                        "id=? AND world_profile=?",
+                        new String[]{String.valueOf(id),getActiveMapProfile()});
+                }else{
+                    JSONArray inventory=sheet.optJSONArray("inventory_ledger");
+                    if(inventory==null)inventory=new JSONArray();
+                    inventory.put(item);
+                    sheet.put("inventory_ledger",inventory);
+                }
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
+                updateCharacterSheetChecked(id,sheet.toString());
+                result[0]=item.put("inventory_change_committed",true)
+                    .put("inventory_load",sheet.optJSONObject("inventory_load"));
+            }});
+        }catch(Exception error){
+            AppLog.e("AppDb","Falha ao adicionar item ao inventário.",error);
+            try{result[0]=new JSONObject().put("inventory_change_blocked",
+                error.getMessage()==null?"transaction_rolled_back":error.getMessage());}
+            catch(Exception ignored){result[0]=new JSONObject();}
+        }
+        return result[0];
+    }
     /** RUN207: existing inventory entries may be armed without changing schema or identity. */
     public JSONArray listEquippedWeaponCandidates(long characterId){
         JSONArray out=new JSONArray();JSONObject ch=getCharacter(characterId);
@@ -2083,7 +2128,18 @@ public class AppDb extends SQLiteOpenHelper {
                     result[0].put("inventory_change_blocked",authorized.optString("blocked","quantity_not_authorized"));return;
                 }
                 JSONArray next=authorized.getJSONArray("ledger");
-                sheet.put("inventory_ledger",next).put("inventory_load",InventoryLedgerEngine.totals(next,ch.optInt("str",10),false));
+                if(Character2024SheetReconciler.applies(sheet)){
+                    JSONObject action=new JSONObject().put("operation","adjust")
+                        .put("item_id",itemId).put("delta",delta).put("event_id",receipt);
+                    sheet=CharacterInventory2024.applyMutation(sheet,action);
+                    next=sheet.optJSONArray("inventory_ledger");
+                    ContentValues visible=new ContentValues();
+                    visible.put("equipment",sheet.optString("inventory"));
+                    getWritableDatabase().update("characters",visible,
+                        "id=? AND world_profile=?",
+                        new String[]{String.valueOf(id),getActiveMapProfile()});
+                }else sheet.put("inventory_ledger",next);
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
                 updateCharacterSheetChecked(id,sheet.toString());
                 recordEffectReceipt(receipt,authorized.toString());
                 result[0]=sheet.put("inventory_change_committed",true).put("inventory_change_receipt",receipt);
@@ -2092,8 +2148,58 @@ public class AppDb extends SQLiteOpenHelper {
             try{result[0]=new JSONObject().put("inventory_change_blocked","transaction_rolled_back");}catch(Exception ignored){result[0]=new JSONObject();}}
         return result[0];
     }
-    public JSONObject characterInventoryLoad(long id,boolean variant){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);return InventoryLedgerEngine.totals(sheet.optJSONArray("inventory_ledger"),ch.optInt("str",10),variant);}
-    public void updateCharacterInventoryLedger(long id,JSONArray ledger){JSONObject ch=getCharacter(id);if(ch.length()==0)return;JSONObject sheet=readCharacterSheet(ch);try{sheet.put("inventory_ledger",ledger==null?new JSONArray():new JSONArray(ledger.toString()));sheet.put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));}catch(Exception ignored){}updateCharacterSheet(id,sheet.toString());}
+    public JSONObject characterInventoryLoad(long id,boolean variant){
+        JSONObject character=getCharacter(id);
+        if(character.length()==0)return new JSONObject();
+        JSONObject sheet=readCharacterSheet(character);
+        if(!Character2024SheetReconciler.applies(sheet))
+            return InventoryLedgerEngine.totals(sheet.optJSONArray("inventory_ledger"),
+                character.optInt("str",10),variant);
+        try{
+            sheet.put("str",character.optInt("str",sheet.optInt("str",10)));
+            CharacterInventory2024.reconcile(sheet);
+            boolean complete=sheet.optBoolean("inventory_weight_complete",false);
+            return new JSONObject()
+                .put("weight",complete?sheet.opt("inventory_total_weight_lb"):JSONObject.NULL)
+                .put("known_weight_lb",sheet.optDouble("inventory_known_weight_lb",0d))
+                .put("carrying_capacity",sheet.opt("inventory_capacity_lb"))
+                .put("complete",complete)
+                .put("display_weight",sheet.optString("inventory_weight_display"))
+                .put("unknown_weight_count",sheet.optInt("inventory_unknown_weight_count",0))
+                .put("unknown_weight_items",sheet.optJSONArray("inventory_weight_problems"))
+                .put("state",!complete?"unverified":
+                    sheet.optBoolean("inventory_over_capacity",false)?"over_capacity":"normal");
+        }catch(Exception error){
+            AppLog.e("AppDb","Carga indisponível por inconsistência da ficha.",error);
+            return new JSONObject();
+        }
+    }
+    public void updateCharacterInventoryLedger(final long id,final JSONArray ledger){
+        try{
+            runInTransactionChecked(new CheckedTransaction(){public void run()throws Exception{
+                JSONObject character=getCharacter(id);
+                if(character.length()==0)throw new IllegalArgumentException("character_not_found");
+                JSONObject sheet=readCharacterSheet(character);
+                JSONArray next=ledger==null?new JSONArray():new JSONArray(ledger.toString());
+                sheet.put("inventory_ledger",next);
+                if(Character2024SheetReconciler.applies(sheet)){
+                    sheet.put("inventory_ledger_status","structured_authoritative");
+                    sheet.put("inventory_ledger_migration_version",1);
+                    CharacterInventory2024.reconcile(sheet);
+                    CharacterInventory2024.publishInventorySummary(sheet);
+                    ContentValues visible=new ContentValues();
+                    visible.put("equipment",sheet.optString("inventory"));
+                    getWritableDatabase().update("characters",visible,
+                        "id=? AND world_profile=?",
+                        new String[]{String.valueOf(id),getActiveMapProfile()});
+                }
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
+                updateCharacterSheetChecked(id,sheet.toString());
+            }});
+        }catch(Exception failed){
+            throw new IllegalStateException("inventory_sheet_update_rolled_back",failed);
+        }
+    }
     public JSONObject addCharacterXp(final long id,final int delta){return characterAtomic("character_xp_award",new CharacterAtomicWork(){public JSONObject run()throws Exception{
         JSONObject character=getCharacter(id);
         if(character.length()==0)return new JSONObject().put("xp_award_blocked","character_missing");

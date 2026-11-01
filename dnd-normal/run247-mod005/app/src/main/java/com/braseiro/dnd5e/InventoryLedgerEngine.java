@@ -1,32 +1,116 @@
 package com.braseiro.dnd5e;
-import org.json.*;
-/** Ledger quantitativo de inventário. Somente pesos verificados entram na carga automática. */
-public final class InventoryLedgerEngine{
- private InventoryLedgerEngine(){}
- /** Authorizes a quantity change without mutating the input ledger. */
- public static JSONObject authorizeQuantityChange(JSONArray ledger,String item,int delta){
-  JSONObject out=new JSONObject();
-  try{
-   if(ledger==null)return blocked("ledger_required");
-   if(item==null||item.trim().isEmpty())return blocked("item_required");
-   if(delta==0)return blocked("quantity_delta_zero");
-   int found=-1,previous=0;String key=item.trim();
-   for(int i=0;i<ledger.length();i++){
-    JSONObject x=ledger.optJSONObject(i);if(x==null)return blocked("invalid_ledger_entry");
-    if(key.equals(x.optString("id",""))||key.equalsIgnoreCase(x.optString("name",""))){
-     if(found>=0)return blocked("ambiguous_item");
-     if(x.optInt("quantity",1)<0)return blocked("invalid_ledger_entry");
-     found=i;previous=x.optInt("quantity",1);
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/** Quantitative item ledger. Unknown weights must never masquerade as zero load. */
+public final class InventoryLedgerEngine {
+    private InventoryLedgerEngine(){}
+
+    /** No partial changes, silent clamps, first-match wins, or negative stacks. */
+    public static JSONObject authorizeQuantityChange(JSONArray ledger,String item,int delta){
+        if(ledger==null)return blocked("ledger_required");
+        if(item==null||item.trim().isEmpty())return blocked("item_required");
+        if(delta==0)return blocked("quantity_delta_zero");
+        int found=-1,previous=0;
+        String key=item.trim();
+        for(int i=0;i<ledger.length();i++){
+            JSONObject row=ledger.optJSONObject(i);
+            if(row==null)return blocked("invalid_ledger_entry");
+            Object q=row.opt("quantity");
+            int qty=row.optInt("quantity",1);
+            if(qty<0||(q!=null&&(!(q instanceof Number)||
+                    ((Number)q).doubleValue()!=qty)))return blocked("invalid_ledger_entry");
+            if(key.equals(row.optString("id",""))||
+                    key.equalsIgnoreCase(row.optString("name",""))){
+                if(found>=0)return blocked("ambiguous_item");
+                found=i;previous=qty;
+            }
+        }
+        if(found<0)return blocked("item_not_found");
+        long next=(long)previous+delta;
+        if(next<0)return blocked("quantity_insufficient");
+        if(next>Integer.MAX_VALUE)return blocked("quantity_overflow");
+        try{
+            JSONArray updated=new JSONArray(ledger.toString());
+            JSONObject changed=updated.getJSONObject(found);
+            changed.put("quantity",(int)next);
+            return new JSONObject().put("authorized",true).put("item",key)
+                    .put("delta",delta).put("previous_quantity",previous)
+                    .put("new_quantity",(int)next).put("ledger",updated)
+                    .put("receipt","inventory:"+key+":"+previous+":"+delta+":"+next);
+        }catch(Exception e){return blocked("invalid_ledger");}
     }
-   }
-   if(found<0)return blocked("item_not_found");
-   long next=(long)previous+delta;if(next<0)return blocked("quantity_insufficient");
-   if(next>Integer.MAX_VALUE)return blocked("quantity_overflow");
-   JSONArray updated=new JSONArray(ledger.toString());JSONObject changed=updated.getJSONObject(found);changed.put("quantity",(int)next);updated.put(found,changed);
-   return out.put("authorized",true).put("item",key).put("delta",delta).put("previous_quantity",previous).put("new_quantity",(int)next).put("ledger",updated).put("receipt","inventory:"+key+":"+previous+":"+delta+":"+next);
-  }catch(Exception e){return blocked("invalid_ledger");}
- }
- private static JSONObject blocked(String reason){try{return new JSONObject().put("authorized",false).put("blocked",reason);}catch(Exception e){return new JSONObject();}}
- public static JSONObject totals(JSONArray ledger,int strength,boolean variant){double weight=0d;int stacks=0,unknown=0;JSONArray problems=new JSONArray();if(ledger==null)ledger=new JSONArray();for(int i=0;i<ledger.length();i++){JSONObject x=ledger.optJSONObject(i);if(x==null)continue;int qty=Math.max(0,x.optInt("quantity",1));if(qty==0)continue;stacks++;if(x.has("unit_weight_lb")&&x.optDouble("unit_weight_lb",-1d)>=0d)weight+=qty*x.optDouble("unit_weight_lb",0d);else{unknown++;problems.put(x.optString("name","item "+(i+1)));}}JSONObject out=new DndRulesEngine().encumbrance(strength,weight,variant);try{out.put("known_weight_lb",weight).put("stack_count",stacks).put("unknown_weight_count",unknown).put("unknown_weight_items",problems).put("complete",unknown==0);}catch(Exception ignored){}return out;}
- public static JSONArray changeQuantity(JSONArray ledger,String item,int delta){JSONArray out=new JSONArray();boolean found=false;if(ledger==null)ledger=new JSONArray();for(int i=0;i<ledger.length();i++){JSONObject x=ledger.optJSONObject(i);if(x==null)continue;try{JSONObject c=new JSONObject(x.toString());if(!found&&(c.optString("id").equals(item)||c.optString("name").equalsIgnoreCase(item))){c.put("quantity",Math.max(0,c.optInt("quantity",1)+delta));found=true;}out.put(c);}catch(Exception ignored){}}return out;}
+
+    public static JSONObject totals(JSONArray ledger,int strength,boolean variant){
+        try{
+            JSONObject ghost=new JSONObject().put("rules_source","5e 2024")
+                    .put("str",strength).put("size","Médio")
+                    .put("inventory_ledger",ledger==null?new JSONArray():new JSONArray(ledger.toString()))
+                    .put("inventory_ledger_migration_version",1);
+            CharacterInventory2024.reconcile(ghost);
+            double known=ghost.optDouble("inventory_known_weight_lb",0d);
+            JSONObject result=new DndRulesEngine().encumbrance(strength,known,variant);
+            boolean complete=ghost.optBoolean("inventory_weight_complete",false);
+            result.put("known_weight_lb",known);
+            result.put("stack_count",countNonzeroStacks(ledger));
+            result.put("unknown_weight_count",ghost.optInt("inventory_unknown_weight_count",0));
+            result.put("unknown_weight_items",ghost.optJSONArray("inventory_weight_problems"));
+            result.put("complete",complete);
+            result.put("display_weight",ghost.optString("inventory_weight_display"));
+            result.put("weight",complete?known:JSONObject.NULL);
+            result.put("state",complete?result.optString("state","normal"):
+                    (known>strength*15d?"over_capacity":"unverified"));
+            return result;
+        }catch(Exception e){throw new IllegalStateException("inventory_weight_calculation_failed",e);}
+    }
+
+    /**
+     * Full sheet-aware load (2024): creature size, species features,
+     * carried vs stored items, pack inclusions and purse, not a fake Medium hero.
+     */
+    public static JSONObject totals(JSONObject sheet,boolean variant){
+        if(sheet==null)throw new IllegalArgumentException("sheet_required");
+        if(!Character2024SheetReconciler.applies(sheet))
+            return totals(sheet.optJSONArray("inventory_ledger"),sheet.optInt("str",10),variant);
+        try{
+            JSONObject copy=new JSONObject(sheet.toString());
+            CharacterInventory2024.reconcile(copy);
+            boolean complete=copy.optBoolean("inventory_weight_complete",false);
+            JSONObject out=new JSONObject()
+                .put("known_weight_lb",copy.optDouble("inventory_known_weight_lb",0d))
+                .put("weight",complete?copy.opt("inventory_total_weight_lb"):JSONObject.NULL)
+                .put("carrying_capacity",copy.opt("inventory_capacity_lb"))
+                .put("complete",complete)
+                .put("unknown_weight_count",copy.optInt("inventory_unknown_weight_count",0))
+                .put("unknown_weight_items",copy.optJSONArray("inventory_weight_problems"))
+                .put("display_weight",copy.optString("inventory_weight_display"))
+                .put("state",!complete?"unverified":
+                    copy.optBoolean("inventory_over_capacity",false)?"over_capacity":"normal");
+            return out;
+        }catch(Exception e){throw new IllegalStateException("invalid_sheet_load",e);}
+    }
+
+    private static int countNonzeroStacks(JSONArray ledger){
+        if(ledger==null)return 0;
+        int count=0;
+        for(int i=0;i<ledger.length();i++){
+            JSONObject row=ledger.optJSONObject(i);
+            if(row!=null&&row.optInt("quantity",1)>0)count++;
+        }
+        return count;
+    }
+
+    /** Compatibility API must fail closed instead of silently clamping/removing items. */
+    public static JSONArray changeQuantity(JSONArray ledger,String item,int delta){
+        JSONObject decision=authorizeQuantityChange(ledger,item,delta);
+        if(!decision.optBoolean("authorized",false))
+            throw new IllegalArgumentException(decision.optString("blocked","invalid_change"));
+        return decision.optJSONArray("ledger");
+    }
+
+    private static JSONObject blocked(String reason){
+        try{return new JSONObject().put("authorized",false).put("blocked",reason);}
+        catch(Exception e){throw new IllegalStateException(e);}
+    }
 }
