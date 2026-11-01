@@ -86,7 +86,7 @@ public final class SceneOptionDiversifier {
         for(JSONObject fallback:fallbacks){
             if(out.length()>=MAX_OPTIONS)break;
             String action=optionAction(fallback);
-            if(action.isEmpty()||!isGroundedInScene(action,narration,scene)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
+            if(action.isEmpty()||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
             out.put(fallback);accepted.add(action);
         }
         return out;
@@ -337,6 +337,25 @@ public final class SceneOptionDiversifier {
                     "Produzir um estímulo longe do grupo para observar como " + threat + " reage antes de se comprometer."));
         }
 
+        // Opções de acolhimento universitário: inferidas apenas de elementos
+        // visíveis da cena. Nunca presumir formulário, matrícula ou funcionário
+        // específico se a narração não os apresentar.
+        if(containsAny(narrative,"balcão","balcões","balcao","balcoes")&&containsAny(narrative,"atendimento","recepção","recepcao")){
+            pool.add(option("PEDIR ORIENTAÇÃO NO BALCÃO",
+                    "Descobrir onde começar o primeiro dia a partir do atendimento visível.",
+                    "Aproximo-me de um dos balcões de atendimento e pergunto onde devo me apresentar e quais orientações estão disponíveis."));
+        }
+        if(containsAny(narrative,"folheto","folhetos")){
+            pool.add(option("LER OS FOLHETOS DISPONÍVEIS",
+                    "Conferir os avisos apresentados, sem presumir o conteúdo.",
+                    "Examino os folhetos visíveis na cena para descobrir que informações oferecem sobre as atividades e os locais."));
+        }
+        if(containsAny(narrative,"calouros")&&containsAny(narrative,"veteranos")){
+            pool.add(option("PEDIR INFORMAÇÕES A UM VETERANO",
+                    "Conversar com alguém que esteja passando e aceite responder.",
+                    "Aproximo-me de um dos veteranos que passam pelo local e pergunto como costuma funcionar a recepção dos calouros."));
+        }
+
         if(containsAny(narrative,"fumaca","fumaça"))pool.add(option("RASTREAR A ORIGEM DA FUMAÇA","Seguir direção, cheiro e intensidade mantendo cobertura.","Rastrear a origem da fumaça por uma rota protegida e interromper o avanço ao primeiro sinal de presença hostil."));
         if(containsAny(narrative,"patrulha","sentinela","vigia"))pool.add(option("MAPEAR A ROTA DA PATRULHA","Observar ritmo, intervalo e pontos cegos antes de atravessar.","Mapear o percurso da patrulha e escolher um intervalo seguro para avançar ou recuar."));
         if(containsAny(narrative,"pegada","rastro","trilha"))pool.add(option("SEGUIR OS RASTROS RECENTES","Distinguir direção, quantidade e velocidade sem apagar as marcas.","Seguir os rastros mais recentes até o próximo ponto de decisão, mantendo um marco para retornar."));
@@ -366,11 +385,9 @@ public final class SceneOptionDiversifier {
                     "Responder ao ponto de decisão expresso em “"+recent+"”, nomeando a condição que o grupo aceita, recusa ou deseja renegociar."));
         }
 
-        String declared=clean(declaredAction,100);
-        if(!declared.isEmpty())pool.add(option("TESTAR A CONSEQUÊNCIA DA AÇÃO",
-                "Verificar o que mudou de fato antes de repetir a mesma abordagem.",
-                "Observar a consequência imediata de “"+declared+"” e agir somente sobre a mudança confirmada."));
-
+        // Nunca use a ação anterior como substituto de uma escolha da cena.
+        // Isso gerava "TESTAR A CONSEQUÊNCIA DA AÇÃO" mesmo sem um objeto,
+        // interlocutor ou próximo passo verificável.
         // Sem entidade, pista, ameaça, objetivo ou objeto concreto, é melhor
         // deixar o campo de ação livre do que inventar duas escolhas genéricas.
         return pool;
@@ -379,7 +396,7 @@ public final class SceneOptionDiversifier {
     private static boolean isWeakOption(String label,String description,String action){
         String l=normalize(label),d=normalize(description),a=normalize(action);
         if(a.length()<14||l.length()<5)return true;
-        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia"};
+        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao"};
         for(String value:weak)if(l.equals(value)||a.equals(value)||l.startsWith(value+" "))return true;
         if(d.length()>30&&a.contains(d)&&d.split(" ").length>8)return true;
         if(l.matches("^(agir|fazer|continuar|prosseguir|investigar|observar)$"))return true;
