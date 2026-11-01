@@ -65,6 +65,32 @@ public final class InventoryLedgerEngine {
         }catch(Exception e){throw new IllegalStateException("inventory_weight_calculation_failed",e);}
     }
 
+    /**
+     * Full sheet-aware load (2024): creature size, species features,
+     * carried vs stored items, pack inclusions and purse, not a fake Medium hero.
+     */
+    public static JSONObject totals(JSONObject sheet,boolean variant){
+        if(sheet==null)throw new IllegalArgumentException("sheet_required");
+        if(!Character2024SheetReconciler.applies(sheet))
+            return totals(sheet.optJSONArray("inventory_ledger"),sheet.optInt("str",10),variant);
+        try{
+            JSONObject copy=new JSONObject(sheet.toString());
+            CharacterInventory2024.reconcile(copy);
+            boolean complete=copy.optBoolean("inventory_weight_complete",false);
+            JSONObject out=new JSONObject()
+                .put("known_weight_lb",copy.optDouble("inventory_known_weight_lb",0d))
+                .put("weight",complete?copy.opt("inventory_total_weight_lb"):JSONObject.NULL)
+                .put("carrying_capacity",copy.opt("inventory_capacity_lb"))
+                .put("complete",complete)
+                .put("unknown_weight_count",copy.optInt("inventory_unknown_weight_count",0))
+                .put("unknown_weight_items",copy.optJSONArray("inventory_weight_problems"))
+                .put("display_weight",copy.optString("inventory_weight_display"))
+                .put("state",!complete?"unverified":
+                    copy.optBoolean("inventory_over_capacity",false)?"over_capacity":"normal");
+            return out;
+        }catch(Exception e){throw new IllegalStateException("invalid_sheet_load",e);}
+    }
+
     private static int countNonzeroStacks(JSONArray ledger){
         if(ledger==null)return 0;
         int count=0;
