@@ -233,6 +233,14 @@ public final class MasterOrchestrator {
             AppLog.e("MasterOrchestrator","Falha ao anexar o plano local; envelope bloqueado.",failure);
             try{safe.put("_local_tick",new JSONObject());safe.put("_npc_tick",new JSONObject());safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true).put("error","Falha ao anexar plano local."));}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha ao fechar envelope sem plano.",ignored);}
         }
+        // O modelo não controla este metadado; carrega somente a ação aceita.
+        if(activePlanForValidation!=null&&activePlanForValidation.narrative
+                &&!activePlanForValidation.nonAdvancing
+                &&safe.optJSONObject("_master_validation")!=null
+                &&safe.optJSONObject("_master_validation").optBoolean("valid",false)){
+            try{safe.put("_accepted_player_action",action==null?"":action.trim());}
+            catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Ação temporal indisponível.",ignored);}
+        }
         return safe;
     }
 
@@ -250,7 +258,28 @@ public final class MasterOrchestrator {
 
     public synchronized void afterAccepted(Plan plan,String narration,int inputChars,int outputChars){afterAccepted(plan,narration,null,inputChars,outputChars);}
     public synchronized void afterAccepted(Plan plan,String narration,JSONObject envelope,int inputChars,int outputChars){
-        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing)recordAcceptedSceneJournal(plan,narration);if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+    }
+
+    /** Guarda factual da cena, independente das mutações opcionais do Mestre. */
+    private void recordAcceptedSceneJournal(Plan plan,String narration){
+        if(plan==null||narration==null||narration.trim().isEmpty())return;
+        try{
+            JSONObject scene=db.getSceneState();
+            int day=Math.max(1,scene.optInt("day_number",1));
+            double hour=scene.optDouble("clock_hour",9d);
+            int h=Double.isFinite(hour)?(int)Math.floor(hour):9;
+            int m=Double.isFinite(hour)?(int)Math.round((hour-Math.floor(hour))*60d):0;
+            if(m>=60){h=(h+1)%24;m=0;}
+            String location=scene.optString("location","");
+            String title="Dia "+day+" • "+String.format(Locale.US,"%02d:%02d",h,m)
+                    +(location.isEmpty()?"":" • "+location);
+            String body="AÇÃO DECLARADA:\n"+(plan.userPrompt==null?"":plan.userPrompt.trim())
+                    +"\n\nNARRAÇÃO DO MESTRE:\n"+narration.trim();
+            db.addJournalChecked(title,body,"Cena");
+        }catch(Exception failure){
+            AppLog.e("MasterOrchestrator","Não foi possível registrar automaticamente a cena no diário.",failure);
+        }
     }
 
     private boolean discoveryNarrationAccepted(Plan plan,String narration){
