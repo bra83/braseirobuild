@@ -96,6 +96,10 @@ public final class MasterInventoryStateUpdate2024 {
         return match;
     }
     public static JSONObject apply(JSONObject original,JSONArray added,JSONArray removed,String sceneReceipt){
+        return apply(original,added,removed,null,sceneReceipt);
+    }
+    public static JSONObject apply(JSONObject original,JSONArray added,JSONArray removed,
+                                   JSONArray modified,String sceneReceipt){
         if(original==null||!Character2024SheetReconciler.applies(original))
             throw new IllegalArgumentException("master_inventory_requires_2024_sheet");
         if(sceneReceipt==null||sceneReceipt.trim().isEmpty())
@@ -137,6 +141,36 @@ public final class MasterInventoryStateUpdate2024 {
                     .put("item_id",existing.id).put("operation",
                         item.quantity==existing.quantity?"remove":"adjust");
                 if(item.quantity<existing.quantity)mutation.put("delta",-item.quantity);
+                sheet=CharacterInventory2024.applyMutation(sheet,mutation);
+            }
+            for(int i=0;modified!=null&&i<modified.length();i++){
+                JSONObject change=modified.optJSONObject(i);
+                if(change==null)throw new IllegalArgumentException("master_item_modification_invalid");
+                String token=sceneReceipt+":modified:"+i;
+                if(alreadyApplied(sheet,token))continue;
+                String identity=change.optString("item_id",
+                    change.optString("id","")).trim();
+                String priorName=change.optString("old_name",
+                    change.optString("name","")).trim();
+                if(identity.isEmpty()&&priorName.isEmpty())
+                    throw new IllegalArgumentException("master_item_identity_required");
+                Entry requested=new Entry();
+                requested.id=identity;requested.name=priorName;
+                Entry existing=find(sheet,requested);
+                JSONObject mutation=new JSONObject().put("event_id",token)
+                    .put("item_id",existing.id).put("operation","update");
+                boolean hasChange=false;
+                for(String key:new String[]{"quantity","unit_weight_lb","carried",
+                        "equipped","location","container_id"}){
+                    if(change.has(key)){mutation.put(key,change.opt(key));hasChange=true;}
+                }
+                if(change.has("new_name")){
+                    mutation.put("name",change.opt("new_name"));hasChange=true;
+                }
+                if(change.optBoolean("clear_weight",false)){
+                    mutation.put("clear_weight",true);hasChange=true;
+                }
+                if(!hasChange)throw new IllegalArgumentException("master_item_modification_empty");
                 sheet=CharacterInventory2024.applyMutation(sheet,mutation);
             }
             return CharacterInventory2024.reconcile(sheet);
