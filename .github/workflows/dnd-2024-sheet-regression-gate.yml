@@ -1,5 +1,7 @@
-name: D&D 2024 Sheet Regression Gate — no release
+name: D&D 6.6.39 Inventory Integration Gate — no release
 on:
+  push:
+    branches: [fix/dnd-6639-inventory-integrated-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -8,10 +10,22 @@ on:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterInventory2024.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/InventoryTransactions2024.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/InventoryPersistence2024.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/InventoryPersistence2024Test.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterInventoryStateUpdate2024.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/MasterInventoryStateUpdate2024Test.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/InventoryLedgerEngine.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/CharacterInventory2024Test.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetReconcilerTest.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Character2024SheetDatabaseTest.java'
       - '.github/workflows/dnd-2024-sheet-regression-gate.yml'
   workflow_dispatch:
+
+concurrency:
+  group: dnd2024-sheet-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -52,4 +66,25 @@ jobs:
         run: |
           ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.Character2024SheetReconcilerTest \
             --tests com.braseiro.dnd5e.Character2024SheetDatabaseTest \
+            --tests com.braseiro.dnd5e.CharacterInventory2024Test \
+            --tests com.braseiro.dnd5e.InventoryPersistence2024Test \
+            --tests com.braseiro.dnd5e.MasterInventoryStateUpdate2024Test \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Full D&D JVM regression (all tests except two mapped archive tests)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 30
+        run: |
+          # qaLite excludes only the two map-archive integration tests; all other
+          # 2024, persistence, narrative, import and combat regressions run.
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Verify bundled Faerun archive with full Android assets (two real-map tests)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          # Run exactly the two tests omitted from the preceding lightweight suite.
+          # The real original 100 MB ZIP is mounted for these two, not for 3000 tests.
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence' \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing' \
+            --no-daemon --console=plain
+
