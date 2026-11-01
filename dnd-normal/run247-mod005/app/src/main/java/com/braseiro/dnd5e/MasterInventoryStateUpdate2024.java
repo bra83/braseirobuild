@@ -21,6 +21,10 @@ public final class MasterInventoryStateUpdate2024 {
         String id,name;int quantity;
         JSONObject source;
     }
+    private static JSONObject copy(JSONObject original){
+        try{return new JSONObject(original.toString());}
+        catch(Exception bad){throw new IllegalArgumentException("invalid_master_inventory_json",bad);}
+    }
     private static Entry item(Object raw){
         Entry result=new Entry();
         result.source=raw instanceof JSONObject?(JSONObject)raw:new JSONObject();
@@ -30,6 +34,7 @@ public final class MasterInventoryStateUpdate2024 {
         result.id=result.source.optString("id","").trim();
         if(text.isEmpty())throw new IllegalArgumentException("master_item_name_required");
         int qty=1;
+        boolean directCoins=COINS.matcher(text).matches();
         if(result.source.has("quantity")){
             Object count=result.source.opt("quantity");
             if(!(count instanceof Number)||count instanceof Float||count instanceof Double)
@@ -39,7 +44,7 @@ public final class MasterInventoryStateUpdate2024 {
                 throw new IllegalArgumentException("master_item_quantity_overflow");
         }else{
             Matcher matcher=COUNT.matcher(text);
-            if(matcher.matches()){
+            if(!directCoins&&matcher.matches()){
                 try{qty=Integer.parseInt(matcher.group(1));}
                 catch(NumberFormatException bad){throw new IllegalArgumentException("master_item_quantity_invalid",bad);}
                 text=matcher.group(2).trim();
@@ -88,7 +93,7 @@ public final class MasterInventoryStateUpdate2024 {
             throw new IllegalArgumentException("master_inventory_requires_2024_sheet");
         if(sceneReceipt==null||sceneReceipt.trim().isEmpty())
             throw new IllegalArgumentException("scene_receipt_required");
-        JSONObject sheet=CharacterInventory2024.reconcile(new JSONObject(original.toString()));
+        JSONObject sheet=CharacterInventory2024.reconcile(copy(original));
         try{
             for(int i=0;added!=null&&i<added.length();i++){
                 Entry item=item(added.opt(i));
