@@ -80,4 +80,28 @@ public class MasterInventoryStateUpdate2024Test {
         assertEquals(1500,CharacterInventory2024.coinValueCp(
             again.getJSONObject("coin_pieces")));
     }
+    @Test public void masterEditsWeightEquipmentAndStorageWithApprovalReceipt()throws Exception{
+        JSONObject start=hero();
+        JSONObject changed=MasterInventoryStateUpdate2024.apply(start,
+            new JSONArray(),new JSONArray(),
+            new JSONArray().put(new JSONObject().put("item_id","dagger")
+                .put("quantity",1).put("unit_weight_lb",1.5)
+                .put("equipped",true)),"scene-mod-1");
+        assertEquals(1,changed.getJSONArray("inventory_ledger")
+            .getJSONObject(0).getInt("quantity"));
+        assertEquals(1.7,changed.getDouble("inventory_total_weight_lb"),0.00001);
+        JSONObject stored=MasterInventoryStateUpdate2024.apply(changed,
+            new JSONArray(),new JSONArray(),
+            new JSONArray().put(new JSONObject().put("item_id","dagger")
+                .put("carried",false).put("location","depósito")),"scene-mod-2");
+        assertEquals(0.2,stored.getDouble("inventory_total_weight_lb"),0.00001);
+        JSONObject replay=MasterInventoryStateUpdate2024.apply(stored,
+            new JSONArray(),new JSONArray(),
+            new JSONArray().put(new JSONObject().put("item_id","dagger")
+                .put("carried",false).put("location","depósito")),"scene-mod-2");
+        assertEquals(0.2,replay.getDouble("inventory_total_weight_lb"),0.00001);
+        assertEquals(2,start.getJSONArray("inventory_ledger")
+            .getJSONObject(0).getInt("quantity"));
+    }
+
 }
