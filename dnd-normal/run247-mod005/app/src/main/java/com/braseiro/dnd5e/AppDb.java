@@ -1976,8 +1976,7 @@ public class AppDb extends SQLiteOpenHelper {
                     inventory.put(item);
                     sheet.put("inventory_ledger",inventory);
                 }
-                sheet.put("inventory_load",InventoryLedgerEngine.totals(
-                    sheet.optJSONArray("inventory_ledger"),row.optInt("str",10),false));
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
                 updateCharacterSheetChecked(id,sheet.toString());
                 result[0]=item.put("inventory_change_committed",true)
                     .put("inventory_load",sheet.optJSONObject("inventory_load"));
@@ -2140,8 +2139,7 @@ public class AppDb extends SQLiteOpenHelper {
                         "id=? AND world_profile=?",
                         new String[]{String.valueOf(id),getActiveMapProfile()});
                 }else sheet.put("inventory_ledger",next);
-                sheet.put("inventory_load",InventoryLedgerEngine.totals(
-                    next,ch.optInt("str",10),false));
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
                 updateCharacterSheetChecked(id,sheet.toString());
                 recordEffectReceipt(receipt,authorized.toString());
                 result[0]=sheet.put("inventory_change_committed",true).put("inventory_change_receipt",receipt);
@@ -2195,8 +2193,7 @@ public class AppDb extends SQLiteOpenHelper {
                         "id=? AND world_profile=?",
                         new String[]{String.valueOf(id),getActiveMapProfile()});
                 }
-                sheet.put("inventory_load",InventoryLedgerEngine.totals(
-                    sheet.optJSONArray("inventory_ledger"),character.optInt("str",10),false));
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(sheet,false));
                 updateCharacterSheetChecked(id,sheet.toString());
             }});
         }catch(Exception failed){
