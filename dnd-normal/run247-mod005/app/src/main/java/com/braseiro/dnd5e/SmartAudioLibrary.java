@@ -54,7 +54,8 @@ public final class SmartAudioLibrary {
     private final File indexFile,keywordsFile;
     private final AudioCatalogDb catalogDb;
     private final Random rotationRandom=new Random();
-    private JSONArray sounds=new JSONArray();
+    // Immutable replacement snapshots: UI count read never waits for a long-running catalog scan.
+    private volatile JSONArray sounds=new JSONArray();
     private JSONObject keywordOverrides=new JSONObject();
     private final HashMap<String,Long> lastPlayed=new HashMap<String,Long>();
     private int cooldownSeconds=15;
@@ -1021,7 +1022,7 @@ public final class SmartAudioLibrary {
         return normalize(raw);
     }
 
-    public synchronized int indexedSoundCount(){return sounds.length();}
+    public int indexedSoundCount(){JSONArray snapshot=sounds;return snapshot==null?0:snapshot.length();}
 
     public String diagnoseSfx(String text){
         String normalized=normalize(expandAliases(text==null?"":text));

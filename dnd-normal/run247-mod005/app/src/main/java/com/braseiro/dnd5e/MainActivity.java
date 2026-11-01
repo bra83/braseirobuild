@@ -1258,10 +1258,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             return;
         }
         clearTravelSceneDisplay("Strixhaven");
-        JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(this);
         screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
-        setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+
-            bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn preservado.");
+        setStatus("Strixhaven ativada • compilando bestiário fora da interface. Faerûn preservado.");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(getApplicationContext());
+            ui.post(new Runnable(){public void run(){
+                if(!isStrixhavenAdventure())return;
+                setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+
+                    bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn preservado.");
+            }});
+        }});
     }
     private void strikExitAndRefresh(){
         if(!isStrixhavenAdventure())return;
@@ -1348,9 +1354,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void launchStrixhavenAdventure(final boolean reset){
         if(adventureStartRunning){toast("A nova aventura já está sendo preparada.");return;}
-        final StrixhavenAdventureProfile profile=strixhavenProfile();if(reset){profile.resetForNewAcademicAdventure();StrixhavenOfficialCampaignRuntime.reset(this);}final JSONObject compiledBestiary=StrixhavenBestiaryRuntimeEngine.install(this);
+        final StrixhavenAdventureProfile profile=strixhavenProfile();if(reset){profile.resetForNewAcademicAdventure();StrixhavenOfficialCampaignRuntime.reset(this);}
         adventureStartRunning=true;pendingAdventureStartFromMap=false;cancelNarrationAudio();audio.stopSfx();audio.stopAmbience();audio.stopMusic();navigate("Mestre IA");setStatus("Preparando o semestre em Strixhaven…");
         AppExecutors.io().execute(new Runnable(){public void run(){try{
+            // ANR 2026-11-01: compilation of all Strixhaven statblocks must never run in Looper.
+            final JSONObject compiledBestiary=StrixhavenBestiaryRuntimeEngine.install(getApplicationContext());
+            if(compiledBestiary.optInt("registered",0)==0)AppLog.w("StrixhavenBestiary","Nenhum bloco foi registrado; verificar diagnostico de fontes.");
             if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
             if(reset)resetSceneClock();else initializeSceneClock();
             final String opening=profile.masterInstruction()+StrixhavenCompiledCampaignEngine.masterContext(profile.year(),profile.semester())+" INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+profile.year()+", semestre "+profile.semester()+", mapa atual "+profile.currentMapLabel()+". Abra com uma situação concreta de vida no campus, apresentando espaço, rotina, pessoas e uma pressão imediata. Faça a escola parecer habitada: estudantes atravessam a cena com seus compromissos, professores têm objetivos, horários importam e relações persistem. Siga o arco oficial compilado; não substitua seus marcos por eventos escolares genéricos. Não use qualquer cidade, hex, POI ou rota do Atlas de Faerûn. Não imponha teste antes da primeira ação do jogador; ofereça duas opções específicas somente depois da cena.";
