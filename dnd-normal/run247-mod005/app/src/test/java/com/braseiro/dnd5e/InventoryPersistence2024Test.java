@@ -39,6 +39,8 @@ public class InventoryPersistence2024Test {
             JSONObject created=db.saveCharacterSheetAtomic(0,false,base,"","manual");
             assertTrue(created.toString(),created.optBoolean("character_saved"));
             long id=created.getLong("character_id");
+            db.saveCharacterControl(id,"curated","{\"tactics\":\"protect\"}");
+            db.setCharacterEquipmentAndNotesChecked(id,"","[Mestre] Recordar promessa da campanha");
             JSONObject potion=new JSONObject().put("id","potion-j1")
                 .put("name","Poção de cura").put("quantity",1);
             InventoryPersistence2024.commitApprovedAcquisition(db,id,potion,"loot",
@@ -47,6 +49,11 @@ public class InventoryPersistence2024Test {
             db=new AppDb(context,name);
             db.setActiveMapProfile("dnd");
             JSONObject saved=new JSONObject(db.getCharacter(id).getString("sheet_json"));
+            assertEquals("[Mestre] Recordar promessa da campanha",
+                db.getCharacter(id).getString("notes"));
+            assertEquals("curated",db.getCharacterControl(id).getString("control_mode"));
+            assertEquals("{\"tactics\":\"protect\"}",
+                db.getCharacterControl(id).getString("tactics_json"));
             assertEquals(2.7,saved.getDouble("inventory_total_weight_lb"),0.00001);
             assertEquals("loot",saved.getJSONArray("inventory_ledger")
                 .getJSONObject(1).getString("source"));
