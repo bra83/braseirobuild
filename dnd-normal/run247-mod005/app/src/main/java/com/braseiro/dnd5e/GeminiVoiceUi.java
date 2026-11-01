@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,6 +47,20 @@ final class GeminiVoiceUi {
         EditText profile=field(activity,prefs.getString("tts_vocal_profile","Voz brasileira, dicção clara e tom natural"),"Perfil vocal");
         EditText style=field(activity,prefs.getString("tts_vocal_style","Expressivo, com ritmo natural, sem pausas artificiais"),"Estilo vocal");
         target.addView(profile);target.addView(style);
+        int contrast=GeminiTtsPerformance.clamp(prefs.getInt(GeminiTtsPerformance.PREF_CHARACTER_DIFFERENCE,50));
+        TextView contrastLabel=new TextView(activity);contrastLabel.setTextSize(13);
+        contrastLabel.setText("DIFERENÇA ENTRE VOZES DOS PERSONAGENS: "+contrast+"%");
+        target.addView(contrastLabel);
+        SeekBar characterDifference=new SeekBar(activity);characterDifference.setMax(100);
+        characterDifference.setProgress(contrast);target.addView(characterDifference);
+        TextView contrastExplanation=new TextView(activity);contrastExplanation.setTextSize(12);
+        contrastExplanation.setText("0%: narrador uniforme; 25%: variação sutil; 50%: mudança moderada; 75%: vozes bem distintas; 100%: interpretação teatral. A identidade de cada NPC permanece estável.");
+        target.addView(contrastExplanation);
+        characterDifference.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){contrastLabel.setText("DIFERENÇA ENTRE VOZES DOS PERSONAGENS: "+progress+"%");}
+            public void onStartTrackingTouch(SeekBar bar){}
+            public void onStopTrackingTouch(SeekBar bar){prefs.edit().putInt(GeminiTtsPerformance.PREF_CHARACTER_DIFFERENCE,GeminiTtsPerformance.clamp(bar.getProgress())).apply();}
+        });
         button(activity,"GEMINI 3.8 FLASH TTS — ALTA FIDELIDADE",target,()->model.setText("gemini-3.8-flash-tts"));
         button(activity,"GEMINI 3.8 FLASH-LITE TTS — MAIS RÁPIDO",target,()->model.setText("gemini-3.8-flash-lite-tts"));
         button(activity,"SELECIONAR ENTRE 30 VOZES DE ESTÚDIO",target,()->new AlertDialog.Builder(activity)
@@ -105,7 +120,7 @@ final class GeminiVoiceUi {
             });
         });
         TextView hint=new TextView(activity);
-        hint.setText("Perfil e estilo são metadados, nunca texto narrado. As vozes disponíveis dependem das permissões e da cota da sua chave Gemini.");
+        hint.setText("O Gemini 3.8 recebe estilo e contraste como metadados por fala, e pausas pontuais em tags de áudio. Esses comandos não aparecem na narração. As vozes dependem da cota e da chave Gemini.");
         hint.setTextSize(12f);target.addView(hint);
         return new Fields(profile,style);
     }

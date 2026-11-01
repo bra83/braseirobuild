@@ -21,6 +21,10 @@ public final class AndroidTtsBackend {
     private static final String SHERPA_RELEASE="com.k2fsa.sherpa.onnx.tts.engine";
     private static final String SHERPA_DEBUG="com.k2fsa.sherpa.onnx.tts.engine.debug";
     private static final String LEGACY_KOKORO="com.braseiro.kokoro.ptbr";
+    /** Percent of the default Android narrator speed, independent from Kokoro. */
+    public static final String PREF_SPEED_PERCENT="tts_android_speed_percent_v1";
+    public static int clampSpeedPercent(int value){return Math.max(60,Math.min(160,value));}
+    public static float adjustedRate(float base,int percent){return base*clampSpeedPercent(percent)/100f;}
     private AndroidTtsBackend(){}
 
     public static final class EngineOption {

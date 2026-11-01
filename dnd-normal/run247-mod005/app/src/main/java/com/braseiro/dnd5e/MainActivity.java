@@ -618,7 +618,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(result==TextToSpeech.SUCCESS)AndroidTtsBackend.persistVoice(prefs,nativeTtsActiveEnginePackage,selected.getName());
             }
             if(isNativeKokoroEngine()){nativeTts.setSpeechRate(1.00f);nativeTts.setPitch(1.00f);}
-            else{nativeTts.setSpeechRate(NarrationPlaybackPolicy.ANDROID_SPEECH_RATE);nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}
+            else{nativeTts.setSpeechRate(AndroidTtsBackend.adjustedRate(NarrationPlaybackPolicy.ANDROID_SPEECH_RATE,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100)));nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}
             AppLog.i("NativeTts","Engine="+nativeTtsActiveEnginePackage+" • voz="+(selected==null?"padrão real":selected.getName())+" • neural="+isNativeKokoroEngine());
         }catch(Throwable error){AppLog.w("NativeTts","A seleção da voz real retornada pela engine falhou; mantendo a voz atual.",error);}
     }
@@ -636,10 +636,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private float narrativeSpeechRate(){
-        float base=NarrationPlaybackPolicy.ANDROID_SPEECH_RATE;JSONObject plan=lastAudioPlan==null?new JSONObject():lastAudioPlan;String delivery=plan.optString("delivery","normal").trim().toLowerCase(Locale.ROOT);int intensity=Math.max(0,Math.min(5,plan.optInt("intensity",1)));
-        if("baixo".equals(delivery))return Math.max(0.72f,base*0.90f);
-        if("calmo".equals(delivery))return Math.max(0.76f,base*0.94f);
-        if("urgente".equals(delivery))return Math.min(1.28f,base*(1.03f+0.012f*intensity));
+        float base=AndroidTtsBackend.adjustedRate(NarrationPlaybackPolicy.ANDROID_SPEECH_RATE,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100));JSONObject plan=lastAudioPlan==null?new JSONObject():lastAudioPlan;String delivery=plan.optString("delivery","normal").trim().toLowerCase(Locale.ROOT);int intensity=Math.max(0,Math.min(5,plan.optInt("intensity",1)));
+        if("baixo".equals(delivery))return Math.max(0.35f,base*0.90f);
+        if("calmo".equals(delivery))return Math.max(0.35f,base*0.94f);
+        if("urgente".equals(delivery))return Math.min(2.0f,base*(1.03f+0.012f*intensity));
         return base;
     }
     private long narrativePauseMs(boolean chapter){
@@ -8895,7 +8895,7 @@ private void speakGemini(String text){
         ui.post(new Runnable(){public void run(){if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;audio.beginVoiceSession();if(engine!=null)engine.beginNarration(plainVoiceChunks(chunks));setStatus("Charon: sintetizando a leitura contínua • fallback Android já preparado • "+audioLayersStatus()+".");synthesizeChunk(chunks,0,session,coordinated);}});
     }
 
-    private String ttsCacheModelKey(String configured){return NarrationPlaybackPolicy.CACHE_PIPELINE_ID+"|"+NarrationPlaybackPolicy.STYLE_ID+"|world="+activeWorldProfile()+"|"+(configured==null?"":configured.trim())+"|vprofile="+prefs.getString("tts_vocal_profile","")+"|vstyle="+prefs.getString("tts_vocal_style","")+"|gemini-3.8-v1";}
+    private String ttsCacheModelKey(String configured){return NarrationPlaybackPolicy.CACHE_PIPELINE_ID+"|"+NarrationPlaybackPolicy.STYLE_ID+"|world="+activeWorldProfile()+"|"+(configured==null?"":configured.trim())+"|vprofile="+prefs.getString("tts_vocal_profile","")+"|vstyle="+prefs.getString("tts_vocal_style","")+"|gemini-3.8-v2";}
     private String audioLayersStatus(){
         int sounds=smartAudio==null?0:smartAudio.indexedSoundCount();
         return sounds>0?("ambiência, música e SFX ativos com "+sounds+" sons indexados"):
@@ -8950,7 +8950,7 @@ private void speakGemini(String text){
     private void synthesizeChunk(final List<String> chunks,final int index,final long session,final AudioSessionCoordinator.Session coordinated){
         if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;
         if(index>=chunks.size()){activeCharonRequest=null;audio.endVoiceSessionInput();if(chunks.isEmpty()&&narrativeAudio!=null)narrativeAudio.endNarration();return;}
-        String key=geminiKey();String paidKey=geminiPaidKey();final String model=prefs.getString("tts_model","gemini-3.8-flash-tts");final String cacheModel=ttsCacheModelKey(model);final String packedSentence=chunks.get(index);final String sentence=NpcVoiceDirector.text(packedSentence);final String voice=NpcVoiceDirector.voice(packedSentence,prefs.getString("tts_voice","Charon"));final String speaker=NpcVoiceDirector.speaker(packedSentence);final boolean last=index==chunks.size()-1;
+        String key=geminiKey();String paidKey=geminiPaidKey();final String model=prefs.getString("tts_model","gemini-3.8-flash-tts");final String packedSentence=chunks.get(index);final String sentence=NpcVoiceDirector.text(packedSentence);final String speaker=NpcVoiceDirector.speaker(packedSentence);final int difference=GeminiTtsPerformance.clamp(prefs.getInt(GeminiTtsPerformance.PREF_CHARACTER_DIFFERENCE,50));final String narratorVoice=prefs.getString("tts_voice","Charon");final String voice=GeminiTtsPerformance.voice(narratorVoice,NpcVoiceDirector.voice(packedSentence,narratorVoice),speaker,difference);final String performanceStyle=GeminiTtsPerformance.direction(speaker,difference);final String cacheModel=ttsCacheModelKey(model)+"|speaker="+speaker+"|difference="+difference;final boolean last=index==chunks.size()-1;
         File cached=ttsCache==null?null:ttsCache.get(cacheModel,voice,sentence);
         if(cached!=null){
             activeCharonRequest=null;
@@ -8968,7 +8968,7 @@ private void speakGemini(String text){
         final long requestedAt=System.currentTimeMillis();if(index==0&&charonLatencyTelemetry!=null)charonLatencyTelemetry.request();
         JSONObject requestDetails=new JSONObject();try{requestDetails.put("block",index+1).put("blocks",chunks.size()).put("chars",sentence.length()).put("voice",voice).put("model",model).put("textHash",Integer.toHexString(sentence.hashCode())).put("cache",false);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
         audioSessionCoordinator.event(coordinated,"charon-synthesis-request",requestDetails);narrationStateMachine.onSynthesisRequested(index,session);
-        activeCharonRequest=gemini.synthesizeSpeech(key,paidKey,model,voice,sentence,new GeminiService.FileCallback(){
+        activeCharonRequest=gemini.synthesizeSpeech(key,paidKey,model,voice,sentence,performanceStyle,new GeminiService.FileCallback(){
             public void onSuccess(final File file,String mime){
                 if(!isCurrentAudioSession(coordinated)){if(file!=null)file.delete();return;}
                 JSONObject readyDetails=new JSONObject();try{readyDetails.put("block",index+1).put("blocks",chunks.size()).put("bytes",file==null?0:file.length()).put("latencyMs",System.currentTimeMillis()-requestedAt).put("voice",voice).put("model",model).put("textHash",Integer.toHexString(sentence.hashCode()));}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
@@ -10809,6 +10809,17 @@ private void speakGemini(String text){
             voiceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int pos,long id){if(pos<0||pos>=voices.size())return;Voice real=voices.get(pos);String saved=AndroidTtsBackend.savedVoiceName(prefs,nativeTtsActiveEnginePackage);if(real.getName().equals(saved))return;if(selectNativeTtsVoiceByName(real.getName()))setStatus("Voz Android selecionada: "+real.getName());else toast("A engine recusou essa voz real; a seleção anterior foi mantida.");}public void onNothingSelected(AdapterView<?> p){}});
         }
         engineSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int pos,long id){if(pos<0||pos>=engines.size())return;AndroidTtsBackend.EngineOption option=engines.get(pos);String saved=prefs.getString(AndroidTtsBackend.PREF_ENGINE_PACKAGE,"");if(option.packageName.equals(saved)&&(option.packageName.equals(nativeTtsActiveEnginePackage)||option.packageName.equals(nativeTtsRequestedEnginePackage)))return;switchNativeTtsEngine(option.packageName);setStatus("TTS Android: iniciando "+option.label+"…");}public void onNothingSelected(AdapterView<?> p){}});
+        // Velocidade exclusiva do TTS Android; Kokoro mantém o ritmo recomendado de sua engine.
+        final int ratePercent=AndroidTtsBackend.clampSpeedPercent(prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100));
+        final TextView speedCaption=text("VELOCIDADE ANDROID: "+ratePercent+"% ("+String.format(Locale.US,"%.2f",ratePercent/100f)+"x)",12,TEXT,true);
+        card.addView(speedCaption);
+        final SeekBar speed=new SeekBar(this);speed.setMax(100);speed.setProgress(ratePercent-60);card.addView(speed);
+        card.addView(text("De 0,60x a 1,60x. Altera imediatamente as próximas falas Android; não acelera o Charon ou a voz Kokoro.",11,MUTED,false));
+        speed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar bar,int progress,boolean fromUser){int pct=AndroidTtsBackend.clampSpeedPercent(60+progress);speedCaption.setText("VELOCIDADE ANDROID: "+pct+"% ("+String.format(Locale.US,"%.2f",pct/100f)+"x)");}
+            public void onStartTrackingTouch(SeekBar bar){}
+            public void onStopTrackingTouch(SeekBar bar){int pct=AndroidTtsBackend.clampSpeedPercent(60+bar.getProgress());prefs.edit().putInt(AndroidTtsBackend.PREF_SPEED_PERCENT,pct).apply();applyNativeNarrativeDelivery();}
+        });
         Button test=button("TESTAR VOZ ANDROID / KOKORO",GREEN);test.setOnClickListener(new View.OnClickListener(){public void onClick(View v){testSelectedNativeTtsVoice();}});card.addView(test);
         parent.addView(card);
     }
@@ -10816,6 +10827,7 @@ private void speakGemini(String text){
     private void testSelectedNativeTtsVoice(){
         if(nativeTts==null||!nativeTtsReady||!nativeTtsLanguageReady){ensureNativeTtsInitialized();toast("A engine TTS ainda está iniciando.");return;}
         try{
+            applyNativeNarrativeDelivery();
             String id="tts_test_"+System.currentTimeMillis();Bundle params=new Bundle();params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,id);
             int result=nativeTts.speak("Teste de voz do Braseiro. Esta frase confirma a engine e a voz selecionadas.",TextToSpeech.QUEUE_ADD,params,id);
             if(result==TextToSpeech.ERROR)toast("A engine TTS recusou o teste.");else setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Android TTS")+" • teste de voz enviado.");

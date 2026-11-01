@@ -345,7 +345,11 @@ public class GeminiService {
      * uma repetição para falhas recuperáveis; em 429/quota abre um circuito de
      * cinco minutos e a alternativa é tentada sem expor qualquer chave à UI.
      */
-    public SpeechRequest synthesizeSpeech(final String primaryApiKey,final String fallbackApiKey,final String model,final String voice,final String text,final FileCallback cb){/*BR_JSON_WRAP*/try{
+    public SpeechRequest synthesizeSpeech(final String primaryApiKey,final String fallbackApiKey,final String model,final String voice,final String text,final FileCallback cb){
+        return synthesizeSpeech(primaryApiKey,fallbackApiKey,model,voice,text,"",cb);
+    }
+
+    public SpeechRequest synthesizeSpeech(final String primaryApiKey,final String fallbackApiKey,final String model,final String voice,final String text,final String performanceStyle,final FileCallback cb){/*BR_JSON_WRAP*/try{
         final SpeechRequest request=new SpeechRequest();
         AppExecutors.network().execute(new Runnable(){public void run(){/*BR_JSON_WRAP*/try{
             try{
@@ -377,7 +381,7 @@ public class GeminiService {
                         String candidate=candidates.get(i);
                         try{
                             AudioData ad;
-                            if(isInteractionsTtsModel(candidate))ad=synthesizeWithInteractions(candidate,selectedKey,ttsPrompt,voice,request);
+                            if(isInteractionsTtsModel(candidate))ad=synthesizeWithInteractions(candidate,selectedKey,ttsPrompt,voice,performanceStyle,request);
                             else{JSONObject response=postWithRetry(candidate,selectedKey,body,1,request);ad=extractAudio(response);if(ad==null)throw new Exception(apiError(response,"O modelo não retornou áudio."));}
                             request.requireActive();
                             File wav=new File(context.getCacheDir(),"tts_"+System.currentTimeMillis()+".wav");writeWav(wav,ad.bytes,ad.sampleRate);rememberWorkingModel("last_tts_model_ok",candidate);
@@ -418,7 +422,13 @@ public class GeminiService {
         metadata=metadata.replaceAll("[\\r\\n<>]"," ").trim();
         return metadata.length()>600?metadata.substring(0,600):metadata;
     }
-    private AudioData synthesizeWithInteractions(String model,String key,String ttsPrompt,String voice,SpeechRequest request)throws Exception{/*BR_JSON_WRAP*/try{
+    private static String GeminiTtsPerformanceDirection(String raw){
+        if(raw==null||raw.trim().isEmpty())return "";
+        String clean=raw.replaceAll("[\\r\\n<>]"," ").trim();
+        if(clean.length()>260)clean=clean.substring(0,260);
+        return ". "+clean;
+    }
+    private AudioData synthesizeWithInteractions(String model,String key,String ttsPrompt,String voice,String performanceStyle,SpeechRequest request)throws Exception{/*BR_JSON_WRAP*/try{
         JSONObject body=new JSONObject();
         body.put("model",normalizeModel(model));
         // Gemini 3.8 receives a literal transcript and separate voice directions.
@@ -426,8 +436,8 @@ public class GeminiService {
         boolean metadata38=normalizeModel(model).startsWith("gemini-3.8-");
         if(metadata38){
             JSONObject style=new JSONObject().put("type","speech_metadata")
-                     .put("style",vocalStyle());
-            JSONObject transcript=new JSONObject().put("type","text").put("text",ttsPrompt)
+                     .put("style",vocalStyle()+GeminiTtsPerformanceDirection(performanceStyle));
+            JSONObject transcript=new JSONObject().put("type","text").put("text",GeminiTtsPerformance.taggedTranscript(ttsPrompt))
                     .put("annotations",new JSONArray().put(style));
             JSONObject userInput=new JSONObject().put("type","user_input")
                     .put("content",new JSONArray().put(transcript));

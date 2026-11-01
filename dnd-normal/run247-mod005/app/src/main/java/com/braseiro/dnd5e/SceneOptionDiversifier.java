@@ -288,8 +288,11 @@ public final class SceneOptionDiversifier {
                                                          JSONObject scene, int beatNumber) {
         ArrayList<JSONObject> pool = new ArrayList<JSONObject>();
         String npc = firstEntity(scene, "present_npcs_json");
+        if (!npc.isEmpty() && !containsAny(narration,npc)) npc = "";
         String clue = firstEntity(scene, "clues_json");
+        if (!clue.isEmpty() && !containsAny(narration,clue)) clue = "";
         String threat = firstEntity(scene, "threats_json");
+        if (!threat.isEmpty() && !containsAny(narration,threat)) threat = "";
         String location = scene == null ? "" : clean(scene.optString("location", ""), 70);
         String objective = scene == null ? "" : clean(scene.optString("objective", ""), 100);
         String danger = scene == null ? "" : clean(scene.optString("danger", ""), 100);
@@ -297,23 +300,24 @@ public final class SceneOptionDiversifier {
         String document=firstNarrativeObject(narration);
         boolean socialDemand=containsAny(narrative,"dívida","divida","cobrança","cobranca","contrato","cessão","cessao","direitos","prazo","pagamento","guilda","credor","notas promissórias","notas promissorias","exigência","exigencia","ordem","tributo","multa");
 
-        if (!npc.isEmpty() && socialDemand) {
-            pool.add(option("NEGOCIAR A EXIGÊNCIA COM " + upperShort(npc),
-                    "Questionar prazo, autoridade e contrapartida sem aceitar a cobrança automaticamente.",
-                    "Negociar com " + npc + " os termos, o prazo e a prova da exigência antes de assinar, entregar ou prometer qualquer recurso."));
-            if(!document.isEmpty())pool.add(option("EXAMINAR " + upperShort(document),
-                    "Conferir autenticidade, cláusulas, selo, nomes e consequências antes de responder.",
-                    "Examinar " + document + " diante de " + npc + ", comparando texto, selo, assinaturas e autoridade declarada antes de aceitar a cobrança."));
-            else pool.add(option("EXIGIR PROVA DA COBRANÇA",
-                    "Pedir origem, autoridade e registro verificável da dívida ou obrigação apresentada.",
-                    "Exigir de " + npc + " a prova documental e a base da cobrança, sem assumir que a versão apresentada é verdadeira."));
+        if(containsAny(narrative,"arbustos despertados","arbusto despertado","criaturas vegetais","plantas despertadas")){
+            pool.add(option("OBSERVAR OS ARBUSTOS",
+                    "Notar como as pequenas criaturas vegetais reagem ao movimento do jardim.",
+                    "Observo os arbustos despertados à distância, prestando atenção aos movimentos e às reações deles."));
+            pool.add(option("APROXIMAR-ME DOS ARBUSTOS",
+                    "Tentar uma aproximação pacífica sem determinar a reação das criaturas.",
+                    "Aproximo-me lentamente dos arbustos despertados, mantendo as mãos visíveis e aguardando a reação deles."));
+        }
+        // Demandas e cobrança só são opções quando a conversa acontece NA CENA
+        // narrada, não por resíduo de NPCs ou contratos do estado de outra cena.
+        if(!npc.isEmpty() && socialDemand && containsAny(narrative,"exige","exigiu","cobra","cobrou","pagamento","dívida","divida","pagar","contrato","tributo","multa")){
+            pool.add(option("PERGUNTAR A " + upperShort(npc) + " SOBRE A COBRANÇA",
+                    "Pedir esclarecimento do pedido que acabou de ser apresentado.",
+                    "Pergunto a " + npc + " por que está fazendo essa cobrança e que justificativa pode apresentar."));
         } else if (!npc.isEmpty()) {
-            pool.add(option("PEDIR A " + upperShort(npc) + " QUE EXPLIQUE A EXIGÊNCIA",
-                    "Obter objetivo, motivo e consequência concreta antes de decidir.",
-                    "Pedir a " + npc + " que explique exatamente o que deseja, por que precisa disso agora e o que acontecerá se o grupo recusar."));
-            pool.add(option("CONFRONTAR A FALA DE " + upperShort(npc) + " COM A CENA",
-                    "Comparar a declaração com objetos, testemunhas e mudanças visíveis.",
-                    "Confrontar a afirmação de " + npc + " com o elemento material mais relevante da cena antes de responder."));
+            pool.add(option("CONVERSAR COM " + upperShort(npc),
+                    "Iniciar diálogo com alguém presente, sem presumir sua intenção.",
+                    "Aproximo-me de " + npc + " e inicio uma conversa sobre o que está acontecendo aqui."));
         }
         if(!document.isEmpty()&&!socialDemand){
             pool.add(option("EXAMINAR " + upperShort(document),
@@ -396,7 +400,7 @@ public final class SceneOptionDiversifier {
     private static boolean isWeakOption(String label,String description,String action){
         String l=normalize(label),d=normalize(description),a=normalize(action);
         if(a.length()<14||l.length()<5)return true;
-        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao"};
+        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao","negociar a exigencia","exigir prova da cobranca","responder a exigencia atual","confrontar a fala"};
         for(String value:weak)if(l.equals(value)||a.equals(value)||l.startsWith(value+" "))return true;
         if(d.length()>30&&a.contains(d)&&d.split(" ").length>8)return true;
         if(l.matches("^(agir|fazer|continuar|prosseguir|investigar|observar)$"))return true;
@@ -406,25 +410,37 @@ public final class SceneOptionDiversifier {
     private static String shortNoun(String value){String clean=clean(value,42);int comma=clean.indexOf(',');if(comma>6)clean=clean.substring(0,comma);return clean;}
     private static boolean containsAny(String value,String... terms){String n=" "+normalize(value)+" ";for(String term:terms){String t=normalize(term);if(!t.isEmpty()&&n.contains(" "+t+" "))return true;}return false;}
 
+    /** No estado interno podem existir NPCs, riscos ou cobranças de cenas anteriores.
+     * Para uma opção ser exibida, a âncora deve aparecer na narração visível atual. */
     static boolean isGroundedInScene(String action,String narration,JSONObject scene){
-        String a=normalize(action);String context=normalize((narration==null?"":narration)+" "+(scene==null?"":scene.toString()));
+        String a=normalize(action),context=normalize(narration);
         if(a.isEmpty()||context.isEmpty())return false;
-        Set<String> candidate=entityTokens(a),world=tokens(context);int shared=0;for(String token:candidate)if(world.contains(token))shared++;
-        if(shared>0)return true;
-        // Verbos sozinhos não são âncora. Apenas elementos concretos explicitamente
-        // presentes autorizam ações sem nome próprio.
-        String[] anchors={"contrato","documento","carta","mapa","chave","lacre","porta","portao","entrada","passagem","rastro","trilha","pegada","fumaca","fogo","rio","ponte","agua","patrulha","sentinela","vigia","ameaca","pista","tesouro","corpo","altar","ruina","caverna","estrada","caravana"};
+        Set<String> candidate=entityTokens(a),world=tokens(context);
+        // Ações genéricas não são ancoradas por "ação", "situação" ou "cenário".
+        String[] generic={"consequencia","consequencias","acao","acoes","situacao","cena","cenario",
+                "grupo","pedido","exigencia","cobranca","resposta","reacao","local","ambiente",
+                "objetivo","informacao","prova","mudanca","mudancas","seguinte","atual","risco",
+                "alguem","alguma","coisa","resultado","olhar","atencao","aqui"};
+        for(String word:generic)candidate.remove(stem(word));
+        for(String token:candidate)if(world.contains(token))return true;
+        String[] anchors={"balcao","balcoes","atendimento","folheto","folhetos","calouros","veteranos",
+                "arbusto","arbustos","plantas","criaturas","contrato","documento","carta","mapa",
+                "porta","portao","entrada","passagem","rastro","trilha","pegada","fumaca",
+                "rio","ponte","patrulha","sentinela","pista","caverna","caravana"};
         for(String anchor:anchors)if(containsAny(a,anchor)&&containsAny(context,anchor))return true;
         return false;
     }
 
     static boolean isCompatibleWithScene(String action,String narration,JSONObject scene){
-        String candidate=normalize(action);String context=normalize((narration==null?"":narration)+" "+(scene==null?"":scene.toString()));
-        if(containsAny(candidate,"travessia","atravessar","ponte","corrente","margens","rio")&&!containsAny(context,"travessia","atravessar","ponte","corrente","margens","rio","riacho","água","agua"))return false;
-        if(containsAny(candidate,"porta","portão","portao","entrada","passagem")&&!containsAny(context,"porta","portão","portao","entrada","passagem","arco","acesso"))return false;
-        if(containsAny(candidate,"pegadas","rastro","rastros","trilha")&&!containsAny(context,"pegadas","rastro","rastros","trilha","marcas"))return false;
-        if(containsAny(candidate,"fumaça","fumaca")&&!containsAny(context,"fumaça","fumaca","incêndio","incendio","fogo"))return false;
-        if(containsAny(candidate,"som","ruído","ruido","grito","voz")&&!containsAny(context,"som","ruído","ruido","grito","voz"))return false;
+        String a=normalize(action),n=normalize(narration);
+        if(n.isEmpty())return false;
+        // Nunca exibir oferta de dívida, prova, cobrança ou exigência em visita de
+        // campus/exploração que não contenha uma demanda concreta em cena.
+        if(containsAny(a,"cobranca","cobrança","divida","dívida","pagamento","pagar","negociar a exigencia","prova da cobranca") &&
+                !containsAny(n,"cobranca","cobrança","divida","dívida","pagamento","pagar","exige","exigiu","cobrou","contrato","tributo","multa"))return false;
+        if(containsAny(a,"travessia","atravessar","ponte","rio")&&!containsAny(n,"travessia","atravessar","ponte","rio","riacho","agua","água"))return false;
+        if(containsAny(a,"porta","portao","portão","entrada","passagem")&&!containsAny(n,"porta","portao","portão","entrada","passagem","arco","acesso"))return false;
+        if(containsAny(a,"pegadas","rastro","rastros","trilha")&&!containsAny(n,"pegadas","rastro","rastros","trilha","marcas"))return false;
         return true;
     }
 
