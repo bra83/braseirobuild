@@ -2700,7 +2700,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         addSheetSection(body,"QUEM É", "Aparência: "+s.optString("appearance")+"\n\nPersonalidade: "+s.optString("personality")+"\n\nIdeal: "+s.optString("ideal")+"\n\nVínculo: "+s.optString("bond")+"\n\nMedo: "+s.optString("fear")+"\n\nDefeito: "+s.optString("flaw"));
         addSheetSection(body,"PERSONALIDADE VIVA • TRAÇOS CONFIRMADOS",BraseiroPersonalityProfile.forSheetDisplay(s));
         addSheetSection(body,"RELAÇÕES E IMPULSOS","Contato: "+s.optString("contact")+"\n\nRival: "+s.optString("rival")+"\n\nDívida ou compromisso: "+s.optString("debt")+"\n\nMotivação: "+s.optString("motivation")+"\n\nEntrada na classe: "+s.optString("class_entry"));
-        addSheetSection(body,"HISTÓRIA",s.optString("history"));addSheetSection(body,"MANEIRISMOS E FALAS",s.optString("mannerisms")+"\n"+s.optString("quotes"));addSheetSection(body,"INVENTÁRIO",s.optString("inventory"));addSheetSection(body,"ANOTAÇÕES DA CAMPANHA",s.optString("extra_notes"));addSheetSection(body,"REFERÊNCIAS DOS ORÁCULOS",s.optString("oracle_references"));addSheetSection(body,"AO SUBIR DE NÍVEL",s.optString("level_up"));
+        addSheetSection(body,"HISTÓRIA",s.optString("history"));addSheetSection(body,"MANEIRISMOS E FALAS",s.optString("mannerisms")+"\n"+s.optString("quotes"));if(Character2024SheetReconciler.applies(s)){
+            CharacterInventory2024.reconcile(s);
+            String burden=s.optString("inventory_weight_display","Carga não verificada");
+            String capacity=s.optString("carrying_capacity","capacidade não verificada");
+            String review=s.optBoolean("inventory_weight_complete",false)?"":"\\nRevisão obrigatória: "+s.optJSONArray("inventory_weight_problems");
+            addSheetSection(body,"CARGA TRANSPORTADA E CAPACIDADE",
+                burden+"\\nCapacidade: "+capacity+review);
+        }
+        addSheetSection(body,"INVENTÁRIO",s.optString("inventory"));addSheetSection(body,"ANOTAÇÕES DA CAMPANHA",s.optString("extra_notes"));addSheetSection(body,"REFERÊNCIAS DOS ORÁCULOS",s.optString("oracle_references"));addSheetSection(body,"AO SUBIR DE NÍVEL",s.optString("level_up"));
         Button exportJson=button("EXPORTAR FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject ch=db.findCharacterByName(s.optString("name"));beginCharacterExport(s,ch.optInt("active",1)==1);}});body.addView(exportJson);scroll.addView(body);new AlertDialog.Builder(this).setTitle("Ficha completa").setView(scroll).setNegativeButton("Fechar",null).setPositiveButton("Editar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){JSONObject ch=db.findCharacterByName(s.optString("name"));if(ch.length()>0)characterDialog(ch);}}).show();
     }
 
