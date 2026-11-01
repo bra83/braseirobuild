@@ -2396,7 +2396,89 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String compactSlots(JSONArray a){if(a==null)return "—";StringBuilder b=new StringBuilder();for(int i=0;i<a.length();i++){int n=a.optInt(i,0);if(n<=0)continue;if(b.length()>0)b.append(" ");b.append(i+1).append(":").append(n);}return b.length()==0?"—":b.toString();}
 
     private boolean hasAvailableSlot(JSONArray a){if(a==null)return false;for(int i=0;i<a.length();i++)if(a.optInt(i,0)>0)return true;return false;}
-    private void characterInventoryEntryDialog(final long characterId){LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(16),dp(4),dp(16),dp(12));final EditText name=input("Item","",false),qty=input("Quantidade","1",false),weight=input("Peso unitário em lb (-1 = desconhecido)","-1",false);final CheckBox equipped=check("Equipado",false);form.addView(name);form.addView(qty);form.addView(weight);form.addView(equipped);new AlertDialog.Builder(this).setTitle("Item estruturado").setView(form).setNegativeButton("Cancelar",null).setPositiveButton("Adicionar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String n=value(name);if(n.length()==0){toast("Informe o nome do item.");return;}int q=1;double lb=-1d;try{q=Math.max(1,Integer.parseInt(value(qty)));}catch(Exception ignored){}try{lb=Double.parseDouble(value(weight).replace(',','.'));}catch(Exception ignored){}db.addCharacterInventoryEntry(characterId,n,q,lb,equipped.isChecked());showHeroes();}}).show();}
+    private void characterInventoryEntryDialog(final long characterId){
+        final JSONObject character=db.getCharacter(characterId);
+        final JSONObject savedSheet=parseLooseJson(character.optString("sheet_json","{}"));
+        final boolean revised=Character2024SheetReconciler.applies(savedSheet);
+        LinearLayout form=new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(16),dp(4),dp(16),dp(12));
+        final EditText name=input("Nome do item","",false);
+        final EditText qty=input("Quantidade","1",false);
+        final EditText weight=input("Peso unitário em lb (-1 para consultar catálogo)","-1",false);
+        final Spinner source=spinner(new String[]{
+            "Adicionar manualmente","Comprado","Encontrado","Saqueado",
+            "Recompensa de aventura","Presente","Fabricado","Concedido pelo mestre"
+        },"Adicionar manualmente");
+        final EditText price=input("Preço total em PO (apenas compra)","0",false);
+        final EditText origin=input("Origem: vendedor, lugar, criatura ou NPC","",false);
+        final CheckBox equipped=check("Equipado",false);
+        form.addView(name);form.addView(qty);form.addView(weight);
+        if(revised){form.addView(source);form.addView(price);form.addView(origin);}
+        form.addView(equipped);
+        new AlertDialog.Builder(this).setTitle("Item e inventário")
+            .setView(form).setNegativeButton("Cancelar",null)
+            .setPositiveButton("Adicionar",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog,int which){
+                    final String itemName=value(name).trim();
+                    final int quantity;final double lb;final long costCp;
+                    try{
+                        if(itemName.isEmpty())throw new IllegalArgumentException("Nome do item obrigatório.");
+                        quantity=Integer.parseInt(value(qty).trim());
+                        if(quantity<=0)throw new IllegalArgumentException("Quantidade deve ser positiva.");
+                        lb=Double.parseDouble(value(weight).replace(',','.'));
+                        if(!Double.isFinite(lb)||lb< -1)
+                            throw new IllegalArgumentException("Peso inválido.");
+                        costCp=revised&&source.getSelectedItemPosition()==1?
+                            new java.math.BigDecimal(value(price).replace(',','.'))
+                                .multiply(new java.math.BigDecimal("100")).longValueExact():0L;
+                        if(costCp<0)throw new IllegalArgumentException("Preço não pode ser negativo.");
+                    }catch(Exception invalid){
+                        toast("Item não registrado: "+safeMessage(invalid));return;
+                    }
+                    final String[] sources={
+                        "manual","purchase","find","loot","quest_reward","gift","craft","master_grant"
+                    };
+                    final String kind=revised?sources[source.getSelectedItemPosition()]:"manual";
+                    final String from=revised?value(origin).trim():"";
+                    final boolean equippedNow=equipped.isChecked();
+                    final String eventId="inventory-ui-"+java.util.UUID.randomUUID();
+                    AppExecutors.serial().execute(new Runnable(){public void run(){
+                        String message="";
+                        try{
+                            JSONObject current=db.getCharacter(characterId);
+                            if(current.length()==0)throw new IllegalStateException("Personagem não encontrado.");
+                            JSONObject currentSheet=parseLooseJson(current.optString("sheet_json","{}"));
+                            if(revised){
+                                JSONObject row=new JSONObject()
+                                    .put("id","item_"+java.util.UUID.randomUUID())
+                                    .put("name",itemName).put("quantity",quantity)
+                                    .put("equipped",equippedNow);
+                                if(lb>=0)row.put("unit_weight_lb",lb);
+                                JSONObject authorization=new JSONObject().put("actor","player")
+                                    .put("from",from).put("cost_cp",kind.equals("purchase")?costCp:0);
+                                JSONObject persisted=InventoryPersistence2024.commitApprovedAcquisition(
+                                    db,characterId,row,kind,eventId,authorization,"manual");
+                                if(!persisted.optBoolean("saved",false))
+                                    throw new IllegalStateException("Gravação não confirmada.");
+                            }else{
+                                JSONObject item=db.addCharacterInventoryEntry(
+                                    characterId,itemName,quantity,lb,equippedNow);
+                                if(!item.optBoolean("inventory_change_committed",false))
+                                    throw new IllegalStateException(item.optString(
+                                        "inventory_change_blocked","Falha ao adicionar item."));
+                            }
+                        }catch(Exception e){message=safeMessage(e);}
+                        final String error=message;
+                        ui.post(new Runnable(){public void run(){
+                            if(!error.isEmpty())toast("Inventário não alterado: "+error);
+                            else toast("Item registrado, carga e ficha atualizadas.");
+                            showHeroes();
+                        }});
+                    }});
+                }
+            }).show();
+    }
     private void addInventoryLedgerRows(LinearLayout card,final long characterId,JSONArray ledger){if(ledger==null||ledger.length()==0)return;card.addView(text("INVENTÁRIO ESTRUTURADO",11,GOLD,true));for(int i=0;i<ledger.length();i++){final JSONObject item=ledger.optJSONObject(i);if(item==null||item.optInt("quantity",0)<=0)continue;LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);String line=item.optInt("quantity",1)+"× "+item.optString("name","Item")+(item.has("unit_weight_lb")?" • "+String.format(java.util.Locale.US,"%.2f",item.optDouble("unit_weight_lb",0d))+" lb/un":" • peso não verificado");row.addView(text(line,12,TEXT,false),new LinearLayout.LayoutParams(0,-2,1));Button minus=smallButton("−",PANEL2),plus=smallButton("+",PANEL2);minus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject changed=db.changeCharacterInventoryQuantity(characterId,item.optString("id",item.optString("name")),-1);if(changed.optBoolean("inventory_change_committed",false))showHeroes();else toast("Inventário não alterado: "+changed.optString("inventory_change_blocked","falha na transação"));}});plus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject changed=db.changeCharacterInventoryQuantity(characterId,item.optString("id",item.optString("name")),1);if(changed.optBoolean("inventory_change_committed",false))showHeroes();else toast("Inventário não alterado: "+changed.optString("inventory_change_blocked","falha na transação"));}});row.addView(minus);row.addView(plus);card.addView(row);}}
 
     private String structuredResourceSummary(JSONObject sheet){StringBuilder out=new StringBuilder();try{for(String bucket:new String[]{"class_resources","subclass_resources","species_resources","volo_feat_resources"}){JSONObject all=sheet.optJSONObject(bucket);if(all==null)continue;java.util.Iterator<String>it=all.keys();while(it.hasNext()){String k=it.next();JSONObject r=all.optJSONObject(k);if(r==null||!r.has("max"))continue;if(out.length()>0)out.append(" • ");out.append(k.replace('_',' ')).append(' ').append(r.optInt("current",0)).append('/').append(r.optInt("max",0));}}}catch(Exception ignored){}return out.toString();}
@@ -2635,7 +2717,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         addSheetSection(body,"QUEM É", "Aparência: "+s.optString("appearance")+"\n\nPersonalidade: "+s.optString("personality")+"\n\nIdeal: "+s.optString("ideal")+"\n\nVínculo: "+s.optString("bond")+"\n\nMedo: "+s.optString("fear")+"\n\nDefeito: "+s.optString("flaw"));
         addSheetSection(body,"PERSONALIDADE VIVA • TRAÇOS CONFIRMADOS",BraseiroPersonalityProfile.forSheetDisplay(s));
         addSheetSection(body,"RELAÇÕES E IMPULSOS","Contato: "+s.optString("contact")+"\n\nRival: "+s.optString("rival")+"\n\nDívida ou compromisso: "+s.optString("debt")+"\n\nMotivação: "+s.optString("motivation")+"\n\nEntrada na classe: "+s.optString("class_entry"));
-        addSheetSection(body,"HISTÓRIA",s.optString("history"));addSheetSection(body,"MANEIRISMOS E FALAS",s.optString("mannerisms")+"\n"+s.optString("quotes"));addSheetSection(body,"INVENTÁRIO",s.optString("inventory"));addSheetSection(body,"ANOTAÇÕES DA CAMPANHA",s.optString("extra_notes"));addSheetSection(body,"REFERÊNCIAS DOS ORÁCULOS",s.optString("oracle_references"));addSheetSection(body,"AO SUBIR DE NÍVEL",s.optString("level_up"));
+        addSheetSection(body,"HISTÓRIA",s.optString("history"));addSheetSection(body,"MANEIRISMOS E FALAS",s.optString("mannerisms")+"\n"+s.optString("quotes"));if(Character2024SheetReconciler.applies(s)){
+            CharacterInventory2024.reconcile(s);
+            String burden=s.optString("inventory_weight_display","Carga não verificada");
+            String capacity=s.optString("carrying_capacity","capacidade não verificada");
+            String review=s.optBoolean("inventory_weight_complete",false)?"":"\nRevisão obrigatória: "+s.optJSONArray("inventory_weight_problems");
+            addSheetSection(body,"CARGA TRANSPORTADA E CAPACIDADE",
+                burden+"\nCapacidade: "+capacity+review);
+        }
+        addSheetSection(body,"INVENTÁRIO",s.optString("inventory"));addSheetSection(body,"ANOTAÇÕES DA CAMPANHA",s.optString("extra_notes"));addSheetSection(body,"REFERÊNCIAS DOS ORÁCULOS",s.optString("oracle_references"));addSheetSection(body,"AO SUBIR DE NÍVEL",s.optString("level_up"));
         Button exportJson=button("EXPORTAR FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject ch=db.findCharacterByName(s.optString("name"));beginCharacterExport(s,ch.optInt("active",1)==1);}});body.addView(exportJson);scroll.addView(body);new AlertDialog.Builder(this).setTitle("Ficha completa").setView(scroll).setNegativeButton("Fechar",null).setPositiveButton("Editar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){JSONObject ch=db.findCharacterByName(s.optString("name"));if(ch.length()>0)characterDialog(ch);}}).show();
     }
 
@@ -8363,9 +8453,41 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         for(int i=0;i<updates.length();i++){
             JSONObject u=updates.optJSONObject(i);if(u==null)throw new IllegalArgumentException("Alteração de ficha inválida.");String reason=u.optString("reason").trim();if(reason.length()==0)throw new IllegalArgumentException("Alteração de ficha sem justificativa.");JSONObject ch=db.findCharacterByName(u.optString("character"));if(ch.length()==0)throw new IllegalStateException("Personagem não encontrado: "+u.optString("character"));long id=ch.optLong("id");int oldHp=ch.optInt("hp"),newHp=oldHp,hpMax=Math.max(1,ch.optInt("max_hp",1));
             if(u.has("hp_set")&&!u.isNull("hp_set"))newHp=Math.max(0,Math.min(hpMax,u.optInt("hp_set",oldHp)));else if(u.has("hp_delta")){int delta=Math.max(-hpMax,Math.min(hpMax,u.optInt("hp_delta",0)));newHp=Math.max(0,Math.min(hpMax,oldHp+delta));}
-            String equipment=ch.optString("equipment");JSONArray added=u.optJSONArray("add_items"),removed=u.optJSONArray("remove_items");ArrayList<String> changes=new ArrayList<String>();if(newHp!=oldHp){db.setCharacterHpChecked(id,newHp);changes.add("PV "+oldHp+" → "+newHp);}
-            if(added!=null)for(int j=0;j<added.length();j++){String item=itemLabel(added.opt(j));if(item.length()>0){equipment=addEquipmentItem(equipment,item);changes.add("+ "+item);}}
-            if(removed!=null)for(int j=0;j<removed.length();j++){String item=itemLabel(removed.opt(j));if(item.length()>0){String changed=removeEquipmentItem(equipment,item);if(!changed.equals(equipment)){equipment=changed;changes.add("− "+item);}}}
+            String equipment=ch.optString("equipment");
+            JSONArray added=u.optJSONArray("add_items"),removed=u.optJSONArray("remove_items"),modified=u.optJSONArray("modify_items");
+            ArrayList<String> changes=new ArrayList<String>();
+            if(newHp!=oldHp){db.setCharacterHpChecked(id,newHp);changes.add("PV "+oldHp+" → "+newHp);}
+            JSONObject sheet=parseJsonObject(ch.optString("sheet_json","{}"));
+            if(Character2024SheetReconciler.applies(sheet)){
+                if((added!=null&&added.length()>0)||(removed!=null&&removed.length()>0)||
+                   (modified!=null&&modified.length()>0)){
+                    // The entire selected scene is in a single SQLite transaction.
+                    // Replaying this scene ID must never grant loot twice.
+                    sheet=MasterInventoryStateUpdate2024.apply(sheet,added,removed,modified,
+                        "master:"+sceneCommitId+":"+id+":"+i);
+                    equipment=sheet.optString("inventory",equipment);
+                    if(added!=null)for(int j=0;j<added.length();j++)
+                        changes.add("+ "+itemLabel(added.opt(j)));
+                    if(removed!=null)for(int j=0;j<removed.length();j++)
+                        changes.add("− "+itemLabel(removed.opt(j)));
+                    if(modified!=null)for(int j=0;j<modified.length();j++)
+                        changes.add("alterado: "+modified.optJSONObject(j).optString("item_id",
+                            modified.optJSONObject(j).optString("name","item")));
+                }
+            }else{
+                if(added!=null)for(int j=0;j<added.length();j++){
+                    String item=itemLabel(added.opt(j));
+                    if(item.length()>0){equipment=addEquipmentItem(equipment,item);changes.add("+ "+item);}
+                }
+                if(removed!=null)for(int j=0;j<removed.length();j++){
+                    String item=itemLabel(removed.opt(j));
+                    if(item.length()>0){
+                        String changed=removeEquipmentItem(equipment,item);
+                        if(!changed.equals(equipment)){equipment=changed;changes.add("− "+item);}
+                    }
+                }
+            }
+            sheet.put("hp",newHp);sheet.put("max_hp",hpMax);
             String notes=ch.optString("notes"),append=u.optString("notes_append").trim();if(append.length()>0&&!notes.contains(append)){notes+=(notes.length()>0?"\n":"")+"[Mestre] "+append;changes.add("anotação persistente");}
             JSONObject sheet=parseJsonObject(ch.optString("sheet_json","{}"));JSONArray conditions=sheet.optJSONArray("conditions");if(conditions==null)conditions=new JSONArray();JSONArray addConditions=u.optJSONArray("condition_add"),removeConditions=u.optJSONArray("condition_remove");
             if(addConditions!=null)for(int j=0;j<addConditions.length();j++){Object raw=addConditions.opt(j);String condition=conditionLabel(raw);if(condition.length()>0&&!jsonArrayContainsIgnoreCase(conditions,condition)){conditions.put(raw instanceof JSONObject?raw:condition);changes.add("condição + "+condition);}}
