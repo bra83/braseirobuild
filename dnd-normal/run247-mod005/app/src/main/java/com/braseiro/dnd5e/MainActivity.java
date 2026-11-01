@@ -2392,7 +2392,89 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String compactSlots(JSONArray a){if(a==null)return "—";StringBuilder b=new StringBuilder();for(int i=0;i<a.length();i++){int n=a.optInt(i,0);if(n<=0)continue;if(b.length()>0)b.append(" ");b.append(i+1).append(":").append(n);}return b.length()==0?"—":b.toString();}
 
     private boolean hasAvailableSlot(JSONArray a){if(a==null)return false;for(int i=0;i<a.length();i++)if(a.optInt(i,0)>0)return true;return false;}
-    private void characterInventoryEntryDialog(final long characterId){LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(16),dp(4),dp(16),dp(12));final EditText name=input("Item","",false),qty=input("Quantidade","1",false),weight=input("Peso unitário em lb (-1 = desconhecido)","-1",false);final CheckBox equipped=check("Equipado",false);form.addView(name);form.addView(qty);form.addView(weight);form.addView(equipped);new AlertDialog.Builder(this).setTitle("Item estruturado").setView(form).setNegativeButton("Cancelar",null).setPositiveButton("Adicionar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String n=value(name);if(n.length()==0){toast("Informe o nome do item.");return;}int q=1;double lb=-1d;try{q=Math.max(1,Integer.parseInt(value(qty)));}catch(Exception ignored){}try{lb=Double.parseDouble(value(weight).replace(',','.'));}catch(Exception ignored){}db.addCharacterInventoryEntry(characterId,n,q,lb,equipped.isChecked());showHeroes();}}).show();}
+    /** Real loot, purchases, crafting and master gifts flow through the same ledger. */
+    private void characterInventoryEntryDialog(final long characterId){
+        final JSONObject character=db.getCharacter(characterId);
+        final JSONObject savedSheet=parseLooseJson(character.optString("sheet_json","{}"));
+        final boolean revised=Character2024SheetReconciler.applies(savedSheet);
+        LinearLayout form=new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(16),dp(4),dp(16),dp(12));
+        final EditText name=input("Nome do item","",false);
+        final EditText qty=input("Quantidade","1",false);
+        final EditText weight=input("Peso unitário em lb (-1 para consultar catálogo)","-1",false);
+        final Spinner source=spinner(new String[]{
+            "Adicionar manualmente","Comprado","Encontrado","Saqueado",
+            "Recompensa de aventura","Presente","Fabricado","Concedido pelo mestre"
+        },"Adicionar manualmente");
+        final EditText price=input("Preço total em PO (apenas compra)","0",false);
+        final EditText origin=input("Origem: vendedor, lugar, criatura ou NPC","",false);
+        final CheckBox equipped=check("Equipado",false);
+        form.addView(name);form.addView(qty);form.addView(weight);
+        if(revised){form.addView(source);form.addView(price);form.addView(origin);}
+        form.addView(equipped);
+        new AlertDialog.Builder(this).setTitle("Item e inventário")
+            .setView(form).setNegativeButton("Cancelar",null)
+            .setPositiveButton("Adicionar",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog,int which){
+                    final String itemName=value(name).trim();
+                    final int quantity;final double lb;final long costCp;
+                    try{
+                        if(itemName.isEmpty())throw new IllegalArgumentException("Nome do item obrigatório.");
+                        quantity=Integer.parseInt(value(qty).trim());
+                        if(quantity<=0)throw new IllegalArgumentException("Quantidade deve ser positiva.");
+                        lb=Double.parseDouble(value(weight).replace(',','.'));
+                        if(!Double.isFinite(lb)||lb< -1)
+                            throw new IllegalArgumentException("Peso inválido.");
+                        costCp=new java.math.BigDecimal(value(price).replace(',','.'))
+                            .multiply(new java.math.BigDecimal("100")).longValueExact();
+                        if(costCp<0)throw new IllegalArgumentException("Preço não pode ser negativo.");
+                    }catch(Exception invalid){
+                        toast("Item não registrado: "+safeMessage(invalid));return;
+                    }
+                    final String[] sources={
+                        "manual","purchase","find","loot","quest_reward","gift","craft","master_grant"
+                    };
+                    final String kind=revised?sources[source.getSelectedItemPosition()]:"manual";
+                    final String from=revised?value(origin).trim():"";
+                    final boolean equippedNow=equipped.isChecked();
+                    final String eventId="inventory-ui-"+java.util.UUID.randomUUID();
+                    AppExecutors.serial().execute(new Runnable(){public void run(){
+                        final String error;
+                        try{
+                            JSONObject current=db.getCharacter(characterId);
+                            if(current.length()==0)throw new IllegalStateException("Personagem não encontrado.");
+                            JSONObject currentSheet=parseLooseJson(current.optString("sheet_json","{}"));
+                            if(revised){
+                                JSONObject row=new JSONObject()
+                                    .put("id","item_"+java.util.UUID.randomUUID())
+                                    .put("name",itemName).put("quantity",quantity)
+                                    .put("equipped",equippedNow);
+                                if(lb>=0)row.put("unit_weight_lb",lb);
+                                JSONObject authorization=new JSONObject().put("actor","player")
+                                    .put("from",from).put("cost_cp",kind.equals("purchase")?costCp:0);
+                                JSONObject persisted=InventoryPersistence2024.commitApprovedAcquisition(
+                                    db,characterId,row,kind,eventId,authorization,"manual");
+                                if(!persisted.optBoolean("saved",false))
+                                    throw new IllegalStateException("Gravação não confirmada.");
+                            }else{
+                                JSONObject item=db.addCharacterInventoryEntry(
+                                    characterId,itemName,quantity,lb,equippedNow);
+                                if(!item.optBoolean("inventory_change_committed",false))
+                                    throw new IllegalStateException(item.optString(
+                                        "inventory_change_blocked","Falha ao adicionar item."));
+                            }
+                            error="";
+                        }catch(Exception e){error=safeMessage(e);}
+                        ui.post(new Runnable(){public void run(){
+                            if(!error.isEmpty())toast("Inventário não alterado: "+error);
+                            else toast("Item registrado, carga e ficha atualizadas.");
+                            showHeroes();
+                        }});
+                    }});
+                }
+            }).show();
+    }
     private void addInventoryLedgerRows(LinearLayout card,final long characterId,JSONArray ledger){if(ledger==null||ledger.length()==0)return;card.addView(text("INVENTÁRIO ESTRUTURADO",11,GOLD,true));for(int i=0;i<ledger.length();i++){final JSONObject item=ledger.optJSONObject(i);if(item==null||item.optInt("quantity",0)<=0)continue;LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);String line=item.optInt("quantity",1)+"× "+item.optString("name","Item")+(item.has("unit_weight_lb")?" • "+String.format(java.util.Locale.US,"%.2f",item.optDouble("unit_weight_lb",0d))+" lb/un":" • peso não verificado");row.addView(text(line,12,TEXT,false),new LinearLayout.LayoutParams(0,-2,1));Button minus=smallButton("−",PANEL2),plus=smallButton("+",PANEL2);minus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject changed=db.changeCharacterInventoryQuantity(characterId,item.optString("id",item.optString("name")),-1);if(changed.optBoolean("inventory_change_committed",false))showHeroes();else toast("Inventário não alterado: "+changed.optString("inventory_change_blocked","falha na transação"));}});plus.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject changed=db.changeCharacterInventoryQuantity(characterId,item.optString("id",item.optString("name")),1);if(changed.optBoolean("inventory_change_committed",false))showHeroes();else toast("Inventário não alterado: "+changed.optString("inventory_change_blocked","falha na transação"));}});row.addView(minus);row.addView(plus);card.addView(row);}}
 
     private String structuredResourceSummary(JSONObject sheet){StringBuilder out=new StringBuilder();try{for(String bucket:new String[]{"class_resources","subclass_resources","species_resources","volo_feat_resources"}){JSONObject all=sheet.optJSONObject(bucket);if(all==null)continue;java.util.Iterator<String>it=all.keys();while(it.hasNext()){String k=it.next();JSONObject r=all.optJSONObject(k);if(r==null||!r.has("max"))continue;if(out.length()>0)out.append(" • ");out.append(k.replace('_',' ')).append(' ').append(r.optInt("current",0)).append('/').append(r.optInt("max",0));}}}catch(Exception ignored){}return out.toString();}
@@ -2500,7 +2582,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }});
                 }});card.addView(tashaHealing);
             }
-            Button addItem=smallButton("+ ITEM",PANEL2);addItem.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterInventoryEntryDialog(id);}});resourceActions.addView(addItem);card.addView(resourceActions);addInventoryLedgerRows(card,id,resourceSheet.optJSONArray("inventory_ledger"));
+            Button addItem=smallButton("+ ITEM",PANEL2);addItem.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterInventoryEntryDialog(id);}});resourceActions.addView(addItem);card.addView(resourceActions);JSONObject liveLoad=db.characterInventoryLoad(id,false);String loadText=liveLoad.optString("display_weight",resourceSheet.optString("inventory_weight_display","Carga não calculada"));String capacityText=resourceSheet.optString("carrying_capacity","capacidade não definida");card.addView(text("CARGA TRANSPORTADA: "+loadText+" • CAPACIDADE: "+capacityText,12,liveLoad.optBoolean("complete",false)?GOLD:RED,true));addInventoryLedgerRows(card,id,resourceSheet.optJSONArray("inventory_ledger"));
             if(resourceSheet.optBoolean("short_rest_hit_dice_choice_pending",false)){Button spendHd=button("GASTAR 1 DADO DE VIDA DO DESCANSO CURTO",PANEL2);spendHd.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final int available=Math.max(0,resourceSheet.optInt("hit_dice_max",ch.optInt("level",1))-resourceSheet.optInt("hit_dice_spent",0));if(available<=0){toast("Sem Dados de Vida disponíveis.");return;}int die=new DndRulesEngine().classHitDie(ch.optString("class_name")),conMod=new DndRulesEngine().modifier(ch.optInt("con",10));String formula="1d"+die+(conMod>=0?"+":"")+conMod;rollDiceInteractive(formula,"Normal",ch.optString("name"),id,new DiceUiCallback(){private boolean applied;
                     public void done(DiceResult r){
                         if(applied)return;applied=true;
