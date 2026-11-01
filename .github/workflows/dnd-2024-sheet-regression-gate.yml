@@ -68,9 +68,21 @@ jobs:
             --tests com.braseiro.dnd5e.InventoryPersistence2024Test \
             --tests com.braseiro.dnd5e.MasterInventoryStateUpdate2024Test \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
-      - name: Full D&D JVM regression with real Faerûn map assets (no APK release)
+      - name: Full D&D JVM regression (all tests except two mapped archive tests)
         working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 30
         run: |
-          # Do not strip maps with qaLiteAssets: the full suite verifies the actual bundled ZIP.
-          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+          # qaLite excludes only the two map-archive integration tests; all other
+          # 2024, persistence, narrative, import and combat regressions run.
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Verify bundled Faerun archive with full Android assets (two real-map tests)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          # Run exactly the two tests omitted from the preceding lightweight suite.
+          # The real original 100 MB ZIP is mounted for these two, not for 3000 tests.
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence' \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing' \
+            --no-daemon --console=plain
 
