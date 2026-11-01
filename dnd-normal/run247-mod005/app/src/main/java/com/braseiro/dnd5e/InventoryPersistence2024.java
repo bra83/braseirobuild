@@ -23,39 +23,62 @@ public final class InventoryPersistence2024 {
         return sheet;
     }
     private static JSONObject commit(AppDb db,long id,JSONObject sheet,String actor)throws Exception{
-        JSONObject receipt=db.saveCharacterSheetAtomic(id,true,sheet,"","manual"); // editor mode, not storyteller identity
-        if(!receipt.optBoolean("character_saved",false) ||
-                 receipt.optLong("character_id",-1)!=id)
-            throw new IllegalStateException("character_sheet_commit_failed");
+        // saveCharacterSheetAtomic(..., notes="", controlMode="manual") would
+        // wipe existing notes and companion agency on every purchase or loot.
+        // Equipment transactions must only mutate sheet_json and equipment,
+        // retaining the unchanged character identity, notes and control.
+        JSONObject original=db.getCharacter(id);
+        if(original.length()==0)throw new IllegalArgumentException("character_not_found");
+        String notes=original.optString("notes","");
+        db.updateCharacterSheetChecked(id,sheet.toString());
+        db.setCharacterEquipmentAndNotesChecked(id,sheet.optString("inventory",""),notes);
+        JSONObject saved=db.getCharacter(id);
+        if(!notes.equals(saved.optString("notes","")))
+            throw new IllegalStateException("character_notes_changed");
+        JSONObject persisted=new JSONObject(saved.optString("sheet_json","{}"));
+        if(!sheet.optString("inventory","").equals(persisted.optString("inventory","")))
+            throw new IllegalStateException("inventory_projection_not_persisted");
         return new JSONObject().put("saved",true).put("character_id",id)
-                .put("receipt",receipt).put("sheet",sheet);
+                .put("sheet",persisted);
     }
     public static synchronized JSONObject commitApprovedChange(AppDb db,long id,
                        JSONObject mutation,String actor){
         try{
-            JSONObject current=load(db,id);
-            JSONObject changed=CharacterInventory2024.applyMutation(current,mutation);
-            return commit(db,id,changed,actor);
+            final JSONObject[] result={new JSONObject()};
+            db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+                JSONObject current=load(db,id);
+                JSONObject changed=CharacterInventory2024.applyMutation(current,mutation);
+                result[0]=commit(db,id,changed,actor);
+            }});
+            return result[0];
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("inventory_commit_failed",e);}
     }
     public static synchronized JSONObject commitApprovedAcquisition(AppDb db,long id,
             JSONObject item,String source,String eventId,JSONObject authorization,String actor){
         try{
-            JSONObject current=load(db,id);
-            JSONObject changed=InventoryTransactions2024.acquire(current,item,source,
-                eventId,authorization);
-            return commit(db,id,changed,actor);
+            final JSONObject[] result={new JSONObject()};
+            db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+                JSONObject current=load(db,id);
+                JSONObject changed=InventoryTransactions2024.acquire(current,item,source,
+                    eventId,authorization);
+                result[0]=commit(db,id,changed,actor);
+            }});
+            return result[0];
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("inventory_acquisition_commit_failed",e);}
     }
     public static synchronized JSONObject commitApprovedCurrencyChange(AppDb db,long id,
                       long deltaCp,String source,String eventId,String actor){
         try{
-            JSONObject current=load(db,id);
-            JSONObject changed=InventoryTransactions2024.adjustCoins(
-                current,deltaCp,source,eventId,actor);
-            return commit(db,id,changed,actor);
+            final JSONObject[] result={new JSONObject()};
+            db.runInTransactionChecked(new AppDb.CheckedTransaction(){public void run()throws Exception{
+                JSONObject current=load(db,id);
+                JSONObject changed=InventoryTransactions2024.adjustCoins(
+                    current,deltaCp,source,eventId,actor);
+                result[0]=commit(db,id,changed,actor);
+            }});
+            return result[0];
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("inventory_currency_commit_failed",e);}
     }
