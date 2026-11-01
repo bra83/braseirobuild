@@ -300,6 +300,14 @@ public final class SceneOptionDiversifier {
         String document=firstNarrativeObject(narration);
         boolean socialDemand=containsAny(narrative,"dívida","divida","cobrança","cobranca","contrato","cessão","cessao","direitos","prazo","pagamento","guilda","credor","notas promissórias","notas promissorias","exigência","exigencia","ordem","tributo","multa");
 
+        if(containsAny(narrative,"arbustos despertados","arbusto despertado","criaturas vegetais","plantas despertadas")){
+            pool.add(option("OBSERVAR OS ARBUSTOS",
+                    "Notar como as pequenas criaturas vegetais reagem ao movimento do jardim.",
+                    "Observo os arbustos despertados à distância, prestando atenção aos movimentos e às reações deles."));
+            pool.add(option("APROXIMAR-ME DOS ARBUSTOS",
+                    "Tentar uma aproximação pacífica sem determinar a reação das criaturas.",
+                    "Aproximo-me lentamente dos arbustos despertados, mantendo as mãos visíveis e aguardando a reação deles."));
+        }
         // Demandas e cobrança só são opções quando a conversa acontece NA CENA
         // narrada, não por resíduo de NPCs ou contratos do estado de outra cena.
         if(!npc.isEmpty() && socialDemand && containsAny(narrative,"exige","exigiu","cobra","cobrou","pagamento","dívida","divida","pagar","contrato","tributo","multa")){
@@ -345,14 +353,6 @@ public final class SceneOptionDiversifier {
             pool.add(option("LER OS FOLHETOS DISPONÍVEIS",
                     "Conferir os avisos apresentados, sem presumir o conteúdo.",
                     "Examino os folhetos visíveis na cena para descobrir que informações oferecem sobre as atividades e os locais."));
-        }
-        if(containsAny(narrative,"arbustos despertados","arbusto despertado","criaturas vegetais","plantas despertadas")){
-            pool.add(option("OBSERVAR OS ARBUSTOS DESPERTADOS",
-                    "Notar como as pequenas criaturas vegetais reagem ao movimento do jardim.",
-                    "Observo os arbustos despertados à distância, prestando atenção aos movimentos e às reações deles."));
-            pool.add(option("APROXIMAR-ME DOS ARBUSTOS",
-                    "Tentar uma aproximação pacífica sem determinar a reação das criaturas.",
-                    "Aproximo-me lentamente dos arbustos despertados, mantendo as mãos visíveis e aguardando a reação deles."));
         }
         if(containsAny(narrative,"calouros")&&containsAny(narrative,"veteranos")){
             pool.add(option("PEDIR INFORMAÇÕES A UM VETERANO",
