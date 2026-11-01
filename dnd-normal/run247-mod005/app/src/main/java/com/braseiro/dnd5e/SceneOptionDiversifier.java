@@ -400,7 +400,7 @@ public final class SceneOptionDiversifier {
     private static boolean isWeakOption(String label,String description,String action){
         String l=normalize(label),d=normalize(description),a=normalize(action);
         if(a.length()<14||l.length()<5)return true;
-        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao"};
+        String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao","negociar a exigencia","exigir prova da cobranca","responder a exigencia atual","confrontar a fala"};
         for(String value:weak)if(l.equals(value)||a.equals(value)||l.startsWith(value+" "))return true;
         if(d.length()>30&&a.contains(d)&&d.split(" ").length>8)return true;
         if(l.matches("^(agir|fazer|continuar|prosseguir|investigar|observar)$"))return true;
