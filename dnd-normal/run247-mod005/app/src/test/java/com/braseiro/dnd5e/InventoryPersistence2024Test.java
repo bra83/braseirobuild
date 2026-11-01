@@ -70,4 +70,60 @@ public class InventoryPersistence2024Test {
             context.deleteDatabase(name);
         }
     }
+
+    @Test public void partyItemTransferIsAtomicAndReopenSafe()throws Exception{
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="dnd-inventory-transfer-"+System.nanoTime()+".db";
+        AppDb db=null;
+        try{
+            db=new AppDb(context,dbName);
+            db.setActiveMapProfile("dnd");
+            JSONObject sender=new JSONObject().put("name","Kvothe")
+                .put("rules_source","5e 2024").put("class_name","Mago")
+                .put("species","Humano").put("background","Andarilho")
+                .put("level",1).put("size","Médio").put("str",8)
+                .put("inventory_ledger_status","structured_authoritative")
+                .put("inventory_ledger",new JSONArray().put(
+                    new JSONObject().put("id","dagger-1")
+                        .put("name","Adaga").put("quantity",2)));
+            JSONObject receiver=new JSONObject(sender.toString()).put("name","Wilem")
+                .put("class_name","Bárbaro").put("str",16)
+                .put("inventory_ledger",new JSONArray());
+            JSONObject s=db.saveCharacterSheetAtomic(0,false,sender,"","manual");
+            JSONObject t=db.saveCharacterSheetAtomic(0,false,receiver,"","manual");
+            assertTrue(s.toString(),s.optBoolean("character_saved"));
+            assertTrue(t.toString(),t.optBoolean("character_saved"));
+            long sid=s.getLong("character_id"),tid=t.getLong("character_id");
+            JSONObject receipt=InventoryPersistence2024.commitApprovedTransfer(
+                db,sid,tid,"dagger-1",1,"party-transfer-1","player");
+            assertTrue(receipt.toString(),receipt.getBoolean("saved"));
+            db.close();
+            db=new AppDb(context,dbName);
+            db.setActiveMapProfile("dnd");
+            JSONObject old=new JSONObject(db.getCharacter(sid).getString("sheet_json"));
+            JSONObject now=new JSONObject(db.getCharacter(tid).getString("sheet_json"));
+            assertEquals(1,old.getJSONArray("inventory_ledger")
+                .getJSONObject(0).getInt("quantity"));
+            assertEquals("Adaga",now.getJSONArray("inventory_ledger")
+                .getJSONObject(0).getString("name"));
+            assertEquals(1,now.getJSONArray("inventory_ledger")
+                .getJSONObject(0).getInt("quantity"));
+            JSONObject again=InventoryPersistence2024.commitApprovedTransfer(
+                db,sid,tid,"dagger-1",1,"party-transfer-1","player");
+            assertTrue(again.getBoolean("replayed"));
+            JSONObject failed=null;
+            try {
+                failed=InventoryPersistence2024.commitApprovedTransfer(
+                    db,sid,tid,"dagger-1",3,"party-transfer-2","player");
+                fail("invalid transfer must roll back");
+            }catch(IllegalStateException expected){}
+            JSONObject unchanged=new JSONObject(db.getCharacter(sid).getString("sheet_json"));
+            assertEquals(1,unchanged.getJSONArray("inventory_ledger")
+                .getJSONObject(0).getInt("quantity"));
+        }finally{
+            if(db!=null)db.close();
+            context.deleteDatabase(dbName);
+        }
+    }
+
 }
