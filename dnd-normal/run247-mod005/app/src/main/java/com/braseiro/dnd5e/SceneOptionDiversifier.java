@@ -354,6 +354,20 @@ public final class SceneOptionDiversifier {
                     "Conferir os avisos apresentados, sem presumir o conteúdo.",
                     "Examino os folhetos visíveis na cena para descobrir que informações oferecem sobre as atividades e os locais."));
         }
+        // Biblioplex: grupo teatral e funcionária são entidades presentes
+        // somente quando a narração atual realmente os apresenta.
+        if(containsAny(narrative,"guilda de rpg live action","guilda de rpg","guilda de teatro")
+                &&containsAny(narrative,"encenacao","teatro","tunicas","figurinos")){
+            pool.add(option("PERGUNTAR SOBRE A ENCENAÇÃO",
+                    "Abordar os estudantes da guilda sem pressupor a resposta.",
+                    "Aproximo-me dos membros da Guilda de RPG presentes e pergunto sobre a encenação que estão preparando."));
+        }
+        if(containsAny(narrative,"funcionaria","atendente")
+                &&containsAny(narrative,"inscricao","orientar","orientacao")){
+            pool.add(option("PERGUNTAR SOBRE A INSCRIÇÃO",
+                    "Pedir instruções à funcionária que está orientando os recém-chegados.",
+                    "Pergunto à funcionária presente onde ficam as instruções de inscrição e como devo me apresentar."));
+        }
         if(containsAny(narrative,"calouros")&&containsAny(narrative,"veteranos")){
             pool.add(option("PEDIR INFORMAÇÕES A UM VETERANO",
                     "Conversar com alguém que esteja passando e aceite responder.",
