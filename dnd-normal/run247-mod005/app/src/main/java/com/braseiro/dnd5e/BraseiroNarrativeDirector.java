@@ -258,7 +258,7 @@ public final class BraseiroNarrativeDirector {
         if(recent!=null)for(int i=Math.max(0,recent.length()-8);i<recent.length();i++){
             String previous=human(String.valueOf(recent.opt(i)));
             if(previous.length()<100)continue;
-            for(String sentence:previous.split("(?<=[.!?])\\\\s+")){
+            for(String sentence:previous.split("(?<=[.!?])\\s+")){
                 String literal=human(sentence);
                 if(literal.length()>=90&&spoken.contains(plain(literal)))
                     return "reaproveita uma frase descritiva inteira de cena anterior";
