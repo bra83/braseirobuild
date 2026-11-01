@@ -46,7 +46,13 @@ public final class CharacterResourceStateEngine {
             if(!s.has("inventory_ledger"))s.put("inventory_ledger",new JSONArray());
             if(!s.has("inventory_ledger_status"))s.put("inventory_ledger_status","structured_entries_only");
             s.put("resource_state_version",1).put("rules_profile",DndRulesEngine.canonicalProfile(profile));
-            if(rules.is2024(profile))CharacterInventory2024.reconcile(s);
+            if(rules.is2024(profile)){
+                // NPC/companion sheets created directly from 2024 runtime may not
+                // have edition in rules_source yet; keep explicit 2014 untouched.
+                if(!s.has("rules_source")||s.optString("rules_source","").trim().isEmpty())
+                    s.put("rules_source",DndRulesEngine.PROFILE_2024);
+                CharacterInventory2024.reconcile(s);
+            }
         }catch(Exception ignored){AppLog.ignored("CharacterResourceStateEngine","Falha ao estruturar recursos.",ignored);}return s;
     }
 
