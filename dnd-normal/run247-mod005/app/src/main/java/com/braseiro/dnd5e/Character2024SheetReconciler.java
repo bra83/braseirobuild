@@ -304,6 +304,7 @@ public final class Character2024SheetReconciler {
             originFeats(sheet);
             CharacterMageArmorState.reconcile(sheet);
             Character2024CreationReadiness.evaluate(sheet);
+            CharacterInventory2024.reconcile(sheet);
             sheet.put("sheet_2024_reconciler_version",2);
         }catch(Exception error){
             throw new IllegalStateException("A ficha 2024 não pôde ser reconciliada sem perda de dados.",error);
