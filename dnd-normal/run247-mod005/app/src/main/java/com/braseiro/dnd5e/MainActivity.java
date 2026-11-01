@@ -2426,8 +2426,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         lb=Double.parseDouble(value(weight).replace(',','.'));
                         if(!Double.isFinite(lb)||lb< -1)
                             throw new IllegalArgumentException("Peso inválido.");
-                        costCp=new java.math.BigDecimal(value(price).replace(',','.'))
-                            .multiply(new java.math.BigDecimal("100")).longValueExact();
+                        costCp=revised&&source.getSelectedItemPosition()==1?
+                            new java.math.BigDecimal(value(price).replace(',','.'))
+                                .multiply(new java.math.BigDecimal("100")).longValueExact():0L;
                         if(costCp<0)throw new IllegalArgumentException("Preço não pode ser negativo.");
                     }catch(Exception invalid){
                         toast("Item não registrado: "+safeMessage(invalid));return;
