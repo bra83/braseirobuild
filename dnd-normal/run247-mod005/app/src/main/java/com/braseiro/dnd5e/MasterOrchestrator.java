@@ -258,7 +258,35 @@ public final class MasterOrchestrator {
 
     public synchronized void afterAccepted(Plan plan,String narration,int inputChars,int outputChars){afterAccepted(plan,narration,null,inputChars,outputChars);}
     public synchronized void afterAccepted(Plan plan,String narration,JSONObject envelope,int inputChars,int outputChars){
-        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing)recordAcceptedSceneJournal(plan,narration);if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+    }
+
+    /**
+     * Respostas narrativas válidas sem mutações também ocupam tempo.
+     * A escrita é feita somente uma vez por plano aceito e não interfere
+     * com o commit estrutural, que tem seu próprio caminho em SceneStateEngine.
+     */
+    private void advanceClockForNarrationOnly(Plan plan,JSONObject envelope){
+        if(plan==null||envelope==null||hasStructuredChanges(envelope))return;
+        JSONObject report=envelope.optJSONObject("_master_validation");
+        if(report==null||!report.optBoolean("valid",false))return;
+        double minutes=SceneActionClock.minutesFor(plan.userPrompt);
+        if(minutes<=0d)return;
+        try{
+            JSONObject scene=db.getSceneState();
+            double old=scene.optDouble("clock_hour",9d);
+            if(!Double.isFinite(old))old=9d;
+            int day=Math.max(1,scene.optInt("day_number",1));
+            double total=old+minutes/60d;
+            day+=(int)Math.floor(total/24d);
+            double hour=total%24d;
+            scene.put("day_number",day);
+            scene.put("clock_hour",hour);
+            scene.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
+            db.saveSceneStateChecked(scene);
+        }catch(Exception failure){
+            AppLog.e("MasterOrchestrator","Falha ao avançar relógio em cena sem mutação do Mestre.",failure);
+        }
     }
 
     /** Guarda factual da cena, independente das mutações opcionais do Mestre. */
