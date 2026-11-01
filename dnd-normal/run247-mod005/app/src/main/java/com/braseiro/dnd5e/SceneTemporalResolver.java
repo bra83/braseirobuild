@@ -36,9 +36,9 @@ public final class SceneTemporalResolver {
             String narration,
             String existingLighting) {
         double baseHour;
-        if (hasProposedHour) baseHour = normalizeHour(proposedHour);
+        if (hasProposedHour && Double.isFinite(proposedHour)) baseHour = normalizeHour(proposedHour);
+        else if (hasStoredHour && Double.isFinite(storedHour)) baseHour = normalizeHour(storedHour);
         else if (notBlank(proposedLabel)) baseHour = hourForLabel(proposedLabel);
-        else if (hasStoredHour) baseHour = normalizeHour(storedHour);
         else baseHour = hourForLabel(storedLabel);
 
         double narrativeHour = inferExplicitHour(narration);
@@ -49,50 +49,33 @@ public final class SceneTemporalResolver {
         return new Result(resolvedHour, label, lighting, narrationAuthoritative);
     }
 
+    /**
+     * Descriptions such as "o ar da manhã" or "sob o luar" are ambience,
+     * NOT time updates. Only an explicit clock reading or an actual
+     * transition can override the persisted time.
+     */
     public static double inferExplicitHour(String narration) {
-        String text = normalize(narration);
-        if (text.length() == 0) return Double.NaN;
-        Marker best = null;
-
-        best = choose(best, text, 3d, 9,
-                "em plena madrugada", "durante a madrugada", "na madrugada silenciosa");
-        best = choose(best, text, 3d, 6, "na madrugada", "antes do amanhecer");
-
-        best = choose(best, text, 6d, 10,
-                "luz dourada do amanhecer", "luz do amanhecer", "ao amanhecer");
-        best = choose(best, text, 6d, 9,
-                "o dia amanhece", "o dia amanheceu", "amanheceu", "alvorada");
-        best = choose(best, text, 6d, 8,
-                "primeiros raios", "sol nascente", "nascer do sol");
-
-        best = choose(best, text, 9d, 12,
-                "luz dourada da manha", "dourada luz da manha");
-        best = choose(best, text, 9d, 10,
-                "luz da manha", "sol da manha", "claridade da manha", "luz matinal");
-        best = choose(best, text, 9d, 8,
-                "pela manha", "durante a manha", "nesta manha", "esta manha", "na manha seguinte");
-        best = choose(best, text, 9d, 7, "na manha", "manha clara");
-
-        best = choose(best, text, 12d, 10,
-                "ao meio dia", "meio dia", "sol a pino");
-
-        best = choose(best, text, 15d, 9,
-                "luz da tarde", "sol da tarde", "durante a tarde", "pela tarde");
-        best = choose(best, text, 15d, 7, "nesta tarde", "na tarde");
-
-        best = choose(best, text, 18d, 11,
-                "luz do entardecer", "ao entardecer", "por do sol");
-        best = choose(best, text, 18d, 9,
-                "o sol se poe", "o sol se pos", "crepusculo", "fim da tarde");
-
-        best = choose(best, text, 21d, 11,
-                "a noite cai", "anoitece", "anoiteceu", "em plena noite");
-        best = choose(best, text, 21d, 10,
-                "durante a noite", "sob o luar", "ceu estrelado", "luz da lua");
-        best = choose(best, text, 21d, 8,
-                "nesta noite", "naquela noite", "noite cerrada");
-
-        return best == null ? Double.NaN : best.hour;
+        if(narration==null||narration.trim().isEmpty())return Double.NaN;
+        String lower=Normalizer.normalize(narration.toLowerCase(new Locale("pt","BR")),
+                Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        java.util.regex.Matcher exact=java.util.regex.Pattern.compile(
+                "(?:\\b(?:sao|eram|agora\\s+sao|as)\\s+)([01]?\\d|2[0-3])(?:\\s*[:h]\\s*([0-5]\\d))?(?:\\s*horas?)?\\b"
+        ).matcher(lower);
+        double time=Double.NaN;
+        while(exact.find()){
+            int h=Integer.parseInt(exact.group(1));
+            // An isolated "as 3" in prose is not a reliable clock. Require
+            // a clock separator or explicit "horas".
+            String phrase=exact.group();
+            if(phrase.matches(".*(?:[:h]|horas?).*") || lower.contains("agora sao"))
+                time=h+(exact.group(2)==null?0:Integer.parseInt(exact.group(2)))/60d;
+        }
+        if(!Double.isNaN(time))return time;
+        String text=normalize(narration);
+        if(containsAny(text,"ontem","no dia anterior","na noite anterior","na manha anterior","lembrava se"))return Double.NaN;
+        if(containsAny(text,"o dia amanhece","o dia amanheceu","ao amanhecer seguinte"))return 6d;
+        if(containsAny(text,"anoitece agora","a noite cai","o sol se poe","o sol se pos"))return 18d;
+        return Double.NaN;
     }
 
     public static double hourForLabel(String label) {
