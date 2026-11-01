@@ -2704,9 +2704,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             CharacterInventory2024.reconcile(s);
             String burden=s.optString("inventory_weight_display","Carga não verificada");
             String capacity=s.optString("carrying_capacity","capacidade não verificada");
-            String review=s.optBoolean("inventory_weight_complete",false)?"":"\\nRevisão obrigatória: "+s.optJSONArray("inventory_weight_problems");
+            String review=s.optBoolean("inventory_weight_complete",false)?"":"\nRevisão obrigatória: "+s.optJSONArray("inventory_weight_problems");
             addSheetSection(body,"CARGA TRANSPORTADA E CAPACIDADE",
-                burden+"\\nCapacidade: "+capacity+review);
+                burden+"\nCapacidade: "+capacity+review);
         }
         addSheetSection(body,"INVENTÁRIO",s.optString("inventory"));addSheetSection(body,"ANOTAÇÕES DA CAMPANHA",s.optString("extra_notes"));addSheetSection(body,"REFERÊNCIAS DOS ORÁCULOS",s.optString("oracle_references"));addSheetSection(body,"AO SUBIR DE NÍVEL",s.optString("level_up"));
         Button exportJson=button("EXPORTAR FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){JSONObject ch=db.findCharacterByName(s.optString("name"));beginCharacterExport(s,ch.optInt("active",1)==1);}});body.addView(exportJson);scroll.addView(body);new AlertDialog.Builder(this).setTitle("Ficha completa").setView(scroll).setNegativeButton("Fechar",null).setPositiveButton("Editar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){JSONObject ch=db.findCharacterByName(s.optString("name"));if(ch.length()>0)characterDialog(ch);}}).show();
