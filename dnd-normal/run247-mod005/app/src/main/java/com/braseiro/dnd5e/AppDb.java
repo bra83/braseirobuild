@@ -2176,7 +2176,33 @@ public class AppDb extends SQLiteOpenHelper {
             return new JSONObject();
         }
     }
-    public void updateCharacterInventoryLedger(long id,JSONArray ledger){JSONObject ch=getCharacter(id);if(ch.length()==0)return;JSONObject sheet=readCharacterSheet(ch);try{sheet.put("inventory_ledger",ledger==null?new JSONArray():new JSONArray(ledger.toString()));sheet.put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));}catch(Exception ignored){}updateCharacterSheet(id,sheet.toString());}
+    public void updateCharacterInventoryLedger(final long id,final JSONArray ledger){
+        try{
+            runInTransactionChecked(new CheckedTransaction(){public void run()throws Exception{
+                JSONObject character=getCharacter(id);
+                if(character.length()==0)throw new IllegalArgumentException("character_not_found");
+                JSONObject sheet=readCharacterSheet(character);
+                JSONArray next=ledger==null?new JSONArray():new JSONArray(ledger.toString());
+                sheet.put("inventory_ledger",next);
+                if(Character2024SheetReconciler.applies(sheet)){
+                    sheet.put("inventory_ledger_status","structured_authoritative");
+                    sheet.put("inventory_ledger_migration_version",1);
+                    CharacterInventory2024.reconcile(sheet);
+                    CharacterInventory2024.publishInventorySummary(sheet);
+                    ContentValues visible=new ContentValues();
+                    visible.put("equipment",sheet.optString("inventory"));
+                    getWritableDatabase().update("characters",visible,
+                        "id=? AND world_profile=?",
+                        new String[]{String.valueOf(id),getActiveMapProfile()});
+                }
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(
+                    sheet.optJSONArray("inventory_ledger"),character.optInt("str",10),false));
+                updateCharacterSheetChecked(id,sheet.toString());
+            }});
+        }catch(Exception failed){
+            throw new IllegalStateException("inventory_sheet_update_rolled_back",failed);
+        }
+    }
     public JSONObject addCharacterXp(final long id,final int delta){return characterAtomic("character_xp_award",new CharacterAtomicWork(){public JSONObject run()throws Exception{
         JSONObject character=getCharacter(id);
         if(character.length()==0)return new JSONObject().put("xp_award_blocked","character_missing");
