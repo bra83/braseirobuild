@@ -107,14 +107,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re,zipfile
-          pattern=r"package: name='([^']+)' versionCode='(\\d+)' versionName='([^']+)'"
+          pattern=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
           old=re.search(pattern,Path('baseline/BADGING.txt').read_text())
           new=re.search(pattern,Path('out/BADGING.txt').read_text())
           assert old and new
           assert old[1]==new[1]=='com.braseiro.dnd5e'
           assert int(new[2])==203900603 and int(new[2])>int(old[2])
           assert new[3]=='6.6.40-dnd2024-inventory-20261101-debug'
-          cert=r'Signer #1 certificate SHA-256 digest:\\s*([0-9a-fA-F]+)'
+          cert=r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)'
           prior=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
           current=re.search(cert,Path('out/SIGNATURE.txt').read_text())
           assert prior and current and prior[1].lower()==current[1].lower(),'SIGNER_CHANGED_UPGRADE_BLOCKED'
@@ -124,11 +124,11 @@ jobs:
           p=Path('dnd-normal/run247-mod005/version.properties').read_text()
           assert 'DB_SCHEMA=61' in p and 'BACKUP_FORMAT=21' in p
           Path('out/BUILD_PROOF.txt').write_text(
-              'COMMIT='+__import__('os').environ['GITHUB_SHA']+'\\n'
-              +'VERSION_CODE='+new[2]+'\\nDB_SCHEMA=61\\nBACKUP_FORMAT=21\\n'
-              +'SIGNER_SHA256='+current[1]+'\\n'
-              +'SHEET_AND_FULL_REGRESSION=PASS\\nFAERUN_MAP_TESTS=PASS\\n'
-              +'ANDROID_PHYSICAL_TEST=NOT_PERFORMED\\n')
+              'COMMIT='+__import__('os').environ['GITHUB_SHA']+'\n'
+              +'VERSION_CODE='+new[2]+'\nDB_SCHEMA=61\nBACKUP_FORMAT=21\n'
+              +'SIGNER_SHA256='+current[1]+'\n'
+              +'SHEET_AND_FULL_REGRESSION=PASS\nFAERUN_MAP_TESTS=PASS\n'
+              +'ANDROID_PHYSICAL_TEST=NOT_PERFORMED\n')
           print('DND_6640_SIGNATURE_VERSION_MAP_SCHEMA_PASS')
           PY
           (cd out && sha256sum BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk.sha256)
