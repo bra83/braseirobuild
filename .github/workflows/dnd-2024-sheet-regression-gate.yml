@@ -1,13 +1,16 @@
-name: D&D 6.6.40 Inventory Integrated APK — gated RC
+name: D&D 2024 Inventory and Scene Reliability APK — gated RC
 on:
   push:
-    branches: [fix/dnd-6639-inventory-integrated-20261101]
+    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterSheetGenerator.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Core2024EberronCharacterEngine.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneOptionDiversifier.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneOptionQualityRegressionTest.java'
+      - 'dnd-normal/run247-mod005/version.properties'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppDb.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterRulesValidator.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CharacterInventory2024.java'
@@ -101,24 +104,36 @@ jobs:
           gh release download dnd-6.6.39-dialogue-alignment-leak-20261031 --pattern SIGNATURE.txt --pattern BADGING.txt --dir baseline
           APK="$(find dnd-normal/run247-mod005/app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -quit)"
           test -s "$APK"
-          cp "$APK" out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > out/BADGING.txt
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > out/SIGNATURE.txt
+          VERSION_NAME="$(sed -n 's/^VERSION_NAME=//p' dnd-normal/run247-mod005/version.properties)"
+          if [[ "$VERSION_NAME" == "6.6.40-dnd2024-inventory-20261101" ]]; then
+            DND_APK_NAME="BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk"
+          else
+            DND_APK_NAME="BRASEIRO_DND_${VERSION_NAME//[^[:alnum:]._-]/_}.apk"
+          fi
+          export DND_APK_NAME
+          echo "DND_APK_NAME=$DND_APK_NAME" >> "$GITHUB_ENV"
+          cp "$APK" "out/$DND_APK_NAME"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "out/$DND_APK_NAME" > out/BADGING.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "out/$DND_APK_NAME" > out/SIGNATURE.txt
           python3 - <<'PY'
           from pathlib import Path
-          import re,zipfile
+          import os,re,zipfile
+          props=dict(line.split('=',1) for line in
+              Path('dnd-normal/run247-mod005/version.properties').read_text().splitlines()
+              if '=' in line and not line.startswith('#'))
           pattern=r"package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'"
           old=re.search(pattern,Path('baseline/BADGING.txt').read_text())
           new=re.search(pattern,Path('out/BADGING.txt').read_text())
-          assert old and new
-          assert old[1]==new[1]=='com.braseiro.dnd5e'
-          assert int(new[2])==203900603 and int(new[2])>int(old[2])
-          assert new[3]=='6.6.40-dnd2024-inventory-20261101-debug'
+          assert old and new, 'APK_BADGING_UNREADABLE'
+          assert old[1]==new[1]=='com.braseiro.dnd5e', 'APPLICATION_ID_CHANGED'
+          assert int(new[2])==int(props['VERSION_CODE']), 'APK_VERSION_CODE_NOT_CONFIGURED'
+          assert int(new[2])>int(old[2]), 'ANDROID_UPGRADE_VERSION_NOT_GREATER'
+          assert new[3]==props['VERSION_NAME']+'-debug', 'APK_VERSION_NAME_NOT_CONFIGURED'
           cert=r'Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]+)'
           prior=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
           current=re.search(cert,Path('out/SIGNATURE.txt').read_text())
           assert prior and current and prior[1].lower()==current[1].lower(),'SIGNER_CHANGED_UPGRADE_BLOCKED'
-          apk=Path('out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk')
+          apk=Path('out')/os.environ['DND_APK_NAME']
           with zipfile.ZipFile(apk) as z:
               assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist()),'REAL_FAERUN_MAP_MISSING'
           p=Path('dnd-normal/run247-mod005/version.properties').read_text()
@@ -129,10 +144,19 @@ jobs:
               +'SIGNER_SHA256='+current[1]+'\n'
               +'SHEET_AND_FULL_REGRESSION=PASS\nFAERUN_MAP_TESTS=PASS\n'
               +'ANDROID_PHYSICAL_TEST=NOT_PERFORMED\n')
-          print('DND_6640_SIGNATURE_VERSION_MAP_SCHEMA_PASS')
+          print('DND_UPGRADE_SIGNATURE_VERSION_MAP_SCHEMA_PASS: '+new[3])
           PY
-          (cd out && sha256sum BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk.sha256)
+          (cd out && sha256sum "$DND_APK_NAME" > "$DND_APK_NAME.sha256")
+      - name: Upload validated APK candidate for Galaxy A57 acceptance
+        if: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/fix/dnd-6641-scene-options-ui-stalls-20261101' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Braseiro-DND-A57-Candidate
+          path: out/*
+          if-no-files-found: error
+          retention-days: 14
       - name: Publish validated 6.6.40 APK prerelease for physical acceptance
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/fix/dnd-6639-inventory-integrated-20261101' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
