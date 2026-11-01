@@ -67,6 +67,13 @@ public final class MasterInventoryStateUpdate2024 {
             m.group(2).equalsIgnoreCase("PO")?100:1000;
         return Math.multiplyExact(Math.multiplyExact(n,factor),entry.quantity);
     }
+    private static boolean alreadyApplied(JSONObject sheet,String receipt){
+        JSONArray receipts=sheet.optJSONArray("inventory_event_receipts");
+        if(receipts==null)return false;
+        for(int i=0;i<receipts.length();i++)
+            if(receipt.equals(receipts.optString(i)))return true;
+        return false;
+    }
     private static Entry find(JSONObject sheet,Entry requested){
         JSONArray inventory=sheet.optJSONArray("inventory_ledger");
         if(inventory==null)throw new IllegalArgumentException("inventory_ledger_missing");
@@ -117,6 +124,7 @@ public final class MasterInventoryStateUpdate2024 {
             for(int i=0;removed!=null&&i<removed.length();i++){
                 Entry item=item(removed.opt(i));
                 String token=sceneReceipt+":removed:"+i;
+                if(alreadyApplied(sheet,token))continue;
                 long coins=moneyValue(item);
                 if(coins!=Long.MIN_VALUE){
                     sheet=InventoryTransactions2024.adjustCoins(sheet,-coins,"master_expense",token,"master");
