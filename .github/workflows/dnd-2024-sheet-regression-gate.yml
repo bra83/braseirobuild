@@ -1,4 +1,4 @@
-name: D&D 6.6.39 Inventory Integration Gate — no release
+name: D&D 6.6.40 Inventory Integrated APK — gated RC
 on:
   push:
     branches: [fix/dnd-6639-inventory-integrated-20261101]
@@ -28,7 +28,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sheet-2024:
@@ -87,4 +87,64 @@ jobs:
             --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence' \
             --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing' \
             --no-daemon --console=plain
-
+      - name: Assemble signed Android debug APK after all gates pass
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 40
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+      - name: Validate installable upgrade, signer and real Faerun map
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p out baseline
+          gh release download dnd-6.6.39-dialogue-alignment-leak-20261031 --pattern SIGNATURE.txt --pattern BADGING.txt --dir baseline
+          APK="$(find dnd-normal/run247-mod005/app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' -type f -print -quit)"
+          test -s "$APK"
+          cp "$APK" out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > out/BADGING.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > out/SIGNATURE.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,zipfile
+          pattern=r"package: name='([^']+)' versionCode='(\\d+)' versionName='([^']+)'"
+          old=re.search(pattern,Path('baseline/BADGING.txt').read_text())
+          new=re.search(pattern,Path('out/BADGING.txt').read_text())
+          assert old and new
+          assert old[1]==new[1]=='com.braseiro.dnd5e'
+          assert int(new[2])==203900603 and int(new[2])>int(old[2])
+          assert new[3]=='6.6.40-dnd2024-inventory-20261101-debug'
+          cert=r'Signer #1 certificate SHA-256 digest:\\s*([0-9a-fA-F]+)'
+          prior=re.search(cert,Path('baseline/SIGNATURE.txt').read_text())
+          current=re.search(cert,Path('out/SIGNATURE.txt').read_text())
+          assert prior and current and prior[1].lower()==current[1].lower(),'SIGNER_CHANGED_UPGRADE_BLOCKED'
+          apk=Path('out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk')
+          with zipfile.ZipFile(apk) as z:
+              assert any(n.endswith('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip') for n in z.namelist()),'REAL_FAERUN_MAP_MISSING'
+          p=Path('dnd-normal/run247-mod005/version.properties').read_text()
+          assert 'DB_SCHEMA=61' in p and 'BACKUP_FORMAT=21' in p
+          Path('out/BUILD_PROOF.txt').write_text(
+              'COMMIT='+__import__('os').environ['GITHUB_SHA']+'\\n'
+              +'VERSION_CODE='+new[2]+'\\nDB_SCHEMA=61\\nBACKUP_FORMAT=21\\n'
+              +'SIGNER_SHA256='+current[1]+'\\n'
+              +'SHEET_AND_FULL_REGRESSION=PASS\\nFAERUN_MAP_TESTS=PASS\\n'
+              +'ANDROID_PHYSICAL_TEST=NOT_PERFORMED\\n')
+          print('DND_6640_SIGNATURE_VERSION_MAP_SCHEMA_PASS')
+          PY
+          (cd out && sha256sum BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk > BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk.sha256)
+      - name: Publish validated 6.6.40 APK prerelease for physical acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CURRENT="$(gh api repos/${{ github.repository }}/git/ref/heads/fix/dnd-6639-inventory-integrated-20261101 --jq '.object.sha')"
+          test "$CURRENT" = "$GITHUB_SHA"
+          TAG="dnd-6.6.40-inventario-2024-20261101"
+          ! gh release view "$TAG" >/dev/null 2>&1
+          gh release create "$TAG" \
+            out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk \
+            out/BRASEIRO_DND_6.6.40_INVENTARIO_2024.apk.sha256 \
+            out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "Braseiro D&D 6.6.40 — Inventário 2024 integrado à 6.6.39" \
+            --notes "APK candidato de atualização, sobre a versão 6.6.39; ficha e inventário transacionais com pesos, moedas e itens do Mestre. Testes JVM e mapa executados, assinatura e versão conferidas. Homologação física no Galaxy A57 pendente."
