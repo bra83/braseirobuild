@@ -21,6 +21,10 @@ on:
       - '.github/workflows/dnd-2024-sheet-regression-gate.yml'
   workflow_dispatch:
 
+concurrency:
+  group: dnd2024-sheet-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
