@@ -2129,7 +2129,19 @@ public class AppDb extends SQLiteOpenHelper {
                     result[0].put("inventory_change_blocked",authorized.optString("blocked","quantity_not_authorized"));return;
                 }
                 JSONArray next=authorized.getJSONArray("ledger");
-                sheet.put("inventory_ledger",next).put("inventory_load",InventoryLedgerEngine.totals(next,ch.optInt("str",10),false));
+                if(Character2024SheetReconciler.applies(sheet)){
+                    JSONObject action=new JSONObject().put("operation","adjust")
+                        .put("item_id",itemId).put("delta",delta).put("event_id",receipt);
+                    sheet=CharacterInventory2024.applyMutation(sheet,action);
+                    next=sheet.optJSONArray("inventory_ledger");
+                    ContentValues visible=new ContentValues();
+                    visible.put("equipment",sheet.optString("inventory"));
+                    getWritableDatabase().update("characters",visible,
+                        "id=? AND world_profile=?",
+                        new String[]{String.valueOf(id),getActiveMapProfile()});
+                }else sheet.put("inventory_ledger",next);
+                sheet.put("inventory_load",InventoryLedgerEngine.totals(
+                    next,ch.optInt("str",10),false));
                 updateCharacterSheetChecked(id,sheet.toString());
                 recordEffectReceipt(receipt,authorized.toString());
                 result[0]=sheet.put("inventory_change_committed",true).put("inventory_change_receipt",receipt);
@@ -2138,7 +2150,32 @@ public class AppDb extends SQLiteOpenHelper {
             try{result[0]=new JSONObject().put("inventory_change_blocked","transaction_rolled_back");}catch(Exception ignored){result[0]=new JSONObject();}}
         return result[0];
     }
-    public JSONObject characterInventoryLoad(long id,boolean variant){JSONObject ch=getCharacter(id);if(ch.length()==0)return new JSONObject();JSONObject sheet=readCharacterSheet(ch);return InventoryLedgerEngine.totals(sheet.optJSONArray("inventory_ledger"),ch.optInt("str",10),variant);}
+    public JSONObject characterInventoryLoad(long id,boolean variant){
+        JSONObject character=getCharacter(id);
+        if(character.length()==0)return new JSONObject();
+        JSONObject sheet=readCharacterSheet(character);
+        if(!Character2024SheetReconciler.applies(sheet))
+            return InventoryLedgerEngine.totals(sheet.optJSONArray("inventory_ledger"),
+                character.optInt("str",10),variant);
+        try{
+            sheet.put("str",character.optInt("str",sheet.optInt("str",10)));
+            CharacterInventory2024.reconcile(sheet);
+            boolean complete=sheet.optBoolean("inventory_weight_complete",false);
+            return new JSONObject()
+                .put("weight",complete?sheet.opt("inventory_total_weight_lb"):JSONObject.NULL)
+                .put("known_weight_lb",sheet.optDouble("inventory_known_weight_lb",0d))
+                .put("carrying_capacity",sheet.opt("inventory_capacity_lb"))
+                .put("complete",complete)
+                .put("display_weight",sheet.optString("inventory_weight_display"))
+                .put("unknown_weight_count",sheet.optInt("inventory_unknown_weight_count",0))
+                .put("unknown_weight_items",sheet.optJSONArray("inventory_weight_problems"))
+                .put("state",!complete?"unverified":
+                    sheet.optBoolean("inventory_over_capacity",false)?"over_capacity":"normal");
+        }catch(Exception error){
+            AppLog.e("AppDb","Carga indisponível por inconsistência da ficha.",error);
+            return new JSONObject();
+        }
+    }
     public void updateCharacterInventoryLedger(long id,JSONArray ledger){JSONObject ch=getCharacter(id);if(ch.length()==0)return;JSONObject sheet=readCharacterSheet(ch);try{sheet.put("inventory_ledger",ledger==null?new JSONArray():new JSONArray(ledger.toString()));sheet.put("inventory_load",InventoryLedgerEngine.totals(ledger,ch.optInt("str",10),false));}catch(Exception ignored){}updateCharacterSheet(id,sheet.toString());}
     public JSONObject addCharacterXp(final long id,final int delta){return characterAtomic("character_xp_award",new CharacterAtomicWork(){public JSONObject run()throws Exception{
         JSONObject character=getCharacter(id);
