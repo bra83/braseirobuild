@@ -75,6 +75,9 @@ public final class NarrativeAudioEngine {
     private final Handler handler=new Handler(Looper.getMainLooper());
     private final ExecutorService scenePlanner=Executors.newSingleThreadExecutor();
     private final ExecutorService cuePlanner=Executors.newSingleThreadExecutor();
+    // Separate worker: selecting a new ambience scans thousands of sound files.
+    // It must never run inside an Android TTS callback or block the main Looper.
+    private final ExecutorService dynamicAmbiencePlanner=Executors.newSingleThreadExecutor();
     private final LinkedHashMap<String,Long> lastEventAt=new LinkedHashMap<String,Long>();
     private final LinkedHashMap<String,Long> lastFileAt=new LinkedHashMap<String,Long>();
     private final HashMap<String,UtteranceState> utterances=new HashMap<String,UtteranceState>();
@@ -290,26 +293,42 @@ public final class NarrativeAudioEngine {
     public synchronized void endNarration(){narrationActive=false;voiceHasStarted=false;generation++;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();audio.setExternalVoiceActive(false);}
     public synchronized void cancelNarration(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();currentDynamicEnv="";audio.setExternalVoiceActive(false);audio.stopSfx();}
     public synchronized void stopAll(){narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();lastEventAt.clear();lastFileAt.clear();sceneSignature="";baseSignature="";climateSignature="";musicMood="";currentDynamicEnv="";audio.stopAll();lastPlan="Todos os canais e eventos pendentes foram interrompidos.";}
-    public synchronized void shutdown(){generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();scenePlanner.shutdownNow();cuePlanner.shutdownNow();audio.setExternalVoiceActive(false);}
+    public synchronized void shutdown(){generation++;preparationGeneration++;pendingPreparedScene=null;cancelCallbacksLocked();narrationActive=false;voiceHasStarted=false;voiceStartedForPreparation=false;utterances.clear();preparedUtterances.clear();completedNativeUtterances.clear();explicitCues.clear();scenePlanner.shutdownNow();cuePlanner.shutdownNow();dynamicAmbiencePlanner.shutdownNow();audio.setExternalVoiceActive(false);}
     public synchronized String lastPlanSummary(){return lastPlan;}
     public synchronized boolean hasConcreteCue(String text){return !detectCues(text,explicitCues).isEmpty();}
     public synchronized JSONObject diagnosticReport(){/*BR_JSON_WRAP*/try{try{return new JSONObject(lastDiagnostic.toString()).put("active",narrationActive).put("voice_confirmed_for_scene",voiceStartedForPreparation).put("pending_callbacks",pending.size()).put("audio_channels",audio.activeChannels());}catch(Exception e){return new JSONObject();}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
+    /** Resolve expensive ambience choices off the UI thread. Late results from old
+     * playback sessions are ignored, so STOP and scene switches remain authoritative. */
     private void checkDynamicAmbienceShift(String text){
         if(text==null||!narrationActive)return;
-        String detected=inferExplicitEnvironment(text);
-        if(detected!=null&&detected.length()>0&&!detected.equalsIgnoreCase(currentDynamicEnv)){
-            currentDynamicEnv=detected;
-            JSONObject amb=catalog.resolveAmbience(detected);
-            if(amb!=null){
-                String uri=amb.optString("uri");
-                if(uri.length()>0&&!uri.equals(audio.currentAmbienceUri())){
-                    audio.playAmbience(Uri.parse(uri),3000);
-                    catalog.markPlayed(amb,"ambience","base",detected);
-                    say("Ambiência alternada para: "+amb.optString("name",detected));
-                }
-            }
-        }
+        final String detected=inferExplicitEnvironment(text);
+        if(detected==null||detected.isEmpty()||detected.equalsIgnoreCase(currentDynamicEnv))return;
+        currentDynamicEnv=detected;
+        final long playbackGeneration=generation;
+        try{
+            dynamicAmbiencePlanner.execute(new Runnable(){public void run(){
+                final JSONObject amb;
+                try{amb=catalog.resolveAmbience(detected);}
+                catch(Throwable ex){AppLog.w("NarrativeAudioEngine","Falha na seleção assíncrona de ambiência.",ex);return;}
+                if(amb==null)return;
+                final String uri=amb.optString("uri","");
+                if(uri.isEmpty())return;
+                handler.post(new Runnable(){public void run(){
+                    synchronized(NarrativeAudioEngine.this){
+                        if(playbackGeneration!=generation||!narrationActive||!detected.equalsIgnoreCase(currentDynamicEnv))return;
+                        if(uri.equals(audio.currentAmbienceUri()))return;
+                        audio.playAmbience(Uri.parse(uri),3000);
+                        say("Ambiência alternada para: "+amb.optString("name",detected));
+                    }
+                    // Persistence/database updates must stay outside UI Looper.
+                    try{dynamicAmbiencePlanner.execute(new Runnable(){public void run(){
+                        try{catalog.markPlayed(amb,"ambience","base",detected);}
+                        catch(Throwable ignored){AppLog.ignored("NarrativeAudioEngine","Registro de ambiência falhou.",ignored);}
+                    }});}catch(java.util.concurrent.RejectedExecutionException ignored){}
+                }});
+            }});
+        }catch(java.util.concurrent.RejectedExecutionException ignored){/* player shut down */}
     }
 
     private static String inferExplicitEnvironment(String text){
