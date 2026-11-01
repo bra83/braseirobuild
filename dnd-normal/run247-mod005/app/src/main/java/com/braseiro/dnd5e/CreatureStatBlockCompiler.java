@@ -94,15 +94,50 @@ public final class CreatureStatBlockCompiler {
     private static int attackCount(String block){Matcher m=Pattern.compile("(?iu)\\b(?:multiataque|multiattack)\\b[^\\n.]*?\\b(\\d{1,2}|dois|duas|two|três|tres|three)\\b").matcher(block);if(!m.find())return attackLinesUnchecked(block)>0?1:0;String v=norm(m.group(1));if("dois".equals(v)||"duas".equals(v)||"two".equals(v))return 2;if("tres".equals(v)||"three".equals(v))return 3;try{return Integer.parseInt(v);}catch(Exception ignored){return 1;}}
     private static int attackLinesUnchecked(String block){int count=0;for(String line:block.split("\\r?\\n"))if(ATTACK.matcher(line).find()&&DICE.matcher(line).find())count++;return count;}
     private static String section(String block,String... labels){String n=norm(block);for(String label:labels){String wanted=norm(label);int at=n.indexOf(wanted);if(at>=0)return block;}return "";}
-    private static JSONArray matchingLines(String block,String... terms)throws Exception{JSONArray out=new JSONArray();for(String line:block.split("\\r?\\n")){String n=norm(line);if(containsAny(n,terms))putUnique(out,line.trim());}return out;}
+    private static JSONArray matchingLines(String block,String... terms)throws Exception{
+        JSONArray out=new JSONArray();
+        String[] normalizedTerms=new String[terms.length];
+        for(int i=0;i<terms.length;i++)normalizedTerms[i]=norm(terms[i]);
+        java.util.HashSet<String> seen=new java.util.HashSet<String>();
+        for(String line:block.split("\\r?\\n")){
+            String n=norm(line);
+            if(n.isEmpty()||!seen.add(n))continue;
+            for(String term:normalizedTerms)if(!term.isEmpty()&&n.contains(term)){
+                out.put(line.trim());
+                break;
+            }
+        }
+        return out;
+    }
     private static String labeledText(String block,String... labels){for(String label:labels){Matcher m=Pattern.compile("(?ium)^\\s*"+Pattern.quote(label)+"\\s*[:=]?\\s*([^\\r\\n]+)").matcher(block);if(m.find())return m.group(1).trim();}return "";}
     private static int labeledInt(String block,String... labels){String value=labeledText(block,labels);Matcher m=Pattern.compile("\\d{1,3}").matcher(value);return m.find()?Integer.parseInt(m.group()):0;}
     private static String capture(Pattern p,String text,int group){Matcher m=p.matcher(text);return m.find()?m.group(group).trim():"";}
     private static String inferSystem(JSONObject source){String n=norm(source==null?"":source.optString("rule_profile")+" "+source.optString("book"));return n.contains("mystara")||n.contains("becmi")?"mystara":"dnd5e";}
     private static String firstNonEmpty(String a,String b){return a==null||a.length()==0?(b==null?"":b):a;}
     private static void putUnique(JSONArray out,String value)throws Exception{/*BR_JSON_WRAP*/try{String n=norm(value);if(n.length()==0)return;for(int i=0;i<out.length();i++)if(norm(out.optString(i)).equals(n))return;out.put(value);}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
-    private static boolean containsAny(String source,String... values){for(String value:values)if(source.contains(norm(value)))return true;return false;}
-    private static String norm(String value){String n=Normalizer.normalize(value==null?"":value.toLowerCase(new Locale("pt","BR")),Normalizer.Form.NFD).replaceAll("\\p{M}","");return n.replaceAll("[^a-z0-9]+"," ").trim();}
+    private static boolean containsAny(String source,String... values){
+        if(source==null||source.isEmpty())return false;
+        for(String value:values){String term=norm(value);if(!term.isEmpty()&&source.contains(term))return true;}
+        return false;
+    }
+    // ASCII token normalization without compiling two regular expressions per call.
+    // Equivalent to the prior Unicode NFD + stripping accents + punctuation spacing.
+    private static String norm(String value){
+        if(value==null||value.isEmpty())return "";
+        String decomposed=Normalizer.normalize(value.toLowerCase(Locale.ROOT),Normalizer.Form.NFD);
+        StringBuilder out=new StringBuilder(decomposed.length());
+        boolean separator=false;
+        for(int i=0;i<decomposed.length();i++){
+            char c=decomposed.charAt(i);
+            int type=Character.getType(c);
+            if(type==Character.NON_SPACING_MARK||type==Character.COMBINING_SPACING_MARK||type==Character.ENCLOSING_MARK)continue;
+            if((c>='a'&&c<='z')||(c>='0'&&c<='9')){
+                if(separator&&out.length()>0)out.append(' ');
+                out.append(c);separator=false;
+            }else separator=true;
+        }
+        return out.toString();
+    }
 
     private static final class Line{final int start,end;final String value;Line(int s,int e,String v){start=s;end=e;value=v;}}
 }
