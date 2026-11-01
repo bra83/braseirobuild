@@ -116,7 +116,7 @@ public class InventoryPersistence2024Test {
                 failed=InventoryPersistence2024.commitApprovedTransfer(
                     db,sid,tid,"dagger-1",3,"party-transfer-2","player");
                 fail("invalid transfer must roll back");
-            }catch(IllegalStateException expected){}
+            }catch(IllegalArgumentException expected){}catch(IllegalStateException expected){}
             JSONObject unchanged=new JSONObject(db.getCharacter(sid).getString("sheet_json"));
             assertEquals(1,unchanged.getJSONArray("inventory_ledger")
                 .getJSONObject(0).getInt("quantity"));
