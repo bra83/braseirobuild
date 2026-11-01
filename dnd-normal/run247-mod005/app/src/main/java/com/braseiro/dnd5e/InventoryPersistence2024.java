@@ -59,4 +59,36 @@ public final class InventoryPersistence2024 {
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("inventory_currency_commit_failed",e);}
     }
+    /**
+     * Truly atomic party transfer: two independent sheets, one SQLite transaction.
+     * A failed second save rolls the first one back.
+     */
+    public static synchronized JSONObject commitApprovedTransfer(final AppDb db,
+            final long fromId,final long toId,final String itemId,final int quantity,
+            final String eventId,final String actor){
+        if(db==null || fromId<=0 || toId<=0 || fromId==toId)
+            throw new IllegalArgumentException("distinct_character_ids_required");
+        final JSONObject[] committed={new JSONObject()};
+        try{
+            db.runInTransactionChecked(new AppDb.CheckedTransaction(){
+                public void run()throws Exception{
+                    JSONObject source=load(db,fromId);
+                    JSONObject destination=load(db,toId);
+                    JSONObject change=InventoryTransactions2024.transfer(
+                        source,destination,itemId,quantity,eventId,actor);
+                    if(!change.optBoolean("replayed",false)){
+                        commit(db,fromId,change.getJSONObject("source"),actor);
+                        commit(db,toId,change.getJSONObject("target"),actor);
+                    }
+                    committed[0]=new JSONObject()
+                        .put("saved",true).put("replayed",change.optBoolean("replayed",false))
+                        .put("source_id",fromId).put("target_id",toId)
+                        .put("transfer_event_id",eventId);
+                }
+            });
+            return committed[0];
+        }catch(IllegalArgumentException e){throw e;}
+        catch(Exception e){throw new IllegalStateException("inventory_transfer_rolled_back",e);}
+    }
+
 }
