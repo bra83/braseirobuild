@@ -7914,7 +7914,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 db.markSceneCommitCommittingChecked(commitId);
                 JSONArray stateUpdates=prepared.optJSONArray("state_updates");
                 JSONObject combatPlan=prepared.optJSONObject("combat");
-                String stateSummary=applyStateUpdates(stateUpdates);
+                String stateSummary=applyStateUpdates(stateUpdates,commitId);
                 String combatSummary=applyCombatPlan(combatPlan,externalInitiatives);
                 String sceneSummary="";
                 JSONObject scene=prepared.optJSONObject("scene_state");
@@ -8415,16 +8415,48 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void prepareRelevantManualInBackground(final String userText){if(manualAutoPrepareRunning)return;final String key=geminiKey();if(key.length()<20)return;final String context=((userText==null?"":userText)+" "+lastNarration).toLowerCase(Locale.US);JSONObject best=null;int bestScore=0;long now=System.currentTimeMillis();for(JSONObject m:filterManualsForWorld(db.listManuals(""))){if(m.optInt("enabled",1)!=1||!m.optString("mime_type","application/pdf").contains("pdf"))continue;if("bundled:mythic-2e".equals(m.optString("drive_id")))continue;if(m.optString("gemini_uri").length()>0&&m.optLong("gemini_expires")>now)continue;if(m.optString("local_uri").length()==0&&!drive.isConnected())continue;int score=manualRelevanceScore(m,context,"Narrador");if(score>bestScore){bestScore=score;best=m;}}if(best==null||bestScore<8)return;final JSONObject manual=best;manualAutoPrepareRunning=true;AppExecutors.io().execute(new Runnable(){public void run(){File temp=null;try{temp=new File(getCacheDir(),"auto_manual_"+manual.optLong("id")+".pdf");InputStream in;String local=manual.optString("local_uri");if(local.length()>0)in=openManualInput(local);else in=drive.downloadFile(manual.optString("drive_id"));if(in==null)throw new Exception("Arquivo indisponível");FileOutputStream out=new FileOutputStream(temp);byte[] buf=new byte[65536];int n;while((n=in.read(buf))>0)out.write(buf,0,n);in.close();out.close();final File upload=temp;gemini.uploadPdf(key,upload,manual.optString("title"),new GeminiService.UploadCallback(){public void onSuccess(String uri,String name,long expires){db.setManualGemini(manual.optLong("id"),uri,name,expires);upload.delete();manualAutoPrepareRunning=false;ui.post(new Runnable(){public void run(){setStatus("Material preparado para as próximas cenas: "+manual.optString("title"));}});}public void onError(String error){upload.delete();manualAutoPrepareRunning=false;}});}catch(Exception e){if(temp!=null)temp.delete();manualAutoPrepareRunning=false;}}});}
 
-    private String applyStateUpdates(JSONArray updates) throws Exception{
+    private String applyStateUpdates(JSONArray updates,String sceneCommitId) throws Exception{
         if(updates==null||updates.length()==0)return "";if(pendingTest!=null&&pendingTest.length()>0)throw new IllegalStateException("Há um teste pendente; alterações de ficha não podem ser aplicadas ainda.");StringBuilder summary=new StringBuilder();
         for(int i=0;i<updates.length();i++){
             JSONObject u=updates.optJSONObject(i);if(u==null)throw new IllegalArgumentException("Alteração de ficha inválida.");String reason=u.optString("reason").trim();if(reason.length()==0)throw new IllegalArgumentException("Alteração de ficha sem justificativa.");JSONObject ch=db.findCharacterByName(u.optString("character"));if(ch.length()==0)throw new IllegalStateException("Personagem não encontrado: "+u.optString("character"));long id=ch.optLong("id");int oldHp=ch.optInt("hp"),newHp=oldHp,hpMax=Math.max(1,ch.optInt("max_hp",1));
             if(u.has("hp_set")&&!u.isNull("hp_set"))newHp=Math.max(0,Math.min(hpMax,u.optInt("hp_set",oldHp)));else if(u.has("hp_delta")){int delta=Math.max(-hpMax,Math.min(hpMax,u.optInt("hp_delta",0)));newHp=Math.max(0,Math.min(hpMax,oldHp+delta));}
-            String equipment=ch.optString("equipment");JSONArray added=u.optJSONArray("add_items"),removed=u.optJSONArray("remove_items");ArrayList<String> changes=new ArrayList<String>();if(newHp!=oldHp){db.setCharacterHpChecked(id,newHp);changes.add("PV "+oldHp+" → "+newHp);}
-            if(added!=null)for(int j=0;j<added.length();j++){String item=itemLabel(added.opt(j));if(item.length()>0){equipment=addEquipmentItem(equipment,item);changes.add("+ "+item);}}
-            if(removed!=null)for(int j=0;j<removed.length();j++){String item=itemLabel(removed.opt(j));if(item.length()>0){String changed=removeEquipmentItem(equipment,item);if(!changed.equals(equipment)){equipment=changed;changes.add("− "+item);}}}
-            String notes=ch.optString("notes"),append=u.optString("notes_append").trim();if(append.length()>0&&!notes.contains(append)){notes+=(notes.length()>0?"\n":"")+"[Mestre] "+append;changes.add("anotação persistente");}
-            JSONObject sheet=parseJsonObject(ch.optString("sheet_json","{}"));JSONArray conditions=sheet.optJSONArray("conditions");if(conditions==null)conditions=new JSONArray();JSONArray addConditions=u.optJSONArray("condition_add"),removeConditions=u.optJSONArray("condition_remove");
+            String equipment=ch.optString("equipment");
+            JSONArray added=u.optJSONArray("add_items"),removed=u.optJSONArray("remove_items");
+            ArrayList<String> changes=new ArrayList<String>();
+            if(newHp!=oldHp){db.setCharacterHpChecked(id,newHp);changes.add("PV "+oldHp+" → "+newHp);}
+            JSONObject sheet=parseJsonObject(ch.optString("sheet_json","{}"));
+            if(Character2024SheetReconciler.applies(sheet)){
+                if((added!=null&&added.length()>0)||(removed!=null&&removed.length()>0)){
+                    // The entire selected scene is in a single SQLite transaction.
+                    // Replaying this scene ID must never grant loot twice.
+                    sheet=MasterInventoryStateUpdate2024.apply(sheet,added,removed,
+                        "master:"+sceneCommitId+":"+id+":"+i);
+                    equipment=sheet.optString("inventory",equipment);
+                    if(added!=null)for(int j=0;j<added.length();j++)
+                        changes.add("+ "+itemLabel(added.opt(j)));
+                    if(removed!=null)for(int j=0;j<removed.length();j++)
+                        changes.add("− "+itemLabel(removed.opt(j)));
+                }
+            }else{
+                if(added!=null)for(int j=0;j<added.length();j++){
+                    String item=itemLabel(added.opt(j));
+                    if(item.length()>0){equipment=addEquipmentItem(equipment,item);changes.add("+ "+item);}
+                }
+                if(removed!=null)for(int j=0;j<removed.length();j++){
+                    String item=itemLabel(removed.opt(j));
+                    if(item.length()>0){
+                        String changed=removeEquipmentItem(equipment,item);
+                        if(!changed.equals(equipment)){equipment=changed;changes.add("− "+item);}
+                    }
+                }
+            }
+            sheet.put("hp",newHp);sheet.put("max_hp",hpMax);
+            String notes=ch.optString("notes"),append=u.optString("notes_append").trim();
+            if(append.length()>0&&!notes.contains(append)){
+                notes+=(notes.length()>0?"\n":"")+"[Mestre] "+append;
+                changes.add("anotação persistente");
+            }
+            JSONArray conditions=sheet.optJSONArray("conditions");if(conditions==null)conditions=new JSONArray();JSONArray addConditions=u.optJSONArray("condition_add"),removeConditions=u.optJSONArray("condition_remove");
             if(addConditions!=null)for(int j=0;j<addConditions.length();j++){Object raw=addConditions.opt(j);String condition=conditionLabel(raw);if(condition.length()>0&&!jsonArrayContainsIgnoreCase(conditions,condition)){conditions.put(raw instanceof JSONObject?raw:condition);changes.add("condição + "+condition);}}
             if(removeConditions!=null)for(int j=0;j<removeConditions.length();j++){String condition=conditionLabel(removeConditions.opt(j));JSONArray next=new JSONArray();boolean changed=false;for(int k=0;k<conditions.length();k++){String existing=conditionLabel(conditions.opt(k));if(!changed&&existing.equalsIgnoreCase(condition)){changed=true;continue;}next.put(conditions.opt(k));}conditions=next;if(changed)changes.add("condição − "+condition);}
             sheet.put("conditions",conditions);
