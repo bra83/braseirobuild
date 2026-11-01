@@ -1258,10 +1258,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             return;
         }
         clearTravelSceneDisplay("Strixhaven");
-        JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(this);
         screenCache.clear();screenCacheTime.clear();applyTheme();buildShell();showCampaign();
-        setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+
-            bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn preservado.");
+        setStatus("Strixhaven ativada • compilando bestiário fora da interface. Faerûn preservado.");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final JSONObject bestiary=StrixhavenBestiaryRuntimeEngine.install(getApplicationContext());
+            ui.post(new Runnable(){public void run(){
+                if(!isStrixhavenAdventure())return;
+                setStatus("Strixhaven ativada • "+bestiary.optInt("registered",0)+"/"+
+                    bestiary.optInt("expected",44)+" statblocks oficiais compilados. Faerûn preservado.");
+            }});
+        }});
     }
     private void strikExitAndRefresh(){
         if(!isStrixhavenAdventure())return;
