@@ -260,6 +260,7 @@ public final class CharacterInventory2024 {
             boolean authoritative="structured_authoritative".equals(
                 sheet.optString("inventory_ledger_status",""));
             if(ledger.length()==0&&!authoritative&&
+                    !sheet.optBoolean("inventory_review_required",false)&&
                     !sheet.optBoolean("inventory_explicitly_empty",false)&&
                     !sheet.has("inventory_ledger_migration_version")){
                 String legacy=sheet.optString("inventory",sheet.optString("equipment",""));
