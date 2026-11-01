@@ -59,7 +59,7 @@ public final class SceneTemporalResolver {
         String lower=Normalizer.normalize(narration.toLowerCase(new Locale("pt","BR")),
                 Normalizer.Form.NFD).replaceAll("\\p{M}", "");
         java.util.regex.Matcher exact=java.util.regex.Pattern.compile(
-                "(?:\\b(?:sao|eram|agora\\s+sao|as)\\s+)([01]?\\d|2[0-3])(?:\\s*[:h]\\s*([0-5]\\d))?(?:\\s*horas?)?\\b"
+                "(?:\\b(?:o\\s+relogio\\s+marca|agora\\s+sao|sao)\\s+)([01]?\\d|2[0-3])(?:\\s*[:h]\\s*([0-5]\\d))?(?:\\s*horas?)?\\b"
         ).matcher(lower);
         double time=Double.NaN;
         while(exact.find()){
@@ -67,7 +67,7 @@ public final class SceneTemporalResolver {
             // An isolated "as 3" in prose is not a reliable clock. Require
             // a clock separator or explicit "horas".
             String phrase=exact.group();
-            if(phrase.matches(".*(?:[:h]|horas?).*") || lower.contains("agora sao"))
+            if(phrase.matches(".*(?:[:h]|horas?).*") || lower.contains("agora sao") || lower.contains("o relogio marca"))
                 time=h+(exact.group(2)==null?0:Integer.parseInt(exact.group(2)))/60d;
         }
         if(!Double.isNaN(time))return time;
