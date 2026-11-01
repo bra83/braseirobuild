@@ -21,7 +21,7 @@ public final class GeminiVoiceAndNarrativeQualityTest {
         String first=GeminiTtsPerformance.voice(narrator,"Kore","Estilhaço",75);
         assertNotEquals(narrator,first);
         assertEquals(first,GeminiTtsPerformance.voice(narrator,"Kore","Estilhaço",75));
-        assertTrue(GeminiTtsPerformance.direction("Estilhaço",75).contains("distinct"));
+        assertTrue(GeminiTtsPerformance.direction("Estilhaço",75).contains("Pronounced character differentiation"));
         assertEquals("",GeminiTtsPerformance.direction("Narrador",100));
     }
     @Test public void tagsOnlyInSynthesizedCopyAndOnlyForExpressedPause() {
