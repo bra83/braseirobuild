@@ -126,4 +126,42 @@ public class InventoryPersistence2024Test {
         }
     }
 
+    @Test public void existingCharacterScreenButtonsUseCanonicalLoadAndPersist()throws Exception{
+        Context context=RuntimeEnvironment.getApplication();
+        String dbName="dnd-inventory-screen-"+System.nanoTime()+".db";
+        AppDb db=null;
+        try{
+            db=new AppDb(context,dbName);
+            db.setActiveMapProfile("dnd");
+            JSONObject sheet=new JSONObject().put("name","Cozinheiro")
+                .put("rules_source","5e 2024").put("class_name","Guerreiro")
+                .put("species","Humano").put("background","Andarilho")
+                .put("size","Médio").put("level",1).put("str",12)
+                .put("inventory","").put("inventory_ledger",new JSONArray())
+                .put("inventory_ledger_status","structured_authoritative")
+                .put("coin_pieces",new JSONObject().put("gp",0));
+            JSONObject created=db.saveCharacterSheetAtomic(0,false,sheet,"","manual");
+            assertTrue(created.toString(),created.optBoolean("character_saved"));
+            long id=created.getLong("character_id");
+            JSONObject added=db.addCharacterInventoryEntry(id,"Corda",2,-1,false);
+            assertTrue(added.toString(),added.optBoolean("inventory_change_committed"));
+            assertEquals(10,db.characterInventoryLoad(id,false).getDouble("weight"),0.00001);
+            JSONObject updated=db.changeCharacterInventoryQuantity(
+                id,added.getString("id"),-1);
+            assertTrue(updated.toString(),updated.optBoolean("inventory_change_committed"));
+            assertEquals(5,db.characterInventoryLoad(id,false).getDouble("weight"),0.00001);
+            db.close();
+            db=new AppDb(context,dbName);
+            db.setActiveMapProfile("dnd");
+            JSONObject stored=new JSONObject(db.getCharacter(id).getString("sheet_json"));
+            assertEquals(5,stored.getDouble("inventory_total_weight_lb"),0.00001);
+            assertEquals(1,stored.getJSONArray("inventory_ledger")
+                .getJSONObject(0).getInt("quantity"));
+            assertTrue(db.getCharacter(id).getString("equipment").contains("Corda"));
+        }finally{
+            if(db!=null)db.close();
+            context.deleteDatabase(dbName);
+        }
+    }
+
 }
