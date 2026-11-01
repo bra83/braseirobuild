@@ -8895,7 +8895,7 @@ private void speakGemini(String text){
         ui.post(new Runnable(){public void run(){if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;audio.beginVoiceSession();if(engine!=null)engine.beginNarration(plainVoiceChunks(chunks));setStatus("Charon: sintetizando a leitura contínua • fallback Android já preparado • "+audioLayersStatus()+".");synthesizeChunk(chunks,0,session,coordinated);}});
     }
 
-    private String ttsCacheModelKey(String configured){return NarrationPlaybackPolicy.CACHE_PIPELINE_ID+"|"+NarrationPlaybackPolicy.STYLE_ID+"|world="+activeWorldProfile()+"|"+(configured==null?"":configured.trim())+"|vprofile="+prefs.getString("tts_vocal_profile","")+"|vstyle="+prefs.getString("tts_vocal_style","")+"|gemini-3.8-v1";}
+    private String ttsCacheModelKey(String configured){return NarrationPlaybackPolicy.CACHE_PIPELINE_ID+"|"+NarrationPlaybackPolicy.STYLE_ID+"|world="+activeWorldProfile()+"|"+(configured==null?"":configured.trim())+"|vprofile="+prefs.getString("tts_vocal_profile","")+"|vstyle="+prefs.getString("tts_vocal_style","")+"|gemini-3.8-v2";}
     private String audioLayersStatus(){
         int sounds=smartAudio==null?0:smartAudio.indexedSoundCount();
         return sounds>0?("ambiência, música e SFX ativos com "+sounds+" sons indexados"):
@@ -8950,7 +8950,7 @@ private void speakGemini(String text){
     private void synthesizeChunk(final List<String> chunks,final int index,final long session,final AudioSessionCoordinator.Session coordinated){
         if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;
         if(index>=chunks.size()){activeCharonRequest=null;audio.endVoiceSessionInput();if(chunks.isEmpty()&&narrativeAudio!=null)narrativeAudio.endNarration();return;}
-        String key=geminiKey();String paidKey=geminiPaidKey();final String model=prefs.getString("tts_model","gemini-3.8-flash-tts");final String cacheModel=ttsCacheModelKey(model);final String packedSentence=chunks.get(index);final String sentence=NpcVoiceDirector.text(packedSentence);final String voice=NpcVoiceDirector.voice(packedSentence,prefs.getString("tts_voice","Charon"));final String speaker=NpcVoiceDirector.speaker(packedSentence);final boolean last=index==chunks.size()-1;
+        String key=geminiKey();String paidKey=geminiPaidKey();final String model=prefs.getString("tts_model","gemini-3.8-flash-tts");final String packedSentence=chunks.get(index);final String sentence=NpcVoiceDirector.text(packedSentence);final String speaker=NpcVoiceDirector.speaker(packedSentence);final int difference=GeminiTtsPerformance.clamp(prefs.getInt(GeminiTtsPerformance.PREF_CHARACTER_DIFFERENCE,50));final String narratorVoice=prefs.getString("tts_voice","Charon");final String voice=GeminiTtsPerformance.voice(narratorVoice,NpcVoiceDirector.voice(packedSentence,narratorVoice),speaker,difference);final String performanceStyle=GeminiTtsPerformance.direction(speaker,difference);final String cacheModel=ttsCacheModelKey(model)+"|speaker="+speaker+"|difference="+difference;final boolean last=index==chunks.size()-1;
         File cached=ttsCache==null?null:ttsCache.get(cacheModel,voice,sentence);
         if(cached!=null){
             activeCharonRequest=null;
@@ -8968,7 +8968,7 @@ private void speakGemini(String text){
         final long requestedAt=System.currentTimeMillis();if(index==0&&charonLatencyTelemetry!=null)charonLatencyTelemetry.request();
         JSONObject requestDetails=new JSONObject();try{requestDetails.put("block",index+1).put("blocks",chunks.size()).put("chars",sentence.length()).put("voice",voice).put("model",model).put("textHash",Integer.toHexString(sentence.hashCode())).put("cache",false);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
         audioSessionCoordinator.event(coordinated,"charon-synthesis-request",requestDetails);narrationStateMachine.onSynthesisRequested(index,session);
-        activeCharonRequest=gemini.synthesizeSpeech(key,paidKey,model,voice,sentence,new GeminiService.FileCallback(){
+        activeCharonRequest=gemini.synthesizeSpeech(key,paidKey,model,voice,sentence,performanceStyle,new GeminiService.FileCallback(){
             public void onSuccess(final File file,String mime){
                 if(!isCurrentAudioSession(coordinated)){if(file!=null)file.delete();return;}
                 JSONObject readyDetails=new JSONObject();try{readyDetails.put("block",index+1).put("blocks",chunks.size()).put("bytes",file==null?0:file.length()).put("latencyMs",System.currentTimeMillis()-requestedAt).put("voice",voice).put("model",model).put("textHash",Integer.toHexString(sentence.hashCode()));}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
