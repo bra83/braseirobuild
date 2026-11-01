@@ -2440,7 +2440,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     final boolean equippedNow=equipped.isChecked();
                     final String eventId="inventory-ui-"+java.util.UUID.randomUUID();
                     AppExecutors.serial().execute(new Runnable(){public void run(){
-                        final String error;
+                        String message="";
                         try{
                             JSONObject current=db.getCharacter(characterId);
                             if(current.length()==0)throw new IllegalStateException("Personagem não encontrado.");
@@ -2464,8 +2464,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                                     throw new IllegalStateException(item.optString(
                                         "inventory_change_blocked","Falha ao adicionar item."));
                             }
-                            error="";
-                        }catch(Exception e){error=safeMessage(e);}
+                        }catch(Exception e){message=safeMessage(e);}
+                        final String error=message;
                         ui.post(new Runnable(){public void run(){
                             if(!error.isEmpty())toast("Inventário não alterado: "+error);
                             else toast("Item registrado, carga e ficha atualizadas.");
