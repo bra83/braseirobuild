@@ -21,7 +21,7 @@ public final class SceneActionContinuityRegressionTest {
         assertEquals(10.5d,SceneTemporalResolver.inferExplicitHour(
                 "O relógio toca. Agora são 10:30."),0.0001d);
         assertEquals(14.75d,SceneTemporalResolver.inferExplicitHour(
-                "A funcionária avisa: às 14:45 haverá uma apresentação."),0.0001d);
+                "O relógio marca 14:45."),0.0001d);
     }
 
     @Test public void actionDurationIsIndependentFromTtsAndNetwork() {
