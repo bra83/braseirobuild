@@ -1,7 +1,7 @@
 name: D&D 2024 Inventory and Scene Reliability APK — gated RC
 on:
   push:
-    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101]
+    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -155,6 +155,23 @@ jobs:
           path: out/*
           if-no-files-found: error
           retention-days: 14
+      - name: Publish direct 6.6.42 APK only after all gates pass
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/fix/dnd-6642-actions-android-gemini-dialogue-20261101' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          CURRENT="$(gh api repos/${{ github.repository }}/git/ref/heads/fix/dnd-6642-actions-android-gemini-dialogue-20261101 --jq '.object.sha')"
+          test "$CURRENT" = "$GITHUB_SHA"
+          test "$DND_APK_NAME" = "BRASEIRO_DND_6.6.42-actions-audio-dialogue-20261101.apk"
+          TAG="dnd-6.6.42-actions-audio-dialogue-20261101"
+          ! gh release view "$TAG" >/dev/null 2>&1
+          gh release create "$TAG" \
+            "out/$DND_APK_NAME" "out/$DND_APK_NAME.sha256" \
+            out/BADGING.txt out/SIGNATURE.txt out/BUILD_PROOF.txt \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "Braseiro D&D 6.6.42 — Ações, voz Android, Gemini e diálogos" \
+            --notes "APK candidato para Galaxy A57; ações sugeridas contextuais, ritmo Android 0,60x–1,60x, variação de vozes Gemini 0–100% e contrato de diálogos. Testes de compilação, regressão, assinatura e mapas em CI passaram. TTS remoto e Android físico ainda requerem homologação."
       - name: Publish validated 6.6.40 APK prerelease for physical acceptance
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/fix/dnd-6639-inventory-integrated-20261101' }}
         env:
