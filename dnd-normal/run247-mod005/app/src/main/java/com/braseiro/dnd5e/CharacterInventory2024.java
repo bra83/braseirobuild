@@ -106,8 +106,10 @@ public final class CharacterInventory2024 {
                 text=line.substring(colon+1);
             for(String part:text.split("[;,]")){
                 String value=part.trim().replaceAll("[.]$","").trim();
-                if(value.isEmpty()||value.toLowerCase(Locale.ROOT).contains("não comprado")
-                    ||value.toLowerCase(Locale.ROOT).contains("nao comprado"))continue;
+                if(value.isEmpty()||normalize(value).contains("nao comprado")
+                    ||normalize(value).contains("nao adquirido")
+                    ||normalize(value).contains("nao adquirida")
+                    ||normalize(value).contains("nao possui"))continue;
                 // A purchase price is not an item weight; strip price annotation only.
                 value=value.replaceAll("(?i)\\s*\\(\\s*\\d+\\s*(?:PO|PP|PC|PE|PL)\\s*\\)","").trim();
                 if(MONEY.matcher(value).find() &&
@@ -327,6 +329,8 @@ public final class CharacterInventory2024 {
             for(int i=0;i<notes.length();i++)problems.put(notes.optString(i));
             double coinsLb=coinWeight(sheet);
             if(!Double.isFinite(coinsLb))problems.put("invalid_coin_ledger");
+            else if(coinPurse(sheet)==null&&MONEY.matcher(legacy).find())
+                problems.put("unverified_legacy_currency_balance");
             else known+=coinsLb;
             int strength=sheet.optInt("str",0);
             double size=sizeMultiplier(sheet.optString("size","Médio"));
