@@ -247,6 +247,23 @@ public final class BraseiroNarrativeDirector {
             return "";
         }
         if(now.length()<40)return "cena curta demais para direção Braseiro";
+        // A qualidade exige resolver o pedido de ação, não apenas uma nova prosa
+        // bonita. Uma busca por panfleto teatral nunca pode devolver um passeio
+        // genérico pelo salão sem sequer tocar no objeto procurado.
+        String declared=plain(userText),spoken=plain(now);
+        if((declared.contains("panfleto")||declared.contains("folheto"))
+                &&(declared.contains("procuro")||declared.contains("busco")||declared.contains("procurar"))
+                &&!containsAny(spoken,"panfleto","folheto","cartaz","mural","quadro de avisos","teatro","encenacao"))
+            return "não respondeu à busca concreta por panfleto/folheto";
+        if(recent!=null)for(int i=Math.max(0,recent.length()-8);i<recent.length();i++){
+            String previous=human(String.valueOf(recent.opt(i)));
+            if(previous.length()<100)continue;
+            for(String sentence:previous.split("(?<=[.!?])\\\\s+")){
+                String literal=human(sentence);
+                if(literal.length()>=90&&spoken.contains(plain(literal)))
+                    return "reaproveita uma frase descritiva inteira de cena anterior";
+            }
+        }
         String nowStart=opening(now);Set<String> nowTokens=tokens(nowStart);
         if(recent!=null)for(int i=0;i<recent.length();i++){String old=human(String.valueOf(recent.opt(i)));if(old.length()==0)continue;String oldStart=opening(old);
             if(nowStart.equalsIgnoreCase(oldStart))return "repete literalmente a abertura de uma cena recente";
