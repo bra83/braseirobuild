@@ -99,6 +99,7 @@ public final class AudioController {
     private long duckGeneration = 0L;
     private boolean ducked = false;
     private boolean focusHeld = false;
+    private boolean externalNarratorActive = false;
     private boolean focusSuppressed = false;
 
     public AudioController(Context value) {
@@ -772,6 +773,7 @@ public final class AudioController {
      * ducked, but yield focus to the external speech engine.
      */
     public synchronized void setExternalVoiceActive(boolean active) {
+        externalNarratorActive = active;
         setDucked(active);
         if (active) {
             if (focusHeld) abandonFocus();
@@ -1034,7 +1036,9 @@ public final class AudioController {
 
     @SuppressWarnings("deprecation")
     private void requestFocus() {
-        if (audioManager == null || focusHeld) return;
+        // Não disputar foco com a engine Android enquanto ela lê uma cena.
+        // Música, clima e SFX continuam possíveis em volume reduzido.
+        if (externalNarratorActive || audioManager == null || focusHeld) return;
         try {
             int result;
             if(Build.VERSION.SDK_INT>=26&&audioFocusRequest!=null)result=audioManager.requestAudioFocus(audioFocusRequest);
