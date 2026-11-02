@@ -1562,6 +1562,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
         strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
+        // Ações da cena ficam SEMPRE em controles individuais abaixo do texto,
+        // inclusive quando o menu está recolhido para leitura.
+        if(currentOptions!=null&&currentOptions.length()>0){
+            LinearLayout suggested=new LinearLayout(this);
+            suggested.setOrientation(LinearLayout.VERTICAL);
+            suggested.addView(text("AÇÕES SUGERIDAS • TOQUE UMA OU ESCREVA SUA PRÓPRIA",9,GOLD,true));
+            boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
+            for(int i=0;i<currentOptions.length()&&i<2;i++){
+                final JSONObject option=currentOptions.optJSONObject(i);
+                if(option==null)continue;
+                Button pick=smallButton(option.optString("label",option.optString("action","Ação")),Color.rgb(60,43,25));
+                pick.setAllCaps(false);pick.setTextSize(11);pick.setTextColor(GOLD);pick.setMaxLines(2);
+                pick.setEnabled(!mustRoll);pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
+                suggested.addView(pick,new LinearLayout.LayoutParams(-1,dp(40)));
+            }
+            if(mustRoll)suggested.addView(text("Resolva primeiro o teste pendente.",10,MUTED,false));
+            drawer.addView(suggested);
+        }
 
         LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
         Button toggleControls=smallButton(strixhavenControlsExpanded?"▼ OCULTAR MENU (MAXIMIZAR TEXTO)":"▲ MOSTRAR MENU & AÇÕES",strixhavenControlsExpanded?Color.rgb(60,43,25):GOLD);
@@ -1599,12 +1617,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
-            if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
-                TextView sug=text("SUGESTÕES",9,GOLD,true);controlsBox.addView(sug);
-                HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-                for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(40)));}
-                hscroll.addView(row);controlsBox.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(42)));
-            }
             final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
             LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
             final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
