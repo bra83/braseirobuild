@@ -269,7 +269,10 @@ public final class BraseiroNarrativeDirector {
         String nowStart=opening(now);Set<String> nowTokens=tokens(nowStart);
         if(recent!=null)for(int i=0;i<recent.length();i++){String old=human(String.valueOf(recent.opt(i)));if(old.length()==0)continue;String oldStart=opening(old);
             if(nowStart.equalsIgnoreCase(oldStart))return "repete literalmente a abertura de uma cena recente";
-            double sim=jaccard(nowTokens,tokens(oldStart));if(sim>=0.72d&&Math.min(nowStart.length(),oldStart.length())>=45)return "repete a construção e o vocabulário de uma abertura recente";
+            Set<String> oldTokens=tokens(oldStart);
+            double sim=jaccard(nowTokens,oldTokens);
+            if((sim>=0.72d&&Math.min(nowStart.length(),oldStart.length())>=45)||(sim>=0.58d&&Math.min(nowTokens.size(),oldTokens.size())>=5))
+                return "repete a construção e o vocabulário de uma abertura recente";
         }
         Set<String> nowBody=tokens(now.length()>900?now.substring(0,900):now);
         if(recent!=null)for(int i=Math.max(0,recent.length()-8);i<recent.length();i++){String old=human(String.valueOf(recent.opt(i)));if(old.length()<120)continue;Set<String> oldBody=tokens(old.length()>900?old.substring(0,900):old);double bodySim=jaccard(nowBody,oldBody);if(bodySim>=0.58d&&Math.min(nowBody.size(),oldBody.size())>=24)return "recicla vocabulário e estrutura demais de uma cena recente";}

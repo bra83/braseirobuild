@@ -52,7 +52,8 @@ public final class SceneStateEngine {
             boolean dayAdvanced=resolvedDay>currentDay;
             if(oldHourKnown&&!dayAdvanced&&hour+0.00001d<oldHour)hour=oldHour;
             String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
-            double minutes=envelope!=null&&envelope.optBoolean("_non_advancing",false)?0d:SceneActionClock.minutesFor(declared);
+            boolean alreadyAdvancedOnAccept=envelope!=null&&envelope.optBoolean("_clock_advanced_on_accept",false);
+            double minutes=(alreadyAdvancedOnAccept||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))?0d:SceneActionClock.minutesFor(declared);
             boolean modelMovedClock=dayAdvanced||(incoming!=null&&incoming.has("clock_hour")
                     && incoming.optDouble("clock_hour",oldHour)>oldHour+0.00001d);
             if(oldHourKnown&&!modelMovedClock&&!temporal.narrationWasAuthoritative&&minutes>0d){

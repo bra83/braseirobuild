@@ -1,7 +1,7 @@
 name: D&D 2024 Inventory and Scene Reliability APK — gated RC
 on:
   push:
-    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101]
+    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101, fix/dnd-6644-narrative-time-action-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -83,7 +83,7 @@ jobs:
         timeout-minutes: 7
         run: |
           ./gradlew :app:testDebugUnitTest \
-            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
       - name: Full D&D JVM regression (all tests except two mapped archive tests)
         working-directory: dnd-normal/run247-mod005
