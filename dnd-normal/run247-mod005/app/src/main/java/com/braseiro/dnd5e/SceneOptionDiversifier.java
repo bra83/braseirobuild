@@ -363,7 +363,7 @@ public final class SceneOptionDiversifier {
                     "Aproximo-me dos membros da Guilda de RPG presentes e pergunto sobre a encenação que estão preparando."));
         }
         if(containsAny(narrative,"funcionaria","atendente")
-                &&containsAny(narrative,"inscricao","orientar","orientacao")){
+                &&containsAny(narrative,"inscricao","inscricoes","orienta","orientar","orientacao","orientando")){
             pool.add(option("PERGUNTAR SOBRE A INSCRIÇÃO",
                     "Pedir instruções à funcionária que está orientando os recém-chegados.",
                     "Pergunto à funcionária presente onde ficam as instruções de inscrição e como devo me apresentar."));
