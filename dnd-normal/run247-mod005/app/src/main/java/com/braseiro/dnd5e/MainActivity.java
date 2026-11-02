@@ -1585,6 +1585,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             controlsBox.addView(mediaRow);
             if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});controlsBox.addView(openImage,new LinearLayout.LayoutParams(-1,dp(34)));}
             addStrixhavenMasterConversationCard(controlsBox);
+            Button openJournal=smallButton("📜 ABRIR DIÁRIO / HISTÓRICO",Color.rgb(60,43,25));
+            openJournal.setTextColor(GOLD);
+            openJournal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showJournal();}});
+            controlsBox.addView(openJournal,new LinearLayout.LayoutParams(-1,dp(34)));
             if(hasFailedGeminiRequest()){
                 LinearLayout failCard=card();failCard.setBackground(makeBg(Color.rgb(55,20,20),RED,10));
                 failCard.addView(text("O Gemini não respondeu. A ação continua pendente e salva.",11,RED,true));
@@ -6259,7 +6263,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         b.addView(text("A narração e a paisagem sonora só começam quando você toca em PLAY. Pode repetir quantas vezes quiser.",12,MUTED,false));LinearLayout audioRow=new LinearLayout(this);audioRow.setOrientation(LinearLayout.HORIZONTAL);Button speak=smallButton("PLAY\nCHARON + ÁUDIO",GREEN),nativeSpeak=smallButton("PLAY\nANDROID + ÁUDIO",PANEL2),journal=smallButton("DIÁRIO",PANEL2);speak.setContentDescription("Iniciar ou repetir a narração com Charon, música, ambiência e efeitos");nativeSpeak.setContentDescription("Iniciar ou repetir a narração com a voz do Android, música, ambiência e efeitos");audioRow.addView(speak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(nativeSpeak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(journal,new LinearLayout.LayoutParams(0,dp(54),1));b.addView(audioRow);
         LinearLayout imageRow=new LinearLayout(this);imageRow.setOrientation(LinearLayout.HORIZONTAL);Button gemBtn=smallButton("GERAR NO GEMINI",GREEN),image=smallButton("TENTAR INTERNA",PANEL2),copy=smallButton("EDITAR PROMPT",PANEL2);imageRow.addView(gemBtn,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(image,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(copy,new LinearLayout.LayoutParams(0,dp(50),1));b.addView(imageRow);
         b.addView(text("No Gemini: gere a imagem e toque em Compartilhar > Braseiro D&D. Ela voltará automaticamente para esta cena.",12,MUTED,false));
-        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(lastNarration));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(lastNarration));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration.length()>0){db.addJournal("Cena "+dateNow(),stripMarkdown(lastNarration),"Cena");toast("Cena salva no diário.");}}});
+        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(lastNarration));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(lastNarration));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showJournal();}});
         gemBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPromptAndOpenGemini();}});copy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(false);}});image.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
         b.addView(modeCard);
         if(lastNarration.length()>0)ui.postDelayed(new Runnable(){public void run(){narratorScroll.smoothScrollTo(0,0);}},120);
@@ -7613,7 +7617,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             boolean changes = !nonAdvancing && (masterOrchestrator != null ? masterOrchestrator.hasStructuredChanges(env) : (stateTransactionManager != null && stateTransactionManager.hasChanges(env)));
             String statusMsg = nonAdvancing ? "Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto."
                     : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
-                    : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
+                    : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena registrada no Diário. Nenhuma outra consequência persistente foi proposta."));
 
             // COMMIT PHASE: Protected atomically under aiCommitLock with double-checked generation
             synchronized (aiCommitLock) {
@@ -9895,11 +9899,44 @@ private void speakGemini(String text){
     private static String truthStatus(String label){String n=label.toLowerCase(Locale.ROOT);if(n.startsWith("rumor"))return "rumor";if(n.startsWith("mentira"))return "mentira";if(n.startsWith("interpre"))return "equivoco";return "verdade";}
 
     private void showJournal(){
-        ScrollView s=page("Diário","Cenas, anotações e resumos persistentes.");LinearLayout b=body(s);Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
+        ScrollView s=page("Diário","Cenas, anotações e resumos persistentes.");LinearLayout b=body(s);Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
         Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=db.listJournal();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
         Button bard=button("EXPORTAR COMO CRÔNICA DE BARDO (PDF)",GREEN);bard.setOnClickListener(new View.OnClickListener(){public void onClick(View v){bardChronicleDialog();}});b.addView(bard);
         Button pdf=button("EXPORTAR AVENTURA COMO LIVRO PDF",GOLD);pdf.setTextColor(Color.BLACK);pdf.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prepareLiteralAdventurePdf();}});b.addView(pdf);
     }
+    private void showFullJournalEntry(final JSONObject entry){
+        if(entry==null)return;
+        LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(16),dp(10),dp(16),dp(12));
+        body.addView(text(entry.optString("kind","Cena")+" • "+formatDate(entry.optLong("created_at")),12,MUTED,false));
+        TextView complete=text(entry.optString("body",""),15,TEXT,false);
+        complete.setTextIsSelectable(true);body.addView(complete);
+        new AlertDialog.Builder(this).setTitle(entry.optString("title","Cena"))
+                .setView(scrollableDialogView(body)).setPositiveButton("FECHAR",null).show();
+    }
+    private void searchJournalEntries(){
+        final EditText query=input("Buscar em título, ação, diálogo ou narração","",false);
+        new AlertDialog.Builder(this).setTitle("Localizar cena do Diário").setView(query)
+                .setNegativeButton("CANCELAR",null)
+                .setPositiveButton("BUSCAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+                    String needle=query.getText().toString().trim().toLowerCase(Locale.ROOT);
+                    if(needle.isEmpty()){toast("Digite o termo que deseja encontrar.");return;}
+                    final ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
+                    for(JSONObject entry:db.listJournal()){
+                        if(entry==null)continue;
+                        String haystack=(entry.optString("title")+" "+entry.optString("body")+" "+entry.optString("kind")).toLowerCase(Locale.ROOT);
+                        if(haystack.contains(needle)){hits.add(entry);if(hits.size()>=100)break;}
+                    }
+                    if(hits.isEmpty()){toast("Nenhum registro encontrado.");return;}
+                    String[] labels=new String[hits.size()];
+                    for(int i=0;i<hits.size();i++){JSONObject entry=hits.get(i);labels[i]=entry.optString("title","Cena")+" • "+entry.optString("kind","");}
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Cenas encontradas ("+hits.size()+")")
+                        .setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
+                            if(which>=0&&which<hits.size())showFullJournalEntry(hits.get(which));
+                        }}).setNegativeButton("FECHAR",null).show();
+                }}).show();
+    }
+
     private void bardChronicleDialog(){
         final List<JSONObject> journal=db.listJournal();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(10));
