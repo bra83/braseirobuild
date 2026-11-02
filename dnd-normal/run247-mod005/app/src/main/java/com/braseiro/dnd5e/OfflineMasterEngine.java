@@ -255,9 +255,12 @@ public final class OfflineMasterEngine {
 
     private static JSONArray options(String location,String npc,String danger,String objective,String action)throws Exception{/*BR_JSON_WRAP*/try{
         JSONArray out=new JSONArray();
-        if(npc.length()>0)out.put(option("FALAR COM "+npc.toUpperCase(Locale.ROOT),"Falo com "+npc+" sobre o que está acontecendo agora."));
-        if(danger.length()>0&&out.length()<2)out.put(option("REAGIR A "+clean(danger,60).toUpperCase(Locale.ROOT),"Mudo minha posição ou preparo uma resposta ao perigo já visível."));
-        if(objective.length()>0&&out.length()<2)out.put(option("AVANÇAR NO OBJETIVO","Dou um passo concreto em direção a "+objective+"."));
+        String cleanLoc=clean(location.length()>0?location:"o local",42);
+        if(npc.length()>0)out.put(option("FALAR COM "+npc.toUpperCase(Locale.ROOT),"Falo com "+npc+" sobre o que está acontecendo agora em "+cleanLoc+"."));
+        if(danger.length()>0&&out.length()<3)out.put(option("REAGIR A "+clean(danger,48).toUpperCase(Locale.ROOT),"Mudo minha posição e preparo uma resposta direta a "+clean(danger,70)+" em "+cleanLoc+"."));
+        if(objective.length()>0&&out.length()<3)out.put(option("AVANÇAR NO OBJETIVO","Dou um passo concreto em direção a "+objective+" a partir de "+cleanLoc+"."));
+        if(out.length()<3)out.put(option("EXAMINAR "+cleanLoc.toUpperCase(Locale.ROOT),"Examino os detalhes, objetos e avisos visíveis ao alcance em "+cleanLoc+"."));
+        if(out.length()<3)out.put(option("SONDAR OS PRESENTES EM "+cleanLoc.toUpperCase(Locale.ROOT),"Abordo quem está próximo em "+cleanLoc+" para ouvir o que comentam e observar suas reações."));
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
     private static JSONObject option(String label,String action)throws Exception{/*BR_JSON_WRAP*/try{return new JSONObject().put("label",label).put("description",action).put("action",action);}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}

@@ -233,6 +233,14 @@ public final class MasterOrchestrator {
             AppLog.e("MasterOrchestrator","Falha ao anexar o plano local; envelope bloqueado.",failure);
             try{safe.put("_local_tick",new JSONObject());safe.put("_npc_tick",new JSONObject());safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true).put("error","Falha ao anexar plano local."));}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha ao fechar envelope sem plano.",ignored);}
         }
+        // O modelo não controla este metadado; carrega somente a ação aceita.
+        if(activePlanForValidation!=null&&activePlanForValidation.narrative
+                &&!activePlanForValidation.nonAdvancing
+                &&safe.optJSONObject("_master_validation")!=null
+                &&safe.optJSONObject("_master_validation").optBoolean("valid",false)){
+            try{safe.put("_accepted_player_action",action==null?"":action.trim());}
+            catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Ação temporal indisponível.",ignored);}
+        }
         return safe;
     }
 
@@ -250,7 +258,96 @@ public final class MasterOrchestrator {
 
     public synchronized void afterAccepted(Plan plan,String narration,int inputChars,int outputChars){afterAccepted(plan,narration,null,inputChars,outputChars);}
     public synchronized void afterAccepted(Plan plan,String narration,JSONObject envelope,int inputChars,int outputChars){
-        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+    }
+
+    /**
+     * Avança o relógio diegético imediatamente na aceitação de toda cena narrativa
+     * válida que represente ação real do jogador (e não esteja retida por pending_test).
+     * Marca _clock_advanced_on_accept no envelope para impedir avanço duplicado
+     * caso o jogador aplique consequências estruturais em seguida.
+     */
+    private void advanceClockForNarrationOnly(Plan plan,JSONObject envelope){
+        if(plan==null||envelope==null||plan.nonAdvancing)return;
+        JSONObject report=envelope.optJSONObject("_master_validation");
+        if(report==null||!report.optBoolean("valid",false))return;
+        if(envelope.optBoolean("_deferred_until_test",false))return;
+        JSONObject pendingTest=envelope.optJSONObject("pending_test");
+        if(pendingTest!=null&&pendingTest.length()>0&&!pendingTest.optString("skill",pendingTest.optString("ability","")).trim().isEmpty())return;
+        double minutes=SceneActionClock.minutesFor(plan.userPrompt);
+        try{
+            JSONObject scene=db.getSceneState();
+            double oldHour=scene.optDouble("clock_hour",9d);
+            if(!Double.isFinite(oldHour))oldHour=9d;
+            int currentDay=Math.max(1,scene.optInt("day_number",1));
+            JSONObject incoming=envelope.optJSONObject("scene_state");
+            int incomingDay=incoming==null?currentDay:Math.max(currentDay,incoming.optInt("day_number",currentDay));
+            boolean hasIncomingHour=incoming!=null&&incoming.has("clock_hour")&&Double.isFinite(incoming.optDouble("clock_hour",Double.NaN));
+            double incomingHour=hasIncomingHour?incoming.optDouble("clock_hour",oldHour):oldHour;
+            String narration=envelope.optString("narration","");
+            SceneTemporalResolver.Result temporal=SceneTemporalResolver.resolve(
+                    scene.optString("time_of_day","Manhã"),oldHour,true,
+                    incoming==null?"":incoming.optString("time_of_day"),incomingHour,hasIncomingHour,
+                    narration,incoming==null?scene.optString("lighting",""):incoming.optString("lighting",scene.optString("lighting","")));
+            double hour=temporal.hour;
+            int resolvedDay=Math.max(currentDay,incomingDay);
+            boolean dayAdvanced=resolvedDay>currentDay;
+            if(!dayAdvanced&&hour+0.00001d<oldHour)hour=oldHour;
+            boolean modelMovedClock=dayAdvanced||(hasIncomingHour&&incomingHour>oldHour+0.00001d);
+            if(!modelMovedClock&&!temporal.narrationWasAuthoritative&&minutes>0d){
+                double total=oldHour+minutes/60d;
+                resolvedDay+=(int)Math.floor(total/24d);
+                hour=total%24d;
+            }
+            if(resolvedDay!=currentDay||Math.abs(hour-oldHour)>0.00001d||!scene.optString("time_of_day","").equals(SceneTemporalResolver.labelForHour(hour))){
+                scene.put("day_number",resolvedDay);
+                scene.put("clock_hour",hour);
+                scene.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
+                scene.put("lighting",SceneTemporalResolver.resolveLighting(
+                        SceneTemporalResolver.labelForHour(hour),narration,temporal.lighting));
+                db.saveSceneStateChecked(scene);
+            }
+            envelope.put("_clock_advanced_on_accept",true);
+            envelope.put("_accepted_clock_hour",hour);
+            envelope.put("_accepted_day_number",resolvedDay);
+        }catch(Exception failure){
+            AppLog.e("MasterOrchestrator","Falha ao avançar relógio diegético da cena aceita.",failure);
+        }
+    }
+
+    /** Guarda factual da cena, independente das mutações opcionais do Mestre. */
+    private void recordAcceptedSceneJournal(Plan plan,String narration){
+        if(plan==null||narration==null||narration.trim().isEmpty())return;
+        try{
+            JSONObject scene=db.getSceneState();
+            int day=Math.max(1,scene.optInt("day_number",1));
+            double hour=scene.optDouble("clock_hour",9d);
+            int h=Double.isFinite(hour)?(int)Math.floor(hour):9;
+            int m=Double.isFinite(hour)?(int)Math.round((hour-Math.floor(hour))*60d):0;
+            if(m>=60){h=(h+1)%24;m=0;}
+            String location=scene.optString("location","");
+            String title="Dia "+day+" • "+String.format(Locale.US,"%02d:%02d",h,m)
+                    +(location.isEmpty()?"":" • "+location);
+            String promptRaw=SceneActionClock.cleanPlayerAction(plan.userPrompt);
+            String actionPart=promptRaw;
+            String rollPart="";
+            int mechIdx=promptRaw.indexOf("MECANICA_LOCAL_VERIFICADA:");
+            if(mechIdx>=0){
+                actionPart=promptRaw.substring(0,mechIdx).trim();
+                rollPart=promptRaw.substring(mechIdx).trim();
+            }
+            StringBuilder body=new StringBuilder();
+            if(!actionPart.isEmpty()){
+                body.append("AÇÃO DECLARADA:\n").append(actionPart).append("\n\n");
+            }
+            if(!rollPart.isEmpty()){
+                body.append("ROLAGEM / RESOLUÇÃO MECÂNICA:\n").append(rollPart).append("\n\n");
+            }
+            body.append("NARRAÇÃO DO MESTRE:\n").append(narration.trim());
+            db.addJournalChecked(title,body.toString(),"Cena");
+        }catch(Exception failure){
+            AppLog.e("MasterOrchestrator","Não foi possível registrar automaticamente a cena no diário.",failure);
+        }
     }
 
     private boolean discoveryNarrationAccepted(Plan plan,String narration){
@@ -539,7 +636,7 @@ public final class MasterOrchestrator {
     private void applyClock(JSONObject c)throws Exception{db.applyWorldClockUpdateChecked(c);}
     private void storeValidationState(JSONObject envelope,Plan plan) throws Exception{JSONObject runtime=db.getMasterRuntimeState();runtime.put("last_action_fingerprint",plan.actionHash);runtime.put("last_context_fingerprint",plan.stateHash);runtime.put("last_response_fingerprint",hash(envelope==null?"":envelope.optString("narration")));runtime.put("last_cognitive_plan_json",plan.cognitivePlan.toString());JSONObject report=envelope==null?null:envelope.optJSONObject("_master_validation");runtime.put("validation_warnings_json",report==null?"[]":jsonArrayText(report.opt("warnings")));JSONArray threads=new JSONArray();String threadFocus=plan==null?"":plan.userPrompt;JSONArray threadQuests=WorldContextSelector.select(db.listQuests("active",1000),threadFocus,20,"title","objective","stage","stakes");for(int qi=0;qi<threadQuests.length();qi++){JSONObject q=threadQuests.optJSONObject(qi);if(q!=null)threads.put(new JSONObject().put("type","quest").put("id",q.optLong("id")).put("title",q.optString("title")).put("status",q.optString("status")).put("objective",q.optString("objective")));}JSONArray threadClocks=WorldContextSelector.select(db.listWorldClocks(true,1000),threadFocus,20,"name","consequence","owner_entity","trigger_condition");for(int ci=0;ci<threadClocks.length();ci++){JSONObject c=threadClocks.optJSONObject(ci);if(c!=null)threads.put(new JSONObject().put("type","clock").put("id",c.optLong("id")).put("name",c.optString("name")).put("current",c.optInt("current_value")).put("max",c.optInt("max_value")).put("consequence",c.optString("consequence")));}JSONObject scene=db.getSceneState();JSONArray pending=parseArray(scene.optString("pending_consequences_json","[]"));for(int i=0;i<pending.length()&&i<20;i++)threads.put(new JSONObject().put("type","pending_consequence").put("content",pending.opt(i)));runtime.put("unresolved_threads_json",threads.toString());db.saveMasterRuntimeStateChecked(runtime);}
 
-    private static JSONObject compactScene(JSONObject scene){return compact(scene,new String[]{"day_number","location","hex_id","time_of_day","weather","lighting","danger","objective","present_npcs_json","threats_json","clues_json","pending_consequences_json"});}
+    private static JSONObject compactScene(JSONObject scene){return compact(scene,new String[]{"day_number","clock_hour","location","hex_id","time_of_day","weather","lighting","danger","objective","present_npcs_json","threats_json","clues_json","pending_consequences_json"});}
     private static JSONObject compact(JSONObject source,String[] keys){JSONObject out=new JSONObject();if(source==null)return out;for(String key:keys)if(source.has(key))try{out.put(key,source.opt(key));}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}return out;}
     private static JSONArray first(List<JSONObject> rows,int max){JSONArray out=new JSONArray();if(rows!=null)for(int i=0;i<rows.size()&&i<max;i++)out.put(rows.get(i));return out;}
     private static JSONObject compactAudio(JSONObject source){return compact(source,new String[]{"audio_channels","environment","weather","location","time_of_day","current_ambience","current_music","catalog_sounds"});}

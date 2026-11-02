@@ -99,6 +99,7 @@ public final class AudioController {
     private long duckGeneration = 0L;
     private boolean ducked = false;
     private boolean focusHeld = false;
+    private boolean externalNarratorActive = false;
     private boolean focusSuppressed = false;
 
     public AudioController(Context value) {
@@ -765,10 +766,20 @@ public final class AudioController {
         applyContinuousVolumesSmooth(DUCK_FADE_MS);
     }
 
+    /**
+     * Android TextToSpeech (including external Sherpa/Kokoro) owns its speech
+     * audio focus. A game-side AUDIOFOCUS_GAIN here can silence the actual
+     * narrator even though the independent TTS test works. Keep ambience
+     * ducked, but yield focus to the external speech engine.
+     */
     public synchronized void setExternalVoiceActive(boolean active) {
-        if (active) requestFocus();
+        externalNarratorActive = active;
         setDucked(active);
-        if (!active) abandonFocusIfIdle();
+        if (active) {
+            if (focusHeld) abandonFocus();
+        } else {
+            abandonFocusIfIdle();
+        }
     }
 
     private float effectiveAmbienceVolume() { return ambienceVol * (ducked ? .58f : 1f); }
@@ -1025,7 +1036,9 @@ public final class AudioController {
 
     @SuppressWarnings("deprecation")
     private void requestFocus() {
-        if (audioManager == null || focusHeld) return;
+        // Não disputar foco com a engine Android enquanto ela lê uma cena.
+        // Música, clima e SFX continuam possíveis em volume reduzido.
+        if (externalNarratorActive || audioManager == null || focusHeld) return;
         try {
             int result;
             if(Build.VERSION.SDK_INT>=26&&audioFocusRequest!=null)result=audioManager.requestAudioFocus(audioFocusRequest);

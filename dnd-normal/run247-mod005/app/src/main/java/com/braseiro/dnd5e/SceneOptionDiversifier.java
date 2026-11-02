@@ -20,6 +20,7 @@ import java.util.Set;
  */
 public final class SceneOptionDiversifier {
     private static final int MAX_OPTIONS = 2;
+    private static final int MIN_SCENE_OPTIONS = 2;
     private static final int MAX_HISTORY = 60; // cobre mais que a janela legada: MAX_HISTORY = 24
 
     private SceneOptionDiversifier() {}
@@ -101,19 +102,61 @@ public final class SceneOptionDiversifier {
     public static JSONArray ensureAlways(JSONArray source, JSONArray recentHistory,
                                          String narration, String declaredAction,
                                          JSONObject scene, int beatNumber) {/*BR_JSON_WRAP*/try{
-        // RUN182: zero opções é um resultado válido. Nunca preencha a UI com ações
-        // universais que não nasceram de entidade/fato realmente presente.
-        return diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+        JSONArray out = diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+        if (out.length() >= MIN_SCENE_OPTIONS) return out;
+        String cleanNarration = clean(narration, 600);
+        boolean hasSceneContext = scene != null && (!clean(scene.optString("location",""), 80).isEmpty()
+                || !firstPresentNpc(scene).isEmpty()
+                || !clean(scene.optString("objective",""), 100).isEmpty());
+        if (cleanNarration.length() < 32 && !hasSceneContext) return out;
+        ArrayList<String> accepted = optionValues(out);
+        ArrayList<String> history = latestHistoryValues(recentHistory, MAX_OPTIONS);
+        if (declaredAction != null && !declaredAction.trim().isEmpty()) addUnique(history, declaredAction);
+        List<JSONObject> extra = alwaysVisibleFallbacks(narration, scene, beatNumber);
+        for (JSONObject candidate : extra) {
+            if (out.length() >= MIN_SCENE_OPTIONS) break;
+            String action = optionAction(candidate);
+            if (action.isEmpty() || isWeakOption(candidate.optString("label",""), candidate.optString("description",""), action)) continue;
+            if (!isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action, narration, scene)) continue;
+            if (isRepeated(action, accepted) || repeatsIntent(action, accepted)) continue;
+            out.put(candidate);
+            accepted.add(action);
+        }
+        return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     private static List<JSONObject> alwaysVisibleFallbacks(String narration,JSONObject scene,int beatNumber){
         ArrayList<JSONObject> out=new ArrayList<JSONObject>();
         try{
-            String object=firstNarrativeObject(narration);String npc=firstPresentNpc(scene);
-            if(!object.isEmpty())out.add(option("Examinar "+object,"Observar posição, estado e relações sem alterar a cena.","Examino "+object+" com atenção, sem tocá-lo."));
-            else out.add(option("Observar o que está ao alcance","Rever detalhes visíveis antes de assumir uma conclusão.","Observo com atenção o ponto mais relevante que já está visível na cena, sem avançar."));
-            if(!npc.isEmpty())out.add(option("Falar com "+npc,"Fazer uma pergunta direta; conversa simples não exige teste.","Pergunto a "+npc+" sobre o que acabou de acontecer."));
-            else out.add(option("Reavaliar posição e saídas","Confirmar quem está onde e quais caminhos continuam visíveis.","Reavalio a posição do grupo, as distâncias relativas e as saídas visíveis antes de agir."));
+            String object=firstNarrativeObject(narration);
+            String npc=firstPresentNpc(scene);
+            if(npc.isEmpty())npc=firstNarrativeActor(narration);
+            String location=scene==null?"":clean(scene.optString("location",""),70);
+            String feature=firstNarrativeFeature(narration,location);
+            if(!npc.isEmpty()){
+                out.add(option("FALAR COM "+upperShort(npc),
+                        "Dirigir a palavra diretamente a "+npc+" sobre o que está acontecendo.",
+                        "Aproximo-me de "+npc+" e pergunto diretamente sobre o que acabou de acontecer aqui."));
+            }
+            if(!object.isEmpty()){
+                out.add(option("EXAMINAR "+upperShort(object),
+                        "Inspecionar "+object+" de perto em busca de detalhes concretos.",
+                        "Examino "+object+" com atenção para verificar marcas, inscrições ou sinais de uso recente."));
+            }
+            if(!feature.isEmpty()){
+                out.add(option("EXPLORAR "+upperShort(feature),
+                        "Deslocar-se até "+feature+" para verificar quem ou o que está ali.",
+                        "Avanço com atenção até "+feature+" e verifico de perto os elementos e acessos ao redor."));
+            }
+            if(!location.isEmpty()){
+                String shortLoc=shortLocationLabel(location);
+                out.add(option("INSPECIONAR "+upperShort(shortLoc),
+                        "Examinar os detalhes visíveis e a movimentação atual em "+shortLoc+".",
+                        "Inspeciono os arredores imediatos de "+shortLoc+", prestando atenção às pessoas, objetos e passagens visíveis."));
+                out.add(option("PERCORRER "+upperShort(shortLoc),
+                        "Caminhar pelo ambiente de "+shortLoc+" em busca de uma oportunidade ou contato.",
+                        "Caminho por "+shortLoc+" observando quem circula pelo local e procurando o próximo ponto de interesse."));
+            }
             if((beatNumber&1)==1&&out.size()>1){JSONObject first=out.remove(0);out.add(first);}
         }catch(Exception ignored){/* fallback opcional; degrada para lista parcial */}
         return out;
@@ -354,6 +397,20 @@ public final class SceneOptionDiversifier {
                     "Conferir os avisos apresentados, sem presumir o conteúdo.",
                     "Examino os folhetos visíveis na cena para descobrir que informações oferecem sobre as atividades e os locais."));
         }
+        // Biblioplex: grupo teatral e funcionária são entidades presentes
+        // somente quando a narração atual realmente os apresenta.
+        if(containsAny(narrative,"guilda de rpg live action","guilda de rpg","guilda de teatro")
+                &&containsAny(narrative,"encenacao","teatro","tunicas","figurinos")){
+            pool.add(option("PERGUNTAR SOBRE A ENCENAÇÃO",
+                    "Abordar os estudantes da guilda sem pressupor a resposta.",
+                    "Aproximo-me dos membros da Guilda de RPG presentes e pergunto sobre a encenação que estão preparando."));
+        }
+        if(containsAny(narrative,"funcionaria","atendente")
+                &&containsAny(narrative,"inscricao","inscricoes","orienta","orientar","orientacao","orientando")){
+            pool.add(option("PERGUNTAR SOBRE A INSCRIÇÃO",
+                    "Pedir instruções à funcionária que está orientando os recém-chegados.",
+                    "Pergunto à funcionária presente onde ficam as instruções de inscrição e como devo me apresentar."));
+        }
         if(containsAny(narrative,"calouros")&&containsAny(narrative,"veteranos")){
             pool.add(option("PEDIR INFORMAÇÕES A UM VETERANO",
                     "Conversar com alguém que esteja passando e aceite responder.",
@@ -377,10 +434,23 @@ public final class SceneOptionDiversifier {
                     "Mudar posição, preparação ou abordagem antes que o perigo se transforme em consequência.",
                     "Identificar o sinal verificável de “" + danger + "” e reduzir esse risco com cobertura, distância, ferramenta ou negociação adequada."));
         }
+        String actor = npc.isEmpty() ? firstNarrativeActor(narration) : "";
+        if (!actor.isEmpty()) {
+            pool.add(option("ABORDAR " + upperShort(actor),
+                    "Dirigir-se diretamente a " + actor + " na cena atual.",
+                    "Aproximo-me de " + actor + " e inicio uma conversa direta sobre o que está acontecendo no local."));
+        }
+        String feature = firstNarrativeFeature(narration, location);
+        if (!feature.isEmpty()) {
+            pool.add(option("VERIFICAR " + upperShort(feature),
+                    "Examinar de perto " + feature + " mencionado na cena.",
+                    "Desloco-me até " + feature + " para inspecionar seus detalhes, ocupantes e acessos imediatos."));
+        }
         if (!location.isEmpty()) {
-            pool.add(option("ESCOLHER UM PONTO DE OBSERVAÇÃO",
-                    "Ganhar visão do local sem bloquear a própria retirada.",
-                    "Escolher em " + location + " um ponto de observação com cobertura, campo de visão e rota de saída definidos."));
+            String shortLoc = shortLocationLabel(location);
+            pool.add(option("EXPLORAR " + upperShort(shortLoc),
+                    "Percorrer " + shortLoc + " atentando aos pontos de interesse e saídas.",
+                    "Percorro " + shortLoc + " observando os detalhes visíveis, as pessoas presentes e os acessos disponíveis."));
         }
         if(npc.isEmpty()&&clue.isEmpty()&&threat.isEmpty()&&objective.isEmpty()&&danger.isEmpty()&&document.isEmpty()){
             String recent=lastSentence(narration);
@@ -414,21 +484,99 @@ public final class SceneOptionDiversifier {
      * Para uma opção ser exibida, a âncora deve aparecer na narração visível atual. */
     static boolean isGroundedInScene(String action,String narration,JSONObject scene){
         String a=normalize(action),context=normalize(narration);
-        if(a.isEmpty()||context.isEmpty())return false;
-        Set<String> candidate=entityTokens(a),world=tokens(context);
+        String sceneContext=sceneContextText(scene);
+        String combined=(context+" "+sceneContext).trim();
+        if(a.isEmpty()||combined.isEmpty())return false;
+        Set<String> candidate=entityTokens(a),world=tokens(combined);
         // Ações genéricas não são ancoradas por "ação", "situação" ou "cenário".
         String[] generic={"consequencia","consequencias","acao","acoes","situacao","cena","cenario",
                 "grupo","pedido","exigencia","cobranca","resposta","reacao","local","ambiente",
                 "objetivo","informacao","prova","mudanca","mudancas","seguinte","atual","risco",
-                "alguem","alguma","coisa","resultado","olhar","atencao","aqui"};
+                "alguem","alguma","coisa","resultado","olhar","atencao","aqui","imediata","imediato",
+                "arredores","detalhes","pessoas","objetos","oportunidade","contato","interesse"};
         for(String word:generic)candidate.remove(stem(word));
+        // Se a narração tiver menos de 28 caracteres (ex.: "Estou no Biblioplex."), não aceitar apenas o nome do lugar se a ação for vaga
+        if(clean(narration,200).length()<28 && scene!=null && scene.length()==0){
+            for(String word:new String[]{"biblioplex","strixhaven","faerun"})candidate.remove(stem(word));
+        }
         for(String token:candidate)if(world.contains(token))return true;
-        String[] anchors={"balcao","balcoes","atendimento","folheto","folhetos","calouros","veteranos",
-                "arbusto","arbustos","plantas","criaturas","contrato","documento","carta","mapa",
-                "porta","portao","entrada","passagem","rastro","trilha","pegada","fumaca",
-                "rio","ponte","patrulha","sentinela","pista","caverna","caravana"};
-        for(String anchor:anchors)if(containsAny(a,anchor)&&containsAny(context,anchor))return true;
+        String[] anchors={"balcao","balcoes","atendimento","folheto","folhetos","panfleto","panfletos",
+                "calouros","veteranos","estudantes","funcionaria","atendente","bibliotecaria","professor",
+                "arbusto","arbustos","plantas","criaturas","contrato","documento","carta","mapa","livro","livros",
+                "estante","estantes","mesa","mesas","mural","quadro","cartaz","palco","bau","chave",
+                "porta","portao","entrada","passagem","corredor","escada","escadaria","saguao","patio",
+                "balconada"," taverna","estalagem","pousada","mercado","loja"," tenda","altar","estatua",
+                "rastro","trilha","pegada","fumaca","rio","ponte","patrulha","sentinela","pista","caverna","caravana"};
+        for(String anchor:anchors)if(containsAny(a,anchor)&&containsAny(combined,anchor))return true;
         return false;
+    }
+
+    private static String sceneContextText(JSONObject scene){
+        if(scene==null)return "";
+        StringBuilder sb=new StringBuilder();
+        for(String key:new String[]{"location","objective","danger","present_npcs_json","clues_json","threats_json"}){
+            String val=clean(scene.optString(key,""),200);
+            if(!val.isEmpty()&&!"[]".equals(val)&&!"{}".equals(val))sb.append(' ').append(val);
+        }
+        String npc=firstPresentNpc(scene);
+        if(!npc.isEmpty())sb.append(' ').append(npc);
+        return normalize(sb.toString());
+    }
+
+    private static String shortLocationLabel(String location){
+        if(location==null)return "";
+        String cleanLoc=clean(location,70);
+        int bullet=cleanLoc.lastIndexOf('•');
+        if(bullet>=0&&bullet+1<cleanLoc.length()){
+            String sub=cleanLoc.substring(bullet+1).trim();
+            if(sub.length()>=3)return sub;
+        }
+        int dash=cleanLoc.lastIndexOf('—');
+        if(dash>=0&&dash+1<cleanLoc.length()){
+            String sub=cleanLoc.substring(dash+1).trim();
+            if(sub.length()>=3)return sub;
+        }
+        return cleanLoc;
+    }
+
+    private static String firstNarrativeActor(String narration){
+        String n=normalize(narration);
+        String[][] actors={
+            {"bibliotecaria","a bibliotecária"},{"bibliotecario","o bibliotecário"},
+            {"funcionaria","a funcionária"},{"funcionario","o funcionário"},
+            {"atendente","o atendente"},{"recepcionista","a recepcionista"},
+            {"professor","o professor"},{"professora","a professora"},
+            {"instrutor","o instrutor"},{"instrutora","a instrutora"},
+            {"veterano","um veterano"},{"veteranos","os veteranos"},
+            {"calouro","um calouro"},{"calouros","os calouros"},
+            {"estudantes","os estudantes"},{"estudante","o estudante"},
+            {"taverneiro","o taverneiro"},{"estalajadeiro","o estalajadeiro"},
+            {"mercador","o mercador"},{"comerciante","o comerciante"},
+            {"guarda","o guarda"},{"guardas","os guardas"},
+            {"sentinela","a sentinela"},{"viajante","o viajante"},
+            {"bardo","o bardo"},{"druida","a druida"},{"monge","o monge"},{"barbaro","o bárbaro"}
+        };
+        for(String[] pair:actors)if(containsAny(n,pair[0]))return pair[1];
+        return "";
+    }
+
+    private static String firstNarrativeFeature(String narration,String location){
+        String n=normalize(narration);
+        String[][] features={
+            {"balcoes de atendimento","os balcões de atendimento"},{"balcao de atendimento","o balcão de atendimento"},
+            {"balcao","o balcão"},{"balcoes","os balcões"},
+            {"mesas","as mesas"},{"mesa","a mesa"},
+            {"estantes","as estantes"},{"estante","a estante"},
+            {"arquivos","os arquivos"},{"mural","o mural"},{"quadro de avisos","o quadro de avisos"},
+            {"palco","o palco"},{"escadaria","a escadaria"},{"escadas","as escadas"},
+            {"saguao","o saguão"},{"patio","o pátio"},{"jardim","o jardim"},
+            {"corredor","o corredor"},{"galeria","a galeria"},{"arcos de marmore","os arcos de mármore"},
+            {"portao","o portão"},{"porta","a porta"},{"entrada","a entrada"},
+            {"ponte","a ponte"},{"estrada","a estrada"},{"trilha","a trilha"},
+            {"lareira","a lareira"},{"taverna","a taverna"},{"estalagem","a estalagem"}
+        };
+        for(String[] pair:features)if(containsAny(n,pair[0]))return pair[1];
+        return "";
     }
 
     static boolean isCompatibleWithScene(String action,String narration,JSONObject scene){
@@ -445,7 +593,24 @@ public final class SceneOptionDiversifier {
     }
 
     private static String firstNarrativeObject(String narration){
-        String n=normalize(narration);String[][] objects={{"notas promissorias","as notas promissórias"},{"documento original","o documento original"},{"documento","o documento"},{"contrato","o contrato"},{"papeis","os papéis"},{"lacre vermelho","o lacre vermelho"},{"lacre","o lacre"},{"anel de selo","o anel de selo"},{"mapa","o mapa"},{"carta","a carta"},{"chave","a chave"},{"caixas de ferro","as caixas de ferro"},{"caixa de ferro","a caixa de ferro"},{"corpo","o corpo"},{"objeto","o objeto"}};for(String[] object:objects)if(containsAny(n,object[0]))return object[1];return "";
+        String n=normalize(narration);
+        String[][] objects={
+            {"notas promissorias","as notas promissórias"},{"documento original","o documento original"},
+            {"panfletos","os panfletos"},{"panfleto","o panfleto"},
+
+            {"cartazes","os cartazes"},{"cartaz","o cartaz"},
+            {"pergaminhos","os pergaminhos"},{"pergaminho","o pergaminho"},
+            {"tomos","os tomos"},{"tomo","o tomo"},
+            {"livros","os livros"},{"livro","o livro"},
+            {"documento","o documento"},{"contrato","o contrato"},{"papeis","os papéis"},
+            {"lacre vermelho","o lacre vermelho"},{"lacre","o lacre"},{"anel de selo","o anel de selo"},
+            {"mapa","o mapa"},{"carta","a carta"},{"chave","a chave"},
+            {"caixas de ferro","as caixas de ferro"},{"caixa de ferro","a caixa de ferro"},
+            {"bau","o baú"},{"mochila","a mochila"},{"alaude","o alaúde"},
+            {"corpo","o corpo"},{"objeto","o objeto"}
+        };
+        for(String[] object:objects)if(containsAny(n,object[0]))return object[1];
+        return "";
     }
 
     private static String firstEntity(JSONObject scene, String key) {

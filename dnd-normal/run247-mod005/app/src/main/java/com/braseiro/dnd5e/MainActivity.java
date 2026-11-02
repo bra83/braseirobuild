@@ -229,6 +229,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private StrixhavenAssetCatalog strixhavenAssetCatalog;
     private boolean strixhavenDrawerExpanded=true;
     private boolean strixhavenControlsExpanded=true;
+    /* package */ boolean strixhavenMasterCardCollapsed=false;
+    /* package */ boolean strixhavenMasterCardHidden=false;
+    /* package */ boolean masterSupportCardCollapsed=false;
     private TextView strixhavenNarrationOutput;
     /* package */ TextView statusText;
     private String currentScreen="Aventura";
@@ -588,7 +591,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             nativeTts.setOnUtteranceProgressListener(new UtteranceProgressListener(){
                 public void onStart(final String id){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);if(sentence!=null)nativeVoiceStartedUtterances.add(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeUtteranceStart(id,sentence,Build.VERSION.SDK_INT>=26);if(id.equals("narracao_"+nativeNarrationSession+"_0"))setStatus((isNativeKokoroEngine()?"Braseiro Kokoro PT-BR":"Voz do Android")+" narrando • áudio inteligente sincronizado.");}});}
                 public void onRangeStart(final String id,final int start,final int end,final int frame){ui.post(new Runnable(){public void run(){String sentence;synchronized(nativeVoiceSentenceByUtterance){sentence=nativeVoiceSentenceByUtterance.get(id);}if(sentence==null)return;if(narrativeAudio!=null)narrativeAudio.onNativeRange(id,sentence,start,end);}});}
-                public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);if(completed!=null)nativeVoicePendingChunks=Math.max(0,nativeNarrationQueue.size()-nativeNarrationQueueIndex-1);}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}else if(isNativeKokoroEngine()){speakNextNativeNarrationChunk();}else{long pause=narrativePauseMs(nativeChapterStartIndexes.contains(nativeNarrationQueueIndex));ui.postDelayed(new Runnable(){public void run(){speakNextNativeNarrationChunk();}},pause);}}});}
+                public void onDone(final String id){ui.post(new Runnable(){public void run(){String completed;int remaining;synchronized(nativeVoiceSentenceByUtterance){completed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);remaining=nativeVoiceSentenceByUtterance.size();nativeVoicePendingChunks=remaining;}if(completed==null)return;if(narrativeAudio!=null)narrativeAudio.onUtteranceDone(id);nativeNarrationQueueIndex++;if(remaining<=0||nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();}}});}
                 public void onError(final String id){ui.post(new Runnable(){public void run(){String failed;synchronized(nativeVoiceSentenceByUtterance){failed=nativeVoiceSentenceByUtterance.remove(id);nativeVoiceStartedUtterances.remove(id);}if(failed==null)return;abortNativeNarrationAfterTtsError("A voz Android reportou erro. A narração foi interrompida neste trecho.");}});}
             });
         }
@@ -617,8 +620,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 int result=nativeTts.setVoice(selected);
                 if(result==TextToSpeech.SUCCESS)AndroidTtsBackend.persistVoice(prefs,nativeTtsActiveEnginePackage,selected.getName());
             }
-            if(isNativeKokoroEngine()){nativeTts.setSpeechRate(1.00f);nativeTts.setPitch(1.00f);}
-            else{nativeTts.setSpeechRate(AndroidTtsBackend.adjustedRate(NarrationPlaybackPolicy.ANDROID_SPEECH_RATE,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100)));nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}
+            float configuredRate=AndroidTtsBackend.adjustedRate(isNativeKokoroEngine()?1.00f:NarrationPlaybackPolicy.ANDROID_SPEECH_RATE,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100));
+            if(isNativeKokoroEngine()){nativeTts.setSpeechRate(configuredRate);nativeTts.setPitch(1.00f);}
+            else{nativeTts.setSpeechRate(configuredRate);nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}
             AppLog.i("NativeTts","Engine="+nativeTtsActiveEnginePackage+" • voz="+(selected==null?"padrão real":selected.getName())+" • neural="+isNativeKokoroEngine());
         }catch(Throwable error){AppLog.w("NativeTts","A seleção da voz real retornada pela engine falhou; mantendo a voz atual.",error);}
     }
@@ -648,7 +652,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if("longo".equals(profile)||"longa".equals(profile))return chapter?720L:260L;
         return chapter?420L:120L;
     }
-    private void applyNativeNarrativeDelivery(){if(nativeTts==null||isNativeKokoroEngine())return;try{nativeTts.setSpeechRate(narrativeSpeechRate());nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}catch(Throwable error){AppLog.w("NativeTts","Falha ao aplicar direção narrativa de voz; mantendo o padrão.",error);}}
+    private void applyNativeNarrativeDelivery(){if(nativeTts==null)return;try{if(isNativeKokoroEngine()){float rate=AndroidTtsBackend.adjustedRate(1.00f,prefs.getInt(AndroidTtsBackend.PREF_SPEED_PERCENT,100));nativeTts.setSpeechRate(rate);nativeTts.setPitch(1.00f);}else{nativeTts.setSpeechRate(narrativeSpeechRate());nativeTts.setPitch(NarrationPlaybackPolicy.ANDROID_PITCH);}}catch(Throwable error){AppLog.w("NativeTts","Falha ao aplicar direção narrativa de voz; mantendo o padrão.",error);}}
 
     private String startAudioServiceSafely(){
         // O serviço legado é encerrado uma única vez na criação da Activity. Fazer
@@ -940,6 +944,35 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
+
+    /* package */ void returnToActiveSession(){
+        navigationInProgress=false;
+        currentScreen="Mestre IA";
+        if(isStrixhavenAdventure()){
+            if(shellNavScroll!=null)shellNavScroll.setVisibility(View.GONE);
+            showStrixhavenSession();
+        }else{
+            if(shellNavScroll!=null)shellNavScroll.setVisibility(View.VISIBLE);
+            showNarrator();
+        }
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(currentScreen!=null&&!"Mestre IA".equals(currentScreen)){
+            boolean storyStarted=false;
+            try{storyStarted=(lastNarration!=null&&lastNarration.trim().length()>0)||(db!=null&&db.getStoryState().optInt("started",0)>0)||isStrixhavenAdventure();}catch(Exception ignored){}
+            if(storyStarted||"Diário".equals(currentScreen)){
+                returnToActiveSession();
+                return;
+            }
+            if(!"Aventura".equals(currentScreen)){
+                navigate("Aventura");
+                return;
+            }
+        }
+        super.onBackPressed();
+    }
 
     private static String safeUiError(Throwable error){String message=error==null?"Falha desconhecida.":error.getMessage();if(message==null||message.trim().length()==0)message=error==null?"Falha desconhecida.":error.getClass().getSimpleName();message=message.replaceAll("[\r\n]+"," ").trim();return message.length()>280?message.substring(0,280)+"…":message;}
 
@@ -1519,7 +1552,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             drawerLp=new FrameLayout.LayoutParams(-1,-1,Gravity.TOP);
             drawerLp.setMargins(dp(8),dp(6),dp(8),dp(88));
         }else{
-            drawerLp=new FrameLayout.LayoutParams(-1,dp(68),Gravity.BOTTOM);
+            int collapsedH=(currentOptions!=null&&currentOptions.length()>0)?dp(104):dp(68);
+            drawerLp=new FrameLayout.LayoutParams(-1,collapsedH,Gravity.BOTTOM);
             drawerLp.setMargins(dp(8),0,dp(8),dp(88));
         }
         screen.addView(drawer,drawerLp);
@@ -1551,7 +1585,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(!strixhavenDrawerExpanded){
             String preview=lastNarration==null||lastNarration.trim().length()==0?"Toque no pergaminho para abrir a narração.":GeneratedTextSanitizer.humanText(lastNarration);
             if(preview.length()>115)preview=preview.substring(0,115)+"…";
-            TextView pv=text(preview,12,Color.rgb(236,225,198),false);pv.setMaxLines(1);pv.setEllipsize(TextUtils.TruncateAt.END);drawer.addView(pv,new LinearLayout.LayoutParams(-1,dp(28)));return drawer;
+            TextView pv=text(preview,12,Color.rgb(236,225,198),false);pv.setMaxLines(1);pv.setEllipsize(TextUtils.TruncateAt.END);drawer.addView(pv,new LinearLayout.LayoutParams(-1,dp(24)));
+            if(currentOptions!=null&&currentOptions.length()>0){
+                LinearLayout compactRow=new LinearLayout(this);compactRow.setOrientation(LinearLayout.HORIZONTAL);
+                boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
+                for(int i=0;i<currentOptions.length()&&i<3;i++){
+                    final JSONObject option=currentOptions.optJSONObject(i);
+                    if(option==null)continue;
+                    Button pick=smallButton(option.optString("label",option.optString("action","Ação")),Color.rgb(60,43,25));
+                    pick.setAllCaps(false);pick.setTextSize(9.5f);pick.setTextColor(GOLD);pick.setMaxLines(1);pick.setEllipsize(TextUtils.TruncateAt.END);
+                    pick.setEnabled(!mustRoll);pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
+                    LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(32),1);
+                    if(i>0)lp.setMargins(dp(4),0,0,0);
+                    compactRow.addView(pick,lp);
+                }
+                drawer.addView(compactRow,new LinearLayout.LayoutParams(-1,dp(34)));
+            }
+            return drawer;
         }
 
         LinearLayout meta=new LinearLayout(this);meta.setOrientation(LinearLayout.HORIZONTAL);meta.setGravity(Gravity.CENTER_VERTICAL);TextView chapter=text(lastNarration==null||lastNarration.length()==0?"PRIMEIRO DIA":"MESTRE NARRA",10,GOLD,true);meta.addView(chapter,new LinearLayout.LayoutParams(0,dp(30),1));
@@ -1562,6 +1612,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
         strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
+        // Ações da cena ficam SEMPRE em controles individuais abaixo do texto,
+        // inclusive quando o menu está recolhido para leitura.
+        if(currentOptions!=null&&currentOptions.length()>0){
+            LinearLayout suggested=new LinearLayout(this);
+            suggested.setOrientation(LinearLayout.VERTICAL);
+            suggested.addView(text("AÇÕES SUGERIDAS • TOQUE UMA OU ESCREVA SUA PRÓPRIA",9,GOLD,true));
+            boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
+            for(int i=0;i<currentOptions.length()&&i<3;i++){
+                final JSONObject option=currentOptions.optJSONObject(i);
+                if(option==null)continue;
+                String lbl=option.optString("label",option.optString("action","Ação"));
+                String desc=option.optString("description","").trim();
+                String btnText=desc.length()>0&&!lbl.equalsIgnoreCase(desc)?(lbl+" — "+desc):lbl;
+                Button pick=smallButton(btnText,Color.rgb(60,43,25));
+                pick.setAllCaps(false);pick.setTextSize(11);pick.setTextColor(GOLD);pick.setMaxLines(2);pick.setEllipsize(TextUtils.TruncateAt.END);
+                pick.setEnabled(!mustRoll);pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(42));
+                lp.setMargins(0,dp(2),0,dp(2));
+                suggested.addView(pick,lp);
+            }
+            if(mustRoll)suggested.addView(text("Resolva primeiro o teste pendente.",10,MUTED,false));
+            drawer.addView(suggested);
+        }
 
         LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
         Button toggleControls=smallButton(strixhavenControlsExpanded?"▼ OCULTAR MENU (MAXIMIZAR TEXTO)":"▲ MOSTRAR MENU & AÇÕES",strixhavenControlsExpanded?Color.rgb(60,43,25):GOLD);
@@ -1585,6 +1658,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             controlsBox.addView(mediaRow);
             if(sharedImageUri!=null){Button openImage=smallButton("ABRIR CENA",Color.rgb(60,43,25));openImage.setTextColor(GOLD);openImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSceneImageFullscreen();}});controlsBox.addView(openImage,new LinearLayout.LayoutParams(-1,dp(34)));}
             addStrixhavenMasterConversationCard(controlsBox);
+            Button openJournal=smallButton("📜 ABRIR DIÁRIO / HISTÓRICO",Color.rgb(60,43,25));
+            openJournal.setTextColor(GOLD);
+            openJournal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});
+            controlsBox.addView(openJournal,new LinearLayout.LayoutParams(-1,dp(34)));
             if(hasFailedGeminiRequest()){
                 LinearLayout failCard=card();failCard.setBackground(makeBg(Color.rgb(55,20,20),RED,10));
                 failCard.addView(text("O Gemini não respondeu. A ação continua pendente e salva.",11,RED,true));
@@ -1595,12 +1672,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
-            if(currentOptions!=null&&currentOptions.length()>0&&pendingTest.length()==0){
-                TextView sug=text("SUGESTÕES",9,GOLD,true);controlsBox.addView(sug);
-                HorizontalScrollView hscroll=new HorizontalScrollView(this);hscroll.setHorizontalScrollBarEnabled(false);LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-                for(int i=0;i<currentOptions.length()&&i<3;i++){final JSONObject option=currentOptions.optJSONObject(i);if(option==null)continue;String label=option.optString("label",option.optString("action","Opção"));Button b=smallButton(label,PANEL2);b.setAllCaps(false);b.setTextSize(10);b.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});row.addView(b,new LinearLayout.LayoutParams(dp(165),dp(40)));}
-                hscroll.addView(row);controlsBox.addView(hscroll,new LinearLayout.LayoutParams(-1,dp(42)));
-            }
             final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
             LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
             final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
@@ -6259,7 +6330,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         b.addView(text("A narração e a paisagem sonora só começam quando você toca em PLAY. Pode repetir quantas vezes quiser.",12,MUTED,false));LinearLayout audioRow=new LinearLayout(this);audioRow.setOrientation(LinearLayout.HORIZONTAL);Button speak=smallButton("PLAY\nCHARON + ÁUDIO",GREEN),nativeSpeak=smallButton("PLAY\nANDROID + ÁUDIO",PANEL2),journal=smallButton("DIÁRIO",PANEL2);speak.setContentDescription("Iniciar ou repetir a narração com Charon, música, ambiência e efeitos");nativeSpeak.setContentDescription("Iniciar ou repetir a narração com a voz do Android, música, ambiência e efeitos");audioRow.addView(speak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(nativeSpeak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(journal,new LinearLayout.LayoutParams(0,dp(54),1));b.addView(audioRow);
         LinearLayout imageRow=new LinearLayout(this);imageRow.setOrientation(LinearLayout.HORIZONTAL);Button gemBtn=smallButton("GERAR NO GEMINI",GREEN),image=smallButton("TENTAR INTERNA",PANEL2),copy=smallButton("EDITAR PROMPT",PANEL2);imageRow.addView(gemBtn,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(image,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(copy,new LinearLayout.LayoutParams(0,dp(50),1));b.addView(imageRow);
         b.addView(text("No Gemini: gere a imagem e toque em Compartilhar > Braseiro D&D. Ela voltará automaticamente para esta cena.",12,MUTED,false));
-        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(lastNarration));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(lastNarration));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration.length()>0){db.addJournal("Cena "+dateNow(),stripMarkdown(lastNarration),"Cena");toast("Cena salva no diário.");}}});
+        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(lastNarration));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(lastNarration));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});
         gemBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPromptAndOpenGemini();}});copy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(false);}});image.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
         b.addView(modeCard);
         if(lastNarration.length()>0)ui.postDelayed(new Runnable(){public void run(){narratorScroll.smoothScrollTo(0,0);}},120);
@@ -6273,7 +6344,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 lastMasterSupport=MasterSupportPanelEngine.build(new JSONObject(),activeRuleRetrieval,citations,db.getSceneState(),safeActiveCharacters(),currentOptions,pendingTest,lastPrompt,isMystaraWorld(),activeInputChannel());
             }
             final LinearLayout help=card();int helpAccent=Color.rgb(96,200,230);help.setBackground(makeBg(Color.rgb(19,49,73),helpAccent,12));
-            help.addView(text("AJUDA DO MESTRE — FORA DA NARRATIVA",15,helpAccent,true));
+            LinearLayout topRow=new LinearLayout(this);topRow.setOrientation(LinearLayout.HORIZONTAL);topRow.setGravity(Gravity.CENTER_VERTICAL);
+            topRow.addView(text("AJUDA DO MESTRE — FORA DA NARRATIVA",14,helpAccent,true),new LinearLayout.LayoutParams(0,-2,1));
+            Button toggleHelp=smallButton(masterSupportCardCollapsed?"EXPANDIR":"RECOLHER",Color.rgb(28,68,98));
+            toggleHelp.setTextColor(helpAccent);toggleHelp.setTextSize(10);
+            toggleHelp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){masterSupportCardCollapsed=!masterSupportCardCollapsed;showNarrator();}});
+            topRow.addView(toggleHelp,new LinearLayout.LayoutParams(dp(86),dp(34)));
+            if(masterConversationHistory().length()>0){
+                Button clearHelp=smallButton("LIMPAR CHAT",Color.rgb(65,28,28));
+                clearHelp.setTextColor(Color.WHITE);clearHelp.setTextSize(10);
+                clearHelp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){clearMasterConversationOnly();}});
+                topRow.addView(clearHelp,new LinearLayout.LayoutParams(dp(92),dp(34)));
+            }
+            help.addView(topRow);
+            if(masterSupportCardCollapsed){
+                help.addView(text("Painel auxiliar recolhido. Toque em EXPANDIR para consultar regras ou perguntar ao Mestre sem avançar a cena.",11,Color.rgb(190,225,238),false));
+                parent.addView(help);
+                return;
+            }
             help.addView(text("Nada escrito neste quadro vira fala, ação, passagem de tempo ou consequência da aventura.",11,Color.rgb(190,225,238),false));
 
             String sceneSummary=lastMasterSupport.optString("scene_summary","");if(sceneSummary.length()>0){help.addView(text("CENA AGORA",11,helpAccent,true));help.addView(text(sceneSummary,13,Color.WHITE,false));}
@@ -6297,7 +6385,54 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void addStrixhavenMasterConversationCard(final LinearLayout parent){
-        try{JSONArray history=masterConversationHistory();if(history.length()==0)return;final int blue=Color.rgb(96,200,230);LinearLayout help=card();help.setBackground(makeBg(Color.rgb(19,49,73),blue,12));help.addView(text("CONVERSA COM O MESTRE — FORA DA HISTÓRIA",11,blue,true));addMasterConversationHistory(help,blue,true);help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));parent.addView(help);}catch(Throwable error){AppLog.w("StrixMasterChat","Falha ao renderizar conversa auxiliar; narrativa preservada.",error);}
+        try{
+            JSONArray history=masterConversationHistory();
+            if(history.length()==0||strixhavenMasterCardHidden)return;
+            final int blue=Color.rgb(96,200,230);
+            LinearLayout help=card();
+            help.setBackground(makeBg(Color.rgb(19,49,73),blue,12));
+            LinearLayout header=new LinearLayout(this);
+            header.setOrientation(LinearLayout.HORIZONTAL);
+            header.setGravity(Gravity.CENTER_VERTICAL);
+            header.addView(text("CONVERSA COM O MESTRE — FORA DA HISTÓRIA ("+history.length()+")",10.5f,blue,true),new LinearLayout.LayoutParams(0,-2,1));
+            Button toggle=smallButton(strixhavenMasterCardCollapsed?"EXPANDIR":"RECOLHER",Color.rgb(28,68,98));
+            toggle.setTextColor(blue);toggle.setTextSize(9);
+            toggle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixhavenMasterCardCollapsed=!strixhavenMasterCardCollapsed;showStrixhavenSession();}});
+            Button closeBtn=smallButton("FECHAR",Color.rgb(28,68,98));
+            closeBtn.setTextColor(Color.rgb(190,225,238));closeBtn.setTextSize(9);
+            closeBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixhavenMasterCardHidden=true;showStrixhavenSession();}});
+            Button clearBtn=smallButton("LIMPAR",Color.rgb(65,28,28));
+            clearBtn.setTextColor(Color.WHITE);clearBtn.setTextSize(9);
+            clearBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){clearMasterConversationOnly();}});
+            header.addView(toggle,new LinearLayout.LayoutParams(dp(74),dp(30)));
+            header.addView(closeBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
+            header.addView(clearBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
+            help.addView(header);
+            if(!strixhavenMasterCardCollapsed){
+                addMasterConversationHistory(help,blue,true);
+                help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
+            }
+            parent.addView(help);
+        }catch(Throwable error){AppLog.w("StrixMasterChat","Falha ao renderizar conversa auxiliar; narrativa preservada.",error);}
+    }
+
+    /* package */ void clearMasterConversationOnly(){
+        try{
+            if(lastMasterSupport!=null){
+                lastMasterSupport.put("conversation_history",new JSONArray());
+                lastMasterSupport.remove("last_question");
+                lastMasterSupport.remove("last_answer");
+                prefs.edit().putString("last_master_support_json",lastMasterSupport.toString()).apply();
+            }
+            activeMasterPromotionTurnId="";
+            activeMasterPromotionQuestion="";
+            activeMasterPromotionFromRoll=false;
+            strixhavenMasterCardCollapsed=false;
+            strixhavenMasterCardHidden=false;
+            toast("Conversa auxiliar limpa. A campanha e o diário permanecem intactos.");
+            if(isStrixhavenAdventure())showStrixhavenSession();
+            else if("Mestre IA".equals(currentScreen))showNarrator();
+        }catch(Exception ignored){}
     }
 
     private JSONArray masterConversationHistory(){
@@ -6317,11 +6452,21 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private String masterConversationResolutionExcerpt(String raw){String clean=raw==null?"":stripMarkdown(raw).replaceAll("\\s+"," ").trim();if(clean.length()<=260)return clean;return clean.substring(0,257)+"…";}
 
-    private String masterQuestionKind(String raw){String q=raw==null?"":Normalizer.normalize(raw,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.US).trim();if(q.length()==0)return "information";String[] observational={"o que estou vendo","o que eu vejo","quem esta","quem está","onde estou","qual a distancia","qual a distância","o que meu personagem sabe","o que sabemos","descreva","posicao e distancias","posição e distâncias"};for(String t:observational)if(q.contains(t))return "information";String[] possibility={"consigo","posso","seria possivel","seria possível","da para","dá para","tento","quero","vou ","subir","escalar","saltar","pular","abrir","forcar","arrombar","convencer","investigar","examinar","seguir","esconder","atacar","nadar","pegar","usar ","entrar","atravessar","desarmar"};for(String t:possibility)if(q.contains(t))return "action_possibility";return "information";}
+    private String masterQuestionKind(String raw){String q=raw==null?"":Normalizer.normalize(raw,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.US).trim();if(q.length()==0)return "information";String[] observational={"o que estou vendo","o que eu vejo","quem esta na cena","onde estou","qual a distancia","o que meu personagem sabe","o que sabemos","posicao e distancias"};for(String t:observational)if(q.contains(t))return "information";String[] possibility={"consigo","posso","seria possivel","da para","tento","tentar","quero","vou ","subir","escalar","saltar","pular","abrir","forcar","arrombar","convencer","investigar","examinar","procurar","buscar","falar","conversar","perguntar","pedir","ler","olhar","seguir","esconder","atacar","nadar","pegar","comprar","vender","usar ","entrar","atravessar","desarmar","conjurar","ajudar"};for(String t:possibility)if(q.contains(t))return "action_possibility";return q.length()>=6?"action_possibility":"information";}
 
-    private boolean masterQuestionCanBecomeAction(String raw){return "action_possibility".equals(masterQuestionKind(raw));}
+    private boolean masterQuestionCanBecomeAction(String raw){return raw!=null&&raw.trim().length()>=4&&!"information".equals(masterQuestionKind(raw));}
+
+    /* package */ static String sanitizeConsultativeAnswer(String rawAnswer){
+        if(rawAnswer==null)return "";
+        String clean=rawAnswer.trim();
+        if(clean.isEmpty())return "";
+        // Remove afirmações falsas de mutação de estado em respostas meramente consultivas (GM_HELP)
+        clean=clean.replaceAll("(?i)\\b(vou aplicar|apliquei|acabei de aplicar|ja apliquei|já apliquei|adicionado ao inventario|adicionado ao inventário|adicionei na ficha|descontado da sua ficha|o tempo avancou|o tempo avançou)\\b","[consulta sem efeito aplicado]");
+        return clean;
+    }
 
     private JSONObject updateMasterConversationTurn(String turnId,String status,JSONObject details){
+        if("resolved".equals(status))strixhavenMasterCardCollapsed=true;
         JSONObject support=copyJsonObject(lastMasterSupport);try{JSONArray history=support.optJSONArray("conversation_history");if(history==null)return support;JSONArray next=new JSONArray();for(int i=0;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;JSONObject copy=copyJsonObject(turn);String id=copy.optString("turn_id","");if(id.length()==0){id=stableFingerprint(copy.optString("scene_fingerprint","")+"|legacy|"+copy.optString("question","")+"|"+copy.optString("answer",""));copy.put("turn_id",id);}if(id.equals(turnId)){copy.put("promotion_status",status).put("promotion_updated_at",System.currentTimeMillis());if(details!=null){java.util.Iterator<String> keys=details.keys();while(keys.hasNext()){String key=keys.next();Object value=details.opt(key);if(value==null||value==JSONObject.NULL)copy.remove(key);else copy.put(key,value);}}}next.put(copy);}support.put("conversation_history",next);lastMasterSupport=support;prefs.edit().putString("last_master_support_json",support.toString()).apply();}catch(Exception error){AppLog.w("MasterConversation","Falha ao atualizar estado da tentativa promovida.",error);}return support;
     }
 
@@ -6808,7 +6953,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showTestResult(final JSONObject rawTest,final JSONObject hero,final DiceResult result,final String formula,String mode){
         final JSONObject test=ensurePendingTestIdentity(rawTest,rawTest.optString("action"));final int dc=test.optInt("dc",10);final boolean success=result.total>=dc;
         String message=hero.optString("name")+" rolou "+result.detail+"\n\nTotal: "+result.total+" • CD "+dc+"\n"+(success?"SUCESSO":"FALHA");
-        new AlertDialog.Builder(this).setTitle(result.critical).setMessage(message).setNegativeButton("Descartar",null).setPositiveButton("APLICAR À CENA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
+        new AlertDialog.Builder(this).setTitle(result.critical).setMessage(message).setNegativeButton("Descartar",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();}}).setPositiveButton("APLICAR À CENA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){try{
             String action=test.optString("action");int modifier=rulesEngine.d20CheckBonus(hero,test.optString("ability"),test.optString("skill"))+WilemCookbookEffectRules.skillBonus(hero,test.optString("ability"),test.optString("skill"),db.getSceneState());String modifierSource=test.optString("skill").trim().length()>0?"sheet_skill:"+test.optString("skill"):"sheet_ability:"+test.optString("ability");JSONObject context=rollBindingContext(test,hero,success?"success":"failure",formula,result.mode,result.natural,modifier,modifierSource);context.put("rolls_json",result.rollsJson).put("physical_faces_json",result.physicalFacesJson).put("render_mode",result.renderMode).put("physics_ms",result.physicsMs).put("physics_seed",result.physicsSeed).put("dice_theme_identity",result.themeIdentity).put("roll_integrity_signature",result.integritySignature);long rollId=db.addDiceHistoryBound(formula,result.detail,result.total,"Teste obrigatório",context);String originTurn=test.optString("origin_master_turn_id","");if(originTurn.length()>0){activeMasterPromotionTurnId=originTurn;activeMasterPromotionQuestion=test.optString("origin_master_question","");activeMasterPromotionFromRoll=true;try{updateMasterConversationTurn(originTurn,"resolving_roll",new JSONObject().put("roll_id",rollId).put("roll_actor",hero.optString("name")).put("roll_formula",formula).put("roll_mode",result.mode).put("roll_natural",result.natural).put("roll_total",result.total).put("roll_outcome",success?"success":"failure").put("roll_source",result.renderMode));}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao marcar rolagem em interpretação.",ignored);}}
             String resolution="MECANICA_LOCAL_VERIFICADA: actor="+hero.optString("name")+"; roll_id="+rollId+"; master_turn_id="+originTurn+"; test_key="+test.optString("test_key")+"; action_signature="+test.optString("action_signature")+"; scene_fingerprint="+test.optString("scene_fingerprint")+"; campaign_fingerprint="+test.optString("campaign_fingerprint")+"; target_signature="+test.optString("target_signature")+"; consequence_key="+test.optString("consequence_key")+"; source_rule_id="+test.optString("source_rule_id")+"; procedure_id="+test.optString("procedure_id")+"; formula="+formula+"; total="+result.total+"; modifier="+modifier+"; modifier_source="+modifierSource+"; roll_mode="+result.mode+"; natural_roll="+result.natural+"; dc="+dc+"; resultado="+(success?"success":"failure")+". RESULTADO DE TESTE OBRIGATÓRIO: "+hero.optString("name")+" tentou: "+action+". Continue exatamente deste ponto. Em toda mechanical_basis.calculation copie exatamente todos os identificadores e valores acima; não peça o mesmo teste novamente.";
             pendingTest=new JSONObject();persistStory(action);sendAi("Narrador",resolution);
@@ -6927,6 +7072,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private void markGeminiRequestFailed(final String mode,final String action,final String channel,final String error){
         aiBusy=false;streamingNarration="";
+        if(masterSideQueryActive)restoreAfterMasterSideQuery();
+        if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){
+            updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());
+            activeMasterPromotionTurnId="";
+            activeMasterPromotionQuestion="";
+            activeMasterPromotionFromRoll=false;
+        }
         if(prefs!=null){
             prefs.edit().putBoolean(RETRY_PREFIX+"pending",true)
                 .putString(RETRY_PREFIX+"mode",mode==null?"Narrador":mode)
@@ -7113,7 +7265,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final MasterOrchestrator.Plan readyPlan=plan;final Throwable readyFailure=failure;
             ui.post(new Runnable(){public void run(){
                 if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
-                if(readyFailure!=null){aiBusy=false;activeMasterPlan=null;masterOrchestrator.setActivePlanForValidation(null);setStatus("A busca de regras terminou, mas o contexto da campanha não pôde ser montado: "+safeMessage(readyFailure));toast("Falha ao preparar o estado da campanha. Nenhuma chamada ao Gemini foi feita.");if("Mestre IA".equals(currentScreen))showNarrator();return;}
+                if(readyFailure!=null){aiBusy=false;activeMasterPlan=null;masterOrchestrator.setActivePlanForValidation(null);if(masterSideQueryActive)restoreAfterMasterSideQuery();if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());activeMasterPromotionTurnId="";}setStatus("A busca de regras terminou, mas o contexto da campanha não pôde ser montado: "+safeMessage(readyFailure));toast("Falha ao preparar o estado da campanha. Nenhuma chamada ao Gemini foi feita.");if("Mestre IA".equals(currentScreen))showNarrator();else if(isStrixhavenAdventure())showStrixhavenSession();return;}
                 continueSendAiAfterRuleSearch(mode,requestedText,mapContext,retrieval,readyPlan,inputChannel);
             }});
         }});
@@ -7131,7 +7283,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(openingRequest&&!openingGrounded){
             JSONObject hot=EssentialRulesCache.snapshot(activeWorldProfile());try{activeRuleRetrieval.put("status","opening_fiction_grounded").put("essential_rules_cache",hot).put("sufficient_for_mechanics",false).put("mechanics_blocked",true).put("opening_narrative",true);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha ao anexar cache essencial.",ignored);}
         }
-        if(activeMasterPlan!=null&&!activeMasterPlan.contextReady){if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);String reason=activeMasterPlan.contextError.length()==0?"O estado operacional não pôde ser montado com segurança.":activeMasterPlan.contextError;activeMasterPlan=null;aiBusy=false;toast("O Mestre foi bloqueado para não narrar com contexto incompleto.");setStatus(reason);updateNarratorBusyUi();if("Mestre IA".equals(currentScreen))showNarrator();return;}
+        if(activeMasterPlan!=null&&!activeMasterPlan.contextReady){if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);String reason=activeMasterPlan.contextError.length()==0?"O estado operacional não pôde ser montado com segurança.":activeMasterPlan.contextError;activeMasterPlan=null;aiBusy=false;if(masterSideQueryActive)restoreAfterMasterSideQuery();if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());activeMasterPromotionTurnId="";}toast("O Mestre foi bloqueado para não narrar com contexto incompleto.");setStatus(reason);updateNarratorBusyUi();if("Mestre IA".equals(currentScreen))showNarrator();else if(isStrixhavenAdventure())showStrixhavenSession();return;}
         if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(activeMasterPlan);
         final String effectiveUserText=activeMasterPlan==null?userText:activeMasterPlan.userPrompt;
         final String model=prefs.getString("text_model","gemini-3.5-flash-lite").trim();pendingAiModel=model;
@@ -7506,8 +7658,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
 
             if (masterSideQueryActive) {
-                String answer = completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration", raw)));
+                String answer = sanitizeConsultativeAnswer(completeNarrationSafely(GeneratedTextSanitizer.narrative(env.optString("narration", raw))));
                 String question = masterSideQueryText;
+                strixhavenMasterCardHidden = false;
+                strixhavenMasterCardCollapsed = false;
+                masterSupportCardCollapsed = false;
                 JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
                 JSONArray sideCitations = copyJsonArray(lastRagCitations);
                 JSONObject previousSupport = copyJsonObject(lastMasterSupport);
@@ -7613,7 +7768,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             boolean changes = !nonAdvancing && (masterOrchestrator != null ? masterOrchestrator.hasStructuredChanges(env) : (stateTransactionManager != null && stateTransactionManager.hasChanges(env)));
             String statusMsg = nonAdvancing ? "Dúvida respondida. A cena, o tempo, os NPCs e o Mundo Vivo permaneceram no mesmo ponto."
                     : (!masterEnvelopeValid ? "Cena preservada. Consequências estruturadas rejeitadas pela validação fechada; nenhum teste, estado ou transação foi aceito."
-                    : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena pronta. Nenhuma mudança persistente foi proposta."));
+                    : (changes ? "Cena pronta. Revise todas as consequências antes de aplicá-las." : "Cena registrada no Diário. Nenhuma outra consequência persistente foi proposta."));
 
             // COMMIT PHASE: Protected atomically under aiCommitLock with double-checked generation
             synchronized (aiCommitLock) {
@@ -7652,6 +7807,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             activeMasterPromotionTurnId = "";
                             activeMasterPromotionQuestion = "";
                             activeMasterPromotionFromRoll = false;
+                            strixhavenMasterCardCollapsed = true;
                         }
                     }
                     if (db.getCombatState().optInt("running", 0) == 1) {
@@ -7955,7 +8111,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 String combatSummary=applyCombatPlan(combatPlan,externalInitiatives);
                 String sceneSummary="";
                 JSONObject scene=prepared.optJSONObject("scene_state");
-                if(scene!=null&&scene.length()>0){
+                JSONArray npcUpdates=prepared.optJSONArray("npc_updates");
+                JSONArray mapUpdates=prepared.optJSONArray("map_updates");
+                if((scene!=null&&scene.length()>0)||(npcUpdates!=null&&npcUpdates.length()>0)||(mapUpdates!=null&&mapUpdates.length()>0)){
                     JSONObject before=db.getSceneState();
                     JSONObject after=sceneStateEngine.apply(prepared,lastNarration,db.getMapState());
                     sceneSummary="Cena: "+before.optString("location")+" → "+after.optString("location");
@@ -8930,17 +9088,28 @@ private void speakGemini(String text){
     private void speakNextNativeNarrationChunk(){
         if(nativeTts==null||!nativeTtsReady||nativeNarrationQueueIndex<0||nativeNarrationQueueIndex>=nativeNarrationQueue.size()){finishNativeNarration();return;}
         try{
-            final String sentence=nativeNarrationQueue.get(nativeNarrationQueueIndex);
-            final String id="narracao_"+nativeNarrationSession+"_"+nativeNarrationQueueIndex;
-            Bundle params=new Bundle();params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,id);
-            // QUEUE_ADD pode emitir callbacks do bloco anterior depois que o
-            // próximo já foi enfileirado. Preserve o mapa até onDone/onError de
-            // cada utterance; limpar aqui fazia a continuidade perder o texto e
-            // os SFX de todos os blocos anteriores ao último.
-            synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.put(id,sentence);nativeVoicePendingChunks=nativeNarrationQueue.size()-nativeNarrationQueueIndex;}
-            int queueMode=TextToSpeech.QUEUE_ADD;
-            int result=nativeTts.speak(sentence,queueMode,params,id);
-            if(result==TextToSpeech.ERROR){synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.remove(id);}abortNativeNarrationAfterTtsError("A voz Android recusou o trecho atual.");}
+            // Enfileira todos os blocos de uma só vez (QUEUE_ADD) para que o serviço
+            // TTS (especialmente Sherpa-ONNX / Kokoro) sintetize o bloco N+1 em
+            // pipeline enquanto o bloco N está tocando, eliminando a pausa de ~5s
+            // entre frases ou períodos.
+            int startIdx=nativeNarrationQueueIndex;
+            for(int idx=startIdx;idx<nativeNarrationQueue.size();idx++){
+                final String sentence=nativeNarrationQueue.get(idx);
+                final String id="narracao_"+nativeNarrationSession+"_"+idx;
+                Bundle params=new Bundle();params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,id);
+                synchronized(nativeVoiceSentenceByUtterance){
+                    nativeVoiceSentenceByUtterance.put(id,sentence);
+                    nativeVoicePendingChunks=nativeVoiceSentenceByUtterance.size();
+                }
+                int result=nativeTts.speak(sentence,TextToSpeech.QUEUE_ADD,params,id);
+                if(result==TextToSpeech.ERROR){
+                    synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.remove(id);}
+                    if(idx==startIdx){
+                        abortNativeNarrationAfterTtsError("A voz Android recusou o trecho atual.");
+                        return;
+                    }
+                }
+            }
         }catch(Throwable error){AppLog.e("NativeTts","Falha ao enviar trecho para a voz Android.",error);abortNativeNarrationAfterTtsError("A voz Android falhou ao receber o trecho atual.");}
     }
     private void abortNativeNarrationAfterTtsError(String message){
@@ -9895,11 +10064,51 @@ private void speakGemini(String text){
     private static String truthStatus(String label){String n=label.toLowerCase(Locale.ROOT);if(n.startsWith("rumor"))return "rumor";if(n.startsWith("mentira"))return "mentira";if(n.startsWith("interpre"))return "equivoco";return "verdade";}
 
     private void showJournal(){
-        ScrollView s=page("Diário","Cenas, anotações e resumos persistentes.");LinearLayout b=body(s);Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
+        currentScreen="Diário";
+        if(shellNavScroll!=null)shellNavScroll.setVisibility(View.VISIBLE);
+        ScrollView s=page("Diário","Cenas, anotações e resumos persistentes.");LinearLayout b=body(s);
+        Button backToSession=button("← VOLTAR À SESSÃO / AVENTURA",GOLD);
+        backToSession.setTextColor(Color.BLACK);
+        backToSession.setOnClickListener(new View.OnClickListener(){public void onClick(View v){returnToActiveSession();}});
+        b.addView(backToSession);
+        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
         Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=db.listJournal();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
         Button bard=button("EXPORTAR COMO CRÔNICA DE BARDO (PDF)",GREEN);bard.setOnClickListener(new View.OnClickListener(){public void onClick(View v){bardChronicleDialog();}});b.addView(bard);
         Button pdf=button("EXPORTAR AVENTURA COMO LIVRO PDF",GOLD);pdf.setTextColor(Color.BLACK);pdf.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prepareLiteralAdventurePdf();}});b.addView(pdf);
     }
+    private void showFullJournalEntry(final JSONObject entry){
+        if(entry==null)return;
+        LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);
+        body.setPadding(dp(16),dp(10),dp(16),dp(12));
+        body.addView(text(entry.optString("kind","Cena")+" • "+formatDate(entry.optLong("created_at")),12,MUTED,false));
+        TextView complete=text(entry.optString("body",""),15,TEXT,false);
+        complete.setTextIsSelectable(true);body.addView(complete);
+        new AlertDialog.Builder(this).setTitle(entry.optString("title","Cena"))
+                .setView(scrollableDialogView(body)).setPositiveButton("FECHAR",null).show();
+    }
+    private void searchJournalEntries(){
+        final EditText query=input("Buscar em título, ação, diálogo ou narração","",false);
+        new AlertDialog.Builder(this).setTitle("Localizar cena do Diário").setView(query)
+                .setNegativeButton("CANCELAR",null)
+                .setPositiveButton("BUSCAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int which){
+                    String needle=query.getText().toString().trim().toLowerCase(Locale.ROOT);
+                    if(needle.isEmpty()){toast("Digite o termo que deseja encontrar.");return;}
+                    final ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
+                    for(JSONObject entry:db.listJournal()){
+                        if(entry==null)continue;
+                        String haystack=(entry.optString("title")+" "+entry.optString("body")+" "+entry.optString("kind")).toLowerCase(Locale.ROOT);
+                        if(haystack.contains(needle)){hits.add(entry);if(hits.size()>=100)break;}
+                    }
+                    if(hits.isEmpty()){toast("Nenhum registro encontrado.");return;}
+                    String[] labels=new String[hits.size()];
+                    for(int i=0;i<hits.size();i++){JSONObject entry=hits.get(i);labels[i]=entry.optString("title","Cena")+" • "+entry.optString("kind","");}
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Cenas encontradas ("+hits.size()+")")
+                        .setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
+                            if(which>=0&&which<hits.size())showFullJournalEntry(hits.get(which));
+                        }}).setNegativeButton("FECHAR",null).show();
+                }}).show();
+    }
+
     private void bardChronicleDialog(){
         final List<JSONObject> journal=db.listJournal();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(10));

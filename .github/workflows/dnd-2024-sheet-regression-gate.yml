@@ -1,7 +1,7 @@
 name: D&D 2024 Inventory and Scene Reliability APK — gated RC
 on:
   push:
-    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101]
+    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101, fix/dnd-6644-narrative-time-action-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -78,13 +78,35 @@ jobs:
             --tests com.braseiro.dnd5e.InventoryPersistence2024Test \
             --tests com.braseiro.dnd5e.MasterInventoryStateUpdate2024Test \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Focused regression — 6.6.44 narrative, clock and actions
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 7
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
       - name: Full D&D JVM regression (all tests except two mapped archive tests)
         working-directory: dnd-normal/run247-mod005
-        timeout-minutes: 30
+        timeout-minutes: 15
         run: |
-          # qaLite excludes only the two map-archive integration tests; all other
-          # 2024, persistence, narrative, import and combat regressions run.
-          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+          # A linha de base 6.6.43 concluía em cerca de seis minutos.
+          # Emitir o nome de cada teste permite localizar congelamentos reais,
+          # ao invés de aumentar um timeout de 30 minutos indefinidamente.
+          cat > /tmp/braseiro-junit-trace.gradle <<'GRADLE'
+          gradle.projectsEvaluated {
+              gradle.rootProject.allprojects { project ->
+                  project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { testTask ->
+                      testTask.testLogging {
+                          events 'started', 'passed', 'failed', 'skipped'
+                          exceptionFormat 'full'
+                      }
+                  }
+              }
+          }
+          GRADLE
+          # qaLite omite somente os dois testes de integração com mapa real.
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true \
+            -I /tmp/braseiro-junit-trace.gradle --no-daemon --console=plain
       - name: Verify bundled Faerun archive with full Android assets (two real-map tests)
         working-directory: dnd-normal/run247-mod005
         timeout-minutes: 25

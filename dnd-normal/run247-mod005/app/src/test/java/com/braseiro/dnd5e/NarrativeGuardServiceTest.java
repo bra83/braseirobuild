@@ -75,7 +75,9 @@ public class NarrativeGuardServiceTest {
 
         String instruction = HumanMasterNarrativeProfile.systemInstruction();
         assertTrue(instruction.contains("ENQUADRAMENTO SENSORIAL, CLIMA E TERRENO (PILAR 1)"));
-        assertTrue(instruction.contains("ANCORAGEM FÍSICA DOS HERÓIS (PILAR 2 - OBRIGATÓRIO)"));
+        assertTrue(instruction.contains("ANCORAGEM FÍSICA DOS HERÓIS (PILAR 2 - CONTEXTUAL, SEM REPETIÇÃO)"));
+        assertTrue(instruction.contains("jamais reenumere roupa e carga a cada ação"));
+        assertTrue(instruction.contains("após uma ação simples, comece diretamente no objeto"));
         assertTrue(instruction.contains("O MUNDO EM MOVIMENTO CONTÍNUO (PILAR 3)"));
         assertTrue(instruction.contains("DINÂMICA DE CÂMERA - ZOOM CONSCIENTE (PILAR 4)"));
         assertTrue(instruction.contains("AGÊNCIA E DEVOLUÇÃO ORGÂNICA (PILAR 5 - ZERO MULETAS)"));
