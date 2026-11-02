@@ -765,10 +765,19 @@ public final class AudioController {
         applyContinuousVolumesSmooth(DUCK_FADE_MS);
     }
 
+    /**
+     * Android TextToSpeech (including external Sherpa/Kokoro) owns its speech
+     * audio focus. A game-side AUDIOFOCUS_GAIN here can silence the actual
+     * narrator even though the independent TTS test works. Keep ambience
+     * ducked, but yield focus to the external speech engine.
+     */
     public synchronized void setExternalVoiceActive(boolean active) {
-        if (active) requestFocus();
         setDucked(active);
-        if (!active) abandonFocusIfIdle();
+        if (active) {
+            if (focusHeld) abandonFocus();
+        } else {
+            abandonFocusIfIdle();
+        }
     }
 
     private float effectiveAmbienceVolume() { return ambienceVol * (ducked ? .58f : 1f); }
