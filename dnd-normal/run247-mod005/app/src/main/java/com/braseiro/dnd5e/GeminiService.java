@@ -96,7 +96,8 @@ public class GeminiService {
                         if(text.length()==0)throw new Exception(apiError(response,"A IA não retornou texto."));
                         rememberWorkingModel("last_text_model_ok",candidate);
                         cb.onSuccess(text);return;
-                    }catch(AuthException e){throw e;
+                    }catch(AuthException e){
+                        errors.add(candidate+": "+shortError(e)); // outra chave/modelo pode ter permissão distinta
                     }catch(Exception e){errors.add(candidate+": "+shortError(e));}
                 }
                 throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
@@ -117,7 +118,8 @@ public class GeminiService {
                         String text=streamTextWithRetry(candidate,apiKey,body,cb,singleBudgetCall?1:2);
                         if(text.length()==0)throw new Exception("A IA não retornou texto.");
                         rememberWorkingModel("last_text_model_ok",candidate);cb.onSuccess(text);return;
-                    }catch(AuthException e){throw e;}catch(Exception e){errors.add(candidate+": "+shortError(e));}
+                    }catch(AuthException e){errors.add(candidate+": "+shortError(e));}
+                    catch(Exception e){errors.add(candidate+": "+shortError(e));}
                 }
                 throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
             }catch(Exception e){cb.onError(clean(e));}
