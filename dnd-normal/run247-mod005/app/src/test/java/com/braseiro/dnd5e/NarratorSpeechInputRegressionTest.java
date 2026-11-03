@@ -37,6 +37,22 @@ public final class NarratorSpeechInputRegressionTest {
         assertEquals(field.length(),field.getSelectionStart());
     }
 
+    @Test public void keyboardOverlayLiftsComposerAboveTheSamsungIme(){
+        // A57 com layout edge-to-edge: o screen ainda termina sob o teclado.
+        assertEquals(708,MainActivity.composerKeyboardBottomMarginPx(
+                1800,1100,true,88,8));
+        // Se adjustResize funcionar, não somar a altura do teclado outra vez.
+        assertEquals(8,MainActivity.composerKeyboardBottomMarginPx(
+                1100,1100,true,88,8));
+    }
+
+    @Test public void composerRetainsNormalMarginWhenKeyboardIsClosed(){
+        assertEquals(88,MainActivity.composerKeyboardBottomMarginPx(
+                1800,1800,false,88,8));
+        assertEquals(88,MainActivity.composerKeyboardBottomMarginPx(
+                1800,1100,false,88,8));
+    }
+
     @Test public void emptyResultsDoNotModifyThePlayerText(){
         Activity activity=Robolectric.buildActivity(Activity.class).setup().get();
         EditText field=new EditText(activity);
