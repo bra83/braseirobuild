@@ -1,0 +1,127 @@
+name: Extract PF2 R13 Dice Reference
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/extract-pf2-dice-reference.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SHARE_URL: 'https://firestorage.ai/ja/f/uPz1-yd-YBIO'
+  SOURCE_FILENAME: 'Braseiro_Pathfinder2e_9.0.14_MOTOR_BARBARA_1.1.2_RUNTIME_NARRATOR_TTS_R13_ATLAS_V6_ANDROID_STUDIO.zip'
+  SOURCE_SHA256: 'bc51f9f863d5265a130047336a2ffad8f19ae18ce6bba11a6d848a41505c3c6f'
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pf2-dice-reference-extract
+
+      - name: Download exact PF2 R13 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf incoming work ci/pf2-dice-reference downloader
+          mkdir -p incoming work ci/pf2-dice-reference/files downloader
+          cd downloader
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          cat > download.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const share=process.env.SHARE_URL;
+          const filename=process.env.SOURCE_FILENAME;
+          const out=process.env.GITHUB_WORKSPACE+'/incoming/source.zip';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({acceptDownloads:true});
+          await page.goto(share,{waitUntil:'domcontentloaded',timeout:120000});
+          for(let attempt=0;attempt<24;attempt++){
+            await page.waitForTimeout(attempt?5000:3000);
+            const candidates=page.locator('a,button,[role="button"]');
+            const n=Math.min(await candidates.count(),180);
+            for(let i=0;i<n;i++){
+              const el=candidates.nth(i);
+              let text='',href='';
+              try{text=((await el.innerText({timeout:500}))||'').trim()}catch{}
+              try{href=(await el.getAttribute('href'))||''}catch{}
+              if(!(text.includes(filename)||/download|ダウンロード|保存|zip|ファイル/i.test(text+' '+href))) continue;
+              try{
+                const p=page.waitForEvent('download',{timeout:15000});
+                await el.click({timeout:5000});
+                const d=await p;
+                await d.saveAs(out);
+                await browser.close();
+                process.exit(0);
+              }catch{}
+            }
+            if(attempt%5===4) await page.reload({waitUntil:'domcontentloaded',timeout:120000});
+          }
+          console.log((await page.locator('body').innerText()).slice(0,8000));
+          await browser.close();
+          throw new Error('PF2 source download failed');
+          NODE
+          node download.mjs
+          cd "$GITHUB_WORKSPACE"
+          echo "$SOURCE_SHA256  incoming/source.zip" | sha256sum -c -
+          unzip -q incoming/source.zip -d work
+
+      - name: Extract dice implementation reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, shutil, json, os
+          root=Path('work')
+          out=Path('ci/pf2-dice-reference/files')
+          exts={'.js','.mjs','.cjs','.ts','.tsx','.jsx','.css','.html','.java','.kt','.kts','.json'}
+          pats=re.compile(r'(dice|die\b|d20|roll\b|physics|three|cannon|rapier|ammo|matter|polyhedron|polyhedral|throw|velocity|gravity)',re.I)
+          hits=[]
+          files=[]
+          for p in root.rglob('*'):
+            if not p.is_file() or p.suffix.lower() not in exts:
+              continue
+            try:
+              txt=p.read_text(encoding='utf-8',errors='ignore')
+            except Exception:
+              continue
+            if not pats.search(txt) and not pats.search(p.name):
+              continue
+            matches=[]
+            for i,line in enumerate(txt.splitlines(),1):
+              if pats.search(line):
+                matches.append((i,line[:500]))
+                if len(matches)>=80: break
+            if matches:
+              rel=p.relative_to(root)
+              files.append(str(rel))
+              hits.append({'path':str(rel),'matches':matches})
+          # Rank dice-specific first, then copy up to 80 text files for inspection.
+          def score(path):
+            s=path.lower()
+            return sum(w for term,w in [('dice',20),('die',8),('roll',8),('physics',10),('three',8),('cannon',8),('d20',10)] if term in s)
+          files=sorted(set(files), key=lambda x:(-score(x),x))[:80]
+          for rel in files:
+            src=root/rel; dst=out/rel; dst.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(src,dst)
+          Path('ci/pf2-dice-reference/manifest.json').write_text(json.dumps(hits,ensure_ascii=False,indent=2),encoding='utf-8')
+          Path('ci/pf2-dice-reference/copied-files.txt').write_text('\n'.join(files)+'\n',encoding='utf-8')
+          PY
+          find ci/pf2-dice-reference -type f | sort
+
+      - name: Commit extracted reference to branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ci/pf2-dice-reference
+          git commit -m 'ci: extract PF2 R13 dice implementation reference' || exit 0
+          git push origin HEAD:pf2-dice-reference-extract

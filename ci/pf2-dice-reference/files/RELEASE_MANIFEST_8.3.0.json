@@ -1,0 +1,32 @@
+{
+  "version_name": "8.3.0",
+  "version_code": 80300,
+  "db_schema": 58,
+  "backup_format": 21,
+  "system_id": "pathfinder_2e",
+  "system_name": "Pathfinder 2e Remaster",
+  "motor_barbara": "1.1.0",
+  "barbara_module_count": 58,
+  "atlas_package": "inner_sea_canonical_v5_max_compat.zip",
+  "atlas_sha256": "dbd7262e44a6c614f8262ed23c88bc0080bce91dc3ffc8991a25b84887149c83",
+  "sandbox_layers": [
+    "CANONICAL",
+    "CAMPAIGN",
+    "PROCEDURAL"
+  ],
+  "mechanics_authority": "Pathfinder2eRulesEngine",
+  "input_channels": [
+    "PLAYER_ACTION",
+    "GM_HELP"
+  ],
+  "tests": {
+    "pytest": 58,
+    "sandbox_poi": 24,
+    "pathfinder_gate": 185,
+    "java_sources": 142,
+    "functional_suites": 18,
+    "dice_stress": 1180,
+    "dice_extreme": 11730
+  },
+  "gradle_device_homologated": false
+}
