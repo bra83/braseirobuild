@@ -1982,6 +1982,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
         Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024);JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());characterDialog(null,seed);}});b.addView(randomHero);
         Button importJson=button("IMPORTAR FICHA JSON",PANEL2);importJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startCharacterImport(null,db.getCampaign().optString("rules_profile",DndRulesEngine.PROFILE_2024));}});b.addView(importJson);
+        LinearLayout rests=card();
+        Button shortRest=button("DESCANSO CURTO",PANEL2),longRest=button("DESCANSO LONGO",PANEL2);
+        shortRest.setOnClickListener(v -> characterRestDialog(false));
+        longRest.setOnClickListener(v -> characterRestDialog(true));
+        rests.addView(shortRest);rests.addView(longRest);b.addView(rests);
         List<JSONObject> list=db.listCharacters();if(list.size()==0)b.addView(empty(isMystaraWorld()?"Nenhum aventureiro registrado nesta crônica.":"Nenhum personagem criado."));
         for(int i=0;i<list.size();i++){
             final JSONObject ch=list.get(i);final JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));final long id=ch.optLong("id");LinearLayout card=card();
@@ -2023,11 +2028,51 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
             Button addItem=smallButton("+ ITEM",PANEL2);addItem.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterInventoryEntryDialog(id);}});resourceActions.addView(addItem);card.addView(resourceActions);addInventoryLedgerRows(card,id,resourceSheet.optJSONArray("inventory_ledger"));
             if(resourceSheet.optBoolean("short_rest_hit_dice_choice_pending",false)){Button spendHd=button("GASTAR 1 DADO DE VIDA DO DESCANSO CURTO",PANEL2);spendHd.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final int available=Math.max(0,resourceSheet.optInt("hit_dice_max",ch.optInt("level",1))-resourceSheet.optInt("hit_dice_spent",0));if(available<=0){toast("Sem Dados de Vida disponíveis.");return;}int die=new DndRulesEngine().classHitDie(ch.optString("class_name")),conMod=new DndRulesEngine().modifier(ch.optInt("con",10));String formula="1d"+die+(conMod>=0?"+":"")+conMod;rollDiceInteractive(formula,"Normal",ch.optString("name"),id,new DiceUiCallback(){public void done(DiceResult r){db.applyCharacterShortRestHitDice(id,1,r.total);showHeroes();}});}});card.addView(spendHd);}
-            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){numberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
+            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
             LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
         }
+    }
+
+    private void positiveNumberDialog(String title,String hint,final NumberAction action){
+        final EditText value=input(hint,"1",false);value.setInputType(InputType.TYPE_CLASS_NUMBER);
+        final boolean[] applied={false};
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle(title).setView(value)
+            .setNegativeButton("Cancelar",null).setPositiveButton("Aplicar",null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if(applied[0])return;
+            final int amount;
+            try{amount=Integer.parseInt(value.getText().toString().trim());}
+            catch(NumberFormatException error){value.setError("Informe uma quantidade inteira válida.");return;}
+            if(amount<=0){value.setError("A quantidade deve ser maior que zero.");return;}
+            applied[0]=true;v.setEnabled(false);action.run(amount);dialog.dismiss();
+        }));dialog.show();
+    }
+
+    private void characterRestDialog(boolean longRest){
+        if(db.getCombatState().optInt("running",0)==1){toast("Encerre o encontro antes de descansar.");return;}
+        if(db.listActiveCharacters().isEmpty()){toast("Marque pelo menos um herói Em jogo para descansar.");return;}
+        final boolean[] applied={false};
+        final JSONObject report=worldStateEngine.preview(longRest?"descanso longo":"descanso curto");
+        if(report.has("error")){toast("Não foi possível preparar o descanso: "+report.optString("error"));return;}
+        String message="O grupo em jogo descansará por "+report.optInt("hours_advanced")+" hora(s). O tempo e os recursos serão persistidos.";
+        if(!longRest)message+=" Depois, escolha os Dados de Vida que deseja gastar na tela Heróis.";
+        else message+=" Os benefícios dependem dos requisitos validados pelas regras; descansos sem benefícios também avançam o tempo.";
+        final AlertDialog dialog=new AlertDialog.Builder(this).setTitle(longRest?"Descanso longo":"Descanso curto")
+            .setMessage(message).setNegativeButton("Cancelar",null).setPositiveButton("DESCANSAR",null).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if(applied[0])return;
+            applied[0]=true;
+            v.setEnabled(false);
+            if(db.getCombatState().optInt("running",0)==1){toast("Encerre o encontro antes de descansar.");dialog.dismiss();return;}
+            if(!worldStateEngine.commit(report)){
+                toast("Descanso não aplicado: "+report.optString("commit_error","estado alterado; abra o descanso novamente"));
+                dialog.dismiss();return;
+            }
+            dialog.dismiss();screenCache.clear();screenCacheTime.clear();showHeroes();toast("Descanso registrado.");
+        }));
+        dialog.show();
     }
 
     private void applyCharacterLevelUpFromUi(final long id){
