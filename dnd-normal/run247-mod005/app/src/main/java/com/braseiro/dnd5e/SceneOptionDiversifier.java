@@ -118,7 +118,7 @@ public final class SceneOptionDiversifier {
             String action = optionAction(candidate);
             if (action.isEmpty() || isWeakOption(candidate.optString("label",""), candidate.optString("description",""), action)) continue;
             if (!isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action, narration, scene)) continue;
-            if (isRepeated(action, accepted) || repeatsIntent(action, accepted)) continue;
+            if (isRepeated(action, history) || isRepeated(action, accepted) || repeatsIntent(action, accepted)) continue;
             out.put(candidate);
             accepted.add(action);
         }
@@ -148,15 +148,9 @@ public final class SceneOptionDiversifier {
                         "Deslocar-se até "+feature+" para verificar quem ou o que está ali.",
                         "Avanço com atenção até "+feature+" e verifico de perto os elementos e acessos ao redor."));
             }
-            if(!location.isEmpty()){
-                String shortLoc=shortLocationLabel(location);
-                out.add(option("INSPECIONAR "+upperShort(shortLoc),
-                        "Examinar os detalhes visíveis e a movimentação atual em "+shortLoc+".",
-                        "Inspeciono os arredores imediatos de "+shortLoc+", prestando atenção às pessoas, objetos e passagens visíveis."));
-                out.add(option("PERCORRER "+upperShort(shortLoc),
-                        "Caminhar pelo ambiente de "+shortLoc+" em busca de uma oportunidade ou contato.",
-                        "Caminho por "+shortLoc+" observando quem circula pelo local e procurando o próximo ponto de interesse."));
-            }
+            // A localização isolada NÃO é suficiente para inventar um motivo
+            // de ação. Sem pessoa, objeto ou passagem real, prefira uma ou
+            // nenhuma sugestão a repetir "inspecionar os arredores".
             if((beatNumber&1)==1&&out.size()>1){JSONObject first=out.remove(0);out.add(first);}
         }catch(Exception ignored){/* fallback opcional; degrada para lista parcial */}
         return out;
