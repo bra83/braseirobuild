@@ -238,6 +238,27 @@ public final class BraseiroNarrativeDirector {
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
+    /**
+     * Fail closed on recycled Gemini text before time, inventory or NPC state may
+     * advance. Unlike the broader stylistic heuristics, this gate targets only
+     * demonstrably duplicate turns and tolerates legitimate short NPC replies.
+     */
+    public static String repeatedTurnProblem(String candidate,String prior){
+        String a=plain(human(candidate)).replaceAll("\\s+"," ").trim();
+        String b=plain(human(prior)).replaceAll("\\s+"," ").trim();
+        if(a.length()<55||b.length()<55)return "";
+        if(a.equals(b))return "narracao identica ao turno anterior";
+        if(a.length()>=170&&b.length()>=170){
+            int prefix=Math.min(160,Math.min(a.length(),b.length()));
+            if(a.substring(0,prefix).equals(b.substring(0,prefix)))
+                return "reinicio literal de descricao ja narrada";
+            Set<String> ta=tokens(a),tb=tokens(b);
+            if(ta.size()>=32&&tb.size()>=32&&jaccard(ta,tb)>=0.83d)
+                return "narracao quase identica ao turno anterior";
+        }
+        return "";
+    }
+
     /** Qualidade anti-repetição para cenas que realmente são cenas. */
     public static String qualityProblem(String narration,JSONArray recent){return qualityProblem(narration,recent,"",null);}
     public static String qualityProblem(String narration,JSONArray recent,String userText){return qualityProblem(narration,recent,userText,null);}
