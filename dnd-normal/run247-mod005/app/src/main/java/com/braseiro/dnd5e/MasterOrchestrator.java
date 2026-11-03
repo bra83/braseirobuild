@@ -17,6 +17,8 @@ import java.util.Locale;
 public final class MasterOrchestrator {
     public static final class Plan {
         public final String userPrompt;
+        /** Exact command without prompt scaffolding, canonical only for state and journal. */
+        public String declaredAction;
         public final String compactContext;
         public final JSONObject localTick;
         public final JSONObject cognitivePlan;
@@ -43,7 +45,7 @@ public final class MasterOrchestrator {
         private boolean accepted;
         private boolean committed;
         private boolean fromCache;
-        Plan(String prompt,String context,JSONObject tick,JSONObject cognition,JSONObject npcPreview,JSONObject environmentPreview,JSONObject retrieval,JSONObject grounding,boolean queued,boolean eco,boolean narr,boolean frozen,String intent,String aHash,String sHash,String key,boolean ready,String error,String bOccasion,String bLocation,String bImprint,String channel,JSONObject discovery,JSONArray actionIds){queuedActionIds=actionIds==null?new JSONArray():actionIds;userPrompt=prompt;compactContext=context;localTick=tick;cognitivePlan=cognition;npcTick=npcPreview;environmentalPlan=environmentPreview;ruleRetrieval=retrieval==null?new JSONObject():retrieval;groundingEnvelope=grounding==null?new JSONObject():grounding;usedPartyQueue=queued;economy=eco;narrative=narr;nonAdvancing=frozen;narrativeIntent=intent==null?"":intent;actionHash=aHash;stateHash=sHash;cacheKey=key;contextReady=ready;contextError=error==null?"":error;barbaraStoryOccasion=bOccasion==null?"continuation":bOccasion;barbaraLocation=bLocation==null?"":bLocation;barbaraImprint=bImprint==null?"":bImprint;inputChannel=channel==null?"":channel;discoveryDecision=discovery==null?new JSONObject():discovery;}
+        Plan(String prompt,String context,JSONObject tick,JSONObject cognition,JSONObject npcPreview,JSONObject environmentPreview,JSONObject retrieval,JSONObject grounding,boolean queued,boolean eco,boolean narr,boolean frozen,String intent,String aHash,String sHash,String key,boolean ready,String error,String bOccasion,String bLocation,String bImprint,String channel,JSONObject discovery,JSONArray actionIds){queuedActionIds=actionIds==null?new JSONArray():actionIds;userPrompt=prompt;declaredAction=prompt;compactContext=context;localTick=tick;cognitivePlan=cognition;npcTick=npcPreview;environmentalPlan=environmentPreview;ruleRetrieval=retrieval==null?new JSONObject():retrieval;groundingEnvelope=grounding==null?new JSONObject():grounding;usedPartyQueue=queued;economy=eco;narrative=narr;nonAdvancing=frozen;narrativeIntent=intent==null?"":intent;actionHash=aHash;stateHash=sHash;cacheKey=key;contextReady=ready;contextError=error==null?"":error;barbaraStoryOccasion=bOccasion==null?"continuation":bOccasion;barbaraLocation=bLocation==null?"":bLocation;barbaraImprint=bImprint==null?"":bImprint;inputChannel=channel==null?"":channel;discoveryDecision=discovery==null?new JSONObject():discovery;}
         public JSONObject getGroundingEnvelope(){return groundingEnvelope;}
         public static Plan forTest(String prompt,String context,String occasion,String channel){
             return new Plan(prompt,context,new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),new JSONObject(),false,false,true,false,"","","","",true,"",occasion,"","",channel,new JSONObject(),new JSONArray());
@@ -151,7 +153,9 @@ public final class MasterOrchestrator {
         if(narrative)prompt=HumanMasterNarrativeProfile.systemInstruction()+"\n\n"
                 +HumanMasterNarrativeProfile.turnInstruction(action,!nonAdvancing)+"\n\n"+prompt;
         if(strixhavenActive)prompt=strixhavenProfile.masterInstruction()+"\n\n"+prompt;
-        return new Plan(prompt,context,tick,cognitive,npcTick,environmental,effectiveRuleRetrieval,groundingEnvelope,queued,quota.economyMode(),narrative,nonAdvancing,(explicitHelp?"GM_HELP":(explicitAction?"PLAYER_ACTION":routedIntent.name())),actionHash,stateHash,cacheKey,contextReady,contextError,barbaraOccasion,barbaraLocation,barbaraImprint,inputChannel,discoveryDecision,frozenActionIds);
+        Plan prepared=new Plan(prompt,context,tick,cognitive,npcTick,environmental,effectiveRuleRetrieval,groundingEnvelope,queued,quota.economyMode(),narrative,nonAdvancing,(explicitHelp?"GM_HELP":(explicitAction?"PLAYER_ACTION":routedIntent.name())),actionHash,stateHash,cacheKey,contextReady,contextError,barbaraOccasion,barbaraLocation,barbaraImprint,inputChannel,discoveryDecision,frozenActionIds);
+        prepared.declaredAction=action;
+        return prepared;
     }
 
     public com.braseiro.dnd5e.adventure.AdventureEngine getAdventureEngine(){return adventureEngine;}
@@ -306,7 +310,7 @@ public final class MasterOrchestrator {
             plan.accepted=true; // idempotência: não registrar a mesma chamada duas vezes
             return;
         }
-        boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+        boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.declaredAction,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
     }
 
     /**
@@ -322,7 +326,7 @@ public final class MasterOrchestrator {
         if(envelope.optBoolean("_deferred_until_test",false))return;
         JSONObject pendingTest=envelope.optJSONObject("pending_test");
         if(pendingTest!=null&&pendingTest.length()>0&&!pendingTest.optString("skill",pendingTest.optString("ability","")).trim().isEmpty())return;
-        double minutes=SceneActionClock.minutesFor(plan.userPrompt);
+        double minutes=SceneActionClock.minutesFor(plan.declaredAction);
         try{
             JSONObject scene=db.getSceneState();
             double oldHour=scene.optDouble("clock_hour",9d);
@@ -376,7 +380,7 @@ public final class MasterOrchestrator {
             String location=scene.optString("location","");
             String title="Dia "+day+" • "+String.format(Locale.US,"%02d:%02d",h,m)
                     +(location.isEmpty()?"":" • "+location);
-            String promptRaw=SceneActionClock.cleanPlayerAction(plan.userPrompt);
+            String promptRaw=SceneActionClock.cleanPlayerAction(plan.declaredAction);
             String actionPart=promptRaw;
             String rollPart="";
             int mechIdx=promptRaw.indexOf("MECANICA_LOCAL_VERIFICADA:");
@@ -430,7 +434,7 @@ public final class MasterOrchestrator {
     public JSONObject groundingFor(Plan plan){
         try{
             JSONObject rulesGround=compactRuleRetrieval(plan==null?new JSONObject():plan.ruleRetrieval);
-            JSONObject lore=firewall.promptView(plan==null?"":plan.userPrompt);
+            JSONObject lore=firewall.promptView(plan==null?"":plan.declaredAction);
             JSONObject campaignGround=new JSONObject().put("campaign",db.getCampaign()).put("scene",db.getSceneState()).put("party",db.getPartyState()).put("map",db.getMapState()).put("living_world",new JSONObject(new LivingWorldEngine(db).compactContext())).put("environmental_director",environmentalDirector.promptView(environmentalDirector.preview("")));
             JSONObject inference=new JSONObject().put("cognitive_plan",plan==null?new JSONObject():plan.cognitivePlan).put("world_discovery",plan==null?new JSONObject():plan.discoveryDecision);
             return GroundingEnvelope.build(rulesGround,lore,campaignGround,inference);
@@ -682,7 +686,7 @@ public final class MasterOrchestrator {
 
     private void applyQuest(JSONObject q)throws Exception{db.applyQuestUpdateChecked(q);}
     private void applyClock(JSONObject c)throws Exception{db.applyWorldClockUpdateChecked(c);}
-    private void storeValidationState(JSONObject envelope,Plan plan) throws Exception{JSONObject runtime=db.getMasterRuntimeState();runtime.put("last_action_fingerprint",plan.actionHash);runtime.put("last_context_fingerprint",plan.stateHash);runtime.put("last_response_fingerprint",hash(envelope==null?"":envelope.optString("narration")));runtime.put("last_cognitive_plan_json",plan.cognitivePlan.toString());JSONObject report=envelope==null?null:envelope.optJSONObject("_master_validation");runtime.put("validation_warnings_json",report==null?"[]":jsonArrayText(report.opt("warnings")));JSONArray threads=new JSONArray();String threadFocus=plan==null?"":plan.userPrompt;JSONArray threadQuests=WorldContextSelector.select(db.listQuests("active",1000),threadFocus,20,"title","objective","stage","stakes");for(int qi=0;qi<threadQuests.length();qi++){JSONObject q=threadQuests.optJSONObject(qi);if(q!=null)threads.put(new JSONObject().put("type","quest").put("id",q.optLong("id")).put("title",q.optString("title")).put("status",q.optString("status")).put("objective",q.optString("objective")));}JSONArray threadClocks=WorldContextSelector.select(db.listWorldClocks(true,1000),threadFocus,20,"name","consequence","owner_entity","trigger_condition");for(int ci=0;ci<threadClocks.length();ci++){JSONObject c=threadClocks.optJSONObject(ci);if(c!=null)threads.put(new JSONObject().put("type","clock").put("id",c.optLong("id")).put("name",c.optString("name")).put("current",c.optInt("current_value")).put("max",c.optInt("max_value")).put("consequence",c.optString("consequence")));}JSONObject scene=db.getSceneState();JSONArray pending=parseArray(scene.optString("pending_consequences_json","[]"));for(int i=0;i<pending.length()&&i<20;i++)threads.put(new JSONObject().put("type","pending_consequence").put("content",pending.opt(i)));runtime.put("unresolved_threads_json",threads.toString());db.saveMasterRuntimeStateChecked(runtime);}
+    private void storeValidationState(JSONObject envelope,Plan plan) throws Exception{JSONObject runtime=db.getMasterRuntimeState();runtime.put("last_action_fingerprint",plan.actionHash);runtime.put("last_context_fingerprint",plan.stateHash);runtime.put("last_response_fingerprint",hash(envelope==null?"":envelope.optString("narration")));runtime.put("last_cognitive_plan_json",plan.cognitivePlan.toString());JSONObject report=envelope==null?null:envelope.optJSONObject("_master_validation");runtime.put("validation_warnings_json",report==null?"[]":jsonArrayText(report.opt("warnings")));JSONArray threads=new JSONArray();String threadFocus=plan==null?"":plan.declaredAction;JSONArray threadQuests=WorldContextSelector.select(db.listQuests("active",1000),threadFocus,20,"title","objective","stage","stakes");for(int qi=0;qi<threadQuests.length();qi++){JSONObject q=threadQuests.optJSONObject(qi);if(q!=null)threads.put(new JSONObject().put("type","quest").put("id",q.optLong("id")).put("title",q.optString("title")).put("status",q.optString("status")).put("objective",q.optString("objective")));}JSONArray threadClocks=WorldContextSelector.select(db.listWorldClocks(true,1000),threadFocus,20,"name","consequence","owner_entity","trigger_condition");for(int ci=0;ci<threadClocks.length();ci++){JSONObject c=threadClocks.optJSONObject(ci);if(c!=null)threads.put(new JSONObject().put("type","clock").put("id",c.optLong("id")).put("name",c.optString("name")).put("current",c.optInt("current_value")).put("max",c.optInt("max_value")).put("consequence",c.optString("consequence")));}JSONObject scene=db.getSceneState();JSONArray pending=parseArray(scene.optString("pending_consequences_json","[]"));for(int i=0;i<pending.length()&&i<20;i++)threads.put(new JSONObject().put("type","pending_consequence").put("content",pending.opt(i)));runtime.put("unresolved_threads_json",threads.toString());db.saveMasterRuntimeStateChecked(runtime);}
 
     private static JSONObject compactScene(JSONObject scene){return compact(scene,new String[]{"day_number","clock_hour","location","hex_id","time_of_day","weather","lighting","danger","objective","present_npcs_json","threats_json","clues_json","pending_consequences_json"});}
     private static JSONObject compact(JSONObject source,String[] keys){JSONObject out=new JSONObject();if(source==null)return out;for(String key:keys)if(source.has(key))try{out.put(key,source.opt(key));}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}return out;}
