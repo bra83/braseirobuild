@@ -1397,7 +1397,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(compiledBestiary.optInt("registered",0)==0)AppLog.w("StrixhavenBestiary","Nenhum bloco foi registrado; verificar diagnostico de fontes.");
             if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
             if(reset)resetSceneClock();else initializeSceneClock();
-            final String opening=profile.masterInstruction()+StrixhavenCompiledCampaignEngine.masterContext(profile.year(),profile.semester())+" INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+profile.year()+", semestre "+profile.semester()+", mapa atual "+profile.currentMapLabel()+". Abra com uma situação concreta de vida no campus, apresentando espaço, rotina, pessoas e uma pressão imediata. Faça a escola parecer habitada: estudantes atravessam a cena com seus compromissos, professores têm objetivos, horários importam e relações persistem. Siga o arco oficial compilado; não substitua seus marcos por eventos escolares genéricos. Não use qualquer cidade, hex, POI ou rota do Atlas de Faerûn. Não imponha teste antes da primeira ação do jogador; ofereça duas opções específicas somente depois da cena.";
+            final String opening="INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+
+                    profile.year()+", semestre "+profile.semester()+", mapa atual "+
+                    profile.currentMapLabel()+". Abra a orientação da aventura oficial atual; "+
+                    "apresente pessoas, rotina e uma pressão imediata, sem impor teste antes da primeira escolha";
             ui.post(new Runnable(){public void run(){adventureStartRunning=false;adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Perfil Strixhaven e regras D&D prontos");setStatus("Strixhaven • ano "+profile.year()+" • semestre "+profile.semester()+" • "+profile.currentMapLabel()+". O Mestre está abrindo a cena…");sendAi("Narrador",opening);}});
         }catch(final Exception e){ui.post(new Runnable(){public void run(){adventureStartRunning=false;setStatus("Não foi possível preparar Strixhaven.");toast("Falha ao iniciar: "+String.valueOf(e.getMessage()));showCampaign();}});}}});
     }
@@ -1439,6 +1442,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(!isStrixhavenAdventure())return base;
         if("GM_HELP".equalsIgnoreCase(inputChannel)||masterSideQueryActive)return base;
         pendingStrixhavenGrounding=StrixhavenOfficialCampaignRuntime.promptContext(this)
+                +"\n"+StrixhavenCompiledCampaignEngine.masterContext(strixhavenProfile().year(),strixhavenProfile().semester())
                 +"\n"+StrixhavenBestiaryRuntimeEngine.catalogInstruction();
         // Never concatenate these instructions onto PLAYER_ACTION: the literal
         // command must control consequences, clock, NPC reactions and journal.
@@ -1932,7 +1936,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         clearTravelSceneDisplay("área explorada em "+profile.currentMapLabel());
         db.addAuditEvent("strixhaven","Exploração livre",fromLabel+" → área não catalogada de "+profile.currentMapLabel()+" • "+minutes+" min","{}",profile.mapProjection().toString(),true);
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");showStrixhavenSession();
-        if(db.getStoryState().optInt("started",0)==1&&!aiBusy){String arrival=profile.masterInstruction()+" EXPLORAÇÃO LIVRE CONFIRMADA PELO MAPA: o jogador caminhou por cerca de "+minutes+" minutos até um ponto NÃO CATALOGADO do mapa de "+profile.currentMapLabel()+". Narre o que é imediatamente perceptível em 1–3 parágrafos. Não invente um nome oficial para esse ponto e não trate um POI conhecido como destino se o jogador não o escolheu.";sendAi("Narrador",arrival);}
+        if(db.getStoryState().optInt("started",0)==1&&!aiBusy){String arrival="EXPLORAÇÃO LIVRE CONFIRMADA PELO MAPA: o jogador caminhou por cerca de "+minutes+" minutos até um ponto NÃO CATALOGADO do mapa de "+profile.currentMapLabel()+". Narre o que é imediatamente perceptível em 1–3 parágrafos. Não invente um nome oficial para esse ponto e não trate um POI conhecido como destino se o jogador não o escolheu.";sendAi("Narrador",arrival);}
         else setStatus("Strixhaven • exploração livre • "+minutes+" min avançados.");
     }
 
@@ -1997,7 +2001,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");
         showStrixhavenSession();
         if(db.getStoryState().optInt("started",0)==1&&!aiBusy){
-            String arrival=profile.masterInstruction()+" DESLOCAMENTO CONFIRMADO PELO MAPA: o jogador saiu de "+fromLabel+" e chegou a "+(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel())+" após cerca de "+minutes+" minutos de deslocamento do campus. Narre a chegada em 1–3 parágrafos, respeite horário/compromissos e NPCs persistentes, e não peça teste apenas por caminhar.";
+            String arrival="DESLOCAMENTO CONFIRMADO PELO MAPA: o jogador saiu de "+fromLabel+" e chegou a "+(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel())+" após cerca de "+minutes+" minutos de deslocamento do campus. Narre a chegada em 1–3 parágrafos, respeite horário/compromissos e NPCs persistentes, e não peça teste apenas por caminhar.";
             sendAi("Narrador",arrival);
         }else setStatus("Strixhaven • "+profile.currentMapLabel()+(profile.currentPoiLabel().length()>0?" • "+profile.currentPoiLabel():"")+" • "+minutes+" min avançados.");
     }
@@ -10235,6 +10239,24 @@ private void speakGemini(String text){
     private static String arcStatusValue(String label){if("Em pausa".equals(label))return "paused";if("Concluído".equals(label))return "completed";if("Fracassado".equals(label))return "failed";if("Transformado".equals(label))return "transformed";return "active";}
     private static String truthStatus(String label){String n=label.toLowerCase(Locale.ROOT);if(n.startsWith("rumor"))return "rumor";if(n.startsWith("mentira"))return "mentira";if(n.startsWith("interpre"))return "equivoco";return "verdade";}
 
+    /** Read-only sanitation: preserve the original backup/DB rows untouched. */
+    private List<JSONObject> visibleJournalEntries(){
+        List<JSONObject> rows=db.listJournal();
+        ArrayList<JSONObject> visible=new ArrayList<JSONObject>();
+        for(JSONObject row:rows){
+            if(row==null)continue;
+            try{
+                JSONObject sanitized=new JSONObject(row.toString());
+                sanitized.put("body",JournalEntryPresentation.safeBody(row.optString("body","")));
+                visible.add(sanitized);
+            }catch(Exception ex){
+                AppLog.w("Journal","Falha ao preparar apresentação; exibindo o registro original.",ex);
+                visible.add(row);
+            }
+        }
+        return visible;
+    }
+
     private void showJournal(){
         currentScreen="Diário";
         if(shellNavScroll!=null)shellNavScroll.setVisibility(View.VISIBLE);
@@ -10243,8 +10265,8 @@ private void speakGemini(String text){
         backToSession.setTextColor(Color.BLACK);
         backToSession.setOnClickListener(new View.OnClickListener(){public void onClick(View v){returnToActiveSession();}});
         b.addView(backToSession);
-        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
-        Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=db.listJournal();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
+        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=visibleJournalEntries();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
+        Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=visibleJournalEntries();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
         Button bard=button("EXPORTAR COMO CRÔNICA DE BARDO (PDF)",GREEN);bard.setOnClickListener(new View.OnClickListener(){public void onClick(View v){bardChronicleDialog();}});b.addView(bard);
         Button pdf=button("EXPORTAR AVENTURA COMO LIVRO PDF",GOLD);pdf.setTextColor(Color.BLACK);pdf.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prepareLiteralAdventurePdf();}});b.addView(pdf);
     }
@@ -10266,7 +10288,7 @@ private void speakGemini(String text){
                     String needle=query.getText().toString().trim().toLowerCase(Locale.ROOT);
                     if(needle.isEmpty()){toast("Digite o termo que deseja encontrar.");return;}
                     final ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
-                    for(JSONObject entry:db.listJournal()){
+                    for(JSONObject entry:visibleJournalEntries()){
                         if(entry==null)continue;
                         String haystack=(entry.optString("title")+" "+entry.optString("body")+" "+entry.optString("kind")).toLowerCase(Locale.ROOT);
                         if(haystack.contains(needle)){hits.add(entry);if(hits.size()>=100)break;}
@@ -10282,7 +10304,7 @@ private void speakGemini(String text){
     }
 
     private void bardChronicleDialog(){
-        final List<JSONObject> journal=db.listJournal();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
+        final List<JSONObject> journal=visibleJournalEntries();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(10));
         form.addView(text("O PDF reorganiza os registros em ordem cronológica e os apresenta como uma história oral contada numa taverna. Fatos, nomes e consequências vêm somente da campanha; a moldura do bardo é estilística.",13,TEXT,false));
         final EditText bardName=labeledField(form,"Nome do bardo","Bardo do Braseiro",false);
@@ -10295,13 +10317,13 @@ private void speakGemini(String text){
 
     private void prepareLiteralAdventurePdf(){
         setStatus("Montando o livro da aventura em segundo plano…");
-        AppExecutors.io().execute(new Runnable(){public void run(){try{final File file=new AdventurePdfExporter(MainActivity.this).export(db.getCampaign(),db.listJournal());ui.post(new Runnable(){public void run(){pendingAdventurePdfKind="livro";pendingAdventurePdf=file;openAdventurePdfDestination("Cronicas_"+safeExportName(db.getCampaign().optString("name","Braseiro"))+".pdf");setStatus("Livro da aventura pronto para salvar.");}});}catch(final Exception e){ui.post(new Runnable(){public void run(){toast("PDF: "+e.getMessage());setStatus("Não foi possível montar o PDF.");}});}}});
+        AppExecutors.io().execute(new Runnable(){public void run(){try{final File file=new AdventurePdfExporter(MainActivity.this).export(db.getCampaign(),visibleJournalEntries());ui.post(new Runnable(){public void run(){pendingAdventurePdfKind="livro";pendingAdventurePdf=file;openAdventurePdfDestination("Cronicas_"+safeExportName(db.getCampaign().optString("name","Braseiro"))+".pdf");setStatus("Livro da aventura pronto para salvar.");}});}catch(final Exception e){ui.post(new Runnable(){public void run(){toast("PDF: "+e.getMessage());setStatus("Não foi possível montar o PDF.");}});}}});
     }
 
     private void prepareBardChroniclePdf(final String bardName,final String tone,final boolean preferAi){
         setStatus("Organizando o Diário em segundo plano…");
         AppExecutors.io().execute(new Runnable(){public void run(){
-            final JSONObject campaign=db.getCampaign();final List<JSONObject> journal=db.listJournal();final List<JSONObject> heroes=db.listActiveCharacters();
+            final JSONObject campaign=db.getCampaign();final List<JSONObject> journal=visibleJournalEntries();final List<JSONObject> heroes=db.listActiveCharacters();
             final JSONObject local=BardChronicleComposer.localManuscript(campaign,journal,heroes,bardName,tone);final String prompt=BardChronicleComposer.aiPrompt(campaign,journal,heroes,bardName,tone);final String system=BardChronicleComposer.aiSystem();
             final String key=geminiKey().trim();final boolean aiAllowed=preferAi&&key.length()>=20&&BardChronicleComposer.aiSourceFits(prompt)&&(aiQuotaGovernor==null||aiQuotaGovernor.canCall(system.length()+prompt.length()));
             ui.post(new Runnable(){public void run(){
