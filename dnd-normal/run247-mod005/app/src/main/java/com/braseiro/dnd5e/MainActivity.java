@@ -37,6 +37,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.OpenableColumns;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
@@ -113,7 +114,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static final String WORLD_DND="dnd";
     private static final String WORLD_MYSTARA="mystara";
     private static final String FAERUN_LOGICAL_MAP_ID="forgotten_realms:faerun";
-    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027,REQ_IMPORT_BRASEIRO_ADVENTURE=1028,REQ_IMPORT_PERSONALITY=1029;
+    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027,REQ_IMPORT_BRASEIRO_ADVENTURE=1028,REQ_IMPORT_PERSONALITY=1029,REQ_SPEECH_TO_TEXT=1030;
     private static final String DEFAULT_FOLDER="https://drive.google.com/drive/folders/13wB-KfYCe2k5xGmb-z2D09KRDJtSyfHu";
     private static final String DEFAULT_TOKEN_FOLDER="https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W";
     private static final String DEFAULT_TOKEN_IMAGE_FOLDER="https://drive.google.com/drive/folders/1AHvEEQoVQme8geVJ5PDWbz5bJiwpoTmx";
@@ -270,6 +271,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private ScrollView narratorScroll;
     private LinearLayout optionsContainer;
     private EditText narratorInput;
+    private LinearLayout strixhavenSpeechComposer;
     private String pendingRestoredNarratorDraft="";
     private Spinner narratorMode;
     private boolean aiBusy=false;
@@ -1557,6 +1559,79 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             drawerLp.setMargins(dp(8),0,dp(8),dp(88));
         }
         screen.addView(drawer,drawerLp);
+        // O compositor fica ancorado na borda da sessão, fora do painel
+        // rolável. Assim nunca desaparece atrás das sugestões ao abrir o IME.
+        if(strixhavenSpeechComposer!=null&&strixhavenDrawerExpanded&&strixhavenControlsExpanded){
+            final LinearLayout composer=strixhavenSpeechComposer;
+            composer.setPadding(dp(5),dp(3),dp(5),dp(3));
+            composer.setBackground(makeBg(Color.rgb(49,35,24),GOLD,9));
+            final FrameLayout.LayoutParams composerLp=new FrameLayout.LayoutParams(-1,dp(54),Gravity.BOTTOM);
+            composerLp.setMargins(dp(14),0,dp(14),dp(88));
+            screen.addView(composer,composerLp);
+            // O A57 pode manter a superfície do app com altura integral
+            // quando o IME aparece (edge-to-edge). Alterar 88dp para 8dp
+            // deixava o campo *atrás* do teclado. Medir a sobreposição real.
+            final Runnable placeAboveKeyboard=new Runnable(){public void run(){
+                if(!screen.isAttachedToWindow())return;
+                WindowInsets insets=Build.VERSION.SDK_INT>=23?screen.getRootWindowInsets():null;
+                int[] position=new int[2];screen.getLocationOnScreen(position);
+                final int screenBottom=position[1]+screen.getHeight();
+                int visibleBottom=screenBottom;
+                boolean imeVisible=false;
+                if(Build.VERSION.SDK_INT>=30&&insets!=null){
+                    imeVisible=insets.isVisible(WindowInsets.Type.ime());
+                    if(imeVisible){
+                        int imeHeight=insets.getInsets(WindowInsets.Type.ime()).bottom;
+                        int windowBottom=getWindowManager().getCurrentWindowMetrics().getBounds().bottom;
+                        visibleBottom=Math.min(visibleBottom,windowBottom-imeHeight);
+                    }
+                }
+                android.graphics.Rect visibleFrame=new android.graphics.Rect();
+                screen.getWindowVisibleDisplayFrame(visibleFrame);
+                int frameOverlap=screenBottom-visibleFrame.bottom;
+                // Fallback para Samsung que não propaga Type.ime() à subview.
+                if(frameOverlap>dp(140)){
+                    imeVisible=true;
+                    visibleBottom=Math.min(visibleBottom,visibleFrame.bottom);
+                }
+                int margin=composerKeyboardBottomMarginPx(screenBottom,visibleBottom,
+                        imeVisible,dp(88),dp(8));
+                bottomNav.setVisibility(imeVisible?View.GONE:View.VISIBLE);
+                temporalBar.setVisibility(imeVisible?View.GONE:View.VISIBLE);
+                if(composerLp.bottomMargin!=margin){
+                    composerLp.bottomMargin=margin;
+                    composer.setLayoutParams(composerLp);
+                }
+            }};
+            screen.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener(){
+                public WindowInsets onApplyWindowInsets(View v,WindowInsets insets){
+                    // A geometria já está válida após o layout/insets.
+                    screen.post(placeAboveKeyboard);
+                    return insets;
+                }
+            });
+            screen.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
+                public void onLayoutChange(View v,int left,int top,int right,int bottom,
+                                           int oldLeft,int oldTop,int oldRight,int oldBottom){
+                    screen.post(placeAboveKeyboard);
+                }
+            });
+            final android.view.ViewTreeObserver observer=screen.getViewTreeObserver();
+            final android.view.ViewTreeObserver.OnGlobalLayoutListener listener=
+                new android.view.ViewTreeObserver.OnGlobalLayoutListener(){
+                    public void onGlobalLayout(){placeAboveKeyboard.run();}
+                };
+            observer.addOnGlobalLayoutListener(listener);
+            screen.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener(){
+                public void onViewAttachedToWindow(View v){
+                    v.requestApplyInsets();
+                    v.post(placeAboveKeyboard);
+                }
+                public void onViewDetachedFromWindow(View v){
+                    if(observer.isAlive())observer.removeOnGlobalLayoutListener(listener);
+                }
+            });
+        }
 
         if(!strixhavenDrawerExpanded){
             Button openScroll=smallButton("📜",Color.rgb(66,48,25));openScroll.setTextSize(20);openScroll.setContentDescription("Abrir pergaminho da narração");
@@ -1568,6 +1643,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         cacheCurrentScreen();
     }
 
+    /** Distância ao teclado em pixels; cobre tanto janela ajustada quanto IME sobreposto. */
+    /* package */ static int composerKeyboardBottomMarginPx(int screenBottom,int visibleBottom,
+                                                              boolean keyboardVisible,int normalMargin,int keyboardGap){
+        if(!keyboardVisible)return normalMargin;
+        return Math.max(keyboardGap,Math.max(0,screenBottom-visibleBottom)+keyboardGap);
+    }
+
     private View strixSessionNavButton(String icon,String label,View.OnClickListener click){
         LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setGravity(Gravity.CENTER);box.setPadding(dp(2),0,dp(2),0);
         TextView i=text(icon,19,GOLD,true);i.setGravity(Gravity.CENTER);TextView l=text(label,8,Color.rgb(222,205,162),true);l.setGravity(Gravity.CENTER);
@@ -1575,6 +1657,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private LinearLayout buildStrixhavenNarrationDrawer(final StrixhavenAdventureProfile profile){
+        strixhavenSpeechComposer=null;
         LinearLayout drawer=new LinearLayout(this);drawer.setOrientation(LinearLayout.VERTICAL);drawer.setPadding(dp(10),dp(5),dp(10),dp(8));drawer.setBackground(makeBg(Color.argb(246,49,35,24),GOLD,14));
 
         LinearLayout gripRow=new LinearLayout(this);gripRow.setOrientation(LinearLayout.HORIZONTAL);gripRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -1683,6 +1766,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);pendingRestoredNarratorDraft="";}
             narratorInput.setSingleLine(true);
             final Button send=smallButton(aiBusy?"…":"➤",GOLD);send.setTextColor(Color.BLACK);
+            final Button dictate=smallButton("🎙",PANEL2);
+            dictate.setTextSize(19);
+            dictate.setContentDescription("Ditar ação ou pergunta em português usando reconhecimento de voz");
+            dictate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startNarratorDictation();}});
             final Runnable refreshStrixComposer=new Runnable(){public void run(){
                 boolean help=strixMasterChatMode[0];
                 narratorInput.setHint(help?"CONSULTA AO MESTRE — dúvidas/regras sem avançar tempo":"AÇÃO LIVRE — descreva o que deseja fazer na cena");
@@ -1692,6 +1779,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 send.setBackground(makeBg(help?masterBlue:GOLD,help?masterBlue:GOLD,8));
                 send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);
                 send.setEnabled(!aiBusy&&(help||pendingTest.length()==0));
+                dictate.setEnabled(narratorInput.isEnabled());
                 strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
             }};
             strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
@@ -1714,8 +1802,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
                 sendAi("Narrador",q);
             }});
-            actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));actionRow.addView(send,new LinearLayout.LayoutParams(dp(54),dp(44)));
-            controlsBox.addView(actionRow);
+            actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));
+            actionRow.addView(dictate,new LinearLayout.LayoutParams(dp(46),dp(44)));
+            actionRow.addView(send,new LinearLayout.LayoutParams(dp(48),dp(44)));
+            // Reserva o espaço original sem esconder o campo quando o teclado abrir.
+            controlsBox.addView(new Space(this),new LinearLayout.LayoutParams(-1,dp(54)));
+            strixhavenSpeechComposer=actionRow;
             drawer.addView(controlsBox);
         }
         return drawer;
@@ -6325,7 +6417,25 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // A tela apenas exibe as escolhas; loadStoryState e handleAiResponse ja as reconciliam.
         // Nao salvar historia nem consultar multiplas tabelas ao recriar os controles do Mestre.
         optionsContainer=card();optionsContainer.addView(text(hasPendingTest?"SUGESTÕES OPCIONAIS — PARA DEPOIS DO TESTE":"SUGESTÕES OPCIONAIS",14,GOLD,true));optionsContainer.addView(text(hasPendingTest?"A história está pausada no teste. As alternativas continuam visíveis, mas só podem ser escolhidas depois da resolução.":"São atalhos; você sempre pode escrever outra ação no campo livre.",12,MUTED,false));if(currentOptions==null||currentOptions.length()==0)optionsContainer.addView(text(lastNarration.length()==0?"Inicie a aventura pela aba Aventura.":"As sugestões estão sendo reconstruídas a partir da cena atual.",13,MUTED,false));else for(int i=0;i<currentOptions.length();i++){JSONObject option=currentOptions.optJSONObject(i);if(option!=null)addOptionButton(optionsContainer,option);}b.addView(optionsContainer);
-        LinearLayout command=card();command.addView(text("AÇÃO OU CONVERSA COM O MESTRE",13,GOLD,true));final List<JSONObject> commandHeroes=safeActiveCharacters();String[] commandNames=new String[Math.max(1,commandHeroes.size()+1)];commandNames[0]="Ação geral do grupo";for(int ci=0;ci<commandHeroes.size();ci++)commandNames[ci+1]=commandHeroes.get(ci).optString("name");final Spinner actingHero=spinner(commandNames,commandNames[0]);command.addView(actingHero);final boolean[] masterComposerMode=new boolean[]{false};final int composerBlue=Color.rgb(96,200,230);LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);final Button actionModeButton=smallButton("AÇÃO",GOLD),masterModeButton=smallButton("FALAR COM O MESTRE",Color.rgb(19,49,73));actionModeButton.setTextColor(Color.BLACK);masterModeButton.setTextColor(composerBlue);composerModeRow.addView(actionModeButton,new LinearLayout.LayoutParams(0,dp(42),1));composerModeRow.addView(masterModeButton,new LinearLayout.LayoutParams(0,dp(42),1));command.addView(composerModeRow);narratorInput=input("Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);command.addView(narratorInput);LinearLayout commandButtons=new LinearLayout(this);commandButtons.setOrientation(LinearLayout.HORIZONTAL);final Button queueAction=smallButton("ADICIONAR À FILA",PANEL2),send=smallButton(aiBusy?"AGUARDE...":"RESOLVER AGORA",GOLD);send.setTextColor(Color.BLACK);final Runnable refreshComposer=new Runnable(){public void run(){boolean help=masterComposerMode[0];narratorInput.setHint(help?"Pergunte ao Mestre: o que vejo? Consigo subir? O que meu personagem sabe?":"Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.");narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?composerBlue:INPUT_STROKE,isMystaraWorld()?2:8));narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);actingHero.setEnabled(!help);queueAction.setEnabled(!aiBusy&&!help&&!commandHeroes.isEmpty());boolean enabled=!aiBusy&&(help||pendingTest==null||pendingTest.length()==0);narratorInput.setEnabled(enabled);send.setEnabled(enabled);send.setText(help?(aiBusy?"AGUARDE...":"PERGUNTAR AO MESTRE"):(aiBusy?"AGUARDE...":"RESOLVER AGORA"));send.setBackground(makeBg(help?composerBlue:GOLD,help?composerBlue:GOLD,8));send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);actionModeButton.setAlpha(help?0.55f:1f);masterModeButton.setAlpha(help?1f:0.72f);}};actionModeButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){masterComposerMode[0]=false;refreshComposer.run();}});masterModeButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){masterComposerMode[0]=true;refreshComposer.run();}});refreshComposer.run();queueAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();int pos=actingHero.getSelectedItemPosition();if(q.length()==0){toast("Descreva uma ação.");return;}if(pos<=0||pos>commandHeroes.size()){toast("Escolha um herói para colocar a ação na fila.");return;}JSONObject h=commandHeroes.get(pos-1);partyDirector.queueAction(h.optLong("id"),q);narratorInput.setText("");toast("Ação de "+h.optString("name")+" adicionada. Declare outro herói ou resolva a fila.");showNarrator();}});send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();if(masterComposerMode[0]){if(q.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}sendMasterSideQuestion(q);return;}if(q.length()==0&&db.countPartyActions("queued")==0){toast("Descreva uma ação ou adicione declarações à fila.");return;}if(q.length()>0&&actingHero.getSelectedItemPosition()>0&&actingHero.getSelectedItemPosition()<=commandHeroes.size()){JSONObject h=commandHeroes.get(actingHero.getSelectedItemPosition()-1);q=h.optString("name")+": "+q;}String chosenMode=narratorMode.getSelectedItem().toString();prefs.edit().putString("ai_mode",chosenMode).apply();if("Regras RAW/RAI".equals(chosenMode)){sendMasterSideQuestion("Consulte os manuais e explique: "+q);return;}sendAi(chosenMode,q);}});commandButtons.addView(queueAction,new LinearLayout.LayoutParams(0,dp(50),1));commandButtons.addView(send,new LinearLayout.LayoutParams(0,dp(50),1));command.addView(commandButtons);b.addView(command);
+        LinearLayout command=card();command.addView(text("AÇÃO OU CONVERSA COM O MESTRE",13,GOLD,true));final List<JSONObject> commandHeroes=safeActiveCharacters();String[] commandNames=new String[Math.max(1,commandHeroes.size()+1)];commandNames[0]="Ação geral do grupo";for(int ci=0;ci<commandHeroes.size();ci++)commandNames[ci+1]=commandHeroes.get(ci).optString("name");final Spinner actingHero=spinner(commandNames,commandNames[0]);command.addView(actingHero);final boolean[] masterComposerMode=new boolean[]{false};final int composerBlue=Color.rgb(96,200,230);LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);final Button actionModeButton=smallButton("AÇÃO",GOLD),masterModeButton=smallButton("FALAR COM O MESTRE",Color.rgb(19,49,73));actionModeButton.setTextColor(Color.BLACK);masterModeButton.setTextColor(composerBlue);composerModeRow.addView(actionModeButton,new LinearLayout.LayoutParams(0,dp(42),1));composerModeRow.addView(masterModeButton,new LinearLayout.LayoutParams(0,dp(42),1));command.addView(composerModeRow);narratorInput=input("Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);command.addView(narratorInput);
+        narratorInput.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            public void onFocusChange(View v,boolean hasFocus){
+                if(!hasFocus||narratorScroll==null)return;
+                narratorInput.postDelayed(new Runnable(){public void run(){
+                    if(narratorScroll==null||narratorInput==null||!narratorInput.hasFocus())return;
+                    android.graphics.Rect rect=new android.graphics.Rect();
+                    narratorInput.getDrawingRect(rect);
+                    narratorScroll.offsetDescendantRectToMyCoords(narratorInput,rect);
+                    narratorScroll.smoothScrollTo(0,Math.max(0,rect.bottom-narratorScroll.getHeight()+dp(20)));
+                }},260L);
+            }
+        });
+        LinearLayout commandButtons=new LinearLayout(this);commandButtons.setOrientation(LinearLayout.HORIZONTAL);final Button queueAction=smallButton("ADICIONAR À FILA",PANEL2),send=smallButton(aiBusy?"AGUARDE...":"RESOLVER AGORA",GOLD);send.setTextColor(Color.BLACK);final Runnable refreshComposer=new Runnable(){public void run(){boolean help=masterComposerMode[0];narratorInput.setHint(help?"Pergunte ao Mestre: o que vejo? Consigo subir? O que meu personagem sabe?":"Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.");narratorInput.setBackground(makeBg(help?Color.rgb(19,49,73):INPUT_BG,help?composerBlue:INPUT_STROKE,isMystaraWorld()?2:8));narratorInput.setHintTextColor(help?Color.rgb(190,225,238):HINT);actingHero.setEnabled(!help);queueAction.setEnabled(!aiBusy&&!help&&!commandHeroes.isEmpty());boolean enabled=!aiBusy&&(help||pendingTest==null||pendingTest.length()==0);narratorInput.setEnabled(enabled);send.setEnabled(enabled);send.setText(help?(aiBusy?"AGUARDE...":"PERGUNTAR AO MESTRE"):(aiBusy?"AGUARDE...":"RESOLVER AGORA"));send.setBackground(makeBg(help?composerBlue:GOLD,help?composerBlue:GOLD,8));send.setTextColor(help?Color.rgb(8,24,36):Color.BLACK);actionModeButton.setAlpha(help?0.55f:1f);masterModeButton.setAlpha(help?1f:0.72f);}};actionModeButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){masterComposerMode[0]=false;refreshComposer.run();}});masterModeButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){masterComposerMode[0]=true;refreshComposer.run();}});refreshComposer.run();queueAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();int pos=actingHero.getSelectedItemPosition();if(q.length()==0){toast("Descreva uma ação.");return;}if(pos<=0||pos>commandHeroes.size()){toast("Escolha um herói para colocar a ação na fila.");return;}JSONObject h=commandHeroes.get(pos-1);partyDirector.queueAction(h.optLong("id"),q);narratorInput.setText("");toast("Ação de "+h.optString("name")+" adicionada. Declare outro herói ou resolva a fila.");showNarrator();}});send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String q=narratorInput.getText().toString().trim();if(masterComposerMode[0]){if(q.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}sendMasterSideQuestion(q);return;}if(q.length()==0&&db.countPartyActions("queued")==0){toast("Descreva uma ação ou adicione declarações à fila.");return;}if(q.length()>0&&actingHero.getSelectedItemPosition()>0&&actingHero.getSelectedItemPosition()<=commandHeroes.size()){JSONObject h=commandHeroes.get(actingHero.getSelectedItemPosition()-1);q=h.optString("name")+": "+q;}String chosenMode=narratorMode.getSelectedItem().toString();prefs.edit().putString("ai_mode",chosenMode).apply();if("Regras RAW/RAI".equals(chosenMode)){sendMasterSideQuestion("Consulte os manuais e explique: "+q);return;}sendAi(chosenMode,q);}});final Button dictate=smallButton("🎙 DITAR",PANEL2);
+        dictate.setContentDescription("Ditar ação ou pergunta em português usando reconhecimento de voz");
+        dictate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){startNarratorDictation();}});
+        commandButtons.addView(dictate,new LinearLayout.LayoutParams(dp(95),dp(50)));
+        commandButtons.addView(queueAction,new LinearLayout.LayoutParams(0,dp(50),1));
+        commandButtons.addView(send,new LinearLayout.LayoutParams(0,dp(50),1));command.addView(commandButtons);b.addView(command);
         addSceneImageCard(b);
         b.addView(text("A narração e a paisagem sonora só começam quando você toca em PLAY. Pode repetir quantas vezes quiser.",12,MUTED,false));LinearLayout audioRow=new LinearLayout(this);audioRow.setOrientation(LinearLayout.HORIZONTAL);Button speak=smallButton("PLAY\nCHARON + ÁUDIO",GREEN),nativeSpeak=smallButton("PLAY\nANDROID + ÁUDIO",PANEL2),journal=smallButton("DIÁRIO",PANEL2);speak.setContentDescription("Iniciar ou repetir a narração com Charon, música, ambiência e efeitos");nativeSpeak.setContentDescription("Iniciar ou repetir a narração com a voz do Android, música, ambiência e efeitos");audioRow.addView(speak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(nativeSpeak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(journal,new LinearLayout.LayoutParams(0,dp(54),1));b.addView(audioRow);
         LinearLayout imageRow=new LinearLayout(this);imageRow.setOrientation(LinearLayout.HORIZONTAL);Button gemBtn=smallButton("GERAR NO GEMINI",GREEN),image=smallButton("TENTAR INTERNA",PANEL2),copy=smallButton("EDITAR PROMPT",PANEL2);imageRow.addView(gemBtn,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(image,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(copy,new LinearLayout.LayoutParams(0,dp(50),1));b.addView(imageRow);
@@ -11886,7 +11996,62 @@ private void speakGemini(String text){
         }catch(Exception error){if(libraryConnections!=null)libraryConnections.recordSyncFailure(source,error.getMessage());toast("Não foi possível manter acesso à pasta: "+String.valueOf(error.getMessage()));return false;}
     }
 
+    private void startNarratorDictation(){
+        if(narratorInput==null||!narratorInput.isEnabled()){
+            toast("Abra um campo de ação ou pergunta habilitado para ditar.");
+            return;
+        }
+        Intent speech=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speech.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speech.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"pt-BR");
+        speech.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,"pt-BR");
+        speech.putExtra(RecognizerIntent.EXTRA_PROMPT,"Dite sua ação ou pergunta ao Mestre");
+        speech.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,3);
+        try{startActivityForResult(speech,REQ_SPEECH_TO_TEXT);}
+        catch(ActivityNotFoundException error){
+            toast("Reconhecimento de voz indisponível. Ative um serviço de fala para texto nas configurações do Android.");
+        }
+    }
+
+    /* package */ static String mergeDictatedText(String previous,String spoken){
+        String old=previous==null?"":previous;
+        String words=spoken==null?"":spoken.trim();
+        if(words.isEmpty())return old;
+        return old+((old.isEmpty()||Character.isWhitespace(old.charAt(old.length()-1)))?"":" ")+words;
+    }
+
+    /* package */ static void insertDictatedText(EditText target,String spoken){
+        if(target==null||spoken==null||spoken.trim().isEmpty())return;
+        int start=Math.max(0,target.getSelectionStart());
+        if(start>target.length())start=target.length();
+        android.text.Editable editable=target.getText();
+        String words=spoken.trim();
+        String before=start==0?"":editable.subSequence(start-1,start).toString();
+        String after=start>=editable.length()?"":editable.subSequence(start,start+1).toString();
+        String insertion=(!before.isEmpty()&&!Character.isWhitespace(before.charAt(0))?" ":"")+words+
+                (!after.isEmpty()&&!Character.isWhitespace(after.charAt(0))?" ":"");
+        editable.insert(start,insertion);
+        target.setSelection(Math.min(editable.length(),start+insertion.length()));
+    }
+
     protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);
+    if(request==REQ_SPEECH_TO_TEXT){
+        if(result==RESULT_OK&&data!=null){
+            ArrayList<String> alternatives=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if(alternatives!=null)for(String words:alternatives){
+                if(words==null||words.trim().isEmpty())continue;
+                if(narratorInput!=null&&narratorInput.isAttachedToWindow()){
+                    insertDictatedText(narratorInput,words);
+                    setStatus("Fala convertida em texto. Revise antes de enviar ao Mestre.");
+                }else{
+                    pendingRestoredNarratorDraft=mergeDictatedText(pendingRestoredNarratorDraft,words);
+                    setStatus("Ditado guardado; abra a sessão para revisar o texto.");
+                }
+                break;
+            }
+        }
+        return;
+    }
     if(request==REQ_IMPORT_BRASEIRO_ADVENTURE){
         if(result!=RESULT_OK||data==null||data.getData()==null){toast("Importação de aventura cancelada.");return;}
         if(isMystaraWorld()){toast("Mystara está congelado; importe apenas no D&D Normal.");return;}
