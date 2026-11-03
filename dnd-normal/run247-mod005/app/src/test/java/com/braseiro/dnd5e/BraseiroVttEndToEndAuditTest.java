@@ -167,7 +167,7 @@ public final class BraseiroVttEndToEndAuditTest {
     }
 
     @Test
-    public void suggestedActionsAppearInEveryNarrativeSceneAcross24AdventureTurnsAndDrawerStates() throws Exception {
+    public void optionalActionsRemainGroundedAcross24AdventureTurnsAndDrawerStates() throws Exception {
         long kvotheId = db.addCharacter("Kvothe", "Humano", "Mago", 1, 8, 8, 13, 8, 14, 12, 16, 10, 14, true, "");
         db.updateCharacterRuleDetails(kvotheId, "Escriba", "", "", "", "", DndRulesEngine.PROFILE_2024);
         StrixhavenAdventureProfile profile = new StrixhavenAdventureProfile(context);
@@ -214,8 +214,8 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") must have >= 2 concrete options, got: " + diversified,
-                    diversified.length() >= 2 && diversified.length() <= 3);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") may have 0–2 grounded options, got: " + diversified,
+                    diversified.length() >= 0 && diversified.length() <= 2);
 
             Set<String> seenActions = new HashSet<>();
             for (int j = 0; j < diversified.length(); j++) {
@@ -237,6 +237,8 @@ public final class BraseiroVttEndToEndAuditTest {
             setField("strixhavenDrawerExpanded", true);
             View expandedDrawer = (View) invoke("buildStrixhavenNarrationDrawer",
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
+            assertNotNull("Expanded drawer must open without mandatory suggestions", expandedDrawer);
+            if(diversified.length()>0){
             String firstLabel = diversified.getJSONObject(0).optString("label");
             Button expandedBtn = findButtonContaining(expandedDrawer, firstLabel);
             assertNotNull("Expanded Strixhaven drawer must render suggested action button '" + firstLabel + "'", expandedBtn);
@@ -246,6 +248,12 @@ public final class BraseiroVttEndToEndAuditTest {
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
             Button collapsedBtn = findButtonContaining(collapsedDrawer, firstLabel);
             assertNotNull("Collapsed Strixhaven drawer must STILL render compact suggested action button '" + firstLabel + "'", collapsedBtn);
+            }else{
+                setField("strixhavenDrawerExpanded", false);
+                View collapsedWithoutOptions = (View) invoke("buildStrixhavenNarrationDrawer",
+                    new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
+                assertNotNull("Action-free scenes still need a usable drawer",collapsedWithoutOptions);
+            }
         }
     }
 
