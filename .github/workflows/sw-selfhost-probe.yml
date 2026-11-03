@@ -1,0 +1,189 @@
+name: Star Wars R54 P26 Self-hosted APK Release
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/sw-selfhost-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_URL: 'https://firestorage.ai/ja/f/HailnVNu7W-N'
+  SOURCE_SHA256: '1e1bb19f921ed482cdf4dc567aace30e7fd8b3c5dc1547a4078c6ecec7a42848'
+  APK_NAME: 'BRASEIRO_STAR_WARS_EDGE_R54_P26_DEBUG.apk'
+  TAG: 'STAR-WARS-EDGE-R54-P26'
+
+jobs:
+  build-release:
+    runs-on: self-hosted
+    timeout-minutes: 90
+    steps:
+      - name: Prepare
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $root=Join-Path $env:RUNNER_TEMP 'starwars-p26-green'
+          if(Test-Path $root){Remove-Item $root -Recurse -Force}
+          New-Item -ItemType Directory -Force -Path $root | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $root 'out') | Out-Null
+          "P26_ROOT=$root" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Download full validated P26 Android Studio source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $dl=Join-Path $env:P26_ROOT 'downloader'
+          New-Item -ItemType Directory -Force -Path $dl | Out-Null
+          Push-Location $dl
+          npm init -y | Out-Null
+          npm install --silent playwright@1.55.0
+          @'
+          const { chromium }=require('playwright');
+          const fs=require('fs');
+          (async()=>{
+            const out=process.env.P26_ROOT+'\\source.zip';
+            let browser;
+            try{browser=await chromium.launch({headless:true,channel:'chrome'});}
+            catch(e){console.log('NO_CHROME');process.exit(42);}
+            const ctx=await browser.newContext({acceptDownloads:true,locale:'ja-JP'});
+            const page=await ctx.newPage();let ok=false;
+            for(let attempt=1;attempt<=30&&!ok;attempt++){
+              await page.goto(process.env.SOURCE_URL,{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForTimeout(2000);
+              const els=page.locator('a,button,[role="button"],input[type="submit"]');
+              const n=Math.min(await els.count(),180);
+              for(let i=0;i<n;i++){
+                const el=els.nth(i);let t='',h='',a='',ti='';
+                try{t=((await el.innerText({timeout:400}))||'').trim()}catch{}
+                try{h=(await el.getAttribute('href'))||''}catch{}
+                try{a=(await el.getAttribute('aria-label'))||''}catch{}
+                try{ti=(await el.getAttribute('title'))||''}catch{}
+                if(!/download|ダウンロード|一括|保存|zip|ファイル/i.test(t+' '+h+' '+a+' '+ti))continue;
+                try{
+                  const pending=page.waitForEvent('download',{timeout:10000});
+                  await el.click({timeout:5000});
+                  const d=await pending;await d.saveAs(out);ok=true;break;
+                }catch{}
+              }
+              if(!ok)await page.waitForTimeout(2000);
+            }
+            await browser.close();
+            if(!ok||!fs.existsSync(out)||fs.statSync(out).size<1000000)throw new Error('source download failed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          '@ | Set-Content download.js -Encoding UTF8
+          node download.js
+          if($LASTEXITCODE -eq 42){
+            npx playwright install chromium
+            (Get-Content download.js -Raw).Replace("chromium.launch({headless:true,channel:'chrome'})","chromium.launch({headless:true})") | Set-Content download.js -Encoding UTF8
+            node download.js
+          }
+          if($LASTEXITCODE -ne 0){throw "Download failed: $LASTEXITCODE"}
+          Pop-Location
+          $zip=Join-Path $env:P26_ROOT 'source.zip'
+          $sha=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          Write-Host "SOURCE_SHA256=$sha"
+          if($sha -ne $env:SOURCE_SHA256){throw "Source SHA mismatch: $sha"}
+          Expand-Archive $zip -DestinationPath (Join-Path $env:P26_ROOT 'work') -Force
+          if(!(Test-Path (Join-Path $env:P26_ROOT 'work\android\gradlew.bat'))){throw 'android/gradlew.bat missing'}
+
+      - name: Validate P26 source
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:P26_ROOT 'work\android'
+          $java='C:\Program Files\Android\Android Studio\jbr'
+          $sdk="$env:LOCALAPPDATA\Android\Sdk"
+          if(!(Test-Path "$java\bin\java.exe")){throw 'Android Studio JBR missing before regression'}
+          $env:JAVA_HOME=$java
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          $env:Path="$java\bin;$sdk\platform-tools;$env:Path"
+          Push-Location $android
+
+          npm install --silent --no-save typescript@5.7.3
+          if($LASTEXITCODE -ne 0){throw "TypeScript bootstrap failed: $LASTEXITCODE"}
+
+          foreach($file in @('build-ui-bridge-bundle.mjs','tools\build-ui-bridge-bundle.mjs')){
+            if(Test-Path $file){
+              $txt=Get-Content $file -Raw
+              $txt=$txt.Replace("const ts=require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js');","const ts=require('typescript');")
+              Set-Content $file $txt -Encoding UTF8
+            }
+          }
+
+          $test='tests\bundle-builder-p20.test.mjs'
+          $txt=Get-Content $test -Raw
+          if(-not $txt.Contains("fileURLToPath")){
+            $replacement="import { readFileSync } from 'node:fs';"+[Environment]::NewLine+"import { fileURLToPath } from 'node:url';"
+            $txt=$txt.Replace("import { readFileSync } from 'node:fs';",$replacement)
+          }
+          $txt=$txt.Replace("cwd:new URL('..',import.meta.url).pathname","cwd:fileURLToPath(new URL('..',import.meta.url))")
+          Set-Content $test $txt -Encoding UTF8
+
+          python tools\run-node-suite.py --regular | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\P26_REGULAR.txt')
+          if($LASTEXITCODE -ne 0){throw "Regression failed: $LASTEXITCODE"}
+          Pop-Location
+
+      - name: Configure Android build environment
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $java='C:\Program Files\Android\Android Studio\jbr'
+          $sdk="$env:LOCALAPPDATA\Android\Sdk"
+          if(!(Test-Path "$java\bin\java.exe")){throw 'Android Studio JBR missing'}
+          if(!(Test-Path $sdk)){throw 'Android SDK missing'}
+          "JAVA_HOME=$java" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_HOME=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "ANDROID_SDK_ROOT=$sdk" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "$java\bin" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          "$sdk\platform-tools" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          & "$java\bin\java.exe" -version
+
+      - name: Build APK
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $android=Join-Path $env:P26_ROOT 'work\android'
+          Push-Location $android
+          .\gradlew.bat clean :app:assembleDebug --stacktrace --no-daemon 2>&1 | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\GRADLE_BUILD.log')
+          if($LASTEXITCODE -ne 0){throw "Gradle failed: $LASTEXITCODE"}
+          $apk=Get-ChildItem 'app\build\outputs\apk\debug' -Filter '*.apk' | Select-Object -First 1
+          if(-not $apk){throw 'APK not found'}
+          $dest=Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME)
+          Copy-Item $apk.FullName $dest -Force
+          $sha=(Get-FileHash $dest -Algorithm SHA256).Hash.ToLower()
+          Write-Host "APK_SHA256=$sha"
+          $sha | Set-Content (Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME+'.sha256')) -Encoding ASCII
+          $bt=Get-ChildItem "$env:ANDROID_HOME\build-tools" -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          $aapt=Join-Path $bt.FullName 'aapt.exe'
+          if(Test-Path $aapt){
+            & $aapt dump badging $dest | Tee-Object -FilePath (Join-Path $env:P26_ROOT 'out\APK_BADGING.txt')
+            $badging=Get-Content (Join-Path $env:P26_ROOT 'out\APK_BADGING.txt') -Raw
+            if(-not $badging.Contains("package: name='com.braseiro.starwarsedge'")){throw 'Unexpected applicationId'}
+          }
+          Pop-Location
+
+      - name: Publish Release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Stop'
+          $headers=@{Authorization="Bearer $env:GH_TOKEN";Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2022-11-28'}
+          $api="https://api.github.com/repos/$env:GITHUB_REPOSITORY"
+          try{$release=Invoke-RestMethod -Headers $headers -Uri "$api/releases/tags/$env:TAG" -Method Get}
+          catch{
+            $body=@{tag_name=$env:TAG;target_commitish='sw-selfhost-apk-build';name='Braseiro Star Wars Edge R54 P26 — Planet Carousel';body='P26 debug APK para teste físico. Carrossel das 26 fichas planetárias, prompt Gemini visual sanitizado, selo de origem do Mestre, tokens NPC refinados, TTS sequencial e dados nativos.';draft=$false;prerelease=$false}|ConvertTo-Json
+            $release=Invoke-RestMethod -Headers $headers -Uri "$api/releases" -Method Post -Body $body -ContentType 'application/json'
+          }
+          foreach($asset in @($release.assets)){if($asset.name -eq $env:APK_NAME){Invoke-RestMethod -Headers $headers -Uri "$api/releases/assets/$($asset.id)" -Method Delete}}
+          $file=Join-Path $env:P26_ROOT ('out\'+$env:APK_NAME)
+          $base=($release.upload_url -replace '\{\?name,label\}$','')
+          $uri="$base?name=$([uri]::EscapeDataString($env:APK_NAME))"
+          $bytes=[IO.File]::ReadAllBytes($file)
+          $uploaded=Invoke-RestMethod -Headers $headers -Uri $uri -Method Post -Body $bytes -ContentType 'application/vnd.android.package-archive'
+          Write-Host "RELEASE_URL=$($release.html_url)"
+          Write-Host "APK_URL=$($uploaded.browser_download_url)"
