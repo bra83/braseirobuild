@@ -36,6 +36,34 @@ public final class HumanMasterNarrativeProfile {
             +"CONTROLE DOS HERÓIS: modo manual nunca age sozinho. Modo sistema executa autonomamente apenas rotina de baixo risco. Em combate, todos agem na ordem real de iniciativa; nunca invente rolagem oculta. Morte confirmada exige dead=true. Pare quando houver decisão real.";
     }
 
+
+    /**
+     * Turn-level contract delivered with the action itself. This must be placed in
+     * the actual text prompt, not only advertised as flags in game_bus.
+     */
+    public static String turnInstruction(String action, boolean advancing){
+        String declared=action==null?"":action.trim();
+        if(!advancing)return "MODO CONSULTA FORA DA FICÇÃO: responda diretamente ao jogador, sem avançar relógio, NPC, estado ou história. Não reintroduza a cena.";
+        return "MESA AO VIVO — TURNO ATUAL, PRIORIDADE MÁXIMA:\n"
+            +"A descrição anterior é CONTEXTO, NÃO uma cena para reescrever. "
+            +"A ação declarada abaixo é o assunto central da resposta. Comece pelo efeito da tentativa: "
+            +"o que o personagem consegue, o obstáculo verificável, a reação imediata do interlocutor "
+            +"ou o procedimento de regra pendente. Nunca reinicie com panorama, clima, arquitetura "
+            +"ou inventário de detalhes já apresentados.\n"
+            +"Quando um NPC presente é abordado, faça esse NPC responder DIRETAMENTE ao personagem, "
+            +"em discurso direto, com a voz, memória, conhecimento e interesses que realmente possui. "
+            +"Não resuma uma conversa como \"eles conversaram\". Quando a pergunta puder ser respondida, responda; "
+            +"se não puder, mostre a recusa ou o motivo específico. Não decida a próxima fala de Kvothe.\n"
+            +"Cada resposta é UMA BATIDA de mesa: tentativa → resultado/impedimento → reação/consequência → vez do jogador. "
+            +"Breve para perguntas e gestos simples, expandida apenas para novo lugar, descoberta importante "
+            +"ou conflito complexo. Não crie novo capítulo a cada clique. "
+            +"Se a ação ainda não pode ser resolvida, sinalize a dificuldade e o teste apropriado, sem simular a rolagem.\n"
+            +"SUGESTÕES: zero a duas alternativas genuinamente diferentes, específicas e possíveis no estado atual; "
+            +"não repita ação recém-executada, não invente objetos ou NPCs e não complete a lista com filler.\n"
+            +"AÇÃO DECLARADA PELO JOGADOR: "+declared+"\n"
+            +"RESULTADO EXIGIDO: reação direta a essa ação e nenhuma recapitulação decorativa.";
+    }
+
     // RUN187 extends the human master profile without altering its existing mechanics contract.
     public static String dynamicProfileId(){return "human_master_dynamic_profile_v2";}
 
