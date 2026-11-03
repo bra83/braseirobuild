@@ -7872,7 +7872,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 newCast = buildSceneCastPreview(env);
                 mergeNarratedKnownNpcs(newCast, calculatedNarration);
                 mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
-                newVisualPrompt = env.optString("visual_prompt", "").trim();
+                newVisualPrompt = SceneVisualPromptGuard.choose(env.optString("visual_prompt", ""), previousVisual, calculatedNarration);
                 if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
                 invalidateVisual = true;
                 newAudioPlan = env.optJSONObject("audio_plan");
@@ -9426,18 +9426,51 @@ private void speakGemini(String text){
     private void generateSceneImage(){String prompt=buildGeminiImagePrompt(lastNarration);if(prompt.length()==0){toast("Ainda não há uma cena visual para gerar.");return;}String key=geminiKey();if(key.trim().length()<20){showFriendlyAiError("Chave Gemini não configurada.",true,prompt);return;}setStatus("Tentando geração interna de imagem...");gemini.generateImage(key,prefs.getString("image_model","gemini-3.1-flash-image"),prompt,new GeminiService.FileCallback(){public void onSuccess(final File file,String mime){ui.post(new Runnable(){public void run(){sharedImageUri=Uri.fromFile(file);prefs.edit().putString(PREF_SCENE_IMAGE_URI,sharedImageUri.toString()).putString(PREF_SCENE_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).remove(PREF_PENDING_IMAGE_FINGERPRINT).apply();displaySceneImage(sharedImageUri);setStatus("Imagem gerada e salva na cena.");}});}public void onError(final String error){ui.post(new Runnable(){public void run(){setStatus("Geração interna indisponível.");showFriendlyAiError(error,true,prompt);}});}});}
 
     private String buildGeminiImagePrompt(String scene){
-        String visual=lastVisualPrompt==null?"":lastVisualPrompt.trim();if(visual.length()==0)visual=sanitizeVisualSource(scene);if(visual.length()==0)return "";
-        StringBuilder figures=new StringBuilder();List<JSONObject> heroes=partyDirector.activeHeroRoster();for(JSONObject h:heroes){if(figures.length()>0)figures.append("; ");String desc=h.optString("visual_description").trim();if(desc.length()==0)desc=h.optString("name")+", "+h.optString("species")+", "+h.optString("class_name")+", equipamento coerente";figures.append(h.optString("name")).append(": ").append(desc);}
-        if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n==null)continue;String name=n.optString("name","NPC");JSONObject memory=db.findNpcMemoryByName(name);String desc=n.optString("visual_description",memory.optString("visual_description",memory.optString("summary",""))).trim();if(desc.length()>0){if(figures.length()>0)figures.append("; ");figures.append(name).append(": ").append(desc);}}
-        JSONObject state=db.getSceneState();String context="Local exato: "+state.optString("location","não definido")+". Horário: "+state.optString("time_of_day","")+". Clima: "+state.optString("weather","")+".";
-        String prompt="Crie UMA NOVA imagem exclusivamente para a cena atual. Ilustração panorâmica cinematográfica de fantasia em proporção 16:9, pintura digital nítida, composição natural, sem texto, letras, logotipos, moldura ou interface. "+context+" Figuras que estão realmente presentes e não podem ser omitidas, substituídas ou ter idade/espécie alterada: "+(figures.length()==0?"nenhuma figura recorrente definida":figures.toString())+". Ação e ambiente desta cena, e somente desta cena: "+visual+". Não reutilize composição de imagem anterior e não acrescente personagens não mencionados.";
+        String visual=lastVisualPrompt==null?"":lastVisualPrompt.trim();
+        String moment=SceneVisualPromptGuard.latestBeat(scene);
+        if(visual.isEmpty())visual=moment;
+        if(visual.isEmpty())return "";
+        if(visual.length()>860)visual=visual.substring(visual.length()-860);
+        if(moment.length()>610)moment=moment.substring(moment.length()-610);
+        StringBuilder figures=new StringBuilder();
+        List<JSONObject> heroes=partyDirector.activeHeroRoster();
+        String mentioned=(scene==null?"":scene).toLowerCase(Locale.ROOT);
+        for(JSONObject hero:heroes){
+            String name=hero.optString("name","");
+            if(name.isEmpty()||(heroes.size()>1&&!mentioned.contains(name.toLowerCase(Locale.ROOT))))continue;
+            String desc=hero.optString("visual_description","").trim();
+            if(desc.isEmpty())desc=name+", "+hero.optString("species")+", "+hero.optString("class_name");
+            if(figures.length()>0)figures.append("; ");
+            figures.append(name).append(": ").append(desc);
+        }
+        if(currentSceneCastPreview!=null)for(int k=0;k<currentSceneCastPreview.length();k++){
+            JSONObject npc=currentSceneCastPreview.optJSONObject(k);
+            if(npc==null)continue;
+            String name=npc.optString("name","");
+            if(name.isEmpty()||!mentioned.contains(name.toLowerCase(Locale.ROOT)))continue;
+            JSONObject memory=db.findNpcMemoryByName(name);
+            String desc=npc.optString("visual_description",memory.optString("visual_description","")).trim();
+            if(desc.isEmpty())continue;
+            if(figures.length()>0)figures.append("; ");
+            figures.append(name).append(": ").append(desc);
+        }
+        JSONObject state=db.getSceneState();
+        String context="Local confirmado: "+state.optString("location","não definido")+
+            ". Horário: "+state.optString("time_of_day","")+
+            ". Clima: "+state.optString("weather","")+".";
+        String prompt="Ilustração panorâmica cinematográfica de fantasia 16:9, pintura digital nítida, sem texto, letras, logotipos, moldura ou interface. "+
+            context+" FOCO VISUAL DO TURNO ATUAL: "+visual+
+            ". MOMENTO MAIS RECENTE (para enquadramento e ação): "+moment+
+            ". Identidades de personagens realmente mencionados neste turno: "+
+            (figures.length()==0?"seguir somente as identidades e papéis descritos na cena":figures.toString())+
+            ". Mostre esta batida precisa da história, não uma reapresentação genérica do cenário; respeite posição, figurino e continuidade. Não invente outros personagens.";
         return prompt.length()>3200?prompt.substring(0,3200):prompt;
     }
 
-    private void editVisualPromptAndOpenGemini(){editVisualPrompt(true);}
+        private void editVisualPromptAndOpenGemini(){editVisualPrompt(true);}
     private void editVisualPrompt(final boolean openGemini){final String prompt=buildGeminiImagePrompt(lastNarration);if(prompt.length()==0){toast("Ainda não há uma cena para transformar em imagem.");return;}final EditText edit=input("Prompt visual",prompt,true);edit.setMinLines(10);new AlertDialog.Builder(this).setTitle("Prompt visual limpo").setView(edit).setNegativeButton("Cancelar",null).setPositiveButton(openGemini?"ABRIR GEMINI":"COPIAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String finalPrompt=edit.getText().toString().trim();if(openGemini)sharePromptToGemini(finalPrompt);else{ClipboardManager cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);cm.setPrimaryClip(ClipData.newPlainText("Prompt visual",finalPrompt));toast("Prompt visual copiado.");}}}).show();}
 
-    private void sharePromptToGemini(String prompt){lastPrompt=prompt;prefs.edit().putString(PREF_PENDING_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).apply();Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,prompt);x.setPackage("com.google.android.apps.bard");try{startActivity(x);setStatus("Gemini aberto. Depois compartilhe a imagem de volta ao Braseiro D&D.");}catch(ActivityNotFoundException e){Intent fallback=new Intent(Intent.ACTION_SEND);fallback.setType("text/plain");fallback.putExtra(Intent.EXTRA_TEXT,prompt);startActivity(Intent.createChooser(fallback,"Escolha o Gemini"));setStatus("Escolha o Gemini e compartilhe a imagem de volta depois.");}}
+    private void sharePromptToGemini(String prompt){prefs.edit().putString(PREF_PENDING_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).apply();Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,prompt);x.setPackage("com.google.android.apps.bard");try{startActivity(x);setStatus("Gemini aberto. Depois compartilhe a imagem de volta ao Braseiro D&D.");}catch(ActivityNotFoundException e){Intent fallback=new Intent(Intent.ACTION_SEND);fallback.setType("text/plain");fallback.putExtra(Intent.EXTRA_TEXT,prompt);startActivity(Intent.createChooser(fallback,"Escolha o Gemini"));setStatus("Escolha o Gemini e compartilhe a imagem de volta depois.");}}
 
     private void showFriendlyAiError(final String error,boolean image,final String visualPrompt){String lower=error==null?"":error.toLowerCase(Locale.US);String title=image?"Imagem indisponível":"IA indisponível";String message;if(lower.contains("429")||lower.contains("quota")||lower.contains("rate-limit")||lower.contains("limit: 0"))message=image?"A cota de geração interna de imagens está esgotada ou indisponível para este modelo. O prompt visual já está pronto para ser enviado ao aplicativo Gemini.":"A cota do modelo de texto foi atingida. Aguarde o prazo indicado ou escolha outro modelo em Config.";else if(lower.contains("404")||lower.contains("not found")||lower.contains("no longer available"))message="Nenhum dos modelos disponíveis para esta chave conseguiu responder. Abra Detalhes para conferir as tentativas.";else if(lower.contains("503")||lower.contains("high demand")||lower.contains("unavailable"))message="Os modelos tentados estavam temporariamente sobrecarregados. O fallback já tentou alternativas; aguarde um instante e toque novamente.";else if(lower.contains("chave")||lower.contains("api key")||lower.contains("401")||lower.contains("403"))message="A chave Gemini ou a permissão do projeto está incorreta. Confira a chave em Config.";else message=image?"Não foi possível gerar a imagem internamente. Você pode usar o fluxo pelo aplicativo Gemini.":"O fallback não encontrou um modelo que respondesse. Abra Detalhes para ver cada tentativa.";AlertDialog.Builder b=new AlertDialog.Builder(this).setTitle(title).setMessage(message).setNegativeButton("Fechar",null).setNeutralButton("DETALHES",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){final EditText details=input("Detalhes técnicos",error==null?"Sem detalhes.":error,true);details.setMinLines(8);new AlertDialog.Builder(MainActivity.this).setTitle("Detalhes técnicos").setView(details).setPositiveButton("Fechar",null).show();}});if(image&&visualPrompt!=null&&visualPrompt.length()>0)b.setPositiveButton("ABRIR GEMINI",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){sharePromptToGemini(visualPrompt);}});b.show();}
 
@@ -9494,7 +9527,7 @@ private void speakGemini(String text){
         AppExecutors.io().execute(new Runnable(){public void run(){boolean changed=false;for(String name:names)changed|=npcTokenAutoBinder.assignIfMissing(name);if(!changed)return;final JSONArray refreshed=new JSONArray();for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject old=currentSceneCastPreview.optJSONObject(i);if(old==null)continue;try{JSONObject copy=new JSONObject(old.toString());JSONObject memory=db.findNpcMemoryByName(copy.optString("name"));if(memory.optString("token_uri","").length()>0)copy.put("token_uri",memory.optString("token_uri"));refreshed.put(copy);}catch(Exception ignored){refreshed.put(old);}}ui.post(new Runnable(){public void run(){currentSceneCastPreview=refreshed;prefs.edit().putString("last_scene_cast_preview",refreshed.toString()).apply();screenCache.remove("Mestre IA");screenCache.remove("Combate");if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();}});}});
     }
 
-    private String currentSceneVisualFingerprint(){StringBuilder b=new StringBuilder();b.append(activeWorldProfile()).append('|').append(lastVisualPrompt==null?"":lastVisualPrompt).append('|');JSONObject scene=db==null?new JSONObject():db.getSceneState();b.append(scene.optString("location")).append('|').append(scene.optString("day_number")).append('|').append(scene.optString("time_of_day")).append('|').append(scene.optString("weather"));if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n!=null)b.append('|').append(n.optString("name")).append(':').append(n.optString("visual_description"));}try{MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] bytes=md.digest(b.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder hex=new StringBuilder();for(int i=0;i<12&&i<bytes.length;i++)hex.append(String.format(Locale.US,"%02x",bytes[i]));return hex.toString();}catch(Exception e){return Integer.toHexString(b.toString().hashCode());}}
+    private String currentSceneVisualFingerprint(){StringBuilder b=new StringBuilder();b.append(activeWorldProfile()).append('|').append(lastVisualPrompt==null?"":lastVisualPrompt).append('|').append(SceneVisualPromptGuard.latestBeat(lastNarration)).append('|');JSONObject scene=db==null?new JSONObject():db.getSceneState();b.append(scene.optString("location")).append('|').append(scene.optString("day_number")).append('|').append(scene.optString("time_of_day")).append('|').append(scene.optString("weather"));if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n!=null)b.append('|').append(n.optString("name")).append(':').append(n.optString("visual_description"));}try{MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] bytes=md.digest(b.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder hex=new StringBuilder();for(int i=0;i<12&&i<bytes.length;i++)hex.append(String.format(Locale.US,"%02x",bytes[i]));return hex.toString();}catch(Exception e){return Integer.toHexString(b.toString().hashCode());}}
     private void clearSceneImageReference(){sharedImageUri=null;if(prefs!=null)prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).apply();}
     private void invalidateSceneImageIfContextChanged(){String stored=prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,"");if(sharedImageUri!=null&&stored.length()>0&&!stored.equals(currentSceneVisualFingerprint())){clearSceneImageReference();screenCache.remove("Mestre IA");}}
 
