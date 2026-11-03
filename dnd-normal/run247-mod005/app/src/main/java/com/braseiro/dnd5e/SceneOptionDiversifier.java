@@ -106,7 +106,7 @@ public final class SceneOptionDiversifier {
     static boolean isRelevantToCurrentBeat(String action,String narration){
         String text=normalize(narration);
         if(text.isEmpty())return false;
-        String latest=text.length()>900?text.substring(text.length()-900):text;
+        String latest=currentNarrativeBeat(text);
         Set<String> focus=tokens(latest);
         Set<String> anchors=entityTokens(action);
         String[] noise={"detalhes","concretos","marcas","sinais","proximos","elementos","acessos",
@@ -118,9 +118,15 @@ public final class SceneOptionDiversifier {
         return false;
     }
 
-        private static String latestBeatForFallback(String narration){
+        private static String currentNarrativeBeat(String normalized){
+        if(normalized==null||normalized.length()<=400)return normalized==null?"":normalized;
+        int start=Math.max(normalized.length()/2,normalized.length()-780);
+        return normalized.substring(start);
+    }
+
+    private static String latestBeatForFallback(String narration){
         String text=normalize(narration);
-        return text.length()>900?text.substring(text.length()-900):text;
+        return currentNarrativeBeat(text);
     }
 
     private static String firstPresentNpc(JSONObject scene){
