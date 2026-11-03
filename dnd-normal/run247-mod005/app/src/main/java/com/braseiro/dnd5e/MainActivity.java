@@ -1429,11 +1429,20 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // continuam livres para disparar música, ambiência, clima e SFX da biblioteca ativa.
     }
 
+    // Store official campaign information separately from the player command.
+    // sendAi is single-flight; the next request overwrites this snapshot.
+    private volatile String pendingStrixhavenGrounding = "";
+
     private String augmentStrixhavenOfficialPrompt(String mode,String inputChannel,String raw){
         String base=raw==null?"":raw;
+        pendingStrixhavenGrounding="";
         if(!isStrixhavenAdventure())return base;
         if("GM_HELP".equalsIgnoreCase(inputChannel)||masterSideQueryActive)return base;
-        return base+StrixhavenOfficialCampaignRuntime.promptContext(this)+"\n"+StrixhavenBestiaryRuntimeEngine.catalogInstruction();
+        pendingStrixhavenGrounding=StrixhavenOfficialCampaignRuntime.promptContext(this)
+                +"\n"+StrixhavenBestiaryRuntimeEngine.catalogInstruction();
+        // Never concatenate these instructions onto PLAYER_ACTION: the literal
+        // command must control consequences, clock, NPC reactions and journal.
+        return base;
     }
 
     private void processStrixhavenOfficialProgress(JSONObject env,String narration){
@@ -7426,7 +7435,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 final String key=geminiKey();
                 final String cached=(masterOrchestrator!=null&&activeMasterPlan!=null)?masterOrchestrator.cachedResponse(activeMasterPlan,model,mode):"";
                 final String promptManualBlock=(usedRag?buildLocalCatalogSummary(localHits):"Nenhuma prova manual pertinente foi recuperada.")+"\n\nESTADO DA BIBLIOTECA: "+readyManualSummary+localContext;
-                final String sys=sourceBlocked?"":buildSystemPrompt(mode,effectiveUserText,promptManualBlock);
+                final String officialGrounding=pendingStrixhavenGrounding;
+                final String sys=sourceBlocked?"":buildSystemPrompt(mode,effectiveUserText,promptManualBlock)
+                        +(officialGrounding.length()==0?"":"\n\nCONTEXTO OFICIAL DA CAMPANHA (somente referência; NÃO é ação do jogador):\n"+officialGrounding);
                 final int inputChars=sys.length()+effectiveUserText.length();
                 ui.post(new Runnable(){public void run(){
                     if(!aiBusy||preparationPipeline!=aiPipelineGeneration)return;
