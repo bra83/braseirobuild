@@ -1,0 +1,226 @@
+name: Build Braseiro Fichas 1.1.1 Baseline 1.0.5
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/build-fichas-111-baseline105.yml"
+      - "android/fichas-multissistema/app/src/main/assets/www/import-adapters.js"
+      - "android/fichas-multissistema/app/src/main/assets/www/import-bridge.js"
+      - "android/fichas-multissistema/import-adapters.contract.test.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SOURCE_URL: "https://firestorage.ai/ja/f/MjEGdbeiEQvk"
+      SOURCE_SHA256: "641e33c63454b0580c64b578f47cd9610b2215cd100dfd58f24e208a2c849228"
+      SOURCE_NAME: "BRASEIRO_FICHAS_MULTISSISTEMA_ANDROID_STUDIO_TRAVELLER_FIX_1.0.5_2026-09-17.zip"
+
+    steps:
+      - name: Checkout build repo
+        uses: actions/checkout@v4
+
+      - name: Preparar navegador para baixar fonte
+        shell: bash
+        run: |
+          set -euo pipefail
+          BROWSER_DIR="$RUNNER_TEMP/firestorage-browser"
+          mkdir -p "$BROWSER_DIR"
+          cd "$BROWSER_DIR"
+          npm init -y >/dev/null 2>&1
+          npm install --silent playwright@1.55.0
+          npx playwright install chromium
+          echo "BROWSER_DIR=$BROWSER_DIR" >> "$GITHUB_ENV"
+
+      - name: Baixar fonte 1.0.5 e validar SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/download-firestorage.cjs" <<'JS'
+          const path = require('path');
+          const { chromium } = require(path.join(process.env.BROWSER_DIR, 'node_modules', 'playwright'));
+          (async () => {
+            const out = path.join(process.env.RUNNER_TEMP, process.env.SOURCE_NAME);
+            const browser = await chromium.launch({headless:true});
+            const context = await browser.newContext({acceptDownloads:true});
+            const page = await context.newPage();
+            await page.goto(process.env.SOURCE_URL, {waitUntil:'domcontentloaded', timeout:60000});
+            await page.waitForTimeout(7000);
+            const controls = [
+              page.getByRole('button', {name:/ダウンロード|download/i}),
+              page.getByRole('link', {name:/ダウンロード|download/i}),
+              page.locator('button').filter({hasText:/ダウンロード|download/i}),
+              page.locator('a').filter({hasText:/ダウンロード|download/i})
+            ];
+            let saved=false;
+            for (const loc of controls) {
+              for (let i=0;i<await loc.count() && !saved;i++) {
+                const el=loc.nth(i);
+                if (!(await el.isVisible().catch(()=>false))) continue;
+                const p=page.waitForEvent('download',{timeout:30000}).catch(()=>null);
+                await el.click({timeout:15000}).catch(()=>el.click({force:true,timeout:10000}));
+                const d=await p;
+                if (d) { await d.saveAs(out); saved=true; }
+              }
+              if (saved) break;
+            }
+            await browser.close();
+            if (!saved) throw new Error('Download da fonte não foi capturado');
+          })().catch(e=>{console.error(e);process.exit(2)});
+          JS
+          node "$RUNNER_TEMP/download-firestorage.cjs"
+          ZIP="$RUNNER_TEMP/$SOURCE_NAME"
+          test -f "$ZIP"
+          echo "$SOURCE_SHA256  $ZIP" | sha256sum -c -
+          unzip -t "$ZIP"
+
+      - name: Extrair projeto Android Studio
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/fichas-105"
+          rm -rf "$WORK"
+          mkdir -p "$WORK"
+          unzip -q "$RUNNER_TEMP/$SOURCE_NAME" -d "$WORK"
+          GRADLEW="$(find "$WORK" -type f -name gradlew -print -quit)"
+          test -n "$GRADLEW"
+          ROOT="$(dirname "$GRADLEW")"
+          echo "ANDROID_PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
+          test -s "$ROOT/app/src/main/assets/www/launcher-data.css"
+          test -s "$ROOT/app/src/main/assets/www/launcher-braseiro.webp"
+          test -s "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
+          sha256sum "$ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}' > "$RUNNER_TEMP/icon-before.sha"
+
+      - name: Aplicar mapeamentos sem alterar launcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/android/fichas-multissistema/app/src/main/assets/www"
+          DST="$ANDROID_PROJECT_ROOT/app/src/main/assets/www"
+          cp "$SRC/import-adapters.js" "$DST/import-adapters.js"
+          cp "$SRC/import-bridge.js" "$DST/import-bridge.js"
+          cp "$GITHUB_WORKSPACE/android/fichas-multissistema/import-adapters.contract.test.mjs" "$ANDROID_PROJECT_ROOT/import-adapters.contract.test.mjs"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          root=Path(os.environ["ANDROID_PROJECT_ROOT"])
+          p=root/"app/src/main/assets/www/index.html"
+          html=p.read_text(encoding="utf-8")
+          if 'import-adapters.js' not in html:
+              needle='<script src="app.js"></script>'
+              repl='<script src="import-adapters.js"></script><script src="app.js"></script><script src="import-bridge.js"></script>'
+              if needle not in html:
+                  raise SystemExit("app.js script anchor nao encontrado")
+              html=html.replace(needle,repl,1)
+          p.write_text(html,encoding="utf-8")
+          PY
+          test -s "$DST/launcher-data.css"
+          test -s "$DST/launcher-braseiro.webp"
+          test "$(sha256sum "$ANDROID_PROJECT_ROOT/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" | awk '{print $1}')" = "$(cat "$RUNNER_TEMP/icon-before.sha")"
+
+      - name: Gate de mapeamentos e abertura do launcher
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app/src/main/assets/www/import-adapters.js
+          node --check app/src/main/assets/www/import-bridge.js
+          node --test import-adapters.contract.test.mjs
+          cat > "$RUNNER_TEMP/launcher-smoke.cjs" <<'JS'
+          const path=require('path');
+          const {pathToFileURL}=require('url');
+          const {chromium}=require(path.join(process.env.BROWSER_DIR,'node_modules','playwright'));
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:415,height:915}});
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            const url=pathToFileURL(path.join(process.env.ANDROID_PROJECT_ROOT,'app/src/main/assets/www/index.html')).href;
+            await page.goto(url,{waitUntil:'load',timeout:30000});
+            await page.waitForTimeout(1200);
+            const r=await page.evaluate(()=>{const c=document.querySelector('.launcher-canvas'),x=c.getBoundingClientRect(),card=document.querySelector('.system');return{mode:document.body.classList.contains('launcher-mode'),hidden:document.querySelector('#launcher').classList.contains('hidden'),canvasBg:getComputedStyle(c).backgroundImage,cardBg:card?getComputedStyle(card).backgroundImage:'none',w:x.width,h:x.height}});
+            console.log(r);
+            if(errors.length||!r.mode||r.hidden||r.w<350||r.h<700||(r.canvasBg==='none'&&r.cardBg==='none'))throw new Error('launcher smoke falhou: '+errors.join('|'));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(3)});
+          JS
+          node "$RUNNER_TEMP/launcher-smoke.cjs"
+
+      - name: Rodar regressão cumulativa 1.0.5
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/*.test.js
+
+      - name: Definir versão 1.1.1 após regressão do baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,re
+          p=Path(os.environ["ANDROID_PROJECT_ROOT"])/"app/build.gradle.kts"
+          g=p.read_text(encoding="utf-8")
+          g=re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 7', g)
+          g=re.sub(r'versionName\s*=\s*"[^"]+"', 'versionName = "1.1.1"', g)
+          p.write_text(g,encoding="utf-8")
+          PY
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar cache Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Compilar APK debug
+        working-directory: ${{ env.ANDROID_PROJECT_ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew clean :app:assembleDebug --stacktrace --no-daemon
+
+      - name: Validar e publicar APK 1.1.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$ANDROID_PROJECT_ROOT/app/build/outputs/apk/debug" -type f -name '*.apk' -print -quit)"
+          test -f "$APK"
+          OUT="$GITHUB_WORKSPACE/deliverables/fichas-final-20260916"
+          mkdir -p "$OUT"
+          unzip -t "$APK" > "$OUT/unzip-apk-1.1.1.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee "$OUT/aapt-1.1.1.txt"
+          grep -q "package: name='com.braseiro.fichas' versionCode='7' versionName='1.1.1'" "$OUT/aapt-1.1.1.txt"
+          grep -q "application-icon-.*ic_launcher.xml" "$OUT/aapt-1.1.1.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee "$OUT/apksigner-1.1.1.txt"
+          cp "$APK" "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.1.1-baseline105-mapped-debug.apk"
+          sha256sum "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.1.1-baseline105-mapped-debug.apk" | tee "$OUT/BRASEIRO_FICHAS_MULTISSISTEMA-1.1.1-baseline105-mapped-debug.apk.sha256"
+          echo "$SOURCE_SHA256  $SOURCE_NAME" > "$OUT/source-project-1.1.1.sha256"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f deliverables/fichas-final-20260916
+          git commit -m "build: publish Braseiro Fichas 1.1.1 baseline105 mapped"
+          git push origin HEAD:fichas-final-20260916

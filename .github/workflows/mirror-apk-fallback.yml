@@ -1,0 +1,54 @@
+name: Mirror Braseiro APK Fallback
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/mirror-apk-fallback.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Procurar host direto funcional
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          SHA="8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "$SHA"
+          verify() {
+            local u="$1"
+            rm -f /tmp/check.apk
+            curl -L --fail --silent --show-error --max-time 30 "$u" -o /tmp/check.apk || return 1
+            test "$(wc -c < /tmp/check.apk)" = "318743" || return 1
+            test "$(sha256sum /tmp/check.apk | awk '{print $1}')" = "$SHA" || return 1
+            printf '%s\n' "$u" > deliverables/fichas-final-20260916/DIRECT_APK_URL_VERIFIED.txt
+            return 0
+          }
+          URL=""
+          U="$(curl --fail --silent --show-error --max-time 30 -F "file=@$APK" https://0x0.st || true)"
+          if [ -n "$U" ] && verify "$U"; then URL="$U"; fi
+          if [ -z "$URL" ]; then
+            R="$(curl --fail --silent --show-error --max-time 30 -F "files[]=@$APK" https://uguu.se/upload.php || true)"
+            U="$(printf '%s' "$R" | jq -r '.files[0].url // empty' 2>/dev/null || true)"
+            if [ -n "$U" ] && verify "$U"; then URL="$U"; fi
+          fi
+          if [ -z "$URL" ]; then
+            U="$(curl --fail --silent --show-error --max-time 30 --upload-file "$APK" "https://bashupload.com/$(basename "$APK")" | grep -Eo 'https://bashupload.com/[^ ]+' | tail -1 || true)"
+            if [ -n "$U" ] && verify "$U"; then URL="$U"; fi
+          fi
+          test -n "$URL"
+          echo "Verified URL: $URL"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deliverables/fichas-final-20260916/DIRECT_APK_URL_VERIFIED.txt
+          git commit -m "build: add verified external APK URL"
+          git push origin HEAD:fichas-final-20260916

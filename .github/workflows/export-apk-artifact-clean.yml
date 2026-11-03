@@ -1,0 +1,43 @@
+name: Export Braseiro APK Artifact Clean
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/export-apk-artifact-clean.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Limpar artifacts antigos para liberar quota
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --paginate "/repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --jq '.artifacts[].id' | while read -r id; do
+            [ -n "$id" ] && gh api -X DELETE "/repos/${GITHUB_REPOSITORY}/actions/artifacts/$id" || true
+          done
+      - name: Validar APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          test -f "$APK"
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_FICHAS_MULTISSISTEMA_APK_FINAL
+          path: deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk
+          if-no-files-found: error
+          retention-days: 7

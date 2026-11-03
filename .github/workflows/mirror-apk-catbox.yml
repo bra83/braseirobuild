@@ -1,0 +1,39 @@
+name: Mirror Braseiro APK Direct
+
+on:
+  push:
+    branches: [fichas-final-20260916]
+    paths:
+      - ".github/workflows/mirror-apk-catbox.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fichas-final-20260916
+      - name: Publicar APK em URL direta e validar retorno
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="deliverables/fichas-final-20260916/BRASEIRO_FICHAS_MULTISSISTEMA-1.0.0-final-debug.apk"
+          EXPECTED_SHA="8b217b8122695a848297c20d4a5966bdcd34942e1ce0c3199f485fc843c60da6"
+          test -f "$APK"
+          test "$(sha256sum "$APK" | awk '{print $1}')" = "$EXPECTED_SHA"
+          URL="$(curl --fail --silent --show-error -F 'reqtype=fileupload' -F "fileToUpload=@$APK" https://catbox.moe/user/api.php)"
+          test -n "$URL"
+          echo "$URL"
+          curl -L --fail --silent --show-error "$URL" -o /tmp/check.apk
+          test "$(wc -c < /tmp/check.apk)" = "$(wc -c < "$APK")"
+          test "$(sha256sum /tmp/check.apk | awk '{print $1}')" = "$EXPECTED_SHA"
+          echo "$URL" > deliverables/fichas-final-20260916/DIRECT_APK_URL.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add deliverables/fichas-final-20260916/DIRECT_APK_URL.txt
+          git commit -m "build: add verified direct APK URL"
+          git push origin HEAD:fichas-final-20260916
