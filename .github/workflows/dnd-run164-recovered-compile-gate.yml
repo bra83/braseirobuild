@@ -1,0 +1,118 @@
+name: DND RUN164 Recovered Compile Gate
+
+on:
+  push:
+    branches:
+      - dnd/run164-recovered-compile-gate
+    paths:
+      - '.github/workflows/dnd-run164-recovered-compile-gate.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/dnd-run164-recovered-compile-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FIRE_API: 'https://api.firestorage.ai/dev/file'
+  SHARE_ID: 'BbyUQ-kUbXQ8'
+  FILE_ID: '01a0fd6e51bd75b3b1ffa8ddbf2a86aa'
+  SOURCE_SHA256: 'be8260114870432f482b939a9d16e68dd0d35a6ae56d09714f284d158910f072'
+
+jobs:
+  compile-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout gate metadata
+        uses: actions/checkout@v4
+
+      - name: Download recovered compile-only source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incoming work
+          curl -fsSL "$FIRE_API/shares/$SHARE_ID/files?maxResults=1000" -o /tmp/files.json
+          python3 - <<'PY'
+          import json, os
+          data=json.load(open('/tmp/files.json',encoding='utf-8'))
+          fid=os.environ['FILE_ID']
+          files=data.get('files') or []
+          assert any(str(x.get('fileId'))==fid for x in files), 'compile source file not found'
+          PY
+          curl -fsSL -X POST "$FIRE_API/shares/$SHARE_ID/files/$FILE_ID/download" -o /tmp/download.json
+          URL="$(python3 - <<'PY'
+          import json
+          print(json.load(open('/tmp/download.json',encoding='utf-8')).get('downloadUrl',''))
+          PY
+          )"
+          test -n "$URL"
+          curl -fL --retry 3 --connect-timeout 20 --max-time 300 "$URL" -o incoming/source.zip
+          echo "$SOURCE_SHA256  incoming/source.zip" | sha256sum -c -
+          unzip -t incoming/source.zip >/dev/null
+          unzip -q incoming/source.zip -d work
+          ROOT="$(find "$GITHUB_WORKSPACE/work" -type f -name gradlew -print0 | while IFS= read -r -d '' W; do D="$(dirname "$W")"; if [ -f "$D/settings.gradle.kts" ] || [ -f "$D/settings.gradle" ]; then printf '%s\n' "$D"; break; fi; done)"
+          test -n "$ROOT"
+          echo "ROOT=$ROOT" >> "$GITHUB_ENV"
+          chmod +x "$ROOT/gradlew"
+          test "$(find "$ROOT/app/src/main/java/com/braseiro/dnd5e" -type f -name '*.java' | wc -l)" -eq 278
+          echo "SOURCE_STRUCTURE_PASS java=278"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Gate 1 - compileDebugJavaWithJavac
+        working-directory: ${{ env.ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --console=plain :app:compileDebugJavaWithJavac
+
+      - name: Gate 2 - processDebugResources
+        working-directory: ${{ env.ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --console=plain :app:processDebugResources
+
+      - name: Gate 3 - processDebugMainManifest
+        working-directory: ${{ env.ROOT }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --console=plain :app:processDebugMainManifest
+
+      - name: Record compile-gate result
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "RUN_ID=$GITHUB_RUN_ID"
+            echo "COMMIT=$GITHUB_SHA"
+            echo "SOURCE_SHA256=$SOURCE_SHA256"
+            echo "JAVA_COUNT=278"
+            echo "APK_BUILT=false"
+          } | tee RUN164_COMPILE_GATE_RESULT.txt
