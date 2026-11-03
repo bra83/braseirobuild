@@ -296,7 +296,17 @@ public final class MasterOrchestrator {
 
     public synchronized void afterAccepted(Plan plan,String narration,int inputChars,int outputChars){afterAccepted(plan,narration,null,inputChars,outputChars);}
     public synchronized void afterAccepted(Plan plan,String narration,JSONObject envelope,int inputChars,int outputChars){
-        if(plan==null)return;boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
+        if(plan==null)return;
+        // A GUI pode continuar até aqui com uma resposta rejeitada. Ela não
+        // pode transformar isso em tempo de jogo, Diário ou memória canônica.
+        JSONObject validation=envelope==null?null:envelope.optJSONObject("_master_validation");
+        if(validation!=null&&!validation.optBoolean("valid",false)){
+            if(!plan.accepted&&!plan.fromCache&&envelope.optJSONObject("_offline_master")==null)
+                quota.recordCall(inputChars,outputChars); // contar custo real, não turno ficcional
+            plan.accepted=true; // idempotência: não registrar a mesma chamada duas vezes
+            return;
+        }
+        boolean discoverySafe=discoveryNarrationAccepted(plan,narration);if(plan.fromCache){if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted&&plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);plan.accepted=true;return;}boolean offline=envelope!=null&&envelope.optJSONObject("_offline_master")!=null;if(!offline)quota.recordCall(inputChars,outputChars);if(plan.narrative&&!plan.nonAdvancing){party.updateSpotlightFromNarration(narration);if(discoverySafe)discoveryDirector.commit(plan.discoveryDecision);}if(!plan.accepted){if(plan.narrative&&!plan.nonAdvancing){advanceClockForNarrationOnly(plan,envelope);recordAcceptedSceneJournal(plan,narration);}if(plan.usedPartyQueue)party.markQueuedNarrated(plan.queuedActionIds);if(!plan.nonAdvancing)memory.record(plan.userPrompt,narration,plan.cognitivePlan,envelope);plan.accepted=true;}
     }
 
     /**
