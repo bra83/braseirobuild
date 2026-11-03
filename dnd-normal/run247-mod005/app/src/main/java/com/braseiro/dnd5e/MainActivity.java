@@ -7002,7 +7002,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void addOptionButton(LinearLayout parent,final JSONObject option){String label=option.optString("label","Opção");String description=option.optString("description",option.optString("action",""));JSONObject test=option.optJSONObject("test");String suffix="";if(test!=null&&test.optBoolean("required",false))suffix="\nTeste: "+testLabel(test);Button button=button(label+(description.length()>0?"\n"+description:"")+suffix,PANEL2);button.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);button.setAllCaps(false);button.setTextSize(14);boolean blocked=aiBusy||(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true));button.setEnabled(!blocked);button.setAlpha(blocked?0.58f:1f);button.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});parent.addView(button,new LinearLayout.LayoutParams(-1,-2));}
-    private void handleOption(JSONObject option){if(aiBusy)return;if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){toast("Resolva ou cancele o teste pendente antes de escolher outra ação.");return;}JSONObject test=option.optJSONObject("test");String action=option.optString("action",option.optString("description",option.optString("label")));if(test!=null&&test.optBoolean("required",false)){try{JSONObject prepared=new JSONObject(test.toString());prepared.put("option_label",option.optString("label"));pendingTest=ensurePendingTestIdentity(prepared,action);persistStory(action);showNarrator();}catch(Exception e){toast("Não foi possível preparar o teste.");}}else sendAi("Narrador","O jogador escolheu: "+action+". Continue a partir dessa escolha, sem repetir a cena anterior.");}
+    private void handleOption(JSONObject option){if(aiBusy)return;if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){toast("Resolva ou cancele o teste pendente antes de escolher outra ação.");return;}JSONObject test=option.optJSONObject("test");String action=option.optString("action",option.optString("description",option.optString("label")));if(test!=null&&test.optBoolean("required",false)){try{JSONObject prepared=new JSONObject(test.toString());prepared.put("option_label",option.optString("label"));pendingTest=ensurePendingTestIdentity(prepared,action);persistStory(action);showNarrator();}catch(Exception e){toast("Não foi possível preparar o teste.");}}else sendAi("Narrador",action,"PLAYER_ACTION");}
     private void addPendingTestCard(LinearLayout parent,final JSONObject test){LinearLayout card=card();card.setBackground(makeBg(Color.rgb(73,49,31),GOLD,12));card.addView(text("TESTE OBRIGATÓRIO — A HISTÓRIA ESTÁ PAUSADA",15,GOLD,true));String originTurn=test.optString("origin_master_turn_id","");if(originTurn.length()>0)card.addView(text("VEM DA SUA CONVERSA AZUL COM O MESTRE",10,Color.rgb(190,225,238),true));card.addView(text(testLabel(test),18,TEXT,true));String action=test.optString("action");if(action.length()>0)card.addView(text(action,14,MUTED,false));Button roll=button("ROLAR AGORA",GOLD);roll.setTextColor(Color.BLACK);roll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){rollPendingTest(test);}});card.addView(roll);Button cancel=button("CANCELAR ESTA AÇÃO",PANEL2);cancel.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String origin=test.optString("origin_master_turn_id","");if(origin.length()>0)updateMasterConversationTurn(origin,"cancelled",new JSONObject());pendingTest=new JSONObject();persistStory("");showNarrator();}});card.addView(cancel);parent.addView(card);}
     private String testLabel(JSONObject test){if(isMystaraWorld()){String type=test.optString("type","ability");if("save".equals(type))return "Jogada de Proteção — "+test.optString("save_type","Bastões, Cajados ou Feitiços")+" • 1d20 ≥ valor da ficha";if("thief_skill".equals(type))return "Habilidade de Ladrão — "+test.optString("thief_skill","Mover-se em Silêncio")+" • d100 ≤ percentual da ficha";String ability=test.optString("ability","Destreza");int mod=test.optInt("modifier",0);return "Teste de "+ability+" • 1d20 ≤ atributo"+(mod==0?"":(mod>0?" + ":" − ")+Math.abs(mod));}String ability=test.optString("ability","Atributo");String skill=test.optString("skill","");int dc=test.optInt("dc",10);String mode=test.optString("mode","Normal");return ability+(skill.length()>0?" ("+skill+")":"")+" • CD "+dc+("Normal".equalsIgnoreCase(mode)?"":" • "+mode);}
     private void rollPendingTest(final JSONObject test){
@@ -7519,6 +7519,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
         if(requestId!=aiRequestGeneration)return;
+        // Repetição literal não deve gerar OUTRA chamada paga de revisão:
+        // o editor de estilo não consegue produzir um resultado novo sem
+        // autorizar mudança factual. Preserve a cena e devolva controle.
+        if("Narrador".equals(mode)&&!activeTurnNonAdvancing(originalUserText)){
+            JSONObject proposed=parseAiEnvelope(raw);
+            String proposedNarration=sanitizeNarrationPayload(proposed.optString("narration",raw));
+            String duplicated=BraseiroNarrativeDirector.repeatedTurnProblem(proposedNarration,lastNarration);
+            if(!duplicated.isEmpty()){
+                if(aiQuotaGovernor!=null)
+                    aiQuotaGovernor.recordCall(pendingAiInputChars,raw==null?0:raw.length());
+                aiBusy=false;streamingNarration="";
+                markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                        "A resposta do Gemini repetiu a narração anterior. "
+                       +"A ação não foi aplicada e não houve nova chamada de revisão. "
+                       +"A cena anterior permanece válida.");
+                return;
+            }
+        }
         String problem="Narrador".equals(mode)?narrationQualityProblem(raw,originalUserText):"";
         if(problem.length()>0){
             JSONObject envelope=parseAiEnvelope(raw);
