@@ -20,7 +20,6 @@ import java.util.Set;
  */
 public final class SceneOptionDiversifier {
     private static final int MAX_OPTIONS = 2;
-    private static final int MIN_SCENE_OPTIONS = 2;
     private static final int MAX_HISTORY = 60; // cobre mais que a janela legada: MAX_HISTORY = 24
 
     private SceneOptionDiversifier() {}
@@ -62,9 +61,7 @@ public final class SceneOptionDiversifier {
         JSONArray out = new JSONArray();
         ArrayList<String> accepted = new ArrayList<String>();
         ArrayList<String> history = historyValues(recentHistory);
-        ArrayList<String> immediateHistory = latestHistoryValues(recentHistory,MAX_OPTIONS);
         if(declaredAction!=null&&!declaredAction.trim().isEmpty())addUnique(history,declaredAction);
-        int validSourceCount = 0;
 
         if (source != null) {
             for (int i = 0; i < source.length() && out.length() < MAX_OPTIONS; i++) {
@@ -72,8 +69,7 @@ public final class SceneOptionDiversifier {
                 if (original == null) continue;
                 JSONObject option = sanitize(original);
                 String action = optionAction(option);
-                if (action.isEmpty() || !isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action,narration,scene)) continue;
-                validSourceCount++;
+                if (action.isEmpty() || !isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action,narration,scene) || !isRelevantToCurrentBeat(action,narration)) continue;
                 if (isRepeated(action, history) || isRepeated(action, accepted) || repeatsIntent(action,accepted)) continue;
                 out.put(option);
                 accepted.add(action);
@@ -87,73 +83,44 @@ public final class SceneOptionDiversifier {
         for(JSONObject fallback:fallbacks){
             if(out.length()>=MAX_OPTIONS)break;
             String action=optionAction(fallback);
-            if(action.isEmpty()||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
+            if(action.isEmpty()||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||!isRelevantToCurrentBeat(action,narration)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
             out.put(fallback);accepted.add(action);
         }
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     /**
-     * A tela do Mestre deve manter até duas sugestões opcionais visíveis em toda
-     * cena iniciada. Primeiro usa as opções do modelo/fallback contextual; se
-     * faltarem alternativas, completa com ações universais que não presumem
-     * objeto, NPC ou saída inexistente.
+     * No quota: zero or one grounded decision is better than two invented ones.
+     * The removed filler used to emit "EXAMINAR OS CARTAZES / detalhes concretos".
      */
     public static JSONArray ensureAlways(JSONArray source, JSONArray recentHistory,
                                          String narration, String declaredAction,
-                                         JSONObject scene, int beatNumber) {/*BR_JSON_WRAP*/try{
-        JSONArray out = diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
-        if (out.length() >= MIN_SCENE_OPTIONS) return out;
-        String cleanNarration = clean(narration, 600);
-        boolean hasSceneContext = scene != null && (!clean(scene.optString("location",""), 80).isEmpty()
-                || !firstPresentNpc(scene).isEmpty()
-                || !clean(scene.optString("objective",""), 100).isEmpty());
-        if (cleanNarration.length() < 32 && !hasSceneContext) return out;
-        ArrayList<String> accepted = optionValues(out);
-        ArrayList<String> history = latestHistoryValues(recentHistory, MAX_OPTIONS);
-        if (declaredAction != null && !declaredAction.trim().isEmpty()) addUnique(history, declaredAction);
-        List<JSONObject> extra = alwaysVisibleFallbacks(narration, scene, beatNumber);
-        for (JSONObject candidate : extra) {
-            if (out.length() >= MIN_SCENE_OPTIONS) break;
-            String action = optionAction(candidate);
-            if (action.isEmpty() || isWeakOption(candidate.optString("label",""), candidate.optString("description",""), action)) continue;
-            if (!isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action, narration, scene)) continue;
-            if (isRepeated(action, history) || isRepeated(action, accepted) || repeatsIntent(action, accepted)) continue;
-            out.put(candidate);
-            accepted.add(action);
-        }
-        return out;
-    }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+                                         JSONObject scene, int beatNumber) {
+        return diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+    }
 
-    private static List<JSONObject> alwaysVisibleFallbacks(String narration,JSONObject scene,int beatNumber){
-        ArrayList<JSONObject> out=new ArrayList<JSONObject>();
-        try{
-            String object=firstNarrativeObject(narration);
-            String npc=firstPresentNpc(scene);
-            if(npc.isEmpty())npc=firstNarrativeActor(narration);
-            String location=scene==null?"":clean(scene.optString("location",""),70);
-            String feature=firstNarrativeFeature(narration,location);
-            if(!npc.isEmpty()){
-                out.add(option("FALAR COM "+upperShort(npc),
-                        "Dirigir a palavra diretamente a "+npc+" sobre o que está acontecendo.",
-                        "Aproximo-me de "+npc+" e pergunto diretamente sobre o que acabou de acontecer aqui."));
-            }
-            if(!object.isEmpty()){
-                out.add(option("EXAMINAR "+upperShort(object),
-                        "Inspecionar "+object+" de perto em busca de detalhes concretos.",
-                        "Examino "+object+" com atenção para verificar marcas, inscrições ou sinais de uso recente."));
-            }
-            if(!feature.isEmpty()){
-                out.add(option("EXPLORAR "+upperShort(feature),
-                        "Deslocar-se até "+feature+" para verificar quem ou o que está ali.",
-                        "Avanço com atenção até "+feature+" e verifico de perto os elementos e acessos ao redor."));
-            }
-            // A localização isolada NÃO é suficiente para inventar um motivo
-            // de ação. Sem pessoa, objeto ou passagem real, prefira uma ou
-            // nenhuma sugestão a repetir "inspecionar os arredores".
-            if((beatNumber&1)==1&&out.size()>1){JSONObject first=out.remove(0);out.add(first);}
-        }catch(Exception ignored){/* fallback opcional; degrada para lista parcial */}
-        return out;
+    /**
+     * A mention in the opening paragraph is not enough: ground options in the
+     * current beat, where the player is actually deciding what to do next.
+     */
+    static boolean isRelevantToCurrentBeat(String action,String narration){
+        String text=normalize(narration);
+        if(text.isEmpty())return false;
+        String latest=text.length()>900?text.substring(text.length()-900):text;
+        Set<String> focus=tokens(latest);
+        Set<String> anchors=entityTokens(action);
+        String[] noise={"detalhes","concretos","marcas","sinais","proximos","elementos","acessos",
+            "proximo","verificar","procurando","busca","atencao","acontece","acontecendo",
+            "pessoas","local","cena","situacao","informacoes","informacao","orientacoes",
+            "atual","ao","onde","como","esta","estao","para","sobre","caminho"};
+        for(String word:noise)anchors.remove(stem(word));
+        for(String token:anchors)if(focus.contains(token))return true;
+        return false;
+    }
+
+        private static String latestBeatForFallback(String narration){
+        String text=normalize(narration);
+        return text.length()>900?text.substring(text.length()-900):text;
     }
 
     private static String firstPresentNpc(JSONObject scene){
@@ -334,6 +301,19 @@ public final class SceneOptionDiversifier {
         String objective = scene == null ? "" : clean(scene.optString("objective", ""), 100);
         String danger = scene == null ? "" : clean(scene.optString("danger", ""), 100);
         String narrative=normalize(narration);
+        String beat=latestBeatForFallback(narration);
+        if(containsAny(beat,"assistente","triagem")&&
+           containsAny(beat,"prancheta","nomes","orientacao","calouros")){
+            pool.add(option("PERGUNTAR AO ASSISTENTE SOBRE A ORIENTAÇÃO",
+                    "Conferir o procedimento com a pessoa que organiza os calouros.",
+                    "Pergunto ao assistente de triagem o que devo fazer agora e se preciso confirmar meu nome."));
+        }
+        if(containsAny(beat,"assembleia","orientacao")&&
+           containsAny(beat,"calouros","instrucoes","começa","comeca")){
+            pool.add(option("ACOMPANHAR AS INSTRUÇÕES",
+                    "Ouvir o que é solicitado aos novos estudantes antes de agir.",
+                    "Permaneço com os calouros e escuto as instruções que começam no salão."));
+        }
         String document=firstNarrativeObject(narration);
         boolean socialDemand=containsAny(narrative,"dívida","divida","cobrança","cobranca","contrato","cessão","cessao","direitos","prazo","pagamento","guilda","credor","notas promissórias","notas promissorias","exigência","exigencia","ordem","tributo","multa");
 
@@ -355,11 +335,6 @@ public final class SceneOptionDiversifier {
             pool.add(option("CONVERSAR COM " + upperShort(npc),
                     "Iniciar diálogo com alguém presente, sem presumir sua intenção.",
                     "Aproximo-me de " + npc + " e inicio uma conversa sobre o que está acontecendo aqui."));
-        }
-        if(!document.isEmpty()&&!socialDemand){
-            pool.add(option("EXAMINAR " + upperShort(document),
-                    "Procurar origem, autenticidade, alterações e ligação com as pessoas presentes.",
-                    "Examinar " + document + " sem afastá-lo da cena, procurando marcas, texto, selo, uso recente e quem tenta controlá-lo."));
         }
         if (!clue.isEmpty()) {
             pool.add(option("EXAMINAR " + upperShort(shortNoun(clue)),
@@ -428,24 +403,6 @@ public final class SceneOptionDiversifier {
                     "Mudar posição, preparação ou abordagem antes que o perigo se transforme em consequência.",
                     "Identificar o sinal verificável de “" + danger + "” e reduzir esse risco com cobertura, distância, ferramenta ou negociação adequada."));
         }
-        String actor = npc.isEmpty() ? firstNarrativeActor(narration) : "";
-        if (!actor.isEmpty()) {
-            pool.add(option("ABORDAR " + upperShort(actor),
-                    "Dirigir-se diretamente a " + actor + " na cena atual.",
-                    "Aproximo-me de " + actor + " e inicio uma conversa direta sobre o que está acontecendo no local."));
-        }
-        String feature = firstNarrativeFeature(narration, location);
-        if (!feature.isEmpty()) {
-            pool.add(option("VERIFICAR " + upperShort(feature),
-                    "Examinar de perto " + feature + " mencionado na cena.",
-                    "Desloco-me até " + feature + " para inspecionar seus detalhes, ocupantes e acessos imediatos."));
-        }
-        if (!location.isEmpty()) {
-            String shortLoc = shortLocationLabel(location);
-            pool.add(option("EXPLORAR " + upperShort(shortLoc),
-                    "Percorrer " + shortLoc + " atentando aos pontos de interesse e saídas.",
-                    "Percorro " + shortLoc + " observando os detalhes visíveis, as pessoas presentes e os acessos disponíveis."));
-        }
         if(npc.isEmpty()&&clue.isEmpty()&&threat.isEmpty()&&objective.isEmpty()&&danger.isEmpty()&&document.isEmpty()){
             String recent=lastSentence(narration);
             if(!recent.isEmpty()&&containsAny(narrative,"pedido","exigência","exigencia","oferta","ameaça","ameaca","ordem"))pool.add(option("RESPONDER À EXIGÊNCIA ATUAL",
@@ -464,6 +421,12 @@ public final class SceneOptionDiversifier {
     private static boolean isWeakOption(String label,String description,String action){
         String l=normalize(label),d=normalize(description),a=normalize(action);
         if(a.length()<14||l.length()<5)return true;
+        if(d.contains("detalhes concretos")||d.contains("o que esta acontecendo aqui")||
+           d.contains("origem autenticidade alteracoes")||
+           a.contains("verifico de perto os elementos e acessos ao redor")||
+           a.contains("marcas inscricoes ou sinais de uso recente")||
+           d.contains("dirigir se diretamente")||
+           d.contains("examinar de perto mencionado na cena"))return true;
         String[] weak={"agir sobre a mudanca","ler a situacao","buscar um novo angulo","testar outra hipotese","fazer alguma coisa","continuar a aventura","observar o cenario","reconhecer o local","examinar a entrada","localizar o som","proteger uma rota de recuo","confirmar o objetivo imediato","verificar o detalhe mais recente","verificar a travessia","testar a consequencia da acao","verificar a consequencia","analisar a consequencia","avaliar a situacao","escolher um ponto de observacao","negociar a exigencia","exigir prova da cobranca","responder a exigencia atual","confrontar a fala"};
         for(String value:weak)if(l.equals(value)||a.equals(value)||l.startsWith(value+" "))return true;
         if(d.length()>30&&a.contains(d)&&d.split(" ").length>8)return true;
