@@ -1568,21 +1568,69 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final FrameLayout.LayoutParams composerLp=new FrameLayout.LayoutParams(-1,dp(54),Gravity.BOTTOM);
             composerLp.setMargins(dp(14),0,dp(14),dp(88));
             screen.addView(composer,composerLp);
-            if(Build.VERSION.SDK_INT>=30){
-                screen.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener(){
-                    public WindowInsets onApplyWindowInsets(View v,WindowInsets insets){
-                        boolean keyboard=insets.isVisible(WindowInsets.Type.ime());
-                        bottomNav.setVisibility(keyboard?View.GONE:View.VISIBLE);
-                        temporalBar.setVisibility(keyboard?View.GONE:View.VISIBLE);
-                        int margin=dp(keyboard?8:88);
-                        if(composerLp.bottomMargin!=margin){
-                            composerLp.bottomMargin=margin;
-                            composer.setLayoutParams(composerLp);
-                        }
-                        return insets;
+            // O A57 pode manter a superfície do app com altura integral
+            // quando o IME aparece (edge-to-edge). Alterar 88dp para 8dp
+            // deixava o campo *atrás* do teclado. Medir a sobreposição real.
+            final Runnable placeAboveKeyboard=new Runnable(){public void run(){
+                if(!screen.isAttachedToWindow())return;
+                WindowInsets insets=Build.VERSION.SDK_INT>=23?screen.getRootWindowInsets():null;
+                int[] position=new int[2];screen.getLocationOnScreen(position);
+                final int screenBottom=position[1]+screen.getHeight();
+                int visibleBottom=screenBottom;
+                boolean imeVisible=false;
+                if(Build.VERSION.SDK_INT>=30&&insets!=null){
+                    imeVisible=insets.isVisible(WindowInsets.Type.ime());
+                    if(imeVisible){
+                        int imeHeight=insets.getInsets(WindowInsets.Type.ime()).bottom;
+                        int windowBottom=getWindowManager().getCurrentWindowMetrics().getBounds().bottom;
+                        visibleBottom=Math.min(visibleBottom,windowBottom-imeHeight);
                     }
-                });
-            }
+                }
+                android.graphics.Rect visibleFrame=new android.graphics.Rect();
+                screen.getWindowVisibleDisplayFrame(visibleFrame);
+                int frameOverlap=screenBottom-visibleFrame.bottom;
+                // Fallback para Samsung que não propaga Type.ime() à subview.
+                if(frameOverlap>dp(140)){
+                    imeVisible=true;
+                    visibleBottom=Math.min(visibleBottom,visibleFrame.bottom);
+                }
+                int margin=composerKeyboardBottomMarginPx(screenBottom,visibleBottom,
+                        imeVisible,dp(88),dp(8));
+                bottomNav.setVisibility(imeVisible?View.GONE:View.VISIBLE);
+                temporalBar.setVisibility(imeVisible?View.GONE:View.VISIBLE);
+                if(composerLp.bottomMargin!=margin){
+                    composerLp.bottomMargin=margin;
+                    composer.setLayoutParams(composerLp);
+                }
+            }};
+            screen.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener(){
+                public WindowInsets onApplyWindowInsets(View v,WindowInsets insets){
+                    // A geometria já está válida após o layout/insets.
+                    screen.post(placeAboveKeyboard);
+                    return insets;
+                }
+            });
+            screen.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
+                public void onLayoutChange(View v,int left,int top,int right,int bottom,
+                                           int oldLeft,int oldTop,int oldRight,int oldBottom){
+                    screen.post(placeAboveKeyboard);
+                }
+            });
+            final android.view.ViewTreeObserver observer=screen.getViewTreeObserver();
+            final android.view.ViewTreeObserver.OnGlobalLayoutListener listener=
+                new android.view.ViewTreeObserver.OnGlobalLayoutListener(){
+                    public void onGlobalLayout(){placeAboveKeyboard.run();}
+                };
+            observer.addOnGlobalLayoutListener(listener);
+            screen.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener(){
+                public void onViewAttachedToWindow(View v){
+                    v.requestApplyInsets();
+                    v.post(placeAboveKeyboard);
+                }
+                public void onViewDetachedFromWindow(View v){
+                    if(observer.isAlive())observer.removeOnGlobalLayoutListener(listener);
+                }
+            });
         }
 
         if(!strixhavenDrawerExpanded){
@@ -1593,6 +1641,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         content.addView(screen,new FrameLayout.LayoutParams(-1,-1));
         cacheCurrentScreen();
+    }
+
+    /** Distância ao teclado em pixels; cobre tanto janela ajustada quanto IME sobreposto. */
+    /* package */ static int composerKeyboardBottomMarginPx(int screenBottom,int visibleBottom,
+                                                              boolean keyboardVisible,int normalMargin,int keyboardGap){
+        if(!keyboardVisible)return normalMargin;
+        return Math.max(keyboardGap,Math.max(0,screenBottom-visibleBottom)+keyboardGap);
     }
 
     private View strixSessionNavButton(String icon,String label,View.OnClickListener click){
