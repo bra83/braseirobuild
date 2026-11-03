@@ -69,6 +69,35 @@ final class GithubUpdaterUi {
                 }
             });
         });
+        TextView otaTitle=new TextView(a);
+        otaTitle.setText("CORREÇÕES INCREMENTAIS DO GITHUB");
+        otaTitle.setTextSize(17);
+        section.addView(otaTitle);
+        TextView otaHelp=new TextView(a);
+        otaHelp.setText("Baixa somente os recursos visuais alterados (dados e imagens suportados) sem instalar outro APK. "
+            +"Correções nas classes Java continuam exigindo um APK Android assinado.");
+        otaHelp.setTextSize(13);
+        section.addView(otaHelp);
+        TextView otaStatus=new TextView(a);
+        otaStatus.setText(BraseiroLivePatch.currentRevision(a));
+        otaStatus.setTextSize(12);
+        section.addView(otaStatus);
+        Button incremental=new Button(a);
+        incremental.setText("VERIFICAR CORREÇÕES INCREMENTAIS");
+        incremental.setOnClickListener(v->{
+            incremental.setEnabled(false);
+            BraseiroLivePatch.checkAndApply(a,message->a.runOnUiThread(()->{
+                otaStatus.setText(message);
+                if(message.startsWith("Correção ")||message.startsWith("Conteúdo atualizado.")||
+                   message.startsWith("Nenhuma correção")||message.startsWith("Nenhum pacote"))
+                    incremental.setEnabled(true);
+            }));
+        });
+        section.addView(incremental);
+        Button undo=new Button(a);
+        undo.setText("DESFAZER ÚLTIMA CORREÇÃO DE CONTEÚDO");
+        undo.setOnClickListener(v->otaStatus.setText(BraseiroLivePatch.rollback(a)));
+        section.addView(undo);
         root.addView(section);
     }
 }
