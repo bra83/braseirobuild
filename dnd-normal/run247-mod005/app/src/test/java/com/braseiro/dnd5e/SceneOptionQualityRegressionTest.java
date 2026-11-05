@@ -17,7 +17,7 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), BIBLIOPLEX, "Acordo e começo o dia",
             new JSONObject(), 1);
-        assertEquals("One voluntary story action plus two concrete choices", 3, options.length());
+        assertEquals("One in-world initiative action plus four concrete choices", 5, options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
         String first = options.optJSONObject(1).optString("label");
         String second = options.optJSONObject(2).optString("label");
@@ -35,7 +35,7 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), "Uma breve pausa.", "Investigo a sala anterior",
             new JSONObject(), 2);
-        assertEquals("Only voluntary story action; no invented contextual choice", 1, options.length());
+        assertEquals("Even a quiet pause provides four grounded approaches plus initiative", 5, options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
     }
 
