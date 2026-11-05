@@ -108,6 +108,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Prove short, long and full rests with real Java procedures
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o "$R27_ROOT/rest_verifier.sh" "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/test_rest_r27.sh"
+          chmod +x "$R27_ROOT/rest_verifier.sh"
+          "$R27_ROOT/rest_verifier.sh"
       - name: Compile patched Android project
         shell: bash
         timeout-minutes: 30
