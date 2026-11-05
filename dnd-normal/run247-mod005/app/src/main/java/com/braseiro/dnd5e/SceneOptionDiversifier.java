@@ -98,12 +98,7 @@ public final class SceneOptionDiversifier {
                                          String narration, String declaredAction,
                                          JSONObject scene, int beatNumber) {
         JSONArray natural=diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
-        if(narration==null||narration.trim().isEmpty())return natural;
-        // A permanent player-selected action, not filler from the model. Two
-        // contextual suggestions still remain optional and separately validated.
-        JSONArray visible=new JSONArray();visible.put(StoryMomentumAction.option());
-        for(int i=0;i<natural.length();i++)visible.put(natural.opt(i));
-        return visible;
+        return StoryMomentumAction.ensureVisible(natural,narration);
     }
 
     /**
