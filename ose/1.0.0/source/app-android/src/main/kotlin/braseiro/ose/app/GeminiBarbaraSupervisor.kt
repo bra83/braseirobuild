@@ -26,7 +26,8 @@ class GeminiBarbaraSupervisor(
         val provider: String,
         val model: String?,
         val status: String,
-        val reason: String? = null
+        val reason: String? = null,
+        val selectedModel: String? = null
     )
 
     @Volatile
@@ -49,7 +50,7 @@ class GeminiBarbaraSupervisor(
             )
             return localNarration(committed, playerReaction, mechanicalFeedback)
         }
-        val model = settings.snapshot().textModel
+        val selectedModel = settings.snapshot().textModel
         val isCampaignOpening = playerReaction.contains("A aventura começa agora", ignoreCase = true) ||
             committed.campaignState.time.turns == 0L
         val isMajorScene = mechanicalFeedback.contains("Viagem:", ignoreCase = true) ||
@@ -62,8 +63,12 @@ class GeminiBarbaraSupervisor(
         }
 
         return runCatching {
-            var generated = client.generateText(key, model, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace))
-                .trim()
+            val selection = GeminiTextModelSelector.generate(
+                selectedModel, buildNarrationPrompt(committed, playerReaction, mechanicalFeedback, trace),
+                { model, prompt -> client.generateText(key, model, prompt) }
+            )
+            val model = selection.effectiveModel
+            var generated = selection.text.trim()
             if (generated.length < minRequiredLength && !looksTechnical(generated)) {
                 // controlled single retry/continuation request
                 val continuationPrompt = """
@@ -86,7 +91,8 @@ class GeminiBarbaraSupervisor(
                         provider = "GEMINI_TEXT",
                         model = model,
                         status = "PARTIAL_LENGTH",
-                        reason = "Narrativa de abertura com ${generated.length} caracteres (mínimo exigido: $minRequiredLength)"
+                        reason = "Narrativa de abertura com ${generated.length} caracteres (mínimo exigido: $minRequiredLength)",
+                        selectedModel = selectedModel
                     )
                     return@runCatching generated
                 } else {
@@ -96,15 +102,18 @@ class GeminiBarbaraSupervisor(
             lastReceipt = NarrationReceipt(
                 provider = "GEMINI_TEXT",
                 model = model,
-                status = "SUCCESS"
+                status = if (selection.fallbackReason == null) "SUCCESS" else "MODEL_FALLBACK",
+                reason = selection.fallbackReason,
+                selectedModel = selectedModel
             )
             generated
         }.getOrElse { err ->
             lastReceipt = NarrationReceipt(
                 provider = "LOCAL",
-                model = model,
+                model = selectedModel,
                 status = "FALLBACK",
-                reason = err.message ?: "UNKNOWN_ERROR"
+                reason = err.message ?: "UNKNOWN_ERROR",
+                selectedModel = selectedModel
             )
             localNarration(committed, playerReaction, mechanicalFeedback)
         }
@@ -120,7 +129,10 @@ class GeminiBarbaraSupervisor(
             ${publicContext(readOnly)}
             Pergunta do jogador: ${question.trim()}
         """.trimIndent()
-        return runCatching { client.generateText(key, settings.snapshot().textModel, prompt).trim() }
+        return runCatching {
+            GeminiTextModelSelector.generate(settings.snapshot().textModel, prompt,
+                { model, query -> client.generateText(key, model, query) }).text.trim()
+        }
             .getOrElse { "Não consegui consultar o Mestre Gemini agora. A campanha permaneceu inalterada." }
     }
 

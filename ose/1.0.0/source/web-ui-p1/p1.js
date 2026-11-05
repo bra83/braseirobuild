@@ -177,11 +177,14 @@ function renderSession(){
  const receipt = viewState?.narrationReceipt;
  const narrativeStatus = String(receipt?.status || '').toUpperCase();
  const isPartialNarration = narrativeStatus === 'PARTIAL_LENGTH';
+ const alternativeModel = receipt?.model && receipt?.selectedTextModel && receipt.model !== receipt.selectedTextModel;
  const narrationOrigin = receipt?.provider === 'GEMINI_TEXT'
    ? 'Mestre Gemini (' + esc(receipt.model || 'neural') + ')'
    : 'Narração local offline';
  const narrationNotice = isPartialNarration
-   ? 'Cena abreviada: o Gemini não atingiu a extensão solicitada. O texto recebido foi preservado.'
+   ? 'Cena abreviada: o Gemini não atingiu a extensão solicitada. O texto recebido foi preservado.' + (alternativeModel ? ' Modelo alternativo: ' + esc(receipt.model) + '.' : '')
+   : narrativeStatus === 'MODEL_FALLBACK'
+     ? 'Mestre Gemini (' + esc(receipt.model || 'alternativo') + '): modelo alternativo nesta cena; escolha preservada: ' + esc(receipt.selectedTextModel || 'não informada') + '.'
    : narrativeStatus === 'FALLBACK'
      ? 'Gemini indisponível nesta resposta; o Mestre utilizou a narração local.'
      : narrativeStatus === 'LOCAL_ONLY'

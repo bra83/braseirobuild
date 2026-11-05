@@ -1715,6 +1715,7 @@ class MainActivity : Activity() {
             out.put("narrationReceipt", JSONObject()
                 .put("provider", r.provider)
                 .put("model", r.model ?: JSONObject.NULL)
+                .put("selectedTextModel", r.selectedModel ?: JSONObject.NULL)
                 .put("status", r.status)
                 .put("reason", r.reason ?: JSONObject.NULL))
         }
