@@ -29,7 +29,7 @@ public final class StoryMomentumAction {
         else if(beat.contains("professor"))label="ESCUTAR O PROFESSOR";
         else if(beat.contains("orientação")||beat.contains("orientacao")||beat.contains("assistente"))label="AGUARDAR A PRÓXIMA INSTRUÇÃO";
         else if(beat.contains("calouros")||beat.contains("alunos")||beat.contains("estudantes"))label="OUVIR OS ESTUDANTES";
-        else if(beat.contains("guarda")||beat.contains("sentinela"))label="OBSERVAR OS PRÓXIMOS MOVIMENTOS";
+        else if(beat.matches("(?iu).*\\b(?:guarda|guardas|sentinela|sentinelas)\\b.*"))label="OBSERVAR OS PRÓXIMOS MOVIMENTOS";
         else if(beat.contains("pausa")||beat.contains("silêncio"))label="DEIXAR O SILÊNCIO FALAR";
         else if(beat.contains("taverna")||beat.contains("estalagem"))label="ESCUTAR O MOVIMENTO DO SALÃO";
         JSONObject o=new JSONObject();
