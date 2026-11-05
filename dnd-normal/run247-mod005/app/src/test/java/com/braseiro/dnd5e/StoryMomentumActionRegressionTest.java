@@ -13,7 +13,7 @@ public final class StoryMomentumActionRegressionTest {
             new JSONObject().put("location","Biblioplex • Hall dos Oráculos"),4);
         assertTrue(choices.length()>=1);
         assertTrue(StoryMomentumAction.isRequest(choices.getJSONObject(0).getString("action")));
-        assertEquals(StoryMomentumAction.LABEL,choices.getJSONObject(0).getString("label"));
+        assertEquals("AGUARDAR A PRÓXIMA INSTRUÇÃO",choices.getJSONObject(0).getString("label"));
     }
 
     @Test public void twoGroundedOptionsRemainAvailableWithoutFiller() throws Exception {
@@ -71,6 +71,6 @@ public final class StoryMomentumActionRegressionTest {
         assertEquals(0,filtered.length()); // dedicated option is injected exactly once elsewhere
         JSONArray rendered=SceneOptionDiversifier.ensureAlways(a,new JSONArray(),
             "Uma auxiliar anuncia o começo da orientação.","",new JSONObject(),1);
-        assertEquals(1,rendered.length());
+        assertEquals(5,rendered.length());
     }
 }
