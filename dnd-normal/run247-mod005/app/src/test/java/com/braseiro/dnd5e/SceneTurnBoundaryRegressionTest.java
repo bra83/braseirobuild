@@ -19,7 +19,9 @@ public final class SceneTurnBoundaryRegressionTest {
                 .put("action","Examino os cartazes procurando marcas, inscrições ou sinais de uso recente."));
         JSONObject scene=new JSONObject().put("location","Strixhaven • Hall dos Oráculos");
         JSONArray actual=SceneOptionDiversifier.ensureAlways(candidates,new JSONArray(),narration,"Entro no Hall dos Oráculos",scene,1);
-        assertTrue(actual.length()<=2);
+        assertTrue(actual.length()<=3);
+        assertTrue(StoryMomentumAction.isRequest(actual.getJSONObject(0).getString("action")));
+        assertTrue(actual.getJSONObject(0).getString("label").contains("HISTÓRIA"));
         for(int i=0;i<actual.length();i++){
             JSONObject x=actual.getJSONObject(i);
             String combined=x.optString("label")+" "+x.optString("description")+" "+x.optString("action");
@@ -32,7 +34,8 @@ public final class SceneTurnBoundaryRegressionTest {
     @Test public void noQuotaWhenNoGroundedChoiceExists() throws Exception {
         JSONArray options=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
             "O brilho do teto diminui um pouco.", "", new JSONObject(),2);
-        assertEquals(0,options.length());
+        assertEquals(1,options.length()); // only the voluntary CTA, no fabricated contextual option
+        assertTrue(StoryMomentumAction.isRequest(options.getJSONObject(0).getString("action")));
     }
 
     @Test public void repeatedModelVisualPromptUsesLatestBeat() {
