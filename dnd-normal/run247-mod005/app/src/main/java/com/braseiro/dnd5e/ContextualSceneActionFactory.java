@@ -225,7 +225,9 @@ public final class ContextualSceneActionFactory {
         while(matcher.find()){
             String phrase=matcher.group().trim();
             String key=fold(phrase);
-            if(has(key,"algo","coisa","algum","uma vez","outra vez"))continue;
+            if(has(key,"algo","coisa","algum","uma vez","outra vez",
+                "o grupo","os personagens","o jogador","a cena","a situacao","os herois",
+                "o momento","a circunstancia"))continue;
             best=phrase;
         }
         if(!best.isEmpty())return best;
