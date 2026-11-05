@@ -61,7 +61,7 @@ public final class StoryMomentumActionRegressionTest {
         assertTrue(strix.contains("sem teletransportá-lo"));
         String other=StoryMomentumAction.instruction(false);
         assertFalse(other.contains("Hall dos Oráculos"));
-        assertTrue(other.contains("não force combate"));
+        assertTrue(other.contains("Não force combate"));
     }
 
     @Test public void storyButtonIsNeverGeneratedAsModelFiller() throws Exception {
