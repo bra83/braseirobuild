@@ -25,7 +25,7 @@ public final class MausritterForageEngine {
         JSONObject gained=rations.instance(MausritterRules.PACK);
         gained.put("spent",3-d3);
         inventory.put(gained);
-        MausritterRules.syncHeavy(sheet);
+        MausritterRules.normalize(sheet);
         return new JSONObject().put("kind","forage").put("roll",d3)
               .put("durationTurns",0).put("durationWatches",1)
               .put("healedHp",0).put("foundRations",d3)
