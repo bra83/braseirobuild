@@ -76,3 +76,15 @@ jobs:
                       for i in range(max(0,mid-7),min(len(a),mid+17)):
                           if i not in included: print(f'{i+1:05d}: {a[i]}'); included.add(i)
           PY
+
+      - name: Apply exact-source R27 patches with drift guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/patch_r26.py"
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/patch_r26.py "$url"
+          root="$(find /tmp/r26 -name version.properties -type f | head -1 | xargs dirname)"
+          echo "R27_ROOT=$root" >> "$GITHUB_ENV"
+          python3 /tmp/patch_r26.py "$root"
+          node --check "$root/android/app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js"
+          grep -F 'VERSION_CODE=610027' "$root/version.properties"
