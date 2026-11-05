@@ -9,7 +9,7 @@ db=java/'AppDb.java'; main=java/'MainActivity.java'
 s=db.read_text(encoding='utf-8')
 needle='''        root.put("derivedIndexesExcluded",true);'''
 if s.count(needle)!=1: raise AssertionError('export anchor changed')
-s=s.replace(needle,'''        if("mausritter".equals(profile)){
+s=s.replace(needle,'''        if(mausritterEdition && "dnd".equals(profile)){
             JSONObject atlasSnapshots=new JSONObject();
             android.content.SharedPreferences store=appContext.getSharedPreferences("settings",Context.MODE_PRIVATE);
             final String prefix="mausritter_atlas_snapshot_";
