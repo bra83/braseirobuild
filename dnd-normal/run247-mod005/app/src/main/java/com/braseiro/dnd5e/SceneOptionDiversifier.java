@@ -281,7 +281,7 @@ public final class SceneOptionDiversifier {
         String[] stop = {"a","o","as","os","um","uma","de","da","do","das","dos","e","ou","em","no","na","nos","nas","para","por","com","sem","que","se","antes","depois","grupo","personagens","jogador"};
         HashSet<String> ignored = new HashSet<String>();
         for (String word : stop) ignored.add(word);
-        for (String word : value.split("[^a-z0-9]+")) {
+        for (String word : normalize(value).split("[^a-z0-9]+")) {
             if (word.length() >= 3 && !ignored.contains(word)) out.add(stem(word));
         }
         return out;
