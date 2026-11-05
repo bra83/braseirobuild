@@ -79,4 +79,23 @@ public final class FourSceneActionsDropdownRegressionTest {
         JSONArray empty=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),"","",new JSONObject(),0);
         assertEquals(0,empty.length());
     }
+
+    @Test public void pinpointTwoRealReportedEdgeScenes() throws Exception {
+        String[] texts={
+            "O roteiro encadernado em couro azul traz anotações nas margens sobre um duelo de réplicas e uma nota dobrada indicando que os adereços estão guardados no armário ao lado da escada.",
+            "A Guilda de RPG Live-Action prepara armadilhas de papelão para uma encenação. Uma funcionária orienta inscrições dos recém-chegados."
+        };
+        for(String narration:texts){
+            java.lang.reflect.Method extract=ContextualSceneActionFactory.class.getDeclaredMethod("sparseAnchor",String.class);
+            extract.setAccessible(true);
+            String anchor=(String)extract.invoke(null,narration);
+            String sample="Permaneço atento a "+anchor+" e procuro perceber o que muda, sem antecipar um resultado.";
+            JSONObject scene=new JSONObject().put("location","Strixhaven • Biblioplex").put("objective","Investigar os acontecimentos em Strixhaven • Biblioplex");
+            JSONArray raw=SceneOptionDiversifier.diversify(new JSONArray(),new JSONArray(),narration,"Olho ao redor",scene,1);
+            JSONArray filled=ContextualSceneActionFactory.complete(raw,narration,scene,1);
+            assertEquals("FOCUS="+anchor+" sampleGrounded="+SceneOptionDiversifier.isGroundedInScene(sample,narration,scene)
+                +" sampleCurrent="+SceneOptionDiversifier.isRelevantToCurrentBeat(sample,narration)
+                +" raw="+raw+" filled="+filled,4,filled.length());
+        }
+    }
 }
