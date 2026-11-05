@@ -89,6 +89,13 @@ jobs:
           node --check "$root/android/app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js"
           grep -F 'VERSION_CODE=610027' "$root/version.properties"
 
+      - name: Apply locally-authoritative Mausritter rest procedures
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/patch_r27_rest.py "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/patch_r27_rest.py"
+          python3 /tmp/patch_r27_rest.py "$R27_ROOT"
+          node --check "$R27_ROOT/android/app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js"
       - name: Execute R27 JVM and Atlas behavioral probes
         shell: bash
         run: |
