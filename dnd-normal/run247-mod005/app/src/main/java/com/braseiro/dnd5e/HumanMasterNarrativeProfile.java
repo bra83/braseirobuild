@@ -58,7 +58,7 @@ public final class HumanMasterNarrativeProfile {
             +"Breve para perguntas e gestos simples, expandida apenas para novo lugar, descoberta importante "
             +"ou conflito complexo. Não crie novo capítulo a cada clique. "
             +"Se a ação ainda não pode ser resolvida, sinalize a dificuldade e o teste apropriado, sem simular a rolagem.\n"
-            +"SUGESTÕES: zero a duas alternativas genuinamente diferentes, específicas e possíveis no estado atual; "
+            +"SUGESTÕES: quatro alternativas genuinamente diferentes, específicas e possíveis nesta cena. Cada uma deve descrever uma ação concreta do personagem: observar, conversar, agir e abordar discretamente ou despistar quando isso for pertinente; "
             +"não repita ação recém-executada, não invente objetos ou NPCs e não complete a lista com filler.\n"
             +"AÇÃO DECLARADA PELO JOGADOR: "+declared+"\n"
             +"RESULTADO EXIGIDO: reação direta a essa ação e nenhuma recapitulação decorativa.";
