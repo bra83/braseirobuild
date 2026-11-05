@@ -1,0 +1,52 @@
+name: Mausritter R27 - inspecao fonte R26
+on:
+  push:
+    branches:
+      - work/mausritter-r27-integridade-20261105
+    paths:
+      - .github/workflows/mausritter-r27-audit.yml
+      - mausritter-r27/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact canonical R26 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/bra83/braseirobuild/releases/download/mausritter-6.1.0-r26/Mausritter_Mestre_Vivo_6.1.0-r26_SCREEN_SESSION_ANDROID_STUDIO.zip"
+          curl --fail --location --retry 4 --retry-delay 3 --silent --show-error -o /tmp/r26.zip "$url"
+          echo '972e10a3d98f8ef07b7cdfe762866ab4ea02aa9bfcf9bc032fc8dd3173ebaa9c  /tmp/r26.zip' | sha256sum -c -
+          mkdir -p /tmp/r26
+          unzip -q /tmp/r26.zip -d /tmp/r26
+          find /tmp/r26 -name 'MausritterRules.java' -o -name 'MausritterGameMasterEngine.java' -o -name 'AppDb.java' -o -name 'atlas_vivo.js' | head -25
+      - name: Inspect P0/P1 methods without modifying sources
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/r26')
+          hints={
+          'MausritterRules.java':[(162,183),(570,610),(630,675)],
+          'MausritterGameMasterEngine.java':[(90,152)],
+          'AppDb.java':[(930,1010)],
+          'MainActivity.java':[(2025,2075),(2680,2745),(3780,3810)],
+          'atlas_vivo.js':[(350,395),(495,545),(580,630)],
+          }
+          for name, spans in hints.items():
+              paths=list(root.rglob(name))
+              print('\n=======FILE',name,'COUNT',len(paths),'=======')
+              for p in paths[:2]:
+                  print('PATH',p.relative_to(root))
+                  a=p.read_text(encoding='utf-8',errors='replace').splitlines()
+                  print('TOTAL_LINES',len(a))
+                  for lo,hi in spans:
+                      if lo>len(a):continue
+                      print('-----',lo,hi,'-----')
+                      print('\n'.join(f'{i+1:05d}: {a[i]}' for i in range(max(lo-1,0),min(hi,len(a)))))
+          PY
