@@ -41,7 +41,7 @@ public final class SceneOptionDiversifier {
         if (options != null) {
             for (int i = 0; i < options.length(); i++) {
                 JSONObject option = options.optJSONObject(i);
-                if (option != null) addHistoryEntry(additions, optionAction(option));
+                if (option != null && !StoryMomentumAction.isRequest(optionAction(option))) addHistoryEntry(additions, optionAction(option));
             }
         }
         // A tela já salva as opções da cena quando elas são exibidas. Ao receber a
@@ -69,6 +69,7 @@ public final class SceneOptionDiversifier {
                 if (original == null) continue;
                 JSONObject option = sanitize(original);
                 String action = optionAction(option);
+                if (StoryMomentumAction.isRequest(action)) continue; // reserved stable CTA
                 if (action.isEmpty() || !isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action,narration,scene) || !isRelevantToCurrentBeat(action,narration)) continue;
                 if (isRepeated(action, history) || isRepeated(action, accepted) || repeatsIntent(action,accepted)) continue;
                 out.put(option);
@@ -96,7 +97,13 @@ public final class SceneOptionDiversifier {
     public static JSONArray ensureAlways(JSONArray source, JSONArray recentHistory,
                                          String narration, String declaredAction,
                                          JSONObject scene, int beatNumber) {
-        return diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+        JSONArray natural=diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
+        if(narration==null||narration.trim().isEmpty())return natural;
+        // A permanent player-selected action, not filler from the model. Two
+        // contextual suggestions still remain optional and separately validated.
+        JSONArray visible=new JSONArray();visible.put(StoryMomentumAction.option());
+        for(int i=0;i<natural.length();i++)visible.put(natural.opt(i));
+        return visible;
     }
 
     /**
