@@ -129,6 +129,22 @@ jobs:
           curl -fL --retry 3 -o "$R27_ROOT/mausritter-r27/test_rest_r27.sh" "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/test_rest_r27.sh"
           chmod +x "$R27_ROOT/mausritter-r27/test_rest_r27.sh"
           "$R27_ROOT/mausritter-r27/test_rest_r27.sh"
+      - name: Run complete R26 historical regression suite and record failures
+        shell: bash
+        timeout-minutes: 16
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/r27_regression
+          curl -fL --retry 3 -o /tmp/audit_r27.py "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/audit_r27.py"
+          python3 /tmp/audit_r27.py "$R27_ROOT" /tmp/r27_regression
+      - name: Publish regression evidence including FAIL and BLOCKED
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mausritter-r27-historical-regressions
+          path: /tmp/r27_regression/*
+          if-no-files-found: warn
       - name: Compile patched Android project
         shell: bash
         timeout-minutes: 30
