@@ -96,6 +96,11 @@ jobs:
           url="https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/verify_r27.py"
           curl --fail --location --retry 3 --silent --show-error -o /tmp/verify_r27.py "$url"
           python3 /tmp/verify_r27.py "$R27_ROOT"
+      - name: Use supported Java 21 for Gradle 8.11.1 Kotlin DSL
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Compile patched Android project
         shell: bash
         timeout-minutes: 30
