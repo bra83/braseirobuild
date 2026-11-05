@@ -131,3 +131,79 @@ jobs:
           name: mausritter-r27-technical-candidate-NOT-HOMOLOGATED
           path: /tmp/r27_candidate/*
           if-no-files-found: error
+
+  upgrade_signed_candidate:
+    name: Build upgrade-compatible APK on BRELGA
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 70
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Recover exact source and apply patch
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          if($env:RUNNER_NAME -ne 'BRELGA'){throw "Unexpected signing runner $env:RUNNER_NAME"}
+          $url='https://github.com/bra83/braseirobuild/releases/download/mausritter-6.1.0-r26/Mausritter_Mestre_Vivo_6.1.0-r26_SCREEN_SESSION_ANDROID_STUDIO.zip'
+          $dir=Join-Path $env:RUNNER_TEMP 'mausritter-r27-rebuild'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $zip=Join-Path $dir 'source_r26.zip'
+          & curl.exe -L --fail --retry 4 --retry-delay 3 -o $zip $url
+          if($LASTEXITCODE -ne 0){throw 'R26 ZIP download failed'}
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if($hash -ne '972e10a3d98f8ef07b7cdfe762866ab4ea02aa9bfcf9bc032fc8dd3173ebaa9c'){throw 'R26 SHA mismatch'}
+          & tar.exe -xf $zip -C $dir
+          if($LASTEXITCODE -ne 0){throw 'R26 extraction failed'}
+          $root=Get-ChildItem $dir -Directory | Where-Object {Test-Path (Join-Path $_.FullName 'version.properties')} | Select-Object -First 1
+          if(-not $root){throw 'Canonical project root not found'}
+          $patch=Join-Path $dir 'patch_r26.py'
+          & curl.exe -L --fail --retry 3 -o $patch "https://raw.githubusercontent.com/bra83/braseirobuild/$env:GITHUB_SHA/mausritter-r27/patch_r26.py"
+          if($LASTEXITCODE -ne 0){throw 'Patch download failed'}
+          & python $patch $root.FullName
+          if($LASTEXITCODE -ne 0){throw 'Guarded patch failed'}
+          "R27_ROOT=$($root.FullName)" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Build with historical Windows signing identity
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $sdk='C:\actions-runner\android-sdk'
+          if(-not(Test-Path $sdk)){if($env:ANDROID_SDK_ROOT){$sdk=$env:ANDROID_SDK_ROOT}else{throw 'BRELGA Android SDK not found'}}
+          $env:ANDROID_HOME=$sdk
+          $env:ANDROID_SDK_ROOT=$sdk
+          $root=Join-Path $env:R27_ROOT 'android'
+          Push-Location $root
+          try{
+            & .\gradlew.bat :app:assembleDebug --no-daemon --stacktrace --console=plain
+            if($LASTEXITCODE -ne 0){throw 'R27 Android build failed'}
+          }finally{Pop-Location}
+          $apk=Join-Path $root 'app\build\outputs\apk\debug\app-debug.apk'
+          if(-not(Test-Path $apk)){throw 'R27 APK missing'}
+          $r26=Join-Path $env:RUNNER_TEMP 'mausritter-r26-original.apk'
+          & curl.exe -L --fail --retry 4 -o $r26 'https://github.com/bra83/braseirobuild/releases/download/mausritter-6.1.0-r26/Mausritter_Mestre_Vivo_6.1.0-r26_SCREEN_SESSION_DEBUG.apk'
+          if($LASTEXITCODE -ne 0){throw 'R26 APK download failed'}
+          $tool=Get-ChildItem (Join-Path $sdk 'build-tools') -Recurse -Filter apksigner.bat -File | Sort-Object FullName -Descending | Select-Object -First 1
+          $aapt=Get-ChildItem (Join-Path $sdk 'build-tools') -Recurse -Filter aapt.exe -File | Sort-Object FullName -Descending | Select-Object -First 1
+          if(-not $tool -or -not $aapt){throw 'Android signing/aapt tools missing'}
+          $old=& $tool.FullName verify --verbose --print-certs $r26
+          if($LASTEXITCODE -ne 0){throw 'R26 signature verification failed'}
+          $new=& $tool.FullName verify --verbose --print-certs $apk
+          if($LASTEXITCODE -ne 0){throw 'R27 signature verification failed'}
+          $before=($old|Where-Object {$_ -match 'Signer #1 certificate SHA-256 digest:'}|Select-Object -First 1)
+          $after=($new|Where-Object {$_ -match 'Signer #1 certificate SHA-256 digest:'}|Select-Object -First 1)
+          if(-not $before -or -not $after -or $before.Split(':')[-1].Trim() -ne $after.Split(':')[-1].Trim()){throw "Upgrade cert mismatch: original=$before; candidate=$after"}
+          $badge=(& $aapt.FullName dump badging $apk) -join "`n"
+          if($badge -notmatch "package: name='com\.braseiro\.mausritter\.mestrevivo'" -or $badge -notmatch "versionCode='610027'"){throw 'Unexpected candidate identity'}
+          $output=Join-Path $env:RUNNER_TEMP 'mausritter-r27-signed'
+          New-Item -ItemType Directory -Force -Path $output|Out-Null
+          $dest=Join-Path $output 'Mausritter_R27_upgrade_candidate.apk'
+          Copy-Item $apk $dest
+          (Get-FileHash $dest -Algorithm SHA256).Hash.ToLowerInvariant() | Set-Content (Join-Path $output 'apk_sha256.txt')
+          @("SIGNATURE_SAME_AS_R26=PASS","PACKAGE=com.braseiro.mausritter.mestrevivo","VERSION_CODE=610027","A57_PHYSICAL=NOT_TESTED")|Set-Content (Join-Path $output 'candidate_status.txt')
+          Write-Host "R27_UPGRADE_CANDIDATE_PASS original cert=$before"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mausritter-r27-BRELGA-upgrade-candidate-NOT-HOMOLOGATED
+          path: ${{ runner.temp }}/mausritter-r27-signed/*
+          if-no-files-found: error
