@@ -214,8 +214,8 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") has a voluntary momentum control and up to two grounded choices: " + diversified,
-                    diversified.length() >= 1 && diversified.length() <= 3);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and four grounded choices: " + diversified,
+                    diversified.length() == 5);
             assertTrue("Story momentum must be the dedicated first action",
                     StoryMomentumAction.isRequest(diversified.getJSONObject(0).optString("action")));
 
@@ -243,15 +243,14 @@ public final class BraseiroVttEndToEndAuditTest {
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
             assertNotNull("Expanded drawer must open without mandatory suggestions", expandedDrawer);
             if(diversified.length()>0){
-            String firstLabel = diversified.getJSONObject(0).optString("label");
-            Button expandedBtn = findButtonContaining(expandedDrawer, firstLabel);
-            assertNotNull("Expanded Strixhaven drawer must render suggested action button '" + firstLabel + "'", expandedBtn);
+            Button expandedBtn = findButtonContaining(expandedDrawer, "AÇÕES SUGERIDAS");
+            assertNotNull("Expanded Strixhaven drawer must show one compact suggestions dropdown", expandedBtn);
 
             setField("strixhavenDrawerExpanded", false);
             View collapsedDrawer = (View) invoke("buildStrixhavenNarrationDrawer",
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
-            Button collapsedBtn = findButtonContaining(collapsedDrawer, firstLabel);
-            assertNotNull("Collapsed Strixhaven drawer must STILL render compact suggested action button '" + firstLabel + "'", collapsedBtn);
+            Button collapsedBtn = findButtonContaining(collapsedDrawer, "AÇÕES SUGERIDAS");
+            assertNotNull("Collapsed Strixhaven drawer must retain the same dropdown", collapsedBtn);
             }else{
                 setField("strixhavenDrawerExpanded", false);
                 View collapsedWithoutOptions = (View) invoke("buildStrixhavenNarrationDrawer",
