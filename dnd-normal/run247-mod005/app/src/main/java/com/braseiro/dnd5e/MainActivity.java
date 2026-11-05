@@ -7942,7 +7942,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     return;
                 }
 
-                if (isStrixhavenAdventure()) {
+                // A voluntary world-initiative beat may develop an official event,
+                // but cannot complete it or award an academic milestone on its own.
+                // Invalid envelopes must never advance the official campaign.
+                if (isStrixhavenAdventure() && masterEnvelopeValid
+                        && !StoryMomentumAction.isRequest(action)) {
                     processStrixhavenOfficialProgress(env, calculatedNarration);
                 }
 
