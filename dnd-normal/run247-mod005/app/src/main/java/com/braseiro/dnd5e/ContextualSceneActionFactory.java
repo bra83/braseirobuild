@@ -179,6 +179,14 @@ public final class ContextualSceneActionFactory {
     private static String actor(String beat, JSONObject scene) {
         String fromBeat = match(beat, ACTORS);
         if (!fromBeat.isEmpty()) return fromBeat;
+        // A named speaker is a stronger anchor than a generic noun: never
+        // invent a speaker, read only an explicit "Nome: — fala" in this beat.
+        java.util.regex.Matcher speaker=java.util.regex.Pattern.compile(
+            "(?m)\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s*:")
+            .matcher(beat);
+        String explicit="";
+        while(speaker.find())explicit=speaker.group(1);
+        if(!explicit.isEmpty())return explicit;
         if (scene == null) return "";
         String raw = scene.optString("present_npcs_json", "[]");
         try {
@@ -206,13 +214,8 @@ public final class ContextualSceneActionFactory {
         String n = fold(beat);
         if (has(n,"pausa")) return "a pausa";
         if (has(n,"silencio")) return "o silêncio";
-        if (has(n,"espera")) return "a espera";
-        if (has(n,"aguarda")) return "quem aguarda";
-        if (has(n,"pergunta")) return "a pergunta";
-        if (has(n,"resposta")) return "a resposta";
-        if (has(n,"ameaca")) return "a ameaça";
-        if (has(n,"perigo")) return "o perigo";
-        if (has(n,"orientacao")) return "a orientação";
+        // Extract literal phrases BEFORE synonyms: "esperando" and "espera"
+        // must not silently become unrelated tokens in the strict scene gate.
         // Extract a real noun phrase from the latest narrated beat. This makes
         // sparse scenes playable without fabricating a prop or another character.
         java.util.regex.Matcher matcher=java.util.regex.Pattern.compile(
@@ -226,6 +229,15 @@ public final class ContextualSceneActionFactory {
             best=phrase;
         }
         if(!best.isEmpty())return best;
+        if(has(n,"esperando"))return "quem está esperando";
+        if(has(n,"aguardando"))return "quem está aguardando";
+        if(has(n,"espera"))return "a espera";
+        if(has(n,"aguarda"))return "quem aguarda";
+        if(has(n,"pergunta"))return "a pergunta";
+        if(has(n,"resposta"))return "a resposta";
+        if(has(n,"ameaca"))return "a ameaça";
+        if(has(n,"perigo"))return "o perigo";
+        if(has(n,"orientacao"))return "a orientação";
         java.util.regex.Matcher words=java.util.regex.Pattern.compile(
             "(?iu)\\b[\\p{L}]{5,}\\b").matcher(beat);
         String token="";
