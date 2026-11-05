@@ -34,7 +34,7 @@ needle='''            Map<Long,Long> characterIdMap=new HashMap<Long,Long>();
 if s.count(needle)!=1: raise AssertionError('character map anchor changed')
 s=s.replace(needle,'''            Map<Long,Long> characterIdMap=atlasCharacterIdMap;
             JSONArray chars=root.optJSONArray("characters");''')
-needle='''                if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));}}'''
+needle='''            if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));}}'''
 if s.count(needle)!=1: raise AssertionError('journal restore anchor changed')
 s=s.replace(needle,'''            if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);String key=x.optString("event_key","");if(key.trim().isEmpty())addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));else if(addJournalFact(x.optString("title"),x.optString("body"),x.optString("kind"),key,x.optString("source_kind","system"))<0)throw new IllegalStateException("Duplicação de recibo no backup: "+key);}}''')
 # insertion after SQL importAll transaction, not inside first block/other methods
@@ -130,10 +130,6 @@ mainText=mainText.replace(needle,'''                left=bars.left;top=bars.top;
                 bottom=Math.max(bottom,keyboard.bottom);''')
 main.write_text(mainText,encoding='utf-8')
 t=atlas.read_text(encoding='utf-8')
-old='''  function storageKey() { return \`mausritter.atlas.v2.\${state.adventure.id}\`; }
-  function defaultRuntime()'''
-if t.count(old)!=1:raise AssertionError('Storage anchor changed')
-# keep default runtime declaration unchanged; patch only implementation functions below
 old='''  function runtime() {
     try { return { ...defaultRuntime(), ...JSON.parse(localStorage.getItem(storageKey()) || '{}') }; }
     catch (_) { return defaultRuntime(); }
