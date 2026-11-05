@@ -54,6 +54,9 @@ public final class SceneActionClock {
     public static double minutesFor(String action) {
         String clean=cleanPlayerAction(action);
         if(clean.isEmpty())return 0d;
+        // Ceding initiative is not permission for a fictitious two-minute wait.
+        // Explicit clock changes still require validated scene/host state.
+        if(StoryMomentumAction.isRequest(clean))return 0d;
         String lower=normalizeActionMarker(clean);
         if(lower.startsWith("deslocamento confirmado pelo mapa")
                 ||lower.startsWith("exploracao livre confirmada pelo mapa"))return 0d;
