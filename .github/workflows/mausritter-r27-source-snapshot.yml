@@ -1,0 +1,39 @@
+name: Mausritter R27 Source Snapshot
+on:
+  push:
+    branches: [work/mausritter-r27-integridade-20261105]
+    paths: ['.github/workflows/mausritter-r27-source-snapshot.yml']
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Verify source and export text-only editable snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 4 -o /tmp/mausritter_r26.zip 'https://github.com/bra83/braseirobuild/releases/download/mausritter-6.1.0-r26/Mausritter_Mestre_Vivo_6.1.0-r26_SCREEN_SESSION_ANDROID_STUDIO.zip'
+          echo '972e10a3d98f8ef07b7cdfe762866ab4ea02aa9bfcf9bc032fc8dd3173ebaa9c  /tmp/mausritter_r26.zip' | sha256sum -c -
+          mkdir -p /tmp/r26
+          unzip -q /tmp/mausritter_r26.zip -d /tmp/r26
+          root="$(find /tmp/r26 -maxdepth 2 -name version.properties -type f | head -1 | xargs dirname)"
+          test -f "$root/android/app/src/main/java/com/braseiro/dnd/MainActivity.java"
+          mkdir -p /tmp/source_text
+          cd "$root"
+          cp version.properties /tmp/source_text/
+          mkdir -p /tmp/source_text/android/app/src/main /tmp/source_text/tools
+          cp android/app/src/main/AndroidManifest.xml /tmp/source_text/android/app/src/main/
+          cp -R android/app/src/main/java /tmp/source_text/android/app/src/main/
+          mkdir -p /tmp/source_text/android/app/src/main/assets/mausritter_atlas/runtime
+          cp android/app/src/main/assets/mausritter_atlas/runtime/*.js /tmp/source_text/android/app/src/main/assets/mausritter_atlas/runtime/
+          cp -R tools/* /tmp/source_text/tools/ || true
+          printf 'PROVENANCE_SHA256=972e10a3d98f8ef07b7cdfe762866ab4ea02aa9bfcf9bc032fc8dd3173ebaa9c\n' > /tmp/source_text/PROVENANCE.txt
+          cd /tmp/source_text && tar czf /tmp/mausritter_r26_text_sources.tar.gz .
+          ls -lh /tmp/mausritter_r26_text_sources.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mausritter-R26-canonical-text-snapshot
+          path: /tmp/mausritter_r26_text_sources.tar.gz
+          compression-level: 0
