@@ -90,6 +90,10 @@ public final class ContextualSceneActionFactory {
             "Repasso mentalmente o que já percebi sobre " + anchor + ", sem inventar pistas nem tirar conclusões automáticas."));
         addCandidates(result, sparse, actions, families, true, narration, scene);
         addCandidates(result, sparse, actions, families, false, narration, scene);
+        for(int i=0;i<result.length();i++){
+            JSONObject option=result.optJSONObject(i);
+            if(option!=null)option.remove("_family"); // Never expose internal classification to the game.
+        }
         return result;
     }
 
@@ -143,7 +147,7 @@ public final class ContextualSceneActionFactory {
         {"alunos","os alunos"},{"estudantes","os estudantes"},
         {"assistente","a assistente"},{"funcionária","a funcionária"},
         {"funcionário","o funcionário"},{"bibliotecário","o bibliotecário"},
-        {"funcionário","o funcionário"},{"bibliotecária","a bibliotecária"},
+        {"bibliotecária","a bibliotecária"},
         {"professora","a professora"},
         {"professor","o professor"},{"atendente","o atendente"},
         {"guarda","o guarda"},{"sentinela","a sentinela"},
