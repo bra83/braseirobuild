@@ -10,7 +10,7 @@ import org.json.JSONArray;
 public final class StoryMomentumAction {
     private StoryMomentumAction(){}
 
-    public static final String LABEL="DEIXAR A HISTÓRIA ANDAR";
+    public static final String LABEL="PERMANECER À ESCUTA";
     public static final String ACTION=
         "Dou espaço para que a situação atual se desenvolva por iniciativa do mundo e das pessoas presentes; "+
         "permaneço atento, mas não tomo decisões ou ações além desta espera voluntária.";
@@ -19,11 +19,23 @@ public final class StoryMomentumAction {
         return action!=null&&ACTION.equals(action.trim());
     }
 
-    public static JSONObject option(){
+    public static JSONObject option(){ return option(""); }
+
+    public static JSONObject option(String narration){
+        String beat=narration==null?"":narration.toLowerCase(java.util.Locale.ROOT);
+        String label=LABEL;
+        if(beat.contains("bibliotecária")||beat.contains("bibliotecaria"))label="ESCUTAR A BIBLIOTECÁRIA";
+        else if(beat.contains("professora"))label="ESCUTAR A PROFESSORA";
+        else if(beat.contains("professor"))label="ESCUTAR O PROFESSOR";
+        else if(beat.contains("orientação")||beat.contains("orientacao")||beat.contains("assistente"))label="AGUARDAR A PRÓXIMA INSTRUÇÃO";
+        else if(beat.contains("calouros")||beat.contains("alunos")||beat.contains("estudantes"))label="OUVIR OS ESTUDANTES";
+        else if(beat.contains("guarda")||beat.contains("sentinela"))label="OBSERVAR OS PRÓXIMOS MOVIMENTOS";
+        else if(beat.contains("pausa")||beat.contains("silêncio"))label="DEIXAR O SILÊNCIO FALAR";
+        else if(beat.contains("taverna")||beat.contains("estalagem"))label="ESCUTAR O MOVIMENTO DO SALÃO";
         JSONObject o=new JSONObject();
         try{
-            o.put("label",LABEL);
-            o.put("description","Permitir que acontecimentos e NPCs deem o próximo passo, sem agir por você.");
+            o.put("label",label);
+            o.put("description","Permaneço atento aos acontecimentos e às pessoas presentes, sem presumir o que vão fazer.");
             o.put("action",ACTION);
             o.put("story_momentum",true);
         }catch(Exception ignored){}
@@ -35,9 +47,9 @@ public final class StoryMomentumAction {
     public static JSONArray ensureVisible(JSONArray options,String narration){
         JSONArray out=new JSONArray();
         if(narration==null||narration.trim().isEmpty())return options==null?out:options;
-        out.put(option());
+        out.put(option(narration));
         int count=0;
-        if(options!=null)for(int i=0;i<options.length()&&count<2;i++){
+        if(options!=null)for(int i=0;i<options.length()&&count<ContextualSceneActionFactory.MIN_CONTEXTUAL;i++){
             JSONObject candidate=options.optJSONObject(i);
             if(candidate==null)continue;
             String action=candidate.optString("action",
