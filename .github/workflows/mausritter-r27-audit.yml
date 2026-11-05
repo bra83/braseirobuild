@@ -102,6 +102,13 @@ jobs:
           set -euo pipefail
           curl -fL --retry 3 -o /tmp/patch_r27_suggestions.py "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/patch_r27_suggestions.py"
           python3 /tmp/patch_r27_suggestions.py "$R27_ROOT"
+      - name: Mirror Atlas state and restore maps, lights and IME
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/patch_r27_backup.py "https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/patch_r27_backup.py"
+          python3 /tmp/patch_r27_backup.py "$R27_ROOT"
+          node --check "$R27_ROOT/android/app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js"
       - name: Execute R27 JVM and Atlas behavioral probes
         shell: bash
         run: |
