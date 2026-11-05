@@ -1,6 +1,7 @@
 package com.braseiro.dnd5e;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * Voluntary player-facing initiative handoff. This is not a GM_HELP question,
@@ -27,6 +28,25 @@ public final class StoryMomentumAction {
             o.put("story_momentum",true);
         }catch(Exception ignored){}
         return o;
+    }
+
+    /** Compatible with persisted options from earlier versions. Never force
+     * another action: the user has to click this dedicated choice. */
+    public static JSONArray ensureVisible(JSONArray options,String narration){
+        JSONArray out=new JSONArray();
+        if(narration==null||narration.trim().isEmpty())return options==null?out:options;
+        out.put(option());
+        int count=0;
+        if(options!=null)for(int i=0;i<options.length()&&count<2;i++){
+            JSONObject candidate=options.optJSONObject(i);
+            if(candidate==null)continue;
+            String action=candidate.optString("action",
+                candidate.optString("description",candidate.optString("label","")));
+            if(isRequest(action))continue;
+            out.put(candidate);
+            count++;
+        }
+        return out;
     }
 
     /**
