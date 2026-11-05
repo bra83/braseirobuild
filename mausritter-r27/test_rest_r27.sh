@@ -27,7 +27,7 @@ public class RestProbe {
            .put(item("rations",0)).put(condition("hungry"))
            .put(condition("exhausted")).put(condition("cursed")));
  }
- static int uses(JSONObject sheet){return sheet.getJSONArray("inventory").getJSONObject(0).optInt("spent",0);}
+ static int uses(JSONObject sheet){return sheet.optJSONArray("inventory").optJSONObject(0).optInt("spent",0);}
  static boolean has(JSONObject sheet,String id){
    JSONArray a=sheet.optJSONArray("inventory");for(int i=0;i<a.length();i++)
      if(id.equals(a.optJSONObject(i).optString("condition_id")))return true;
@@ -37,7 +37,7 @@ public class RestProbe {
    JSONObject s=sheet(),r=MausritterRestEngine.apply(s,"short","",4,false);
    yes(s.optInt("hp")==7,"short d6+1");yes(r.optInt("durationTurns")==1&&r.optInt("durationWatches")==0,"short clock");
    yes(uses(s)==0,"short does not eat");
-   s=sheet();s.getJSONArray("inventory").put(condition("sick"));
+   s=sheet();s.optJSONArray("inventory").put(condition("sick"));
    r=MausritterRestEngine.apply(s,"short","",6,false);
    yes(s.optInt("hp")==3,"sickness restricts short healing to 1");
    s=sheet();r=MausritterRestEngine.apply(s,"long","str",4,false);
@@ -45,7 +45,7 @@ public class RestProbe {
    yes(!has(s,"hungry")&&!has(s,"exhausted"),"long removes hungry and exhausted");
    s=sheet();s.put("hp",9);r=MausritterRestEngine.apply(s,"long","str",4,false);
    yes(s.optInt("str")==8&&r.optInt("restoredPoints")==4&&r.optInt("healedHp")==0,"long fullHP restores stat");
-   s=sheet();s.getJSONArray("inventory").getJSONObject(0).put("spent",3);
+   s=sheet();s.optJSONArray("inventory").optJSONObject(0).put("spent",3);
    boolean blocked=false;try{MausritterRestEngine.apply(s,"long","str",6,false);}catch(IllegalStateException e){blocked=true;}
    yes(blocked&&s.optInt("hp")==2,"no ration blocks without mutation");
    s=sheet();blocked=false;try{MausritterRestEngine.apply(s,"full","",4,false);}catch(IllegalStateException e){blocked=true;}
