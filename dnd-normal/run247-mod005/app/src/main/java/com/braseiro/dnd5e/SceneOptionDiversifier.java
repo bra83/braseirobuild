@@ -19,7 +19,7 @@ import java.util.Set;
  * concretos da cena. Se não houver opção confiável, o campo de ação livre permanece.
  */
 public final class SceneOptionDiversifier {
-    private static final int MAX_OPTIONS = 2;
+    private static final int MAX_OPTIONS = ContextualSceneActionFactory.MIN_CONTEXTUAL;
     private static final int MAX_HISTORY = 60; // cobre mais que a janela legada: MAX_HISTORY = 24
 
     private SceneOptionDiversifier() {}
@@ -98,7 +98,8 @@ public final class SceneOptionDiversifier {
                                          String narration, String declaredAction,
                                          JSONObject scene, int beatNumber) {
         JSONArray natural=diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
-        return StoryMomentumAction.ensureVisible(natural,narration);
+        JSONArray complete=ContextualSceneActionFactory.complete(natural,narration,scene,beatNumber);
+        return StoryMomentumAction.ensureVisible(complete,narration);
     }
 
     /**
