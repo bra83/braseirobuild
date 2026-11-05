@@ -46,7 +46,7 @@ needle='''        }finally{db.endTransaction();}
 '''
 if block.count(needle)!=1:raise AssertionError('importAll end changed')
 block=block.replace(needle,'''        }finally{db.endTransaction();}
-        if("mausritter".equals(backupProfile)&&root.optJSONObject("mausritterAtlasRuntime")!=null)
+        if(mausritterEdition && "dnd".equals(backupProfile) && root.optJSONObject("mausritterAtlasRuntime")!=null)
             restoreMausritterAtlasSnapshots(root.optJSONObject("mausritterAtlasRuntime"),atlasCharacterIdMap);
     }
 
