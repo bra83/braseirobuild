@@ -88,3 +88,41 @@ jobs:
           python3 /tmp/patch_r26.py "$root"
           node --check "$root/android/app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js"
           grep -F 'VERSION_CODE=610027' "$root/version.properties"
+
+      - name: Execute R27 JVM and Atlas behavioral probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://raw.githubusercontent.com/bra83/braseirobuild/$GITHUB_SHA/mausritter-r27/verify_r27.py"
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/verify_r27.py "$url"
+          python3 /tmp/verify_r27.py "$R27_ROOT"
+      - name: Compile patched Android project
+        shell: bash
+        timeout-minutes: 30
+        run: |
+          set -euo pipefail
+          cd "$R27_ROOT/android"
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          echo "R27_APK=$(pwd)/app/build/outputs/apk/debug/app-debug.apk" >> "$GITHUB_ENV"
+      - name: Validate technical candidate APK identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "SHA256 $(sha256sum "$R27_APK")"
+          APK_DIR="$ANDROID_HOME/build-tools"
+          AAPT="$(find "$APK_DIR" -name aapt | sort -V | tail -1)"
+          SIGN="$(find "$APK_DIR" -name apksigner | sort -V | tail -1)"
+          "$AAPT" dump badging "$R27_APK" | grep '^package:'
+          "$AAPT" dump badging "$R27_APK" | grep -q "versionCode='610027'"
+          "$AAPT" dump badging "$R27_APK" | grep -q "name='com.braseiro.mausritter.mestrevivo'"
+          "$SIGN" verify --verbose --print-certs "$R27_APK"
+          mkdir -p /tmp/r27_candidate
+          cp "$R27_APK" /tmp/r27_candidate/Mausritter_R27_technical_candidate_debug.apk
+          sha256sum /tmp/r27_candidate/*.apk > /tmp/r27_candidate/sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mausritter-r27-technical-candidate-NOT-HOMOLOGATED
+          path: /tmp/r27_candidate/*
+          if-no-files-found: error
