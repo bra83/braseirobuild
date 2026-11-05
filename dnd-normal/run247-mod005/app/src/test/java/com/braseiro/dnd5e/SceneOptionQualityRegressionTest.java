@@ -17,13 +17,14 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), BIBLIOPLEX, "Acordo e começo o dia",
             new JSONObject(), 1);
-        assertEquals("The opening exposes two specific independent actions", 2, options.length());
-        String first = options.optJSONObject(0).optString("label");
-        String second = options.optJSONObject(1).optString("label");
+        assertEquals("One voluntary story action plus two concrete choices", 3, options.length());
+        assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
+        String first = options.optJSONObject(1).optString("label");
+        String second = options.optJSONObject(2).optString("label");
         assertTrue(first, first.contains("BALCÃO"));
         assertTrue(second, second.contains("FOLHETOS"));
         assertFalse(options.toString().contains("TESTAR A CONSEQUÊNCIA"));
-        for (int i = 0; i < options.length(); i++) {
+        for (int i = 1; i < options.length(); i++) {
             JSONObject choice = options.optJSONObject(i);
             assertTrue(SceneOptionDiversifier.isGroundedInScene(
                 choice.optString("action"), BIBLIOPLEX, new JSONObject()));
@@ -34,7 +35,8 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), "Uma breve pausa.", "Investigo a sala anterior",
             new JSONObject(), 2);
-        assertEquals("No grounded object means free action, not generic consequence", 0, options.length());
+        assertEquals("Only voluntary story action; no invented contextual choice", 1, options.length());
+        assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
     }
 
     @Test public void rejectsWeakGeminiSuggestionInsteadOfDisplayingIt() throws Exception {
