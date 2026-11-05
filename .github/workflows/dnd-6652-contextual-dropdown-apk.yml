@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/dnd-6652-contextual-dropdown-apk.yml
       - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**
   workflow_dispatch:
 
 permissions:
