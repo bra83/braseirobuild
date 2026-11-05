@@ -222,7 +222,16 @@ public final class SceneOptionDiversifier {
         for (String previous : values) if (similar(candidate, previous)) return true;
         return false;
     }
-    private static boolean repeatsIntent(String candidate,List<String> accepted){String intent=intentSignature(candidate);if(intent.isEmpty())return false;for(String previous:accepted)if(intent.equals(intentSignature(previous)))return true;return false;}
+    private static boolean repeatsIntent(String candidate,List<String> accepted){
+        String intent=intentSignature(candidate);
+        if(intent.isEmpty())return false;
+        for(String previous:accepted){
+            // Two conversations with DIFFERENT visible interlocutors or subjects
+            // are distinct player decisions, never discard them by verb alone.
+            if(intent.equals(intentSignature(previous))&&similar(candidate,previous))return true;
+        }
+        return false;
+    }
 
     static boolean similar(String a, String b) {
         String x = normalize(a), y = normalize(b);
@@ -265,7 +274,7 @@ public final class SceneOptionDiversifier {
     private static double trigramDice(String a,String b){Set<String> x=trigrams(a),y=trigrams(b);if(x.isEmpty()||y.isEmpty())return 0d;int shared=0;for(String g:x)if(y.contains(g))shared++;return (2d*shared)/(x.size()+y.size());}
     private static Set<String> trigrams(String value){Set<String> out=new HashSet<String>();String s=normalize(value).replace(" ","_");for(int i=0;i+3<=s.length();i++)out.add(s.substring(i,i+3));return out;}
 
-    private static Set<String> entityTokens(String value){Set<String> all=tokens(value);String[] generic={"conversar","falar","dialogar","perguntar","questionar","interrogar","abordar","ouvir","examinar","investigar","inspecionar","procurar","buscar","vasculhar","analisar","observar","atacar","golpear","combater","enfrentar","confrontar","fugir","recuar","retirar","escapar","seguir","viajar","avancar","mover","partir","entrar","negociar","barganhar","persuadir","convencer","esconder","furtivo","furtividade","silencioso","esgueirar","descansar","dormir","acampar","recuperar","cena","local","situacao","mudanca"};for(String word:generic)all.remove(word);return all;}
+    private static Set<String> entityTokens(String value){Set<String> all=tokens(value);String[] generic={"conversar","falar","dialogar","perguntar","questionar","interrogar","abordar","ouvir","examinar","investigar","inspecionar","procurar","buscar","vasculhar","analisar","observar","atacar","golpear","combater","enfrentar","confrontar","fugir","recuar","retirar","escapar","seguir","viajar","avancar","mover","partir","entrar","pergunto","aproximo","aproximo-me","observo","examino","disfarco","penso","permaneço","permaneco","mudo","tento","sobre","negociar","barganhar","persuadir","convencer","esconder","furtivo","furtividade","silencioso","esgueirar","descansar","dormir","acampar","recuperar","cena","local","situacao","mudanca"};for(String word:generic)all.remove(word);return all;}
 
     private static Set<String> tokens(String value) {
         HashSet<String> out = new HashSet<String>();
