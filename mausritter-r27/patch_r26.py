@@ -114,7 +114,7 @@ new='''    private boolean mausritterTurnEligible(JSONObject row) {
         if (list.isEmpty()) return new JSONObject();
         JSONObject state = getCombatState();
         int index = state.optInt("turn_index", -1), round = state.optInt("round_no", 1);
-        boolean mausritter = "mausritter".equals(getActiveMapProfile());
+        boolean mausritter = mausritterEdition;
         JSONObject active = null;
         for (int scanned = 0; scanned < list.size(); scanned++) {
             index++;
