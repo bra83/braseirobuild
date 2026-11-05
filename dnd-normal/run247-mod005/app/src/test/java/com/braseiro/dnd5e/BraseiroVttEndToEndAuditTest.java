@@ -214,8 +214,10 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") may have 0–2 grounded options, got: " + diversified,
-                    diversified.length() >= 0 && diversified.length() <= 2);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") has a voluntary momentum control and up to two grounded choices: " + diversified,
+                    diversified.length() >= 1 && diversified.length() <= 3);
+            assertTrue("Story momentum must be the dedicated first action",
+                    StoryMomentumAction.isRequest(diversified.getJSONObject(0).optString("action")));
 
             Set<String> seenActions = new HashSet<>();
             for (int j = 0; j < diversified.length(); j++) {
@@ -228,6 +230,8 @@ public final class BraseiroVttEndToEndAuditTest {
                         act.equalsIgnoreCase(action));
                 assertTrue("Options within same turn must be distinct: " + diversified,
                         seenActions.add(act.toLowerCase()));
+                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1),
+                        SceneOptionDiversifier.isGroundedInScene(act,narration,scene));
             }
 
             // Verify Strixhaven drawer renders these options both when expanded AND when collapsed
