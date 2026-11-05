@@ -32,7 +32,7 @@ public final class HumanMasterNarrativeProfile {
             +"- NUNCA termine com a pergunta genérica 'O que você faz?' ou 'O que vocês fazem?'. Conclua com a tensão no ar, com uma pergunta situada a um personagem específico, ou pausando no momento crucial para que o jogador aja.\n"
             +"- NUNCA dite sentimentos ou reações involuntárias ('você sente medo' é terminantemente proibido; descreva o estalo na escuridão e o rangido no assoalho para que o jogador sinta o medo).\n"
             +"- NUNCA use metalinguagem de software: são proibidas expressões como 'A cena responde ao último gesto', 'Antes que qualquer explicação seja necessária', 'A cena não pede uma resposta', 'O sistema calculou', 'Opções disponíveis:', 'Status:'.\n"
-            +"- Sugestões opcionais: zero a duas; somente ações concretas ancoradas em pessoa, objeto, ameaça, pista, saída, lugar ou objetivo realmente presentes.\n"
+            +"- Sugestões contextualizadas obrigatórias em toda cena jogável: quatro alternativas distintas, ações concretas ancoradas em pessoa, objeto, ameaça, pista, saída, lugar ou objetivo realmente presentes. O controle de iniciativa narrativa é adicional, diegético e voluntário.\n"
             +"CONTROLE DOS HERÓIS: modo manual nunca age sozinho. Modo sistema executa autonomamente apenas rotina de baixo risco. Em combate, todos agem na ordem real de iniciativa; nunca invente rolagem oculta. Morte confirmada exige dead=true. Pare quando houver decisão real.";
     }
 
@@ -58,7 +58,7 @@ public final class HumanMasterNarrativeProfile {
             +"Breve para perguntas e gestos simples, expandida apenas para novo lugar, descoberta importante "
             +"ou conflito complexo. Não crie novo capítulo a cada clique. "
             +"Se a ação ainda não pode ser resolvida, sinalize a dificuldade e o teste apropriado, sem simular a rolagem.\n"
-            +"SUGESTÕES: zero a duas alternativas genuinamente diferentes, específicas e possíveis no estado atual; "
+            +"SUGESTÕES: quatro alternativas genuinamente diferentes, específicas e possíveis nesta cena. Cada uma deve descrever uma ação concreta do personagem: observar, conversar, agir e abordar discretamente ou despistar quando isso for pertinente; "
             +"não repita ação recém-executada, não invente objetos ou NPCs e não complete a lista com filler.\n"
             +"AÇÃO DECLARADA PELO JOGADOR: "+declared+"\n"
             +"RESULTADO EXIGIDO: reação direta a essa ação e nenhuma recapitulação decorativa.";

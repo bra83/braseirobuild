@@ -1689,31 +1689,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             drawer.addView(pv,new LinearLayout.LayoutParams(-1,dp(24)));
             if(visibleOptions.length()>0){
                 boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
-                final JSONObject story=visibleOptions.optJSONObject(0);
-                if(story!=null&&StoryMomentumAction.isRequest(story.optString("action",""))){
-                    Button advance=smallButton("▶ DEIXAR A HISTÓRIA ANDAR",GOLD);
-                    advance.setAllCaps(false);advance.setTextColor(Color.BLACK);advance.setTextSize(11);
-                    advance.setEnabled(!mustRoll&&!aiBusy&&safeCombatState().optInt("running",0)!=1);
-                    advance.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(story);}});
-                    drawer.addView(advance,new LinearLayout.LayoutParams(-1,dp(34)));
-                }
-                if(visibleOptions.length()>1){
-                    LinearLayout compactRow=new LinearLayout(this);
-                    compactRow.setOrientation(LinearLayout.HORIZONTAL);
-                    for(int i=1;i<visibleOptions.length()&&i<3;i++){
-                        final JSONObject option=visibleOptions.optJSONObject(i);
-                        if(option==null)continue;
-                        Button pick=smallButton(option.optString("label",option.optString("action","Ação")),Color.rgb(60,43,25));
-                        pick.setAllCaps(false);pick.setTextSize(9.5f);pick.setTextColor(GOLD);
-                        pick.setMaxLines(1);pick.setEllipsize(TextUtils.TruncateAt.END);
-                        pick.setEnabled(!mustRoll&&!aiBusy);
-                        pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
-                        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(32),1);
-                        if(i>1)lp.setMargins(dp(4),0,0,0);
-                        compactRow.addView(pick,lp);
-                    }
-                    drawer.addView(compactRow,new LinearLayout.LayoutParams(-1,dp(34)));
-                }
+                addSceneActionDropdown(drawer, visibleOptions, mustRoll, true);
             }
             return drawer;
         }
@@ -1726,32 +1702,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
         strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
-        // O avanço narrativo é uma escolha EXPLÍCITA do jogador e aparece
-        // mesmo quando o Gemini não produzir nenhuma sugestão contextual.
+        // A lista suspensa deixa todas as escolhas acessíveis sem cobrir a narração.
         if(visibleOptions.length()>0){
-            LinearLayout suggested=new LinearLayout(this);
-            suggested.setOrientation(LinearLayout.VERTICAL);
-            suggested.addView(text("AÇÕES SUGERIDAS • TOQUE UMA OU ESCREVA SUA PRÓPRIA",9,GOLD,true));
             boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
-            for(int i=0;i<visibleOptions.length()&&i<3;i++){
-                final JSONObject option=visibleOptions.optJSONObject(i);
-                if(option==null)continue;
-                String lbl=option.optString("label",option.optString("action","Ação"));
-                String desc=option.optString("description","").trim();
-                String btnText=desc.length()>0&&!lbl.equalsIgnoreCase(desc)?lbl+" — "+desc:lbl;
-                boolean momentum=StoryMomentumAction.isRequest(option.optString("action",""));
-                Button pick=smallButton(btnText,momentum?GOLD:Color.rgb(60,43,25));
-                pick.setAllCaps(false);pick.setTextSize(11);
-                pick.setTextColor(momentum?Color.BLACK:GOLD);
-                pick.setMaxLines(2);pick.setEllipsize(TextUtils.TruncateAt.END);
-                pick.setEnabled(!mustRoll&&!aiBusy&&(!momentum||safeCombatState().optInt("running",0)!=1));
-                pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
-                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(42));
-                lp.setMargins(0,dp(2),0,dp(2));
-                suggested.addView(pick,lp);
-            }
-            if(mustRoll)suggested.addView(text("Resolva primeiro o teste pendente.",10,MUTED,false));
-            drawer.addView(suggested);
+            addSceneActionDropdown(drawer, visibleOptions, mustRoll, false);
         }
 
         LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
@@ -6451,7 +6405,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // Compatibilidade: SceneOptionDiversifier.diversify continua sendo a primeira etapa dentro de ensureAlways.
         // A tela apenas exibe as escolhas; loadStoryState e handleAiResponse ja as reconciliam.
         // Nao salvar historia nem consultar multiplas tabelas ao recriar os controles do Mestre.
-        optionsContainer=card();optionsContainer.addView(text(hasPendingTest?"SUGESTÕES OPCIONAIS — PARA DEPOIS DO TESTE":"SUGESTÕES OPCIONAIS",14,GOLD,true));optionsContainer.addView(text(hasPendingTest?"A história está pausada no teste. As alternativas continuam visíveis, mas só podem ser escolhidas depois da resolução.":"O avanço da história é uma escolha voluntária; você sempre pode escrever outra ação.",12,MUTED,false));JSONArray displayOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);if(displayOptions.length()==0)optionsContainer.addView(text(lastNarration.length()==0?"Inicie a aventura pela aba Aventura.":"Nenhuma sugestão disponível nesta cena.",13,MUTED,false));else for(int i=0;i<displayOptions.length();i++){JSONObject option=displayOptions.optJSONObject(i);if(option!=null)addOptionButton(optionsContainer,option);}b.addView(optionsContainer);
+        optionsContainer=card();
+        JSONArray displayOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
+        if(displayOptions.length()==0)optionsContainer.addView(text(lastNarration.length()==0?"Inicie a aventura pela aba Aventura.":"Nenhuma ação contextual disponível nesta cena.",13,MUTED,false));
+        else addSceneActionDropdown(optionsContainer,displayOptions,hasPendingTest,false);
+        if(hasPendingTest)optionsContainer.addView(text("Resolva primeiro o teste pendente.",11,MUTED,false));
+        b.addView(optionsContainer);
         LinearLayout command=card();command.addView(text("AÇÃO OU CONVERSA COM O MESTRE",13,GOLD,true));final List<JSONObject> commandHeroes=safeActiveCharacters();String[] commandNames=new String[Math.max(1,commandHeroes.size()+1)];commandNames[0]="Ação geral do grupo";for(int ci=0;ci<commandHeroes.size();ci++)commandNames[ci+1]=commandHeroes.get(ci).optString("name");final Spinner actingHero=spinner(commandNames,commandNames[0]);command.addView(actingHero);final boolean[] masterComposerMode=new boolean[]{false};final int composerBlue=Color.rgb(96,200,230);LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);final Button actionModeButton=smallButton("AÇÃO",GOLD),masterModeButton=smallButton("FALAR COM O MESTRE",Color.rgb(19,49,73));actionModeButton.setTextColor(Color.BLACK);masterModeButton.setTextColor(composerBlue);composerModeRow.addView(actionModeButton,new LinearLayout.LayoutParams(0,dp(42),1));composerModeRow.addView(masterModeButton,new LinearLayout.LayoutParams(0,dp(42),1));command.addView(composerModeRow);narratorInput=input("Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);command.addView(narratorInput);
         narratorInput.setOnFocusChangeListener(new View.OnFocusChangeListener(){
             public void onFocusChange(View v,boolean hasFocus){
@@ -7034,6 +6993,87 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(!"ready".equals(m.optString("rag_status")))scheduleRagIndexing(false);
                 showNarrator();
             }}).show();
+    }
+
+
+    /**
+     * One compact dropdown for every playable scene, shared by standard narrator
+     * and the collapsed/expanded Strixhaven drawer. The popup contains a vertically
+     * scrollable list with complete diegetic actions, and never executes on opening.
+     */
+    private void addSceneActionDropdown(LinearLayout parent, final JSONArray actions,
+                                        boolean mustRoll, boolean compact){
+        if(actions==null||actions.length()==0)return;
+        Button trigger=smallButton("✦ AÇÕES SUGERIDAS ("+actions.length()+") ▾",GOLD);
+        trigger.setAllCaps(false);
+        trigger.setTextSize(compact?11:12);
+        trigger.setTextColor(Color.BLACK);
+        trigger.setContentDescription("Abrir menu suspenso de ações sugeridas; "+actions.length()+" escolhas");
+        boolean blocked=aiBusy||mustRoll;
+        trigger.setEnabled(!blocked);
+        trigger.setAlpha(blocked?0.58f:1f);
+        trigger.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View anchor){showSceneActionDropdown(anchor,actions);}
+        });
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(compact?38:44));
+        lp.setMargins(0,dp(3),0,dp(3));
+        parent.addView(trigger,lp);
+    }
+
+    private void showSceneActionDropdown(View anchor,JSONArray choices){
+        if(aiBusy||choices==null||choices.length()==0)return;
+        if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){
+            toast("Resolva primeiro o teste pendente.");return;
+        }
+        final android.widget.PopupWindow popup=new android.widget.PopupWindow(this);
+        LinearLayout menu=new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(8),dp(8),dp(8),dp(8));
+        menu.setBackground(makeBg(Color.rgb(45,32,25),GOLD,12));
+        ScrollView scroll=new ScrollView(this);
+        scroll.setFillViewport(false);
+        scroll.addView(menu);
+        for(int i=0;i<choices.length();i++){
+            final JSONObject option=choices.optJSONObject(i);
+            if(option==null)continue;
+            final String action=option.optString("action","");
+            if(action.trim().isEmpty())continue;
+            final boolean momentum=StoryMomentumAction.isRequest(action);
+            LinearLayout item=new LinearLayout(this);
+            item.setOrientation(LinearLayout.VERTICAL);
+            item.setPadding(dp(12),dp(9),dp(12),dp(9));
+            item.setBackground(makeBg(momentum?Color.rgb(71,53,29):Color.rgb(59,45,36),
+                    momentum?GOLD:Color.rgb(112,91,66),8));
+            String title=option.optString("label","Ação");
+            String detail=action.trim(); // Show precisely the action sent to the Mestre.
+            item.addView(text(title,12,GOLD,true));
+            item.addView(text(detail,11,Color.rgb(236,225,198),false));
+            item.setContentDescription(title+". "+detail);
+            boolean combatBlock=momentum&&safeCombatState().optInt("running",0)==1;
+            item.setEnabled(!combatBlock);item.setAlpha(combatBlock?0.50f:1f);
+            item.setClickable(!combatBlock);item.setFocusable(!combatBlock);
+            item.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){
+                    popup.dismiss();
+                    handleOption(option);
+                }
+            });
+            LinearLayout.LayoutParams rowLp=new LinearLayout.LayoutParams(-1,-2);
+            rowLp.setMargins(0,0,0,dp(5));
+            menu.addView(item,rowLp);
+        }
+        int width=Math.min(dp(465),getResources().getDisplayMetrics().widthPixels-dp(24));
+        int height=Math.min(dp(480),Math.max(dp(150),getResources().getDisplayMetrics().heightPixels-dp(145)));
+        popup.setContentView(scroll);
+        popup.setWidth(width);
+        popup.setHeight(height);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+        popup.setClippingEnabled(true);
+        popup.setBackgroundDrawable(makeBg(Color.rgb(45,32,25),GOLD,12));
+        popup.setElevation(dp(8));
+        popup.setInputMethodMode(android.widget.PopupWindow.INPUT_METHOD_NOT_NEEDED);
+        popup.showAsDropDown(anchor,0,dp(3),Gravity.END);
     }
 
     private void addOptionButton(LinearLayout parent,final JSONObject option){String label=option.optString("label","Opção");String description=option.optString("description",option.optString("action",""));JSONObject test=option.optJSONObject("test");String suffix="";if(test!=null&&test.optBoolean("required",false))suffix="\nTeste: "+testLabel(test);boolean momentum=StoryMomentumAction.isRequest(option.optString("action",""));Button button=button(label+(description.length()>0?"\n"+description:"")+suffix,momentum?GOLD:PANEL2);button.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);button.setAllCaps(false);button.setTextSize(14);if(momentum)button.setTextColor(Color.BLACK);boolean blocked=aiBusy||(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))||(momentum&&safeCombatState().optInt("running",0)==1);button.setEnabled(!blocked);button.setAlpha(blocked?0.58f:1f);button.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});parent.addView(button,new LinearLayout.LayoutParams(-1,-2));}
@@ -9572,7 +9612,14 @@ private void speakGemini(String text){
         loadStoryState();
     }
 
-    private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);if(hasInternalNarrationLeak(stored)||hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Narração antiga continha metainstruções; reparando prosa sem avançar tempo.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);if(hasInternalNarrationLeak(lastNarration))lastNarration="A cena anterior permanece registrada no diário. A história prossegue do ponto atual sem avançar o tempo.";}try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
+    private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);if(hasInternalNarrationLeak(stored)||hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Narração antiga continha metainstruções; reparando prosa sem avançar tempo.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);if(hasInternalNarrationLeak(lastNarration))lastNarration="A cena anterior permanece registrada no diário. A história prossegue do ponto atual sem avançar o tempo.";}try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);if(currentOptions.length()<ContextualSceneActionFactory.MIN_CONTEXTUAL+1
+    ||currentOptions.optJSONObject(0)==null
+    ||!StoryMomentumAction.isRequest(currentOptions.optJSONObject(0).optString("action",""))){
+    currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);
+}else{
+    // Reopening a scene must not replace the four choices already visible there.
+    currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
+}}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
     private void persistStory(String action){db.saveStoryState(lastNarration.length()>0,lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),action==null?"":action);}
 
     private String collegeSkills(String c){if("Lorehold".equals(c))return "História • proficiente\nReligião • proficiente";if("Prismari".equals(c))return "Acrobacia • proficiente\nAtuação • proficiente";if("Quandrix".equals(c))return "Arcanismo • proficiente\nNatureza • proficiente";if("Silverquill".equals(c))return "Intimidação • proficiente\nPersuasão • proficiente";if("Witherbloom".equals(c))return "Natureza • proficiente\nSobrevivência • proficiente";return "";}
