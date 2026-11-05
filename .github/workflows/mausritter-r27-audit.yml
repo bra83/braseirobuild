@@ -49,3 +49,30 @@ jobs:
                       print('-----',lo,hi,'-----')
                       print('\n'.join(f'{i+1:05d}: {a[i]}' for i in range(max(lo-1,0),min(hi,len(a)))))
           PY
+
+      - name: Inspect canonical call sites and state shapes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root=next(Path('/tmp/r26').glob('*/android'))
+          specs={
+           'app/src/main/java/com/braseiro/dnd/MausritterGameMasterEngine.java':['int die(', 'String seed', 'new Random'],
+           'app/src/main/java/com/braseiro/dnd/MausritterRules.java':['List<JSONObject> itemsIn','int usedIn(', 'syncHeavy(', 'JSONObject move','int load(', 'boolean save('],
+           'app/src/main/java/com/braseiro/dnd/AppDb.java':['nextTurn(', 'getCombatant(', 'getCombatState(', 'active_turn', 'resources_json'],
+           'app/src/main/java/com/braseiro/dnd/MainActivity.java':['livingMausritterCombatants(','advanceMausritterTurn(', 'mausritterCombatResources(', 'scheduleMausritterEnemyTurn('],
+           'app/src/main/assets/mausritter_atlas/runtime/atlas_vivo.js':['localTurns','advanceWatches','campCurrent','activeLight','consumeLight'],
+          }
+          for name,terms in specs.items():
+              p=root/name
+              a=p.read_text(encoding='utf-8',errors='replace').splitlines()
+              print('\n#### CANONICAL',name, 'lines', len(a))
+              included=set()
+              for term in terms:
+                  matches=[i for i,x in enumerate(a) if term in x]
+                  print('SEARCH',repr(term),'MATCHES',matches[:12])
+                  for mid in matches[:3]:
+                      for i in range(max(0,mid-7),min(len(a),mid+17)):
+                          if i not in included: print(f'{i+1:05d}: {a[i]}'); included.add(i)
+          PY
