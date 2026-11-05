@@ -138,16 +138,21 @@ old='''  function runtime() {
 new='''  function runtime() {
     let local={};
     try{local=JSON.parse(localStorage.getItem(storageKey())||'{}');}catch(_){}
-    try{
-      const raw=bridge('readAtlasRuntimeSnapshot',state.adventure.id);
-      if(typeof raw==='string'&&raw.startsWith('{')){
-        const mirror=JSON.parse(raw);
-        if(Number(mirror._updatedAt||0)>Number(local._updatedAt||0)){
-          localStorage.setItem(storageKey(),JSON.stringify(mirror));
-          local=mirror;
+    // One native read per adventure load, never a synchronous bridge call per render.
+    const mirrorKey=state.adventure.id+'|'+String(state.loadSerial||0);
+    if(state._atlasMirrorReadKey!==mirrorKey){
+      state._atlasMirrorReadKey=mirrorKey;
+      try{
+        const raw=bridge('readAtlasRuntimeSnapshot',state.adventure.id);
+        if(typeof raw==='string'&&raw.startsWith('{')){
+          const mirror=JSON.parse(raw);
+          if(Number(mirror._updatedAt||0)>Number(local._updatedAt||0)){
+            localStorage.setItem(storageKey(),JSON.stringify(mirror));
+            local=mirror;
+          }
         }
-      }
-    }catch(error){console.warn('Native Atlas recovery not available',error);}
+      }catch(error){console.warn('Native Atlas recovery not available',error);}
+    }
     return {...defaultRuntime(),...local};
   }
   function saveRuntime(value) {
