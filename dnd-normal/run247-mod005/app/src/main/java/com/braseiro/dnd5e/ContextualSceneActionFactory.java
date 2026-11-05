@@ -34,7 +34,7 @@ public final class ContextualSceneActionFactory {
             }
         }
 
-        String beat = narration.substring(Math.max(0, narration.length() - 900));
+        String beat = narration.substring(Math.max(0, narration.length() - 680));
         String actor = actor(beat, scene);
         String object = match(beat, OBJECTS);
         String place = match(beat, PLACES);
@@ -49,9 +49,9 @@ public final class ContextualSceneActionFactory {
             generated.add(choice("conversar", "PUXAR CONVERSA COM " + upper(actor),
                 "Tento iniciar uma conversa com " + actor + " sobre o que está acontecendo aqui, sem presumir a resposta."));
             generated.add(choice("despistar", "DISFARÇAR O INTERESSE POR " + upper(actor),
-                "Disfarço meu interesse por " + actor + " e acompanho discretamente sua reação, sem provocar alarme."));
+                "Disfarço meu interesse " + preposition("por",actor) + " e acompanho discretamente seus movimentos sem provocar alarme."));
             generated.add(choice("agir", "APROXIMAR-ME DE " + upper(actor),
-                "Aproximo-me de " + actor + " com naturalidade, dando a chance de perceber minha presença antes de falar."));
+                "Aproximo-me " + preposition("de",actor) + " com naturalidade, dando a chance de perceber minha presença antes de falar."));
         }
         if (!object.isEmpty()) {
             generated.add(choice("observar", "REPARAR EM " + upper(object),
@@ -63,9 +63,9 @@ public final class ContextualSceneActionFactory {
         }
         if (!place.isEmpty()) {
             generated.add(choice("explorar", "EXPLORAR " + upper(place),
-                "Percorro uma pequena parte de " + place + " para reconhecer o espaço, sem sair deste local."));
+                "Percorro uma pequena parte " + preposition("de",place) + " para reconhecer o espaço, sem sair deste local."));
             generated.add(choice("agir", "MUDAR DE POSIÇÃO EM " + upper(place),
-                "Mudo discretamente de posição em " + place + " para ganhar outro ângulo sem abandonar a situação atual."));
+                "Mudo discretamente de posição " + preposition("em",place) + " para ganhar outro ângulo sem abandonar a situação atual."));
             generated.add(choice("observar", "EXAMINAR " + upper(place),
                 "Observo " + place + " com atenção, procurando distinguir acessos e movimentos que realmente estejam visíveis."));
         }
@@ -79,13 +79,13 @@ public final class ContextualSceneActionFactory {
         String anchor = sparseAnchor(beat);
         ArrayList<JSONObject> sparse = new ArrayList<JSONObject>();
         sparse.add(choice("observar", "OBSERVAR " + upper(anchor),
-            "Permaneço atento a " + anchor + " e procuro perceber o que muda, sem antecipar um resultado."));
+            "Permaneço atento " + preposition("a",anchor) + " e procuro perceber o que muda, sem antecipar um resultado."));
         sparse.add(choice("conversar", "QUEBRAR O SILÊNCIO",
             "Digo em voz alta o que penso sobre " + anchor + ", sem presumir que alguém esteja me ouvindo."));
         sparse.add(choice("agir", "MUDAR MINHA POSIÇÃO",
-            "Mudo cautelosamente de posição diante de " + anchor + " para obter outra perspectiva, sem deixar a cena."));
+            "Mudo cautelosamente de posição diante " + preposition("de",anchor) + " para obter outra perspectiva, sem deixar a cena."));
         sparse.add(choice("despistar", "OCULTAR MINHA INTENÇÃO",
-            "Evito demonstrar o que pretendo fazer diante de " + anchor + " e observo se isso altera a situação."));
+            "Evito demonstrar o que pretendo fazer diante " + preposition("de",anchor) + " e observo se isso altera a situação."));
         sparse.add(choice("explorar", "CONFERIR O QUE SEI",
             "Repasso mentalmente o que já percebi sobre " + anchor + ", sem inventar pistas nem tirar conclusões automáticas."));
         addCandidates(result, sparse, actions, families, true, narration, scene);
@@ -139,10 +139,12 @@ public final class ContextualSceneActionFactory {
 
     private static final String[][] ACTORS = {
         {"calouros","os calouros"},{"veteranos","os veteranos"},
+        {"auxiliar","a auxiliar"},{"alunos distantes","os alunos distantes"},
         {"alunos","os alunos"},{"estudantes","os estudantes"},
         {"assistente","a assistente"},{"funcionária","a funcionária"},
+        {"funcionário","o funcionário"},{"bibliotecário","o bibliotecário"},
         {"funcionário","o funcionário"},{"bibliotecária","a bibliotecária"},
-        {"bibliotecário","o bibliotecário"},{"professora","a professora"},
+        {"professora","a professora"},
         {"professor","o professor"},{"atendente","o atendente"},
         {"guarda","o guarda"},{"sentinela","a sentinela"},
         {"mercador","o mercador"},{"taverneiro","o taverneiro"},
@@ -188,18 +190,60 @@ public final class ContextualSceneActionFactory {
 
     private static String match(String text, String[][] choices) {
         String n = " " + fold(text) + " ";
-        for (String[] row : choices) if (n.contains(" " + fold(row[0]) + " ")) return row[1];
-        return "";
+        String winner="";int best=-1;
+        for (String[] row : choices){
+            int found=n.lastIndexOf(" " + fold(row[0]) + " ");
+            if(found>best){best=found;winner=row[1];}
+        }
+        return winner;
     }
 
     private static String sparseAnchor(String beat) {
         String n = fold(beat);
-        if (has(n,"pausa","silencio")) return "a pausa";
-        if (has(n,"espera","aguarda")) return "a espera";
-        if (has(n,"pergunta","resposta")) return "a pergunta";
-        if (has(n,"ameaca","perigo")) return "o perigo presente";
-        if (has(n,"orientacao","calouros")) return "a orientação";
-        return "o que acabei de presenciar";
+        if (has(n,"pausa")) return "a pausa";
+        if (has(n,"silencio")) return "o silêncio";
+        if (has(n,"espera")) return "a espera";
+        if (has(n,"aguarda")) return "quem aguarda";
+        if (has(n,"pergunta")) return "a pergunta";
+        if (has(n,"resposta")) return "a resposta";
+        if (has(n,"ameaca")) return "a ameaça";
+        if (has(n,"perigo")) return "o perigo";
+        if (has(n,"orientacao")) return "a orientação";
+        // Extract a real noun phrase from the latest narrated beat. This makes
+        // sparse scenes playable without fabricating a prop or another character.
+        java.util.regex.Matcher matcher=java.util.regex.Pattern.compile(
+            "(?iu)\\b(?:a|o|os|as|um|uma|uns|umas)\\s+[\\p{L}]{4,}\\b")
+            .matcher(beat);
+        String best="";
+        while(matcher.find()){
+            String phrase=matcher.group().trim();
+            String key=fold(phrase);
+            if(has(key,"algo","coisa","algum","uma vez","outra vez"))continue;
+            best=phrase;
+        }
+        if(!best.isEmpty())return best;
+        java.util.regex.Matcher words=java.util.regex.Pattern.compile(
+            "(?iu)\\b[\\p{L}]{5,}\\b").matcher(beat);
+        String token="";
+        while(words.find()){
+            String t=words.group();
+            if(!has(fold(t),"voces","voce","agora","ainda","entao","pergunta","responda","aquilo","porque","quando"))token=t;
+        }
+        if(!token.isEmpty())return "o detalhe “"+token+"”";
+        return "o instante presente";
+    }
+
+    private static String preposition(String kind, String phrase) {
+        if(phrase==null)return kind;
+        String p=phrase.trim();
+        String[] starts={"o ","a ","os ","as "};
+        String[] from = "de".equals(kind)?new String[]{"do ","da ","dos ","das "}:
+                        "em".equals(kind)?new String[]{"no ","na ","nos ","nas "}:
+                        "por".equals(kind)?new String[]{"pelo ","pela ","pelos ","pelas "}:
+                        "a".equals(kind)?new String[]{"ao ","à ","aos ","às "}:null;
+        if(from!=null)for(int i=0;i<starts.length;i++)
+            if(p.toLowerCase(Locale.ROOT).startsWith(starts[i]))return from[i]+p.substring(starts[i].length());
+        return kind+" "+p;
     }
 
     private static boolean has(String input, String... fragments) {
