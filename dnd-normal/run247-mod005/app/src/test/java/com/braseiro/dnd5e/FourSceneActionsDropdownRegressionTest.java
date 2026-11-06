@@ -8,8 +8,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 /**
- * User acceptance contract: no playable scene can produce fewer than four
- * distinct contextual actions. The optional initiative is the fifth entry.
+ * User acceptance contract: one progress action and three grounded, typed contextual actions.
  */
 public final class FourSceneActionsDropdownRegressionTest {
     private static final String[] SCENES = {
@@ -27,14 +26,14 @@ public final class FourSceneActionsDropdownRegressionTest {
         "O grupo aguarda."
     };
 
-    @Test public void minimumFourDistinctActionsAcrossQuietSocialAndExplorationScenes() throws Exception {
+    @Test public void exactlyOneProgressAndThreeTypedActionsAcrossScenes() throws Exception {
         for (int turn=0;turn<SCENES.length;turn++) {
             String narration=SCENES[turn];
             JSONObject scene=new JSONObject();
             JSONArray result=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
                 narration,"Olho ao redor",scene,turn+1);
-            assertEquals("Four contextual choices plus one momentum in scene "+turn+" : "+result,
-                    5,result.length());
+            assertEquals("One story-progress plus three contextual choices in scene "+turn+" : "+result,
+                    4,result.length());
             assertTrue("Initiative is always explicit",StoryMomentumAction.isRequest(result.getJSONObject(0).getString("action")));
             Set<String> distinct = new HashSet<>();
             for(int i=1;i<result.length();i++) {
@@ -60,7 +59,7 @@ public final class FourSceneActionsDropdownRegressionTest {
             .put("action","Pergunto aos estudantes sobre o painel de avisos."));
         JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),sceneText,
             "Entro na biblioteca",new JSONObject(),2);
-        assertEquals(5,result.length());
+        assertEquals(4,result.length());
         assertTrue(StoryMomentumAction.isRequest(result.getJSONObject(0).getString("action")));
     }
 
@@ -95,7 +94,7 @@ public final class FourSceneActionsDropdownRegressionTest {
             JSONArray filled=ContextualSceneActionFactory.complete(raw,narration,scene,1);
             assertEquals("FOCUS="+anchor+" sampleGrounded="+SceneOptionDiversifier.isGroundedInScene(sample,narration,scene)
                 +" sampleCurrent="+SceneOptionDiversifier.isRelevantToCurrentBeat(sample,narration)
-                +" raw="+raw+" filled="+filled,4,filled.length());
+                +" raw="+raw+" filled="+filled,3,filled.length());
         }
     }
 }
