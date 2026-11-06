@@ -54,4 +54,17 @@ public final class SceneOptionVisibleEvidenceRegressionTest {
         assertFalse(SceneOptionVisibleEvidence.supported(
             option("FALAR COM O PROFESSOR","Observo o pátio."),narration));
     }
+    @Test public void studentGuardingPaperIsNotAnNpcGuard() throws Exception {
+        String narration="Kvothe aperta o pergaminho enquanto os estudantes de Silverquill conversam. "
+            +"Uma das estudantes ergue o queixo e guarda o papel contra o peito. "
+            +"Aluna de Silverquill: Quer juntar os selos ou gastar nosso tempo?";
+        JSONArray raw=new JSONArray().put(option("OBSERVAR O GUARDA",
+            "Observo o guarda por alguns instantes, atento aos seus gestos."));
+        JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),narration,
+            "Escuto a estudante",new JSONObject().put("present_npcs_json","[{\"name\":\"o guarda\"}]"),13);
+        assertEquals(5,result.length());
+        doesNotMention(result,"guarda");
+        assertFalse(SceneOptionVisibleEvidence.supported(raw.getJSONObject(0),narration));
+        assertTrue(SceneOptionVisibleEvidence.allSupported(result,narration));
+    }
 }
