@@ -1802,7 +1802,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // Reserva o espaço original sem esconder o campo quando o teclado abrir.
             controlsBox.addView(new Space(this),new LinearLayout.LayoutParams(-1,dp(54)));
             strixhavenSpeechComposer=actionRow;
-            drawer.addView(controlsBox);
+            // This area can contain several long Master answers. Without its
+            // own bounded scroll viewport, controlsBox expands beyond the fixed
+            // parchment frame, hiding the bottom of the blue conversation card.
+            ScrollView controlsScroll=new ScrollView(this);
+            controlsScroll.setFillViewport(false);
+            controlsScroll.setVerticalScrollBarEnabled(true);
+            controlsScroll.setScrollbarFadingEnabled(false);
+            controlsScroll.setNestedScrollingEnabled(true);
+            controlsScroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+            controlsScroll.addView(controlsBox,new ScrollView.LayoutParams(-1,-2));
+            drawer.addView(controlsScroll,new LinearLayout.LayoutParams(-1,0,1));
         }
         return drawer;
     }
@@ -6590,12 +6600,51 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             header.addView(closeBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             header.addView(clearBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             help.addView(header);
+            Button full=smallButton("↕ LER CONVERSA COMPLETA",Color.rgb(28,68,98));
+            full.setTextColor(Color.WHITE);
+            full.setContentDescription("Abrir o histórico completo do Mestre em uma janela rolável");
+            full.setOnClickListener(v->showMasterConversationFullscreen());
+            help.addView(full,new LinearLayout.LayoutParams(-1,dp(40)));
             if(!strixhavenMasterCardCollapsed){
                 addMasterConversationHistory(help,blue,true);
                 help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
             }
             parent.addView(help);
         }catch(Throwable error){AppLog.w("StrixMasterChat","Falha ao renderizar conversa auxiliar; narrativa preservada.",error);}
+    }
+
+    private void showMasterConversationFullscreen(){
+        JSONArray history=masterConversationHistory();
+        LinearLayout transcript=new LinearLayout(this);
+        transcript.setOrientation(LinearLayout.VERTICAL);
+        transcript.setPadding(dp(16),dp(12),dp(16),dp(24));
+        if(history.length()==0)transcript.addView(text("Nenhuma consulta registrada.",14,MUTED,false));
+        for(int i=0;i<history.length();i++){
+            JSONObject turn=history.optJSONObject(i);
+            if(turn==null)continue;
+            String question=turn.optString("question","").trim();
+            String answer=turn.optString("answer","").trim();
+            if(question.length()>0){
+                TextView q=text("VOCÊ: "+question,13,Color.rgb(190,225,238),true);
+                q.setTextIsSelectable(true);
+                transcript.addView(q);
+            }
+            if(answer.length()>0){
+                TextView a=text("MESTRE: "+answer,14,Color.WHITE,false);
+                a.setTextIsSelectable(true);
+                a.setLineSpacing(0,1.15f);
+                a.setPadding(0,dp(8),0,dp(12));
+                transcript.addView(a);
+            }
+        }
+        ScrollView scroll=scrollableDialogView(transcript);
+        int height=getResources().getDisplayMetrics().heightPixels;
+        scroll.setLayoutParams(new android.view.ViewGroup.LayoutParams(-1,Math.max(dp(240),(int)(height*0.70f))));
+        new AlertDialog.Builder(this)
+            .setTitle("CONVERSA COM O MESTRE")
+            .setView(scroll)
+            .setPositiveButton("FECHAR",null)
+            .show();
     }
 
     /* package */ void clearMasterConversationOnly(){
