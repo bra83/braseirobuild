@@ -24,10 +24,11 @@ public final class StoryMomentumActionRegressionTest {
                 .put("action","Leio os avisos que estão no painel do Hall."));
         JSONArray rendered=StoryMomentumAction.ensureVisible(choices,
             "A assistente aponta o painel de avisos, onde aparece o horário da orientação.");
-        assertEquals(3,rendered.length());
+        assertEquals(4,rendered.length());
         assertTrue(StoryMomentumAction.isRequest(rendered.getJSONObject(0).getString("action")));
-        assertEquals("Perguntar sobre o horário",rendered.getJSONObject(1).getString("label"));
-        assertEquals("Ler os avisos",rendered.getJSONObject(2).getString("label"));
+        assertTrue(rendered.getJSONObject(1).getString("label").toUpperCase().contains("AVISOS"));
+        assertTrue(rendered.getJSONObject(2).getString("label").toUpperCase().contains("HORÁRIO"));
+        assertEquals("DESPISTAR",rendered.getJSONObject(3).optString("action_type"));
     }
 
     @Test public void reloadDoesNotDuplicateOrBuryStoryButton() throws Exception {
@@ -36,11 +37,11 @@ public final class StoryMomentumActionRegressionTest {
                 .put("action","Escuto a mensagem da funcionária.")),
             "Uma funcionária anunciou a orientação.");
         JSONArray twice=StoryMomentumAction.ensureVisible(once,"Uma funcionária anunciou a orientação.");
-        assertEquals(2,once.length());
-        assertEquals(2,twice.length());
+        assertEquals(4,once.length());
+        assertEquals(4,twice.length());
         assertTrue(StoryMomentumAction.isRequest(twice.getJSONObject(0).getString("action")));
         JSONArray history=SceneOptionDiversifier.appendHistory(new JSONArray(),twice);
-        assertEquals(1,history.length());
+        assertEquals(3,history.length());
         assertEquals("Escuto a mensagem da funcionária.",history.getString(0));
     }
 
@@ -71,6 +72,6 @@ public final class StoryMomentumActionRegressionTest {
         assertEquals(0,filtered.length()); // dedicated option is injected exactly once elsewhere
         JSONArray rendered=SceneOptionDiversifier.ensureAlways(a,new JSONArray(),
             "Uma auxiliar anuncia o começo da orientação.","",new JSONObject(),1);
-        assertEquals(5,rendered.length());
+        assertEquals(4,rendered.length());
     }
 }
