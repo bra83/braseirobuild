@@ -175,7 +175,7 @@ public final class GroundedSceneActionSlots {
           {"mapa","o mapa"},{"painel","o painel"},{"folhetos","os folhetos"},
           {"prancheta","a prancheta"},{"porta","a porta"},{"ponte","a ponte"},
           {"arbusto","o arbusto"},{"manuscrito","o manuscrito"},{"escada","a escada"},
-          {"chuva","a chuva"},{"vento","o vento"},{"pausa","a pausa"},
+          {"chuva","a chuva"},{"vento","o vento"},{"grupo","o grupo"},{"pausa","a pausa"},
           {"silencio","o silêncio"},{"salão","o salão"},{"sala","a sala"}
         };
         String n=" "+fold(narration)+" ";
