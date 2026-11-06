@@ -220,6 +220,41 @@ public final class MasterOrchestrator {
     public JSONObject validateEnvelope(JSONObject envelope,String action){
         JSONObject candidate=envelope;if(activePlanForValidation!=null&&activePlanForValidation.nonAdvancing)candidate=BraseiroNarrativeDirector.freezeEnvelope(candidate,action,activePlanForValidation.inputChannel);
         JSONObject safe=validator.validate(candidate,action);
+        // Independent post-LLM adjudication gate: a consequential skill
+        // attempt cannot be completed by descriptive prose without a pending
+        // roll, and an unavailable rule/DC never becomes automatic success.
+        if(activePlanForValidation!=null && activePlanForValidation.narrative
+                && !activePlanForValidation.nonAdvancing){
+            try{
+                boolean blocked=safe.optBoolean("_mechanics_blocked",false);
+                boolean unrolled=DndActionCheckPolicy.missingRequiredResolution(action,safe,false);
+                if(blocked||unrolled){
+                    JSONObject report=safe.optJSONObject("_master_validation");
+                    if(report==null){report=new JSONObject();safe.put("_master_validation",report);}
+                    report.put("valid",false).put("fail_closed",true)
+                        .put("mechanical_adjudication_block",blocked?"rule_or_dc_unavailable":"unresolved_check_outcome");
+                    JSONArray warnings=report.optJSONArray("warnings");
+                    if(warnings==null){warnings=new JSONArray();report.put("warnings",warnings);}
+                    warnings.put(blocked
+                        ?"Teste não executado: regra recuperada ou CD verificável indisponível."
+                        :"O Mestre narrou um desfecho de teste sem rolagem confirmada.");
+                    safe.put("narration",blocked
+                        ?"A ação foi preservada: ainda falta uma regra ou dificuldade justificável para resolver o teste. Nenhum sucesso ou fracasso foi aplicado."
+                        :"A tentativa foi preservada, mas o Mestre não pode afirmar sucesso ou fracasso antes de indicar e resolver o teste apropriado.");
+                    safe.put("options",new JSONArray());
+                    stripRejectedStructuredState(safe);
+                    try{db.addAuditEvent("segurança","Arbitragem mecânica bloqueada",
+                          blocked?"Fonte ou CD insuficiente":"Desfecho narrado sem rolagem",
+                          "{}",new JSONObject().put("action",action==null?"":action).toString(),false);}
+                    catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Não foi possível registrar bloqueio de regra.",ignored);}
+                }
+            }catch(Exception mechanicalGateError){
+                AppLog.e("MasterOrchestrator","Falha no guardião de resultados mecânicos.",mechanicalGateError);
+                safe.put("narration","A validação mecânica falhou. A cena e suas consequências foram preservadas sem avanço.");
+                safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true));
+                stripRejectedStructuredState(safe);
+            }
+        }
         safe=guilds.validateUpdates(safe);
         try{
             String bOccasion=activePlanForValidation==null?"continuation":activePlanForValidation.barbaraStoryOccasion;
