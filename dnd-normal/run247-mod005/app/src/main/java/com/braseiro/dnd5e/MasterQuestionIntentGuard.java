@@ -34,6 +34,9 @@ public final class MasterQuestionIntentGuard {
                 "preciso fazer ","devo fazer ","saberia me dizer ","poderia me dizer ",
                 "qual seria ","quais seriam ","o meu personagem sabe "))
             return true;
+        // "Faço algum teste?" is a question, not a command to roll.
+        if(source.endsWith("?")&&starts(n,"faco algum teste ","faco um teste ",
+                "tenho que rolar ","preciso rolar ","devo rolar "))return true;
         if(source.endsWith("?") && !starts(n,"vou ","tento ","eu tento ","eu ","me aproximo ",
                 "uso ","conjuro ","ataco ","pego ","examino ","investigo ","procuro ",
                 "busco ","caminho ","entro ","saio ","viajo ","faço ","faco "))
