@@ -75,14 +75,14 @@ public final class RuleRetrievalPolicy {
     }
 
     static boolean explicitRuleQuestion(String n){
-        return containsAny(n,"consulte os manuais","regra","raw","rai","manual","livro","pagina","página","como funciona","mecanica","mecânica","qual cd","dificuldade","salvaguarda","saving throw","vantagem","desvantagem","acao bonus","ação bônus","reacao","reação","concentracao","concentração","ataque de oportunidade","opportunity attack","condicao","condição","talento","feat","habilidade de classe","class feature","magia","spell");
+        return containsAny(n,"consulte os manuais","regra","raw","rai","manual","livro","pagina","página","como funciona","mecanica","mecânica","qual cd","dificuldade","salvaguarda","saving throw","vantagem","desvantagem","acao bonus","ação bônus","reacao","reação","concentracao","concentração","ataque de oportunidade","opportunity attack","condicao","condição","talento","feat","habilidade de classe","class feature","magia","spell","qual teste","que teste","quais testes","algum teste","alguma rolagem","qual pericia","que pericia","quais pericias","qual habilidade devo","devo rolar","preciso rolar","posso fazer um teste","consigo testar","como eu testo","qual modificador","que tipo de teste");
     }
 
     static String skillProcedureKey(String n){
         if(containsAny(n,"escal","nado","nadar","saltar","pular","empurrar objeto","forcar porta","forçar porta","arrombar"))return "skill:athletics";
         if(containsAny(n,"furtiv","esconder","me escond","sneak","hide"))return "skill:stealth";
         if(containsAny(n,"rastro","rastre","sobreviv","forrage","orientar","navigation","naveg"))return "skill:survival";
-        if(containsAny(n,"investig","examino","examinar mecanismo","procurar pista","procuro pista","search clues"))return "skill:investigation";
+        if(containsAny(n,"investig","examino","examinar mecanismo","procurar pista","procuro pista","search clues","decifrar","decifro","interpreto inscri","charada","runa desconhecida","mensagem cifrada","codigo oculto"))return "skill:investigation";
         if(containsAny(n,"procuro armad","percepc","escuto","ouvir","vigio","observo atent","spot","perception"))return "skill:perception";
         if(containsAny(n,"intimid","ameaco","ameaço"))return "skill:intimidation";
         if(containsAny(n,"persuad","persuas","convenc","negoci"))return "skill:persuasion";
