@@ -7191,7 +7191,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             item.setBackground(makeBg(momentum?Color.rgb(71,53,29):Color.rgb(59,45,36),
                     momentum?GOLD:Color.rgb(112,91,66),8));
             String title=option.optString("label","Ação");
-            String detail=action.trim(); // Show precisely the action sent to the Mestre.
+            String detail=momentum?option.optString("description",action).trim():action.trim(); // Contextual progress text; the canonical action dispatched remains unchanged.
             item.addView(text(title,12,GOLD,true));
             item.addView(text(detail,11,Color.rgb(236,225,198),false));
             item.setContentDescription(title+". "+detail);
