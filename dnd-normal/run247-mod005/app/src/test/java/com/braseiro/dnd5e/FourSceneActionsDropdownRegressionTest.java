@@ -67,9 +67,14 @@ public final class FourSceneActionsDropdownRegressionTest {
         String narration="Uma bibliotecária se aproxima de Kvothe para falar sobre as aulas.";
         JSONArray a=StoryMomentumAction.ensureVisible(new JSONArray(),narration);
         JSONArray b=StoryMomentumAction.ensureVisible(a,narration);
-        assertEquals(1,a.length());
-        assertEquals(1,b.length());
+        assertEquals(4,a.length());
+        assertEquals(4,b.length());
+        assertEquals(a.toString(),b.toString());
         assertEquals("ESCUTAR A BIBLIOTECÁRIA",b.optJSONObject(0).optString("label"));
+        assertTrue(StoryMomentumAction.isRequest(b.optJSONObject(0).optString("action")));
+        assertEquals("OBSERVAR",b.optJSONObject(1).optString("action_type"));
+        assertEquals("AGIR",b.optJSONObject(2).optString("action_type"));
+        assertEquals("DESPISTAR",b.optJSONObject(3).optString("action_type"));
         assertEquals(0d,SceneActionClock.minutesFor(StoryMomentumAction.ACTION),0.0001);
         assertFalse(StoryMomentumAction.instruction(true).contains("teletransportá-lo para"));
     }
