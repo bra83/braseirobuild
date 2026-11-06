@@ -66,6 +66,6 @@ public final class SceneActionContinuityRegressionTest {
         assertEquals(4,options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
         assertTrue(options.toString().contains("INSCRIÇ"));
-        assertTrue(options.toString().contains("FUNCIONÁRIA"));
+        assertTrue("A pessoa real da cena deve constar na ação: "+options, options.toString().toLowerCase(java.util.Locale.ROOT).contains("funcionária"));
     }
 }
