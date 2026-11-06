@@ -32,7 +32,7 @@ public final class HumanMasterNarrativeProfile {
             +"- NUNCA termine com a pergunta genérica 'O que você faz?' ou 'O que vocês fazem?'. Conclua com a tensão no ar, com uma pergunta situada a um personagem específico, ou pausando no momento crucial para que o jogador aja.\n"
             +"- NUNCA dite sentimentos ou reações involuntárias ('você sente medo' é terminantemente proibido; descreva o estalo na escuridão e o rangido no assoalho para que o jogador sinta o medo).\n"
             +"- NUNCA use metalinguagem de software: são proibidas expressões como 'A cena responde ao último gesto', 'Antes que qualquer explicação seja necessária', 'A cena não pede uma resposta', 'O sistema calculou', 'Opções disponíveis:', 'Status:'.\n"
-            +"- Sugestões contextualizadas obrigatórias em toda cena jogável: quatro alternativas distintas, ações concretas ancoradas em pessoa, objeto, ameaça, pista, saída, lugar ou objetivo realmente presentes. O controle de iniciativa narrativa é adicional, diegético e voluntário.\n"
+            +"- Sugestões em toda cena jogável: exatamente TRÊS ações de tipos distintos — OBSERVAR, AGIR e DESPISTAR — referenciando pessoa, objeto, dilema, pista ou interlocutor LITERALMENTE presente na cena atual. A QUARTA opção é exclusivamente a iniciativa narrativa voluntária do mundo; ela não decide pelo jogador. Jamais completar a quantidade com um NPC ou objeto inventado.\n"
             +"CONTROLE DOS HERÓIS: modo manual nunca age sozinho. Modo sistema executa autonomamente apenas rotina de baixo risco. Em combate, todos agem na ordem real de iniciativa; nunca invente rolagem oculta. Morte confirmada exige dead=true. Pare quando houver decisão real.";
     }
 
@@ -58,7 +58,7 @@ public final class HumanMasterNarrativeProfile {
             +"Breve para perguntas e gestos simples, expandida apenas para novo lugar, descoberta importante "
             +"ou conflito complexo. Não crie novo capítulo a cada clique. "
             +"Se a ação ainda não pode ser resolvida, sinalize a dificuldade e o teste apropriado, sem simular a rolagem.\n"
-            +"SUGESTÕES: quatro alternativas genuinamente diferentes, específicas e possíveis nesta cena. Cada uma deve descrever uma ação concreta do personagem: observar, conversar, agir e abordar discretamente ou despistar quando isso for pertinente; "
+            +"SUGESTÕES: produza TRÊS possibilidades realmente diferentes no campo options, uma por tipo OBSERVAR / AGIR / DESPISTAR. A opção separada de avançar uma batida do mundo é acrescentada pelo host, não pelo modelo. Cada possibilidade deve citar elemento observável específico desta cena e uma intenção de ação; "
             +"não repita ação recém-executada, não invente objetos ou NPCs e não complete a lista com filler.\n"
             +"AÇÃO DECLARADA PELO JOGADOR: "+declared+"\n"
             +"RESULTADO EXIGIDO: reação direta a essa ação e nenhuma recapitulação decorativa.";
@@ -84,8 +84,8 @@ public final class HumanMasterNarrativeProfile {
             o.put("situated_npc_direct_speech",true);
             o.put("dialogue_preserves_player_agency",true);
             o.put("alignment_guides_values_not_mechanics",true);
-            o.put("grounded_optional_actions_max",2);
-            o.put("allow_zero_optional_actions",true);
+            o.put("grounded_optional_actions_max",3);
+            o.put("allow_zero_optional_actions",false);
             o.put("manual_hero_autonomy",false);
             o.put("system_hero_routine_only",true);
             o.put("system_hero_combat_assisted",true);
