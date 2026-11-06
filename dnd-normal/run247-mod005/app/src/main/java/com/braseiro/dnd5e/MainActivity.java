@@ -254,6 +254,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONArray currentOptions=new JSONArray();
     private JSONArray currentSceneCastPreview=new JSONArray();
     private JSONObject pendingTest=new JSONObject();
+    // Preview narration is not canonical while a mechanical transaction is
+    // waiting for acceptance. Preserve the prior UI state for a safe discard.
+    private JSONObject provisionalNarrativeBefore=new JSONObject();
+    private long provisionalNarrativeTransactionId=-1L;
     private JSONObject lastMasterSupport=new JSONObject();
     private boolean masterSideQueryActive=false;
     private boolean strixhavenConsultationComposerMode=false;
@@ -8095,6 +8099,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             boolean nonAdvancing = "Narrador".equals(lastAiMode) && env.optBoolean("_non_advancing", activeTurnNonAdvancing(action));
             JSONObject finalValidation = env.optJSONObject("_master_validation");
             boolean masterEnvelopeValid = finalValidation != null && finalValidation.optBoolean("valid", false);
+            // A failed rules/knowledge/agency validation must not replace the
+            // canonical scene, add suggested actions or advance the clock.
+            if (!masterEnvelopeValid && "Narrador".equals(lastAiMode)) nonAdvancing=true;
 
             JSONArray previousOptions = currentOptions == null ? new JSONArray() : currentOptions;
             JSONArray previousCast = copyJsonArray(currentSceneCastPreview);
@@ -8183,15 +8190,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 // but cannot complete it or award an academic milestone on its own.
                 // Invalid envelopes must never advance the official campaign.
                 if (isStrixhavenAdventure() && masterEnvelopeValid
-                        && !StoryMomentumAction.isRequest(action)) {
+                        && !StoryMomentumAction.isRequest(action) && !changes) {
                     processStrixhavenOfficialProgress(env, calculatedNarration);
                 }
 
                 if (nonAdvancing) {
                     saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), action, calculatedNarration));
                 } else {
-                    synchronizeVisualSceneCastWith(newCast);
-                    prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+                    if(!changes){
+                        synchronizeVisualSceneCastWith(newCast);
+                        prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+                    }
                     if (activeMasterPromotionTurnId.length() > 0) {
                         if (newPendingTest.length() > 0) {
                             try {
@@ -8226,18 +8235,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND, new JSONObject());
                         }
                     }
-                    if (narrativeResponse) {
+                    if (narrativeResponse && !changes) {
                         db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory, newOptions).toString());
                     }
                     if (isOpeningNarrationRequest(action)) {
                         prefs.edit().putString("recent_opening_texts_" + activeWorldProfile(), AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_" + activeWorldProfile(), "[]"), calculatedNarration)).apply();
                         adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE, "Primeira cena persistida");
                     }
-                    if (narrativeResponse) {
+                    if (narrativeResponse && !changes) {
                         rememberNarrativeText(calculatedNarration);
                         saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(), action, calculatedNarration, env, projectedScene));
                     }
-                    scheduleSceneNpcTokenBinding();
+                    if(!changes)scheduleSceneNpcTokenBinding();
                 }
 
                 prefs.edit().putString("last_ai_response_mode", lastAiMode).apply();
@@ -8264,18 +8273,28 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     prefs.edit().putString("last_state_update_summary", "Consequências aguardando sua confirmação.").apply();
                 }
 
-                if (!nonAdvancing) {
+                if(!nonAdvancing && changes && transactionId>0) {
+                    provisionalNarrativeBefore=new JSONObject()
+                        .put("narration",lastNarration==null?"":lastNarration)
+                        .put("options",currentOptions==null?"[]":currentOptions.toString())
+                        .put("cast",currentSceneCastPreview==null?"[]":currentSceneCastPreview.toString())
+                        .put("visual",lastVisualPrompt==null?"":lastVisualPrompt)
+                        .put("audio",lastAudioPlan==null?"{}":lastAudioPlan.toString())
+                        .put("pending",pendingTest==null?"{}":pendingTest.toString());
+                    provisionalNarrativeTransactionId=transactionId;
+                }
+                if (!nonAdvancing && !changes) {
                     db.saveStoryState(calculatedNarration.length() > 0, calculatedNarration, newVisualPrompt,
                             newOptions == null ? "[]" : newOptions.toString(),
                             newPendingTest == null || newPendingTest.length() == 0 ? "" : newPendingTest.toString(),
                             action == null ? "" : action);
                 }
 
-                if (masterOrchestrator != null) {
+                if (masterOrchestrator != null && !changes) {
                     masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                 }
 
-                if (!nonAdvancing && masterEnvelopeValid && "Narrador".equals(lastAiMode)) {
+                if (!nonAdvancing && masterEnvelopeValid && !changes && "Narrador".equals(lastAiMode)) {
                     try {
                         HumanMasterDynamicDirector.accepted(this, db, db.getSceneState(), action, calculatedNarration, env,
                                 isStrixhavenAdventure() ? "Strixhaven" : (isMystaraWorld() ? "Mystara" : "D&D"));
