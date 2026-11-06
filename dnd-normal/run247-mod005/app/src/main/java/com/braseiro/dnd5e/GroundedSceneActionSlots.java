@@ -152,7 +152,12 @@ public final class GroundedSceneActionSlots {
         if(!speaker.isEmpty() && (!has(speaker,"guarda")||SceneOptionVisibleEvidence.guardNounPresent(narration)))
             return article(speaker);
         String[][] roles={
-          {"aluna","a aluna"},{"estudante","os estudantes"},{"veterana","a veterana"},
+          {"aluna","a aluna"},{"estudantes","os estudantes"},{"estudante","o estudante"},
+          {"veterana","a veterana"},{"pesquisador","o pesquisador"},{"monitor","o monitor"},
+          {"capitao","o capitão"},{"mercadora","a mercadora"},{"mercador","o mercador"},
+          {"mensageiro","o mensageiro"},{"barqueiro","o barqueiro"},
+          {"mestre de cais","o mestre de cais"},{"estalajadeiro","o estalajadeiro"},
+          {"viajantes","os viajantes"},
           {"aluno","o aluno"},{"calouros","os calouros"},{"auxiliar","a auxiliar"},
           {"bibliotecaria","a bibliotecária"},{"professora","a professora"},
           {"professor","o professor"},{"funcionaria","a funcionária"},
@@ -174,6 +179,11 @@ public final class GroundedSceneActionSlots {
         if(has(narration,"grupo aguarda"))return "o grupo que aguarda";
         String[][] objects={
           {"charada","a charada"},{"selos","os selos"},{"inscricoes","as inscrições"},
+          {"alavanca","a alavanca"},{"marcadores","os marcadores"},
+          {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
+          {"caderno","o caderno"},{"frascos","os frascos"},
+          {"diario","o diário"},{"caixote","o caixote"},{"armario","o armário"},
+          {"bifurcacao","a bifurcação"},{"carroca","a carroça"},
           {"fitas de tinta","as fitas de tinta"},{"inscricao","a inscrição"},
           {"pergaminho","o pergaminho"},{"papel","o papel"},{"roteiro","o roteiro"},
           {"livro","o livro"},{"carta","a carta"},{"bilhete","o bilhete"},
