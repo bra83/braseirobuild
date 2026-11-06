@@ -57,7 +57,8 @@ public final class GroundedSceneActionSlots6654Test {
         JSONArray safe=StoryMomentumAction.ensureVisible(legacy,SILVERQUILL);
         assertEquals(4,safe.length());
         for(int i=1;i<safe.length();i++)
-            assertFalse(safe.getJSONObject(i).optString("action").toLowerCase().contains("guarda"));
+            assertFalse("A guard NPC must not appear in a saved menu just because a student guarda o papel",
+                SceneOptionVisibleEvidence.guardNounPresent(safe.getJSONObject(i).optString("action")));
         assertEquals(safe.toString(),StoryMomentumAction.ensureVisible(safe,SILVERQUILL).toString());
     }
 
