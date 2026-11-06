@@ -64,6 +64,9 @@ public final class SceneOptionVisibleEvidence {
                 if(containsWord(proposed,alias)){mentioned=true;break;}
             }
             if(!mentioned)continue;
+            // "guarda o papel" is the verb guardar, not an NPC guard.
+            if(aliases==ANCHORS[0]&&containsWord(proposed,"guarda")
+                &&!hasExplicitGuardNoun(visible))return false;
             boolean inScene=false;
             for(String alias:aliases){
                 if(containsWord(visible,alias)&&!explicitlyAbsent(visible,alias)){inScene=true;break;}
@@ -73,6 +76,13 @@ public final class SceneOptionVisibleEvidence {
         return true;
     }
 
+    private static boolean hasExplicitGuardNoun(String context){
+        if(context==null)return false;
+        if(containsWord(context,"guardas")||containsWord(context,"sentinela")
+            ||containsWord(context,"sentinelas")||containsWord(context,"soldado")
+            ||containsWord(context,"soldados"))return true;
+        return context.matches("(?s).*(?:^|\\\\s)(?:o|a|um|uma|ao|do|da|pelo|pela|esse|essa|aquele|aquela|com|para|sobre|sem|nenhum|nenhuma)\\\\s+guarda(?:\\\\s|$).*");
+    }
     private static boolean explicitlyAbsent(String context,String noun){
         return containsPhrase(context,"sem "+noun)
             ||containsPhrase(context,"nenhum "+noun)
