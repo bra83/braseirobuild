@@ -53,6 +53,7 @@ jobs:
           ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
             --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
+            --tests 'com.braseiro.dnd5e.MasterConsultationFreshnessRegressionTest' \
             --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \

@@ -8045,6 +8045,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
                 JSONArray sideCitations = copyJsonArray(lastRagCitations);
                 JSONObject previousSupport = copyJsonObject(lastMasterSupport);
+                JSONArray previousTurns=masterConversationHistory();
+                JSONObject lastTurn=previousTurns.length()>0?previousTurns.optJSONObject(previousTurns.length()-1):null;
+                if(MasterConsultationFreshnessGuard.repeatsPreviousForDifferentQuestion(
+                    question,answer,lastTurn)){
+                    AppLog.w("MasterConsultation","Resposta repetida de consulta anterior rejeitada; nova pergunta preservada.",null);
+                    final String rejectedQuestion=question;
+                    synchronized(aiCommitLock){
+                        if(requestGen!=aiRequestGeneration)return;
+                        db.addAuditEvent("consulta_auxiliar","Resposta repetida rejeitada",
+                            rejectedQuestion,"{}","{}",false);
+                        ui.post(new Runnable(){public void run(){
+                            if(requestGen!=aiRequestGeneration)return;
+                            restoreAfterMasterSideQuery();
+                            aiBusy=false;streamingNarration="";
+                            strixhavenMasterCardHidden=false;strixhavenMasterCardCollapsed=false;
+                            setStatus("O Mestre repetiu a resposta anterior. Nova pergunta não respondida; a aventura não avançou.");
+                            toast("Resposta antiga rejeitada. Envie sua pergunta novamente.");
+                            if(isStrixhavenAdventure())showStrixhavenSession();
+                            else if("Mestre IA".equals(currentScreen))showNarrator();
+                        }});
+                    }
+                    return;
+                }
                 JSONObject support = MasterSupportPanelEngine.build(env, sideRetrieval, sideCitations, db.getSceneState(), safeActiveCharacters(), currentOptions, pendingTest, question, isMystaraWorld(), "GM_HELP");
                 JSONObject withAns = MasterSupportPanelEngine.withAnswer(support, question, answer, sideRetrieval, sideCitations);
                 final JSONObject finalSupport = appendMasterConversationHistory(previousSupport, withAns, question, answer);
