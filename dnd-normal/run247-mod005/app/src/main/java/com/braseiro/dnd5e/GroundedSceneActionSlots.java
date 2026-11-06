@@ -185,6 +185,7 @@ public final class GroundedSceneActionSlots {
     private static String visibleFocus(String narration){
         if(has(narration,"grupo aguarda"))return "o grupo que aguarda";
         String[][] objects={
+          {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
           {"charada","a charada"},{"selos","os selos"},{"inscricoes","as inscrições"},
           {"alavanca","a alavanca"},{"marcadores","os marcadores"},
           {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
