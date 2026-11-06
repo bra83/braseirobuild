@@ -321,6 +321,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private final HashMap<String,View> screenCache=new HashMap<String,View>();
     private final HashMap<String,Long> screenCacheTime=new HashMap<String,Long>();
     private volatile boolean navigationInProgress=false;
+    // The Heroes tab is loaded from SQLite off the UI thread; stale requests
+    // must never replace another screen or a more recent version of the roster.
+    private long heroesLoadGeneration=0L;
+    private final android.util.LruCache<String,Bitmap> heroesAvatarCache=new android.util.LruCache<String,Bitmap>(12);
+
     private long lastNavigationClickAt=0L;
     private int manualVisibleLimit=36;
     private String manualVisibleFilter="";
@@ -937,7 +942,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
         // Core play screens must reflect SQLite after returning from another screen.
-        boolean liveCoreScreen="Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
+        boolean liveCoreScreen="Heróis".equals(n)||"Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
             ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n)));
         View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
@@ -2709,6 +2714,54 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void showHeroes(){
         if(isMystaraWorld()){showMystaraHeroes();return;}
+        final long request=++heroesLoadGeneration;
+        final long started=android.os.SystemClock.elapsedRealtime();
+        showNavigationPlaceholder("Heróis");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
+            final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
+            final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
+            List<JSONObject> fetched=null;Throwable failure=null;
+            try{
+                fetched=db.listCharacters();
+                for(JSONObject ch:fetched){
+                    JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
+                    sheets.add(sheet);
+                    loads.add(db.characterInventoryLoad(ch.optLong("id"),false));
+                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
+                    runtimeAvailable.add(characterRuntimeActions(ch,resource).length()>0);
+                }
+            }catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao preparar o painel de heróis.",error);}
+            final List<JSONObject> roster=fetched;
+            final Throwable error=failure;
+            final long prepared=android.os.SystemClock.elapsedRealtime();
+            ui.post(new Runnable(){public void run(){
+                if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+                if(error!=null||roster==null){
+                    content.removeAllViews();
+                    LinearLayout problem=new LinearLayout(MainActivity.this);
+                    problem.setOrientation(LinearLayout.VERTICAL);
+                    problem.setPadding(dp(18),dp(24),dp(18),dp(24));
+                    problem.addView(text("Não foi possível preparar as fichas.",18,RED,true));
+                    problem.addView(text(safeUiError(error),13,MUTED,false));
+                    Button retry=button("TENTAR NOVAMENTE",PANEL2);
+                    retry.setOnClickListener(v->showHeroes());
+                    problem.addView(retry);
+                    content.addView(problem,new FrameLayout.LayoutParams(-1,-1));
+                    return;
+                }
+                AppLog.i("HeroesPerf","LOAD_PREPARE_MS="+(prepared-started)+" count="+roster.size());
+                showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
+            }});
+        }});
+    }
+
+    /** UI only: append cards incrementally so a large campaign cannot starve the Looper. */
+    private void showHeroesPrepared(final List<JSONObject> list,
+                                    final List<JSONObject> sheets,
+                                    final List<JSONObject> loads,
+                                    final List<Boolean> runtimeAvailable,
+                                    final long request,final long started){
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
         Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=DndRulesEngine.PROFILE_2024;JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());if(!seed.optBoolean("generation_valid",false)){toast("Geração bloqueada: "+seed.optString("generation_blocked_reason","escolhas inválidas"));return;}characterDialog(null,seed);}});b.addView(randomHero);
@@ -2718,11 +2771,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         shortRest.setOnClickListener(v -> characterRestDialog(false));
         longRest.setOnClickListener(v -> characterRestDialog(true));
         rests.addView(shortRest);rests.addView(longRest);b.addView(rests);
-        List<JSONObject> list=db.listCharacters();if(list.size()==0)b.addView(empty(isMystaraWorld()?"Nenhum aventureiro registrado nesta crônica.":"Nenhum personagem criado."));
-        for(int i=0;i<list.size();i++){
-            final JSONObject ch=list.get(i);final JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));final long id=ch.optLong("id");LinearLayout card=card();
+        if(list.size()==0)b.addView(empty("Nenhum personagem criado."));
+        final int[] next={0};
+        final Runnable appendHero=new Runnable(){public void run(){
+            if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+            if(next[0]>=list.size())return;
+            final int i=next[0]++;
+            final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
             LinearLayout identity=new LinearLayout(this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
-            ImageView avatar=createAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
+            ImageView avatar=createHeroAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
             LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
             LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);String displayName=displayCharacterName(sheet);TextView nm=text(displayName,20,GOLD,true);top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));final CheckBox active=check(isMystaraWorld()?"Na companhia":"Em jogo",ch.optInt("active",1)==1);active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setCharacterActive(id,active.isChecked());setStatus(active.isChecked()?"Herói adicionado ao grupo.":"Herói retirado do grupo.");}});top.addView(active);info.addView(top);
             info.addView(text((isMystaraWorld()?"MYSTARA • ":"")+ch.optString("species")+" • "+ch.optString("class_name")+" nível "+ch.optInt("level",1),15,TEXT,false));
@@ -2738,8 +2795,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final JSONObject resourceSheet=parseJsonObject(ch.optString("sheet_json","{}"));
             int hdMax=resourceSheet.optInt("hit_dice_max",ch.optInt("level",1)),hdSpent=resourceSheet.optInt("hit_dice_spent",0);JSONArray slotsCur=resourceSheet.optJSONArray("spell_slots_current"),slotsMax=resourceSheet.optJSONArray("spell_slots_max");String resourceLine="Dados de Vida disponíveis "+Math.max(0,hdMax-hdSpent)+"/"+hdMax;if(slotsCur!=null&&slotsMax!=null)resourceLine+=" • Slots "+compactSlots(slotsCur)+"/"+compactSlots(slotsMax);JSONObject pact=resourceSheet.optJSONObject("pact_magic");if(pact!=null)resourceLine+=" • Pacto "+pact.optInt("current")+"/"+pact.optInt("max")+" (nível "+pact.optInt("slot_level")+")";card.addView(text(resourceLine,12,MUTED,false));
             String structured=structuredResourceSummary(resourceSheet);if(structured.length()>0)card.addView(text("Recursos de classe: "+structured,12,MUTED,false));
-            JSONObject load=db.characterInventoryLoad(id,false);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
-            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(characterRuntimeActions(ch,resourceSheet).length()>0){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
+            JSONObject load=loads.get(i);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
+            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(runtimeAvailable.get(i).booleanValue()){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
                     TashaQuickenedHealingCommitGuard.isMonk(ch.optString("class_name",""))&&
                     ch.optInt("level",1)>=4){
                 Button tashaHealing=smallButton("CURA RÁPIDA (TASHA)",PANEL2);
@@ -2776,7 +2833,28 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
             LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
-        }
+            if(next[0]<list.size())b.postOnAnimation(this);
+            else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
+        }};
+        if(!list.isEmpty())b.postOnAnimation(appendHero);
+    }
+
+    private ImageView createHeroAvatarView(final String tokenUri,final String name){
+        final ImageView view=createAvatarView("",name);
+        if(tokenUri==null||tokenUri.trim().isEmpty())return view;
+        Bitmap previous=heroesAvatarCache.get(tokenUri);
+        if(previous!=null){view.setImageBitmap(previous);return view;}
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            Bitmap loaded=null;
+            try{loaded=ImageStorageManager.decodeSampled(MainActivity.this,Uri.parse(tokenUri),192,192);}
+            catch(Exception error){AppLog.w("HeroesPerf","Token indisponível para "+name,error);}
+            final Bitmap bitmap=loaded;
+            if(bitmap!=null)ui.post(new Runnable(){public void run(){
+                heroesAvatarCache.put(tokenUri,bitmap);
+                if("Heróis".equals(currentScreen)&&!isFinishing()&&!isDestroyed())view.setImageBitmap(bitmap);
+            }});
+        }});
+        return view;
     }
 
     /** Install validated button handlers before returning control to the UI loop. */
