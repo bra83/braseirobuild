@@ -8353,6 +8353,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     /** Restore canonical UI when provisional mechanics are rejected. */
+    private String preparedActionForNarrative(JSONObject envelope){
+        return envelope==null?lastPrompt:envelope.optString("_accepted_player_action",lastPrompt);
+    }
+
     private void restoreProvisionalNarration(long transactionId){
         if(transactionId<=0||transactionId!=provisionalNarrativeTransactionId)return;
         JSONObject old=provisionalNarrativeBefore;
@@ -8583,6 +8587,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(stateTransactionManager!=null&&transactionId>0)stateTransactionManager.applied(transactionId);
                 db.addAuditEvent("mecânica","Consequências confirmadas pelo jogador",combined,"{}",prepared.toString(),true);
 
+                // The AI's narration is a PREVIEW until the complete mechanical
+                // transaction is confirmed. Canonical story, clock and journal
+                // are written in the SAME SQLite transaction as consequences.
+                if(provisionalNarrativeTransactionId==transactionId&&transactionId>0){
+                    db.saveStoryState(lastNarration!=null&&!lastNarration.isEmpty(),
+                        lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),
+                        pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),
+                        prepared.optString("_accepted_player_action",lastPrompt));
+                    db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(
+                        SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory()),
+                        currentOptions).toString());
+                    if(isStrixhavenAdventure()
+                            && !StoryMomentumAction.isRequest(prepared.optString("_accepted_player_action",lastPrompt)))
+                        processStrixhavenOfficialProgress(prepared,lastNarration);
+                    if(masterOrchestrator!=null)
+                        masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,prepared,
+                            pendingAiInputChars,0);
+                }
                 // Mestre propõe -> D&D valida -> SQLite confirma. O orquestrador só toca
                 // estado persistente dentro desta mesma transação do host.
                 if(masterOrchestrator!=null)masterOrchestrator.afterConsequencesApplied(activeMasterPlan,prepared,lastNarration);
@@ -8622,6 +8644,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // Falhas de UI DEPOIS do commit não podem ser confundidas com falha de banco e jamais
         // disparam rollback/snapshot. O estado já foi confirmado pelo journal COMMITTED.
         if(masterOrchestrator!=null)masterOrchestrator.markConsequencesCommitted(activeMasterPlan);
+        if(provisionalNarrativeTransactionId==transactionId&&transactionId>0){
+            try{
+                synchronizeVisualSceneCastWith(currentSceneCastPreview);
+                prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();
+                rememberNarrativeText(lastNarration);
+                saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(
+                    braseiroNarrativeMemory(),preparedActionForNarrative(run187CommittedEnvelope[0]),
+                    lastNarration,run187CommittedEnvelope[0],db.getSceneState()));
+                HumanMasterDynamicDirector.accepted(this,db,db.getSceneState(),
+                    preparedActionForNarrative(run187CommittedEnvelope[0]),lastNarration,
+                    run187CommittedEnvelope[0],isStrixhavenAdventure()?"Strixhaven":
+                    (isMystaraWorld()?"Mystara":"D&D"));
+                scheduleSceneNpcTokenBinding();
+            }catch(Throwable postCommitMemoryError){
+                AppLog.w("NarrativeCommit","A mecânica foi confirmada, mas um índice auxiliar da narração não foi atualizado.",postCommitMemoryError);
+            }finally{
+                provisionalNarrativeBefore=new JSONObject();
+                provisionalNarrativeTransactionId=-1L;
+            }
+        }
         // RUN187: apply narrative memory updates only after successful SQL commit.
         try{HumanMasterDynamicDirector.confirmed(this,db,run187CommittedEnvelope[0]);}
         catch(Throwable dynamicError){AppLog.w("DynamicMaster","Commit mecânico preservado; memória auxiliar indisponível.",dynamicError);}
