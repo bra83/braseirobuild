@@ -461,7 +461,7 @@ public final class MasterOrchestrator {
     }
     public synchronized void markConsequencesCommitted(Plan plan){if(plan!=null)plan.committed=true;}
     public synchronized void markConsequencesRolledBack(Plan plan,JSONObject envelope){
-        if(plan!=null){plan.committed=false;resetTickFlags(plan.localTick);}
+        if(plan!=null){plan.committed=false;plan.accepted=false;resetTickFlags(plan.localTick);}
         if(envelope!=null)resetTickFlags(envelope.optJSONObject("_local_tick"));
     }
     private static void resetTickFlags(JSONObject tick){try{if(tick==null)return;tick.put("committed",false).put("preview_only",true);JSONObject simulation=tick.optJSONObject("living_world_simulation");if(simulation!=null)simulation.put("committed",false).put("preview_only",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha ao reiniciar marcações após rollback.",ignored);}}
