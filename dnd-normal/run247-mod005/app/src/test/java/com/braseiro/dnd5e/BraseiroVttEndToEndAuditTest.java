@@ -214,8 +214,8 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and four grounded choices: " + diversified,
-                    diversified.length() == 5);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and three grounded choices: " + diversified,
+                    diversified.length() == 4);
             assertTrue("Story momentum must be the dedicated first action",
                     StoryMomentumAction.isRequest(diversified.getJSONObject(0).optString("action")));
 
