@@ -46,7 +46,7 @@ public final class MasterRulesArbiter {
             if(!isMystara())out.put("mechanics_catalog",rules.mechanicsCatalog(activeProfile));
             out.put("travel_rules_state",db.getTravelRulesState());out.put("rule_retrieval_status",activeRuleRetrieval.optString("status","not_attached"));out.put("rule_evidence_count",activeRuleRetrieval.optInt("evidence_count",activeRuleRetrieval.optJSONArray("evidence")==null?0:activeRuleRetrieval.optJSONArray("evidence").length()));
             out.put("rules_boundary",new JSONObject().put("RAW","automático somente após gatilho confirmado").put("REGRA_OPCIONAL","exige habilitação explícita").put("DECISAO_DO_MESTRE","não aplicar silenciosamente").put("SIMULACAO_NARRATIVA","sem efeito mecânico"));
-            out.put("actors",actors).put("scene_has_risk",hasRisk(n)).put("opposition_present",oppositionPresent(n));
+            out.put("actors",actors).put("scene_has_risk",hasRisk(n)).put("opposition_present",oppositionPresent(n)).put("action_adjudication",DndActionCheckPolicy.frame(action,db.getSceneState()));
             out.put("suggested_check",isMystara()?suggestedMystaraCheck(n,actors):suggested5eCheck(n));
             if(isMystara()){
                 out.put("authority","O aplicativo resolve CA descendente, ataque por classe/nível, jogadas de proteção, testes iguais ou abaixo do atributo, habilidades de ladrão, surpresa, reação, moral e iniciativa 1d6. O Gemini apenas propõe quando existe incerteza real.");
@@ -73,8 +73,8 @@ public final class MasterRulesArbiter {
             Map<String,JSONObject> heroes=heroesByName();
             JSONObject test=envelope.optJSONObject("pending_test");if(test!=null&&test.optBoolean("required",true)){
                 String actor=test.optString("character","").trim();if(actor.length()>0&&!heroes.containsKey(normalize(actor))){test.remove("character");test.put("actor_selection_required",true);warnings.put("O teste citava um personagem inexistente; o aplicativo pedirá a seleção do ator.");}
-                String n=normalize(action+" "+db.getSceneState().optString("danger")+" "+db.getSceneState().optString("threats_json"));if(!hasRisk(n)&&!oppositionPresent(n)){envelope.put("pending_test",JSONObject.NULL);warnings.put("Teste removido porque não havia risco, oposição, custo ou incerteza relevante no estado atual.");}
-                else if(isMystara())validateMystaraTest(test,warnings);else{
+                String n=normalize(action+" "+db.getSceneState().optString("danger")+" "+db.getSceneState().optString("threats_json"));if(!hasRisk(n)&&!oppositionPresent(n)&&!hasRelevantUncertainty(n,test)){envelope.put("pending_test",JSONObject.NULL);warnings.put("Teste removido: ação claramente trivial, sem dificuldade, oposição ou incerteza relevante.");}
+                else if(isMystara())validateMystaraTest(test,warnings);else if(!test.has("dc")||test.isNull("dc")){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("O Mestre não definiu a CD do teste; o aplicativo não fabricará uma CD 10.");}else{
                     int dc=Math.max(5,Math.min(30,test.optInt("dc",10)));test.put("dc",dc);test.put("mode",validMode(test.optString("mode","Normal")));String ability=validAbility(test.optString("ability","Sabedoria"));test.put("ability",ability);String skill=validSkill(test.optString("skill",""));if(skill.length()>0)test.put("skill",skill);else test.remove("skill");applyTravelCheckMode(test,skill,warnings);applyConditionTestMode(test,heroes,warnings);
                 }
             }
@@ -84,10 +84,11 @@ public final class MasterRulesArbiter {
                 boolean sufficient=activeRuleRetrieval.optBoolean("sufficient_for_mechanics",retrievedEvidence!=null&&retrievedEvidence.length()>0);
                 if(!sufficient){
                     envelope.put("pending_test",JSONObject.NULL);
+                    envelope.put("_mechanics_blocked",true);
                     warnings.put("O teste foi bloqueado porque a consulta obrigatória aos manuais não encontrou procedimento pertinente.");
                 }else if(retrievedEvidence!=null&&retrievedEvidence.length()>0){
                     JSONObject source=resolutionVerifier.bestEvidenceForTest(verifiedTest,activeRuleRetrieval);
-                    if(source==null){envelope.put("pending_test",JSONObject.NULL);warnings.put("O teste foi bloqueado porque nenhuma passagem recuperada corresponde ao tipo de teste proposto.");}
+                    if(source==null){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("O teste foi bloqueado porque nenhuma passagem recuperada corresponde ao tipo de teste proposto.");}
                     else {String procedureId=source.optString("_matched_procedure_id","");verifiedTest.put("procedure_id",procedureId);verifiedTest.put("rule_support",new JSONObject().put("rule_id",source.optString("rule_id")).put("procedure_id",procedureId).put("book",source.optString("book")).put("page",source.optInt("page")).put("excerpt",source.optString("excerpt")));}
                 }
             }
@@ -306,6 +307,23 @@ public final class MasterRulesArbiter {
 
     private Map<String,JSONObject> heroesByName(){Map<String,JSONObject> out=new HashMap<String,JSONObject>();for(JSONObject h:db.listActiveCharacters())out.put(normalize(h.optString("name")),h);return out;}
     private boolean isMystara(){return "mystara".equals(db.getActiveMapProfile());}
+    /**
+     * A check may be necessary without physical danger. Puzzles, hidden
+     * information and difficult intellectual tasks are valid sources of
+     * uncertainty under D&D 2024. Do not erase the Master's proposed check just
+     * because a keyword list found no attack or adversary in the room.
+     */
+    private static boolean hasRelevantUncertainty(String normalizedAction,JSONObject test){
+        if(DndActionCheckPolicy.consequentialChallenge(normalizedAction,null))return true;
+        if(contains(normalizedAction,"charada","enigma","decifr","runa","inscri","codigo",
+            "cifra","ocult","escondid","secret","mister","dific","desconhecid",
+            "procur","investig","examino","estud","pista"))return true;
+        String reason=normalize(test==null?"":test.optString("reason","")+" "+
+             test.optString("action","")+" "+test.optString("target",""));
+        return contains(reason,"charada","enigma","ocult","escondid","segred",
+             "incert","dificuldade","cifra","runas","codigo","investig");
+    }
+
     private static boolean hasRisk(String n){return contains(n,"perigo","armadilha","precipicio","veneno","ferido","morte","hostil","combate","ataque","embosc","fuga","desabar","tempo limitado","sob pressao")||contains(n,"tento","arris","forco","invado");}
     private static boolean oppositionPresent(String n){return contains(n,"inimigo","guarda","monstro","criatura","oponente","resiste","disputa","persegue","suspeita","hostil");}
     private static String validAbility(String raw){String n=normalize(raw);if(n.startsWith("for"))return "Força";if(n.startsWith("des"))return "Destreza";if(n.startsWith("con"))return "Constituição";if(n.startsWith("int"))return "Inteligência";if(n.startsWith("car"))return "Carisma";return "Sabedoria";}
