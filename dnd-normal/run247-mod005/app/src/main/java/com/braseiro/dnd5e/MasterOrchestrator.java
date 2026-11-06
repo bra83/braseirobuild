@@ -250,9 +250,13 @@ public final class MasterOrchestrator {
                 }
             }catch(Exception mechanicalGateError){
                 AppLog.e("MasterOrchestrator","Falha no guardião de resultados mecânicos.",mechanicalGateError);
-                safe.put("narration","A validação mecânica falhou. A cena e suas consequências foram preservadas sem avanço.");
-                safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true));
-                stripRejectedStructuredState(safe);
+                try{
+                    safe.put("narration","A validação mecânica falhou. A cena e suas consequências foram preservadas sem avanço.");
+                    safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true));
+                    stripRejectedStructuredState(safe);
+                }catch(Exception finalGuardError){
+                    AppLog.e("MasterOrchestrator","Falha no encerramento seguro da arbitragem.",finalGuardError);
+                }
             }
         }
         safe=guilds.validateUpdates(safe);
