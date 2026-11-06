@@ -76,6 +76,10 @@ public final class SceneOptionVisibleEvidence {
         return true;
     }
 
+    static boolean guardNounPresent(String narration){
+        return hasExplicitGuardNoun(fold(narration));
+    }
+
     private static boolean hasExplicitGuardNoun(String context){
         if(context==null)return false;
         if(containsWord(context,"guardas")||containsWord(context,"sentinela")
