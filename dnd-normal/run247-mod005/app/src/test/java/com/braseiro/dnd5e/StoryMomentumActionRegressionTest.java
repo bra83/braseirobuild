@@ -42,7 +42,10 @@ public final class StoryMomentumActionRegressionTest {
         assertTrue(StoryMomentumAction.isRequest(twice.getJSONObject(0).getString("action")));
         JSONArray history=SceneOptionDiversifier.appendHistory(new JSONArray(),twice);
         assertEquals(3,history.length());
-        assertEquals("Escuto a mensagem da funcionária.",history.getString(0));
+        assertEquals(once.toString(),twice.toString());
+        assertEquals(once.getJSONObject(1).optString("action"),history.getString(0));
+        assertTrue(SceneOptionVisibleEvidence.allSupported(twice,
+            "Uma funcionária anunciou a orientação."));
     }
 
     @Test public void noStoryBeforeAdventureExists() {
