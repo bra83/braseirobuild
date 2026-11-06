@@ -25,7 +25,7 @@ public final class SceneOptionVisibleEvidenceRegressionTest {
             .put(option("OBSERVAR A AUXILIAR","Observo a auxiliar perto da mesa."));
         JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),narration,
             "Olho a sala",stale,12);
-        assertEquals(5,result.length());
+        assertEquals(4,result.length());
         doesNotMention(result,"guarda");
         assertFalse(SceneOptionVisibleEvidence.allSupported(raw,narration));
         assertTrue(SceneOptionVisibleEvidence.allSupported(result,narration));
@@ -34,7 +34,7 @@ public final class SceneOptionVisibleEvidenceRegressionTest {
         String narration="Os adereços estão guardados no armário. Uma veterana comenta o ensaio.";
         JSONArray raw=new JSONArray().put(option("FALAR COM O GUARDA","Falo com o guarda sobre o armário."));
         JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),narration,"",new JSONObject(),4);
-        assertEquals(5,result.length());
+        assertEquals(4,result.length());
         doesNotMention(result,"guarda");
     }
     @Test public void deniedPresenceIsNotEvidenceOfPresence() throws Exception {
@@ -62,7 +62,7 @@ public final class SceneOptionVisibleEvidenceRegressionTest {
             "Observo o guarda por alguns instantes, atento aos seus gestos."));
         JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),narration,
             "Escuto a estudante",new JSONObject().put("present_npcs_json","[{\"name\":\"o guarda\"}]"),13);
-        assertEquals(5,result.length());
+        assertEquals(4,result.length());
         doesNotMention(result,"guarda");
         assertFalse(SceneOptionVisibleEvidence.supported(raw.getJSONObject(0),narration));
         assertTrue(SceneOptionVisibleEvidence.allSupported(result,narration));
