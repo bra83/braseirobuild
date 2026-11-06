@@ -8263,8 +8263,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     transactionId = stateTransactionManager.stage(env, calculatedNarration, action);
                     if (transactionId <= 0) {
                         changes = false;
-                        prefs.edit().putString("last_state_update_summary", "Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();
-                        db.addAuditEvent("segurança", "Consequências não preparadas", "Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.", "{}", env.toString(), false);
+                        nonAdvancing = true;
+                        masterEnvelopeValid = false;
+                        calculatedNarration = "A resposta do Mestre não pôde preparar uma transação segura. A cena anterior foi preservada; nenhuma consequência foi aplicada.";
+                        newOptions = previousOptions;
+                        newCast = previousCast;
+                        newVisualPrompt = previousVisual;
+                        newAudioPlan = previousAudio;
+                        newPendingTest = previousPendingTest;
+                        invalidateVisual = false;
+                        JSONObject validationOnFailure=env.optJSONObject("_master_validation");
+                        if(validationOnFailure!=null)validationOnFailure.put("valid",false).put("fail_closed",true);
+                        prefs.edit().putString("last_state_update_summary","Transação recusada: cena não canonizada.").apply();
+                        db.addAuditEvent("segurança","Consequências não preparadas","Nenhuma mutação ou narração ficou aplicável.","{}",env.toString(),false);
                     }
                 }
                 if (!changes) {
@@ -8341,26 +8352,46 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if (payload.changes) showTransactionReviewDialog(payload.transactionId, payload.env);
     }
 
+    /** Restore canonical UI when provisional mechanics are rejected. */
+    private void restoreProvisionalNarration(long transactionId){
+        if(transactionId<=0||transactionId!=provisionalNarrativeTransactionId)return;
+        JSONObject old=provisionalNarrativeBefore;
+        lastNarration=old.optString("narration",lastNarration);
+        lastVisualPrompt=old.optString("visual",lastVisualPrompt);
+        try{currentOptions=new JSONArray(old.optString("options","[]"));}catch(Exception ignored){currentOptions=new JSONArray();}
+        try{currentSceneCastPreview=new JSONArray(old.optString("cast","[]"));}catch(Exception ignored){currentSceneCastPreview=new JSONArray();}
+        try{lastAudioPlan=new JSONObject(old.optString("audio","{}"));}catch(Exception ignored){lastAudioPlan=new JSONObject();}
+        try{pendingTest=new JSONObject(old.optString("pending","{}"));}catch(Exception ignored){pendingTest=new JSONObject();}
+        prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString())
+            .putString("last_audio_plan",lastAudioPlan.toString()).apply();
+        provisionalNarrativeBefore=new JSONObject();
+        provisionalNarrativeTransactionId=-1L;
+        invalidateSceneImageIfContextChanged();
+        if(isStrixhavenAdventure())showStrixhavenSession();
+        else if("Mestre IA".equals(currentScreen))showNarrator();
+    }
+
     private void showTransactionReviewDialog(final long transactionId,final JSONObject envelope){
         final JSONObject stableEnvelope=copyJsonObject(envelope);
         try{
             if(!canShowDialog())return;
             String description=stateTransactionManager==null?"Mudanças persistentes propostas.":stateTransactionManager.describe(stableEnvelope);
-            StringBuilder message=new StringBuilder("O Mestre propôs as mudanças abaixo. Nada foi aplicado ainda.\n\n")
+            StringBuilder message=new StringBuilder("O Mestre propôs as mudanças abaixo. A cena e suas consequências ainda são PROVISÓRIAS.\n\n")
                     .append(description)
-                    .append("\n\nA narração permanece mesmo que você descarte as consequências.");
+                    .append("\n\nSe descartar, a narração provisória também será revertida; nenhum sucesso será mantido sem as consequências.");
             final AlertDialog dialog=new AlertDialog.Builder(this)
                     .setTitle("Confirmar consequências da cena")
                     .setMessage(message.toString())
-                    .setNegativeButton("SÓ NARRATIVA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
+                    .setNegativeButton("DESCARTAR CENA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
                         try{
                             if(stateTransactionManager!=null&&transactionId>0)stateTransactionManager.discarded(transactionId);
                             if(masterOrchestrator!=null)masterOrchestrator.afterConsequencesDiscarded(activeMasterPlan,stableEnvelope);
-                            prefs.edit().putString("last_state_update_summary","Consequências descartadas pelo jogador.").apply();
-                            setStatus("A narração foi mantida; nenhum estado, relógio, NPC ou recurso foi alterado.");
+                            restoreProvisionalNarration(transactionId);
+                             prefs.edit().putString("last_state_update_summary","Cena e consequências descartadas pelo jogador.").apply();
+                            setStatus("A cena provisória foi descartada; a narrativa e o estado anteriores foram preservados.");
                         }catch(Exception error){
                             AppLog.e("TransactionReview","Falha ao descartar consequências.",error);
-                            setStatus("A narração foi preservada, mas o registro do descarte falhou.");
+                            setStatus("Registro do descarte falhou. A cena não foi declarada canônica; revise Segurança.");
                         }
                     }})
                     .setNeutralButton("REVISAR POR CATEGORIA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
@@ -8371,6 +8402,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         applyMasterConsequencesSafely(transactionId,stableEnvelope);
                     }})
                     .create();
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
             dialog.show();
         }catch(Throwable error){
             AppLog.e("TransactionReview","Não foi possível abrir a revisão de consequências.",error);
