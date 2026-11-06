@@ -142,7 +142,7 @@ public final class BraseiroNarrativeDirector {
         p.append("TEMPERATURA NARRATIVA: varie de 0 rotina, 1 curiosidade, 2 inquietação, 3 tensão, 4 perigo a 5 clímax. Não permaneça em 4–5 por muitas batidas; use contraste e respiração. Uma cena tranquila pode ser genuinamente tranquila, sem presságio obrigatório.\n");
         p.append("FORMA DO TEXTO: varie tamanho de parágrafos conforme importância. Rotina pode caber em poucas frases; exploração usa espaço suficiente para mapa mental; descoberta desacelera; impacto pode receber uma frase isolada. Não termine toda resposta com pergunta. Pare no primeiro ponto em que existe decisão real.\n");
         p.append("FOCO DRAMÁTICO: cada resposta tem um centro. Escolha o elemento que deve permanecer na memória do jogador e não empilhe três revelações, dois NPCs novos, mudança de clima e combate na mesma batida sem causa. Prefira deixar uma pergunta na cabeça do jogador a escrevê-la explicitamente.\n");
-        p.append("SUGESTÕES: cada cena de ação deve trazer alternativas separadas, uma ação concreta por item, ancoradas no texto da cena atual, diferenciando quando possível observar/examinar, conversar/interagir e deslocar/manipular. Evite perguntas genéricas e repetir a própria ação que acabou de ser executada. Quando options ajudar, cada opção deve ser diegética, concreta e ligada a pessoa, pista, objeto, risco ou lugar presente. Nunca use 'continuar', 'investigar mais', 'agir', 'ler a situação' ou equivalentes vagos. A caixa de ação livre continua soberana.\n");
+        p.append("SUGESTÕES OBRIGATÓRIAS: gere quatro alternativas distintas em toda cena jogável. Descreva cada escolha como ação concreta do personagem em primeira pessoa; varie observar detalhes específicos, conversar com alguém presente, agir ou deslocar-se e despistar ou agir discretamente quando pertinente. Cite somente NPCs, objetos, lugares, falas ou fatos da cena atual. Cada escolha exige uma consequência nova, não repetição da ambientação. Evite perguntas genéricas e repetir a própria ação que acabou de ser executada. Quando options ajudar, cada opção deve ser diegética, concreta e ligada a pessoa, pista, objeto, risco ou lugar presente. Nunca use 'continuar', 'investigar mais', 'agir', 'ler a situação' ou equivalentes vagos. A caixa de ação livre continua soberana.\n");
         p.append("TTS INVISÍVEL: audio_plan pode incluir delivery=calmo|baixo|normal|urgente, intensity=0..5 e pause_profile=curto|normal|longo. Isso dirige a voz, não deve aparecer na narration. Não teatralize toda frase.\n");
         p.append("QA ANTES DE ENTREGAR: verifique silenciosamente se vazou conhecimento oculto, moveu algo sem causa, teletransportou NPC, ignorou pergunta, pediu teste trivial, explicou pista em vez de mostrá-la, repetiu forma recente, avançou uma consulta não diegética, roubou decisão do jogador ou continuou além do ponto natural de parada. Corrija dentro da mesma resposta.\n");        p.append("TRÊS MICROEXEMPLOS DE COMPORTAMENTO — absorva a técnica, NUNCA copie nomes, frases ou fatos: (1) CHEGADA: ‘Do alto da estrada, os telhados aparecem antes das vozes. No portão, dois guardas retiram barris de uma carroça enquanto o dono protesta. Uma mulher desacelera ao ver o mesmo símbolo pintado nos três barris e segue sem olhar para os guardas.’ Espaço + atividade + detalhe + implicação. (2) INVESTIGAÇÃO/DIÁLOGO: ‘A governanta recolhe papéis do chão enquanto responde. Diz que só ela e o dono possuem chave. Ao ouvir um nome específico, o polegar para sobre a dobra da folha; depois ela diz que nunca ouviu falar dele.’ Resposta + gesto observável, sem declarar mentira. (3) AÇÃO: ‘O hobgoblin corre para a coluna, usa a pedra para ganhar altura e passa por cima do escudo. A lâmina bate no metal; ele cai entre o grupo e a porta. Só então fica claro que o objetivo era alcançar a saída.’ ORIGEM → TRAJETÓRIA → CONTATO → RESULTADO + nova posição.\n");
         p.append("FUNÇÃO/TEMPERATURA SUGERIDAS PELO DIRETOR LOCAL: ").append(sceneFunction("",scene)).append(" / ").append(sceneTemperature(scene,"")).append(" de 5. Ajuste somente se a ação atual justificar.\n");
@@ -237,6 +237,27 @@ public final class BraseiroNarrativeDirector {
         }catch(Exception ignored){AppLog.ignored("BraseiroNarrativeDirector","Falha tolerada ao registrar clarificação narrativa.",ignored);}
         return out;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+
+    /**
+     * Fail closed on recycled Gemini text before time, inventory or NPC state may
+     * advance. Unlike the broader stylistic heuristics, this gate targets only
+     * demonstrably duplicate turns and tolerates legitimate short NPC replies.
+     */
+    public static String repeatedTurnProblem(String candidate,String prior){
+        String a=plain(human(candidate)).replaceAll("\\s+"," ").trim();
+        String b=plain(human(prior)).replaceAll("\\s+"," ").trim();
+        if(a.length()<55||b.length()<55)return "";
+        if(a.equals(b))return "narracao identica ao turno anterior";
+        if(a.length()>=170&&b.length()>=170){
+            int prefix=Math.min(160,Math.min(a.length(),b.length()));
+            if(a.substring(0,prefix).equals(b.substring(0,prefix)))
+                return "reinicio literal de descricao ja narrada";
+            Set<String> ta=tokens(a),tb=tokens(b);
+            if(ta.size()>=32&&tb.size()>=32&&jaccard(ta,tb)>=0.83d)
+                return "narracao quase identica ao turno anterior";
+        }
+        return "";
+    }
 
     /** Qualidade anti-repetição para cenas que realmente são cenas. */
     public static String qualityProblem(String narration,JSONArray recent){return qualityProblem(narration,recent,"",null);}

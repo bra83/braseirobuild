@@ -256,6 +256,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONObject pendingTest=new JSONObject();
     private JSONObject lastMasterSupport=new JSONObject();
     private boolean masterSideQueryActive=false;
+    private boolean strixhavenConsultationComposerMode=false;
     private String masterSideQueryText="";
     private String masterSidePreviousAiMode="Narrador";
     private String masterSidePreviousPrompt="";
@@ -321,6 +322,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private final HashMap<String,View> screenCache=new HashMap<String,View>();
     private final HashMap<String,Long> screenCacheTime=new HashMap<String,Long>();
     private volatile boolean navigationInProgress=false;
+    // The Heroes tab is loaded from SQLite off the UI thread; stale requests
+    // must never replace another screen or a more recent version of the roster.
+    private long heroesLoadGeneration=0L;
+    private final android.util.LruCache<String,Bitmap> heroesAvatarCache=new android.util.LruCache<String,Bitmap>(12);
+
     private long lastNavigationClickAt=0L;
     private int manualVisibleLimit=36;
     private String manualVisibleFilter="";
@@ -937,7 +943,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
         // Core play screens must reflect SQLite after returning from another screen.
-        boolean liveCoreScreen="Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
+        boolean liveCoreScreen="Heróis".equals(n)||"Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
             ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n)));
         View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
@@ -1397,7 +1403,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(compiledBestiary.optInt("registered",0)==0)AppLog.w("StrixhavenBestiary","Nenhum bloco foi registrado; verificar diagnostico de fontes.");
             if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
             if(reset)resetSceneClock();else initializeSceneClock();
-            final String opening=profile.masterInstruction()+StrixhavenCompiledCampaignEngine.masterContext(profile.year(),profile.semester())+" INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+profile.year()+", semestre "+profile.semester()+", mapa atual "+profile.currentMapLabel()+". Abra com uma situação concreta de vida no campus, apresentando espaço, rotina, pessoas e uma pressão imediata. Faça a escola parecer habitada: estudantes atravessam a cena com seus compromissos, professores têm objetivos, horários importam e relações persistem. Siga o arco oficial compilado; não substitua seus marcos por eventos escolares genéricos. Não use qualquer cidade, hex, POI ou rota do Atlas de Faerûn. Não imponha teste antes da primeira ação do jogador; ofereça duas opções específicas somente depois da cena.";
+            final String opening="INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+
+                    profile.year()+", semestre "+profile.semester()+", mapa atual "+
+                    profile.currentMapLabel()+". Abra a orientação da aventura oficial atual; "+
+                    "apresente pessoas, rotina e uma pressão imediata, sem impor teste antes da primeira escolha";
             ui.post(new Runnable(){public void run(){adventureStartRunning=false;adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Perfil Strixhaven e regras D&D prontos");setStatus("Strixhaven • ano "+profile.year()+" • semestre "+profile.semester()+" • "+profile.currentMapLabel()+". O Mestre está abrindo a cena…");sendAi("Narrador",opening);}});
         }catch(final Exception e){ui.post(new Runnable(){public void run(){adventureStartRunning=false;setStatus("Não foi possível preparar Strixhaven.");toast("Falha ao iniciar: "+String.valueOf(e.getMessage()));showCampaign();}});}}});
     }
@@ -1429,11 +1438,21 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // continuam livres para disparar música, ambiência, clima e SFX da biblioteca ativa.
     }
 
+    // Store official campaign information separately from the player command.
+    // sendAi is single-flight; the next request overwrites this snapshot.
+    private volatile String pendingStrixhavenGrounding = "";
+
     private String augmentStrixhavenOfficialPrompt(String mode,String inputChannel,String raw){
         String base=raw==null?"":raw;
+        pendingStrixhavenGrounding="";
         if(!isStrixhavenAdventure())return base;
         if("GM_HELP".equalsIgnoreCase(inputChannel)||masterSideQueryActive)return base;
-        return base+StrixhavenOfficialCampaignRuntime.promptContext(this)+"\n"+StrixhavenBestiaryRuntimeEngine.catalogInstruction();
+        pendingStrixhavenGrounding=StrixhavenOfficialCampaignRuntime.promptContext(this)
+                +"\n"+StrixhavenCompiledCampaignEngine.masterContext(strixhavenProfile().year(),strixhavenProfile().semester())
+                +"\n"+StrixhavenBestiaryRuntimeEngine.catalogInstruction();
+        // Never concatenate these instructions onto PLAYER_ACTION: the literal
+        // command must control consequences, clock, NPC reactions and journal.
+        return base;
     }
 
     private void processStrixhavenOfficialProgress(JSONObject env,String narration){
@@ -1554,7 +1573,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             drawerLp=new FrameLayout.LayoutParams(-1,-1,Gravity.TOP);
             drawerLp.setMargins(dp(8),dp(6),dp(8),dp(88));
         }else{
-            int collapsedH=(currentOptions!=null&&currentOptions.length()>0)?dp(104):dp(68);
+            int optionCount=StoryMomentumAction.ensureVisible(currentOptions,lastNarration).length();
+            int collapsedH=optionCount>1?dp(142):(optionCount==1?dp(108):dp(68));
             drawerLp=new FrameLayout.LayoutParams(-1,collapsedH,Gravity.BOTTOM);
             drawerLp.setMargins(dp(8),0,dp(8),dp(88));
         }
@@ -1658,6 +1678,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private LinearLayout buildStrixhavenNarrationDrawer(final StrixhavenAdventureProfile profile){
         strixhavenSpeechComposer=null;
+        final JSONArray visibleOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
         LinearLayout drawer=new LinearLayout(this);drawer.setOrientation(LinearLayout.VERTICAL);drawer.setPadding(dp(10),dp(5),dp(10),dp(8));drawer.setBackground(makeBg(Color.argb(246,49,35,24),GOLD,14));
 
         LinearLayout gripRow=new LinearLayout(this);gripRow.setOrientation(LinearLayout.HORIZONTAL);gripRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -1666,23 +1687,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         gripRow.addView(collapse,new LinearLayout.LayoutParams(dp(46),dp(34)));drawer.addView(gripRow);
 
         if(!strixhavenDrawerExpanded){
-            String preview=lastNarration==null||lastNarration.trim().length()==0?"Toque no pergaminho para abrir a narração.":GeneratedTextSanitizer.humanText(lastNarration);
+            String preview=lastNarration==null||lastNarration.trim().length()==0?
+                "Toque no pergaminho para abrir a narração.":GeneratedTextSanitizer.humanText(lastNarration);
             if(preview.length()>115)preview=preview.substring(0,115)+"…";
-            TextView pv=text(preview,12,Color.rgb(236,225,198),false);pv.setMaxLines(1);pv.setEllipsize(TextUtils.TruncateAt.END);drawer.addView(pv,new LinearLayout.LayoutParams(-1,dp(24)));
-            if(currentOptions!=null&&currentOptions.length()>0){
-                LinearLayout compactRow=new LinearLayout(this);compactRow.setOrientation(LinearLayout.HORIZONTAL);
+            TextView pv=text(preview,12,Color.rgb(236,225,198),false);
+            pv.setMaxLines(1);pv.setEllipsize(TextUtils.TruncateAt.END);
+            drawer.addView(pv,new LinearLayout.LayoutParams(-1,dp(24)));
+            if(visibleOptions.length()>0){
                 boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
-                for(int i=0;i<currentOptions.length()&&i<3;i++){
-                    final JSONObject option=currentOptions.optJSONObject(i);
-                    if(option==null)continue;
-                    Button pick=smallButton(option.optString("label",option.optString("action","Ação")),Color.rgb(60,43,25));
-                    pick.setAllCaps(false);pick.setTextSize(9.5f);pick.setTextColor(GOLD);pick.setMaxLines(1);pick.setEllipsize(TextUtils.TruncateAt.END);
-                    pick.setEnabled(!mustRoll);pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
-                    LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(32),1);
-                    if(i>0)lp.setMargins(dp(4),0,0,0);
-                    compactRow.addView(pick,lp);
-                }
-                drawer.addView(compactRow,new LinearLayout.LayoutParams(-1,dp(34)));
+                addSceneActionDropdown(drawer, visibleOptions, mustRoll, true);
             }
             return drawer;
         }
@@ -1695,28 +1708,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
         strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
-        // Ações da cena ficam SEMPRE em controles individuais abaixo do texto,
-        // inclusive quando o menu está recolhido para leitura.
-        if(currentOptions!=null&&currentOptions.length()>0){
-            LinearLayout suggested=new LinearLayout(this);
-            suggested.setOrientation(LinearLayout.VERTICAL);
-            suggested.addView(text("AÇÕES SUGERIDAS • TOQUE UMA OU ESCREVA SUA PRÓPRIA",9,GOLD,true));
+        // A lista suspensa deixa todas as escolhas acessíveis sem cobrir a narração.
+        if(visibleOptions.length()>0){
             boolean mustRoll=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);
-            for(int i=0;i<currentOptions.length()&&i<3;i++){
-                final JSONObject option=currentOptions.optJSONObject(i);
-                if(option==null)continue;
-                String lbl=option.optString("label",option.optString("action","Ação"));
-                String desc=option.optString("description","").trim();
-                String btnText=desc.length()>0&&!lbl.equalsIgnoreCase(desc)?(lbl+" — "+desc):lbl;
-                Button pick=smallButton(btnText,Color.rgb(60,43,25));
-                pick.setAllCaps(false);pick.setTextSize(11);pick.setTextColor(GOLD);pick.setMaxLines(2);pick.setEllipsize(TextUtils.TruncateAt.END);
-                pick.setEnabled(!mustRoll);pick.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});
-                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(42));
-                lp.setMargins(0,dp(2),0,dp(2));
-                suggested.addView(pick,lp);
-            }
-            if(mustRoll)suggested.addView(text("Resolva primeiro o teste pendente.",10,MUTED,false));
-            drawer.addView(suggested);
+            addSceneActionDropdown(drawer, visibleOptions, mustRoll, false);
         }
 
         LinearLayout quickBar=new LinearLayout(this);quickBar.setOrientation(LinearLayout.HORIZONTAL);quickBar.setGravity(Gravity.CENTER_VERTICAL);quickBar.setPadding(0,dp(3),0,dp(2));
@@ -1755,7 +1750,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
-            final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
+            final boolean[] strixMasterChatMode=new boolean[]{strixhavenConsultationComposerMode};final int masterBlue=Color.rgb(96,200,230);
             LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
             final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
             strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);
@@ -1783,23 +1778,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
             }};
             strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=false;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){prefs.edit().putString("ai_mode","Narrador").apply();sendAi("Narrador",q);}
-                else{narratorInput.requestFocus();toast("Digite o que deseja fazer e toque em ➤.");}
+                strixMasterChatMode[0]=false;strixhavenConsultationComposerMode=false;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=true;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){sendMasterSideQuestion(q);}
-                else{narratorInput.requestFocus();toast("Digite sua pergunta ao Mestre e toque em ➤.");}
+                strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             refreshStrixComposer.run();
             send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
                 String q=narratorInput.getText().toString().trim();
                 if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação no campo de texto.");return;}
                 prefs.edit().putString("ai_mode","Narrador").apply();
-                if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
+                if(strixMasterChatMode[0]||shouldRouteNarratorQuestionToMaster(q)){
+                    strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                    sendMasterSideQuestion(q);return;
+                }
                 sendAi("Narrador",q);
             }});
             actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));
@@ -1808,7 +1802,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // Reserva o espaço original sem esconder o campo quando o teclado abrir.
             controlsBox.addView(new Space(this),new LinearLayout.LayoutParams(-1,dp(54)));
             strixhavenSpeechComposer=actionRow;
-            drawer.addView(controlsBox);
+            // This area can contain several long Master answers. Without its
+            // own bounded scroll viewport, controlsBox expands beyond the fixed
+            // parchment frame, hiding the bottom of the blue conversation card.
+            ScrollView controlsScroll=new ScrollView(this);
+            controlsScroll.setFillViewport(false);
+            controlsScroll.setVerticalScrollBarEnabled(true);
+            controlsScroll.setScrollbarFadingEnabled(false);
+            controlsScroll.setNestedScrollingEnabled(true);
+            controlsScroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+            controlsScroll.addView(controlsBox,new ScrollView.LayoutParams(-1,-2));
+            drawer.addView(controlsScroll,new LinearLayout.LayoutParams(-1,0,1));
         }
         return drawer;
     }
@@ -1923,7 +1927,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         clearTravelSceneDisplay("área explorada em "+profile.currentMapLabel());
         db.addAuditEvent("strixhaven","Exploração livre",fromLabel+" → área não catalogada de "+profile.currentMapLabel()+" • "+minutes+" min","{}",profile.mapProjection().toString(),true);
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");showStrixhavenSession();
-        if(db.getStoryState().optInt("started",0)==1&&!aiBusy){String arrival=profile.masterInstruction()+" EXPLORAÇÃO LIVRE CONFIRMADA PELO MAPA: o jogador caminhou por cerca de "+minutes+" minutos até um ponto NÃO CATALOGADO do mapa de "+profile.currentMapLabel()+". Narre o que é imediatamente perceptível em 1–3 parágrafos. Não invente um nome oficial para esse ponto e não trate um POI conhecido como destino se o jogador não o escolheu.";sendAi("Narrador",arrival);}
+        if(db.getStoryState().optInt("started",0)==1&&!aiBusy){String arrival="EXPLORAÇÃO LIVRE CONFIRMADA PELO MAPA: o jogador caminhou por cerca de "+minutes+" minutos até um ponto NÃO CATALOGADO do mapa de "+profile.currentMapLabel()+". Narre o que é imediatamente perceptível em 1–3 parágrafos. Não invente um nome oficial para esse ponto e não trate um POI conhecido como destino se o jogador não o escolheu.";sendAi("Narrador",arrival);}
         else setStatus("Strixhaven • exploração livre • "+minutes+" min avançados.");
     }
 
@@ -1988,7 +1992,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         screenCache.remove("Mestre IA");screenCacheTime.remove("Mestre IA");
         showStrixhavenSession();
         if(db.getStoryState().optInt("started",0)==1&&!aiBusy){
-            String arrival=profile.masterInstruction()+" DESLOCAMENTO CONFIRMADO PELO MAPA: o jogador saiu de "+fromLabel+" e chegou a "+(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel())+" após cerca de "+minutes+" minutos de deslocamento do campus. Narre a chegada em 1–3 parágrafos, respeite horário/compromissos e NPCs persistentes, e não peça teste apenas por caminhar.";
+            String arrival="DESLOCAMENTO CONFIRMADO PELO MAPA: o jogador saiu de "+fromLabel+" e chegou a "+(profile.currentPoiLabel().length()>0?profile.currentPoiLabel():profile.currentMapLabel())+" após cerca de "+minutes+" minutos de deslocamento do campus. Narre a chegada em 1–3 parágrafos, respeite horário/compromissos e NPCs persistentes, e não peça teste apenas por caminhar.";
             sendAi("Narrador",arrival);
         }else setStatus("Strixhaven • "+profile.currentMapLabel()+(profile.currentPoiLabel().length()>0?" • "+profile.currentPoiLabel():"")+" • "+minutes+" min avançados.");
     }
@@ -2720,6 +2724,54 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void showHeroes(){
         if(isMystaraWorld()){showMystaraHeroes();return;}
+        final long request=++heroesLoadGeneration;
+        final long started=android.os.SystemClock.elapsedRealtime();
+        showNavigationPlaceholder("Heróis");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
+            final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
+            final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
+            List<JSONObject> fetched=null;Throwable failure=null;
+            try{
+                fetched=db.listCharacters();
+                for(JSONObject ch:fetched){
+                    JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
+                    sheets.add(sheet);
+                    loads.add(db.characterInventoryLoad(ch.optLong("id"),false));
+                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
+                    runtimeAvailable.add(characterRuntimeActions(ch,resource).length()>0);
+                }
+            }catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao preparar o painel de heróis.",error);}
+            final List<JSONObject> roster=fetched;
+            final Throwable error=failure;
+            final long prepared=android.os.SystemClock.elapsedRealtime();
+            ui.post(new Runnable(){public void run(){
+                if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+                if(error!=null||roster==null){
+                    content.removeAllViews();
+                    LinearLayout problem=new LinearLayout(MainActivity.this);
+                    problem.setOrientation(LinearLayout.VERTICAL);
+                    problem.setPadding(dp(18),dp(24),dp(18),dp(24));
+                    problem.addView(text("Não foi possível preparar as fichas.",18,RED,true));
+                    problem.addView(text(safeUiError(error),13,MUTED,false));
+                    Button retry=button("TENTAR NOVAMENTE",PANEL2);
+                    retry.setOnClickListener(v->showHeroes());
+                    problem.addView(retry);
+                    content.addView(problem,new FrameLayout.LayoutParams(-1,-1));
+                    return;
+                }
+                AppLog.i("HeroesPerf","LOAD_PREPARE_MS="+(prepared-started)+" count="+roster.size());
+                showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
+            }});
+        }});
+    }
+
+    /** UI only: append cards incrementally so a large campaign cannot starve the Looper. */
+    private void showHeroesPrepared(final List<JSONObject> list,
+                                    final List<JSONObject> sheets,
+                                    final List<JSONObject> loads,
+                                    final List<Boolean> runtimeAvailable,
+                                    final long request,final long started){
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
         Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=DndRulesEngine.PROFILE_2024;JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());if(!seed.optBoolean("generation_valid",false)){toast("Geração bloqueada: "+seed.optString("generation_blocked_reason","escolhas inválidas"));return;}characterDialog(null,seed);}});b.addView(randomHero);
@@ -2729,18 +2781,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         shortRest.setOnClickListener(v -> characterRestDialog(false));
         longRest.setOnClickListener(v -> characterRestDialog(true));
         rests.addView(shortRest);rests.addView(longRest);b.addView(rests);
-        List<JSONObject> list=db.listCharacters();if(list.size()==0)b.addView(empty(isMystaraWorld()?"Nenhum aventureiro registrado nesta crônica.":"Nenhum personagem criado."));
-        for(int i=0;i<list.size();i++){
-            final JSONObject ch=list.get(i);final JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));final long id=ch.optLong("id");LinearLayout card=card();
-            LinearLayout identity=new LinearLayout(this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
-            ImageView avatar=createAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
-            LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
-            LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);String displayName=displayCharacterName(sheet);TextView nm=text(displayName,20,GOLD,true);top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));final CheckBox active=check(isMystaraWorld()?"Na companhia":"Em jogo",ch.optInt("active",1)==1);active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setCharacterActive(id,active.isChecked());setStatus(active.isChecked()?"Herói adicionado ao grupo.":"Herói retirado do grupo.");}});top.addView(active);info.addView(top);
+        if(list.size()==0)b.addView(empty("Nenhum personagem criado."));
+        final int[] next={0};
+        final Runnable appendHero=new Runnable(){public void run(){
+            if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+            if(next[0]>=list.size())return;
+            final int i=next[0]++;
+            final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
+            LinearLayout identity=new LinearLayout(MainActivity.this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView avatar=createHeroAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
+            LinearLayout info=new LinearLayout(MainActivity.this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
+            LinearLayout top=new LinearLayout(MainActivity.this);top.setGravity(Gravity.CENTER_VERTICAL);String displayName=displayCharacterName(sheet);TextView nm=text(displayName,20,GOLD,true);top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));final CheckBox active=check(isMystaraWorld()?"Na companhia":"Em jogo",ch.optInt("active",1)==1);active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setCharacterActive(id,active.isChecked());setStatus(active.isChecked()?"Herói adicionado ao grupo.":"Herói retirado do grupo.");}});top.addView(active);info.addView(top);
             info.addView(text((isMystaraWorld()?"MYSTARA • ":"")+ch.optString("species")+" • "+ch.optString("class_name")+" nível "+ch.optInt("level",1),15,TEXT,false));
             String sub=ch.optString("background")+" • "+sheet.optString("alignment");if(sheet.optString("role").length()>0)sub+=" • "+sheet.optString("role");info.addView(text(sub,12,MUTED,false));
             identity.addView(info,new LinearLayout.LayoutParams(0,-2,1));card.addView(identity);if(!isMystaraWorld()&&("wilem".equalsIgnoreCase(ch.optString("name"))||"willem".equalsIgnoreCase(ch.optString("name")))){Button cookbook=button("📖 CADERNO DE WILEM",PANEL2);cookbook.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Caldeirão");}});card.addView(cookbook);}
             String concept=sheet.optString("concept").trim();if(concept.length()>0)card.addView(text(concept,13,TEXT,false));
-            LinearLayout vitals=new LinearLayout(this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
+            LinearLayout vitals=new LinearLayout(MainActivity.this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
              if("wilem".equalsIgnoreCase(ch.optString("name"))||"willem".equalsIgnoreCase(ch.optString("name"))){
                 Button notebook=button("ABRIR O CADERNO DE RECEITAS",PANEL2);
                 notebook.setOnClickListener(v->navigate("Caldeirão"));
@@ -2749,8 +2805,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final JSONObject resourceSheet=parseJsonObject(ch.optString("sheet_json","{}"));
             int hdMax=resourceSheet.optInt("hit_dice_max",ch.optInt("level",1)),hdSpent=resourceSheet.optInt("hit_dice_spent",0);JSONArray slotsCur=resourceSheet.optJSONArray("spell_slots_current"),slotsMax=resourceSheet.optJSONArray("spell_slots_max");String resourceLine="Dados de Vida disponíveis "+Math.max(0,hdMax-hdSpent)+"/"+hdMax;if(slotsCur!=null&&slotsMax!=null)resourceLine+=" • Slots "+compactSlots(slotsCur)+"/"+compactSlots(slotsMax);JSONObject pact=resourceSheet.optJSONObject("pact_magic");if(pact!=null)resourceLine+=" • Pacto "+pact.optInt("current")+"/"+pact.optInt("max")+" (nível "+pact.optInt("slot_level")+")";card.addView(text(resourceLine,12,MUTED,false));
             String structured=structuredResourceSummary(resourceSheet);if(structured.length()>0)card.addView(text("Recursos de classe: "+structured,12,MUTED,false));
-            JSONObject load=db.characterInventoryLoad(id,false);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
-            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(characterRuntimeActions(ch,resourceSheet).length()>0){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
+            JSONObject load=loads.get(i);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
+            LinearLayout resourceActions=new LinearLayout(MainActivity.this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(runtimeAvailable.get(i).booleanValue()){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
                     TashaQuickenedHealingCommitGuard.isMonk(ch.optString("class_name",""))&&
                     ch.optInt("level",1)>=4){
                 Button tashaHealing=smallButton("CURA RÁPIDA (TASHA)",PANEL2);
@@ -2783,11 +2839,32 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         if(result.has("short_rest_hit_dice_blocked")||result.has("operation_error"))toast("Dado de Vida não aplicado: "+result.optString("short_rest_hit_dice_blocked",result.optString("operation_error")));
                         showHeroes();
                     }});}});card.addView(spendHd);}
-            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
+            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(MainActivity.this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
-            LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
-        }
+            LinearLayout actions=new LinearLayout(MainActivity.this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
+            if(next[0]<list.size())b.postOnAnimation(this);
+            else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
+        }};
+        if(!list.isEmpty())b.postOnAnimation(appendHero);
+    }
+
+    private ImageView createHeroAvatarView(final String tokenUri,final String name){
+        final ImageView view=createAvatarView("",name);
+        if(tokenUri==null||tokenUri.trim().isEmpty())return view;
+        Bitmap previous=heroesAvatarCache.get(tokenUri);
+        if(previous!=null){view.setImageBitmap(previous);return view;}
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            Bitmap loaded=null;
+            try{loaded=ImageStorageManager.decodeSampled(MainActivity.this,Uri.parse(tokenUri),192,192);}
+            catch(Exception error){AppLog.w("HeroesPerf","Token indisponível para "+name,error);}
+            final Bitmap bitmap=loaded;
+            if(bitmap!=null)ui.post(new Runnable(){public void run(){
+                heroesAvatarCache.put(tokenUri,bitmap);
+                if("Heróis".equals(currentScreen)&&!isFinishing()&&!isDestroyed())view.setImageBitmap(bitmap);
+            }});
+        }});
+        return view;
     }
 
     /** Install validated button handlers before returning control to the UI loop. */
@@ -6416,7 +6493,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // Compatibilidade: SceneOptionDiversifier.diversify continua sendo a primeira etapa dentro de ensureAlways.
         // A tela apenas exibe as escolhas; loadStoryState e handleAiResponse ja as reconciliam.
         // Nao salvar historia nem consultar multiplas tabelas ao recriar os controles do Mestre.
-        optionsContainer=card();optionsContainer.addView(text(hasPendingTest?"SUGESTÕES OPCIONAIS — PARA DEPOIS DO TESTE":"SUGESTÕES OPCIONAIS",14,GOLD,true));optionsContainer.addView(text(hasPendingTest?"A história está pausada no teste. As alternativas continuam visíveis, mas só podem ser escolhidas depois da resolução.":"São atalhos; você sempre pode escrever outra ação no campo livre.",12,MUTED,false));if(currentOptions==null||currentOptions.length()==0)optionsContainer.addView(text(lastNarration.length()==0?"Inicie a aventura pela aba Aventura.":"As sugestões estão sendo reconstruídas a partir da cena atual.",13,MUTED,false));else for(int i=0;i<currentOptions.length();i++){JSONObject option=currentOptions.optJSONObject(i);if(option!=null)addOptionButton(optionsContainer,option);}b.addView(optionsContainer);
+        optionsContainer=card();
+        JSONArray displayOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
+        if(displayOptions.length()==0)optionsContainer.addView(text(lastNarration.length()==0?"Inicie a aventura pela aba Aventura.":"Nenhuma ação contextual disponível nesta cena.",13,MUTED,false));
+        else addSceneActionDropdown(optionsContainer,displayOptions,hasPendingTest,false);
+        if(hasPendingTest)optionsContainer.addView(text("Resolva primeiro o teste pendente.",11,MUTED,false));
+        b.addView(optionsContainer);
         LinearLayout command=card();command.addView(text("AÇÃO OU CONVERSA COM O MESTRE",13,GOLD,true));final List<JSONObject> commandHeroes=safeActiveCharacters();String[] commandNames=new String[Math.max(1,commandHeroes.size()+1)];commandNames[0]="Ação geral do grupo";for(int ci=0;ci<commandHeroes.size();ci++)commandNames[ci+1]=commandHeroes.get(ci).optString("name");final Spinner actingHero=spinner(commandNames,commandNames[0]);command.addView(actingHero);final boolean[] masterComposerMode=new boolean[]{false};final int composerBlue=Color.rgb(96,200,230);LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);final Button actionModeButton=smallButton("AÇÃO",GOLD),masterModeButton=smallButton("FALAR COM O MESTRE",Color.rgb(19,49,73));actionModeButton.setTextColor(Color.BLACK);masterModeButton.setTextColor(composerBlue);composerModeRow.addView(actionModeButton,new LinearLayout.LayoutParams(0,dp(42),1));composerModeRow.addView(masterModeButton,new LinearLayout.LayoutParams(0,dp(42),1));command.addView(composerModeRow);narratorInput=input("Descreva a ação. Você pode enviar agora ou colocar na fila para declarar os outros heróis.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);command.addView(narratorInput);
         narratorInput.setOnFocusChangeListener(new View.OnFocusChangeListener(){
             public void onFocusChange(View v,boolean hasFocus){
@@ -6518,12 +6600,63 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             header.addView(closeBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             header.addView(clearBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             help.addView(header);
+            Button full=smallButton("↕ LER CONVERSA COMPLETA",Color.rgb(28,68,98));
+            full.setTextColor(Color.WHITE);
+            full.setContentDescription("Abrir o histórico completo do Mestre em uma janela rolável");
+            full.setOnClickListener(v->showMasterConversationFullscreen());
+            help.addView(full,new LinearLayout.LayoutParams(-1,dp(40)));
             if(!strixhavenMasterCardCollapsed){
-                addMasterConversationHistory(help,blue,true);
+                LinearLayout historyBody=new LinearLayout(this);
+                historyBody.setOrientation(LinearLayout.VERTICAL);
+                historyBody.setPadding(dp(4),dp(8),dp(4),dp(16));
+                addMasterConversationHistory(historyBody,blue,true);
+                ScrollView historyScroll=new ScrollView(this);
+                historyScroll.setFillViewport(false);
+                historyScroll.setVerticalScrollBarEnabled(true);
+                historyScroll.setScrollbarFadingEnabled(false);
+                historyScroll.setNestedScrollingEnabled(true);
+                historyScroll.addView(historyBody,new ScrollView.LayoutParams(-1,-2));
+                historyScroll.post(()->historyScroll.fullScroll(View.FOCUS_DOWN));
+                help.addView(historyScroll,new LinearLayout.LayoutParams(-1,dp(208)));
+                help.addView(text("DESLIZE O QUADRO AZUL PARA LER OU ABRA A CONVERSA COMPLETA",10,blue,true));
                 help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
             }
             parent.addView(help);
         }catch(Throwable error){AppLog.w("StrixMasterChat","Falha ao renderizar conversa auxiliar; narrativa preservada.",error);}
+    }
+
+    private void showMasterConversationFullscreen(){
+        JSONArray history=masterConversationHistory();
+        LinearLayout transcript=new LinearLayout(this);
+        transcript.setOrientation(LinearLayout.VERTICAL);
+        transcript.setPadding(dp(16),dp(12),dp(16),dp(24));
+        if(history.length()==0)transcript.addView(text("Nenhuma consulta registrada.",14,MUTED,false));
+        for(int i=0;i<history.length();i++){
+            JSONObject turn=history.optJSONObject(i);
+            if(turn==null)continue;
+            String question=turn.optString("question","").trim();
+            String answer=turn.optString("answer","").trim();
+            if(question.length()>0){
+                TextView q=text("VOCÊ: "+question,13,Color.rgb(190,225,238),true);
+                q.setTextIsSelectable(true);
+                transcript.addView(q);
+            }
+            if(answer.length()>0){
+                TextView a=text("MESTRE: "+answer,14,Color.WHITE,false);
+                a.setTextIsSelectable(true);
+                a.setLineSpacing(0,1.15f);
+                a.setPadding(0,dp(8),0,dp(12));
+                transcript.addView(a);
+            }
+        }
+        ScrollView scroll=scrollableDialogView(transcript);
+        int height=getResources().getDisplayMetrics().heightPixels;
+        scroll.setLayoutParams(new android.view.ViewGroup.LayoutParams(-1,Math.max(dp(240),(int)(height*0.70f))));
+        new AlertDialog.Builder(this)
+            .setTitle("CONVERSA COM O MESTRE")
+            .setView(scroll)
+            .setPositiveButton("FECHAR",null)
+            .show();
     }
 
     /* package */ void clearMasterConversationOnly(){
@@ -6558,7 +6691,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONObject preserveMasterConversationHistory(JSONObject previous,JSONObject current){JSONObject out=copyJsonObject(current);try{JSONArray history=previous==null?null:previous.optJSONArray("conversation_history");if(history!=null&&history.length()>0)out.put("conversation_history",copyJsonArray(history));}catch(Exception error){AppLog.w("MasterConversation","Falha ao preservar histórico auxiliar entre cenas.",error);}return out;}
 
     private void addMasterConversationHistory(final LinearLayout parent,final int accent,boolean compact){
-        JSONArray history=masterConversationHistory();if(history.length()==0)return;parent.addView(text(compact?"CONVERSA RECENTE":"HISTÓRICO DA CONVERSA",11,accent,true));String currentScene=currentMasterConversationSceneFingerprint();int start=Math.max(0,history.length()-(compact?3:6));for(int i=start;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String question=turn.optString("question","");String answer=turn.optString("answer","");if(question.length()>0)parent.addView(text("Você: "+question,11,Color.rgb(190,225,238),false));if(answer.length()>0){TextView a=text("Mestre: "+answer,compact?12:13,Color.WHITE,false);a.setTextIsSelectable(true);a.setLineSpacing(0,1.08f);parent.addView(a);}String questionKind=turn.optString("question_kind",masterQuestionKind(question));if("information".equals(questionKind))parent.addView(text("CONSULTA • NÃO É UMA AÇÃO",9,Color.rgb(151,235,184),true));final String actionableQuestion=question;final String actionableTurnId=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+question));String promotionStatus=turn.optString("promotion_status","available");boolean sameScene=currentScene.equals(turn.optString("scene_fingerprint",currentScene));boolean available="available".equals(promotionStatus)||"cancelled".equals(promotionStatus)||promotionStatus.length()==0;if(sameScene&&available&&turn.optBoolean("actionable",masterQuestionCanBecomeAction(question))&&question.length()>0){Button tryIt=smallButton("cancelled".equals(promotionStatus)?"TENTAR NOVAMENTE NA HISTÓRIA":"TENTAR ISSO NA HISTÓRIA",GOLD);tryIt.setTextColor(Color.BLACK);tryIt.setOnClickListener(new View.OnClickListener(){public void onClick(View v){promoteMasterQuestionToAction(actionableTurnId,actionableQuestion);}});parent.addView(tryIt,new LinearLayout.LayoutParams(-1,dp(40)));}else if("awaiting_master".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • O MESTRE ESTÁ ENQUADRANDO A AÇÃO",10,Color.rgb(240,211,132),true));}else if("awaiting_roll".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • AGUARDANDO SUA ROLAGEM",10,Color.rgb(240,211,132),true));}else if("resolving_roll".equals(promotionStatus)){parent.addView(text("✓ ROLAGEM ENVIADA • O MESTRE ESTÁ INTERPRETANDO",10,Color.rgb(240,211,132),true));}else if("cancelled".equals(promotionStatus)){parent.addView(text("↩ TENTATIVA CANCELADA • VOCÊ PODE TENTAR NOVAMENTE NESTA CENA",10,Color.rgb(190,225,238),true));}else if("resolved".equals(promotionStatus)){parent.addView(text("✓ RESOLVIDO NA HISTÓRIA",10,Color.rgb(151,235,184),true));}String traceTest=turn.optString("test_label","");if(traceTest.length()>0)parent.addView(text("TESTE PEDIDO: "+traceTest,10,Color.rgb(240,211,132),false));if(turn.optLong("roll_id",0)>0){String traceRoll="ROLAGEM: "+turn.optString("roll_actor","Personagem")+" • "+turn.optString("roll_formula","d20")+" • total "+turn.optInt("roll_total",0)+" • "+("success".equals(turn.optString("roll_outcome"))?"SUCESSO":"FALHA");parent.addView(text(traceRoll,10,Color.rgb(190,225,238),true));}String storyTrace=turn.optString("resolution_excerpt","");if(storyTrace.length()>0)parent.addView(text("NA HISTÓRIA: "+storyTrace,compact?10:11,Color.WHITE,false));}}
+        JSONArray history=masterConversationHistory();if(history.length()==0)return;parent.addView(text(compact?"ÚLTIMA RESPOSTA DO MESTRE":"HISTÓRICO DA CONVERSA",11,accent,true));String currentScene=currentMasterConversationSceneFingerprint();int start=Math.max(0,history.length()-(compact?1:6));for(int i=start;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String question=turn.optString("question","");String answer=turn.optString("answer","");if(question.length()>0)parent.addView(text("Você: "+question,11,Color.rgb(190,225,238),false));if(answer.length()>0){TextView a=text("Mestre: "+answer,compact?12:13,Color.WHITE,false);a.setTextIsSelectable(!compact);a.setLineSpacing(0,1.08f);parent.addView(a);}String questionKind=turn.optString("question_kind",masterQuestionKind(question));if("information".equals(questionKind))parent.addView(text("CONSULTA • NÃO É UMA AÇÃO",9,Color.rgb(151,235,184),true));final String actionableQuestion=question;final String actionableTurnId=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+question));String promotionStatus=turn.optString("promotion_status","available");boolean sameScene=currentScene.equals(turn.optString("scene_fingerprint",currentScene));boolean available="available".equals(promotionStatus)||"cancelled".equals(promotionStatus)||promotionStatus.length()==0;if(sameScene&&available&&turn.optBoolean("actionable",masterQuestionCanBecomeAction(question))&&question.length()>0){Button tryIt=smallButton("cancelled".equals(promotionStatus)?"TENTAR NOVAMENTE NA HISTÓRIA":"TENTAR ISSO NA HISTÓRIA",GOLD);tryIt.setTextColor(Color.BLACK);tryIt.setOnClickListener(new View.OnClickListener(){public void onClick(View v){promoteMasterQuestionToAction(actionableTurnId,actionableQuestion);}});parent.addView(tryIt,new LinearLayout.LayoutParams(-1,dp(40)));}else if("awaiting_master".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • O MESTRE ESTÁ ENQUADRANDO A AÇÃO",10,Color.rgb(240,211,132),true));}else if("awaiting_roll".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • AGUARDANDO SUA ROLAGEM",10,Color.rgb(240,211,132),true));}else if("resolving_roll".equals(promotionStatus)){parent.addView(text("✓ ROLAGEM ENVIADA • O MESTRE ESTÁ INTERPRETANDO",10,Color.rgb(240,211,132),true));}else if("cancelled".equals(promotionStatus)){parent.addView(text("↩ TENTATIVA CANCELADA • VOCÊ PODE TENTAR NOVAMENTE NESTA CENA",10,Color.rgb(190,225,238),true));}else if("resolved".equals(promotionStatus)){parent.addView(text("✓ RESOLVIDO NA HISTÓRIA",10,Color.rgb(151,235,184),true));}String traceTest=turn.optString("test_label","");if(traceTest.length()>0)parent.addView(text("TESTE PEDIDO: "+traceTest,10,Color.rgb(240,211,132),false));if(turn.optLong("roll_id",0)>0){String traceRoll="ROLAGEM: "+turn.optString("roll_actor","Personagem")+" • "+turn.optString("roll_formula","d20")+" • total "+turn.optInt("roll_total",0)+" • "+("success".equals(turn.optString("roll_outcome"))?"SUCESSO":"FALHA");parent.addView(text(traceRoll,10,Color.rgb(190,225,238),true));}String storyTrace=turn.optString("resolution_excerpt","");if(storyTrace.length()>0)parent.addView(text("NA HISTÓRIA: "+storyTrace,compact?10:11,Color.WHITE,false));}}
 
     private String masterConversationResolutionExcerpt(String raw){String clean=raw==null?"":stripMarkdown(raw).replaceAll("\\s+"," ").trim();if(clean.length()<=260)return clean;return clean.substring(0,257)+"…";}
 
@@ -6586,9 +6719,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void promoteMasterQuestionToAction(String turnId,String rawQuestion){String q=rawQuestion==null?"":rawQuestion.trim();if(q.length()==0||aiBusy)return;String currentScene=currentMasterConversationSceneFingerprint();JSONArray history=masterConversationHistory();boolean allowed=false;JSONObject selectedTurn=null;for(int i=0;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String id=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+turn.optString("question","")));String status=turn.optString("promotion_status","available");if(id.equals(turnId)&&currentScene.equals(turn.optString("scene_fingerprint",currentScene))&&("available".equals(status)||"cancelled".equals(status)||status.length()==0)){allowed=true;selectedTurn=turn;break;}}if(!allowed){toast("Essa possibilidade já foi usada ou pertence a outra cena.");return;}String advisory=masterPromotionAdvisoryContext(selectedTurn);boolean retrying="cancelled".equals(selectedTurn.optString("promotion_status","available"));JSONObject promotionDetails=new JSONObject();try{promotionDetails.put("hint_authority","advisory_only");if(advisory.length()>0)promotionDetails.put("promotion_advisory",advisory);if(retrying){promotionDetails.put("retry_count",selectedTurn.optInt("retry_count",0)+1);String[] stale={"test_key","test_label","test_ability","test_skill","test_mode","test_dc","test_source_rule_id","roll_id","roll_actor","roll_formula","roll_mode","roll_natural","roll_total","roll_outcome","roll_source","resolved_after_roll","resolved_without_roll","resolution_excerpt","resolution_scene_fingerprint"};for(String key:stale)promotionDetails.put(key,JSONObject.NULL);}}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao registrar contexto consultivo da promoção.",ignored);}activeMasterPromotionTurnId=turnId;activeMasterPromotionQuestion=q;activeMasterPromotionFromRoll=false;updateMasterConversationTurn(turnId,"awaiting_master",promotionDetails);prefs.edit().putString("ai_mode","Narrador").apply();String declared="O jogador confirma que quer TENTAR na ficção a possibilidade discutida na consulta anterior. master_turn_id="+turnId+". Pergunta anterior: "+q+". "+(advisory.length()>0?"CONTEXTO AUXILIAR NÃO AUTORITATIVO da conversa azul: "+advisory+". NÃO copie isso como regra, não fixe CD por causa desta sugestão e não force essa perícia; use apenas como pista de intenção. ":"")+"Trate isto agora como PLAYER_ACTION. Decida o enquadramento mecânico de forma independente pelas regras recuperadas e pelo estado atual. Se houver incerteza e consequência real, peça o teste apropriado pelas regras e pause para a rolagem; depois da rolagem, interprete o resultado e retorne à história. Não considere a consulta anterior como ação já realizada.";sendAi("Narrador",declared);}
 
+    /* package */ static boolean shouldRouteNarratorQuestionToMaster(String text){
+        return MasterQuestionIntentGuard.isConsultation(text);
+    }
+
     private void sendMasterSideQuestion(String rawQuestion){
         String question=rawQuestion==null?"":rawQuestion.trim();if(question.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}if(aiBusy){toast("Aguarde a resposta atual.");return;}
         masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+        // Consume only the sent question, not another unsent draft.
+        if(narratorInput!=null&&question.equals(narratorInput.getText().toString().trim()))
+            narratorInput.setText("");
         String routed="CONSULTA AUXILIAR FORA DA FICÇÃO. Responda no quadro separado e não altere a aventura. Se houver várias perguntas, responda uma por uma. Não invente distância, presença, conhecimento ou regra que não esteja no estado/manuais. Se a pergunta for sobre uma possibilidade de ação (por exemplo: posso/consigo subir, abrir, convencer, atravessar), explique primeiro o que é observável e se a tentativa parece possível. Se houver incerteza com consequência e as regras recuperadas sustentarem isso, diga qual atributo/perícia provavelmente seria testado; NÃO fixe CD, não role e não crie teste pendente no canal GM_HELP. A rolagem só nasce depois de o jogador confirmar TENTAR NA HISTÓRIA, quando a mensagem será promovida a PLAYER_ACTION. PERGUNTA DO JOGADOR: "+question;
         sendAi("Narrador",routed);
     }
@@ -7001,8 +7141,89 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }}).show();
     }
 
-    private void addOptionButton(LinearLayout parent,final JSONObject option){String label=option.optString("label","Opção");String description=option.optString("description",option.optString("action",""));JSONObject test=option.optJSONObject("test");String suffix="";if(test!=null&&test.optBoolean("required",false))suffix="\nTeste: "+testLabel(test);Button button=button(label+(description.length()>0?"\n"+description:"")+suffix,PANEL2);button.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);button.setAllCaps(false);button.setTextSize(14);boolean blocked=aiBusy||(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true));button.setEnabled(!blocked);button.setAlpha(blocked?0.58f:1f);button.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});parent.addView(button,new LinearLayout.LayoutParams(-1,-2));}
-    private void handleOption(JSONObject option){if(aiBusy)return;if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){toast("Resolva ou cancele o teste pendente antes de escolher outra ação.");return;}JSONObject test=option.optJSONObject("test");String action=option.optString("action",option.optString("description",option.optString("label")));if(test!=null&&test.optBoolean("required",false)){try{JSONObject prepared=new JSONObject(test.toString());prepared.put("option_label",option.optString("label"));pendingTest=ensurePendingTestIdentity(prepared,action);persistStory(action);showNarrator();}catch(Exception e){toast("Não foi possível preparar o teste.");}}else sendAi("Narrador","O jogador escolheu: "+action+". Continue a partir dessa escolha, sem repetir a cena anterior.");}
+
+    /**
+     * One compact dropdown for every playable scene, shared by standard narrator
+     * and the collapsed/expanded Strixhaven drawer. The popup contains a vertically
+     * scrollable list with complete diegetic actions, and never executes on opening.
+     */
+    private void addSceneActionDropdown(LinearLayout parent, final JSONArray actions,
+                                        boolean mustRoll, boolean compact){
+        if(actions==null||actions.length()==0)return;
+        Button trigger=smallButton("✦ AÇÕES SUGERIDAS ("+actions.length()+") ▾",GOLD);
+        trigger.setAllCaps(false);
+        trigger.setTextSize(compact?11:12);
+        trigger.setTextColor(Color.BLACK);
+        trigger.setContentDescription("Abrir menu suspenso de ações sugeridas; "+actions.length()+" escolhas");
+        boolean blocked=aiBusy||mustRoll;
+        trigger.setEnabled(!blocked);
+        trigger.setAlpha(blocked?0.58f:1f);
+        trigger.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View anchor){showSceneActionDropdown(anchor,actions);}
+        });
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(compact?38:44));
+        lp.setMargins(0,dp(3),0,dp(3));
+        parent.addView(trigger,lp);
+    }
+
+    private void showSceneActionDropdown(View anchor,JSONArray choices){
+        if(aiBusy||choices==null||choices.length()==0)return;
+        if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){
+            toast("Resolva primeiro o teste pendente.");return;
+        }
+        final android.widget.PopupWindow popup=new android.widget.PopupWindow(this);
+        LinearLayout menu=new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(8),dp(8),dp(8),dp(8));
+        menu.setBackground(makeBg(Color.rgb(45,32,25),GOLD,12));
+        ScrollView scroll=new ScrollView(this);
+        scroll.setFillViewport(false);
+        scroll.addView(menu);
+        for(int i=0;i<choices.length();i++){
+            final JSONObject option=choices.optJSONObject(i);
+            if(option==null)continue;
+            final String action=option.optString("action","");
+            if(action.trim().isEmpty())continue;
+            final boolean momentum=StoryMomentumAction.isRequest(action);
+            LinearLayout item=new LinearLayout(this);
+            item.setOrientation(LinearLayout.VERTICAL);
+            item.setPadding(dp(12),dp(9),dp(12),dp(9));
+            item.setBackground(makeBg(momentum?Color.rgb(71,53,29):Color.rgb(59,45,36),
+                    momentum?GOLD:Color.rgb(112,91,66),8));
+            String title=option.optString("label","Ação");
+            String detail=action.trim(); // Show precisely the action sent to the Mestre.
+            item.addView(text(title,12,GOLD,true));
+            item.addView(text(detail,11,Color.rgb(236,225,198),false));
+            item.setContentDescription(title+". "+detail);
+            boolean combatBlock=momentum&&safeCombatState().optInt("running",0)==1;
+            item.setEnabled(!combatBlock);item.setAlpha(combatBlock?0.50f:1f);
+            item.setClickable(!combatBlock);item.setFocusable(!combatBlock);
+            item.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){
+                    popup.dismiss();
+                    handleOption(option);
+                }
+            });
+            LinearLayout.LayoutParams rowLp=new LinearLayout.LayoutParams(-1,-2);
+            rowLp.setMargins(0,0,0,dp(5));
+            menu.addView(item,rowLp);
+        }
+        int width=Math.min(dp(465),getResources().getDisplayMetrics().widthPixels-dp(24));
+        int height=Math.min(dp(480),Math.max(dp(150),getResources().getDisplayMetrics().heightPixels-dp(145)));
+        popup.setContentView(scroll);
+        popup.setWidth(width);
+        popup.setHeight(height);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+        popup.setClippingEnabled(true);
+        popup.setBackgroundDrawable(makeBg(Color.rgb(45,32,25),GOLD,12));
+        popup.setElevation(dp(8));
+        popup.setInputMethodMode(android.widget.PopupWindow.INPUT_METHOD_NOT_NEEDED);
+        popup.showAsDropDown(anchor,0,dp(3),Gravity.END);
+    }
+
+    private void addOptionButton(LinearLayout parent,final JSONObject option){String label=option.optString("label","Opção");String description=option.optString("description",option.optString("action",""));JSONObject test=option.optJSONObject("test");String suffix="";if(test!=null&&test.optBoolean("required",false))suffix="\nTeste: "+testLabel(test);boolean momentum=StoryMomentumAction.isRequest(option.optString("action",""));Button button=button(label+(description.length()>0?"\n"+description:"")+suffix,momentum?GOLD:PANEL2);button.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);button.setAllCaps(false);button.setTextSize(14);if(momentum)button.setTextColor(Color.BLACK);boolean blocked=aiBusy||(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))||(momentum&&safeCombatState().optInt("running",0)==1);button.setEnabled(!blocked);button.setAlpha(blocked?0.58f:1f);button.setOnClickListener(new View.OnClickListener(){public void onClick(View v){handleOption(option);}});parent.addView(button,new LinearLayout.LayoutParams(-1,-2));}
+    private void handleOption(JSONObject option){if(aiBusy)return;if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true)){toast("Resolva ou cancele o teste pendente antes de escolher outra ação.");return;}JSONObject test=option.optJSONObject("test");String action=option.optString("action",option.optString("description",option.optString("label")));if(StoryMomentumAction.isRequest(action)&&safeCombatState().optInt("running",0)==1){toast("O combate está em andamento. Resolva primeiro a iniciativa e a rodada atual.");return;}if(test!=null&&test.optBoolean("required",false)){try{JSONObject prepared=new JSONObject(test.toString());prepared.put("option_label",option.optString("label"));pendingTest=ensurePendingTestIdentity(prepared,action);persistStory(action);showNarrator();}catch(Exception e){toast("Não foi possível preparar o teste.");}}else sendAi("Narrador",action,"PLAYER_ACTION");}
     private void addPendingTestCard(LinearLayout parent,final JSONObject test){LinearLayout card=card();card.setBackground(makeBg(Color.rgb(73,49,31),GOLD,12));card.addView(text("TESTE OBRIGATÓRIO — A HISTÓRIA ESTÁ PAUSADA",15,GOLD,true));String originTurn=test.optString("origin_master_turn_id","");if(originTurn.length()>0)card.addView(text("VEM DA SUA CONVERSA AZUL COM O MESTRE",10,Color.rgb(190,225,238),true));card.addView(text(testLabel(test),18,TEXT,true));String action=test.optString("action");if(action.length()>0)card.addView(text(action,14,MUTED,false));Button roll=button("ROLAR AGORA",GOLD);roll.setTextColor(Color.BLACK);roll.setOnClickListener(new View.OnClickListener(){public void onClick(View v){rollPendingTest(test);}});card.addView(roll);Button cancel=button("CANCELAR ESTA AÇÃO",PANEL2);cancel.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String origin=test.optString("origin_master_turn_id","");if(origin.length()>0)updateMasterConversationTurn(origin,"cancelled",new JSONObject());pendingTest=new JSONObject();persistStory("");showNarrator();}});card.addView(cancel);parent.addView(card);}
     private String testLabel(JSONObject test){if(isMystaraWorld()){String type=test.optString("type","ability");if("save".equals(type))return "Jogada de Proteção — "+test.optString("save_type","Bastões, Cajados ou Feitiços")+" • 1d20 ≥ valor da ficha";if("thief_skill".equals(type))return "Habilidade de Ladrão — "+test.optString("thief_skill","Mover-se em Silêncio")+" • d100 ≤ percentual da ficha";String ability=test.optString("ability","Destreza");int mod=test.optInt("modifier",0);return "Teste de "+ability+" • 1d20 ≤ atributo"+(mod==0?"":(mod>0?" + ":" − ")+Math.abs(mod));}String ability=test.optString("ability","Atributo");String skill=test.optString("skill","");int dc=test.optInt("dc",10);String mode=test.optString("mode","Normal");return ability+(skill.length()>0?" ("+skill+")":"")+" • CD "+dc+("Normal".equalsIgnoreCase(mode)?"":" • "+mode);}
     private void rollPendingTest(final JSONObject test){
@@ -7265,6 +7486,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void sendAi(final String mode,String userText){
+        if("Narrador".equals(mode)&&!masterSideQueryActive&&shouldRouteNarratorQuestionToMaster(userText)){
+            sendMasterSideQuestion(userText);return;
+        }
         final String inputChannel="Narrador".equals(mode)?(masterSideQueryActive?"GM_HELP":"PLAYER_ACTION"):null;
         sendAi(mode,userText,inputChannel);
     }
@@ -7426,7 +7650,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 final String key=geminiKey();
                 final String cached=(masterOrchestrator!=null&&activeMasterPlan!=null)?masterOrchestrator.cachedResponse(activeMasterPlan,model,mode):"";
                 final String promptManualBlock=(usedRag?buildLocalCatalogSummary(localHits):"Nenhuma prova manual pertinente foi recuperada.")+"\n\nESTADO DA BIBLIOTECA: "+readyManualSummary+localContext;
-                final String sys=sourceBlocked?"":buildSystemPrompt(mode,effectiveUserText,promptManualBlock);
+                final String officialGrounding=pendingStrixhavenGrounding;
+                final String sys=sourceBlocked?"":buildSystemPrompt(mode,effectiveUserText,promptManualBlock)
+                        +(officialGrounding.length()==0?"":"\n\nCONTEXTO OFICIAL DA CAMPANHA (somente referência; NÃO é ação do jogador):\n"+officialGrounding);
                 final int inputChars=sys.length()+effectiveUserText.length();
                 ui.post(new Runnable(){public void run(){
                     if(!aiBusy||preparationPipeline!=aiPipelineGeneration)return;
@@ -7519,6 +7745,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
         if(requestId!=aiRequestGeneration)return;
+        // Repetição literal não deve gerar OUTRA chamada paga de revisão:
+        // o editor de estilo não consegue produzir um resultado novo sem
+        // autorizar mudança factual. Preserve a cena e devolva controle.
+        if("Narrador".equals(mode)&&!activeTurnNonAdvancing(originalUserText)){
+            JSONObject proposed=parseAiEnvelope(raw);
+            String proposedNarration=sanitizeNarrationPayload(proposed.optString("narration",raw));
+            String duplicated=BraseiroNarrativeDirector.repeatedTurnProblem(proposedNarration,lastNarration);
+            if(!duplicated.isEmpty()){
+                if(aiQuotaGovernor!=null)
+                    aiQuotaGovernor.recordCall(pendingAiInputChars,raw==null?0:raw.length());
+                aiBusy=false;streamingNarration="";
+                markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                        "A resposta do Gemini repetiu a narração anterior. "
+                       +"A ação não foi aplicada e não houve nova chamada de revisão. "
+                       +"A cena anterior permanece válida.");
+                return;
+            }
+        }
         String problem="Narrador".equals(mode)?narrationQualityProblem(raw,originalUserText):"";
         if(problem.length()>0){
             JSONObject envelope=parseAiEnvelope(raw);
@@ -7713,6 +7957,31 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // RUN220: a curated proposal is an intention, never a simultaneous
             // mechanical event. Fail closed even if the same proposal was staged
             // in a previous request (the replay must not execute its side-effects).
+            // An explicit test request cannot be narrated as an automatic
+            // success. It must become a pending roll before story/world commits.
+            if (!masterSideQueryActive && "Narrador".equals(lastAiMode)
+                    && MasterTestRequestGuard.wouldResolveWithoutRoll(action,env,activeMasterPromotionFromRoll)) {
+                synchronized (aiCommitLock) {
+                    if (requestGen != aiRequestGeneration) return;
+                    db.addAuditEvent("segurança","Teste sem rolagem bloqueado",
+                        "O Mestre tentou concluir uma declaração explícita de teste sem gerar pending_test.",
+                        "{}", "{}", false);
+                    ui.post(new Runnable(){public void run(){
+                        if(requestGen!=aiRequestGeneration)return;
+                        aiBusy=false;
+                        streamingNarration="";
+                        clearFailedGeminiRequest();
+                        activeMasterPlan=null;
+                        if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);
+                        setStatus("Teste não executado: o Mestre não apresentou a rolagem. A cena foi preservada.");
+                        toast("Nenhum sucesso foi aplicado. O Mestre precisa solicitar o teste antes de resolvê-lo.");
+                        if(isStrixhavenAdventure())showStrixhavenSession();
+                        else if("Mestre IA".equals(currentScreen))showNarrator();
+                    }});
+                }
+                return;
+            }
+
             if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
                 String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
                 if (!agencyConflict.isEmpty()) {
@@ -7776,6 +8045,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 JSONObject sideRetrieval = copyJsonObject(activeRuleRetrieval);
                 JSONArray sideCitations = copyJsonArray(lastRagCitations);
                 JSONObject previousSupport = copyJsonObject(lastMasterSupport);
+                JSONArray previousTurns=masterConversationHistory();
+                JSONObject lastTurn=previousTurns.length()>0?previousTurns.optJSONObject(previousTurns.length()-1):null;
+                if(MasterConsultationFreshnessGuard.repeatsPreviousForDifferentQuestion(
+                    question,answer,lastTurn)){
+                    AppLog.w("MasterConsultation","Resposta repetida de consulta anterior rejeitada; nova pergunta preservada.",null);
+                    final String rejectedQuestion=question;
+                    synchronized(aiCommitLock){
+                        if(requestGen!=aiRequestGeneration)return;
+                        db.addAuditEvent("consulta_auxiliar","Resposta repetida rejeitada",
+                            rejectedQuestion,"{}","{}",false);
+                        ui.post(new Runnable(){public void run(){
+                            if(requestGen!=aiRequestGeneration)return;
+                            restoreAfterMasterSideQuery();
+                            aiBusy=false;streamingNarration="";
+                            strixhavenMasterCardHidden=false;strixhavenMasterCardCollapsed=false;
+                            setStatus("O Mestre repetiu a resposta anterior. Nova pergunta não respondida; a aventura não avançou.");
+                            toast("Resposta antiga rejeitada. Envie sua pergunta novamente.");
+                            if(isStrixhavenAdventure())showStrixhavenSession();
+                            else if("Mestre IA".equals(currentScreen))showNarrator();
+                        }});
+                    }
+                    return;
+                }
                 JSONObject support = MasterSupportPanelEngine.build(env, sideRetrieval, sideCitations, db.getSceneState(), safeActiveCharacters(), currentOptions, pendingTest, question, isMystaraWorld(), "GM_HELP");
                 JSONObject withAns = MasterSupportPanelEngine.withAnswer(support, question, answer, sideRetrieval, sideCitations);
                 final JSONObject finalSupport = appendMasterConversationHistory(previousSupport, withAns, question, answer);
@@ -7843,7 +8135,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 newCast = buildSceneCastPreview(env);
                 mergeNarratedKnownNpcs(newCast, calculatedNarration);
                 mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
-                newVisualPrompt = env.optString("visual_prompt", "").trim();
+                newVisualPrompt = SceneVisualPromptGuard.choose(env.optString("visual_prompt", ""), previousVisual, calculatedNarration);
                 if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
                 invalidateVisual = true;
                 newAudioPlan = env.optJSONObject("audio_plan");
@@ -7887,7 +8179,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     return;
                 }
 
-                if (isStrixhavenAdventure()) {
+                // A voluntary world-initiative beat may develop an official event,
+                // but cannot complete it or award an academic milestone on its own.
+                // Invalid envelopes must never advance the official campaign.
+                if (isStrixhavenAdventure() && masterEnvelopeValid
+                        && !StoryMomentumAction.isRequest(action)) {
                     processStrixhavenOfficialProgress(env, calculatedNarration);
                 }
 
@@ -9397,18 +9693,51 @@ private void speakGemini(String text){
     private void generateSceneImage(){String prompt=buildGeminiImagePrompt(lastNarration);if(prompt.length()==0){toast("Ainda não há uma cena visual para gerar.");return;}String key=geminiKey();if(key.trim().length()<20){showFriendlyAiError("Chave Gemini não configurada.",true,prompt);return;}setStatus("Tentando geração interna de imagem...");gemini.generateImage(key,prefs.getString("image_model","gemini-3.1-flash-image"),prompt,new GeminiService.FileCallback(){public void onSuccess(final File file,String mime){ui.post(new Runnable(){public void run(){sharedImageUri=Uri.fromFile(file);prefs.edit().putString(PREF_SCENE_IMAGE_URI,sharedImageUri.toString()).putString(PREF_SCENE_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).remove(PREF_PENDING_IMAGE_FINGERPRINT).apply();displaySceneImage(sharedImageUri);setStatus("Imagem gerada e salva na cena.");}});}public void onError(final String error){ui.post(new Runnable(){public void run(){setStatus("Geração interna indisponível.");showFriendlyAiError(error,true,prompt);}});}});}
 
     private String buildGeminiImagePrompt(String scene){
-        String visual=lastVisualPrompt==null?"":lastVisualPrompt.trim();if(visual.length()==0)visual=sanitizeVisualSource(scene);if(visual.length()==0)return "";
-        StringBuilder figures=new StringBuilder();List<JSONObject> heroes=partyDirector.activeHeroRoster();for(JSONObject h:heroes){if(figures.length()>0)figures.append("; ");String desc=h.optString("visual_description").trim();if(desc.length()==0)desc=h.optString("name")+", "+h.optString("species")+", "+h.optString("class_name")+", equipamento coerente";figures.append(h.optString("name")).append(": ").append(desc);}
-        if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n==null)continue;String name=n.optString("name","NPC");JSONObject memory=db.findNpcMemoryByName(name);String desc=n.optString("visual_description",memory.optString("visual_description",memory.optString("summary",""))).trim();if(desc.length()>0){if(figures.length()>0)figures.append("; ");figures.append(name).append(": ").append(desc);}}
-        JSONObject state=db.getSceneState();String context="Local exato: "+state.optString("location","não definido")+". Horário: "+state.optString("time_of_day","")+". Clima: "+state.optString("weather","")+".";
-        String prompt="Crie UMA NOVA imagem exclusivamente para a cena atual. Ilustração panorâmica cinematográfica de fantasia em proporção 16:9, pintura digital nítida, composição natural, sem texto, letras, logotipos, moldura ou interface. "+context+" Figuras que estão realmente presentes e não podem ser omitidas, substituídas ou ter idade/espécie alterada: "+(figures.length()==0?"nenhuma figura recorrente definida":figures.toString())+". Ação e ambiente desta cena, e somente desta cena: "+visual+". Não reutilize composição de imagem anterior e não acrescente personagens não mencionados.";
+        String visual=lastVisualPrompt==null?"":lastVisualPrompt.trim();
+        String moment=SceneVisualPromptGuard.latestBeat(scene);
+        if(visual.isEmpty())visual=moment;
+        if(visual.isEmpty())return "";
+        if(visual.length()>860)visual=visual.substring(visual.length()-860);
+        if(moment.length()>610)moment=moment.substring(moment.length()-610);
+        StringBuilder figures=new StringBuilder();
+        List<JSONObject> heroes=partyDirector.activeHeroRoster();
+        String mentioned=(scene==null?"":scene).toLowerCase(Locale.ROOT);
+        for(JSONObject hero:heroes){
+            String name=hero.optString("name","");
+            if(name.isEmpty()||(heroes.size()>1&&!mentioned.contains(name.toLowerCase(Locale.ROOT))))continue;
+            String desc=hero.optString("visual_description","").trim();
+            if(desc.isEmpty())desc=name+", "+hero.optString("species")+", "+hero.optString("class_name");
+            if(figures.length()>0)figures.append("; ");
+            figures.append(name).append(": ").append(desc);
+        }
+        if(currentSceneCastPreview!=null)for(int k=0;k<currentSceneCastPreview.length();k++){
+            JSONObject npc=currentSceneCastPreview.optJSONObject(k);
+            if(npc==null)continue;
+            String name=npc.optString("name","");
+            if(name.isEmpty()||!mentioned.contains(name.toLowerCase(Locale.ROOT)))continue;
+            JSONObject memory=db.findNpcMemoryByName(name);
+            String desc=npc.optString("visual_description",memory.optString("visual_description","")).trim();
+            if(desc.isEmpty())continue;
+            if(figures.length()>0)figures.append("; ");
+            figures.append(name).append(": ").append(desc);
+        }
+        JSONObject state=db.getSceneState();
+        String context="Local confirmado: "+state.optString("location","não definido")+
+            ". Horário: "+state.optString("time_of_day","")+
+            ". Clima: "+state.optString("weather","")+".";
+        String prompt="Ilustração panorâmica cinematográfica de fantasia 16:9, pintura digital nítida, sem texto, letras, logotipos, moldura ou interface. "+
+            context+" FOCO VISUAL DO TURNO ATUAL: "+visual+
+            ". MOMENTO MAIS RECENTE (para enquadramento e ação): "+moment+
+            ". Identidades de personagens realmente mencionados neste turno: "+
+            (figures.length()==0?"seguir somente as identidades e papéis descritos na cena":figures.toString())+
+            ". Mostre esta batida precisa da história, não uma reapresentação genérica do cenário; respeite posição, figurino e continuidade. Não invente outros personagens.";
         return prompt.length()>3200?prompt.substring(0,3200):prompt;
     }
 
-    private void editVisualPromptAndOpenGemini(){editVisualPrompt(true);}
+        private void editVisualPromptAndOpenGemini(){editVisualPrompt(true);}
     private void editVisualPrompt(final boolean openGemini){final String prompt=buildGeminiImagePrompt(lastNarration);if(prompt.length()==0){toast("Ainda não há uma cena para transformar em imagem.");return;}final EditText edit=input("Prompt visual",prompt,true);edit.setMinLines(10);new AlertDialog.Builder(this).setTitle("Prompt visual limpo").setView(edit).setNegativeButton("Cancelar",null).setPositiveButton(openGemini?"ABRIR GEMINI":"COPIAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String finalPrompt=edit.getText().toString().trim();if(openGemini)sharePromptToGemini(finalPrompt);else{ClipboardManager cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);cm.setPrimaryClip(ClipData.newPlainText("Prompt visual",finalPrompt));toast("Prompt visual copiado.");}}}).show();}
 
-    private void sharePromptToGemini(String prompt){lastPrompt=prompt;prefs.edit().putString(PREF_PENDING_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).apply();Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,prompt);x.setPackage("com.google.android.apps.bard");try{startActivity(x);setStatus("Gemini aberto. Depois compartilhe a imagem de volta ao Braseiro D&D.");}catch(ActivityNotFoundException e){Intent fallback=new Intent(Intent.ACTION_SEND);fallback.setType("text/plain");fallback.putExtra(Intent.EXTRA_TEXT,prompt);startActivity(Intent.createChooser(fallback,"Escolha o Gemini"));setStatus("Escolha o Gemini e compartilhe a imagem de volta depois.");}}
+    private void sharePromptToGemini(String prompt){prefs.edit().putString(PREF_PENDING_IMAGE_FINGERPRINT,currentSceneVisualFingerprint()).apply();Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,prompt);x.setPackage("com.google.android.apps.bard");try{startActivity(x);setStatus("Gemini aberto. Depois compartilhe a imagem de volta ao Braseiro D&D.");}catch(ActivityNotFoundException e){Intent fallback=new Intent(Intent.ACTION_SEND);fallback.setType("text/plain");fallback.putExtra(Intent.EXTRA_TEXT,prompt);startActivity(Intent.createChooser(fallback,"Escolha o Gemini"));setStatus("Escolha o Gemini e compartilhe a imagem de volta depois.");}}
 
     private void showFriendlyAiError(final String error,boolean image,final String visualPrompt){String lower=error==null?"":error.toLowerCase(Locale.US);String title=image?"Imagem indisponível":"IA indisponível";String message;if(lower.contains("429")||lower.contains("quota")||lower.contains("rate-limit")||lower.contains("limit: 0"))message=image?"A cota de geração interna de imagens está esgotada ou indisponível para este modelo. O prompt visual já está pronto para ser enviado ao aplicativo Gemini.":"A cota do modelo de texto foi atingida. Aguarde o prazo indicado ou escolha outro modelo em Config.";else if(lower.contains("404")||lower.contains("not found")||lower.contains("no longer available"))message="Nenhum dos modelos disponíveis para esta chave conseguiu responder. Abra Detalhes para conferir as tentativas.";else if(lower.contains("503")||lower.contains("high demand")||lower.contains("unavailable"))message="Os modelos tentados estavam temporariamente sobrecarregados. O fallback já tentou alternativas; aguarde um instante e toque novamente.";else if(lower.contains("chave")||lower.contains("api key")||lower.contains("401")||lower.contains("403"))message="A chave Gemini ou a permissão do projeto está incorreta. Confira a chave em Config.";else message=image?"Não foi possível gerar a imagem internamente. Você pode usar o fluxo pelo aplicativo Gemini.":"O fallback não encontrou um modelo que respondesse. Abra Detalhes para ver cada tentativa.";AlertDialog.Builder b=new AlertDialog.Builder(this).setTitle(title).setMessage(message).setNegativeButton("Fechar",null).setNeutralButton("DETALHES",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){final EditText details=input("Detalhes técnicos",error==null?"Sem detalhes.":error,true);details.setMinLines(8);new AlertDialog.Builder(MainActivity.this).setTitle("Detalhes técnicos").setView(details).setPositiveButton("Fechar",null).show();}});if(image&&visualPrompt!=null&&visualPrompt.length()>0)b.setPositiveButton("ABRIR GEMINI",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){sharePromptToGemini(visualPrompt);}});b.show();}
 
@@ -9465,7 +9794,7 @@ private void speakGemini(String text){
         AppExecutors.io().execute(new Runnable(){public void run(){boolean changed=false;for(String name:names)changed|=npcTokenAutoBinder.assignIfMissing(name);if(!changed)return;final JSONArray refreshed=new JSONArray();for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject old=currentSceneCastPreview.optJSONObject(i);if(old==null)continue;try{JSONObject copy=new JSONObject(old.toString());JSONObject memory=db.findNpcMemoryByName(copy.optString("name"));if(memory.optString("token_uri","").length()>0)copy.put("token_uri",memory.optString("token_uri"));refreshed.put(copy);}catch(Exception ignored){refreshed.put(old);}}ui.post(new Runnable(){public void run(){currentSceneCastPreview=refreshed;prefs.edit().putString("last_scene_cast_preview",refreshed.toString()).apply();screenCache.remove("Mestre IA");screenCache.remove("Combate");if("Mestre IA".equals(currentScreen))showNarrator();else if("Combate".equals(currentScreen))showCombat();}});}});
     }
 
-    private String currentSceneVisualFingerprint(){StringBuilder b=new StringBuilder();b.append(activeWorldProfile()).append('|').append(lastVisualPrompt==null?"":lastVisualPrompt).append('|');JSONObject scene=db==null?new JSONObject():db.getSceneState();b.append(scene.optString("location")).append('|').append(scene.optString("day_number")).append('|').append(scene.optString("time_of_day")).append('|').append(scene.optString("weather"));if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n!=null)b.append('|').append(n.optString("name")).append(':').append(n.optString("visual_description"));}try{MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] bytes=md.digest(b.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder hex=new StringBuilder();for(int i=0;i<12&&i<bytes.length;i++)hex.append(String.format(Locale.US,"%02x",bytes[i]));return hex.toString();}catch(Exception e){return Integer.toHexString(b.toString().hashCode());}}
+    private String currentSceneVisualFingerprint(){StringBuilder b=new StringBuilder();b.append(activeWorldProfile()).append('|').append(lastVisualPrompt==null?"":lastVisualPrompt).append('|').append(SceneVisualPromptGuard.latestBeat(lastNarration)).append('|');JSONObject scene=db==null?new JSONObject():db.getSceneState();b.append(scene.optString("location")).append('|').append(scene.optString("day_number")).append('|').append(scene.optString("time_of_day")).append('|').append(scene.optString("weather"));if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject n=currentSceneCastPreview.optJSONObject(i);if(n!=null)b.append('|').append(n.optString("name")).append(':').append(n.optString("visual_description"));}try{MessageDigest md=MessageDigest.getInstance("SHA-256");byte[] bytes=md.digest(b.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));StringBuilder hex=new StringBuilder();for(int i=0;i<12&&i<bytes.length;i++)hex.append(String.format(Locale.US,"%02x",bytes[i]));return hex.toString();}catch(Exception e){return Integer.toHexString(b.toString().hashCode());}}
     private void clearSceneImageReference(){sharedImageUri=null;if(prefs!=null)prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).apply();}
     private void invalidateSceneImageIfContextChanged(){String stored=prefs.getString(PREF_SCENE_IMAGE_FINGERPRINT,"");if(sharedImageUri!=null&&stored.length()>0&&!stored.equals(currentSceneVisualFingerprint())){clearSceneImageReference();screenCache.remove("Mestre IA");}}
 
@@ -9480,7 +9809,15 @@ private void speakGemini(String text){
         loadStoryState();
     }
 
-    private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);if(hasInternalNarrationLeak(stored)||hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Narração antiga continha metainstruções; reparando prosa sem avançar tempo.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);if(hasInternalNarrationLeak(lastNarration))lastNarration="A cena anterior permanece registrada no diário. A história prossegue do ponto atual sem avançar o tempo.";}try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
+    private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);if(hasInternalNarrationLeak(stored)||hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Narração antiga continha metainstruções; reparando prosa sem avançar tempo.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);if(hasInternalNarrationLeak(lastNarration))lastNarration="A cena anterior permanece registrada no diário. A história prossegue do ponto atual sem avançar o tempo.";}try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);if(currentOptions.length()<ContextualSceneActionFactory.MIN_CONTEXTUAL+1
+    ||currentOptions.optJSONObject(0)==null
+    ||!StoryMomentumAction.isRequest(currentOptions.optJSONObject(0).optString("action",""))
+    ||!SceneOptionVisibleEvidence.allSupported(currentOptions,lastNarration)){
+    currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);
+}else{
+    // Reopening a scene retains its choices only when they actually match the visible narration.
+    currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
+}}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
     private void persistStory(String action){db.saveStoryState(lastNarration.length()>0,lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),action==null?"":action);}
 
     private String collegeSkills(String c){if("Lorehold".equals(c))return "História • proficiente\nReligião • proficiente";if("Prismari".equals(c))return "Acrobacia • proficiente\nAtuação • proficiente";if("Quandrix".equals(c))return "Arcanismo • proficiente\nNatureza • proficiente";if("Silverquill".equals(c))return "Intimidação • proficiente\nPersuasão • proficiente";if("Witherbloom".equals(c))return "Natureza • proficiente\nSobrevivência • proficiente";return "";}
@@ -10173,6 +10510,24 @@ private void speakGemini(String text){
     private static String arcStatusValue(String label){if("Em pausa".equals(label))return "paused";if("Concluído".equals(label))return "completed";if("Fracassado".equals(label))return "failed";if("Transformado".equals(label))return "transformed";return "active";}
     private static String truthStatus(String label){String n=label.toLowerCase(Locale.ROOT);if(n.startsWith("rumor"))return "rumor";if(n.startsWith("mentira"))return "mentira";if(n.startsWith("interpre"))return "equivoco";return "verdade";}
 
+    /** Read-only sanitation: preserve the original backup/DB rows untouched. */
+    private List<JSONObject> visibleJournalEntries(){
+        List<JSONObject> rows=db.listJournal();
+        ArrayList<JSONObject> visible=new ArrayList<JSONObject>();
+        for(JSONObject row:rows){
+            if(row==null)continue;
+            try{
+                JSONObject sanitized=new JSONObject(row.toString());
+                sanitized.put("body",JournalEntryPresentation.safeBody(row.optString("body","")));
+                visible.add(sanitized);
+            }catch(Exception ex){
+                AppLog.w("Journal","Falha ao preparar apresentação; exibindo o registro original.",ex);
+                visible.add(row);
+            }
+        }
+        return visible;
+    }
+
     private void showJournal(){
         currentScreen="Diário";
         if(shellNavScroll!=null)shellNavScroll.setVisibility(View.VISIBLE);
@@ -10181,8 +10536,8 @@ private void speakGemini(String text){
         backToSession.setTextColor(Color.BLACK);
         backToSession.setOnClickListener(new View.OnClickListener(){public void onClick(View v){returnToActiveSession();}});
         b.addView(backToSession);
-        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=db.listJournal();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
-        Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=db.listJournal();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
+        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=visibleJournalEntries();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
+        Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=visibleJournalEntries();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
         Button bard=button("EXPORTAR COMO CRÔNICA DE BARDO (PDF)",GREEN);bard.setOnClickListener(new View.OnClickListener(){public void onClick(View v){bardChronicleDialog();}});b.addView(bard);
         Button pdf=button("EXPORTAR AVENTURA COMO LIVRO PDF",GOLD);pdf.setTextColor(Color.BLACK);pdf.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prepareLiteralAdventurePdf();}});b.addView(pdf);
     }
@@ -10204,7 +10559,7 @@ private void speakGemini(String text){
                     String needle=query.getText().toString().trim().toLowerCase(Locale.ROOT);
                     if(needle.isEmpty()){toast("Digite o termo que deseja encontrar.");return;}
                     final ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
-                    for(JSONObject entry:db.listJournal()){
+                    for(JSONObject entry:visibleJournalEntries()){
                         if(entry==null)continue;
                         String haystack=(entry.optString("title")+" "+entry.optString("body")+" "+entry.optString("kind")).toLowerCase(Locale.ROOT);
                         if(haystack.contains(needle)){hits.add(entry);if(hits.size()>=100)break;}
@@ -10220,7 +10575,7 @@ private void speakGemini(String text){
     }
 
     private void bardChronicleDialog(){
-        final List<JSONObject> journal=db.listJournal();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
+        final List<JSONObject> journal=visibleJournalEntries();if(journal.isEmpty()){toast("O Diário ainda não possui história para transformar em balada.");return;}
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(10));
         form.addView(text("O PDF reorganiza os registros em ordem cronológica e os apresenta como uma história oral contada numa taverna. Fatos, nomes e consequências vêm somente da campanha; a moldura do bardo é estilística.",13,TEXT,false));
         final EditText bardName=labeledField(form,"Nome do bardo","Bardo do Braseiro",false);
@@ -10233,13 +10588,13 @@ private void speakGemini(String text){
 
     private void prepareLiteralAdventurePdf(){
         setStatus("Montando o livro da aventura em segundo plano…");
-        AppExecutors.io().execute(new Runnable(){public void run(){try{final File file=new AdventurePdfExporter(MainActivity.this).export(db.getCampaign(),db.listJournal());ui.post(new Runnable(){public void run(){pendingAdventurePdfKind="livro";pendingAdventurePdf=file;openAdventurePdfDestination("Cronicas_"+safeExportName(db.getCampaign().optString("name","Braseiro"))+".pdf");setStatus("Livro da aventura pronto para salvar.");}});}catch(final Exception e){ui.post(new Runnable(){public void run(){toast("PDF: "+e.getMessage());setStatus("Não foi possível montar o PDF.");}});}}});
+        AppExecutors.io().execute(new Runnable(){public void run(){try{final File file=new AdventurePdfExporter(MainActivity.this).export(db.getCampaign(),visibleJournalEntries());ui.post(new Runnable(){public void run(){pendingAdventurePdfKind="livro";pendingAdventurePdf=file;openAdventurePdfDestination("Cronicas_"+safeExportName(db.getCampaign().optString("name","Braseiro"))+".pdf");setStatus("Livro da aventura pronto para salvar.");}});}catch(final Exception e){ui.post(new Runnable(){public void run(){toast("PDF: "+e.getMessage());setStatus("Não foi possível montar o PDF.");}});}}});
     }
 
     private void prepareBardChroniclePdf(final String bardName,final String tone,final boolean preferAi){
         setStatus("Organizando o Diário em segundo plano…");
         AppExecutors.io().execute(new Runnable(){public void run(){
-            final JSONObject campaign=db.getCampaign();final List<JSONObject> journal=db.listJournal();final List<JSONObject> heroes=db.listActiveCharacters();
+            final JSONObject campaign=db.getCampaign();final List<JSONObject> journal=visibleJournalEntries();final List<JSONObject> heroes=db.listActiveCharacters();
             final JSONObject local=BardChronicleComposer.localManuscript(campaign,journal,heroes,bardName,tone);final String prompt=BardChronicleComposer.aiPrompt(campaign,journal,heroes,bardName,tone);final String system=BardChronicleComposer.aiSystem();
             final String key=geminiKey().trim();final boolean aiAllowed=preferAi&&key.length()>=20&&BardChronicleComposer.aiSourceFits(prompt)&&(aiQuotaGovernor==null||aiQuotaGovernor.canCall(system.length()+prompt.length()));
             ui.post(new Runnable(){public void run(){
@@ -11413,15 +11768,26 @@ private void speakGemini(String text){
         String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();
         String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();
         String error=prefs==null?"":prefs.getString("gemini_last_error","");
-        if("online".equals(state))return "● GEMINI ONLINE • "+(actual.length()>0?actual:configured);
+        if("online".equals(state)){
+            String used=actual.length()>0?actual:configured;
+            return "● GEMINI ONLINE • preferido: "+configured+" • último usado: "+used+
+                    (GeminiTextModelPriority.isFallback(configured,used)?" (fallback; preferência preservada)":"");
+        }
         if("saved_not_tested".equals(state))return "● CHAVE SALVA • conexão ainda não testada";
         return "● GEMINI OFFLINE"+(error==null||error.trim().length()==0?"":" • "+error.trim());
+    }
+
+    private boolean savePreferredGeminiTextModel(String selected){
+        String choice=selected==null?"":selected.trim();
+        if(choice.isEmpty())return false;
+        // commit() is intentional: the next request may start immediately.
+        return prefs.edit().putString("text_model",choice).remove("narrator_text_model").commit();
     }
 
     private void showSettings(){
         ScrollView s=page("Configurações","IA rápida por streaming, ritmo do Mestre, temas, Drive, backup e diagnóstico.");LinearLayout b=body(s);
         LinearLayout startupDiagnostic=card();startupDiagnostic.addView(text("DIAGNÓSTICO DE ABERTURA",14,GOLD,true));startupDiagnostic.addView(text("Copia as etapas e durações da última inicialização, sem incluir dados da campanha nem chaves de API.",12,MUTED,false));Button copyStartup=button("COPIAR TEMPOS DA ABERTURA",PANEL2);copyStartup.setOnClickListener(new View.OnClickListener(){public void onClick(View v){ClipboardManager cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);if(cm!=null){cm.setPrimaryClip(ClipData.newPlainText("Braseiro D&D inicialização",DndStartupTrace.report(MainActivity.this)));toast("Tempos de abertura copiados.");}}});startupDiagnostic.addView(copyStartup);b.addView(startupDiagnostic);
-        LinearLayout ai=card();ai.addView(text("GEMINI — RESPOSTA PROGRESSIVA",17,GOLD,true));ai.addView(text("A narração aparece enquanto o Gemini escreve. PDFs preparados são selecionados por relevância nos modos do Mestre, e toda resposta visível é exigida em português do Brasil. A chave fica cifrada pelo Android Keystore e não entra nos backups da campanha.",13,MUTED,false));final EditText key=input("Chave principal da API Gemini",geminiKey(),false);key.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);key.setTransformationMethod(PasswordTransformationMethod.getInstance());final EditText paidKey=input("Chave Gemini alternativa para Charon (opcional)",geminiPaidKey(),false);paidKey.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);paidKey.setTransformationMethod(PasswordTransformationMethod.getInstance());final EditText textModel=input("Modelo preferido de texto",prefs.getString("text_model","gemini-3.5-flash-lite"),false);final EditText imageModel=input("Modelo preferido de imagem",prefs.getString("image_model","gemini-3.1-flash-image"),false);final EditText ttsModel=input("Modelo TTS",prefs.getString("tts_model","gemini-3.8-flash-tts"),false);final EditText voice=input("Voz",prefs.getString("tts_voice","Charon"),false);ai.addView(key);ai.addView(paidKey);Button saveGeminiKeys=button("SALVAR CHAVES GEMINI",GREEN);saveGeminiKeys.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String primary=key.getText().toString().trim(),alternate=paidKey.getText().toString().trim();if(primary.length()<20){toast("Informe uma chave principal Gemini válida.");return;}if(saveGeminiSecretsAtomically(primary,alternate)){prefs.edit().putString("gemini_connection_state","saved_not_tested").remove("gemini_last_error").apply();toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva. Toque em SALVAR E TESTAR GEMINI para confirmar a conexão.");}else toast("A chave não foi salva; o valor anterior foi preservado.");}});ai.addView(saveGeminiKeys);ai.addView(text(geminiConnectionStatusText(),12,"online".equals(prefs.getString("gemini_connection_state",""))?GREEN:GOLD,true));ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",12,MUTED,false));ai.addView(textModel);ai.addView(text("Este é o modelo do Mestre/Narrador. O app tenta exatamente este modelo primeiro; se a API obrigar failover, o rodapé mostrará o modelo usado e o configurado, sem override oculto.",12,MUTED,false));ai.addView(imageModel);ai.addView(ttsModel);ai.addView(voice);final GeminiVoiceUi.Fields voiceControls=GeminiVoiceUi.mount(this,ai,gemini,prefs,ttsModel,voice,key,paidKey);ai.addView(text("Charon é a voz padrão. O app aguarda a resposta ou o timeout real da API; a voz Android só assume após falha confirmada, limite de cota ou escolha manual.",12,MUTED,false));Button resetCharonCircuit=button("REDEFINIR CIRCUITO DO CHARON",PANEL2);resetCharonCircuit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){gemini.resetTtsPrimaryCircuit();toast("Circuito do Charon redefinido. A chave principal será tentada na próxima fala.");}});ai.addView(resetCharonCircuit);Button testAi=button("SALVAR E TESTAR GEMINI",PANEL2);testAi.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String k=key.getText().toString().trim();if(k.length()<20){toast("Informe a chave Gemini.");return;}if(!saveGeminiSecretsAtomically(k,paidKey.getText().toString().trim())){toast("Não foi possível salvar a chave antes do teste.");return;}setStatus("Testando o modelo...");final String testSystem="BRAS_SINGLE_CALL. Responda somente em português brasileiro.";final String testPrompt="Responda apenas: Braseiro conectado.";gemini.generateText(k,textModel.getText().toString().trim(),testSystem,testPrompt,new GeminiService.TextCallback(){public void onSuccess(final String value){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),value==null?0:value.length());prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();toast(value);setStatus("GEMINI ONLINE • "+gemini.getLastWorkingTextModel());showSettings();}});}public void onError(final String error){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),0);prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();showFriendlyAiError(error,false,null);setStatus("GEMINI OFFLINE • "+(error==null?"erro desconhecido":error));showSettings();}});}});}});ai.addView(testAi);b.addView(ai);
+        LinearLayout ai=card();ai.addView(text("GEMINI — RESPOSTA PROGRESSIVA",17,GOLD,true));ai.addView(text("A narração aparece enquanto o Gemini escreve. PDFs preparados são selecionados por relevância nos modos do Mestre, e toda resposta visível é exigida em português do Brasil. A chave fica cifrada pelo Android Keystore e não entra nos backups da campanha.",13,MUTED,false));final EditText key=input("Chave principal da API Gemini",geminiKey(),false);key.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);key.setTransformationMethod(PasswordTransformationMethod.getInstance());final EditText paidKey=input("Chave Gemini alternativa para Charon (opcional)",geminiPaidKey(),false);paidKey.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);paidKey.setTransformationMethod(PasswordTransformationMethod.getInstance());final EditText textModel=input("Modelo preferido de texto",prefs.getString("text_model","gemini-3.5-flash-lite"),false);final EditText imageModel=input("Modelo preferido de imagem",prefs.getString("image_model","gemini-3.1-flash-image"),false);final EditText ttsModel=input("Modelo TTS",prefs.getString("tts_model","gemini-3.8-flash-tts"),false);final EditText voice=input("Voz",prefs.getString("tts_voice","Charon"),false);ai.addView(key);ai.addView(paidKey);Button saveGeminiKeys=button("SALVAR CHAVES GEMINI",GREEN);saveGeminiKeys.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String primary=key.getText().toString().trim(),alternate=paidKey.getText().toString().trim();if(primary.length()<20){toast("Informe uma chave principal Gemini válida.");return;}if(saveGeminiSecretsAtomically(primary,alternate)){prefs.edit().putString("gemini_connection_state","saved_not_tested").remove("gemini_last_error").apply();toast("Chaves Gemini salvas no Android Keystore.");setStatus("Chave Gemini salva. Toque em SALVAR E TESTAR GEMINI para confirmar a conexão.");}else toast("A chave não foi salva; o valor anterior foi preservado.");}});ai.addView(saveGeminiKeys);ai.addView(text(geminiConnectionStatusText(),12,"online".equals(prefs.getString("gemini_connection_state",""))?GREEN:GOLD,true));ai.addView(text("A chave alternativa só é usada pelo Charon quando a principal recebe 429, esgota a cota ou entra no circuito de espera de cinco minutos.",12,MUTED,false));ai.addView(textModel);ai.addView(text("Este é o modelo do Mestre/Narrador. O app sempre tenta este modelo primeiro. Somente se a chamada falhar, tenta gemini-3.5-flash-lite. A preferência permanece salva, e o status mostra qual respondeu.",12,MUTED,false));ai.addView(imageModel);ai.addView(ttsModel);ai.addView(voice);final GeminiVoiceUi.Fields voiceControls=GeminiVoiceUi.mount(this,ai,gemini,prefs,ttsModel,voice,key,paidKey);ai.addView(text("Charon é a voz padrão. O app aguarda a resposta ou o timeout real da API; a voz Android só assume após falha confirmada, limite de cota ou escolha manual.",12,MUTED,false));Button resetCharonCircuit=button("REDEFINIR CIRCUITO DO CHARON",PANEL2);resetCharonCircuit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){gemini.resetTtsPrimaryCircuit();toast("Circuito do Charon redefinido. A chave principal será tentada na próxima fala.");}});ai.addView(resetCharonCircuit);Button testAi=button("SALVAR E TESTAR GEMINI",PANEL2);testAi.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String k=key.getText().toString().trim();if(k.length()<20){toast("Informe a chave Gemini.");return;}if(!saveGeminiSecretsAtomically(k,paidKey.getText().toString().trim())){toast("Não foi possível salvar a chave antes do teste.");return;}final String preferred=textModel.getText().toString().trim();if(!savePreferredGeminiTextModel(preferred)){toast("Não foi possível salvar o modelo de texto.");return;}setStatus("Testando primeiro "+preferred+"; reserva "+GeminiTextModelPriority.FALLBACK+"...");final String testSystem="BRAS_SINGLE_CALL. Responda somente em português brasileiro.";final String testPrompt="Responda apenas: Braseiro conectado.";gemini.generateText(k,preferred,testSystem,testPrompt,new GeminiService.TextCallback(){public void onSuccess(final String value){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),value==null?0:value.length());prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();String used=gemini.getLastWorkingTextModel();boolean fallback=GeminiTextModelPriority.isFallback(preferred,used);toast(fallback?"Teste respondido pelo modelo de reserva: "+used+". Preferência "+preferred+" permanece salva.":"Teste respondido pelo modelo escolhido: "+used);setStatus("GEMINI ONLINE • escolhido: "+preferred+" • usado: "+used+(fallback?" (fallback)":""));showSettings();}});}public void onError(final String error){ui.post(new Runnable(){public void run(){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(testSystem.length()+testPrompt.length(),0);prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();showFriendlyAiError(error,false,null);setStatus("GEMINI OFFLINE • preferência "+preferred+" preservada • "+(error==null?"erro desconhecido":error));showSettings();}});}});}});ai.addView(testAi);b.addView(ai);
         LinearLayout quotaCard=card();quotaCard.addView(text("ECONOMIA DE COTA DO GEMINI",17,GOLD,true));quotaCard.addView(text((masterOrchestrator==null?"Controle local ainda não iniciado.":masterOrchestrator.quotaStatus())+"\nCada batida narrativa usa uma chamada principal. Pesquisa de manuais, regras, relógios, grupo, mapa e memória são processados localmente. Somente quando o QA detectar repetição ou forma narrativa grave, o app pode fazer UMA revisão adicional que reescreve exclusivamente a prosa e preserva integralmente o envelope estruturado.",13,TEXT,false));final EditText dailyCalls=input("Limite diário de chamadas de texto",String.valueOf(prefs.getInt("ai_daily_call_limit",80)),false);dailyCalls.setInputType(InputType.TYPE_CLASS_NUMBER);final EditText dailyChars=input("Limite diário de entrada, em milhares de caracteres",String.valueOf(prefs.getInt("ai_daily_char_limit",900000)/1000),false);dailyChars.setInputType(InputType.TYPE_CLASS_NUMBER);final EditText dailyTts=input("Limite diário de blocos Charon",String.valueOf(prefs.getInt("ai_daily_tts_limit",24)),false);dailyTts.setInputType(InputType.TYPE_CLASS_NUMBER);quotaCard.addView(dailyCalls);quotaCard.addView(dailyChars);quotaCard.addView(dailyTts);quotaCard.addView(text("Cache de voz atual: "+humanSize(ttsCache==null?0:ttsCache.bytes())+". Repetir uma fala já sintetizada não consome nova chamada.",12,MUTED,false));Button resetBudget=button("ZERAR CONTADOR LOCAL DE HOJE",PANEL2);resetBudget.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prefs.edit().putInt("ai_calls_today",0).putInt("ai_input_chars_today",0).putInt("ai_output_chars_today",0).putInt("ai_tts_calls_today",0).apply();toast("Contador local zerado. Isso não altera a cota real do Google.");showSettings();}});quotaCard.addView(resetBudget);b.addView(quotaCard);
         LinearLayout narrative=card();narrative.addView(text("RITMO DO MESTRE",17,GOLD,true));narrative.addView(text("Cinematográfico é o padrão: descrição longa, sensorial e espacial. Equilibrado preserva riqueza com menos extensão; Ágil continua descritivo, sem virar resumo.",13,MUTED,false));final Spinner paceSpinner=spinner(paceLabels(),paceLabel(prefs.getString("master_pace","cinematic")));narrative.addView(paceSpinner);b.addView(narrative);
         LinearLayout theme=card();theme.addView(text("TEMA VISUAL",17,GOLD,true));theme.addView(text(isMystaraWorld()?"Mystara mantém o tema Old School e agora também pode usar as 120 paletas Game Boy HCL Sequentials. A escolha de Mystara fica independente da escolha de D&D.":"Sete temas clássicos do Braseiro + 120 paletas Game Boy HCL Sequentials, cada uma com código e nome próprios.",13,MUTED,false));final Spinner themeSpinner=spinner(themeLabels(),themeLabel(activeThemeMode()));theme.addView(themeSpinner);final TextView paletteInfo=text("",12,MUTED,false);final LinearLayout paletteStrip=new LinearLayout(this);paletteStrip.setOrientation(LinearLayout.HORIZONTAL);theme.addView(paletteInfo);theme.addView(paletteStrip,new LinearLayout.LayoutParams(-1,dp(42)));renderThemePreview(themeMode(String.valueOf(themeSpinner.getSelectedItem())),paletteStrip,paletteInfo);themeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onItemSelected(AdapterView<?> p,View v,int pos,long id){renderThemePreview(themeMode(String.valueOf(themeSpinner.getSelectedItem())),paletteStrip,paletteInfo);}public void onNothingSelected(AdapterView<?> p){}});b.addView(theme);

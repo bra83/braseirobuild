@@ -167,7 +167,7 @@ public final class BraseiroVttEndToEndAuditTest {
     }
 
     @Test
-    public void suggestedActionsAppearInEveryNarrativeSceneAcross24AdventureTurnsAndDrawerStates() throws Exception {
+    public void optionalActionsRemainGroundedAcross24AdventureTurnsAndDrawerStates() throws Exception {
         long kvotheId = db.addCharacter("Kvothe", "Humano", "Mago", 1, 8, 8, 13, 8, 14, 12, 16, 10, 14, true, "");
         db.updateCharacterRuleDetails(kvotheId, "Escriba", "", "", "", "", DndRulesEngine.PROFILE_2024);
         StrixhavenAdventureProfile profile = new StrixhavenAdventureProfile(context);
@@ -214,8 +214,10 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") must have >= 2 concrete options, got: " + diversified,
-                    diversified.length() >= 2 && diversified.length() <= 3);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and four grounded choices: " + diversified,
+                    diversified.length() == 5);
+            assertTrue("Story momentum must be the dedicated first action",
+                    StoryMomentumAction.isRequest(diversified.getJSONObject(0).optString("action")));
 
             Set<String> seenActions = new HashSet<>();
             for (int j = 0; j < diversified.length(); j++) {
@@ -228,6 +230,8 @@ public final class BraseiroVttEndToEndAuditTest {
                         act.equalsIgnoreCase(action));
                 assertTrue("Options within same turn must be distinct: " + diversified,
                         seenActions.add(act.toLowerCase()));
+                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1),
+                        SceneOptionDiversifier.isGroundedInScene(act,narration,scene));
             }
 
             // Verify Strixhaven drawer renders these options both when expanded AND when collapsed
@@ -237,15 +241,22 @@ public final class BraseiroVttEndToEndAuditTest {
             setField("strixhavenDrawerExpanded", true);
             View expandedDrawer = (View) invoke("buildStrixhavenNarrationDrawer",
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
-            String firstLabel = diversified.getJSONObject(0).optString("label");
-            Button expandedBtn = findButtonContaining(expandedDrawer, firstLabel);
-            assertNotNull("Expanded Strixhaven drawer must render suggested action button '" + firstLabel + "'", expandedBtn);
+            assertNotNull("Expanded drawer must open without mandatory suggestions", expandedDrawer);
+            if(diversified.length()>0){
+            Button expandedBtn = findButtonContaining(expandedDrawer, "AÇÕES SUGERIDAS");
+            assertNotNull("Expanded Strixhaven drawer must show one compact suggestions dropdown", expandedBtn);
 
             setField("strixhavenDrawerExpanded", false);
             View collapsedDrawer = (View) invoke("buildStrixhavenNarrationDrawer",
                     new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
-            Button collapsedBtn = findButtonContaining(collapsedDrawer, firstLabel);
-            assertNotNull("Collapsed Strixhaven drawer must STILL render compact suggested action button '" + firstLabel + "'", collapsedBtn);
+            Button collapsedBtn = findButtonContaining(collapsedDrawer, "AÇÕES SUGERIDAS");
+            assertNotNull("Collapsed Strixhaven drawer must retain the same dropdown", collapsedBtn);
+            }else{
+                setField("strixhavenDrawerExpanded", false);
+                View collapsedWithoutOptions = (View) invoke("buildStrixhavenNarrationDrawer",
+                    new Class<?>[]{StrixhavenAdventureProfile.class}, profile);
+                assertNotNull("Action-free scenes still need a usable drawer",collapsedWithoutOptions);
+            }
         }
     }
 

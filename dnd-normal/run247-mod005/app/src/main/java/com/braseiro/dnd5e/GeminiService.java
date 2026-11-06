@@ -96,7 +96,8 @@ public class GeminiService {
                         if(text.length()==0)throw new Exception(apiError(response,"A IA não retornou texto."));
                         rememberWorkingModel("last_text_model_ok",candidate);
                         cb.onSuccess(text);return;
-                    }catch(AuthException e){throw e;
+                    }catch(AuthException e){
+                        errors.add(candidate+": "+shortError(e)); // outra chave/modelo pode ter permissão distinta
                     }catch(Exception e){errors.add(candidate+": "+shortError(e));}
                 }
                 throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
@@ -117,7 +118,8 @@ public class GeminiService {
                         String text=streamTextWithRetry(candidate,apiKey,body,cb,singleBudgetCall?1:2);
                         if(text.length()==0)throw new Exception("A IA não retornou texto.");
                         rememberWorkingModel("last_text_model_ok",candidate);cb.onSuccess(text);return;
-                    }catch(AuthException e){throw e;}catch(Exception e){errors.add(candidate+": "+shortError(e));}
+                    }catch(AuthException e){errors.add(candidate+": "+shortError(e));}
+                    catch(Exception e){errors.add(candidate+": "+shortError(e));}
                 }
                 throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
             }catch(Exception e){cb.onError(clean(e));}
@@ -537,15 +539,17 @@ public class GeminiService {
     public void resetTtsPrimaryCircuit(){ttsPrimaryCircuitUntil=0L;settings.edit().remove(PREF_TTS_PRIMARY_CIRCUIT_UNTIL).apply();}
 
     private List<String> resolveCandidates(String apiKey,String configured,Kind kind)throws Exception{
+        if(kind==Kind.TEXT){
+            // A última chamada bem-sucedida nunca deve reordenar o próximo turno.
+            // Preferência fixa primeiro; única reserva automática: Flash-Lite.
+            return GeminiTextModelPriority.ordered(configured);
+        }
         LinkedHashSet<String> ordered=new LinkedHashSet<String>();
-        String remembered=settings.getString(kind==Kind.TEXT?"last_text_model_ok":kind==Kind.IMAGE?"last_image_model_ok":"last_tts_model_ok","");
+        String remembered=settings.getString(kind==Kind.IMAGE?"last_image_model_ok":"last_tts_model_ok","");
         String rememberedClean=normalizeModel(remembered),configuredClean=normalizeModel(configured);
-        // A configuração visível tem autoridade. Não descarte um nome digitado pelo usuário
-        // apenas por prefixo/versão: tente-o primeiro e só então use failover.
         if(configuredClean.length()>0)ordered.add(configuredClean);
         if(rememberedClean.length()>0)ordered.add(rememberedClean);
-        if(kind==Kind.TEXT){ordered.add("gemini-3.8-flash");ordered.add("gemini-3.7-flash");ordered.add("gemini-3.6-flash");ordered.add("gemini-3.5-flash-lite");ordered.add("gemini-3.5-flash");ordered.add("gemini-3.1-flash-lite");}
-        else if(kind==Kind.IMAGE){ordered.add("gemini-3.1-flash-image");ordered.add("gemini-3-pro-image");}
+        if(kind==Kind.IMAGE){ordered.add("gemini-3.1-flash-image");ordered.add("gemini-3-pro-image");}
         else {ordered.add("gemini-3.8-flash-tts");ordered.add("gemini-3.8-flash-lite-tts");ordered.add("gemini-3.1-flash-tts-preview");ordered.add("gemini-2.5-flash-preview-tts");}
 
         // Não chama models.list em toda cena. Essa consulta extra era feita antes de cada

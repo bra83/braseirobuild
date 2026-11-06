@@ -138,7 +138,11 @@ public final class StrixhavenOfficialCampaignRuntime {
     public static String promptContext(Context c){
         if(finished(c))return " CAMPANHA OFICIAL STRIXHAVEN: os quatro anos foram concluídos. Não reinicie eventos já resolvidos. ";
         Event ev=current(c);String source=sourceForCurrentEvent(c);
-        String bestiary=StrixhavenBestiaryRuntimeEngine.sourceForMentions(c,source,4,11000);
+        // A chapter-sized OCR excerpt can mention many unrelated monsters.
+        // Only use an explicitly named creature in the active event title as
+        // a bestiary preview. Full compiled statblocks remain installed and
+        // available to the combat engine independently of this text prompt.
+        String bestiary=StrixhavenBestiaryRuntimeEngine.sourceForMentions(c,ev.title,2,3500);
         StringBuilder b=new StringBuilder();
         b.append("\n\n=== STRIXHAVEN OFICIAL — RUNTIME COMPILADO ===\n");
         b.append("Evento atual [").append(index(c)+1).append("/").append(EVENTS.length).append("]: ").append(ev.title)

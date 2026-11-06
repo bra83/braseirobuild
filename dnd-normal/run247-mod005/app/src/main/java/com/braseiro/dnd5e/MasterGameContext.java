@@ -24,7 +24,7 @@ public final class MasterGameContext {
             root.put("combat_state_machine",CombatStateMachine.descriptor());
             root.put("essential_rules_cache",EssentialRulesCache.snapshot(db.getActiveMapProfile()));
             root.put("campaign",compact(db.getCampaign(),new String[]{"name","rules_profile","tone","feats","multiclass","flanking","notes","updated_at"}));
-            root.put("story",compact(db.getStoryState(),new String[]{"started","last_narration","visual_prompt","options_json","pending_test_json","last_action","updated_at"}));
+            root.put("story",safeStory(compact(db.getStoryState(),new String[]{"started","last_narration","visual_prompt","options_json","pending_test_json","last_action","updated_at"})));
             root.put("scene",AtlasScenePositionReconciler.authoritativeSceneSnapshot(db));
             root.put("travel_rules_state",db.getTravelRulesState());
             root.put("rules_boundary",new JSONObject().put("RAW","Pode ser aplicado automaticamente pelo aplicativo quando o gatilho objetivo foi confirmado.").put("REGRA_OPCIONAL","Só pode ser aplicada quando habilitada ou escolhida explicitamente.").put("DECISAO_DO_MESTRE","Nunca é aplicada silenciosamente pelo texto da IA.").put("SIMULACAO_NARRATIVA","Produz sinais e ambientação, sem alterar ficha ou estado mecânico."));
@@ -83,7 +83,7 @@ public final class MasterGameContext {
             root.put("combat_state_machine",CombatStateMachine.descriptor());
             root.put("essential_rules_cache",EssentialRulesCache.snapshot(db.getActiveMapProfile()));
             root.put("campaign",compact(db.getCampaign(),new String[]{"name","rules_profile","tone","feats","multiclass","flanking","notes"}));
-            root.put("story",compact(db.getStoryState(),new String[]{"started","last_narration","visual_prompt","options_json","pending_test_json","last_action","option_history_json","updated_at"}));
+            root.put("story",safeStory(compact(db.getStoryState(),new String[]{"started","last_narration","visual_prompt","options_json","pending_test_json","last_action","option_history_json","updated_at"})));
             root.put("active_heroes_full",compactHeroes(db.listActiveCharacters(),12));
             root.put("scene",AtlasScenePositionReconciler.authoritativeSceneSnapshot(db));
             root.put("combat_state",db.getCombatState());
@@ -195,7 +195,15 @@ public final class MasterGameContext {
 
     private static JSONArray compactHeroes(List<JSONObject> list,int max){JSONArray out=new JSONArray();if(list==null)return out;for(int i=0;i<list.size()&&i<max;i++){JSONObject h=list.get(i),x=compact(h,new String[]{"id","name","species","class_name","level","hp","max_hp","ac","str","dex","con","int_score","wis","cha","active","background","visual_description","proficiencies","equipment","spells","notes","token_uri","rules_source"});try{JSONObject sheet=parseObject(h.optString("sheet_json","{}"));x.put("sheet",sheet);out.put(x);}catch(Exception ignored){out.put(x);}}return out;}
     private static JSONArray compactCombatants(List<JSONObject> list,int max,boolean mystara){String[] keys=mystara?new String[]{"id","name","initiative","hp","max_hp","ac","conditions","resources_json","is_player","active_turn","sort_order"}:new String[]{"id","name","initiative","hp","max_hp","temp_hp","ac","conditions","condition_timers_json","concentration","reaction_used","death_success","death_fail","resistances","vulnerabilities","immunities","resources_json","is_player","active_turn","sort_order"};return compactRows(list,max,keys,1200);}
-    private static JSONArray compactRows(List<JSONObject> list,int max,String[] keys,int textLimit){JSONArray out=new JSONArray();if(list==null)return out;for(int i=0;i<list.size()&&i<max;i++){JSONObject row=compact(list.get(i),keys);java.util.Iterator<String> it=row.keys();while(it.hasNext()){String key=it.next();Object value=row.opt(key);if(value instanceof String&&((String)value).length()>textLimit)try{row.put(key,((String)value).substring(0,textLimit)+"…");}catch(Exception ignored){AppLog.ignored("MasterGameContext","Falha tolerada; a execução continuou.",ignored);}}out.put(row);}return out;}
+    private static JSONObject safeStory(JSONObject row){
+        if(row==null)return new JSONObject();
+        try{
+            row.put("last_action",SceneActionClock.cleanPlayerAction(row.optString("last_action","")));
+        }catch(Exception ignored){/* context only, never modify persisted history */}
+        return row;
+    }
+
+    private static JSONArray compactRows(List<JSONObject> list,int max,String[] keys,int textLimit){JSONArray out=new JSONArray();if(list==null)return out;for(int i=0;i<list.size()&&i<max;i++){JSONObject row=compact(list.get(i),keys);if(row.has("body")&&"Cena".equalsIgnoreCase(row.optString("kind","")))try{row.put("body",JournalEntryPresentation.safeBody(row.optString("body","")));}catch(Exception ignored){}java.util.Iterator<String> it=row.keys();while(it.hasNext()){String key=it.next();Object value=row.opt(key);if(value instanceof String&&((String)value).length()>textLimit)try{row.put(key,((String)value).substring(0,textLimit)+"…");}catch(Exception ignored){AppLog.ignored("MasterGameContext","Falha tolerada; a execução continuou.",ignored);}}out.put(row);}return out;}
     private static JSONObject coverage(JSONArray sent,int total){JSONObject out=new JSONObject();try{int count=sent==null?0:sent.length();out.put("total",Math.max(0,total)).put("sent",count).put("omitted",Math.max(0,total-count)).put("complete",count>=Math.max(0,total));}catch(Exception ignored){AppLog.ignored("MasterGameContext","Falha ao registrar cobertura do barramento.",ignored);}return out;}
 
     private static JSONArray limitArray(JSONArray array,int max){JSONArray out=new JSONArray();if(array!=null)for(int i=0;i<array.length()&&i<max;i++)out.put(array.opt(i));return out;}
