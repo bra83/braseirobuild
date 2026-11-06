@@ -389,7 +389,7 @@ public final class SceneOptionDiversifier {
         if(containsAny(narrative,"guilda de rpg live action","guilda de rpg","guilda de teatro")
                 &&containsAny(narrative,"encenacao","teatro","tunicas","figurinos")){
             pool.add(option("PERGUNTAR SOBRE A ENCENAÇÃO",
-                    "Abordar os estudantes da guilda sem pressupor a resposta.",
+                    "Abordar os membros da guilda sem pressupor a resposta.",
                     "Aproximo-me dos membros da Guilda de RPG presentes e pergunto sobre a encenação que estão preparando."));
         }
         if(containsAny(narrative,"funcionaria","atendente")
