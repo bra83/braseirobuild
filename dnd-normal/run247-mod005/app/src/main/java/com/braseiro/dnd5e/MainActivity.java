@@ -7364,10 +7364,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private RuleRetrievalEngine.Result skippedRuleRetrieval(RuleRetrievalPolicy.Decision decision){
         ensureRuleRetrievalSceneCache();JSONObject bundle=new JSONObject();ArrayList<JSONObject> hits=new ArrayList<JSONObject>();try{
-            bundle.put("required",false).put("status",decision.mechanicalCandidate?"local_engine_ready":"retrieval_skipped_fiction").put("mechanical_candidate",decision.mechanicalCandidate)
+            bundle.put("required",false).put("status",decision.mechanicalCandidate?"local_engine_candidate":"retrieval_skipped_fiction").put("mechanical_candidate",decision.mechanicalCandidate)
                     .put("retrieval_skipped",true).put("retrieval_reason",decision.reason).put("cache_hit",false).put("evidence",new JSONArray()).put("structured_rules",new JSONArray())
-                    .put("rules_by_intent",new JSONObject()).put("evidence_count",0).put("sufficient_for_mechanics",decision.mechanicalCandidate).put("local_engine_authority",decision.mechanicalCandidate)
-                    .put("essential_rules_cache",EssentialRulesCache.snapshot(activeWorldProfile())).put("instruction",decision.mechanicalCandidate?"Use o motor mecânico local já compilado. Não invente regra manual; consulte o índice somente se surgir uma regra específica ainda ausente.":"Continue somente a ficção/observação. Nenhuma busca de manual é necessária neste turno.");
+                    .put("rules_by_intent",new JSONObject()).put("evidence_count",0).put("sufficient_for_mechanics",false).put("local_engine_authority",false).put("local_engine_candidate",decision.mechanicalCandidate)
+                    .put("essential_rules_cache",EssentialRulesCache.snapshot(activeWorldProfile())).put("instruction",decision.mechanicalCandidate?"O motor local é candidato a resolver esta mecânica, mas ainda não executou o procedimento. Chame o árbitro, exija rolagem quando necessária e não afirme resolução antes da validação.":"Continue somente a ficção/observação. Nenhuma busca de manual é necessária neste turno.");
             RuleRetrievalEngine.Result grounding=copyRuleRetrievalResult(sceneGroundingRuleCache);if(grounding!=null&&grounding.hits!=null&&!grounding.hits.isEmpty()){
                 JSONArray sceneEvidence=grounding.bundle.optJSONArray("evidence");if(sceneEvidence!=null)bundle.put("scene_grounding_evidence",new JSONArray(sceneEvidence.toString()));bundle.put("scene_grounding_cache_hit",true).put("scene_grounding_status",grounding.bundle.optString("status"));
                 for(JSONObject row:grounding.hits)hits.add(new JSONObject(row.toString()));
