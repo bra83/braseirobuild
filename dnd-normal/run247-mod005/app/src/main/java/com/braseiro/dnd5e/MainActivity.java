@@ -8333,6 +8333,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void applyAiResponseToUi(final AiResponseUiPayload payload, final long requestGen) {
         if (requestGen != aiRequestGeneration || payload == null) return;
+        if(!payload.masterEnvelopeValid){
+            clearFailedGeminiRequest();
+            setStatus("A resposta não passou na arbitragem. A cena anterior permanece canônica.");
+            if(isStrixhavenAdventure())showStrixhavenSession();
+            else if("Mestre IA".equals(currentScreen))showNarrator();
+            return;
+        }
         this.lastNarration = payload.lastNarration;
         this.currentOptions = payload.currentOptions;
         this.currentSceneCastPreview = payload.currentSceneCastPreview;
@@ -8353,6 +8360,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     /** Restore canonical UI when provisional mechanics are rejected. */
+    /** No subset can canonize prose which narrates the excluded effects. */
+    private static boolean sameNarrativeConsequences(JSONObject left,JSONObject right){
+        if(left==null||right==null)return false;
+        String[] keys={"state_updates","combat","scene_state","npc_updates",
+            "npc_cognition_updates","knowledge_updates","quest_updates",
+            "faction_updates","guild_updates","clock_updates","world_events",
+            "event_resolutions","pending_resolutions","map_updates",
+            "tactical_updates","journal_updates","_local_tick"};
+        for(String key:keys){
+            Object a=left.opt(key),b=right.opt(key);
+            String x=a==null||a==JSONObject.NULL?"":a.toString();
+            String y=b==null||b==JSONObject.NULL?"":b.toString();
+            if(!x.equals(y))return false;
+        }
+        return true;
+    }
+
     private String preparedActionForNarrative(JSONObject envelope){
         return envelope==null?lastPrompt:envelope.optString("_accepted_player_action",lastPrompt);
     }
@@ -8461,9 +8485,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final AlertDialog dialog=new AlertDialog.Builder(this)
                 .setTitle("Aplicação por categoria")
                 .setView(scroll)
-                .setNegativeButton("Cancelar",null)
+                .setNegativeButton("VOLTAR ÀS CONSEQUÊNCIAS",new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface d,int w){
+                        partialTransactionDialogOpening.set(false);
+                        showTransactionReviewDialog(transactionId,stableEnvelope);
+                    }
+                })
                 .setPositiveButton("APLICAR SELECIONADOS",null)
                 .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener(){public void onDismiss(DialogInterface d){partialTransactionDialogOpening.set(false);}});
         dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
             Button apply=dialog.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -8473,6 +8504,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 try{
                     JSONObject selected=checks.filter(stableEnvelope);
                     if(selected.length()==0){toast("Nenhuma categoria pôde ser preparada. Nada foi aplicado.");return;}
+                    if(transactionId==provisionalNarrativeTransactionId
+                            && !sameNarrativeConsequences(selected,stableEnvelope)){
+                        toast("Aplicação parcial alteraria a narração de forma incoerente. Aplique tudo ou descarte a cena.");
+                        return;
+                    }
                     dialog.dismiss();
                     applyMasterConsequences(transactionId,selected);
                 }catch(Throwable error){
