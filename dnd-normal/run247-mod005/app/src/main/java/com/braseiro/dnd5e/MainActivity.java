@@ -256,6 +256,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONObject pendingTest=new JSONObject();
     private JSONObject lastMasterSupport=new JSONObject();
     private boolean masterSideQueryActive=false;
+    private boolean strixhavenConsultationComposerMode=false;
     private String masterSideQueryText="";
     private String masterSidePreviousAiMode="Narrador";
     private String masterSidePreviousPrompt="";
@@ -1749,7 +1750,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
-            final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
+            final boolean[] strixMasterChatMode=new boolean[]{strixhavenConsultationComposerMode};final int masterBlue=Color.rgb(96,200,230);
             LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
             final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
             strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);
@@ -1777,23 +1778,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
             }};
             strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=false;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){prefs.edit().putString("ai_mode","Narrador").apply();sendAi("Narrador",q);}
-                else{narratorInput.requestFocus();toast("Digite o que deseja fazer e toque em ➤.");}
+                strixMasterChatMode[0]=false;strixhavenConsultationComposerMode=false;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=true;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){sendMasterSideQuestion(q);}
-                else{narratorInput.requestFocus();toast("Digite sua pergunta ao Mestre e toque em ➤.");}
+                strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             refreshStrixComposer.run();
             send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
                 String q=narratorInput.getText().toString().trim();
                 if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação no campo de texto.");return;}
                 prefs.edit().putString("ai_mode","Narrador").apply();
-                if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
+                if(strixMasterChatMode[0]||shouldRouteNarratorQuestionToMaster(q)){
+                    strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                    sendMasterSideQuestion(q);return;
+                }
                 sendAi("Narrador",q);
             }});
             actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));
@@ -6616,6 +6616,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 historyScroll.setScrollbarFadingEnabled(false);
                 historyScroll.setNestedScrollingEnabled(true);
                 historyScroll.addView(historyBody,new ScrollView.LayoutParams(-1,-2));
+                historyScroll.post(()->historyScroll.fullScroll(View.FOCUS_DOWN));
                 help.addView(historyScroll,new LinearLayout.LayoutParams(-1,dp(208)));
                 help.addView(text("DESLIZE O QUADRO AZUL PARA LER OU ABRA A CONVERSA COMPLETA",10,blue,true));
                 help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
@@ -6717,6 +6718,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void promoteMasterQuestionToAction(String turnId,String rawQuestion){String q=rawQuestion==null?"":rawQuestion.trim();if(q.length()==0||aiBusy)return;String currentScene=currentMasterConversationSceneFingerprint();JSONArray history=masterConversationHistory();boolean allowed=false;JSONObject selectedTurn=null;for(int i=0;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String id=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+turn.optString("question","")));String status=turn.optString("promotion_status","available");if(id.equals(turnId)&&currentScene.equals(turn.optString("scene_fingerprint",currentScene))&&("available".equals(status)||"cancelled".equals(status)||status.length()==0)){allowed=true;selectedTurn=turn;break;}}if(!allowed){toast("Essa possibilidade já foi usada ou pertence a outra cena.");return;}String advisory=masterPromotionAdvisoryContext(selectedTurn);boolean retrying="cancelled".equals(selectedTurn.optString("promotion_status","available"));JSONObject promotionDetails=new JSONObject();try{promotionDetails.put("hint_authority","advisory_only");if(advisory.length()>0)promotionDetails.put("promotion_advisory",advisory);if(retrying){promotionDetails.put("retry_count",selectedTurn.optInt("retry_count",0)+1);String[] stale={"test_key","test_label","test_ability","test_skill","test_mode","test_dc","test_source_rule_id","roll_id","roll_actor","roll_formula","roll_mode","roll_natural","roll_total","roll_outcome","roll_source","resolved_after_roll","resolved_without_roll","resolution_excerpt","resolution_scene_fingerprint"};for(String key:stale)promotionDetails.put(key,JSONObject.NULL);}}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao registrar contexto consultivo da promoção.",ignored);}activeMasterPromotionTurnId=turnId;activeMasterPromotionQuestion=q;activeMasterPromotionFromRoll=false;updateMasterConversationTurn(turnId,"awaiting_master",promotionDetails);prefs.edit().putString("ai_mode","Narrador").apply();String declared="O jogador confirma que quer TENTAR na ficção a possibilidade discutida na consulta anterior. master_turn_id="+turnId+". Pergunta anterior: "+q+". "+(advisory.length()>0?"CONTEXTO AUXILIAR NÃO AUTORITATIVO da conversa azul: "+advisory+". NÃO copie isso como regra, não fixe CD por causa desta sugestão e não force essa perícia; use apenas como pista de intenção. ":"")+"Trate isto agora como PLAYER_ACTION. Decida o enquadramento mecânico de forma independente pelas regras recuperadas e pelo estado atual. Se houver incerteza e consequência real, peça o teste apropriado pelas regras e pause para a rolagem; depois da rolagem, interprete o resultado e retorne à história. Não considere a consulta anterior como ação já realizada.";sendAi("Narrador",declared);}
+
+    /* package */ static boolean shouldRouteNarratorQuestionToMaster(String text){
+        if(text==null)return false;
+        String trimmed=text.trim();
+        if(trimmed.isEmpty()||trimmed.startsWith("CONSULTA AUXILIAR FORA DA FICÇÃO.")
+            ||trimmed.startsWith("O jogador confirma que quer TENTAR na ficção")
+            ||trimmed.startsWith("RESULTADO DE ROLAGEM"))return false;
+        // Unambiguous interrogatives must never become implicit success rolls.
+        if(trimmed.indexOf('?')>=0)return true;
+        String folded=Normalizer.normalize(trimmed,Normalizer.Form.NFD)
+            .replaceAll("\\p{M}+","").toLowerCase(Locale.ROOT);
+        return folded.matches("(?s)^\\s*(?:existe|existem|tem algum|ha algum|qual|quais|como|onde|quando|por que|posso|consigo|devo|preciso|seria possivel|da para|faco algum teste|tenho que rolar|qual teste)\\b.*");
+    }
 
     private void sendMasterSideQuestion(String rawQuestion){
         String question=rawQuestion==null?"":rawQuestion.trim();if(question.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}if(aiBusy){toast("Aguarde a resposta atual.");return;}
@@ -7478,6 +7492,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void sendAi(final String mode,String userText){
+        if("Narrador".equals(mode)&&!masterSideQueryActive&&shouldRouteNarratorQuestionToMaster(userText)){
+            sendMasterSideQuestion(userText);return;
+        }
         final String inputChannel="Narrador".equals(mode)?(masterSideQueryActive?"GM_HELP":"PLAYER_ACTION"):null;
         sendAi(mode,userText,inputChannel);
     }
