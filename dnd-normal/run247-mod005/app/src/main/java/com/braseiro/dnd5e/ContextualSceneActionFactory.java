@@ -181,7 +181,7 @@ public final class ContextualSceneActionFactory {
         String fromBeat = match(beat, ACTORS);
         // "guarda o papel" is an action by a student, not the presence of a guard.
         if ("o guarda".equals(fromBeat) && !SceneOptionVisibleEvidence.guardNounPresent(beat))
-            fromBeat=match(beat.replaceAll("(?iu)\\\\bguarda\\\\b"," "),ACTORS);
+            fromBeat=match(beat.replaceAll("(?iu)\\bguarda\\b"," "),ACTORS);
         if (!fromBeat.isEmpty()) return fromBeat;
         // A named speaker is a stronger anchor than a generic noun: never
         // invent a speaker, read only an explicit "Nome: — fala" in this beat.
