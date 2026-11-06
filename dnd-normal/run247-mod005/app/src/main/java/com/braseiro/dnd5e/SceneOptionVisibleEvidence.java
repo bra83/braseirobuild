@@ -1,6 +1,7 @@
 package com.braseiro.dnd5e;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 import java.text.Normalizer;
 import java.util.Locale;
 
@@ -40,6 +41,15 @@ public final class SceneOptionVisibleEvidence {
         {"balcao","balcoes"},
         {"escada","escadas","escadaria","escadarias"}
     };
+
+    static boolean allSupported(JSONArray options,String narration){
+        if(options==null)return true;
+        for(int i=0;i<options.length();i++){
+            JSONObject option=options.optJSONObject(i);
+            if(option!=null&&!supported(option,narration))return false;
+        }
+        return true;
+    }
 
     static boolean supported(JSONObject option,String narration){
         if(option==null)return false;
