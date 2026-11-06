@@ -52,6 +52,7 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
             --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
