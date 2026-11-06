@@ -263,7 +263,7 @@ public final class BraseiroVttEndToEndAuditTest {
                         act.equalsIgnoreCase(action));
                 assertTrue("Options within same turn must be distinct: " + diversified,
                         seenActions.add(act.toLowerCase()));
-                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1),
+                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1)+": "+opt+" / "+narration,
                         SceneOptionDiversifier.isGroundedInScene(act,narration,scene));
             }
 
