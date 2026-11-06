@@ -102,9 +102,13 @@ public final class GroundedSceneActionSlots {
     private static String actionType(JSONObject o){
         String explicit=o.optString("action_type",o.optString("type","")).toUpperCase(Locale.ROOT);
         for(String type:TYPES)if(type.equals(explicit))return type;
+        String label=fold(o.optString("label",""));
+        if(label.startsWith("observar "))return OBSERVAR;
+        if(label.startsWith("agir "))return AGIR;
+        if(label.startsWith("despistar "))return DESPISTAR;
         String a=fold(o.optString("action","")+" "+o.optString("label",""));
-        if(hasAny(a,"disfarco","despisto","finjo","oculto","mantenho em segredo","nao revelo"))return DESPISTAR;
-        if(hasAny(a,"observo","examino","analiso","leio","inspeciono","escuto","reparo"))return OBSERVAR;
+        if(hasAny(a,"disfarco","despisto","despistar","finjo","oculto","mantenho em segredo","nao revelo"))return DESPISTAR;
+        if(hasAny(a,"observo","observar","examino","analiso","leio","inspeciono","escuto","reparo"))return OBSERVAR;
         if(hasAny(a,"pergunto","falo","abordo","respondo","converso","tento","mostro","entrego","aproximo"))return AGIR;
         return "";
     }
