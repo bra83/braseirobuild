@@ -70,7 +70,7 @@ public final class SceneOptionDiversifier {
                 JSONObject option = sanitize(original);
                 String action = optionAction(option);
                 if (StoryMomentumAction.isRequest(action)) continue; // reserved stable CTA
-                if (action.isEmpty() || !isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action,narration,scene) || !isRelevantToCurrentBeat(action,narration)) continue;
+                if (action.isEmpty() || !SceneOptionVisibleEvidence.supported(option,narration) || !isCompatibleWithScene(action, narration, scene) || !isGroundedInScene(action,narration,scene) || !isRelevantToCurrentBeat(action,narration)) continue;
                 if (isRepeated(action, history) || isRepeated(action, accepted) || repeatsIntent(action,accepted)) continue;
                 out.put(option);
                 accepted.add(action);
@@ -84,7 +84,7 @@ public final class SceneOptionDiversifier {
         for(JSONObject fallback:fallbacks){
             if(out.length()>=MAX_OPTIONS)break;
             String action=optionAction(fallback);
-            if(action.isEmpty()||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||!isRelevantToCurrentBeat(action,narration)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
+            if(action.isEmpty()||!SceneOptionVisibleEvidence.supported(fallback,narration)||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||!isRelevantToCurrentBeat(action,narration)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
             out.put(fallback);accepted.add(action);
         }
         return out;
