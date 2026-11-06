@@ -6606,7 +6606,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             full.setOnClickListener(v->showMasterConversationFullscreen());
             help.addView(full,new LinearLayout.LayoutParams(-1,dp(40)));
             if(!strixhavenMasterCardCollapsed){
-                addMasterConversationHistory(help,blue,true);
+                LinearLayout historyBody=new LinearLayout(this);
+                historyBody.setOrientation(LinearLayout.VERTICAL);
+                historyBody.setPadding(dp(4),dp(8),dp(4),dp(16));
+                addMasterConversationHistory(historyBody,blue,true);
+                ScrollView historyScroll=new ScrollView(this);
+                historyScroll.setFillViewport(false);
+                historyScroll.setVerticalScrollBarEnabled(true);
+                historyScroll.setScrollbarFadingEnabled(false);
+                historyScroll.setNestedScrollingEnabled(true);
+                historyScroll.addView(historyBody,new ScrollView.LayoutParams(-1,-2));
+                help.addView(historyScroll,new LinearLayout.LayoutParams(-1,dp(208)));
+                help.addView(text("DESLIZE O QUADRO AZUL PARA LER OU ABRA A CONVERSA COMPLETA",10,blue,true));
                 help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
             }
             parent.addView(help);
