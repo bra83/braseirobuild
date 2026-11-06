@@ -82,7 +82,7 @@ public final class RuleRetrievalPolicy {
         if(containsAny(n,"escal","nado","nadar","saltar","pular","empurrar objeto","forcar porta","forçar porta","arrombar"))return "skill:athletics";
         if(containsAny(n,"furtiv","esconder","me escond","sneak","hide"))return "skill:stealth";
         if(containsAny(n,"rastro","rastre","sobreviv","forrage","orientar","navigation","naveg"))return "skill:survival";
-        if(containsAny(n,"investig","examino","examinar mecanismo","procurar pista","procuro pista","search clues","decifrar","decifro","interpreto inscri","charada","runa desconhecida","mensagem cifrada","codigo oculto"))return "skill:investigation";
+        if(containsAny(n,"investig","examinar mecanismo","examino mecanismo","examino uma pista escondida","procurar pista","procuro pista","search clues","decifrar","decifro","interpreto inscri","resolver a charada","resolvo a charada","runa desconhecida","mensagem cifrada","codigo oculto"))return "skill:investigation";
         if(containsAny(n,"procuro armad","percepc","escuto","ouvir","vigio","observo atent","spot","perception"))return "skill:perception";
         if(containsAny(n,"intimid","ameaco","ameaço"))return "skill:intimidation";
         if(containsAny(n,"persuad","persuas","convenc","negoci"))return "skill:persuasion";
@@ -109,7 +109,7 @@ public final class RuleRetrievalPolicy {
     }
 
     static boolean looksMechanical(String n){
-        return containsAny(n,"tento","teste","rolar","rola","cd ","dc ","d20","dano","cura","pv ","hp ","salvaguarda","saving","ataco","combate","magia","conjuro","uso ","ativar","gasto","recurso","condicao","condição","vantagem","desvantagem","fabric","trein","viaj","marcha","persegu","armadil","perigo");
+        return containsAny(n,"teste","rolar","rola","cd ","dc ","d20","dano","cura","pv ","hp ","salvaguarda","saving","ataco","combate","magia","conjuro","ativar","gasto","recurso","condicao","condição","vantagem","desvantagem","fabric","trein","viaj","marcha","persegu","armadil","perigo");
     }
 
     private static String extractNamed(String n,String regex){try{Matcher m=Pattern.compile(regex).matcher(n);if(!m.find())return "";String value=m.group(1).trim();int cut=value.indexOf(" para ");if(cut>1)value=value.substring(0,cut);cut=value.indexOf(" contra ");if(cut>1)value=value.substring(0,cut);return value;}catch(Exception ignored){return "";}}
