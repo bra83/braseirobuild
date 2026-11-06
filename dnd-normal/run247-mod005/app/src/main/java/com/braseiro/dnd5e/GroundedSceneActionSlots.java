@@ -151,6 +151,13 @@ public final class GroundedSceneActionSlots {
         while(m.find())speaker=m.group(1);
         if(!speaker.isEmpty() && (!has(speaker,"guarda")||SceneOptionVisibleEvidence.guardNounPresent(narration)))
             return article(speaker);
+        // A character who actually speaks in this beat is reliable evidence,
+        // unlike a stale NPC in the scene database. Preserve named speakers.
+        Matcher named=Pattern.compile("(?m)\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s*:\\s*[—-]")
+            .matcher(narration);
+        String namedSpeaker="";
+        while(named.find())namedSpeaker=named.group(1);
+        if(!namedSpeaker.isEmpty())return namedSpeaker;
         String[][] roles={
           {"aluna","a aluna"},{"estudantes","os estudantes"},{"estudante","o estudante"},
           {"veterana","a veterana"},{"pesquisador","o pesquisador"},{"monitor","o monitor"},
