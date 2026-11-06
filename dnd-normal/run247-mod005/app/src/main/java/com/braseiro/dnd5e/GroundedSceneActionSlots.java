@@ -58,7 +58,7 @@ public final class GroundedSceneActionSlots {
         if(OBSERVAR.equals(type))return choice(type,"EXAMINAR A CHARADA NAS FITAS",
             "Examino as palavras da charada nas fitas de tinta voadora, procurando compreender o que está escrito sem presumir que descobri a resposta.");
         if(AGIR.equals(type))return choice(type,"PERGUNTAR SOBRE OS SELOS",
-            "Pergunto "+student+" quais selos estão em discussão e o que significa juntá-los, aguardando a resposta antes de decidir.");
+            "Pergunto "+preposition("a",student)+" quais selos estão em discussão e o que significa juntá-los, aguardando a resposta antes de decidir.");
         if(DESPISTAR.equals(type))return choice(type,"OCULTAR O INTERESSE PELOS SELOS",
             "Disfarço meu interesse pela discussão dos selos e observo discretamente as reações dos estudantes de Silverquill, sem presumir que o disfarce funcionou.");
         return null;
@@ -120,19 +120,19 @@ public final class GroundedSceneActionSlots {
         }
         if(AGIR.equals(type)){
             if(!actor.isEmpty()){
-                if(!subject.isEmpty())return choice(type,"PERGUNTAR SOBRE "+upper(subject),
-                    "Pergunto "+actor+" sobre "+subject+" mencionado nesta cena e espero a resposta antes de tomar outra decisão.");
+                if(!subject.isEmpty())return choice(type,"FALAR COM "+upper(actor)+" SOBRE "+upper(subject),
+                    "Pergunto "+preposition("a",actor)+" sobre "+subject+" mencionado nesta cena e espero a resposta antes de tomar outra decisão.");
                 return choice(type,"FALAR COM "+upper(actor),
-                    "Dirijo-me a "+actor+" e respondo à interação em curso com uma pergunta esclarecedora, sem presumir a resposta.");
+                    "Dirijo-me "+preposition("a",actor)+" e respondo à interação em curso com uma pergunta esclarecedora, sem presumir a resposta.");
             }
             return choice(type,"INTERAGIR COM "+upper(focus),
-                "Aproximo-me de "+focus+" e tento examiná-lo diretamente, sem assumir que tenho acesso ou que obtive sucesso.");
+                "Aproximo-me "+preposition("de",focus)+" e tento examiná-lo diretamente, sem assumir que tenho acesso ou que obtive sucesso.");
         }
         if(DESPISTAR.equals(type)){
             if(!actor.isEmpty()){
                 String target=!subject.isEmpty()?subject:("a conversa com "+actor);
-                return choice(type,"DISFARÇAR INTERESSE POR "+upper(target),
-                    "Procuro não demonstrar meu interesse por "+target+" enquanto presto atenção às reações de "+actor+", sem presumir que consegui enganar alguém.");
+                return choice(type,"DISFARÇAR INTERESSE "+upper(preposition("por",target)),
+                    "Procuro não demonstrar meu interesse "+preposition("por",target)+" enquanto presto atenção às reações "+preposition("de",actor)+", sem presumir que consegui enganar alguém.");
             }
             return choice(type,"EXAMINAR DISCRETAMENTE "+upper(focus),
                 "Tento examinar "+focus+" com discrição, evitando chamar atenção sem presumir que ninguém percebeu a tentativa.");
@@ -198,6 +198,37 @@ public final class GroundedSceneActionSlots {
            ||n.startsWith("auxiliar")||n.startsWith("assistente")||n.startsWith("funcionaria"))
             return "a "+p.toLowerCase(Locale.ROOT);
         return "o "+p.toLowerCase(Locale.ROOT);
+    }
+    private static String preposition(String kind,String phrase){
+        String p=phrase==null?"":phrase.trim();
+        if(p.isEmpty())return "";
+        String n=fold(p);
+        String prefix="";
+        if(n.startsWith("os "))prefix="os ";
+        else if(n.startsWith("as "))prefix="as ";
+        else if(n.startsWith("o "))prefix="o ";
+        else if(n.startsWith("a "))prefix="a ";
+        if(prefix.isEmpty())return kind+" "+p;
+        String tail=p.substring(prefix.length());
+        if("a".equals(kind)){
+            if("a ".equals(prefix))return "à "+tail;
+            if("os ".equals(prefix))return "aos "+tail;
+            if("as ".equals(prefix))return "às "+tail;
+            return "ao "+tail;
+        }
+        if("de".equals(kind)){
+            if("a ".equals(prefix))return "da "+tail;
+            if("os ".equals(prefix))return "dos "+tail;
+            if("as ".equals(prefix))return "das "+tail;
+            return "do "+tail;
+        }
+        if("por".equals(kind)){
+            if("a ".equals(prefix))return "pela "+tail;
+            if("os ".equals(prefix))return "pelos "+tail;
+            if("as ".equals(prefix))return "pelas "+tail;
+            return "pelo "+tail;
+        }
+        return kind+" "+p;
     }
     private static String stripArticle(String phrase){return fold(phrase).replaceFirst("^(o|a|os|as|um|uma)\\s+","");}
     private static String cleanTitle(String label,String type){
