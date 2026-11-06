@@ -26,7 +26,7 @@ public final class ContextualSceneActionFactory {
             JSONObject item = source.optJSONObject(i);
             if (item == null) continue;
             String action = item.optString("action", "").trim();
-            if (action.isEmpty() || StoryMomentumAction.isRequest(action)) continue;
+            if (action.isEmpty() || StoryMomentumAction.isRequest(action) || !SceneOptionVisibleEvidence.supported(item,narration)) continue;
             String key = fold(action);
             if (actions.add(key)) {
                 result.put(item);
@@ -105,6 +105,7 @@ public final class ContextualSceneActionFactory {
             String action = item.optString("action", "");
             String key = fold(action), kind = item.optString("_family", "");
             if (actions.contains(key) || (distinctFamily && families.contains(kind))) continue;
+            if (!SceneOptionVisibleEvidence.supported(item,narration)) continue;
             if (!SceneOptionDiversifier.isGroundedInScene(action, narration, scene)) continue;
             if (!SceneOptionDiversifier.isRelevantToCurrentBeat(action, narration)) continue;
             boolean duplicate = false;
