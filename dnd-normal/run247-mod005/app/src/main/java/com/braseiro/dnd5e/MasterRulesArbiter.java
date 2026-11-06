@@ -317,7 +317,7 @@ public final class MasterRulesArbiter {
         if(DndActionCheckPolicy.consequentialChallenge(normalizedAction,null))return true;
         if(contains(normalizedAction,"charada","enigma","decifr","runa","inscri","codigo",
             "cifra","ocult","escondid","secret","mister","dific","desconhecid",
-            "procur","investig","examino","estud","pista"))return true;
+            "investig","pista"))return true;
         String reason=normalize(test==null?"":test.optString("reason","")+" "+
              test.optString("action","")+" "+test.optString("target",""));
         return contains(reason,"charada","enigma","ocult","escondid","segred",
