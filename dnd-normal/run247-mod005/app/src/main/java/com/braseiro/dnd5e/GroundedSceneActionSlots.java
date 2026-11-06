@@ -186,6 +186,7 @@ public final class GroundedSceneActionSlots {
         if(has(narration,"grupo aguarda"))return "o grupo que aguarda";
         String[][] objects={
           {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
+          {"arbustos despertados","os arbustos despertados"},{"arbustos","os arbustos"},
           {"charada","a charada"},{"selos","os selos"},{"inscricoes","as inscrições"},
           {"alavanca","a alavanca"},{"marcadores","os marcadores"},
           {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
