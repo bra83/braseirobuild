@@ -60,7 +60,9 @@ jobs:
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' \
-            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest'
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
+            --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest'
       - name: Upload report even if failure
         if: always()
         uses: actions/upload-artifact@v4
