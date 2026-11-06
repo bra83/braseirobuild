@@ -7957,6 +7957,31 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // RUN220: a curated proposal is an intention, never a simultaneous
             // mechanical event. Fail closed even if the same proposal was staged
             // in a previous request (the replay must not execute its side-effects).
+            // An explicit test request cannot be narrated as an automatic
+            // success. It must become a pending roll before story/world commits.
+            if (!masterSideQueryActive && "Narrador".equals(lastAiMode)
+                    && MasterTestRequestGuard.wouldResolveWithoutRoll(action,env,activeMasterPromotionFromRoll)) {
+                synchronized (aiCommitLock) {
+                    if (requestGen != aiRequestGeneration) return;
+                    db.addAuditEvent("segurança","Teste sem rolagem bloqueado",
+                        "O Mestre tentou concluir uma declaração explícita de teste sem gerar pending_test.",
+                        "{}", "{}", false);
+                    ui.post(new Runnable(){public void run(){
+                        if(requestGen!=aiRequestGeneration)return;
+                        aiBusy=false;
+                        streamingNarration="";
+                        clearFailedGeminiRequest();
+                        activeMasterPlan=null;
+                        if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);
+                        setStatus("Teste não executado: o Mestre não apresentou a rolagem. A cena foi preservada.");
+                        toast("Nenhum sucesso foi aplicado. O Mestre precisa solicitar o teste antes de resolvê-lo.");
+                        if(isStrixhavenAdventure())showStrixhavenSession();
+                        else if("Mestre IA".equals(currentScreen))showNarrator();
+                    }});
+                }
+                return;
+            }
+
             if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
                 String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
                 if (!agencyConflict.isEmpty()) {
