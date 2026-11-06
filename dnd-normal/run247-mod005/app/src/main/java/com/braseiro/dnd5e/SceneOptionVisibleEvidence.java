@@ -81,7 +81,7 @@ public final class SceneOptionVisibleEvidence {
         if(containsWord(context,"guardas")||containsWord(context,"sentinela")
             ||containsWord(context,"sentinelas")||containsWord(context,"soldado")
             ||containsWord(context,"soldados"))return true;
-        return context.matches("(?s).*(?:^|\\\\s)(?:o|a|um|uma|ao|do|da|pelo|pela|esse|essa|aquele|aquela|com|para|sobre|sem|nenhum|nenhuma)\\\\s+guarda(?:\\\\s|$).*");
+        return context.matches("(?s).*(?:^|\\s)(?:o|a|um|uma|ao|do|da|pelo|pela|esse|essa|aquele|aquela|com|para|sobre|sem|nenhum|nenhuma)\\s+guarda(?:\\s|$).*");
     }
     private static boolean explicitlyAbsent(String context,String noun){
         return containsPhrase(context,"sem "+noun)
