@@ -8257,6 +8257,30 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         .putString("last_audio_plan", newAudioPlan.toString())
                         .putString("last_master_support_json", newSupport.toString()).apply();
                 db.addAuditEvent("ia", nonAdvancing ? "Esclarecimento do Mestre — " + lastAiMode : "Resposta do Mestre — " + lastAiMode, sourceAudit.optString("warning", calculatedNarration.length() > 140 ? calculatedNarration.substring(0, 140) : calculatedNarration), "{}", sourceAudit.toString(), false);
+                // Per-turn audit records exactly why the manual lookup was
+                // skipped or required and whether the mechanics were applied.
+                // No model text alone can mark a dice check as resolved.
+                if("Narrador".equals(lastAiMode)){
+                    try{
+                        JSONObject ruleAudit=new JSONObject()
+                            .put("declared_action",action==null?"":action)
+                            .put("input_channel",activeInputChannel())
+                            .put("rule_intent",DndActionCheckPolicy.frame(action,db.getSceneState()))
+                            .put("lookup_status",activeRuleRetrieval.optString("status","not_attached"))
+                            .put("lookup_required",activeRuleRetrieval.optBoolean("required",false))
+                            .put("lookup_reason",activeRuleRetrieval.optString("retrieval_reason",""))
+                            .put("manual_evidence_count",activeRuleRetrieval.optInt("evidence_count",0))
+                            .put("local_engine_candidate",activeRuleRetrieval.optBoolean("local_engine_candidate",false))
+                            .put("pending_test",newPendingTest)
+                            .put("master_validated",masterEnvelopeValid)
+                            .put("rules_report",env.optJSONObject("_rules_report")==null?
+                                new JSONObject():env.optJSONObject("_rules_report"));
+                        db.addAuditEvent("regras","Classificação mecânica da ação",
+                            newPendingTest.length()>0?"Teste aguardando rolagem":
+                            (masterEnvelopeValid?"Ação avaliada, sem rolagem pendente":"Ação bloqueada pela validação"),
+                            "{}",ruleAudit.toString(),false);
+                    }catch(Exception auditFailure){AppLog.w("RulesAudit","Falha ao registrar diagnóstico da regra.",auditFailure);}
+                }
 
                 long transactionId = -1;
                 if (changes && stateTransactionManager != null) {
