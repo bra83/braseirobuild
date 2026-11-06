@@ -12,7 +12,9 @@ public final class MasterTestRequestGuard {
     private MasterTestRequestGuard(){}
 
     public static boolean wouldResolveWithoutRoll(String playerAction,JSONObject envelope,boolean rollAlreadyRecorded){
-        if(rollAlreadyRecorded||!isExplicitTestDeclaration(playerAction))return false;
+        if(rollAlreadyRecorded)return false;
+        if(DndActionCheckPolicy.missingRequiredResolution(playerAction,envelope,false))return true;
+        if(!isExplicitTestDeclaration(playerAction))return false;
         JSONObject test=envelope==null?null:envelope.optJSONObject("pending_test");
         return test==null||!test.optBoolean("required",true);
     }
