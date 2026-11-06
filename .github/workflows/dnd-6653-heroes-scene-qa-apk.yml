@@ -1,0 +1,113 @@
+name: Braseiro DnD 6.6.53 Heroes performance scene and chat validation
+
+on:
+  push:
+    branches:
+      - fix/dnd-6653-heroes-performance-scene-grounding-20261106
+    paths:
+      - .github/workflows/dnd-6653-heroes-scene-qa-apk.yml
+      - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dnd-6653-heroes-scene
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Check compatible update and no storage migration
+        run: |
+          set -euo pipefail
+          project=dnd-normal/run247-mod005
+          grep -q '^VERSION_CODE=203900616$' "$project/version.properties"
+          grep -q '^VERSION_NAME=6.6.53-heroes-scene-grounding-20261106$' "$project/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$project/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$project/version.properties"
+          test -f "$project/signing/debug.keystore"
+      - name: Test contextual suggestions and current-scene evidence
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
+            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
+            --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
+            --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.StoryMomentumActionRegressionTest' \
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest'
+      - name: Upload tests if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6653-unit-test-reports
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
+
+  build-apk:
+    needs: qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Assemble full installable signed APK
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Validate package, version, signature and checksum
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > SIGNATURE_6653.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > BADGING_6653.txt
+          grep -q "versionCode='203900616'" BADGING_6653.txt
+          grep -q "package: name='com.braseiro.dnd5e'" BADGING_6653.txt
+          sha256sum "$apk" > APK_SHA256_6653.txt
+          cp "$apk" BRASEIRO_DND_6.6.53_HEROES_SCENE_CHAT.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6_6_53_HEROES_SCENE_CHAT_APK
+          path: |
+            BRASEIRO_DND_6.6.53_HEROES_SCENE_CHAT.apk
+            APK_SHA256_6653.txt
+            SIGNATURE_6653.txt
+            BADGING_6653.txt
+          if-no-files-found: error

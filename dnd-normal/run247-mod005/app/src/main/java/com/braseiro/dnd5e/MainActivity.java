@@ -256,6 +256,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONObject pendingTest=new JSONObject();
     private JSONObject lastMasterSupport=new JSONObject();
     private boolean masterSideQueryActive=false;
+    private boolean strixhavenConsultationComposerMode=false;
     private String masterSideQueryText="";
     private String masterSidePreviousAiMode="Narrador";
     private String masterSidePreviousPrompt="";
@@ -321,6 +322,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private final HashMap<String,View> screenCache=new HashMap<String,View>();
     private final HashMap<String,Long> screenCacheTime=new HashMap<String,Long>();
     private volatile boolean navigationInProgress=false;
+    // The Heroes tab is loaded from SQLite off the UI thread; stale requests
+    // must never replace another screen or a more recent version of the roster.
+    private long heroesLoadGeneration=0L;
+    private final android.util.LruCache<String,Bitmap> heroesAvatarCache=new android.util.LruCache<String,Bitmap>(12);
+
     private long lastNavigationClickAt=0L;
     private int manualVisibleLimit=36;
     private String manualVisibleFilter="";
@@ -937,7 +943,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
         // Core play screens must reflect SQLite after returning from another screen.
-        boolean liveCoreScreen="Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
+        boolean liveCoreScreen="Heróis".equals(n)||"Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
             ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n)));
         View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
@@ -1744,7 +1750,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
-            final boolean[] strixMasterChatMode=new boolean[]{false};final int masterBlue=Color.rgb(96,200,230);
+            final boolean[] strixMasterChatMode=new boolean[]{strixhavenConsultationComposerMode};final int masterBlue=Color.rgb(96,200,230);
             LinearLayout composerModeRow=new LinearLayout(this);composerModeRow.setOrientation(LinearLayout.HORIZONTAL);composerModeRow.setPadding(0,dp(2),0,dp(2));
             final Button strixActionMode=smallButton("AÇÃO NA HISTÓRIA",GOLD),strixMasterMode=smallButton("CONSULTAR MESTRE",Color.rgb(19,49,73));
             strixActionMode.setTextColor(Color.BLACK);strixMasterMode.setTextColor(masterBlue);
@@ -1772,23 +1778,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 strixActionMode.setAlpha(help?0.55f:1f);strixMasterMode.setAlpha(help?1f:0.72f);
             }};
             strixActionMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=false;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){prefs.edit().putString("ai_mode","Narrador").apply();sendAi("Narrador",q);}
-                else{narratorInput.requestFocus();toast("Digite o que deseja fazer e toque em ➤.");}
+                strixMasterChatMode[0]=false;strixhavenConsultationComposerMode=false;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             strixMasterMode.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-                strixMasterChatMode[0]=true;refreshStrixComposer.run();
-                String q=narratorInput.getText().toString().trim();
-                if(q.length()>0){sendMasterSideQuestion(q);}
-                else{narratorInput.requestFocus();toast("Digite sua pergunta ao Mestre e toque em ➤.");}
+                strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                refreshStrixComposer.run();narratorInput.requestFocus();
             }});
             refreshStrixComposer.run();
             send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
                 String q=narratorInput.getText().toString().trim();
                 if(q.length()==0){toast(strixMasterChatMode[0]?"Escreva uma pergunta ao Mestre.":"Descreva uma ação no campo de texto.");return;}
                 prefs.edit().putString("ai_mode","Narrador").apply();
-                if(strixMasterChatMode[0]){sendMasterSideQuestion(q);return;}
+                if(strixMasterChatMode[0]||shouldRouteNarratorQuestionToMaster(q)){
+                    strixMasterChatMode[0]=true;strixhavenConsultationComposerMode=true;
+                    sendMasterSideQuestion(q);return;
+                }
                 sendAi("Narrador",q);
             }});
             actionRow.addView(narratorInput,new LinearLayout.LayoutParams(0,dp(44),1));
@@ -1797,7 +1802,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // Reserva o espaço original sem esconder o campo quando o teclado abrir.
             controlsBox.addView(new Space(this),new LinearLayout.LayoutParams(-1,dp(54)));
             strixhavenSpeechComposer=actionRow;
-            drawer.addView(controlsBox);
+            // This area can contain several long Master answers. Without its
+            // own bounded scroll viewport, controlsBox expands beyond the fixed
+            // parchment frame, hiding the bottom of the blue conversation card.
+            ScrollView controlsScroll=new ScrollView(this);
+            controlsScroll.setFillViewport(false);
+            controlsScroll.setVerticalScrollBarEnabled(true);
+            controlsScroll.setScrollbarFadingEnabled(false);
+            controlsScroll.setNestedScrollingEnabled(true);
+            controlsScroll.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
+            controlsScroll.addView(controlsBox,new ScrollView.LayoutParams(-1,-2));
+            drawer.addView(controlsScroll,new LinearLayout.LayoutParams(-1,0,1));
         }
         return drawer;
     }
@@ -2709,6 +2724,54 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void showHeroes(){
         if(isMystaraWorld()){showMystaraHeroes();return;}
+        final long request=++heroesLoadGeneration;
+        final long started=android.os.SystemClock.elapsedRealtime();
+        showNavigationPlaceholder("Heróis");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
+            final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
+            final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
+            List<JSONObject> fetched=null;Throwable failure=null;
+            try{
+                fetched=db.listCharacters();
+                for(JSONObject ch:fetched){
+                    JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
+                    sheets.add(sheet);
+                    loads.add(db.characterInventoryLoad(ch.optLong("id"),false));
+                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
+                    runtimeAvailable.add(characterRuntimeActions(ch,resource).length()>0);
+                }
+            }catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao preparar o painel de heróis.",error);}
+            final List<JSONObject> roster=fetched;
+            final Throwable error=failure;
+            final long prepared=android.os.SystemClock.elapsedRealtime();
+            ui.post(new Runnable(){public void run(){
+                if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+                if(error!=null||roster==null){
+                    content.removeAllViews();
+                    LinearLayout problem=new LinearLayout(MainActivity.this);
+                    problem.setOrientation(LinearLayout.VERTICAL);
+                    problem.setPadding(dp(18),dp(24),dp(18),dp(24));
+                    problem.addView(text("Não foi possível preparar as fichas.",18,RED,true));
+                    problem.addView(text(safeUiError(error),13,MUTED,false));
+                    Button retry=button("TENTAR NOVAMENTE",PANEL2);
+                    retry.setOnClickListener(v->showHeroes());
+                    problem.addView(retry);
+                    content.addView(problem,new FrameLayout.LayoutParams(-1,-1));
+                    return;
+                }
+                AppLog.i("HeroesPerf","LOAD_PREPARE_MS="+(prepared-started)+" count="+roster.size());
+                showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
+            }});
+        }});
+    }
+
+    /** UI only: append cards incrementally so a large campaign cannot starve the Looper. */
+    private void showHeroesPrepared(final List<JSONObject> list,
+                                    final List<JSONObject> sheets,
+                                    final List<JSONObject> loads,
+                                    final List<Boolean> runtimeAvailable,
+                                    final long request,final long started){
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
         Button randomHero=button(isMystaraWorld()?"GERAR AVENTUREIRO DE MYSTARA":"CRIAR HERÓI ALEATÓRIO COMPLETO",GOLD);randomHero.setTextColor(Color.BLACK);randomHero.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String profile=DndRulesEngine.PROFILE_2024;JSONObject seed=characterGenerator.randomComplete(profile,speciesForProfile(profile),db.listCharacters());if(!seed.optBoolean("generation_valid",false)){toast("Geração bloqueada: "+seed.optString("generation_blocked_reason","escolhas inválidas"));return;}characterDialog(null,seed);}});b.addView(randomHero);
@@ -2718,18 +2781,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         shortRest.setOnClickListener(v -> characterRestDialog(false));
         longRest.setOnClickListener(v -> characterRestDialog(true));
         rests.addView(shortRest);rests.addView(longRest);b.addView(rests);
-        List<JSONObject> list=db.listCharacters();if(list.size()==0)b.addView(empty(isMystaraWorld()?"Nenhum aventureiro registrado nesta crônica.":"Nenhum personagem criado."));
-        for(int i=0;i<list.size();i++){
-            final JSONObject ch=list.get(i);final JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));final long id=ch.optLong("id");LinearLayout card=card();
-            LinearLayout identity=new LinearLayout(this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
-            ImageView avatar=createAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
-            LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
-            LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);String displayName=displayCharacterName(sheet);TextView nm=text(displayName,20,GOLD,true);top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));final CheckBox active=check(isMystaraWorld()?"Na companhia":"Em jogo",ch.optInt("active",1)==1);active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setCharacterActive(id,active.isChecked());setStatus(active.isChecked()?"Herói adicionado ao grupo.":"Herói retirado do grupo.");}});top.addView(active);info.addView(top);
+        if(list.size()==0)b.addView(empty("Nenhum personagem criado."));
+        final int[] next={0};
+        final Runnable appendHero=new Runnable(){public void run(){
+            if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+            if(next[0]>=list.size())return;
+            final int i=next[0]++;
+            final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
+            LinearLayout identity=new LinearLayout(MainActivity.this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView avatar=createHeroAvatarView(ch.optString("token_uri"),ch.optString("name"));identity.addView(avatar,new LinearLayout.LayoutParams(dp(76),dp(76)));
+            LinearLayout info=new LinearLayout(MainActivity.this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(10),0,0,0);
+            LinearLayout top=new LinearLayout(MainActivity.this);top.setGravity(Gravity.CENTER_VERTICAL);String displayName=displayCharacterName(sheet);TextView nm=text(displayName,20,GOLD,true);top.addView(nm,new LinearLayout.LayoutParams(0,-2,1));final CheckBox active=check(isMystaraWorld()?"Na companhia":"Em jogo",ch.optInt("active",1)==1);active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.setCharacterActive(id,active.isChecked());setStatus(active.isChecked()?"Herói adicionado ao grupo.":"Herói retirado do grupo.");}});top.addView(active);info.addView(top);
             info.addView(text((isMystaraWorld()?"MYSTARA • ":"")+ch.optString("species")+" • "+ch.optString("class_name")+" nível "+ch.optInt("level",1),15,TEXT,false));
             String sub=ch.optString("background")+" • "+sheet.optString("alignment");if(sheet.optString("role").length()>0)sub+=" • "+sheet.optString("role");info.addView(text(sub,12,MUTED,false));
             identity.addView(info,new LinearLayout.LayoutParams(0,-2,1));card.addView(identity);if(!isMystaraWorld()&&("wilem".equalsIgnoreCase(ch.optString("name"))||"willem".equalsIgnoreCase(ch.optString("name")))){Button cookbook=button("📖 CADERNO DE WILEM",PANEL2);cookbook.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Caldeirão");}});card.addView(cookbook);}
             String concept=sheet.optString("concept").trim();if(concept.length()>0)card.addView(text(concept,13,TEXT,false));
-            LinearLayout vitals=new LinearLayout(this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
+            LinearLayout vitals=new LinearLayout(MainActivity.this);vitals.setGravity(Gravity.CENTER_VERTICAL);vitals.addView(text("PV "+ch.optInt("hp")+"/"+ch.optInt("max_hp")+"   CA "+ch.optInt("ac")+"   Inic. "+sheet.optString("initiative")+"   PB "+sheet.optString("proficiency_bonus"),16,TEXT,true),new LinearLayout.LayoutParams(0,-2,1));Button dmg=smallButton("− PV",RED);Button heal=smallButton("+ PV",GREEN);dmg.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Dano","Quantidade de dano",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,-n);showHeroes();}});}});heal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Cura","Quantidade de cura",new NumberAction(){public void run(int n){db.adjustCharacterHp(id,n);showHeroes();}});}});vitals.addView(dmg);vitals.addView(heal);card.addView(vitals);
              if("wilem".equalsIgnoreCase(ch.optString("name"))||"willem".equalsIgnoreCase(ch.optString("name"))){
                 Button notebook=button("ABRIR O CADERNO DE RECEITAS",PANEL2);
                 notebook.setOnClickListener(v->navigate("Caldeirão"));
@@ -2738,8 +2805,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final JSONObject resourceSheet=parseJsonObject(ch.optString("sheet_json","{}"));
             int hdMax=resourceSheet.optInt("hit_dice_max",ch.optInt("level",1)),hdSpent=resourceSheet.optInt("hit_dice_spent",0);JSONArray slotsCur=resourceSheet.optJSONArray("spell_slots_current"),slotsMax=resourceSheet.optJSONArray("spell_slots_max");String resourceLine="Dados de Vida disponíveis "+Math.max(0,hdMax-hdSpent)+"/"+hdMax;if(slotsCur!=null&&slotsMax!=null)resourceLine+=" • Slots "+compactSlots(slotsCur)+"/"+compactSlots(slotsMax);JSONObject pact=resourceSheet.optJSONObject("pact_magic");if(pact!=null)resourceLine+=" • Pacto "+pact.optInt("current")+"/"+pact.optInt("max")+" (nível "+pact.optInt("slot_level")+")";card.addView(text(resourceLine,12,MUTED,false));
             String structured=structuredResourceSummary(resourceSheet);if(structured.length()>0)card.addView(text("Recursos de classe: "+structured,12,MUTED,false));
-            JSONObject load=db.characterInventoryLoad(id,false);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
-            LinearLayout resourceActions=new LinearLayout(this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(characterRuntimeActions(ch,resourceSheet).length()>0){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
+            JSONObject load=loads.get(i);if(load.optInt("stack_count",0)>0)card.addView(text("Carga conhecida: "+String.format(java.util.Locale.US,"%.1f",load.optDouble("known_weight_lb",0d))+" lb"+(load.optInt("unknown_weight_count",0)>0?" • "+load.optInt("unknown_weight_count")+" item(ns) sem peso verificado":""),12,MUTED,false));
+            LinearLayout resourceActions=new LinearLayout(MainActivity.this);resourceActions.setOrientation(LinearLayout.HORIZONTAL);if(slotsCur!=null&&hasAvailableSlot(slotsCur)){Button spendSlot=smallButton("GASTAR SLOT",PANEL2);spendSlot.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Gastar espaço de magia","Nível do slot (1–9)",new NumberAction(){public void run(int n){JSONObject result=applyGuidedCharacterResource(id,"spell_slot","",n);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de magia gasto e persistido.");showHeroes();}});}});resourceActions.addView(spendSlot);}if(pact!=null&&pact.optInt("current",0)>0){Button spendPact=smallButton("GASTAR PACTO",PANEL2);spendPact.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);JSONObject result=applyGuidedCharacterResource(id,"pact_slot","",1);if(!result.optBoolean("accepted",false))toast("Gasto bloqueado: "+result.optString("authority"));else toast("Espaço de pacto gasto e persistido.");showHeroes();}});resourceActions.addView(spendPact);}if(resourceSheet.optJSONObject("class_resources")!=null&&resourceSheet.optJSONObject("class_resources").length()>0){Button spendClass=smallButton("RECURSO",PANEL2);spendClass.setOnClickListener(new View.OnClickListener(){public void onClick(View v){spendStructuredClassResourceDialog(id,resourceSheet);}});resourceActions.addView(spendClass);}if(runtimeAvailable.get(i).booleanValue()){Button classAction=smallButton("AÇÃO CLASSE",GOLD);classAction.setTextColor(Color.BLACK);classAction.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterRuntimeActionDialog(id,ch,resourceSheet);}});resourceActions.addView(classAction);}if(new DndRulesEngine().is2024(ch.optString("rules_source",resourceSheet.optString("rules_profile","")))==false&&
                     TashaQuickenedHealingCommitGuard.isMonk(ch.optString("class_name",""))&&
                     ch.optInt("level",1)>=4){
                 Button tashaHealing=smallButton("CURA RÁPIDA (TASHA)",PANEL2);
@@ -2772,11 +2839,32 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         if(result.has("short_rest_hit_dice_blocked")||result.has("operation_error"))toast("Dado de Vida não aplicado: "+result.optString("short_rest_hit_dice_blocked",result.optString("operation_error")));
                         showHeroes();
                     }});}});card.addView(spendHd);}
-            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
+            JSONObject progression=DndProgressionEngine.state(resourceSheet,ch.optInt("level",1));LinearLayout prog=new LinearLayout(MainActivity.this);Button xp=smallButton("+ XP",PANEL2);xp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){positiveNumberDialog("Adicionar XP","Quantidade",new NumberAction(){public void run(int n){JSONObject result=db.addCharacterXp(id,n);if(result.has("xp_award_blocked")||result.has("operation_error"))toast("XP não alterado: "+result.optString("xp_award_blocked",result.optString("operation_error","falha na gravação")));showHeroes();}});}});prog.addView(xp);if(progression.optBoolean("level_up_pending",false)){Button levelUp=smallButton("SUBIR NÍVEL",GOLD);levelUp.setTextColor(Color.BLACK);levelUp.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!v.isEnabled())return;v.setEnabled(false);applyCharacterLevelUpFromUi(id);}});prog.addView(levelUp);card.addView(text("XP "+progression.optInt("xp",0)+" • nível devido "+progression.optInt("level_due",ch.optInt("level",1)),12,GOLD,true));}card.addView(prog);
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
-            LinearLayout actions=new LinearLayout(this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
-        }
+            LinearLayout actions=new LinearLayout(MainActivity.this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
+            if(next[0]<list.size())b.postOnAnimation(this);
+            else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
+        }};
+        if(!list.isEmpty())b.postOnAnimation(appendHero);
+    }
+
+    private ImageView createHeroAvatarView(final String tokenUri,final String name){
+        final ImageView view=createAvatarView("",name);
+        if(tokenUri==null||tokenUri.trim().isEmpty())return view;
+        Bitmap previous=heroesAvatarCache.get(tokenUri);
+        if(previous!=null){view.setImageBitmap(previous);return view;}
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            Bitmap loaded=null;
+            try{loaded=ImageStorageManager.decodeSampled(MainActivity.this,Uri.parse(tokenUri),192,192);}
+            catch(Exception error){AppLog.w("HeroesPerf","Token indisponível para "+name,error);}
+            final Bitmap bitmap=loaded;
+            if(bitmap!=null)ui.post(new Runnable(){public void run(){
+                heroesAvatarCache.put(tokenUri,bitmap);
+                if("Heróis".equals(currentScreen)&&!isFinishing()&&!isDestroyed())view.setImageBitmap(bitmap);
+            }});
+        }});
+        return view;
     }
 
     /** Install validated button handlers before returning control to the UI loop. */
@@ -6512,12 +6600,63 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             header.addView(closeBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             header.addView(clearBtn,new LinearLayout.LayoutParams(dp(64),dp(30)));
             help.addView(header);
+            Button full=smallButton("↕ LER CONVERSA COMPLETA",Color.rgb(28,68,98));
+            full.setTextColor(Color.WHITE);
+            full.setContentDescription("Abrir o histórico completo do Mestre em uma janela rolável");
+            full.setOnClickListener(v->showMasterConversationFullscreen());
+            help.addView(full,new LinearLayout.LayoutParams(-1,dp(40)));
             if(!strixhavenMasterCardCollapsed){
-                addMasterConversationHistory(help,blue,true);
+                LinearLayout historyBody=new LinearLayout(this);
+                historyBody.setOrientation(LinearLayout.VERTICAL);
+                historyBody.setPadding(dp(4),dp(8),dp(4),dp(16));
+                addMasterConversationHistory(historyBody,blue,true);
+                ScrollView historyScroll=new ScrollView(this);
+                historyScroll.setFillViewport(false);
+                historyScroll.setVerticalScrollBarEnabled(true);
+                historyScroll.setScrollbarFadingEnabled(false);
+                historyScroll.setNestedScrollingEnabled(true);
+                historyScroll.addView(historyBody,new ScrollView.LayoutParams(-1,-2));
+                historyScroll.post(()->historyScroll.fullScroll(View.FOCUS_DOWN));
+                help.addView(historyScroll,new LinearLayout.LayoutParams(-1,dp(208)));
+                help.addView(text("DESLIZE O QUADRO AZUL PARA LER OU ABRA A CONVERSA COMPLETA",10,blue,true));
                 help.addView(text("A cena, o relógio, NPCs e o mapa não avançaram.",10,Color.rgb(190,225,238),false));
             }
             parent.addView(help);
         }catch(Throwable error){AppLog.w("StrixMasterChat","Falha ao renderizar conversa auxiliar; narrativa preservada.",error);}
+    }
+
+    private void showMasterConversationFullscreen(){
+        JSONArray history=masterConversationHistory();
+        LinearLayout transcript=new LinearLayout(this);
+        transcript.setOrientation(LinearLayout.VERTICAL);
+        transcript.setPadding(dp(16),dp(12),dp(16),dp(24));
+        if(history.length()==0)transcript.addView(text("Nenhuma consulta registrada.",14,MUTED,false));
+        for(int i=0;i<history.length();i++){
+            JSONObject turn=history.optJSONObject(i);
+            if(turn==null)continue;
+            String question=turn.optString("question","").trim();
+            String answer=turn.optString("answer","").trim();
+            if(question.length()>0){
+                TextView q=text("VOCÊ: "+question,13,Color.rgb(190,225,238),true);
+                q.setTextIsSelectable(true);
+                transcript.addView(q);
+            }
+            if(answer.length()>0){
+                TextView a=text("MESTRE: "+answer,14,Color.WHITE,false);
+                a.setTextIsSelectable(true);
+                a.setLineSpacing(0,1.15f);
+                a.setPadding(0,dp(8),0,dp(12));
+                transcript.addView(a);
+            }
+        }
+        ScrollView scroll=scrollableDialogView(transcript);
+        int height=getResources().getDisplayMetrics().heightPixels;
+        scroll.setLayoutParams(new android.view.ViewGroup.LayoutParams(-1,Math.max(dp(240),(int)(height*0.70f))));
+        new AlertDialog.Builder(this)
+            .setTitle("CONVERSA COM O MESTRE")
+            .setView(scroll)
+            .setPositiveButton("FECHAR",null)
+            .show();
     }
 
     /* package */ void clearMasterConversationOnly(){
@@ -6552,7 +6691,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONObject preserveMasterConversationHistory(JSONObject previous,JSONObject current){JSONObject out=copyJsonObject(current);try{JSONArray history=previous==null?null:previous.optJSONArray("conversation_history");if(history!=null&&history.length()>0)out.put("conversation_history",copyJsonArray(history));}catch(Exception error){AppLog.w("MasterConversation","Falha ao preservar histórico auxiliar entre cenas.",error);}return out;}
 
     private void addMasterConversationHistory(final LinearLayout parent,final int accent,boolean compact){
-        JSONArray history=masterConversationHistory();if(history.length()==0)return;parent.addView(text(compact?"CONVERSA RECENTE":"HISTÓRICO DA CONVERSA",11,accent,true));String currentScene=currentMasterConversationSceneFingerprint();int start=Math.max(0,history.length()-(compact?3:6));for(int i=start;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String question=turn.optString("question","");String answer=turn.optString("answer","");if(question.length()>0)parent.addView(text("Você: "+question,11,Color.rgb(190,225,238),false));if(answer.length()>0){TextView a=text("Mestre: "+answer,compact?12:13,Color.WHITE,false);a.setTextIsSelectable(true);a.setLineSpacing(0,1.08f);parent.addView(a);}String questionKind=turn.optString("question_kind",masterQuestionKind(question));if("information".equals(questionKind))parent.addView(text("CONSULTA • NÃO É UMA AÇÃO",9,Color.rgb(151,235,184),true));final String actionableQuestion=question;final String actionableTurnId=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+question));String promotionStatus=turn.optString("promotion_status","available");boolean sameScene=currentScene.equals(turn.optString("scene_fingerprint",currentScene));boolean available="available".equals(promotionStatus)||"cancelled".equals(promotionStatus)||promotionStatus.length()==0;if(sameScene&&available&&turn.optBoolean("actionable",masterQuestionCanBecomeAction(question))&&question.length()>0){Button tryIt=smallButton("cancelled".equals(promotionStatus)?"TENTAR NOVAMENTE NA HISTÓRIA":"TENTAR ISSO NA HISTÓRIA",GOLD);tryIt.setTextColor(Color.BLACK);tryIt.setOnClickListener(new View.OnClickListener(){public void onClick(View v){promoteMasterQuestionToAction(actionableTurnId,actionableQuestion);}});parent.addView(tryIt,new LinearLayout.LayoutParams(-1,dp(40)));}else if("awaiting_master".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • O MESTRE ESTÁ ENQUADRANDO A AÇÃO",10,Color.rgb(240,211,132),true));}else if("awaiting_roll".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • AGUARDANDO SUA ROLAGEM",10,Color.rgb(240,211,132),true));}else if("resolving_roll".equals(promotionStatus)){parent.addView(text("✓ ROLAGEM ENVIADA • O MESTRE ESTÁ INTERPRETANDO",10,Color.rgb(240,211,132),true));}else if("cancelled".equals(promotionStatus)){parent.addView(text("↩ TENTATIVA CANCELADA • VOCÊ PODE TENTAR NOVAMENTE NESTA CENA",10,Color.rgb(190,225,238),true));}else if("resolved".equals(promotionStatus)){parent.addView(text("✓ RESOLVIDO NA HISTÓRIA",10,Color.rgb(151,235,184),true));}String traceTest=turn.optString("test_label","");if(traceTest.length()>0)parent.addView(text("TESTE PEDIDO: "+traceTest,10,Color.rgb(240,211,132),false));if(turn.optLong("roll_id",0)>0){String traceRoll="ROLAGEM: "+turn.optString("roll_actor","Personagem")+" • "+turn.optString("roll_formula","d20")+" • total "+turn.optInt("roll_total",0)+" • "+("success".equals(turn.optString("roll_outcome"))?"SUCESSO":"FALHA");parent.addView(text(traceRoll,10,Color.rgb(190,225,238),true));}String storyTrace=turn.optString("resolution_excerpt","");if(storyTrace.length()>0)parent.addView(text("NA HISTÓRIA: "+storyTrace,compact?10:11,Color.WHITE,false));}}
+        JSONArray history=masterConversationHistory();if(history.length()==0)return;parent.addView(text(compact?"ÚLTIMA RESPOSTA DO MESTRE":"HISTÓRICO DA CONVERSA",11,accent,true));String currentScene=currentMasterConversationSceneFingerprint();int start=Math.max(0,history.length()-(compact?1:6));for(int i=start;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String question=turn.optString("question","");String answer=turn.optString("answer","");if(question.length()>0)parent.addView(text("Você: "+question,11,Color.rgb(190,225,238),false));if(answer.length()>0){TextView a=text("Mestre: "+answer,compact?12:13,Color.WHITE,false);a.setTextIsSelectable(!compact);a.setLineSpacing(0,1.08f);parent.addView(a);}String questionKind=turn.optString("question_kind",masterQuestionKind(question));if("information".equals(questionKind))parent.addView(text("CONSULTA • NÃO É UMA AÇÃO",9,Color.rgb(151,235,184),true));final String actionableQuestion=question;final String actionableTurnId=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+question));String promotionStatus=turn.optString("promotion_status","available");boolean sameScene=currentScene.equals(turn.optString("scene_fingerprint",currentScene));boolean available="available".equals(promotionStatus)||"cancelled".equals(promotionStatus)||promotionStatus.length()==0;if(sameScene&&available&&turn.optBoolean("actionable",masterQuestionCanBecomeAction(question))&&question.length()>0){Button tryIt=smallButton("cancelled".equals(promotionStatus)?"TENTAR NOVAMENTE NA HISTÓRIA":"TENTAR ISSO NA HISTÓRIA",GOLD);tryIt.setTextColor(Color.BLACK);tryIt.setOnClickListener(new View.OnClickListener(){public void onClick(View v){promoteMasterQuestionToAction(actionableTurnId,actionableQuestion);}});parent.addView(tryIt,new LinearLayout.LayoutParams(-1,dp(40)));}else if("awaiting_master".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • O MESTRE ESTÁ ENQUADRANDO A AÇÃO",10,Color.rgb(240,211,132),true));}else if("awaiting_roll".equals(promotionStatus)){parent.addView(text("✓ TENTATIVA CONFIRMADA • AGUARDANDO SUA ROLAGEM",10,Color.rgb(240,211,132),true));}else if("resolving_roll".equals(promotionStatus)){parent.addView(text("✓ ROLAGEM ENVIADA • O MESTRE ESTÁ INTERPRETANDO",10,Color.rgb(240,211,132),true));}else if("cancelled".equals(promotionStatus)){parent.addView(text("↩ TENTATIVA CANCELADA • VOCÊ PODE TENTAR NOVAMENTE NESTA CENA",10,Color.rgb(190,225,238),true));}else if("resolved".equals(promotionStatus)){parent.addView(text("✓ RESOLVIDO NA HISTÓRIA",10,Color.rgb(151,235,184),true));}String traceTest=turn.optString("test_label","");if(traceTest.length()>0)parent.addView(text("TESTE PEDIDO: "+traceTest,10,Color.rgb(240,211,132),false));if(turn.optLong("roll_id",0)>0){String traceRoll="ROLAGEM: "+turn.optString("roll_actor","Personagem")+" • "+turn.optString("roll_formula","d20")+" • total "+turn.optInt("roll_total",0)+" • "+("success".equals(turn.optString("roll_outcome"))?"SUCESSO":"FALHA");parent.addView(text(traceRoll,10,Color.rgb(190,225,238),true));}String storyTrace=turn.optString("resolution_excerpt","");if(storyTrace.length()>0)parent.addView(text("NA HISTÓRIA: "+storyTrace,compact?10:11,Color.WHITE,false));}}
 
     private String masterConversationResolutionExcerpt(String raw){String clean=raw==null?"":stripMarkdown(raw).replaceAll("\\s+"," ").trim();if(clean.length()<=260)return clean;return clean.substring(0,257)+"…";}
 
@@ -6580,9 +6719,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void promoteMasterQuestionToAction(String turnId,String rawQuestion){String q=rawQuestion==null?"":rawQuestion.trim();if(q.length()==0||aiBusy)return;String currentScene=currentMasterConversationSceneFingerprint();JSONArray history=masterConversationHistory();boolean allowed=false;JSONObject selectedTurn=null;for(int i=0;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String id=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+turn.optString("question","")));String status=turn.optString("promotion_status","available");if(id.equals(turnId)&&currentScene.equals(turn.optString("scene_fingerprint",currentScene))&&("available".equals(status)||"cancelled".equals(status)||status.length()==0)){allowed=true;selectedTurn=turn;break;}}if(!allowed){toast("Essa possibilidade já foi usada ou pertence a outra cena.");return;}String advisory=masterPromotionAdvisoryContext(selectedTurn);boolean retrying="cancelled".equals(selectedTurn.optString("promotion_status","available"));JSONObject promotionDetails=new JSONObject();try{promotionDetails.put("hint_authority","advisory_only");if(advisory.length()>0)promotionDetails.put("promotion_advisory",advisory);if(retrying){promotionDetails.put("retry_count",selectedTurn.optInt("retry_count",0)+1);String[] stale={"test_key","test_label","test_ability","test_skill","test_mode","test_dc","test_source_rule_id","roll_id","roll_actor","roll_formula","roll_mode","roll_natural","roll_total","roll_outcome","roll_source","resolved_after_roll","resolved_without_roll","resolution_excerpt","resolution_scene_fingerprint"};for(String key:stale)promotionDetails.put(key,JSONObject.NULL);}}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao registrar contexto consultivo da promoção.",ignored);}activeMasterPromotionTurnId=turnId;activeMasterPromotionQuestion=q;activeMasterPromotionFromRoll=false;updateMasterConversationTurn(turnId,"awaiting_master",promotionDetails);prefs.edit().putString("ai_mode","Narrador").apply();String declared="O jogador confirma que quer TENTAR na ficção a possibilidade discutida na consulta anterior. master_turn_id="+turnId+". Pergunta anterior: "+q+". "+(advisory.length()>0?"CONTEXTO AUXILIAR NÃO AUTORITATIVO da conversa azul: "+advisory+". NÃO copie isso como regra, não fixe CD por causa desta sugestão e não force essa perícia; use apenas como pista de intenção. ":"")+"Trate isto agora como PLAYER_ACTION. Decida o enquadramento mecânico de forma independente pelas regras recuperadas e pelo estado atual. Se houver incerteza e consequência real, peça o teste apropriado pelas regras e pause para a rolagem; depois da rolagem, interprete o resultado e retorne à história. Não considere a consulta anterior como ação já realizada.";sendAi("Narrador",declared);}
 
+    /* package */ static boolean shouldRouteNarratorQuestionToMaster(String text){
+        return MasterQuestionIntentGuard.isConsultation(text);
+    }
+
     private void sendMasterSideQuestion(String rawQuestion){
         String question=rawQuestion==null?"":rawQuestion.trim();if(question.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}if(aiBusy){toast("Aguarde a resposta atual.");return;}
         masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
+        // Consume only the sent question, not another unsent draft.
+        if(narratorInput!=null&&question.equals(narratorInput.getText().toString().trim()))
+            narratorInput.setText("");
         String routed="CONSULTA AUXILIAR FORA DA FICÇÃO. Responda no quadro separado e não altere a aventura. Se houver várias perguntas, responda uma por uma. Não invente distância, presença, conhecimento ou regra que não esteja no estado/manuais. Se a pergunta for sobre uma possibilidade de ação (por exemplo: posso/consigo subir, abrir, convencer, atravessar), explique primeiro o que é observável e se a tentativa parece possível. Se houver incerteza com consequência e as regras recuperadas sustentarem isso, diga qual atributo/perícia provavelmente seria testado; NÃO fixe CD, não role e não crie teste pendente no canal GM_HELP. A rolagem só nasce depois de o jogador confirmar TENTAR NA HISTÓRIA, quando a mensagem será promovida a PLAYER_ACTION. PERGUNTA DO JOGADOR: "+question;
         sendAi("Narrador",routed);
     }
@@ -7340,6 +7486,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void sendAi(final String mode,String userText){
+        if("Narrador".equals(mode)&&!masterSideQueryActive&&shouldRouteNarratorQuestionToMaster(userText)){
+            sendMasterSideQuestion(userText);return;
+        }
         final String inputChannel="Narrador".equals(mode)?(masterSideQueryActive?"GM_HELP":"PLAYER_ACTION"):null;
         sendAi(mode,userText,inputChannel);
     }
@@ -7808,6 +7957,31 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // RUN220: a curated proposal is an intention, never a simultaneous
             // mechanical event. Fail closed even if the same proposal was staged
             // in a previous request (the replay must not execute its side-effects).
+            // An explicit test request cannot be narrated as an automatic
+            // success. It must become a pending roll before story/world commits.
+            if (!masterSideQueryActive && "Narrador".equals(lastAiMode)
+                    && MasterTestRequestGuard.wouldResolveWithoutRoll(action,env,activeMasterPromotionFromRoll)) {
+                synchronized (aiCommitLock) {
+                    if (requestGen != aiRequestGeneration) return;
+                    db.addAuditEvent("segurança","Teste sem rolagem bloqueado",
+                        "O Mestre tentou concluir uma declaração explícita de teste sem gerar pending_test.",
+                        "{}", "{}", false);
+                    ui.post(new Runnable(){public void run(){
+                        if(requestGen!=aiRequestGeneration)return;
+                        aiBusy=false;
+                        streamingNarration="";
+                        clearFailedGeminiRequest();
+                        activeMasterPlan=null;
+                        if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);
+                        setStatus("Teste não executado: o Mestre não apresentou a rolagem. A cena foi preservada.");
+                        toast("Nenhum sucesso foi aplicado. O Mestre precisa solicitar o teste antes de resolvê-lo.");
+                        if(isStrixhavenAdventure())showStrixhavenSession();
+                        else if("Mestre IA".equals(currentScreen))showNarrator();
+                    }});
+                }
+                return;
+            }
+
             if (!masterSideQueryActive && "Narrador".equals(lastAiMode) && !activeTurnNonAdvancing(action)) {
                 String agencyConflict = CompanionProposalIsolationGuard.reject(rawAgencyEnvelope, safeActiveCharacters(), db);
                 if (!agencyConflict.isEmpty()) {
@@ -9614,10 +9788,11 @@ private void speakGemini(String text){
 
     private void loadStoryState(){JSONObject st=db.getStoryState();String stored=st.optString("last_narration","");JSONArray storedOptions;try{storedOptions=new JSONArray(st.optString("options_json","[]"));}catch(Exception e){storedOptions=new JSONArray();}try{currentSceneCastPreview=new JSONArray(prefs.getString("last_scene_cast_preview","[]"));}catch(Exception e){currentSceneCastPreview=new JSONArray();}ChoiceSplit repaired=splitNarrationChoices(PortugueseNarrationSanitizer.sanitize(sanitizeNarrationPayload(stored)),storedOptions);lastNarration=AtlasScenePositionReconciler.repairPersistedNarration(NarrativeLocationNaturalizer.naturalize(repaired.narration,db),db);if(hasInternalNarrationLeak(stored)||hasInternalNarrationLeak(lastNarration)){AppLog.w("MainActivity","Narração antiga continha metainstruções; reparando prosa sem avançar tempo.");lastNarration=GeneratedTextSanitizer.narrative(lastNarration);if(hasInternalNarrationLeak(lastNarration))lastNarration="A cena anterior permanece registrada no diário. A história prossegue do ponto atual sem avançar o tempo.";}try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"carregamento da história");}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada ao reconciliar posição no carregamento da história.",ignored);}currentOptions=repaired.options;lastVisualPrompt=st.optString("visual_prompt","");lastPrompt=st.optString("last_action","");lastAiMode=prefs.getString("last_ai_response_mode","Narrador");try{String p=st.optString("pending_test_json","");pendingTest=p.length()>0?new JSONObject(p):new JSONObject();}catch(Exception e){pendingTest=new JSONObject();}try{lastAudioPlan=new JSONObject(prefs.getString("last_audio_plan","{}"));}catch(Exception e){lastAudioPlan=new JSONObject();}try{lastMasterSupport=new JSONObject(prefs.getString("last_master_support_json","{}"));}catch(Exception e){lastMasterSupport=new JSONObject();}if(lastNarration.length()>0){mergeNarratedKnownNpcs(currentSceneCastPreview,lastNarration);mergeExplicitlyNamedNpcHints(currentSceneCastPreview,lastNarration);synchronizeVisualSceneCast();prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();}if(lastNarration.length()>0&&pendingTest.length()==0&&"Narrador".equals(lastAiMode)){JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());JSONObject projected=projectSceneForSuggestions(new JSONObject(),currentSceneCastPreview);if(currentOptions.length()<ContextualSceneActionFactory.MIN_CONTEXTUAL+1
     ||currentOptions.optJSONObject(0)==null
-    ||!StoryMomentumAction.isRequest(currentOptions.optJSONObject(0).optString("action",""))){
+    ||!StoryMomentumAction.isRequest(currentOptions.optJSONObject(0).optString("action",""))
+    ||!SceneOptionVisibleEvidence.allSupported(currentOptions,lastNarration)){
     currentOptions=SceneOptionDiversifier.ensureAlways(currentOptions,history,lastNarration,lastPrompt,projected,db.getMasterRuntimeState().optInt("beat_no",0)+1);
 }else{
-    // Reopening a scene must not replace the four choices already visible there.
+    // Reopening a scene retains its choices only when they actually match the visible narration.
     currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
 }}if((!lastNarration.equals(stored)||!currentOptions.toString().equals(st.optString("options_json","[]")))&&stored.trim().length()>0)db.saveStoryState(st.optInt("started",0)>0,lastNarration,lastVisualPrompt,currentOptions.toString(),st.optString("pending_test_json",""),lastPrompt);}
     private void persistStory(String action){db.saveStoryState(lastNarration.length()>0,lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),action==null?"":action);}

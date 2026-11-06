@@ -26,7 +26,7 @@ public final class ContextualSceneActionFactory {
             JSONObject item = source.optJSONObject(i);
             if (item == null) continue;
             String action = item.optString("action", "").trim();
-            if (action.isEmpty() || StoryMomentumAction.isRequest(action)) continue;
+            if (action.isEmpty() || StoryMomentumAction.isRequest(action) || !SceneOptionVisibleEvidence.supported(item,narration)) continue;
             String key = fold(action);
             if (actions.add(key)) {
                 result.put(item);
@@ -105,6 +105,7 @@ public final class ContextualSceneActionFactory {
             String action = item.optString("action", "");
             String key = fold(action), kind = item.optString("_family", "");
             if (actions.contains(key) || (distinctFamily && families.contains(kind))) continue;
+            if (!SceneOptionVisibleEvidence.supported(item,narration)) continue;
             if (!SceneOptionDiversifier.isGroundedInScene(action, narration, scene)) continue;
             if (!SceneOptionDiversifier.isRelevantToCurrentBeat(action, narration)) continue;
             boolean duplicate = false;
@@ -178,6 +179,9 @@ public final class ContextualSceneActionFactory {
 
     private static String actor(String beat, JSONObject scene) {
         String fromBeat = match(beat, ACTORS);
+        // "guarda o papel" is an action by a student, not the presence of a guard.
+        if ("o guarda".equals(fromBeat) && !SceneOptionVisibleEvidence.guardNounPresent(beat))
+            fromBeat=match(beat.replaceAll("(?iu)\\bguarda\\b"," "),ACTORS);
         if (!fromBeat.isEmpty()) return fromBeat;
         // A named speaker is a stronger anchor than a generic noun: never
         // invent a speaker, read only an explicit "Nome: — fala" in this beat.
