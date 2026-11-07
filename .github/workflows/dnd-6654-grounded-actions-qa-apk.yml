@@ -63,6 +63,19 @@ jobs:
             --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
             --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest'
+      - name: Full D&D JVM regression gate — no APK if any unit or UI test fails
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 15
+        run: |
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Real Faerun map integration gate (full assets)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence' \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing' \
+            --no-daemon --console=plain
       - name: Upload report even if failure
         if: always()
         uses: actions/upload-artifact@v4
