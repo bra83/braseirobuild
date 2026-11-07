@@ -59,6 +59,31 @@ public final class DndRulesNarrativeAdjudication6654Test {
             new JSONObject().put("narration","A aluna aponta para as fitas e aguarda a tentativa."),false));
     }
 
+    @Test public void explicitClueTestNeedsValidPendingRollBeforeNarration() throws Exception {
+        String action="Quero fazer um teste pra desvendar a pista.";
+        JSONObject missing=new JSONObject().put("protocol_version",1)
+            .put("narration","O Mestre conta o que acontece.");
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,missing));
+        JSONObject noDc=new JSONObject().put("protocol_version",1)
+            .put("narration","O Mestre pede um teste.")
+            .put("pending_test",new JSONObject().put("required",true)
+                .put("type","ability").put("ability","Inteligência")
+                .put("skill","Investigação"));
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,noDc));
+        JSONObject valid=new JSONObject().put("protocol_version",1)
+            .put("narration","Kvothe observa os sulcos e se prepara para rolar.")
+            .put("pending_test",new JSONObject().put("required",true)
+                .put("type","ability").put("ability","Inteligência")
+                .put("skill","Investigação").put("dc",14)
+                .put("reason","Padrão geométrico complexo."));
+        assertFalse(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
+        valid.put("narration","Kvothe decifra a pista e descobre a resposta.");
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
+        valid.put("narration","Kvothe aguarda a rolagem.");
+        valid.remove("protocol_version");
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
+    }
+
     @Test public void preserveIntellectualCheckButNeverInventDcTen() throws Exception{
         Context context=RuntimeEnvironment.getApplication();
         String file="dnd6654-rules-"+System.nanoTime()+".db";
