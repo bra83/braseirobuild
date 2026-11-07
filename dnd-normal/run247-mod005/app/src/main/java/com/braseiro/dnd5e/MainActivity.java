@@ -2743,6 +2743,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final Throwable error=failure;
             final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
             final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
+            final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
             final long rosterReady=android.os.SystemClock.elapsedRealtime();
             ui.post(new Runnable(){public void run(){
                 if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
@@ -2760,28 +2761,33 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     return;
                 }
                 AppLog.i("HeroesPerf","LOAD_ROSTER_MS="+(rosterReady-started)+" count="+roster.size());
-                showHeroesPrepared(roster,sheets,loads,request,started);
+                showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
             }});
             if(error!=null||roster==null)return;
             for(final JSONObject ch:roster){
                 if(request!=heroesLoadGeneration)return;
                 final long oneStarted=android.os.SystemClock.elapsedRealtime();
                 JSONObject sheet,load;
+                boolean hasRuntimeActions=false;
                 try{
                     sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
                     load=db.characterInventoryLoad(ch.optLong("id"),false);
+                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
+                    hasRuntimeActions=characterRuntimeActions(ch,resource).length()>0;
                 }catch(Throwable preparationError){
                     AppLog.e("HeroesPerf","Ficha não pôde ser preparada: "+ch.optString("name"),preparationError);
                     sheet=new JSONObject();
                     load=new JSONObject();
                 }
                 final JSONObject preparedSheet=sheet,preparedLoad=load;
+                final boolean preparedRuntime=hasRuntimeActions;
                 final long finished=android.os.SystemClock.elapsedRealtime();
                 AppLog.i("HeroesPerf","LOAD_CARD_PREP_MS="+(finished-oneStarted)+" character_id="+ch.optLong("id"));
                 ui.post(new Runnable(){public void run(){
                     if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
                     sheets.add(preparedSheet);
                     loads.add(preparedLoad);
+                    runtimeAvailable.add(preparedRuntime);
                     if(heroesAppendRenderer!=null)ui.post(heroesAppendRenderer);
                 }});
             }
@@ -2792,6 +2798,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showHeroesPrepared(final List<JSONObject> list,
                                     final List<JSONObject> sheets,
                                     final List<JSONObject> loads,
+                                    final List<Boolean> runtimeAvailable,
                                     final long request,final long started){
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
@@ -2806,7 +2813,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final int[] next={0};
         final Runnable appendHero=new Runnable(){public void run(){
             if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
-            if(next[0]>=list.size()||next[0]>=sheets.size()||next[0]>=loads.size())return;
+            if(next[0]>=list.size()||next[0]>=sheets.size()||next[0]>=loads.size()||next[0]>=runtimeAvailable.size())return;
             final int i=next[0]++;
             final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
             LinearLayout identity=new LinearLayout(MainActivity.this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
