@@ -2850,7 +2850,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(next[0]<list.size())b.postOnAnimation(this);
             else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
         }};
-        if(!list.isEmpty())b.postOnAnimation(appendHero);
+        // The initial card must render even before the ScrollView is attached;
+        // subsequent cards stay frame-paced via postOnAnimation in appendHero.
+        if(!list.isEmpty())ui.post(appendHero);
     }
 
     private ImageView createHeroAvatarView(final String tokenUri,final String name){
