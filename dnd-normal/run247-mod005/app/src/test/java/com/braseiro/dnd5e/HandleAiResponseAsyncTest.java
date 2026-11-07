@@ -47,8 +47,8 @@ public class HandleAiResponseAsyncTest {
 
     @Test
     public void testHandleAiResponseExecutesAsynchronouslyAndAppliesToUi() throws Exception {
-        JSONObject envelope = new JSONObject();
-        envelope.put("narration", "Kvothe ajusta o manto de viagem enquanto a chuva leve molha as pedras do pátio central de Baldur's Gate.");
+        JSONObject envelope = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
+        envelope.put("narration", "No pátio, a chuva fina escurece as pedras antigas. Um mercador fecha sua barraca sob o toldo.");
         envelope.put("visual_prompt", "Pátio de pedras antigas, chuva fina, arquitetura gótica de Baldur's Gate");
         JSONArray options = new JSONArray();
         JSONObject opt1 = new JSONObject().put("label", "Entrar na estalagem").put("action", "Entrar na estalagem");
@@ -73,13 +73,13 @@ public class HandleAiResponseAsyncTest {
         // Check that narration was updated in activity
         assertNotNull(activity.lastNarration);
         assertTrue("A narração deve ter sido aplicada na UI",
-                activity.lastNarration.contains("Kvothe ajusta o manto"));
+                activity.lastNarration.contains("a chuva fina escurece"));
 
         // Check that story was persisted to database
         JSONObject story = activity.db.getStoryState();
         assertNotNull(story);
         assertTrue("Persistência SQLite da narrativa deve estar consistente",
-                story.optString("last_narration", "").contains("Kvothe ajusta o manto"));
+                story.optString("last_narration", "").contains("a chuva fina escurece"));
 
         // Check footer status
         assertNotNull(activity.statusText);
@@ -115,14 +115,14 @@ public class HandleAiResponseAsyncTest {
         // Geração inicial
         long genA = ++activity.aiRequestGeneration;
 
-        JSONObject envA = new JSONObject();
-        envA.put("narration", "RESPOSTA_OBSOLETA_A: Este texto nunca deve aparecer no banco nem na UI.");
+        JSONObject envA = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
+        envA.put("narration", "Uma carroça vermelha atravessa o pátio e desaparece atrás do muro.");
         envA.put("visual_prompt", "Visual A obsoleto");
         envA.put("options", new JSONArray());
         envA.put("_master_validation", new JSONObject().put("valid", true));
 
-        JSONObject envB = new JSONObject();
-        envB.put("narration", "RESPOSTA_LEGITIMA_B: Este texto DEVE estar salvo no banco e visível na UI.");
+        JSONObject envB = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
+        envB.put("narration", "O sino da torre soa três vezes enquanto a chuva engrossa diante das barracas do pátio.");
         envB.put("visual_prompt", "Visual B legítimo");
         envB.put("options", new JSONArray());
         envB.put("_master_validation", new JSONObject().put("valid", true));
@@ -141,7 +141,7 @@ public class HandleAiResponseAsyncTest {
                     // Aguarda a resposta B substituir A e terminar o processamento
                     bFinished.await();
                     // Resposta A tenta processar até o fim, terminando POR ÚLTIMO
-                    activity.processAiResponseInBackground(envA.toString(), "Ação A", genA);
+                    activity.processAiResponseInBackground(envA.toString(), "Observo a carroça", genA);
                 } catch (Exception ignored) {
                 } finally {
                     aFinished.countDown();
@@ -154,7 +154,7 @@ public class HandleAiResponseAsyncTest {
 
         // Resposta B substitui A (incrementa geração e processa primeiro)
         long genB = ++activity.aiRequestGeneration;
-        activity.processAiResponseInBackground(envB.toString(), "Ação B", genB);
+        activity.processAiResponseInBackground(envB.toString(), "Observo o pátio", genB);
 
         // Notifica thread A que B terminou
         bFinished.countDown();
@@ -169,19 +169,19 @@ public class HandleAiResponseAsyncTest {
         // 1. Verificação da UI: Somente B pode estar na UI
         assertNotNull(activity.lastNarration);
         assertTrue("A UI deve refletir exclusivamente a resposta B",
-                activity.lastNarration.contains("RESPOSTA_LEGITIMA_B"));
+                activity.lastNarration.contains("O sino da torre soa três vezes"));
         assertFalse("A UI NUNCA pode ser contaminada pela resposta obsoleta A",
-                activity.lastNarration.contains("RESPOSTA_OBSOLETA_A"));
+                activity.lastNarration.contains("Uma carroça vermelha atravessa o pátio"));
 
         // 2. Verificação do Banco de Dados SQLite: Somente B pode estar persistido no AppDb
         JSONObject story = activity.db.getStoryState();
         assertNotNull(story);
         String persistedNarration = story.optString("last_narration", "");
         assertTrue("O banco de dados deve conter exclusivamente a narrativa da resposta B",
-                persistedNarration.contains("RESPOSTA_LEGITIMA_B"));
+                persistedNarration.contains("O sino da torre soa três vezes"));
         assertFalse("O banco de dados NUNCA pode ter sido sobrescrito pela resposta obsoleta A",
-                persistedNarration.contains("RESPOSTA_OBSOLETA_A"));
+                persistedNarration.contains("Uma carroça vermelha atravessa o pátio"));
         assertEquals("A última ação persistida deve ser a da resposta B",
-                "Ação B", story.optString("last_action", ""));
+                "Observo o pátio", story.optString("last_action", ""));
     }
 }
