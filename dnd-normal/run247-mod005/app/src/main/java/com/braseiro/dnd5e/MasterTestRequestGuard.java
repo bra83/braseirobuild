@@ -19,6 +19,19 @@ public final class MasterTestRequestGuard {
         return test==null||!test.optBoolean("required",true);
     }
 
+    /**
+     * A pending check is not enough when narration already claims its outcome.
+     * Remote repair is permitted to propose a check and justified DC, never
+     * to roll a die or commit world state on the player's behalf.
+     */
+    public static boolean requiresRemoteCorrection(String action,JSONObject envelope){
+        if(!isExplicitTestDeclaration(action))return false;
+        JSONObject test=envelope==null?null:envelope.optJSONObject("pending_test");
+        if(test==null||!test.optBoolean("required",true))return true;
+        return DndActionCheckPolicy.unresolvedOutcomeClaimed(
+            envelope==null?"":envelope.optString("narration",""));
+    }
+
     static boolean isExplicitTestDeclaration(String action){
         if(action==null)return false;
         String original=action.trim();

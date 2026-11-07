@@ -7769,6 +7769,44 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
         if(requestId!=aiRequestGeneration)return;
+        // A requested player check must result in an actual pending roll,
+        // not a narrative victory followed by an arbitration rollback.
+        if("Narrador".equals(mode)&&!activeMasterPromotionFromRoll
+                &&MasterTestRequestGuard.requiresRemoteCorrection(originalUserText,parseAiEnvelope(raw))){
+            if(repairAttempt==0&&key!=null&&key.trim().length()>=20){
+                final String repairSystem=systemPrompt
+                    +"\n\nREPARO MECÂNICO OBRIGATÓRIO (D&D). A ação do jogador solicita um teste. "
+                    +"NÃO narre êxito, fracasso ou descoberta. NÃO jogue dados pelo jogador. "
+                    +"Use somente a cena atual, a ficha e o núcleo compilado de testes de atributo/perícia. "
+                    +"Forneça um JSON v1 completo com pending_test.required=true, "
+                    +"pending_test.type='ability', character, ability, skill, dc (CD justificável), reason "
+                    +"e narration que INTERROMPA a ação ANTES do resultado. "
+                    +"Não aplique state_updates, scene_state ou relógio antes da rolagem. "
+                    +"Nenhuma busca nova de manual é necessária para um teste comum de atributo.";
+                final String repairPrompt="AÇÃO EXATA DECLARADA PELO JOGADOR: "+originalUserText
+                    +"\nA resposta anterior foi rejeitada porque antecipou o resultado ou omitiu pending_test. "
+                    +"Recrie somente a proposta do teste compatível com a cena; não resolva a pista.";
+                setStatus("O Mestre precisa apresentar a rolagem; corrigindo a proposta do teste sem avançar a cena…");
+                gemini.generateText(key,model,repairSystem,repairPrompt,new GeminiService.TextCallback(){
+                    public void onSuccess(final String corrected){ui.post(new Runnable(){public void run(){
+                        if(requestId!=aiRequestGeneration)return;
+                        if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairSystem.length()+repairPrompt.length(),corrected==null?0:corrected.length());
+                        acceptOrRepairNarration(mode,originalUserText,corrected,systemPrompt,key,model,requestId,repairAttempt+1);
+                    }});}
+                    public void onError(final String reason){ui.post(new Runnable(){public void run(){
+                        if(requestId!=aiRequestGeneration)return;
+                        markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                            "Não foi possível preparar a rolagem: "+(reason==null?"erro da API":reason)+". A cena não avançou.");
+                    }});}
+                });
+                return;
+            }
+            aiBusy=false;streamingNarration="";
+            markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                "O Mestre não propôs um teste válido com perícia e CD ou antecipou o resultado. "
+                +"Nenhuma rolagem aconteceu e nenhuma pista foi revelada. Use TENTAR NOVAMENTE (GEMINI).");
+            return;
+        }
         // Repetição literal não deve gerar OUTRA chamada paga de revisão:
         // o editor de estilo não consegue produzir um resultado novo sem
         // autorizar mudança factual. Preserve a cena e devolva controle.
