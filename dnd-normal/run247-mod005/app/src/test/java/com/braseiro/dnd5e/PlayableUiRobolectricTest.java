@@ -33,7 +33,7 @@ public class PlayableUiRobolectricTest {
         db.updateCharacterRuleDetails(hero,"Soldado","","","","",DndRulesEngine.PROFILE_2024);
         db.ensureCharacterResourceState(hero);
         content=new FrameLayout(activity);activity.setContentView(content);
-        set("content",content);set("db",db);
+        set("content",content);set("db",db);set("ui",new android.os.Handler(android.os.Looper.getMainLooper()));
         set("prefs",activity.getSharedPreferences("ui-test",0));
         set("characterGenerator",new CharacterSheetGenerator(new DndRulesEngine()));
         set("worldStateEngine",new WorldStateEngine(db));
