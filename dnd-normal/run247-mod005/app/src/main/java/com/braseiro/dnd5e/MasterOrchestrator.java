@@ -220,6 +220,45 @@ public final class MasterOrchestrator {
     public JSONObject validateEnvelope(JSONObject envelope,String action){
         JSONObject candidate=envelope;if(activePlanForValidation!=null&&activePlanForValidation.nonAdvancing)candidate=BraseiroNarrativeDirector.freezeEnvelope(candidate,action,activePlanForValidation.inputChannel);
         JSONObject safe=validator.validate(candidate,action);
+        // Independent post-LLM adjudication gate: a consequential skill
+        // attempt cannot be completed by descriptive prose without a pending
+        // roll, and an unavailable rule/DC never becomes automatic success.
+        if(activePlanForValidation!=null && activePlanForValidation.narrative
+                && !activePlanForValidation.nonAdvancing){
+            try{
+                boolean blocked=safe.optBoolean("_mechanics_blocked",false);
+                boolean unrolled=DndActionCheckPolicy.missingRequiredResolution(action,safe,false);
+                if(blocked||unrolled){
+                    JSONObject report=safe.optJSONObject("_master_validation");
+                    if(report==null){report=new JSONObject();safe.put("_master_validation",report);}
+                    report.put("valid",false).put("fail_closed",true)
+                        .put("mechanical_adjudication_block",blocked?"rule_or_dc_unavailable":"unresolved_check_outcome");
+                    JSONArray warnings=report.optJSONArray("warnings");
+                    if(warnings==null){warnings=new JSONArray();report.put("warnings",warnings);}
+                    warnings.put(blocked
+                        ?"Teste não executado: regra recuperada ou CD verificável indisponível."
+                        :"O Mestre narrou um desfecho de teste sem rolagem confirmada.");
+                    safe.put("narration",blocked
+                        ?"A ação foi preservada: ainda falta uma regra ou dificuldade justificável para resolver o teste. Nenhum sucesso ou fracasso foi aplicado."
+                        :"A tentativa foi preservada, mas o Mestre não pode afirmar sucesso ou fracasso antes de indicar e resolver o teste apropriado.");
+                    safe.put("options",new JSONArray());
+                    stripRejectedStructuredState(safe);
+                    try{db.addAuditEvent("segurança","Arbitragem mecânica bloqueada",
+                          blocked?"Fonte ou CD insuficiente":"Desfecho narrado sem rolagem",
+                          "{}",new JSONObject().put("action",action==null?"":action).toString(),false);}
+                    catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Não foi possível registrar bloqueio de regra.",ignored);}
+                }
+            }catch(Exception mechanicalGateError){
+                AppLog.e("MasterOrchestrator","Falha no guardião de resultados mecânicos.",mechanicalGateError);
+                try{
+                    safe.put("narration","A validação mecânica falhou. A cena e suas consequências foram preservadas sem avanço.");
+                    safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true));
+                    stripRejectedStructuredState(safe);
+                }catch(Exception finalGuardError){
+                    AppLog.e("MasterOrchestrator","Falha no encerramento seguro da arbitragem.",finalGuardError);
+                }
+            }
+        }
         safe=guilds.validateUpdates(safe);
         try{
             String bOccasion=activePlanForValidation==null?"continuation":activePlanForValidation.barbaraStoryOccasion;
@@ -426,11 +465,11 @@ public final class MasterOrchestrator {
     }
     public synchronized void markConsequencesCommitted(Plan plan){if(plan!=null)plan.committed=true;}
     public synchronized void markConsequencesRolledBack(Plan plan,JSONObject envelope){
-        if(plan!=null){plan.committed=false;resetTickFlags(plan.localTick);}
+        if(plan!=null){plan.committed=false;plan.accepted=false;resetTickFlags(plan.localTick);}
         if(envelope!=null)resetTickFlags(envelope.optJSONObject("_local_tick"));
     }
     private static void resetTickFlags(JSONObject tick){try{if(tick==null)return;tick.put("committed",false).put("preview_only",true);JSONObject simulation=tick.optJSONObject("living_world_simulation");if(simulation!=null)simulation.put("committed",false).put("preview_only",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha ao reiniciar marcações após rollback.",ignored);}}
-    public synchronized void afterConsequencesDiscarded(Plan plan,JSONObject envelope){if(plan==null)return;try{db.addAuditEvent("mestre","Consequências descartadas","A narração foi preservada; mundo, NPCs e recursos não avançaram.",envelope==null?"{}":envelope.toString(),"{}",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}}
+    public synchronized void afterConsequencesDiscarded(Plan plan,JSONObject envelope){if(plan==null)return;try{db.addAuditEvent("mestre","Cena e consequências descartadas","A proposta narrativa e suas consequências foram recusadas antes da confirmação; mundo, NPCs e recursos não avançaram.",envelope==null?"{}":envelope.toString(),"{}",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}}
 
     public String cachedResponse(Plan plan,String model,String mode){if(plan==null||plan.narrative)return "";String cached=db.getMasterCache(hash(plan.cacheKey+"|"+model+"|"+mode),10L*60L*1000L);if(cached.length()>0)plan.fromCache=true;return cached;}
     public void cacheResponse(Plan plan,String model,String mode,String raw){if(plan==null||plan.narrative||raw==null||raw.length()<40||plan.fromCache)return;db.saveMasterCache(hash(plan.cacheKey+"|"+model+"|"+mode),mode,model,plan.actionHash,plan.stateHash,raw);}

@@ -38,13 +38,13 @@ public class SessionContinuityUiRobolectricTest {
     }
     @After public void cleanup(){if(dialog!=null)dialog.dismiss();db.close();activity.deleteDatabase(database);CompiledStatblockEngine.restoreReplacing(registry);}
     void set(String field,Object value)throws Exception{Field f=MainActivity.class.getDeclaredField(field);f.setAccessible(true);f.set(activity,value);}
-    void render()throws Exception{Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);shadowOf(Looper.getMainLooper()).idle();}
+    void render()throws Exception{set("currentScreen","Heróis");Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);HeroUiAsyncTestAwait.visible(content,db.listCharacters().isEmpty()?"+ CRIAR PERSONAGEM":"+ XP");}
     void reopen()throws Exception{db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");set("db",db);set("partyDirector",new PartyDirector(db));set("safety",new CampaignSafetyManager(activity,db));set("worldStateEngine",new WorldStateEngine(db));}
     <T extends View>T find(View root,Class<T> type,String label){
         if(type.isInstance(root)&&(label==null||(root instanceof EditText?label.contentEquals(((EditText)root).getHint()):root instanceof TextView&&label.contentEquals(((TextView)root).getText()))))return type.cast(root);
         if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){T v=find(((ViewGroup)root).getChildAt(i),type,label);if(v!=null)return v;}return null;
     }
-    void click(String label){Button b=find(content,Button.class,label);assertNotNull(label,b);b.performClick();shadowOf(Looper.getMainLooper()).idle();}
+    void click(String label){HeroUiAsyncTestAwait.visible(content,label);Button b=find(content,Button.class,label);assertNotNull(label,b);b.performClick();shadowOf(Looper.getMainLooper()).idle();}
     void open(String label){click(label);dialog=ShadowAlertDialog.getLatestAlertDialog();assertTrue(dialog.isShowing());}
     EditText field(String label){EditText f=find(dialog.getWindow().getDecorView(),EditText.class,label);assertNotNull(label,f);return f;}
     void write(String label,String value){field(label).setText(value);}

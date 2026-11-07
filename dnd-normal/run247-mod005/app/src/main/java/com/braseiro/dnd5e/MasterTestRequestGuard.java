@@ -12,9 +12,33 @@ public final class MasterTestRequestGuard {
     private MasterTestRequestGuard(){}
 
     public static boolean wouldResolveWithoutRoll(String playerAction,JSONObject envelope,boolean rollAlreadyRecorded){
-        if(rollAlreadyRecorded||!isExplicitTestDeclaration(playerAction))return false;
+        if(rollAlreadyRecorded)return false;
+        if(DndActionCheckPolicy.missingRequiredResolution(playerAction,envelope,false))return true;
+        if(!isExplicitTestDeclaration(playerAction))return false;
         JSONObject test=envelope==null?null:envelope.optJSONObject("pending_test");
         return test==null||!test.optBoolean("required",true);
+    }
+
+    /**
+     * A pending check is not enough when narration already claims its outcome.
+     * Remote repair is permitted to propose a check and justified DC, never
+     * to roll a die or commit world state on the player's behalf.
+     */
+    public static boolean requiresRemoteCorrection(String action,JSONObject envelope){
+        if(!isExplicitTestDeclaration(action))return false;
+        // Protocol v1 is necessary to keep pending_test through enforce().
+        if(envelope==null||envelope.optInt("protocol_version",0)!=MasterProtocolV1.VERSION)return true;
+        JSONObject test=envelope.optJSONObject("pending_test");
+        if(test==null||!test.optBoolean("required",true))return true;
+        // A placeholder pending_test is not an actionable die request.
+        // The arbiter must not have to reject it later for missing DC.
+        if(!test.has("dc")||test.isNull("dc")||test.optInt("dc",0)<5
+                ||test.optInt("dc",0)>30)return true;
+        String kind=test.optString("type","ability");
+        if(("ability".equalsIgnoreCase(kind)||kind.trim().isEmpty())
+                &&test.optString("ability","").trim().isEmpty())return true;
+        return DndActionCheckPolicy.unresolvedOutcomeClaimed(
+            envelope==null?"":envelope.optString("narration",""));
     }
 
     static boolean isExplicitTestDeclaration(String action){

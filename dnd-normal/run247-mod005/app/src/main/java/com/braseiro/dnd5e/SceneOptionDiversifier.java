@@ -169,6 +169,9 @@ public final class SceneOptionDiversifier {
             out.put("label", finalLabel);
             out.put("description", description);
             out.put("action", action);
+            String actionType=original.optString("action_type",original.optString("type","")).trim().toUpperCase(Locale.ROOT);
+            if("OBSERVAR".equals(actionType)||"AGIR".equals(actionType)||"DESPISTAR".equals(actionType))
+                out.put("action_type",actionType);
             JSONObject test = original.optJSONObject("test");
             if (test != null) out.put("test", new JSONObject(test.toString()));
             return out;

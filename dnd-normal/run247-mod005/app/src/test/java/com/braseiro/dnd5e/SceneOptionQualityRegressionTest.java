@@ -17,12 +17,14 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), BIBLIOPLEX, "Acordo e começo o dia",
             new JSONObject(), 1);
-        assertEquals("One in-world initiative action plus four concrete choices", 5, options.length());
+        assertEquals("One in-world initiative action plus three concrete choices", 4, options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
         String first = options.optJSONObject(1).optString("label");
         String second = options.optJSONObject(2).optString("label");
-        assertTrue(first, first.contains("BALCÃO"));
-        assertTrue(second, second.contains("FOLHETOS"));
+        assertTrue(first, first.contains("FOLHETOS"));
+        assertEquals("OBSERVAR",options.optJSONObject(1).optString("action_type"));
+        assertEquals("AGIR",options.optJSONObject(2).optString("action_type"));
+        assertEquals("DESPISTAR",options.optJSONObject(3).optString("action_type"));
         assertFalse(options.toString().contains("TESTAR A CONSEQUÊNCIA"));
         for (int i = 1; i < options.length(); i++) {
             JSONObject choice = options.optJSONObject(i);
@@ -35,7 +37,7 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), "Uma breve pausa.", "Investigo a sala anterior",
             new JSONObject(), 2);
-        assertEquals("Even a quiet pause provides four grounded approaches plus initiative", 5, options.length());
+        assertEquals("A pause provides three typed approaches plus initiative", 4, options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
     }
 

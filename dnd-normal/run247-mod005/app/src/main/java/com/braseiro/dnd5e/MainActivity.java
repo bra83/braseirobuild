@@ -254,6 +254,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private JSONArray currentOptions=new JSONArray();
     private JSONArray currentSceneCastPreview=new JSONArray();
     private JSONObject pendingTest=new JSONObject();
+    // Preview narration is not canonical while a mechanical transaction is
+    // waiting for acceptance. Preserve the prior UI state for a safe discard.
+    private JSONObject provisionalNarrativeBefore=new JSONObject();
+    private long provisionalNarrativeTransactionId=-1L;
     private JSONObject lastMasterSupport=new JSONObject();
     private boolean masterSideQueryActive=false;
     private boolean strixhavenConsultationComposerMode=false;
@@ -324,7 +328,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private volatile boolean navigationInProgress=false;
     // The Heroes tab is loaded from SQLite off the UI thread; stale requests
     // must never replace another screen or a more recent version of the roster.
-    private long heroesLoadGeneration=0L;
+    private volatile long heroesLoadGeneration=0L;
+    private Runnable heroesAppendRenderer;
     private final android.util.LruCache<String,Bitmap> heroesAvatarCache=new android.util.LruCache<String,Bitmap>(12);
 
     private long lastNavigationClickAt=0L;
@@ -2726,25 +2731,20 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(isMystaraWorld()){showMystaraHeroes();return;}
         final long request=++heroesLoadGeneration;
         final long started=android.os.SystemClock.elapsedRealtime();
+        heroesAppendRenderer=null;
         showNavigationPlaceholder("Heróis");
-        AppExecutors.io().execute(new Runnable(){public void run(){
+        // Old path prepared every character before the first frame appeared.
+        // List the roster first, render controls, then prepare each card off UI.
+        AppExecutors.heroes().execute(new Runnable(){public void run(){
+            List<JSONObject> fetched=null;Throwable failure=null;
+            try{fetched=db.listCharacters();}
+            catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao listar heróis.",error);}
+            final List<JSONObject> roster=fetched;
+            final Throwable error=failure;
             final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
             final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
             final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
-            List<JSONObject> fetched=null;Throwable failure=null;
-            try{
-                fetched=db.listCharacters();
-                for(JSONObject ch:fetched){
-                    JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
-                    sheets.add(sheet);
-                    loads.add(db.characterInventoryLoad(ch.optLong("id"),false));
-                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
-                    runtimeAvailable.add(characterRuntimeActions(ch,resource).length()>0);
-                }
-            }catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao preparar o painel de heróis.",error);}
-            final List<JSONObject> roster=fetched;
-            final Throwable error=failure;
-            final long prepared=android.os.SystemClock.elapsedRealtime();
+            final long rosterReady=android.os.SystemClock.elapsedRealtime();
             ui.post(new Runnable(){public void run(){
                 if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
                 if(error!=null||roster==null){
@@ -2760,9 +2760,37 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     content.addView(problem,new FrameLayout.LayoutParams(-1,-1));
                     return;
                 }
-                AppLog.i("HeroesPerf","LOAD_PREPARE_MS="+(prepared-started)+" count="+roster.size());
+                AppLog.i("HeroesPerf","LOAD_ROSTER_MS="+(rosterReady-started)+" count="+roster.size());
                 showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
             }});
+            if(error!=null||roster==null)return;
+            for(final JSONObject ch:roster){
+                if(request!=heroesLoadGeneration)return;
+                final long oneStarted=android.os.SystemClock.elapsedRealtime();
+                JSONObject sheet,load;
+                boolean hasRuntimeActions=false;
+                try{
+                    sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
+                    load=db.characterInventoryLoad(ch.optLong("id"),false);
+                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
+                    hasRuntimeActions=characterRuntimeActions(ch,resource).length()>0;
+                }catch(Throwable preparationError){
+                    AppLog.e("HeroesPerf","Ficha não pôde ser preparada: "+ch.optString("name"),preparationError);
+                    sheet=new JSONObject();
+                    load=new JSONObject();
+                }
+                final JSONObject preparedSheet=sheet,preparedLoad=load;
+                final boolean preparedRuntime=hasRuntimeActions;
+                final long finished=android.os.SystemClock.elapsedRealtime();
+                AppLog.i("HeroesPerf","LOAD_CARD_PREP_MS="+(finished-oneStarted)+" character_id="+ch.optLong("id"));
+                ui.post(new Runnable(){public void run(){
+                    if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+                    sheets.add(preparedSheet);
+                    loads.add(preparedLoad);
+                    runtimeAvailable.add(preparedRuntime);
+                    if(heroesAppendRenderer!=null)ui.post(heroesAppendRenderer);
+                }});
+            }
         }});
     }
 
@@ -2785,7 +2813,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final int[] next={0};
         final Runnable appendHero=new Runnable(){public void run(){
             if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
-            if(next[0]>=list.size())return;
+            if(next[0]>=list.size()||next[0]>=sheets.size()||next[0]>=loads.size()||next[0]>=runtimeAvailable.size())return;
             final int i=next[0]++;
             final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
             LinearLayout identity=new LinearLayout(MainActivity.this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
@@ -2843,10 +2871,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
             LinearLayout actions=new LinearLayout(MainActivity.this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
-            if(next[0]<list.size())b.postOnAnimation(this);
-            else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
+            if(next[0]<list.size()&&next[0]<sheets.size())ui.postDelayed(this,16L);
+            else if(next[0]>=list.size())AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
         }};
-        if(!list.isEmpty())b.postOnAnimation(appendHero);
+        // One ready card is enough to show the screen. New cards arrive
+        // independently, without blocking the control header or touch input.
+        heroesAppendRenderer=appendHero;
+        if(!list.isEmpty()&&!sheets.isEmpty())ui.post(appendHero);
     }
 
     private ImageView createHeroAvatarView(final String tokenUri,final String name){
@@ -7191,7 +7222,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             item.setBackground(makeBg(momentum?Color.rgb(71,53,29):Color.rgb(59,45,36),
                     momentum?GOLD:Color.rgb(112,91,66),8));
             String title=option.optString("label","Ação");
-            String detail=action.trim(); // Show precisely the action sent to the Mestre.
+            String detail=momentum?option.optString("description",action).trim():action.trim(); // Contextual progress text; the canonical action dispatched remains unchanged.
             item.addView(text(title,12,GOLD,true));
             item.addView(text(detail,11,Color.rgb(236,225,198),false));
             item.setContentDescription(title+". "+detail);
@@ -7364,10 +7395,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private RuleRetrievalEngine.Result skippedRuleRetrieval(RuleRetrievalPolicy.Decision decision){
         ensureRuleRetrievalSceneCache();JSONObject bundle=new JSONObject();ArrayList<JSONObject> hits=new ArrayList<JSONObject>();try{
-            bundle.put("required",false).put("status",decision.mechanicalCandidate?"local_engine_ready":"retrieval_skipped_fiction").put("mechanical_candidate",decision.mechanicalCandidate)
+            bundle.put("required",false).put("status",decision.mechanicalCandidate?"local_engine_candidate":"retrieval_skipped_fiction").put("mechanical_candidate",decision.mechanicalCandidate)
                     .put("retrieval_skipped",true).put("retrieval_reason",decision.reason).put("cache_hit",false).put("evidence",new JSONArray()).put("structured_rules",new JSONArray())
-                    .put("rules_by_intent",new JSONObject()).put("evidence_count",0).put("sufficient_for_mechanics",decision.mechanicalCandidate).put("local_engine_authority",decision.mechanicalCandidate)
-                    .put("essential_rules_cache",EssentialRulesCache.snapshot(activeWorldProfile())).put("instruction",decision.mechanicalCandidate?"Use o motor mecânico local já compilado. Não invente regra manual; consulte o índice somente se surgir uma regra específica ainda ausente.":"Continue somente a ficção/observação. Nenhuma busca de manual é necessária neste turno.");
+                    .put("rules_by_intent",new JSONObject()).put("evidence_count",0).put("sufficient_for_mechanics",false).put("local_engine_authority",false).put("local_engine_candidate",decision.mechanicalCandidate)
+                    .put("essential_rules_cache",EssentialRulesCache.snapshot(activeWorldProfile())).put("instruction",decision.mechanicalCandidate?"O motor local é candidato a resolver esta mecânica, mas ainda não executou o procedimento. Chame o árbitro, exija rolagem quando necessária e não afirme resolução antes da validação.":"Continue somente a ficção/observação. Nenhuma busca de manual é necessária neste turno.");
             RuleRetrievalEngine.Result grounding=copyRuleRetrievalResult(sceneGroundingRuleCache);if(grounding!=null&&grounding.hits!=null&&!grounding.hits.isEmpty()){
                 JSONArray sceneEvidence=grounding.bundle.optJSONArray("evidence");if(sceneEvidence!=null)bundle.put("scene_grounding_evidence",new JSONArray(sceneEvidence.toString()));bundle.put("scene_grounding_cache_hit",true).put("scene_grounding_status",grounding.bundle.optString("status"));
                 for(JSONObject row:grounding.hits)hits.add(new JSONObject(row.toString()));
@@ -7745,6 +7776,44 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
         if(requestId!=aiRequestGeneration)return;
+        // A requested player check must result in an actual pending roll,
+        // not a narrative victory followed by an arbitration rollback.
+        if("Narrador".equals(mode)&&!activeMasterPromotionFromRoll
+                &&MasterTestRequestGuard.requiresRemoteCorrection(originalUserText,parseAiEnvelope(raw))){
+            if(repairAttempt==0&&key!=null&&key.trim().length()>=20){
+                final String repairSystem=systemPrompt
+                    +"\n\nREPARO MECÂNICO OBRIGATÓRIO (D&D). A ação do jogador solicita um teste. "
+                    +"NÃO narre êxito, fracasso ou descoberta. NÃO jogue dados pelo jogador. "
+                    +"Use somente a cena atual, a ficha e o núcleo compilado de testes de atributo/perícia. "
+                    +"Forneça um JSON v1 completo com pending_test.required=true, "
+                    +"pending_test.type='ability', character, ability, skill, dc (CD justificável), reason "
+                    +"e narration que INTERROMPA a ação ANTES do resultado. "
+                    +"Não aplique state_updates, scene_state ou relógio antes da rolagem. "
+                    +"Nenhuma busca nova de manual é necessária para um teste comum de atributo.";
+                final String repairPrompt="AÇÃO EXATA DECLARADA PELO JOGADOR: "+originalUserText
+                    +"\nA resposta anterior foi rejeitada porque antecipou o resultado ou omitiu pending_test. "
+                    +"Recrie somente a proposta do teste compatível com a cena; não resolva a pista.";
+                setStatus("O Mestre precisa apresentar a rolagem; corrigindo a proposta do teste sem avançar a cena…");
+                gemini.generateText(key,model,repairSystem,repairPrompt,new GeminiService.TextCallback(){
+                    public void onSuccess(final String corrected){ui.post(new Runnable(){public void run(){
+                        if(requestId!=aiRequestGeneration)return;
+                        if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairSystem.length()+repairPrompt.length(),corrected==null?0:corrected.length());
+                        acceptOrRepairNarration(mode,originalUserText,corrected,systemPrompt,key,model,requestId,repairAttempt+1);
+                    }});}
+                    public void onError(final String reason){ui.post(new Runnable(){public void run(){
+                        if(requestId!=aiRequestGeneration)return;
+                        markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                            "Não foi possível preparar a rolagem: "+(reason==null?"erro da API":reason)+". A cena não avançou.");
+                    }});}
+                });
+                return;
+            }
+            aiBusy=false;streamingNarration="";
+            markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+                "O Mestre não propôs um teste válido com perícia e CD ou antecipou o resultado. "
+                +"Nenhuma rolagem aconteceu e nenhuma pista foi revelada. Use TENTAR NOVAMENTE (GEMINI).");
+            return;
+        }
         // Repetição literal não deve gerar OUTRA chamada paga de revisão:
         // o editor de estilo não consegue produzir um resultado novo sem
         // autorizar mudança factual. Preserve a cena e devolva controle.
@@ -7893,7 +7962,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int countNarrationWords(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;return clean.split("\\s+").length;}
     private int countNarrationParagraphs(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;String[] blocks=clean.split("\\r?\\n\\s*");int count=0;for(String block:blocks)if(block!=null&&block.trim().length()>0)count++;return Math.max(1,count);}
 
-    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
+    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();boolean checkPendingValidation=activeMasterPlan!=null&&DndActionCheckPolicy.explicitTest(activeMasterPlan.declaredAction);if(checkPendingValidation){updateAdventureStartupMessage("Preparando teste de perícia; aguardando validação antes de exibir desfechos…");}else{if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}}});}
 
     private static final class AiResponseUiPayload {
         final long requestGen;
@@ -8095,6 +8164,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             boolean nonAdvancing = "Narrador".equals(lastAiMode) && env.optBoolean("_non_advancing", activeTurnNonAdvancing(action));
             JSONObject finalValidation = env.optJSONObject("_master_validation");
             boolean masterEnvelopeValid = finalValidation != null && finalValidation.optBoolean("valid", false);
+            // A failed rules/knowledge/agency validation must not replace the
+            // canonical scene, add suggested actions or advance the clock.
+            if (!masterEnvelopeValid && "Narrador".equals(lastAiMode)) nonAdvancing=true;
 
             JSONArray previousOptions = currentOptions == null ? new JSONArray() : currentOptions;
             JSONArray previousCast = copyJsonArray(currentSceneCastPreview);
@@ -8183,15 +8255,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 // but cannot complete it or award an academic milestone on its own.
                 // Invalid envelopes must never advance the official campaign.
                 if (isStrixhavenAdventure() && masterEnvelopeValid
-                        && !StoryMomentumAction.isRequest(action)) {
+                        && !StoryMomentumAction.isRequest(action) && !changes) {
                     processStrixhavenOfficialProgress(env, calculatedNarration);
                 }
 
                 if (nonAdvancing) {
                     saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), action, calculatedNarration));
                 } else {
-                    synchronizeVisualSceneCastWith(newCast);
-                    prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+                    if(!changes){
+                        synchronizeVisualSceneCastWith(newCast);
+                        prefs.edit().putString("last_scene_cast_preview", newCast.toString()).apply();
+                    }
                     if (activeMasterPromotionTurnId.length() > 0) {
                         if (newPendingTest.length() > 0) {
                             try {
@@ -8226,18 +8300,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             db.transitionCombatState(CombatStateMachine.ACTIVE_ROUND, new JSONObject());
                         }
                     }
-                    if (narrativeResponse) {
+                    if (narrativeResponse && !changes) {
                         db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(optionHistory, newOptions).toString());
                     }
                     if (isOpeningNarrationRequest(action)) {
                         prefs.edit().putString("recent_opening_texts_" + activeWorldProfile(), AdventureOpeningPlanner.rememberText(prefs.getString("recent_opening_texts_" + activeWorldProfile(), "[]"), calculatedNarration)).apply();
                         adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.COMPLETE, "Primeira cena persistida");
                     }
-                    if (narrativeResponse) {
+                    if (narrativeResponse && !changes) {
                         rememberNarrativeText(calculatedNarration);
                         saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(braseiroNarrativeMemory(), action, calculatedNarration, env, projectedScene));
                     }
-                    scheduleSceneNpcTokenBinding();
+                    if(!changes)scheduleSceneNpcTokenBinding();
                 }
 
                 prefs.edit().putString("last_ai_response_mode", lastAiMode).apply();
@@ -8248,14 +8322,49 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         .putString("last_audio_plan", newAudioPlan.toString())
                         .putString("last_master_support_json", newSupport.toString()).apply();
                 db.addAuditEvent("ia", nonAdvancing ? "Esclarecimento do Mestre — " + lastAiMode : "Resposta do Mestre — " + lastAiMode, sourceAudit.optString("warning", calculatedNarration.length() > 140 ? calculatedNarration.substring(0, 140) : calculatedNarration), "{}", sourceAudit.toString(), false);
+                // Per-turn audit records exactly why the manual lookup was
+                // skipped or required and whether the mechanics were applied.
+                // No model text alone can mark a dice check as resolved.
+                if("Narrador".equals(lastAiMode)){
+                    try{
+                        JSONObject ruleAudit=new JSONObject()
+                            .put("declared_action",action==null?"":action)
+                            .put("input_channel",activeInputChannel())
+                            .put("rule_intent",DndActionCheckPolicy.frame(action,db.getSceneState()))
+                            .put("lookup_status",activeRuleRetrieval.optString("status","not_attached"))
+                            .put("lookup_required",activeRuleRetrieval.optBoolean("required",false))
+                            .put("lookup_reason",activeRuleRetrieval.optString("retrieval_reason",""))
+                            .put("manual_evidence_count",activeRuleRetrieval.optInt("evidence_count",0))
+                            .put("local_engine_candidate",activeRuleRetrieval.optBoolean("local_engine_candidate",false))
+                            .put("pending_test",newPendingTest)
+                            .put("master_validated",masterEnvelopeValid)
+                            .put("rules_report",env.optJSONObject("_rules_report")==null?
+                                new JSONObject():env.optJSONObject("_rules_report"));
+                        db.addAuditEvent("regras","Classificação mecânica da ação",
+                            newPendingTest.length()>0?"Teste aguardando rolagem":
+                            (masterEnvelopeValid?"Ação avaliada, sem rolagem pendente":"Ação bloqueada pela validação"),
+                            "{}",ruleAudit.toString(),false);
+                    }catch(Exception auditFailure){AppLog.w("RulesAudit","Falha ao registrar diagnóstico da regra.",auditFailure);}
+                }
 
                 long transactionId = -1;
                 if (changes && stateTransactionManager != null) {
                     transactionId = stateTransactionManager.stage(env, calculatedNarration, action);
                     if (transactionId <= 0) {
                         changes = false;
-                        prefs.edit().putString("last_state_update_summary", "Consequências bloqueadas: o journal transacional não confirmou a preparação. A narração foi preservada.").apply();
-                        db.addAuditEvent("segurança", "Consequências não preparadas", "Journal transacional recusou a preparação; nenhuma mutação ficou aplicável.", "{}", env.toString(), false);
+                        nonAdvancing = true;
+                        masterEnvelopeValid = false;
+                        calculatedNarration = "A resposta do Mestre não pôde preparar uma transação segura. A cena anterior foi preservada; nenhuma consequência foi aplicada.";
+                        newOptions = previousOptions;
+                        newCast = previousCast;
+                        newVisualPrompt = previousVisual;
+                        newAudioPlan = previousAudio;
+                        newPendingTest = previousPendingTest;
+                        invalidateVisual = false;
+                        JSONObject validationOnFailure=env.optJSONObject("_master_validation");
+                        if(validationOnFailure!=null)validationOnFailure.put("valid",false).put("fail_closed",true);
+                        prefs.edit().putString("last_state_update_summary","Transação recusada: cena não canonizada.").apply();
+                        db.addAuditEvent("segurança","Consequências não preparadas","Nenhuma mutação ou narração ficou aplicável.","{}",env.toString(),false);
                     }
                 }
                 if (!changes) {
@@ -8264,18 +8373,28 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     prefs.edit().putString("last_state_update_summary", "Consequências aguardando sua confirmação.").apply();
                 }
 
-                if (!nonAdvancing) {
+                if(!nonAdvancing && changes && transactionId>0) {
+                    provisionalNarrativeBefore=new JSONObject()
+                        .put("narration",lastNarration==null?"":lastNarration)
+                        .put("options",currentOptions==null?"[]":currentOptions.toString())
+                        .put("cast",currentSceneCastPreview==null?"[]":currentSceneCastPreview.toString())
+                        .put("visual",lastVisualPrompt==null?"":lastVisualPrompt)
+                        .put("audio",lastAudioPlan==null?"{}":lastAudioPlan.toString())
+                        .put("pending",pendingTest==null?"{}":pendingTest.toString());
+                    provisionalNarrativeTransactionId=transactionId;
+                }
+                if (!nonAdvancing && !changes) {
                     db.saveStoryState(calculatedNarration.length() > 0, calculatedNarration, newVisualPrompt,
                             newOptions == null ? "[]" : newOptions.toString(),
                             newPendingTest == null || newPendingTest.length() == 0 ? "" : newPendingTest.toString(),
                             action == null ? "" : action);
                 }
 
-                if (masterOrchestrator != null) {
+                if (masterOrchestrator != null && !changes) {
                     masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                 }
 
-                if (!nonAdvancing && masterEnvelopeValid && "Narrador".equals(lastAiMode)) {
+                if (!nonAdvancing && masterEnvelopeValid && !changes && "Narrador".equals(lastAiMode)) {
                     try {
                         HumanMasterDynamicDirector.accepted(this, db, db.getSceneState(), action, calculatedNarration, env,
                                 isStrixhavenAdventure() ? "Strixhaven" : (isMystaraWorld() ? "Mystara" : "D&D"));
@@ -8303,6 +8422,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private void applyAiResponseToUi(final AiResponseUiPayload payload, final long requestGen) {
         if (requestGen != aiRequestGeneration || payload == null) return;
+        if(!payload.masterEnvelopeValid){
+            clearFailedGeminiRequest();
+            setStatus("A resposta não passou na arbitragem. A cena anterior permanece canônica.");
+            if(isStrixhavenAdventure())showStrixhavenSession();
+            else if("Mestre IA".equals(currentScreen))showNarrator();
+            return;
+        }
         this.lastNarration = payload.lastNarration;
         this.currentOptions = payload.currentOptions;
         this.currentSceneCastPreview = payload.currentSceneCastPreview;
@@ -8322,26 +8448,67 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if (payload.changes) showTransactionReviewDialog(payload.transactionId, payload.env);
     }
 
+    /** Restore canonical UI when provisional mechanics are rejected. */
+    /** No subset can canonize prose which narrates the excluded effects. */
+    private static boolean sameNarrativeConsequences(JSONObject left,JSONObject right){
+        if(left==null||right==null)return false;
+        String[] keys={"state_updates","combat","scene_state","npc_updates",
+            "npc_cognition_updates","knowledge_updates","quest_updates",
+            "faction_updates","guild_updates","clock_updates","world_events",
+            "event_resolutions","pending_resolutions","map_updates",
+            "tactical_updates","journal_updates","_local_tick"};
+        for(String key:keys){
+            Object a=left.opt(key),b=right.opt(key);
+            String x=a==null||a==JSONObject.NULL?"":a.toString();
+            String y=b==null||b==JSONObject.NULL?"":b.toString();
+            if(!x.equals(y))return false;
+        }
+        return true;
+    }
+
+    private String preparedActionForNarrative(JSONObject envelope){
+        return envelope==null?lastPrompt:envelope.optString("_accepted_player_action",lastPrompt);
+    }
+
+    private void restoreProvisionalNarration(long transactionId){
+        if(transactionId<=0||transactionId!=provisionalNarrativeTransactionId)return;
+        JSONObject old=provisionalNarrativeBefore;
+        lastNarration=old.optString("narration",lastNarration);
+        lastVisualPrompt=old.optString("visual",lastVisualPrompt);
+        try{currentOptions=new JSONArray(old.optString("options","[]"));}catch(Exception ignored){currentOptions=new JSONArray();}
+        try{currentSceneCastPreview=new JSONArray(old.optString("cast","[]"));}catch(Exception ignored){currentSceneCastPreview=new JSONArray();}
+        try{lastAudioPlan=new JSONObject(old.optString("audio","{}"));}catch(Exception ignored){lastAudioPlan=new JSONObject();}
+        try{pendingTest=new JSONObject(old.optString("pending","{}"));}catch(Exception ignored){pendingTest=new JSONObject();}
+        prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString())
+            .putString("last_audio_plan",lastAudioPlan.toString()).apply();
+        provisionalNarrativeBefore=new JSONObject();
+        provisionalNarrativeTransactionId=-1L;
+        invalidateSceneImageIfContextChanged();
+        if(isStrixhavenAdventure())showStrixhavenSession();
+        else if("Mestre IA".equals(currentScreen))showNarrator();
+    }
+
     private void showTransactionReviewDialog(final long transactionId,final JSONObject envelope){
         final JSONObject stableEnvelope=copyJsonObject(envelope);
         try{
             if(!canShowDialog())return;
             String description=stateTransactionManager==null?"Mudanças persistentes propostas.":stateTransactionManager.describe(stableEnvelope);
-            StringBuilder message=new StringBuilder("O Mestre propôs as mudanças abaixo. Nada foi aplicado ainda.\n\n")
+            StringBuilder message=new StringBuilder("O Mestre propôs as mudanças abaixo. A cena e suas consequências ainda são PROVISÓRIAS.\n\n")
                     .append(description)
-                    .append("\n\nA narração permanece mesmo que você descarte as consequências.");
+                    .append("\n\nSe descartar, a narração provisória também será revertida; nenhum sucesso será mantido sem as consequências.");
             final AlertDialog dialog=new AlertDialog.Builder(this)
                     .setTitle("Confirmar consequências da cena")
                     .setMessage(message.toString())
-                    .setNegativeButton("SÓ NARRATIVA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
+                    .setNegativeButton("DESCARTAR CENA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
                         try{
                             if(stateTransactionManager!=null&&transactionId>0)stateTransactionManager.discarded(transactionId);
                             if(masterOrchestrator!=null)masterOrchestrator.afterConsequencesDiscarded(activeMasterPlan,stableEnvelope);
-                            prefs.edit().putString("last_state_update_summary","Consequências descartadas pelo jogador.").apply();
-                            setStatus("A narração foi mantida; nenhum estado, relógio, NPC ou recurso foi alterado.");
+                            restoreProvisionalNarration(transactionId);
+                             prefs.edit().putString("last_state_update_summary","Cena e consequências descartadas pelo jogador.").apply();
+                            setStatus("A cena provisória foi descartada; a narrativa e o estado anteriores foram preservados.");
                         }catch(Exception error){
                             AppLog.e("TransactionReview","Falha ao descartar consequências.",error);
-                            setStatus("A narração foi preservada, mas o registro do descarte falhou.");
+                            setStatus("Registro do descarte falhou. A cena não foi declarada canônica; revise Segurança.");
                         }
                     }})
                     .setNeutralButton("REVISAR POR CATEGORIA",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){
@@ -8352,6 +8519,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         applyMasterConsequencesSafely(transactionId,stableEnvelope);
                     }})
                     .create();
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
             dialog.show();
         }catch(Throwable error){
             AppLog.e("TransactionReview","Não foi possível abrir a revisão de consequências.",error);
@@ -8405,9 +8574,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final AlertDialog dialog=new AlertDialog.Builder(this)
                 .setTitle("Aplicação por categoria")
                 .setView(scroll)
-                .setNegativeButton("Cancelar",null)
+                .setNegativeButton("VOLTAR ÀS CONSEQUÊNCIAS",new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface d,int w){
+                        partialTransactionDialogOpening.set(false);
+                        showTransactionReviewDialog(transactionId,stableEnvelope);
+                    }
+                })
                 .setPositiveButton("APLICAR SELECIONADOS",null)
                 .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener(){public void onDismiss(DialogInterface d){partialTransactionDialogOpening.set(false);}});
         dialog.setOnShowListener(new DialogInterface.OnShowListener(){public void onShow(DialogInterface d){
             Button apply=dialog.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -8417,6 +8593,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 try{
                     JSONObject selected=checks.filter(stableEnvelope);
                     if(selected.length()==0){toast("Nenhuma categoria pôde ser preparada. Nada foi aplicado.");return;}
+                    if(transactionId==provisionalNarrativeTransactionId
+                            && !sameNarrativeConsequences(selected,stableEnvelope)){
+                        toast("Aplicação parcial alteraria a narração de forma incoerente. Aplique tudo ou descarte a cena.");
+                        return;
+                    }
                     dialog.dismiss();
                     applyMasterConsequences(transactionId,selected);
                 }catch(Throwable error){
@@ -8531,6 +8712,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(stateTransactionManager!=null&&transactionId>0)stateTransactionManager.applied(transactionId);
                 db.addAuditEvent("mecânica","Consequências confirmadas pelo jogador",combined,"{}",prepared.toString(),true);
 
+                // The AI's narration is a PREVIEW until the complete mechanical
+                // transaction is confirmed. Canonical story, clock and journal
+                // are written in the SAME SQLite transaction as consequences.
+                if(provisionalNarrativeTransactionId==transactionId&&transactionId>0){
+                    db.saveStoryState(lastNarration!=null&&!lastNarration.isEmpty(),
+                        lastNarration,lastVisualPrompt,currentOptions==null?"[]":currentOptions.toString(),
+                        pendingTest==null||pendingTest.length()==0?"":pendingTest.toString(),
+                        prepared.optString("_accepted_player_action",lastPrompt));
+                    db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(
+                        SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory()),
+                        currentOptions).toString());
+                    if(isStrixhavenAdventure()
+                            && !StoryMomentumAction.isRequest(prepared.optString("_accepted_player_action",lastPrompt)))
+                        processStrixhavenOfficialProgress(prepared,lastNarration);
+                    if(masterOrchestrator!=null)
+                        masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,prepared,
+                            pendingAiInputChars,0);
+                }
                 // Mestre propõe -> D&D valida -> SQLite confirma. O orquestrador só toca
                 // estado persistente dentro desta mesma transação do host.
                 if(masterOrchestrator!=null)masterOrchestrator.afterConsequencesApplied(activeMasterPlan,prepared,lastNarration);
@@ -8570,6 +8769,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // Falhas de UI DEPOIS do commit não podem ser confundidas com falha de banco e jamais
         // disparam rollback/snapshot. O estado já foi confirmado pelo journal COMMITTED.
         if(masterOrchestrator!=null)masterOrchestrator.markConsequencesCommitted(activeMasterPlan);
+        if(provisionalNarrativeTransactionId==transactionId&&transactionId>0){
+            try{
+                synchronizeVisualSceneCastWith(currentSceneCastPreview);
+                prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).apply();
+                rememberNarrativeText(lastNarration);
+                saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordAdvancingMemory(
+                    braseiroNarrativeMemory(),preparedActionForNarrative(run187CommittedEnvelope[0]),
+                    lastNarration,run187CommittedEnvelope[0],db.getSceneState()));
+                HumanMasterDynamicDirector.accepted(this,db,db.getSceneState(),
+                    preparedActionForNarrative(run187CommittedEnvelope[0]),lastNarration,
+                    run187CommittedEnvelope[0],isStrixhavenAdventure()?"Strixhaven":
+                    (isMystaraWorld()?"Mystara":"D&D"));
+                scheduleSceneNpcTokenBinding();
+            }catch(Throwable postCommitMemoryError){
+                AppLog.w("NarrativeCommit","A mecânica foi confirmada, mas um índice auxiliar da narração não foi atualizado.",postCommitMemoryError);
+            }finally{
+                provisionalNarrativeBefore=new JSONObject();
+                provisionalNarrativeTransactionId=-1L;
+            }
+        }
         // RUN187: apply narrative memory updates only after successful SQL commit.
         try{HumanMasterDynamicDirector.confirmed(this,db,run187CommittedEnvelope[0]);}
         catch(Throwable dynamicError){AppLog.w("DynamicMaster","Commit mecânico preservado; memória auxiliar indisponível.",dynamicError);}
@@ -9312,7 +9531,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             p.append("MODO DE CENA: ").append(sceneMode).append(". ").append(narrationPaceInstruction()).append(" Não recapitule a campanha inteira; porém, quando surgir pela primeira vez um elemento de cenário necessário para entender a ação, contextualize-o naturalmente em vez de pressupor que o jogador já conhece o mundo. Narre o que mudou, a reação do mundo e o ponto de decisão.\n");
         }
         if(manualSummary!=null&&manualSummary.trim().length()>0)p.append("FONTES LOCAIS RECUPERADAS SEM CHAMADA EXTRA:\n").append(manualSummary).append("\nUse somente trechos pertinentes. Não invente regra, página, geografia ou lore canônico.\n");
-        p.append("TESTES: pending_test só existe quando rules_frame autoriza risco, oposição, custo ou incerteza. Pare antes do resultado. Não proponha mudança mecânica dependente desse teste. A ação livre é principal; options contém 0 a 2 sugestões específicas, nunca três caminhos genéricos. Cada label deve começar por um verbo concreto e nomear o alvo real da ação; cada description deve explicar método, risco ou benefício em uma frase curta. As opções precisam responder ao conflito e às entidades desta cena: em uma cobrança ou contrato, por exemplo, negociar a exigência ou examinar o documento; nunca sugerir travessia, porta, rastros, som ou fumaça quando esses elementos não estiverem literalmente presentes. Proibidos títulos abstratos como ‘agir sobre a mudança’, ‘ler a situação’, ‘buscar outro ângulo’ e descrições copiadas da narração. NOVIDADE OBRIGATÓRIA: story.avoid_options contém escolhas exibidas nas cenas recentes. Não repita, não parafraseie e não preserve a mesma intenção; cada nova opção deve nascer de uma mudança concreta desta batida e mencionar alvo, pista, risco, pessoa ou local atual. Se não houver alternativa realmente nova, devolva options vazio.\n");
+        p.append("TESTES: pending_test só existe quando rules_frame autoriza risco, oposição, custo ou incerteza. Pare antes do resultado. Não proponha mudança mecânica dependente desse teste. A ação livre é principal; options contém EXATAMENTE TRÊS ações de jogador, uma com action_type=\"OBSERVAR\", uma com action_type=\"AGIR\" e uma com action_type=\"DESPISTAR\", cada qual com alvo e método diferentes retirados da narração atual. A quarta ação de AVANÇAR UMA BATIDA é responsabilidade exclusiva do host e NÃO deve ser gerada em options. O verbo 'guarda o papel' não indica a presença de um NPC guarda. Nunca invente uma pessoa, objeto ou ameaça para completar quantidade. Cada label deve começar por um verbo concreto e nomear o alvo real da ação; cada description deve explicar método, risco ou benefício em uma frase curta. As opções precisam responder ao conflito e às entidades desta cena: em uma cobrança ou contrato, por exemplo, negociar a exigência ou examinar o documento; nunca sugerir travessia, porta, rastros, som ou fumaça quando esses elementos não estiverem literalmente presentes. Proibidos títulos abstratos como ‘agir sobre a mudança’, ‘ler a situação’, ‘buscar outro ângulo’ e descrições copiadas da narração. NOVIDADE OBRIGATÓRIA: story.avoid_options contém escolhas exibidas nas cenas recentes. Não repita, não parafraseie e não preserve a mesma intenção; cada nova opção deve nascer de uma mudança concreta desta batida e mencionar alvo, pista, risco, pessoa ou local atual. Se não houver alternativa realmente nova, devolva options vazio.\n");
         p.append("MUTAÇÕES PROPOSTAS: state_updates aceita hp_set ou hp_delta, add_items, remove_items, condition_add, condition_remove, resource_changes, notes_append, reason e mechanical_basis. Toda alteração de PV, item, condição, recurso, inimigo ou combate exige mechanical_basis={source_type,evidence,rule_id?,book?,page?,excerpt?,calculation?}; para fonte manual, calculation deve conter a operação e valores reproduzíveis por rolagem local recente ou valor fixo literal da regra; sem isso o aplicativo bloqueia a parte mecânica. npc_updates nunca contém secrets; segredos permanecem no firewall local. npc_cognition_updates registra apenas emoção, suspeita, confiança, medo, urgência e próximo passo. knowledge_updates, quest_updates, faction_updates, guild_updates, clock_updates e world_events registram somente fatos concretamente alterados. guild_updates usa ações estruturadas create, update, member_add, member_reputation, rank_create, contract_create, contract_status, project_create, site_create, relation_update ou ledger; nunca trate uma guilda apenas como texto narrativo quando ela alterar membros, reputação, contratos, sedes, relações ou tesouraria. event_resolutions exige {id,transaction_id,resolution_key,status:\"resolved|cancelled\",note} exatos do evento. pending_resolutions exige {transaction_id,resolution_key,status:\"applied|cancelled\",note} para ações autônomas de facção/NPC. Toda mecânica usada para resolver uma pendência deve repetir resolution_key na alteração de ficha ou combate. map_updates altera posição/rota/revelações; tactical_updates move combatentes; journal_updates registra acontecimentos confirmados. O jogador revisará tudo antes da gravação. Não repita estado inalterado.\n");
         p.append("SEMÂNTICA OBRIGATÓRIA: nunca transforme menção, componente, imunidade, resistência ou vantagem contra condição em aplicação. condition_add usa objetos {name,duration,end_save,dc,repeat_timing,concentration,source}; condition_remove só aparece quando o procedimento manda remover. Itens usam {name,quantity,operation,unit_weight,value,rarity,attunement,origin}; componente apenas mencionado não entra em add_items. resource_changes deve respeitar current/min/max da ficha e calculation.resource_deltas só é aceito quando a quantidade foi compilada da fonte; repetir o mesmo número em dois campos não constitui prova. Inimigos repetem block_id e somente estatísticas do mesmo creature_block.\n");
         p.append("MUNDO VIVO ESTRUTURADO: faction_updates pode preservar objectives_json, resources_json, territories_json, relations_json, allies_json, enemies_json, information_json, costs_json, risks_json, success_conditions_json, failure_conditions_json e memory_json. npc_cognition_updates pode preservar goals_json, personality_json, knowledge_json, resources_json e recent_events_json, além de agenda, horário, localização, medo, confiança, suspeita e próximo passo. Não apague campos persistentes que não mudaram.\n");
@@ -9348,7 +9567,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(activeTurnNonAdvancing(userText)){
                 p.append("ESCLARECIMENTO CONGELADO: responda ao pedido atual e encerre sem acontecimento novo. options vazio, pending_test null e todas as mutações vazias. Não transforme a pergunta em ação ou fala do personagem.");
             }else{
-                p.append(narrationPaceInstruction()).append(" Faça a situação avançar somente pela causalidade da ação atual, com acontecimento, reação, pista, custo ou mudança concreta. Construa espacialidade contínua sem prosa genérica. Não decida ações pelos jogadores. A ação livre é a interface principal. Forneça de 0 a 2 sugestões opcionais somente quando forem específicas e realmente úteis; options pode ficar vazio. Em diálogo, responda a todas as perguntas pertinentes e termine naturalmente. Só exija teste quando houver INCERTEZA + CONSEQUÊNCIA + COMPETÊNCIA RELEVANTE. Se uma ação exigir teste, pare antes da consequência, deixe state_updates vazio, options vazio e preencha pending_test. Todo NPC que aparece, fala, entrega algo, exige algo ou age deve ser representado estruturalmente: NPC nomeado entra em scene_state.present_npcs e npc_updates com present=true; figurantes ou grupos sem nome entram em scene_state.present_npcs com rótulo funcional e quantidade, sem ganhar memória permanente só por isso. Todo NPC novo deve trazer visual_description e stats_json quando conhecidos; hostis entram em combat.enemies somente quando o combate realmente começa.");
+                p.append(narrationPaceInstruction()).append(" Faça a situação avançar somente pela causalidade da ação atual, com acontecimento, reação, pista, custo ou mudança concreta. Construa espacialidade contínua sem prosa genérica. Não decida ações pelos jogadores. A ação livre é a interface principal. Forneça exatamente 3 opções diferentes e contextualizadas em options com action_type de valor OBSERVAR, AGIR e DESPISTAR, respectivamente, cada uma mencionando uma pessoa, objeto, fala, pista ou conflito confirmado na cena. Nunca sugira quatro variantes da mesma abordagem nem ações sobre NPCs ausentes. A quarta opção, separada, entrega a iniciativa do próximo acontecimento ao mundo sem decidir por Kvothe. Em diálogo, responda a todas as perguntas pertinentes e termine naturalmente. Só exija teste quando houver INCERTEZA + CONSEQUÊNCIA + COMPETÊNCIA RELEVANTE. Se uma ação exigir teste, pare antes da consequência, deixe state_updates vazio, options vazio e preencha pending_test. Todo NPC que aparece, fala, entrega algo, exige algo ou age deve ser representado estruturalmente: NPC nomeado entra em scene_state.present_npcs e npc_updates com present=true; figurantes ou grupos sem nome entram em scene_state.present_npcs com rótulo funcional e quantidade, sem ganhar memória permanente só por isso. Todo NPC novo deve trazer visual_description e stats_json quando conhecidos; hostis entram em combat.enemies somente quando o combate realmente começa.");
             }
         }
         else if("Regras RAW/RAI".equals(mode)){p.append("MODO REGRAS: responda objetivamente em narration, diferencie RAW, RAI e decisão de mesa; options vazio, pending_test null, state_updates vazio, combat none e visual_prompt vazio. Consulte autonomamente a Biblioteca RAG, traduza o conteúdo relevante para PT-BR e indique o título do livro e a página quando a página puder ser determinada com segurança.");}

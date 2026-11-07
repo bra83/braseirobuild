@@ -24,7 +24,8 @@ public final class StoryMomentumAction {
     public static JSONObject option(String narration){
         String beat=narration==null?"":narration.toLowerCase(java.util.Locale.ROOT);
         String label=LABEL;
-        if(beat.contains("bibliotecária")||beat.contains("bibliotecaria"))label="ESCUTAR A BIBLIOTECÁRIA";
+        if(beat.contains("charada")&&beat.contains("selos"))label="DEIXAR A DISCUSSÃO DOS SELOS AVANÇAR";
+        else if(beat.contains("bibliotecária")||beat.contains("bibliotecaria"))label="ESCUTAR A BIBLIOTECÁRIA";
         else if(beat.contains("professora"))label="ESCUTAR A PROFESSORA";
         else if(beat.contains("professor"))label="ESCUTAR O PROFESSOR";
         else if(beat.contains("orientação")||beat.contains("orientacao")||beat.contains("assistente"))label="AGUARDAR A PRÓXIMA INSTRUÇÃO";
@@ -35,7 +36,9 @@ public final class StoryMomentumAction {
         JSONObject o=new JSONObject();
         try{
             o.put("label",label);
-            o.put("description","Permaneço atento aos acontecimentos e às pessoas presentes, sem presumir o que vão fazer.");
+            o.put("description",beat.contains("charada")&&beat.contains("selos")
+                ?"Acompanho a discussão da charada e dos selos, deixando os estudantes tomarem sua própria iniciativa sem decidir nada por meu personagem."
+                :"Permaneço atento à iniciativa das pessoas e aos acontecimentos já presentes, sem presumir o que vão fazer.");
             o.put("action",ACTION);
             o.put("story_momentum",true);
         }catch(Exception ignored){}
@@ -48,15 +51,12 @@ public final class StoryMomentumAction {
         JSONArray out=new JSONArray();
         if(narration==null||narration.trim().isEmpty())return options==null?out:options;
         out.put(option(narration));
-        int count=0;
-        if(options!=null)for(int i=0;i<options.length()&&count<ContextualSceneActionFactory.MIN_CONTEXTUAL;i++){
-            JSONObject candidate=options.optJSONObject(i);
-            if(candidate==null)continue;
-            String action=candidate.optString("action",
-                candidate.optString("description",candidate.optString("label","")));
-            if(isRequest(action))continue;
-            out.put(candidate);
-            count++;
+        // Re-adjudicate even persisted/stale choices when rendering the scene.
+        // A saved action that refers to an invisible guard must never reappear.
+        JSONArray context=GroundedSceneActionSlots.contextual(options,narration,null,0);
+        for(int i=0;i<context.length()&&i<ContextualSceneActionFactory.MIN_CONTEXTUAL;i++){
+            JSONObject item=context.optJSONObject(i);
+            if(item!=null)out.put(item);
         }
         return out;
     }

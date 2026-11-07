@@ -19,9 +19,12 @@ public final class SceneTurnBoundaryRegressionTest {
                 .put("action","Examino os cartazes procurando marcas, inscrições ou sinais de uso recente."));
         JSONObject scene=new JSONObject().put("location","Strixhaven • Hall dos Oráculos");
         JSONArray actual=SceneOptionDiversifier.ensureAlways(candidates,new JSONArray(),narration,"Entro no Hall dos Oráculos",scene,1);
-        assertTrue(actual.length()<=3);
+        assertEquals(4,actual.length());
         assertTrue(StoryMomentumAction.isRequest(actual.getJSONObject(0).getString("action")));
-        assertTrue(actual.getJSONObject(0).getString("label").contains("HISTÓRIA"));
+        assertEquals("AGUARDAR A PRÓXIMA INSTRUÇÃO",actual.getJSONObject(0).getString("label"));
+        assertEquals("OBSERVAR",actual.getJSONObject(1).optString("action_type"));
+        assertEquals("AGIR",actual.getJSONObject(2).optString("action_type"));
+        assertEquals("DESPISTAR",actual.getJSONObject(3).optString("action_type"));
         for(int i=0;i<actual.length();i++){
             JSONObject x=actual.getJSONObject(i);
             String combined=x.optString("label")+" "+x.optString("description")+" "+x.optString("action");
