@@ -40,13 +40,13 @@ public class PlayableUiRobolectricTest {
         render();
     }
     void set(String name,Object value)throws Exception {Field f=MainActivity.class.getDeclaredField(name);f.setAccessible(true);f.set(activity,value);}
-    void render()throws Exception {java.lang.reflect.Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);}
+    void render()throws Exception {set("currentScreen","Heróis");java.lang.reflect.Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);HeroUiAsyncTestAwait.visible(content,"+ XP");}
     <T extends View> T find(View root,Class<T> type,String label){
         if(type.isInstance(root)&&(!(root instanceof android.widget.TextView)||label==null||label.equals(((android.widget.TextView)root).getText().toString())))return type.cast(root);
         if(root instanceof ViewGroup)for(int i=0;i<((ViewGroup)root).getChildCount();i++){T result=find(((ViewGroup)root).getChildAt(i),type,label);if(result!=null)return result;}
         return null;
     }
-    void click(String label){Button button=find(content,Button.class,label);assertNotNull(label,button);button.performClick();}
+    void click(String label){HeroUiAsyncTestAwait.visible(content,label);Button button=find(content,Button.class,label);assertNotNull(label,button);button.performClick();}
     @After public void cleanup(){db.close();activity.deleteDatabase(database);}
     @Test public void shortRestRequiresConfirmationAndPersistsChoiceOnReopen()throws Exception {
         double before=db.getSceneState().optDouble("clock_hour",9);
@@ -56,7 +56,7 @@ public class PlayableUiRobolectricTest {
         click("DESCANSO CURTO");dialog=ShadowAlertDialog.getLatestAlertDialog();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         assertEquals("short rest must advance the persisted clock; scene="+db.getSceneState(),before+1,db.getSceneState().optDouble("clock_hour"),.001);
-        assertNotNull(find(content,Button.class,"GASTAR 1 DADO DE VIDA DO DESCANSO CURTO"));
+        HeroUiAsyncTestAwait.visible(content,"GASTAR 1 DADO DE VIDA DO DESCANSO CURTO");
         db.close();db=new AppDb(activity,database);db.setActiveMapProfile("dnd");
         assertTrue(db.ensureCharacterResourceState(hero).optBoolean("short_rest_hit_dice_choice_pending"));
         assertEquals(4,db.getCharacter(hero).optInt("hp"));
