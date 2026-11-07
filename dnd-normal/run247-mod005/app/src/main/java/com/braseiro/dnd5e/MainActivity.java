@@ -7430,9 +7430,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void clearFailedGeminiRequest(){
         if(prefs!=null)prefs.edit().remove(RETRY_PREFIX+"pending").remove(RETRY_PREFIX+"mode")
           .remove(RETRY_PREFIX+"action").remove(RETRY_PREFIX+"channel")
-          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").apply();
+          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").remove(RETRY_PREFIX+"api_failure").apply();
     }
     private void markGeminiRequestFailed(final String mode,final String action,final String channel,final String error){
+        markMasterRequestFailed(mode,action,channel,error,true);
+    }
+    private void markInvalidMasterTestProposal(final String mode,final String action,final String channel,final String error){
+        markMasterRequestFailed(mode,action,channel,error,false);
+    }
+    private void markMasterRequestFailed(final String mode,final String action,final String channel,final String error,final boolean apiFailure){
         aiBusy=false;streamingNarration="";
         if(masterSideQueryActive)restoreAfterMasterSideQuery();
         if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){
@@ -7447,15 +7453,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putString(RETRY_PREFIX+"action",action==null?"":action)
                 .putString(RETRY_PREFIX+"channel",channel==null?"PLAYER_ACTION":channel)
                 .putString(RETRY_PREFIX+"scene",geminiRetryIdentity())
-                .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error).commit();
+                .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error).putBoolean(RETRY_PREFIX+"api_failure",apiFailure).commit();
         }
-        setStatus("GEMINI INDISPONÍVEL. A ação não foi concluída. Escolha TENTAR NOVAMENTE ou MESTRE OFFLINE.");
+        setStatus(apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":"PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.");
         updateNarratorBusyUi();
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle("Gemini não conseguiu responder")
-                .setMessage("Nenhuma resposta offline será gerada automaticamente. Sua ação foi guardada para tentar novamente.\n\n"+
+            new AlertDialog.Builder(this).setTitle(apiFailure?"Gemini não conseguiu responder":"O Mestre não conseguiu preparar o teste")
+                .setMessage((apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":"A proposta mecânica não passou na validação. ")+"Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
                 .setNeutralButton("MESTRE OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){runExplicitOfflineMaster();}})
@@ -7504,7 +7510,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout panel=card();
         panel.addView(text("MESTRE: GEMINI POR PADRÃO",12,GOLD,true));
         if(hasFailedGeminiRequest()){
-            panel.addView(text("O Gemini falhou. A ação continua pendente e NÃO foi resolvida pelo Mestre offline.",11,RED,false));
+            panel.addView(text(prefs.getBoolean(RETRY_PREFIX+"api_failure",true)?"O Gemini falhou. A ação continua pendente e NÃO foi resolvida pelo Mestre offline.":"O Mestre gerou uma proposta inválida de teste. A ação continua pendente, sem rolagem e sem avançar a cena.",11,RED,false));
             Button retry=button("TENTAR NOVAMENTE (GEMINI)",GREEN);
             retry.setEnabled(!aiBusy);
             retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
@@ -7780,20 +7786,32 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         // not a narrative victory followed by an arbitration rollback.
         if("Narrador".equals(mode)&&!activeMasterPromotionFromRoll
                 &&MasterTestRequestGuard.requiresRemoteCorrection(originalUserText,parseAiEnvelope(raw))){
-            if(repairAttempt==0&&key!=null&&key.trim().length()>=20){
-                final String repairSystem=systemPrompt
-                    +"\n\nREPARO MECÂNICO OBRIGATÓRIO (D&D). A ação do jogador solicita um teste. "
-                    +"NÃO narre êxito, fracasso ou descoberta. NÃO jogue dados pelo jogador. "
-                    +"Use somente a cena atual, a ficha e o núcleo compilado de testes de atributo/perícia. "
-                    +"Forneça um JSON v1 completo com pending_test.required=true, "
-                    +"pending_test.type='ability', character, ability, skill, dc (CD justificável), reason "
-                    +"e narration que INTERROMPA a ação ANTES do resultado. "
-                    +"Não aplique state_updates, scene_state ou relógio antes da rolagem. "
-                    +"Nenhuma busca nova de manual é necessária para um teste comum de atributo.";
-                final String repairPrompt="AÇÃO EXATA DECLARADA PELO JOGADOR: "+originalUserText
-                    +"\nA resposta anterior foi rejeitada porque antecipou o resultado ou omitiu pending_test. "
-                    +"Recrie somente a proposta do teste compatível com a cena; não resolva a pista.";
-                setStatus("O Mestre precisa apresentar a rolagem; corrigindo a proposta do teste sem avançar a cena…");
+            if(repairAttempt<2&&key!=null&&key.trim().length()>=20){
+                final String repairSystem =
+                    "Você é o árbitro mecânico de D&D 5e. A tarefa é SOMENTE PROPOR UM TESTE, sem gerar cena nova. "
+                    +"Retorne SOMENTE um objeto JSON válido, com protocol_version=1 e narration em português do Brasil. "
+                    +"Devolva pending_test como OBJETO (NUNCA null), contendo required=true, type='ability', "
+                    +"ability apropriada, skill apropriada quando houver, dc NUMÉRICA de 5 a 30, "
+                    +"character somente se identificável, e reason explicando a incerteza e a CD. "
+                    +"A narração deve interromper a ação ANTES da rolagem; NÃO declare sucesso, fracasso, "
+                    +"descoberta, revelação ou resultado. Não role dados. "
+                    +"Devolva options=[], state_updates=[], scene_state={}, npc_updates=[], "
+                    +"journal_updates=[], clock_updates=[], combat={action:'none'}. "
+                    +"Não altere posição, relógio ou fichas e não invente personagens, pistas ou regras. "
+                    +"O contexto a seguir é a única fonte dos fatos da cena. "
+                    +"Para dificuldade, aplique o procedimento de teste compatível com o perfil atual, "
+                    +"sem CD 10 automática. JSON puro, sem Markdown.";
+                final String repairContext=activeMasterPlan==null?"":String.valueOf(activeMasterPlan.compactContext);
+                final String repairPrompt="PERFIL: "+db.getCampaign().optString("rules_profile","D&D 2024")
+                    +"\nCENA ATUAL: "+db.getSceneState().toString()
+                    +"\nCONTEXTO ATUAL: "+promptTail(repairContext,14000)
+                    +"\nHERÓIS ATIVOS: "+safeActiveCharacters().toString()
+                    +"\nAÇÃO ORIGINAL DO JOGADOR: "+originalUserText
+                    +"\nPERÍCIA SUGERIDA (NÃO AUTORITATIVA): "+DndActionCheckPolicy.suggestedSkill(originalUserText)
+                    +"\nA resposta anterior falhou na validação de pending_test. "
+                    +"Proponha APENAS a rolagem coerente com a ação e pare antes do desfecho. "
+                    +"O formato JSON precisa conter protocol_version=1 e pending_test com ability, skill e dc.";
+                setStatus("O Mestre está corrigindo a proposta mecânica ("+(repairAttempt+1)+"/2), sem avançar a cena…");
                 gemini.generateText(key,model,repairSystem,repairPrompt,new GeminiService.TextCallback(){
                     public void onSuccess(final String corrected){ui.post(new Runnable(){public void run(){
                         if(requestId!=aiRequestGeneration)return;
@@ -7809,7 +7827,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 return;
             }
             aiBusy=false;streamingNarration="";
-            markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),
+            markInvalidMasterTestProposal(mode,originalUserText,activeInputChannel(),
                 "O Mestre não propôs um teste válido com perícia e CD ou antecipou o resultado. "
                 +"Nenhuma rolagem aconteceu e nenhuma pista foi revelada. Use TENTAR NOVAMENTE (GEMINI).");
             return;
@@ -7962,7 +7980,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int countNarrationWords(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;return clean.split("\\s+").length;}
     private int countNarrationParagraphs(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;String[] blocks=clean.split("\\r?\\n\\s*");int count=0;for(String block:blocks)if(block!=null&&block.trim().length()>0)count++;return Math.max(1,count);}
 
-    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();boolean checkPendingValidation=activeMasterPlan!=null&&DndActionCheckPolicy.explicitTest(activeMasterPlan.declaredAction);if(checkPendingValidation){updateAdventureStartupMessage("Preparando teste de perícia; aguardando validação antes de exibir desfechos…");}else{if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}}});}
+    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();boolean checkPendingValidation=DndActionCheckPolicy.explicitTest(lastPrompt)||DndActionCheckPolicy.consequentialChallenge(lastPrompt,null)||(activeMasterPlan!=null&&DndActionCheckPolicy.explicitTest(activeMasterPlan.declaredAction));if(checkPendingValidation){updateAdventureStartupMessage("Preparando teste de perícia; aguardando validação antes de exibir desfechos…");}else{if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}}});}
 
     private static final class AiResponseUiPayload {
         final long requestGen;
@@ -8037,15 +8055,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                         "{}", "{}", false);
                     ui.post(new Runnable(){public void run(){
                         if(requestGen!=aiRequestGeneration)return;
-                        aiBusy=false;
-                        streamingNarration="";
-                        clearFailedGeminiRequest();
-                        activeMasterPlan=null;
-                        if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);
-                        setStatus("Teste não executado: o Mestre não apresentou a rolagem. A cena foi preservada.");
-                        toast("Nenhum sucesso foi aplicado. O Mestre precisa solicitar o teste antes de resolvê-lo.");
-                        if(isStrixhavenAdventure())showStrixhavenSession();
-                        else if("Mestre IA".equals(currentScreen))showNarrator();
+                        markInvalidMasterTestProposal("Narrador",action,activeInputChannel(),
+                            "A resposta chegou, mas não apresentou pending_test válido após a arbitragem. Nenhum resultado foi aplicado.");
                     }});
                 }
                 return;
