@@ -1,0 +1,47 @@
+name: Verify DnD 6654 Master Test Repair
+
+on:
+  push:
+    branches:
+      - fix/dnd-6654-four-grounded-actions-20261106
+    paths:
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterTestRequestGuard.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/DndRulesNarrativeAdjudication6654Test.java'
+      - '.github/workflows/verify-dnd-6654-master-test-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-master-repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    defaults:
+      run:
+        working-directory: dnd-normal/run247-mod005
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compile and run test-adjudication regression
+        run: |
+          bash ./gradlew :app:compileDebugJavaWithJavac \
+            :app:testDebugUnitTest \
+            -Pbraseiro.qaLiteAssets=true \
+            --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
+            --no-daemon --stacktrace
+      - name: Collect JUnit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd6654-master-test-junit
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: warn
