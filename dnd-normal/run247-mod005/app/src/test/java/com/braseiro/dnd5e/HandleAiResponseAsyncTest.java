@@ -45,6 +45,26 @@ public class HandleAiResponseAsyncTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle();
     }
 
+    /**
+     * The asynchronous adapter must not silently drop an otherwise safe
+     * real-world scene. Keep the full rejection report in the assertion.
+     */
+    @Test
+    public void simpleInWorldScenePassesStrictMasterValidation() throws Exception {
+        JSONObject fixture=new JSONObject()
+            .put("protocol_version",MasterProtocolV1.VERSION)
+            .put("narration","No pátio, a chuva fina escurece as pedras antigas. Um mercador fecha sua barraca sob o toldo.")
+            .put("options",new JSONArray());
+        java.lang.reflect.Field field=MainActivity.class.getDeclaredField("masterOrchestrator");
+        field.setAccessible(true);
+        MasterOrchestrator core=(MasterOrchestrator)field.get(activity);
+        assertNotNull("MainActivity must construct the real master arbiter",core);
+        JSONObject checked=core.validateEnvelope(fixture,"Observo o pátio");
+        JSONObject verdict=checked.optJSONObject("_master_validation");
+        assertNotNull("The arbiter must report a verdict: "+checked,verdict);
+        assertTrue("Safe scene rejected by strict master gate: "+verdict+" / "+checked.optJSONObject("_rules_report"),verdict.optBoolean("valid",false));
+    }
+
     @Test
     public void testHandleAiResponseExecutesAsynchronouslyAndAppliesToUi() throws Exception {
         JSONObject envelope = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
