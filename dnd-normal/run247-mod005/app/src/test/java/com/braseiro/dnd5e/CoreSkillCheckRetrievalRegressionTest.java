@@ -32,7 +32,7 @@ public final class CoreSkillCheckRetrievalRegressionTest {
         assertTrue(MasterTestRequestGuard.isExplicitTestDeclaration(action));
         assertTrue(MasterTestRequestGuard.wouldResolveWithoutRoll(action,
             new JSONObject().put("narration","Você descobre o segredo!"),false));
-        JSONObject awaiting=new JSONObject().put("pending_test",
+        JSONObject awaiting=new JSONObject().put("protocol_version",MasterProtocolV1.VERSION).put("pending_test",
             new JSONObject().put("required",true).put("type","ability")
             .put("ability","Inteligência").put("skill","Investigação").put("dc",15));
         assertFalse(MasterTestRequestGuard.wouldResolveWithoutRoll(action,awaiting,false));
@@ -40,11 +40,14 @@ public final class CoreSkillCheckRetrievalRegressionTest {
             new JSONObject().put("narration","Você descobre o segredo!")));
         assertFalse(MasterTestRequestGuard.requiresRemoteCorrection(action,awaiting));
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,
-            new JSONObject().put("pending_test",
-                new JSONObject().put("required",true).put("type","ability")
-                    .put("ability","Inteligência"))));
+            new JSONObject().put("protocol_version",MasterProtocolV1.VERSION)
+                .put("pending_test",new JSONObject().put("required",true)
+                    .put("type","ability").put("ability","Inteligência"))));
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,
-            new JSONObject().put("pending_test",awaiting.optJSONObject("pending_test"))
+            new JSONObject().put("protocol_version",MasterProtocolV1.VERSION)
+                .put("pending_test",awaiting.optJSONObject("pending_test"))
                 .put("narration","Você conseguiu decifrar o glifo.")));
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,
+            new JSONObject().put("pending_test",awaiting.optJSONObject("pending_test"))));
     }
 }

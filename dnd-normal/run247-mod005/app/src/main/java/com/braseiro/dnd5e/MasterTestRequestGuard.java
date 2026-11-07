@@ -26,7 +26,9 @@ public final class MasterTestRequestGuard {
      */
     public static boolean requiresRemoteCorrection(String action,JSONObject envelope){
         if(!isExplicitTestDeclaration(action))return false;
-        JSONObject test=envelope==null?null:envelope.optJSONObject("pending_test");
+        // Protocol v1 is necessary to keep pending_test through enforce().
+        if(envelope==null||envelope.optInt("protocol_version",0)!=MasterProtocolV1.VERSION)return true;
+        JSONObject test=envelope.optJSONObject("pending_test");
         if(test==null||!test.optBoolean("required",true))return true;
         // A placeholder pending_test is not an actionable die request.
         // The arbiter must not have to reject it later for missing DC.
