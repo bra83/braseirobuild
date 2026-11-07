@@ -7832,10 +7832,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 +"Nenhuma rolagem aconteceu e nenhuma pista foi revelada. Use TENTAR NOVAMENTE (GEMINI).");
             return;
         }
+        final boolean preparedPendingRoll="Narrador".equals(mode)
+            &&MasterTestRequestGuard.isPreparedPendingCheck(parseAiEnvelope(raw));
         // Repetição literal não deve gerar OUTRA chamada paga de revisão:
         // o editor de estilo não consegue produzir um resultado novo sem
         // autorizar mudança factual. Preserve a cena e devolva controle.
-        if("Narrador".equals(mode)&&!activeTurnNonAdvancing(originalUserText)){
+        if("Narrador".equals(mode)&&!preparedPendingRoll&&!activeTurnNonAdvancing(originalUserText)){
             JSONObject proposed=parseAiEnvelope(raw);
             String proposedNarration=sanitizeNarrationPayload(proposed.optString("narration",raw));
             String duplicated=BraseiroNarrativeDirector.repeatedTurnProblem(proposedNarration,lastNarration);
@@ -7850,7 +7852,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 return;
             }
         }
-        String problem="Narrador".equals(mode)?narrationQualityProblem(raw,originalUserText):"";
+        String problem="Narrador".equals(mode)&&!preparedPendingRoll?narrationQualityProblem(raw,originalUserText):"";
         if(problem.length()>0){
             JSONObject envelope=parseAiEnvelope(raw);
             String draft=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(envelope.optString("narration",raw)));
