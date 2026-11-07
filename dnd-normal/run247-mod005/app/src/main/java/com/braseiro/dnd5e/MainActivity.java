@@ -328,7 +328,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private volatile boolean navigationInProgress=false;
     // The Heroes tab is loaded from SQLite off the UI thread; stale requests
     // must never replace another screen or a more recent version of the roster.
-    private long heroesLoadGeneration=0L;
+    private volatile long heroesLoadGeneration=0L;
+    private Runnable heroesAppendRenderer;
     private final android.util.LruCache<String,Bitmap> heroesAvatarCache=new android.util.LruCache<String,Bitmap>(12);
 
     private long lastNavigationClickAt=0L;
@@ -2730,25 +2731,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(isMystaraWorld()){showMystaraHeroes();return;}
         final long request=++heroesLoadGeneration;
         final long started=android.os.SystemClock.elapsedRealtime();
+        heroesAppendRenderer=null;
         showNavigationPlaceholder("Heróis");
-        AppExecutors.io().execute(new Runnable(){public void run(){
-            final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
-            final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
-            final ArrayList<Boolean> runtimeAvailable=new ArrayList<Boolean>();
+        // Old path prepared every character before the first frame appeared.
+        // List the roster first, render controls, then prepare each card off UI.
+        AppExecutors.heroes().execute(new Runnable(){public void run(){
             List<JSONObject> fetched=null;Throwable failure=null;
-            try{
-                fetched=db.listCharacters();
-                for(JSONObject ch:fetched){
-                    JSONObject sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
-                    sheets.add(sheet);
-                    loads.add(db.characterInventoryLoad(ch.optLong("id"),false));
-                    JSONObject resource=parseJsonObject(ch.optString("sheet_json","{}"));
-                    runtimeAvailable.add(characterRuntimeActions(ch,resource).length()>0);
-                }
-            }catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao preparar o painel de heróis.",error);}
+            try{fetched=db.listCharacters();}
+            catch(Throwable error){failure=error;AppLog.e("HeroesPerf","Falha ao listar heróis.",error);}
             final List<JSONObject> roster=fetched;
             final Throwable error=failure;
-            final long prepared=android.os.SystemClock.elapsedRealtime();
+            final ArrayList<JSONObject> sheets=new ArrayList<JSONObject>();
+            final ArrayList<JSONObject> loads=new ArrayList<JSONObject>();
+            final long rosterReady=android.os.SystemClock.elapsedRealtime();
             ui.post(new Runnable(){public void run(){
                 if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
                 if(error!=null||roster==null){
@@ -2764,9 +2759,32 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     content.addView(problem,new FrameLayout.LayoutParams(-1,-1));
                     return;
                 }
-                AppLog.i("HeroesPerf","LOAD_PREPARE_MS="+(prepared-started)+" count="+roster.size());
-                showHeroesPrepared(roster,sheets,loads,runtimeAvailable,request,started);
+                AppLog.i("HeroesPerf","LOAD_ROSTER_MS="+(rosterReady-started)+" count="+roster.size());
+                showHeroesPrepared(roster,sheets,loads,request,started);
             }});
+            if(error!=null||roster==null)return;
+            for(final JSONObject ch:roster){
+                if(request!=heroesLoadGeneration)return;
+                final long oneStarted=android.os.SystemClock.elapsedRealtime();
+                JSONObject sheet,load;
+                try{
+                    sheet=DndPtBrLocalizer.localizeCharacterSheet(characterGenerator.fromLegacy(ch));
+                    load=db.characterInventoryLoad(ch.optLong("id"),false);
+                }catch(Throwable preparationError){
+                    AppLog.e("HeroesPerf","Ficha não pôde ser preparada: "+ch.optString("name"),preparationError);
+                    sheet=new JSONObject();
+                    load=new JSONObject();
+                }
+                final JSONObject preparedSheet=sheet,preparedLoad=load;
+                final long finished=android.os.SystemClock.elapsedRealtime();
+                AppLog.i("HeroesPerf","LOAD_CARD_PREP_MS="+(finished-oneStarted)+" character_id="+ch.optLong("id"));
+                ui.post(new Runnable(){public void run(){
+                    if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
+                    sheets.add(preparedSheet);
+                    loads.add(preparedLoad);
+                    if(heroesAppendRenderer!=null)ui.post(heroesAppendRenderer);
+                }});
+            }
         }});
     }
 
@@ -2774,7 +2792,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void showHeroesPrepared(final List<JSONObject> list,
                                     final List<JSONObject> sheets,
                                     final List<JSONObject> loads,
-                                    final List<Boolean> runtimeAvailable,
                                     final long request,final long started){
         ScrollView s=page("Heróis","Painel do Mestre: consulte, crie, edite ou exclua qualquer ficha da campanha e ajuste todos os atributos registrados.");final LinearLayout b=body(s);
         Button add=button(isMystaraWorld()?"+ CRIAR AVENTUREIRO":"+ CRIAR PERSONAGEM",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(null);}});b.addView(add);
@@ -2789,7 +2806,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final int[] next={0};
         final Runnable appendHero=new Runnable(){public void run(){
             if(request!=heroesLoadGeneration||!"Heróis".equals(currentScreen)||isFinishing()||isDestroyed())return;
-            if(next[0]>=list.size())return;
+            if(next[0]>=list.size()||next[0]>=sheets.size()||next[0]>=loads.size())return;
             final int i=next[0]++;
             final JSONObject ch=list.get(i);final JSONObject sheet=sheets.get(i);final long id=ch.optLong("id");LinearLayout card=card();
             LinearLayout identity=new LinearLayout(MainActivity.this);identity.setOrientation(LinearLayout.HORIZONTAL);identity.setGravity(Gravity.CENTER_VERTICAL);
@@ -2847,12 +2864,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             card.addView(text("FOR "+ch.optInt("str")+"  DES "+ch.optInt("dex")+"  CON "+ch.optInt("con")+"  INT "+ch.optInt("int_score")+"  SAB "+ch.optInt("wis")+"  CAR "+ch.optInt("cha"),13,MUTED,false));
             String equipmentSummary=ch.optString("equipment").trim();if(equipmentSummary.length()>0){if(equipmentSummary.length()>240)equipmentSummary=equipmentSummary.substring(0,237)+"...";card.addView(text("INVENTÁRIO\n"+equipmentSummary,12,TEXT,false));}
             LinearLayout actions=new LinearLayout(MainActivity.this);actions.setOrientation(LinearLayout.HORIZONTAL);Button sheetBtn=smallButton("VER FICHA",GOLD);sheetBtn.setTextColor(Color.BLACK);Button edit=smallButton("EDITAR",PANEL2);Button token=smallButton("TOKEN",PANEL2);Button del=smallButton("EXCLUIR",RED);sheetBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showCharacterSheetDialog(ch);}});edit.setOnClickListener(new View.OnClickListener(){public void onClick(View v){characterDialog(ch);}});token.setOnClickListener(new View.OnClickListener(){public void onClick(View v){selectPendingTokenCharacter(id);navigate("Tokens");}});del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirm("Excluir "+ch.optString("name")+"?",new Runnable(){public void run(){try{safety.beforeDestructiveChange("excluir personagem "+ch.optString("name"));}catch(Exception e){toast("Exclusão bloqueada: "+e.getMessage());return;}db.deleteCharacter(id);db.addAuditEvent("ficha","Personagem excluído",ch.optString("name"),ch.toString(),"{}",true);showHeroes();}});}});actions.addView(sheetBtn);actions.addView(edit);actions.addView(token);actions.addView(del);card.addView(actions);Button exportJson=button("EXPORTAR ESTA FICHA JSON",PANEL2);exportJson.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginCharacterExport(sheet,ch.optInt("active",1)==1);}});card.addView(exportJson);Button run163=button("AÇÕES E RECURSOS — EBERRON / HERÓIS DE FAERÛN",PANEL2);run163.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showRun163RuntimeDialog(ch);}});card.addView(run163);b.addView(card);
-            if(next[0]<list.size())b.postOnAnimation(this);
-            else AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
+            if(next[0]<list.size()&&next[0]<sheets.size())ui.postDelayed(this,16L);
+            else if(next[0]>=list.size())AppLog.i("HeroesPerf","LOAD_RENDER_TOTAL_MS="+(android.os.SystemClock.elapsedRealtime()-started)+" count="+list.size());
         }};
-        // The initial card must render even before the ScrollView is attached;
-        // subsequent cards stay frame-paced via postOnAnimation in appendHero.
-        if(!list.isEmpty())ui.post(appendHero);
+        // One ready card is enough to show the screen. New cards arrive
+        // independently, without blocking the control header or touch input.
+        heroesAppendRenderer=appendHero;
+        if(!list.isEmpty()&&!sheets.isEmpty())ui.post(appendHero);
     }
 
     private ImageView createHeroAvatarView(final String tokenUri,final String name){
@@ -7899,7 +7917,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private int countNarrationWords(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;return clean.split("\\s+").length;}
     private int countNarrationParagraphs(String text){String clean=text==null?"":text.trim();if(clean.length()==0)return 0;String[] blocks=clean.split("\\r?\\n\\s*");int count=0;for(String block:blocks)if(block!=null&&block.trim().length()>0)count++;return Math.max(1,count);}
 
-    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}});}
+    private void streamNarrationPartial(final long requestId,String rawPartial){final String partial=PortugueseNarrationSanitizer.sanitize(extractPartialNarration(rawPartial));if(partial.length()==0||requestId!=aiRequestGeneration)return;if(NarrativeGuardService.containsInternalLeak(partial))return;if(partial.length()<streamingNarration.length())return;streamingNarration=partial;long now=System.currentTimeMillis();boolean ending=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(!ending&&now-lastStreamPostAt<320L)return;lastStreamPostAt=now;ui.post(new Runnable(){public void run(){if(!aiBusy||requestId!=aiRequestGeneration)return;long uiNow=System.currentTimeMillis();boolean giantStory=false;try{giantStory=activeMasterPlan!=null&&isFullStoryPresentation(activeMasterPlan.barbaraStoryOccasion);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao ajustar streaming de abertura longa.",ignored);}boolean enoughTime=uiNow-lastStreamUiAt>=(giantStory?800L:450L);boolean enoughText=partial.length()-lastStreamUiLength>=(giantStory?560:160);boolean finalPunctuation=partial.endsWith(".")||partial.endsWith("!")||partial.endsWith("?")||partial.endsWith("…");if(masterSideQueryActive){if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();setStatus("Respondendo no painel auxiliar... "+partial.length()+" caracteres");}}else if(enoughTime&&(enoughText||finalPunctuation)){lastStreamUiAt=uiNow;lastStreamUiLength=partial.length();boolean checkPendingValidation=activeMasterPlan!=null&&DndActionCheckPolicy.explicitTest(activeMasterPlan.declaredAction);if(checkPendingValidation){updateAdventureStartupMessage("Preparando teste de perícia; aguardando validação antes de exibir desfechos…");}else{if(narratorOutput!=null)narratorOutput.setText(partial+" ▌");if(strixhavenNarrationOutput!=null)strixhavenNarrationOutput.setText(partial+" ▌");updateAdventureStartupMessage("Escrevendo a cena… "+partial.length()+" caracteres recebidos");}}}});}
 
     private static final class AiResponseUiPayload {
         final long requestGen;

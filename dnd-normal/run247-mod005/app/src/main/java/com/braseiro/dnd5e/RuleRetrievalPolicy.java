@@ -52,6 +52,14 @@ public final class RuleRetrievalPolicy {
         String special=specificProcedureKey(n);
         if(special.length()>0)return search(true,CACHE_PROCEDURE,special,"regra/procedimento específico ainda precisa de evidência");
 
+
+        // Routine ability and skill checks are part of the already compiled
+        // D&D core. They must not depend on unrelated RAG search evidence.
+        // The Master still selects a defensible DC and waits for the die;
+        // special procedures remain guarded by the check immediately above.
+        if(DndActionCheckPolicy.explicitTest(n))
+            return skip(true,"teste comum de atributo/perícia coberto pelo núcleo local; Mestre deve definir perícia e CD, aguardar rolagem e não antecipar resultado");
+
         String skill=skillProcedureKey(n);
         if(skill.length()>0)return search(true,CACHE_SCENE,skill,"ação concreta introduziu uma questão mecânica de perícia");
 
