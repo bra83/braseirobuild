@@ -40,6 +40,10 @@ public final class CoreSkillCheckRetrievalRegressionTest {
             new JSONObject().put("narration","Você descobre o segredo!")));
         assertFalse(MasterTestRequestGuard.requiresRemoteCorrection(action,awaiting));
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,
+            new JSONObject().put("pending_test",
+                new JSONObject().put("required",true).put("type","ability")
+                    .put("ability","Inteligência"))));
+        assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,
             new JSONObject().put("pending_test",awaiting.optJSONObject("pending_test"))
                 .put("narration","Você conseguiu decifrar o glifo.")));
     }

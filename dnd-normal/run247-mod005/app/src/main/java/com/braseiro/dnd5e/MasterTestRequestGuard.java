@@ -28,6 +28,13 @@ public final class MasterTestRequestGuard {
         if(!isExplicitTestDeclaration(action))return false;
         JSONObject test=envelope==null?null:envelope.optJSONObject("pending_test");
         if(test==null||!test.optBoolean("required",true))return true;
+        // A placeholder pending_test is not an actionable die request.
+        // The arbiter must not have to reject it later for missing DC.
+        if(!test.has("dc")||test.isNull("dc")||test.optInt("dc",0)<5
+                ||test.optInt("dc",0)>30)return true;
+        String kind=test.optString("type","ability");
+        if(("ability".equalsIgnoreCase(kind)||kind.trim().isEmpty())
+                &&test.optString("ability","").trim().isEmpty())return true;
         return DndActionCheckPolicy.unresolvedOutcomeClaimed(
             envelope==null?"":envelope.optString("narration",""));
     }
