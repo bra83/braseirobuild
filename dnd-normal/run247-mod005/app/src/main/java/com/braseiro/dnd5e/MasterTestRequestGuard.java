@@ -25,20 +25,20 @@ public final class MasterTestRequestGuard {
      * to roll a die or commit world state on the player's behalf.
      */
     public static boolean requiresRemoteCorrection(String action,JSONObject envelope){
-        if(!isExplicitTestDeclaration(action))return false;
-        // Protocol v1 is necessary to keep pending_test through enforce().
-        if(envelope==null||envelope.optInt("protocol_version",0)!=MasterProtocolV1.VERSION)return true;
+        return isExplicitTestDeclaration(action)&&!isPreparedPendingCheck(envelope);
+    }
+
+    /** A short narration is correct when the output merely asks the player to roll.
+     *  It must not be rejected by the prose-length or repetition gates. */
+    public static boolean isPreparedPendingCheck(JSONObject envelope){
+        if(envelope==null||envelope.optInt("protocol_version",0)!=MasterProtocolV1.VERSION)return false;
         JSONObject test=envelope.optJSONObject("pending_test");
-        if(test==null||!test.optBoolean("required",true))return true;
-        // A placeholder pending_test is not an actionable die request.
-        // The arbiter must not have to reject it later for missing DC.
-        if(!test.has("dc")||test.isNull("dc")||test.optInt("dc",0)<5
-                ||test.optInt("dc",0)>30)return true;
+        if(test==null||!test.optBoolean("required",true))return false;
+        if(!test.has("dc")||test.isNull("dc")||test.optInt("dc",0)<5||test.optInt("dc",0)>30)return false;
         String kind=test.optString("type","ability");
         if(("ability".equalsIgnoreCase(kind)||kind.trim().isEmpty())
-                &&test.optString("ability","").trim().isEmpty())return true;
-        return DndActionCheckPolicy.unresolvedOutcomeClaimed(
-            envelope==null?"":envelope.optString("narration",""));
+                &&test.optString("ability","").trim().isEmpty())return false;
+        return !DndActionCheckPolicy.unresolvedOutcomeClaimed(envelope.optString("narration",""));
     }
 
     static boolean isExplicitTestDeclaration(String action){
