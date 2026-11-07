@@ -35,6 +35,19 @@ public class HandleAiResponseAsyncTest {
         controller = Robolectric.buildActivity(MainActivity.class).setup();
         activity = controller.get();
         Shadows.shadowOf(Looper.getMainLooper()).idle();
+        // This test exercises a continuation, not an 8,500-character campaign
+        // opening. Explicitly bind the real Master to a continuation turn so
+        // opening obligations cannot mask the async acceptance contract.
+        try {
+            java.lang.reflect.Field field=MainActivity.class.getDeclaredField("masterOrchestrator");
+            field.setAccessible(true);
+            MasterOrchestrator core=(MasterOrchestrator)field.get(activity);
+            assertNotNull("Master runtime unavailable",core);
+            core.setActivePlanForValidation(MasterOrchestrator.Plan.forTest(
+                "Observo o pátio","","continuation","PLAYER_ACTION"));
+        } catch (ReflectiveOperationException error) {
+            throw new AssertionError("Could not configure continuation test",error);
+        }
     }
 
     @After
@@ -62,7 +75,7 @@ public class HandleAiResponseAsyncTest {
         JSONObject checked=core.validateEnvelope(fixture,"Observo o pátio");
         JSONObject verdict=checked.optJSONObject("_master_validation");
         assertNotNull("The arbiter must report a verdict: "+checked,verdict);
-        assertTrue("Safe scene rejected by strict master gate: "+verdict+" / "+checked.optJSONObject("_rules_report"),verdict.optBoolean("valid",false));
+        assertTrue("Safe scene rejected by strict master gate: "+verdict+" / Barbara="+checked.optJSONObject("_barbara_validation")+" / Rules="+checked.optJSONObject("_rules_report"),verdict.optBoolean("valid",false));
     }
 
     @Test
