@@ -62,7 +62,8 @@ jobs:
             --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' \
             --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
-            --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest'
+            --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest' \
+            --tests 'com.braseiro.dnd5e.HandleAiResponseAsyncTest'
       - name: Full D&D JVM regression gate — no APK if any unit or UI test fails
         working-directory: dnd-normal/run247-mod005
         timeout-minutes: 15
