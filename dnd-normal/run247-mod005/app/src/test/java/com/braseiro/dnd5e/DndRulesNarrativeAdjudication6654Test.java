@@ -77,8 +77,11 @@ public final class DndRulesNarrativeAdjudication6654Test {
                 .put("skill","Investigação").put("dc",14)
                 .put("reason","Padrão geométrico complexo."));
         assertFalse(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
+        assertTrue(MasterTestRequestGuard.isPreparedPendingCheck(valid));
+        assertFalse(MasterTestRequestGuard.isPreparedPendingCheck(noDc));
         valid.put("narration","Kvothe decifra a pista e descobre a resposta.");
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
+        assertFalse(MasterTestRequestGuard.isPreparedPendingCheck(valid));
         valid.put("narration","Kvothe aguarda a rolagem.");
         valid.remove("protocol_version");
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
