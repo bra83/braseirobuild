@@ -156,7 +156,7 @@ public final class MasterOrchestrator {
         // This is a voluntary player action (not GM_HELP); it must actually
         // move one causal beat while leaving all PC choices under player control.
         if(narrative&&!nonAdvancing&&StoryMomentumAction.isRequest(action))
-            prompt=StoryMomentumAction.instruction(strixhavenActive)+"\n\n"+prompt;
+            prompt=StoryMomentumAction.instruction(strixhavenActive,action)+"\n\n"+prompt;
         Plan prepared=new Plan(prompt,context,tick,cognitive,npcTick,environmental,effectiveRuleRetrieval,groundingEnvelope,queued,quota.economyMode(),narrative,nonAdvancing,(explicitHelp?"GM_HELP":(explicitAction?"PLAYER_ACTION":routedIntent.name())),actionHash,stateHash,cacheKey,contextReady,contextError,barbaraOccasion,barbaraLocation,barbaraImprint,inputChannel,discoveryDecision,frozenActionIds);
         prepared.declaredAction=action;
         return prepared;
