@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/dnd-6654-device-test-apk.yml'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/StoryMomentumAction.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Dnd2024NarrationLexicon.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Dnd2024NarrationLexiconRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneDiscoveredLead.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/GroundedSceneActionSlots.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/RevealedClueActionGroundingRegressionTest.java'
@@ -52,6 +55,7 @@ jobs:
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
             --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.Dnd2024NarrationLexiconRegressionTest' \
             --tests 'com.braseiro.dnd5e.SpeciesTerminology2024RegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.HandleAiResponseAsyncTest'
