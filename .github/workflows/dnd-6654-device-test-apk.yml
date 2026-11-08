@@ -46,6 +46,7 @@ jobs:
           ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.HandleAiResponseAsyncTest'
       - name: Assemble Android device-test APK
@@ -58,17 +59,17 @@ jobs:
         run: |
           set -euo pipefail
           apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND_6654_DEVICE_TEST_SIGNER.txt
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND_6654_CLUE_OPTIONS_SIGNER.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND_6654_DEVICE_TEST_BADGING.txt
           grep -q "package: name='com.braseiro.dnd5e'" DND_6654_DEVICE_TEST_BADGING.txt
           grep -q "versionCode='203900617'" DND_6654_DEVICE_TEST_BADGING.txt
-          cp "$apk" BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk
+          cp "$apk" BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk
           sha256sum BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk > DND_6654_DEVICE_TEST_SHA256.txt
       - name: Upload device-test candidate (NOT release-approved)
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6654_DEVICE_TEST_APK
+          name: BRASEIRO_DND_6654_CLUE_OPTIONS_DEVICE_APK
           path: |
             BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk
             DND_6654_DEVICE_TEST_SHA256.txt
