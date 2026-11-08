@@ -53,6 +53,7 @@ jobs:
           ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
             --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.Dnd2024NarrationLexiconRegressionTest' \
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
             --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
