@@ -15,7 +15,7 @@ public final class Dnd2024NarrationLexicon {
     private Dnd2024NarrationLexicon(){}
 
     private static final Pattern NONCANONICAL_SPECIES =
-        Pattern.compile("(?iu)(?<![\\p{L}\\p{N}_])(?:orcos|orco|gnomias|gnomia)(?![\\p{L}\\p{N}_])");
+        Pattern.compile("(?iu)(?<![\\p{L}\\p{N}_])(?:orcos|orco|gn[oô]mias|gn[oô]mia)(?![\\p{L}\\p{N}_])");
 
     public static String correct(String narration){
         if(narration==null||narration.isEmpty())return narration==null?"":narration;
@@ -23,7 +23,8 @@ public final class Dnd2024NarrationLexicon {
         StringBuffer out=new StringBuffer(narration.length());
         while(found.find()){
             String source=found.group();
-            String folded=source.toLowerCase(java.util.Locale.ROOT);
+            String folded=java.text.Normalizer.normalize(source.toLowerCase(java.util.Locale.ROOT),java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+","");
             String replacement;
             if(folded.equals("orco"))replacement="orc";
             else if(folded.equals("orcos"))replacement="orcs";
