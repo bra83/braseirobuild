@@ -33,7 +33,8 @@ public final class GroundedSceneActionSlots {
         for(String type:TYPES){
             JSONObject selected=null;
             // A purpose-built choice beats an LLM's generic "look around" sentence.
-            if(silverquillRiddle) selected=silverquillChoice(type,actor,visible);
+            if(SceneDiscoveredLead.available(visible))selected=SceneDiscoveredLead.typedChoice(type,visible);
+            if(selected==null&&silverquillRiddle) selected=silverquillChoice(type,actor,visible);
             if(selected==null)selected=bestModelChoice(proposed,type,visible,actor,focus,topic);
             if(selected==null)selected=groundedChoice(type,actor,focus,topic,visible);
             if(selected!=null && SceneOptionVisibleEvidence.supported(selected,visible)
@@ -184,6 +185,7 @@ public final class GroundedSceneActionSlots {
 
     private static String visibleFocus(String narration){
         if(has(narration,"grupo aguarda"))return "o grupo que aguarda";
+        if(SceneOptionVisibleEvidence.diaryNounPresent(narration))return "o diário";
         String[][] objects={
           {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
           {"arbustos despertados","os arbustos despertados"},{"arbustos","os arbustos"},
@@ -191,7 +193,7 @@ public final class GroundedSceneActionSlots {
           {"alavanca","a alavanca"},{"marcadores","os marcadores"},
           {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
           {"caderno","o caderno"},{"frascos","os frascos"},
-          {"diario","o diário"},{"caixote","o caixote"},{"armario","o armário"},
+          {"caixote","o caixote"},{"armario","o armário"},
           {"bifurcacao","a bifurcação"},{"carroca","a carroça"},
           {"fitas de tinta","as fitas de tinta"},{"inscricao","a inscrição"},
           {"pergaminho","o pergaminho"},{"papel","o papel"},{"roteiro","o roteiro"},
