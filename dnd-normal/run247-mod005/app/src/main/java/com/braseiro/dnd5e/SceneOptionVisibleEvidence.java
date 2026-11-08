@@ -30,6 +30,7 @@ public final class SceneOptionVisibleEvidence {
         {"porta","portas","portao","portoes"},
         {"armario","armarios","bau","baus"},
         {"mapa","mapas","pergaminho","pergaminhos"},
+        {"diario","diarios"},
         {"livro","livros","tomo","tomos"},
         {"chave","chaves"},
         {"carta","cartas","documento","documentos","contrato","contratos"},
@@ -64,6 +65,7 @@ public final class SceneOptionVisibleEvidence {
                 if(containsWord(proposed,alias)){mentioned=true;break;}
             }
             if(!mentioned)continue;
+            if("diario".equals(aliases[0])&&!diaryNounPresent(narration))return false;
             // "guarda o papel" is the verb guardar, not an NPC guard.
             if(aliases==ANCHORS[0]&&containsWord(proposed,"guarda")
                 &&!hasExplicitGuardNoun(visible))return false;
@@ -74,6 +76,12 @@ public final class SceneOptionVisibleEvidence {
             if(!inScene)return false;
         }
         return true;
+    }
+
+    static boolean diaryNounPresent(String narration){
+        String n=fold(narration);
+        return n.matches("(?s).*\\\\b(?:o|um|ao|do|no|meu|seu|este|aquele|abre|abro|leio|examino)\\\\s+diario\\\\b.*")
+            ||n.matches("(?s).*\\\\bdiario\\\\s+(?:de bordo|pessoal|de viagem|de campo)\\\\b.*");
     }
 
     static boolean guardNounPresent(String narration){
