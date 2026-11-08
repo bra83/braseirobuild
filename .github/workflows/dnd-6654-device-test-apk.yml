@@ -1,0 +1,77 @@
+name: Braseiro DnD 6654 Candidate APK for Device Test
+
+on:
+  push:
+    branches: [fix/dnd-6654-four-grounded-actions-20261106]
+    paths:
+      - '.github/workflows/dnd-6654-device-test-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Verify signing and database compatibility
+        run: |
+          set -euo pipefail
+          p=dnd-normal/run247-mod005
+          grep -q '^VERSION_NAME=6.6.54-four-grounded-actions-20261106$' "$p/version.properties"
+          grep -q '^VERSION_CODE=203900617$' "$p/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$p/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$p/version.properties"
+          test -s "$p/signing/debug.keystore"
+      - name: Run focused rules and scene regressions
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 30
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
+            --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
+            --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
+            --tests 'com.braseiro.dnd5e.HandleAiResponseAsyncTest'
+      - name: Assemble Android device-test APK
+        timeout-minutes: 35
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify signature and package
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND_6654_DEVICE_TEST_SIGNER.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND_6654_DEVICE_TEST_BADGING.txt
+          grep -q "package: name='com.braseiro.dnd5e'" DND_6654_DEVICE_TEST_BADGING.txt
+          grep -q "versionCode='203900617'" DND_6654_DEVICE_TEST_BADGING.txt
+          cp "$apk" BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk
+          sha256sum BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk > DND_6654_DEVICE_TEST_SHA256.txt
+      - name: Upload device-test candidate (NOT release-approved)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6654_DEVICE_TEST_APK
+          path: |
+            BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk
+            DND_6654_DEVICE_TEST_SHA256.txt
+            DND_6654_DEVICE_TEST_SIGNER.txt
+            DND_6654_DEVICE_TEST_BADGING.txt
+          if-no-files-found: error
