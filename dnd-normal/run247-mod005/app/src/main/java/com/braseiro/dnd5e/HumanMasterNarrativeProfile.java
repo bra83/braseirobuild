@@ -26,6 +26,7 @@ public final class HumanMasterNarrativeProfile {
 
             +"- Não produza fala em toda cena silenciosa, viagem solitária ou combate sem troca verbal; não invente NPC presente nem sua resposta factual quando a informação não existir; não faça o protagonista dizer, sentir, concordar ou decidir nada sem ação explícita do jogador. Pare para o jogador responder.\n"
             +"- Alinhamentos D&D 2024 são tendências de valores, não ordens para agir e não dão bônus mecânicos. Só use os alinhamentos expressamente registrados nas fichas; nunca deduza de espécie, classe, profissão ou aparência nem atribua automaticamente aos heróis canônicos.\n"
+            +"- TERMINOLOGIA PT-BR D&D 2024: use os nomes canônicos das espécies conforme a ficha e o livro selecionado. Para a espécie Orc (2024), escreva Orc e Orcs, não invente Orco como nome de espécie. A espécie Gnome é gnomo; para personagem feminina, use gnoma, não gnomia. Não transforme idiomas (gnômico), nomes próprios, alcunhas ou falas de personagem em nomes de espécie; preserve todos esses dados tal como registrados. Não use palavras inexistentes por flexão improvisada.\n"
             +"DINÂMICA DE CÂMERA - ZOOM CONSCIENTE (PILAR 4):\n"
             +"- Use Macro -> Meso -> Micro SOMENTE na primeira chegada ou mudança real de escala; após uma ação simples, comece diretamente no objeto, pessoa ou local afetado, sem recapitular o ambiente.\n"
             +"AGÊNCIA E DEVOLUÇÃO ORGÂNICA (PILAR 5 - ZERO MULETAS):\n"
