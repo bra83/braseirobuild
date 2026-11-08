@@ -35,6 +35,7 @@ public final class StoryMomentumAction {
         else if(beat.matches("(?iu).*\\b(?:guarda|guardas|sentinela|sentinelas)\\b.*"))label="OBSERVAR OS PRÓXIMOS MOVIMENTOS";
         else if(beat.contains("pausa")||beat.contains("silêncio"))label="DEIXAR O SILÊNCIO FALAR";
         else if(beat.contains("taverna")||beat.contains("estalagem"))label="ESCUTAR O MOVIMENTO DO SALÃO";
+        if(discovered)label=SceneDiscoveredLead.progressLabel(narration); // Explicit objective always beats historic keyword matching.
         JSONObject o=new JSONObject();
         try{
             o.put("label",label);
