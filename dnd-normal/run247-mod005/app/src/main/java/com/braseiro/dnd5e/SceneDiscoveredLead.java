@@ -3,8 +3,6 @@ package com.braseiro.dnd5e;
 import org.json.JSONObject;
 import java.text.Normalizer;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A reveal that already points somewhere is a new player decision, NOT a new
@@ -82,7 +80,7 @@ public final class SceneDiscoveredLead {
         }else if(GroundedSceneActionSlots.DESPISTAR.equals(type)){
             if(students&&pergaminho){
                 label="ESCONDER AS COORDENADAS DOS CALOUROS";
-                action="Tento manter as coordenadas do pergaminho fora da vista dos calouros enquanto examino a pista, sem decidir por eles como vão reagir.";
+                action="Tento manter as coordenadas do pergaminho fora da vista dos calouros enquanto verifico os detalhes do selo.";
             }else{
                 label="EXAMINAR A PISTA COM DISCRIÇÃO";
                 action="Examino discretamente a indicação que aponta para "+destination(narration)+", tentando não atrair atenção.";
