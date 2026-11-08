@@ -80,8 +80,8 @@ public final class SceneOptionVisibleEvidence {
 
     static boolean diaryNounPresent(String narration){
         String n=fold(narration);
-        return n.matches("(?s).*\\\\b(?:o|um|ao|do|no|meu|seu|este|aquele|abre|abro|leio|examino)\\\\s+diario\\\\b.*")
-            ||n.matches("(?s).*\\\\bdiario\\\\s+(?:de bordo|pessoal|de viagem|de campo)\\\\b.*");
+        return n.matches("(?s).*\\b(?:o|um|ao|do|no|meu|seu|este|aquele|abre|abro|leio|examino)\\s+diario\\b.*")
+            ||n.matches("(?s).*\\bdiario\\s+(?:de bordo|pessoal|de viagem|de campo)\\b.*");
     }
 
     static boolean guardNounPresent(String narration){
