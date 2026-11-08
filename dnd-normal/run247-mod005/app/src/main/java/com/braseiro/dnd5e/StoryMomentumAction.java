@@ -26,8 +26,7 @@ public final class StoryMomentumAction {
         String label=LABEL;
         final boolean discovered=SceneDiscoveredLead.available(narration);
         if(discovered)label=SceneDiscoveredLead.progressLabel(narration);
-        if(discovered){} // Revealed, actionable next step overrides generic keywords.
-        else if(beat.contains("charada")&&beat.contains("selos"))label="DEIXAR A DISCUSSÃO DOS SELOS AVANÇAR";
+        if(!discovered&&beat.contains("charada")&&beat.contains("selos"))label="DEIXAR A DISCUSSÃO DOS SELOS AVANÇAR";
         else if(beat.contains("bibliotecária")||beat.contains("bibliotecaria"))label="ESCUTAR A BIBLIOTECÁRIA";
         else if(beat.contains("professora"))label="ESCUTAR A PROFESSORA";
         else if(beat.contains("professor"))label="ESCUTAR O PROFESSOR";
