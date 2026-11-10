@@ -111,7 +111,7 @@ public final class MasterOrchestrator {
             root.put("campaign",compact(db.getCampaign(),new String[]{"name","rules_profile","tone","feats","multiclass","flanking","notes"}));
             JSONObject bus=gameContext.narratorSnapshot(effectiveMapContext,audio);if(strixhavenActive)bus=strixhavenProfile.sanitizeNarratorBus(bus);bus.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));JSONObject supplementCapabilities=SupplementContentRegistry.matchAction(action);bus.put("supplement_capabilities",supplementCapabilities);root.put("game_bus",bus).put("human_master_profile",HumanMasterNarrativeProfile.contract());
             root.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));root.put("supplement_capabilities",supplementCapabilities);
-            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);root.put("canonical_chronology",CampaignContinuityGate.canonicalContext(db.listJournal()));
+            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);root.put("canonical_chronology",CampaignContinuityGate.promptContext(db.listJournal()));
             if(narrative){root.put("narrative_intent",explicitHelp?"ajuda do Mestre":(explicitAction?"ação do jogador":BraseiroNarrativeDirector.intentLabel(routedIntent)));root.put("input_channel",inputChannel==null?"":inputChannel);root.put("fiction_frozen",nonAdvancing);}
             JSONObject sourceScene=AtlasScenePositionReconciler.authoritativeSceneSnapshot(db);if(strixhavenActive)sourceScene=strixhavenProfile.sceneProjection(sourceScene);JSONObject compactSceneState=compactScene(sourceScene);JSONObject compactPartyState=party.compactStateForPrompt(quota.economyMode()?3300:4400);JSONObject compactWorldState=compactWorld(action+" "+effectiveMapContext);
             JSONObject liveMemory=new JSONObject();JSONObject partyBlock=compactPartyState.optJSONObject("party");JSONObject sessionPrefs=partyBlock==null?null:partyBlock.optJSONObject("session_preferences");JSONObject savedNarrativeMemory=sessionPrefs==null?null:sessionPrefs.optJSONObject("braseiro_narrative_memory");if(savedNarrativeMemory!=null)liveMemory=savedNarrativeMemory;
@@ -830,16 +830,45 @@ public final class MasterOrchestrator {
     }
 
     private static String enforceContextLimit(JSONObject source,int max)throws Exception{
-        if(source==null)return "{}";String raw=source.toString();if(raw.length()<=max)return raw;
+        if(source==null)return "{}";JSONObject originalChronology=source.optJSONObject("canonical_chronology");String raw=source.toString();if(raw.length()<=max)return raw;
         int[][] passes={{900,16},{520,10},{280,7},{150,4},{80,2}};
         for(int[] pass:passes){JSONObject compact=deepCompactObject(source,0,pass[0],pass[1]);compact.put("context_reduced",true);compact.put("context_limit",max);raw=compact.toString();if(raw.length()<=max)return raw;source=compact;}
         JSONObject finalContext=new JSONObject();
+        if(originalChronology!=null)finalContext.put("canonical_chronology",compactCanonicalHistory(originalChronology,6,5));
         for(String key:new String[]{"story","scene","party","cognitive_plan","rules_frame","rule_retrieval","living_world","local_tick","narrative_intent","fiction_frozen","authority"})if(source.has(key))finalContext.put(key,deepCompactValue(source.opt(key),0,96,2));
         JSONObject bus=source.optJSONObject("game_bus");finalContext.put("game_bus",deepCompactObject(criticalGameBus(bus,true),0,96,2));
         finalContext.put("connection_manifest",connectionManifest(bus));finalContext.put("context_reduced",true);finalContext.put("hard_limit_applied",true);
         raw=finalContext.toString();if(raw.length()<=max)return raw;
-        JSONObject minimum=new JSONObject();minimum.put("scene",deepCompactValue(source.opt("scene"),0,72,1));minimum.put("rules_frame",deepCompactValue(source.opt("rules_frame"),0,72,1));minimum.put("local_tick",deepCompactValue(source.opt("local_tick"),0,72,1));minimum.put("connection_manifest",connectionManifest(bus));minimum.put("context_reduced",true);minimum.put("hard_limit_applied",true);raw=minimum.toString();
+        JSONObject minimum=new JSONObject();if(originalChronology!=null)minimum.put("canonical_chronology",compactCanonicalHistory(originalChronology,2,3));minimum.put("scene",deepCompactValue(source.opt("scene"),0,72,1));minimum.put("rules_frame",deepCompactValue(source.opt("rules_frame"),0,72,1));minimum.put("local_tick",deepCompactValue(source.opt("local_tick"),0,72,1));minimum.put("connection_manifest",connectionManifest(bus));minimum.put("context_reduced",true);minimum.put("hard_limit_applied",true);raw=minimum.toString();
         if(raw.length()>max)throw new IllegalStateException("O contexto mínimo excede o limite seguro.");return raw;
+    }
+
+    /** Retains immutable clue provenance even after emergency context trimming. */
+    private static JSONObject compactCanonicalHistory(JSONObject original,int maxScenes,int maxMilestones)throws Exception{
+        JSONObject out=new JSONObject();
+        if(original==null)return out;
+        out.put("scenes_scanned",original.optInt("scenes_scanned",0));
+        out.put("highest_explicit_clue_ordinal",original.optInt("highest_explicit_clue_ordinal",0));
+        out.put("distinct_explicit_hunt_clue_resolutions",
+            original.optInt("distinct_explicit_hunt_clue_resolutions",0));
+        out.put("trust_policy","Diary facts have priority; never invent a retcon.");
+        JSONArray entries=original.optJSONArray("source_linked_chronology_newest_first");
+        JSONArray reduced=new JSONArray();
+        int milestones=0;
+        if(entries!=null)for(int i=0;i<entries.length();i++){
+            JSONObject e=entries.optJSONObject(i);if(e==null)continue;
+            boolean milestone=e.optInt("explicit_clue_ordinal",0)>0;
+            if(i>=maxScenes&&(!milestone||milestones>=maxMilestones))continue;
+            JSONObject item=new JSONObject()
+                .put("journal_id",e.optLong("journal_id",0))
+                .put("narration_excerpt",tail(e.optString("narration_excerpt",""),160))
+                .put("explicit_clue_ordinal",e.optInt("explicit_clue_ordinal",0));
+            reduced.put(item);
+            if(milestone)milestones++;
+            if(reduced.length()>=maxScenes+maxMilestones)break;
+        }
+        out.put("source_linked_chronology_newest_first",reduced);
+        return out;
     }
 
     private static JSONObject connectionManifest(JSONObject bus)throws Exception{
