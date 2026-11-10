@@ -35,6 +35,9 @@ public final class GroundedSceneActionSlots {
             // A purpose-built choice beats an LLM's generic "look around" sentence.
             if(SceneDiscoveredLead.available(visible))selected=SceneDiscoveredLead.typedChoice(type,visible);
             if(selected==null&&silverquillRiddle) selected=silverquillChoice(type,actor,visible);
+            // Ground a dialogue in the speaker's current words and real options,
+            // before falling back to a generic object-template or stale model text.
+            if(selected==null)selected=SceneDialogueDecisionPlanner.choice(type,visible);
             if(selected==null)selected=bestModelChoice(proposed,type,visible,actor,focus,topic);
             if(selected==null)selected=groundedChoice(type,actor,focus,topic,visible);
             if(selected!=null && SceneOptionVisibleEvidence.supported(selected,visible)
@@ -188,7 +191,6 @@ public final class GroundedSceneActionSlots {
         if(SceneOptionVisibleEvidence.diaryNounPresent(narration))return "o diário";
         String[][] objects={
           {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
-          {"arbustos despertados","os arbustos despertados"},{"arbustos","os arbustos"},
           {"charada","a charada"},{"selos","os selos"},{"inscricoes","as inscrições"},
           {"alavanca","a alavanca"},{"marcadores","os marcadores"},
           {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
@@ -201,11 +203,12 @@ public final class GroundedSceneActionSlots {
           {"mapa","o mapa"},{"painel","o painel"},{"folhetos","os folhetos"},
           {"prancheta","a prancheta"},{"porta","a porta"},{"ponte","a ponte"},
           {"arbusto","o arbusto"},{"manuscrito","o manuscrito"},{"escada","a escada"},
-          {"chuva","a chuva"},{"vento","o vento"},{"grupo","o grupo"},{"pausa","a pausa"},
-          {"silencio","o silêncio"},{"salão","o salão"},{"sala","a sala"}
+          {"grupo","o grupo"},{"salão","o salão"},{"sala","a sala"}
         };
         String n=" "+fold(narration)+" ";
-        // The most distinctive object wins, not whichever noun appeared most recently.
+        // Words from reported speech may describe a distant place, not a
+        // reachable object. Select a concrete, visible artefact; never the
+        // abstractions "silêncio"/"pausa" or remote "arbustos" as props.
         for(String[] entry:objects)if(n.contains(" "+entry[0]+" "))return entry[1];
         return "";
     }
