@@ -86,7 +86,11 @@ public final class GroundedSceneActionSlots {
             if(!topic.isEmpty()&&has(action+" "+label,stripArticle(topic)))evidence+=2;
             if(evidence==0)continue;
             if(evidence>score){
-                best=choice(type,cleanTitle(label,type),action);
+                String requested=o.optString("action_type",o.optString("type","")).toUpperCase(Locale.ROOT);
+                String outputType=DESPISTAR.equals(type)
+                    &&("INVESTIGAR".equals(requested)||"EXPLORAR".equals(requested))
+                    ?requested:type;
+                best=choice(outputType,cleanTitle(label,outputType),action);
                 JSONObject test=o.optJSONObject("test");
                 if(test!=null)try{best.put("test",new JSONObject(test.toString()));}catch(Exception ignored){}
                 score=evidence;
@@ -107,6 +111,9 @@ public final class GroundedSceneActionSlots {
     private static String actionType(JSONObject o){
         String explicit=o.optString("action_type",o.optString("type","")).toUpperCase(Locale.ROOT);
         for(String type:TYPES)if(type.equals(explicit))return type;
+        // The third contextual slot is adaptive, not mandatory deception.
+        if("INVESTIGAR".equals(explicit)||"EXPLORAR".equals(explicit))return DESPISTAR;
+        if("CONVERSAR".equals(explicit))return AGIR;
         String label=fold(o.optString("label",""));
         if(label.startsWith("observar "))return OBSERVAR;
         if(label.startsWith("agir "))return AGIR;
