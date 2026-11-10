@@ -32,7 +32,7 @@ public final class SceneDialogueDecisionPlanner {
 
     private static boolean validName(String name) {
         String n=fold(name);
-        return !n.equals("kvothe") && !n.equals("kote") && !n.equals("estudante")
+        return !n.equals("kvothe") && !n.equals("estudante")
             && !n.equals("aluna") && !n.equals("aluno") && !n.equals("professor")
             && !n.equals("professora") && !n.equals("jogador") && !n.equals("mestre")
             && !n.equals("silencio") && !n.equals("grupo");
