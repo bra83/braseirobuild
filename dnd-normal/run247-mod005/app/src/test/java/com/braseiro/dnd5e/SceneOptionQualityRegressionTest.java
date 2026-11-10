@@ -37,7 +37,7 @@ public final class SceneOptionQualityRegressionTest {
         JSONArray options = SceneOptionDiversifier.ensureAlways(new JSONArray(),
             new JSONArray(), "Uma breve pausa.", "Investigo a sala anterior",
             new JSONObject(), 2);
-        assertEquals("A pause provides three typed approaches plus initiative", 4, options.length());
+        assertEquals("A bare pause provides initiative but no fabricated choices", 1, options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
     }
 
