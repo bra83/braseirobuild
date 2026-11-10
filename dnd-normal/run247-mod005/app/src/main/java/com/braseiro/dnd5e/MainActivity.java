@@ -6726,7 +6726,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private String masterConversationResolutionExcerpt(String raw){String clean=raw==null?"":stripMarkdown(raw).replaceAll("\\s+"," ").trim();if(clean.length()<=260)return clean;return clean.substring(0,257)+"…";}
 
-    private String masterQuestionKind(String raw){String q=raw==null?"":Normalizer.normalize(raw,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.US).trim();if(q.length()==0)return "information";String[] observational={"o que estou vendo","o que eu vejo","quem esta na cena","onde estou","qual a distancia","o que meu personagem sabe","o que sabemos","posicao e distancias"};for(String t:observational)if(q.contains(t))return "information";String[] possibility={"consigo","posso","seria possivel","da para","tento","tentar","quero","vou ","subir","escalar","saltar","pular","abrir","forcar","arrombar","convencer","investigar","examinar","procurar","buscar","falar","conversar","perguntar","pedir","ler","olhar","seguir","esconder","atacar","nadar","pegar","comprar","vender","usar ","entrar","atravessar","desarmar","conjurar","ajudar"};for(String t:possibility)if(q.contains(t))return "action_possibility";return q.length()>=6?"action_possibility":"information";}
+    private String masterQuestionKind(String raw){String q=raw==null?"":Normalizer.normalize(raw,Normalizer.Form.NFD).replaceAll("\\p{M}+","").toLowerCase(Locale.US).trim();if(q.length()==0||CampaignContinuityGate.historicalQuestion(raw))return "information";String[] observational={"o que estou vendo","o que eu vejo","quem esta na cena","onde estou","qual a distancia","o que meu personagem sabe","o que sabemos","posicao e distancias"};for(String t:observational)if(q.contains(t))return "information";String[] possibility={"consigo","posso","seria possivel","da para","tento","tentar","quero","vou ","subir","escalar","saltar","pular","abrir","forcar","arrombar","convencer","investigar","examinar","procurar","buscar","falar","conversar","perguntar","pedir","ler","olhar","seguir","esconder","atacar","nadar","pegar","comprar","vender","usar ","entrar","atravessar","desarmar","conjurar","ajudar"};for(String t:possibility)if(q.contains(t))return "action_possibility";return q.length()>=6?"action_possibility":"information";}
 
     private boolean masterQuestionCanBecomeAction(String raw){return raw!=null&&raw.trim().length()>=4&&!"information".equals(masterQuestionKind(raw));}
 
@@ -6754,8 +6754,59 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         return MasterQuestionIntentGuard.isConsultation(text);
     }
 
+    /** A dispute about previous scenes is an audit, never an NPC role-play. */
+    private void sendAuditedContinuityQuestion(final String question){
+        if(aiBusy){toast("Aguarde a resposta atual.");return;}
+        aiBusy=true;
+        setStatus("Conferindo os registros reais de cenas da campanha…");
+        updateNarratorBusyUi();
+        final String sceneId=currentMasterConversationSceneFingerprint();
+        final String committedNarration=lastNarration;
+        final JSONObject previous=copyJsonObject(lastMasterSupport);
+        if(narratorInput!=null&&question.equals(narratorInput.getText().toString().trim()))
+            narratorInput.setText("");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            String answer;
+            try{
+                answer=CampaignContinuityGate.auditAnswer(db.listJournal(),question,committedNarration);
+            }catch(Exception failure){
+                AppLog.e("ContinuityAudit","Não foi possível verificar o diário.",failure);
+                answer="AUDITORIA INDISPONÍVEL: falha ao ler o diário canônico. "
+                    +"Não é possível confirmar a contagem ou justificar a contradição. "
+                    +"Nenhuma cena, NPC, ficha, pista ou relógio foi alterado.";
+            }
+            final String verified=answer;
+            ui.post(new Runnable(){public void run(){
+                aiBusy=false;
+                if(!sceneId.equals(currentMasterConversationSceneFingerprint())){
+                    setStatus("A cena mudou durante a consulta. A resposta antiga foi descartada.");
+                    return;
+                }
+                try{
+                    JSONObject current=copyJsonObject(previous);
+                    current.put("last_question",question);
+                    current.put("last_answer",verified);
+                    current.put("rules_status","continuity_audit_from_journal");
+                    current.put("evidence_count",0);
+                    lastMasterSupport=appendMasterConversationHistory(previous,current,question,verified);
+                    prefs.edit().putString("last_master_support_json",lastMasterSupport.toString()).apply();
+                    db.addAuditEvent("consulta_auxiliar","Auditoria de continuidade sem ficção",
+                        question,"{}",lastMasterSupport.toString(),false);
+                }catch(Exception failure){AppLog.e("ContinuityAudit","Falha ao registrar consulta.",failure);}
+                strixhavenMasterCardHidden=false;strixhavenMasterCardCollapsed=false;
+                masterSupportCardCollapsed=false;
+                setStatus("Histórico conferido sem avançar a aventura ou inventar fala de NPC.");
+                if(isStrixhavenAdventure())showStrixhavenSession();
+                else if("Mestre IA".equals(currentScreen))showNarrator();
+            }});
+        }});
+    }
+
     private void sendMasterSideQuestion(String rawQuestion){
         String question=rawQuestion==null?"":rawQuestion.trim();if(question.length()==0){toast("Escreva uma pergunta ao Mestre.");return;}if(aiBusy){toast("Aguarde a resposta atual.");return;}
+        if(CampaignContinuityGate.historicalQuestion(question)){
+            sendAuditedContinuityQuestion(question);return;
+        }
         masterSideQueryActive=true;masterSideQueryText=question;masterSidePreviousAiMode=lastAiMode;masterSidePreviousPrompt=lastPrompt;masterSidePreviousUsedRag=lastAiUsedRag;masterSidePreviousCitations=copyJsonArray(lastRagCitations);masterSidePreviousRuleRetrieval=copyJsonObject(activeRuleRetrieval);masterSidePreviousManuals=copyJsonArray(lastAiManuals);masterSidePreviousManualContext=prefs.getString("last_manual_context","");masterSidePreviousSourceAudit=prefs.getString("last_source_audit","{}");
         // Consume only the sent question, not another unsent draft.
         if(narratorInput!=null&&question.equals(narratorInput.getText().toString().trim()))
@@ -7455,13 +7506,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putString(RETRY_PREFIX+"scene",geminiRetryIdentity())
                 .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error).putBoolean(RETRY_PREFIX+"api_failure",apiFailure).commit();
         }
-        setStatus(apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":"PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.");
+        final boolean chronologyFailure=!apiFailure&&error!=null&&error.startsWith("CONTINUIDADE:");
+        setStatus(apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
+            (chronologyFailure?"CONTRADIÇÃO NA CONTINUIDADE. A cena foi preservada e a nova resposta não foi aplicada.":
+            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço."));
         updateNarratorBusyUi();
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle(apiFailure?"Gemini não conseguiu responder":"O Mestre não conseguiu preparar o teste")
-                .setMessage((apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":"A proposta mecânica não passou na validação. ")+"Sua ação foi preservada para tentar novamente.\n\n"+
+            new AlertDialog.Builder(this).setTitle(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))
+                .setMessage((apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":(chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))+"Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
                 .setNeutralButton("MESTRE OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){runExplicitOfflineMaster();}})
@@ -8042,6 +8096,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             JSONObject rawAgencyEnvelope = parseAiEnvelope(raw);
             JSONObject env = copyJsonObject(rawAgencyEnvelope);
             if (masterOrchestrator != null) env = masterOrchestrator.validateEnvelope(env, action);
+            if(!masterSideQueryActive && "Narrador".equals(lastAiMode)
+                    && !activeTurnNonAdvancing(action)){
+                final String problem=CampaignContinuityGate.contradiction(
+                    db.listJournal(),rawAgencyEnvelope.optString("narration",""));
+                if(!problem.isEmpty()){
+                    synchronized(aiCommitLock){
+                        if(requestGen!=aiRequestGeneration)return;
+                        db.addAuditEvent("continuidade","Contradição cronológica bloqueada",
+                            problem,"{}",rawAgencyEnvelope.toString(),false);
+                        ui.post(new Runnable(){public void run(){
+                            if(requestGen!=aiRequestGeneration)return;
+                            markMasterRequestFailed("Narrador",action,activeInputChannel(),
+                                "CONTINUIDADE: "+problem,false);
+                        }});
+                    }
+                    return;
+                }
+            }
 
             // RUN220: a curated proposal is an intention, never a simultaneous
             // mechanical event. Fail closed even if the same proposal was staged
@@ -8156,7 +8228,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 synchronized (aiCommitLock) {
                     if (requestGen != aiRequestGeneration) return;
                     prefs.edit().putString("last_master_support_json", finalSupport.toString()).apply();
-                    saveBraseiroNarrativeMemory(BraseiroNarrativeDirector.recordClarification(braseiroNarrativeMemory(), question, answer));
+                    // Consultations are not canonical facts; do not commit unverified answers to narrative memory.
                     if (masterOrchestrator != null) masterOrchestrator.afterAccepted(activeMasterPlan, answer, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                     db.addAuditEvent("consulta_auxiliar", "Pergunta ao Mestre sem avanço", question, "{}", finalSupport.toString(), false);
                     ui.post(new Runnable() {
