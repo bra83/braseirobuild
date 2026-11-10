@@ -32,8 +32,11 @@ public final class FourSceneActionsDropdownRegressionTest {
             JSONObject scene=new JSONObject();
             JSONArray result=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
                 narration,"Olho ao redor",scene,turn+1);
-            assertEquals("One story-progress plus three contextual choices in scene "+turn+" : "+result,
-                    4,result.length());
+            // Sparse atmospheric beats have no three concrete player affordances.
+            // Do not fabricate a prop merely to satisfy the old four-card quota.
+            boolean noConcreteAffordance=turn==6||turn==7||turn==9;
+            assertEquals("No invented cards in scene "+turn+" : "+result,
+                    noConcreteAffordance?1:4,result.length());
             assertTrue("Initiative is always explicit",StoryMomentumAction.isRequest(result.getJSONObject(0).getString("action")));
             Set<String> distinct = new HashSet<>();
             for(int i=1;i<result.length();i++) {
