@@ -63,7 +63,7 @@ public final class SceneActionsUserScreenshotsRegressionTest {
         assertFalse(result.toString().toLowerCase(java.util.Locale.ROOT).contains("disfarçar interesse pelo silêncio"));
     }
 
-    @Test public void noRemoteShrubInteractionWhenShrubOnlyMentionedInDialogue() {
+    @Test public void noRemoteShrubInteractionWhenShrubOnlyMentionedInDialogue() throws Exception {
         JSONArray proposed=new JSONArray();
         for(String kind:new String[]{"OBSERVAR","AGIR","DESPISTAR"})
             proposed.put(new JSONObject().put("action_type",kind)
