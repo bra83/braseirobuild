@@ -99,6 +99,41 @@ public final class CampaignContinuityGate {
         return out;
     }
 
+    /** A bounded authoritative ledger safe for the mobile model token budget. */
+    public static JSONObject promptContext(List<JSONObject> journal){
+        JSONObject full=canonicalContext(journal),out=new JSONObject();
+        JSONArray recent=full.optJSONArray("source_linked_chronology_newest_first");
+        JSONArray compact=new JSONArray();
+        Set<Long> seen=new HashSet<Long>();
+        if(recent!=null)for(int i=0;i<recent.length();i++){
+            JSONObject e=recent.optJSONObject(i);if(e==null)continue;
+            boolean latest=i<6;
+            boolean milestone=e.optInt("explicit_clue_ordinal",0)>0
+                ||e.optBoolean("confirmed_clue_resolution",false);
+            if(!latest&&!milestone)continue;
+            long id=e.optLong("journal_id",0);
+            if(!seen.add(id))continue;
+            try{
+                compact.put(new JSONObject()
+                    .put("journal_id",id)
+                    .put("scene_title",clip(e.optString("scene_title"),65))
+                    .put("declared_action",clip(e.optString("declared_action"),115))
+                    .put("narration_excerpt",clip(e.optString("narration_excerpt"),240))
+                    .put("explicit_clue_ordinal",e.optInt("explicit_clue_ordinal",0)));
+            }catch(Exception ignored){}
+            if(compact.length()>=16)break;
+        }
+        try{
+            out.put("scenes_scanned",full.optInt("scenes_scanned",0))
+                .put("highest_explicit_clue_ordinal",full.optInt("highest_explicit_clue_ordinal",0))
+                .put("distinct_explicit_hunt_clue_resolutions",full.optInt("distinct_explicit_hunt_clue_resolutions",0))
+                .put("source_linked_chronology_newest_first",compact)
+                .put("trust_policy","Accepted diary scenes outrank generated prose. Do not reset clues, "
+                    +"invent prior NPC speech, or rationalize contradictions. Stop and report missing evidence.");
+        }catch(Exception ignored){}
+        return out;
+    }
+
     /**
      * Fail closed only on high-confidence numeric inconsistency. Other cases
      * require source-backed review; a detector should not invent facts either.
