@@ -7,6 +7,9 @@ on:
       - '.github/workflows/dnd-6654-device-test-apk.yml'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/StoryMomentumAction.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CampaignContinuityGate.java'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/CampaignContinuityGateRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Dnd2024NarrationLexicon.java'
       - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/Dnd2024NarrationLexiconRegressionTest.java'
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneDiscoveredLead.java'
@@ -55,6 +58,7 @@ jobs:
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
             --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.CampaignContinuityGateRegressionTest' \
             --tests 'com.braseiro.dnd5e.Dnd2024NarrationLexiconRegressionTest' \
             --tests 'com.braseiro.dnd5e.SpeciesTerminology2024RegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
@@ -70,19 +74,19 @@ jobs:
           set -euo pipefail
           apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND_6654_CLUE_OPTIONS_SIGNER.txt
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND_6654_DEVICE_TEST_BADGING.txt
-          grep -q "package: name='com.braseiro.dnd5e'" DND_6654_DEVICE_TEST_BADGING.txt
-          grep -q "versionCode='203900617'" DND_6654_DEVICE_TEST_BADGING.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND_6654_CLUE_OPTIONS_BADGING.txt
+          grep -q "package: name='com.braseiro.dnd5e'" DND_6654_CLUE_OPTIONS_BADGING.txt
+          grep -q "versionCode='203900617'" DND_6654_CLUE_OPTIONS_BADGING.txt
           cp "$apk" BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk
-          sha256sum BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk > DND_6654_DEVICE_TEST_SHA256.txt
+          sha256sum BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk > DND_6654_CLUE_OPTIONS_SHA256.txt
       - name: Upload device-test candidate (NOT release-approved)
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BRASEIRO_DND_6654_CLUE_OPTIONS_DEVICE_APK
           path: |
-            BRASEIRO_DND_6.6.54_MESTRE_TESTE_ANDROID.apk
-            DND_6654_DEVICE_TEST_SHA256.txt
-            DND_6654_DEVICE_TEST_SIGNER.txt
-            DND_6654_DEVICE_TEST_BADGING.txt
+            BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk
+            DND_6654_CLUE_OPTIONS_SHA256.txt
+            DND_6654_CLUE_OPTIONS_SIGNER.txt
+            DND_6654_CLUE_OPTIONS_BADGING.txt
           if-no-files-found: error
