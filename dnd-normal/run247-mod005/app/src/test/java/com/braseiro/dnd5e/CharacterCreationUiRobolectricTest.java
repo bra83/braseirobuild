@@ -41,7 +41,7 @@ public class CharacterCreationUiRobolectricTest {
         render();
     }
     void set(String name,Object value)throws Exception {Field f=MainActivity.class.getDeclaredField(name);f.setAccessible(true);f.set(activity,value);}
-    void render()throws Exception {java.lang.reflect.Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);}
+    void render()throws Exception {set("currentScreen","Heróis");java.lang.reflect.Method m=MainActivity.class.getDeclaredMethod("showHeroes");m.setAccessible(true);m.invoke(activity);HeroUiAsyncTestAwait.visible(content,"+ CRIAR PERSONAGEM");if(!db.listCharacters().isEmpty())HeroUiAsyncTestAwait.visible(content,"EDITAR");}
     @After public void cleanup(){if(form!=null)form.dismiss();db.close();activity.deleteDatabase(database);}
     View find(View root,String label,boolean description){
         CharSequence value=description?root.getContentDescription():root instanceof TextView?((TextView)root).getText():null;
@@ -50,7 +50,7 @@ public class CharacterCreationUiRobolectricTest {
         return null;
     }
     View control(String label){View v=find(form.getWindow().getDecorView(),label,true);assertNotNull(label,v);return v;}
-    void click(String label){View v=find(content,label,false);assertNotNull(label,v);assertTrue(v.performClick());shadowOf(Looper.getMainLooper()).idle();}
+    void click(String label){HeroUiAsyncTestAwait.visible(content,label);View v=find(content,label,false);assertNotNull(label,v);assertTrue(v.performClick());shadowOf(Looper.getMainLooper()).idle();}
     void open(){click("+ CRIAR PERSONAGEM");form=ShadowAlertDialog.getLatestAlertDialog();assertTrue(form.isShowing());}
     void named(String name){
         control("Editar Nome").performClick();AlertDialog menu=ShadowAlertDialog.getLatestAlertDialog();

@@ -79,7 +79,27 @@ public final class BarbaraSupervisor {
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     public boolean isAvailable(){return initialized&&available;}
-    private String liveContractProblem(){return BarbaraHostContractV1.compatibilityProblem(BarbaraHostContractV1.descriptor(),requiredContract);}
+    /**
+     * Verify our host contract always; verify remote requirements only after
+     * Barbara has actually supplied them. On cold startup or a missing Python
+     * runtime there is no remote contract to compare, so Java rules remain
+     * authoritative instead of falsely rejecting every legitimate scene.
+     * Explicit negotiated mismatches still fail closed.
+     */
+    private String liveContractProblem(){
+        JSONObject host=BarbaraHostContractV1.descriptor();
+        String local=BarbaraHostContractV1.problem(host);
+        if(local.length()>0)return local;
+        if(!available){
+            if(lastError.startsWith("host_contract_mismatch:")
+                    ||lastError.startsWith("dynamic_contract_mismatch:")){
+                int colon=lastError.indexOf(':');
+                return colon>=0?lastError.substring(colon+1).trim():lastError;
+            }
+            return "";
+        }
+        return BarbaraHostContractV1.compatibilityProblem(host,requiredContract);
+    }
     private String systemId(String requested){return "mystara".equalsIgnoreCase(requested)?"mystara":"dnd";}
 
     public JSONObject systemContract(String requestedSystem){/*BR_JSON_WRAP*/try{

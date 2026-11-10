@@ -111,7 +111,7 @@ public final class MasterOrchestrator {
             root.put("campaign",compact(db.getCampaign(),new String[]{"name","rules_profile","tone","feats","multiclass","flanking","notes"}));
             JSONObject bus=gameContext.narratorSnapshot(effectiveMapContext,audio);if(strixhavenActive)bus=strixhavenProfile.sanitizeNarratorBus(bus);bus.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));JSONObject supplementCapabilities=SupplementContentRegistry.matchAction(action);bus.put("supplement_capabilities",supplementCapabilities);root.put("game_bus",bus).put("human_master_profile",HumanMasterNarrativeProfile.contract());
             root.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));root.put("supplement_capabilities",supplementCapabilities);
-            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);
+            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);root.put("canonical_chronology",CampaignContinuityGate.promptContext(db.listJournal()));
             if(narrative){root.put("narrative_intent",explicitHelp?"ajuda do Mestre":(explicitAction?"ação do jogador":BraseiroNarrativeDirector.intentLabel(routedIntent)));root.put("input_channel",inputChannel==null?"":inputChannel);root.put("fiction_frozen",nonAdvancing);}
             JSONObject sourceScene=AtlasScenePositionReconciler.authoritativeSceneSnapshot(db);if(strixhavenActive)sourceScene=strixhavenProfile.sceneProjection(sourceScene);JSONObject compactSceneState=compactScene(sourceScene);JSONObject compactPartyState=party.compactStateForPrompt(quota.economyMode()?3300:4400);JSONObject compactWorldState=compactWorld(action+" "+effectiveMapContext);
             JSONObject liveMemory=new JSONObject();JSONObject partyBlock=compactPartyState.optJSONObject("party");JSONObject sessionPrefs=partyBlock==null?null:partyBlock.optJSONObject("session_preferences");JSONObject savedNarrativeMemory=sessionPrefs==null?null:sessionPrefs.optJSONObject("braseiro_narrative_memory");if(savedNarrativeMemory!=null)liveMemory=savedNarrativeMemory;
@@ -156,7 +156,7 @@ public final class MasterOrchestrator {
         // This is a voluntary player action (not GM_HELP); it must actually
         // move one causal beat while leaving all PC choices under player control.
         if(narrative&&!nonAdvancing&&StoryMomentumAction.isRequest(action))
-            prompt=StoryMomentumAction.instruction(strixhavenActive)+"\n\n"+prompt;
+            prompt=StoryMomentumAction.instruction(strixhavenActive,action)+"\n\n"+prompt;
         Plan prepared=new Plan(prompt,context,tick,cognitive,npcTick,environmental,effectiveRuleRetrieval,groundingEnvelope,queued,quota.economyMode(),narrative,nonAdvancing,(explicitHelp?"GM_HELP":(explicitAction?"PLAYER_ACTION":routedIntent.name())),actionHash,stateHash,cacheKey,contextReady,contextError,barbaraOccasion,barbaraLocation,barbaraImprint,inputChannel,discoveryDecision,frozenActionIds);
         prepared.declaredAction=action;
         return prepared;
@@ -220,6 +220,45 @@ public final class MasterOrchestrator {
     public JSONObject validateEnvelope(JSONObject envelope,String action){
         JSONObject candidate=envelope;if(activePlanForValidation!=null&&activePlanForValidation.nonAdvancing)candidate=BraseiroNarrativeDirector.freezeEnvelope(candidate,action,activePlanForValidation.inputChannel);
         JSONObject safe=validator.validate(candidate,action);
+        // Independent post-LLM adjudication gate: a consequential skill
+        // attempt cannot be completed by descriptive prose without a pending
+        // roll, and an unavailable rule/DC never becomes automatic success.
+        if(activePlanForValidation!=null && activePlanForValidation.narrative
+                && !activePlanForValidation.nonAdvancing){
+            try{
+                boolean blocked=safe.optBoolean("_mechanics_blocked",false);
+                boolean unrolled=DndActionCheckPolicy.missingRequiredResolution(action,safe,false);
+                if(blocked||unrolled){
+                    JSONObject report=safe.optJSONObject("_master_validation");
+                    if(report==null){report=new JSONObject();safe.put("_master_validation",report);}
+                    report.put("valid",false).put("fail_closed",true)
+                        .put("mechanical_adjudication_block",blocked?"rule_or_dc_unavailable":"unresolved_check_outcome");
+                    JSONArray warnings=report.optJSONArray("warnings");
+                    if(warnings==null){warnings=new JSONArray();report.put("warnings",warnings);}
+                    warnings.put(blocked
+                        ?"Teste não executado: regra recuperada ou CD verificável indisponível."
+                        :"O Mestre narrou um desfecho de teste sem rolagem confirmada.");
+                    safe.put("narration",blocked
+                        ?"A ação foi preservada: ainda falta uma regra ou dificuldade justificável para resolver o teste. Nenhum sucesso ou fracasso foi aplicado."
+                        :"A tentativa foi preservada, mas o Mestre não pode afirmar sucesso ou fracasso antes de indicar e resolver o teste apropriado.");
+                    safe.put("options",new JSONArray());
+                    stripRejectedStructuredState(safe);
+                    try{db.addAuditEvent("segurança","Arbitragem mecânica bloqueada",
+                          blocked?"Fonte ou CD insuficiente":"Desfecho narrado sem rolagem",
+                          "{}",new JSONObject().put("action",action==null?"":action).toString(),false);}
+                    catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Não foi possível registrar bloqueio de regra.",ignored);}
+                }
+            }catch(Exception mechanicalGateError){
+                AppLog.e("MasterOrchestrator","Falha no guardião de resultados mecânicos.",mechanicalGateError);
+                try{
+                    safe.put("narration","A validação mecânica falhou. A cena e suas consequências foram preservadas sem avanço.");
+                    safe.put("_master_validation",new JSONObject().put("valid",false).put("fail_closed",true));
+                    stripRejectedStructuredState(safe);
+                }catch(Exception finalGuardError){
+                    AppLog.e("MasterOrchestrator","Falha no encerramento seguro da arbitragem.",finalGuardError);
+                }
+            }
+        }
         safe=guilds.validateUpdates(safe);
         try{
             String bOccasion=activePlanForValidation==null?"continuation":activePlanForValidation.barbaraStoryOccasion;
@@ -426,11 +465,11 @@ public final class MasterOrchestrator {
     }
     public synchronized void markConsequencesCommitted(Plan plan){if(plan!=null)plan.committed=true;}
     public synchronized void markConsequencesRolledBack(Plan plan,JSONObject envelope){
-        if(plan!=null){plan.committed=false;resetTickFlags(plan.localTick);}
+        if(plan!=null){plan.committed=false;plan.accepted=false;resetTickFlags(plan.localTick);}
         if(envelope!=null)resetTickFlags(envelope.optJSONObject("_local_tick"));
     }
     private static void resetTickFlags(JSONObject tick){try{if(tick==null)return;tick.put("committed",false).put("preview_only",true);JSONObject simulation=tick.optJSONObject("living_world_simulation");if(simulation!=null)simulation.put("committed",false).put("preview_only",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha ao reiniciar marcações após rollback.",ignored);}}
-    public synchronized void afterConsequencesDiscarded(Plan plan,JSONObject envelope){if(plan==null)return;try{db.addAuditEvent("mestre","Consequências descartadas","A narração foi preservada; mundo, NPCs e recursos não avançaram.",envelope==null?"{}":envelope.toString(),"{}",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}}
+    public synchronized void afterConsequencesDiscarded(Plan plan,JSONObject envelope){if(plan==null)return;try{db.addAuditEvent("mestre","Cena e consequências descartadas","A proposta narrativa e suas consequências foram recusadas antes da confirmação; mundo, NPCs e recursos não avançaram.",envelope==null?"{}":envelope.toString(),"{}",true);}catch(Exception ignored){AppLog.ignored("MasterOrchestrator","Falha tolerada; a execução continuou.",ignored);}}
 
     public String cachedResponse(Plan plan,String model,String mode){if(plan==null||plan.narrative)return "";String cached=db.getMasterCache(hash(plan.cacheKey+"|"+model+"|"+mode),10L*60L*1000L);if(cached.length()>0)plan.fromCache=true;return cached;}
     public void cacheResponse(Plan plan,String model,String mode,String raw){if(plan==null||plan.narrative||raw==null||raw.length()<40||plan.fromCache)return;db.saveMasterCache(hash(plan.cacheKey+"|"+model+"|"+mode),mode,model,plan.actionHash,plan.stateHash,raw);}
@@ -791,16 +830,45 @@ public final class MasterOrchestrator {
     }
 
     private static String enforceContextLimit(JSONObject source,int max)throws Exception{
-        if(source==null)return "{}";String raw=source.toString();if(raw.length()<=max)return raw;
+        if(source==null)return "{}";JSONObject originalChronology=source.optJSONObject("canonical_chronology");String raw=source.toString();if(raw.length()<=max)return raw;
         int[][] passes={{900,16},{520,10},{280,7},{150,4},{80,2}};
         for(int[] pass:passes){JSONObject compact=deepCompactObject(source,0,pass[0],pass[1]);compact.put("context_reduced",true);compact.put("context_limit",max);raw=compact.toString();if(raw.length()<=max)return raw;source=compact;}
         JSONObject finalContext=new JSONObject();
+        if(originalChronology!=null)finalContext.put("canonical_chronology",compactCanonicalHistory(originalChronology,6,5));
         for(String key:new String[]{"story","scene","party","cognitive_plan","rules_frame","rule_retrieval","living_world","local_tick","narrative_intent","fiction_frozen","authority"})if(source.has(key))finalContext.put(key,deepCompactValue(source.opt(key),0,96,2));
         JSONObject bus=source.optJSONObject("game_bus");finalContext.put("game_bus",deepCompactObject(criticalGameBus(bus,true),0,96,2));
         finalContext.put("connection_manifest",connectionManifest(bus));finalContext.put("context_reduced",true);finalContext.put("hard_limit_applied",true);
         raw=finalContext.toString();if(raw.length()<=max)return raw;
-        JSONObject minimum=new JSONObject();minimum.put("scene",deepCompactValue(source.opt("scene"),0,72,1));minimum.put("rules_frame",deepCompactValue(source.opt("rules_frame"),0,72,1));minimum.put("local_tick",deepCompactValue(source.opt("local_tick"),0,72,1));minimum.put("connection_manifest",connectionManifest(bus));minimum.put("context_reduced",true);minimum.put("hard_limit_applied",true);raw=minimum.toString();
+        JSONObject minimum=new JSONObject();if(originalChronology!=null)minimum.put("canonical_chronology",compactCanonicalHistory(originalChronology,2,3));minimum.put("scene",deepCompactValue(source.opt("scene"),0,72,1));minimum.put("rules_frame",deepCompactValue(source.opt("rules_frame"),0,72,1));minimum.put("local_tick",deepCompactValue(source.opt("local_tick"),0,72,1));minimum.put("connection_manifest",connectionManifest(bus));minimum.put("context_reduced",true);minimum.put("hard_limit_applied",true);raw=minimum.toString();
         if(raw.length()>max)throw new IllegalStateException("O contexto mínimo excede o limite seguro.");return raw;
+    }
+
+    /** Retains immutable clue provenance even after emergency context trimming. */
+    private static JSONObject compactCanonicalHistory(JSONObject original,int maxScenes,int maxMilestones)throws Exception{
+        JSONObject out=new JSONObject();
+        if(original==null)return out;
+        out.put("scenes_scanned",original.optInt("scenes_scanned",0));
+        out.put("highest_explicit_clue_ordinal",original.optInt("highest_explicit_clue_ordinal",0));
+        out.put("distinct_explicit_hunt_clue_resolutions",
+            original.optInt("distinct_explicit_hunt_clue_resolutions",0));
+        out.put("trust_policy","Diary facts have priority; never invent a retcon.");
+        JSONArray entries=original.optJSONArray("source_linked_chronology_newest_first");
+        JSONArray reduced=new JSONArray();
+        int milestones=0;
+        if(entries!=null)for(int i=0;i<entries.length();i++){
+            JSONObject e=entries.optJSONObject(i);if(e==null)continue;
+            boolean milestone=e.optInt("explicit_clue_ordinal",0)>0;
+            if(i>=maxScenes&&(!milestone||milestones>=maxMilestones))continue;
+            JSONObject item=new JSONObject()
+                .put("journal_id",e.optLong("journal_id",0))
+                .put("narration_excerpt",tail(e.optString("narration_excerpt",""),160))
+                .put("explicit_clue_ordinal",e.optInt("explicit_clue_ordinal",0));
+            reduced.put(item);
+            if(milestone)milestones++;
+            if(reduced.length()>=maxScenes+maxMilestones)break;
+        }
+        out.put("source_linked_chronology_newest_first",reduced);
+        return out;
     }
 
     private static JSONObject connectionManifest(JSONObject bus)throws Exception{

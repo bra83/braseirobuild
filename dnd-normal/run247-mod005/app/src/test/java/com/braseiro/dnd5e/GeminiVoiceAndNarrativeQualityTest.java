@@ -40,9 +40,10 @@ public final class GeminiVoiceAndNarrativeQualityTest {
         JSONArray previous=new JSONArray()
             .put(new JSONObject().put("label","EXIGIR PROVA DA COBRANÇA")
                 .put("action","Exigir prova da cobrança de Estilhaço."));
-        JSONArray actual=SceneOptionDiversifier.diversify(previous,new JSONArray(),
+        JSONArray actual=SceneOptionDiversifier.ensureAlways(previous,new JSONArray(),
                 narration,"Caminho pelo jardim",stale,1);
-        assertEquals(2,actual.length());
+        assertEquals(4,actual.length());
+        assertTrue(StoryMomentumAction.isRequest(actual.getJSONObject(0).optString("action")));
         assertTrue(actual.toString().contains("ARBUSTOS"));
         assertFalse(actual.toString().contains("COBRANÇA"));
         assertFalse(actual.toString().contains("ESTILHAÇO"));

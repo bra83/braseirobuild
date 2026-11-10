@@ -1,0 +1,136 @@
+name: Braseiro DnD 6.6.54 four grounded actions QA and APK
+
+on:
+  push:
+    branches:
+      - fix/dnd-6654-four-grounded-actions-20261106
+    paths:
+      - .github/workflows/dnd-6654-grounded-actions-qa-apk.yml
+      - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dnd-6654-four-grounded-actions
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 145
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Strict baseline no save migration
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005
+          grep -q '^VERSION_NAME=6.6.54-four-grounded-actions-20261106$' "$root/version.properties"
+          grep -q '^VERSION_CODE=203900617$' "$root/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$root/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$root/version.properties"
+          test -s "$root/signing/debug.keystore"
+      - name: Run actions, consultation and scene regressions
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
+            --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.CampaignContinuityGateRegressionTest' \
+            --tests 'com.braseiro.dnd5e.Dnd2024NarrationLexiconRegressionTest' \
+            --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
+            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
+            --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.StoryMomentumActionRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
+            --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
+            --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest' \
+            --tests 'com.braseiro.dnd5e.HandleAiResponseAsyncTest' \
+            --tests 'com.braseiro.dnd5e.BarbaraColdStartValidationRegressionTest'
+      - name: Full D&D JVM regression gate — no APK if any unit or UI test fails
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 65
+        run: |
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Real Faerun map integration gate (full assets)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testBundledFaerunAssetLocationAndPresence' \
+            --tests 'com.braseiro.dnd5e.Issue27MapAndOAuthIntegrationTest.testFaerunManifestGeometryParsing' \
+            --no-daemon --console=plain
+      - name: Upload report even if failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6654_TEST_RESULTS
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
+
+  build:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build signed incremental APK
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Check package code signature checksum
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND6654_SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND6654_BADGING.txt
+          grep -q "package: name='com.braseiro.dnd5e'" DND6654_BADGING.txt
+          grep -q "versionCode='203900617'" DND6654_BADGING.txt
+          sha256sum "$apk" > DND6654_SHA256.txt
+          cp "$apk" BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
+          test -s BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6654_APK
+          path: |
+            BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
+            DND6654_SHA256.txt
+            DND6654_SIGNATURE.txt
+            DND6654_BADGING.txt
+          if-no-files-found: error

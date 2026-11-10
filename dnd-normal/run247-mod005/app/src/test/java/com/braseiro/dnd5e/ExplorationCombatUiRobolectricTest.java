@@ -151,7 +151,7 @@ public class ExplorationCombatUiRobolectricTest {
         long id=spawn();
         set("characterGenerator",new CharacterSheetGenerator(new DndRulesEngine()));
         set("currentScreen","Combate");render();View oldCombat=content.getChildAt(0);
-        click("FICHAS DOS HERÓIS");assertNotNull(find(content,Button.class,"+ CRIAR PERSONAGEM"));
+        click("FICHAS DOS HERÓIS");HeroUiAsyncTestAwait.visible(content,"+ CRIAR PERSONAGEM");assertNotNull(find(content,Button.class,"+ CRIAR PERSONAGEM"));
         db.applyCombatantDamage(id,1,"",false,false,"ui-test-navigation-damage");
         Method nav=MainActivity.class.getDeclaredMethod("navigate",String.class);nav.setAccessible(true);nav.invoke(activity,"Combate");shadowOf(Looper.getMainLooper()).idle();
         assertNotSame(oldCombat,content.getChildAt(0));assertNotNull(find(content,Button.class,"DANO"));

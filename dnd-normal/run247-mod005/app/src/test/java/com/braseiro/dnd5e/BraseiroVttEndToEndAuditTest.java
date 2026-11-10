@@ -167,6 +167,39 @@ public final class BraseiroVttEndToEndAuditTest {
     }
 
     @Test
+    public void rejectedTransactionalSceneRestoresPreviousCanonicalNarration() throws Exception {
+        JSONObject previous=new JSONObject()
+            .put("narration","A aluna segura os selos e aguarda Kvothe.")
+            .put("options","[]")
+            .put("cast","[]")
+            .put("visual","ponto anterior")
+            .put("audio","{}")
+            .put("pending","{}");
+        setField("provisionalNarrativeBefore",previous);
+        setField("provisionalNarrativeTransactionId",77L);
+        setField("lastNarration","Kvothe decifrou a charada e recebeu um selo.");
+        setField("lastVisualPrompt","sucesso provisório");
+        invoke("restoreProvisionalNarration",new Class<?>[]{long.class},77L);
+        assertEquals("A aluna segura os selos e aguarda Kvothe.",getField("lastNarration"));
+        assertEquals("ponto anterior",getField("lastVisualPrompt"));
+        assertEquals(-1L,getField("provisionalNarrativeTransactionId"));
+    }
+
+    @Test
+    public void partialCategoryApprovalMustNotCanonizeNarrationOfExcludedChanges() throws Exception {
+        java.lang.reflect.Method method=MainActivity.class.getDeclaredMethod(
+            "sameNarrativeConsequences",JSONObject.class,JSONObject.class);
+        method.setAccessible(true);
+        JSONObject all=new JSONObject()
+            .put("state_updates",new JSONArray().put(new JSONObject().put("character","Kvothe")
+                .put("add_items",new JSONArray().put("Selo"))))
+            .put("scene_state",new JSONObject().put("location","Biblioplex"));
+        JSONObject partial=new JSONObject().put("scene_state",new JSONObject().put("location","Biblioplex"));
+        assertEquals(Boolean.FALSE,method.invoke(null,partial,all));
+        assertEquals(Boolean.TRUE,method.invoke(null,new JSONObject(all.toString()),all));
+    }
+
+    @Test
     public void optionalActionsRemainGroundedAcross24AdventureTurnsAndDrawerStates() throws Exception {
         long kvotheId = db.addCharacter("Kvothe", "Humano", "Mago", 1, 8, 8, 13, 8, 14, 12, 16, 10, 14, true, "");
         db.updateCharacterRuleDetails(kvotheId, "Escriba", "", "", "", "", DndRulesEngine.PROFILE_2024);
@@ -214,8 +247,8 @@ public final class BraseiroVttEndToEndAuditTest {
             JSONArray diversified = SceneOptionDiversifier.ensureAlways(
                     rawOptions, new JSONArray(), narration, action, scene, i + 1);
 
-            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and four grounded choices: " + diversified,
-                    diversified.length() == 5);
+            assertTrue("Turn " + (i + 1) + " (" + location + ") has an immersive momentum control and three grounded choices: " + diversified,
+                    diversified.length() == 4);
             assertTrue("Story momentum must be the dedicated first action",
                     StoryMomentumAction.isRequest(diversified.getJSONObject(0).optString("action")));
 
@@ -230,7 +263,7 @@ public final class BraseiroVttEndToEndAuditTest {
                         act.equalsIgnoreCase(action));
                 assertTrue("Options within same turn must be distinct: " + diversified,
                         seenActions.add(act.toLowerCase()));
-                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1),
+                if(j>0)assertTrue("Other suggestions must remain scene-grounded at turn "+(i+1)+": "+opt+" / "+narration,
                         SceneOptionDiversifier.isGroundedInScene(act,narration,scene));
             }
 

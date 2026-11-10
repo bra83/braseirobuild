@@ -63,9 +63,9 @@ public final class SceneActionContinuityRegressionTest {
         JSONArray options=SceneOptionDiversifier.ensureAlways(
                 new JSONArray(),new JSONArray(),narration,"Acabo de chegar",
                 new JSONObject(),1);
-        assertEquals(5,options.length());
+        assertEquals(4,options.length());
         assertTrue(StoryMomentumAction.isRequest(options.optJSONObject(0).optString("action")));
-        assertTrue(options.toString().contains("ENCENAÇÃO"));
-        assertTrue(options.toString().contains("INSCRIÇÃO"));
+        assertTrue(options.toString().contains("INSCRIÇ"));
+        assertTrue("A pessoa real da cena deve constar na ação: "+options, options.toString().toLowerCase(java.util.Locale.ROOT).contains("funcionária"));
     }
 }
