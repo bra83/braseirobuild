@@ -35,11 +35,12 @@ public final class GroundedSceneActionSlots {
             // A purpose-built choice beats an LLM's generic "look around" sentence.
             if(SceneDiscoveredLead.available(visible))selected=SceneDiscoveredLead.typedChoice(type,visible);
             if(selected==null&&silverquillRiddle) selected=silverquillChoice(type,actor,visible);
-            // Ground a dialogue in the speaker's current words and real options,
-            // before falling back to a generic object-template or stale model text.
+            // The LLM proposes; the core accepts only a grounded, typed and
+            // non-generic candidate. Deterministic decisions are a safety fallback,
+            // never a replacement for a better scene-aware model suggestion.
+            if(selected==null)selected=bestModelChoice(proposed,type,visible,actor,focus,topic);
             if(selected==null)selected=SceneDialogueDecisionPlanner.choice(type,visible);
             if(selected==null)selected=ScenePhysicalCluePlanner.choice(type,visible);
-            if(selected==null)selected=bestModelChoice(proposed,type,visible,actor,focus,topic);
             if(selected==null)selected=groundedChoice(type,actor,focus,topic,visible);
             if(selected!=null && SceneOptionVisibleEvidence.supported(selected,visible)
                     && !duplicateAction(out,selected.optString("action","")))out.put(selected);
