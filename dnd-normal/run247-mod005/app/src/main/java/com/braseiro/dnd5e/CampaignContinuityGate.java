@@ -73,10 +73,10 @@ public final class CampaignContinuityGate {
                 e.put("narration_excerpt",clip(prose,650));
                 e.put("explicit_clue_ordinal",ordinal);
                 e.put("confirmed_clue_resolution",confirmed&&aboutHunt);
-                if(i<10 || (confirmed&&aboutHunt) || ordinal>=2){
+                if(i<10 || (confirmed&&aboutHunt) || ordinal>=1){
                     if(added<32){chronology.put(e);added++;}
                 }
-                if((confirmed&&aboutHunt)||ordinal>=2){
+                if((confirmed&&aboutHunt)||ordinal>=1){
                     JSONObject milestone=new JSONObject()
                         .put("journal_id",row.optLong("id",0))
                         .put("explicit_clue_ordinal",ordinal)
@@ -134,7 +134,7 @@ public final class CampaignContinuityGate {
             out.append("Não é válido justificar isso inventando rotas paralelas ou informações que os NPCs nunca deram.\n\n");
         }else{
             out.append("Não encontrei no histórico estruturado evidência suficiente para confirmar a NUMERAÇÃO exata de todas as pistas. ");
-            out.append("Isso NÃO autoriza afirmar que seja a primeira ou inventar uma explicação. ");
+            out.append("Isso não autoriza afirmar que seja a primeira ou inventar uma explicação. ");
             out.append("Sua contestação fica registrada como inconsistência a verificar, não como fato resolvido.\n\n");
         }
         out.append("TRECHOS DO DIÁRIO (registros mais recentes, sem recriar diálogos):\n");
