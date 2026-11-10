@@ -59,6 +59,21 @@ public final class SceneOptionVisibleEvidence {
         String proposed=fold(option.optString("label","")+" "+action+" "+option.optString("description",""));
         String visible=fold(narration);
         if(visible.isEmpty()||proposed.isEmpty())return false;
+        // Abstract subjects are not objects one can inspect, address or deceive.
+        // The recent screenshot generated "examino o silêncio" from a noun match.
+        String declared=fold(action);
+        if(containsWord(declared,"silencio") && (declared.contains("observ")
+                ||declared.contains("examin")||declared.contains("inspecion")
+                ||declared.contains("pergunt")||declared.contains("disfar")
+                ||declared.contains("interag")))return false;
+        // "O Jardim costuma esconder arbustos" is a report about a REMOTE place.
+        // Its shrubs are not automatically within the character's reach.
+        if((containsWord(proposed,"arbustos")||containsWord(proposed,"arbusto"))
+                &&containsPhrase(visible,"jardim dos livros costuma esconder")){
+            int dialogue=narration==null?-1:narration.indexOf('—');
+            String stage=dialogue<0?"":fold(narration.substring(0,dialogue));
+            if(!containsWord(stage,"arbustos")&&!containsWord(stage,"arbusto"))return false;
+        }
         for(String[] aliases:ANCHORS){
             boolean mentioned=false;
             for(String alias:aliases){
