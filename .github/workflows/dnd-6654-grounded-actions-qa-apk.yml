@@ -124,11 +124,12 @@ jobs:
           grep -q "versionCode='203900617'" DND6654_BADGING.txt
           sha256sum "$apk" > DND6654_SHA256.txt
           cp "$apk" BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
+          test -s BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
       - uses: actions/upload-artifact@v4
         with:
           name: BRASEIRO_DND_6654_APK
           path: |
-            BRASEIRO_DND_6.6.54_FOUR_GROUNDED_ACTIONS.apk
+            BRASEIRO_DND_6.6.54_CONTINUIDADE_REGRAS.apk
             DND6654_SHA256.txt
             DND6654_SIGNATURE.txt
             DND6654_BADGING.txt
