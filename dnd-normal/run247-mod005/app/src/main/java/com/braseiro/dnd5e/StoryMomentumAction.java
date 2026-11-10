@@ -33,9 +33,12 @@ public final class StoryMomentumAction {
         else if(beat.contains("orientação")||beat.contains("orientacao")||beat.contains("assistente"))label="AGUARDAR A PRÓXIMA INSTRUÇÃO";
         else if(beat.contains("calouros")||beat.contains("alunos")||beat.contains("estudantes"))label="OUVIR OS ESTUDANTES";
         else if(beat.matches("(?iu).*\\b(?:guarda|guardas|sentinela|sentinelas)\\b.*"))label="OBSERVAR OS PRÓXIMOS MOVIMENTOS";
-        else if(beat.contains("pausa")||beat.contains("silêncio"))label="DEIXAR O SILÊNCIO FALAR";
+        else if(beat.contains("pausa")||beat.contains("silêncio"))label="PERMITIR UMA NOVA INICIATIVA";
         else if(beat.contains("taverna")||beat.contains("estalagem"))label="ESCUTAR O MOVIMENTO DO SALÃO";
         if(discovered)label=SceneDiscoveredLead.progressLabel(narration); // Explicit objective always beats historic keyword matching.
+        String currentInterlocutor=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
+        if(!discovered&&!currentInterlocutor.isEmpty())
+            label="DAR ESPAÇO PARA "+currentInterlocutor.toUpperCase(new java.util.Locale("pt","BR"))+" CONTINUAR";
         JSONObject o=new JSONObject();
         try{
             o.put("label",label);
