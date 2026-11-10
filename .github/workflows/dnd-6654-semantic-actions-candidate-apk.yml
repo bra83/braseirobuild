@@ -1,0 +1,80 @@
+name: Braseiro DnD 6654 Scene Decisions Device Candidate APK
+on:
+  push:
+    branches:
+      - fix/dnd-6654-scene-actions-semantic-gate-20261110
+    paths:
+      - '.github/workflows/dnd-6654-semantic-actions-candidate-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Verify no save migration or version drift
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005
+          grep -q '^VERSION_NAME=6.6.54-four-grounded-actions-20261106$' "$root/version.properties"
+          grep -q '^VERSION_CODE=203900617$' "$root/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$root/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$root/version.properties"
+          test -s "$root/signing/debug.keystore"
+      - name: Run screenshot and scenario tests
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 35
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
+            --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest' \
+            --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest'
+      - name: Assemble device APK
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 35
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify APK and checksum
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > APK_SIGNATURE.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > APK_PACKAGE.txt
+          grep -q "package: name='com.braseiro.dnd5e'" APK_PACKAGE.txt
+          cp "$apk" BRASEIRO_DND_6654_ACOES_SEMANTICAS_CANDIDATO.apk
+          sha256sum BRASEIRO_DND_6654_ACOES_SEMANTICAS_CANDIDATO.apk > APK_SHA256.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: BRASEIRO_DND_6654_ACOES_SEMANTICAS_CANDIDATO
+          path: |
+            BRASEIRO_DND_6654_ACOES_SEMANTICAS_CANDIDATO.apk
+            APK_SHA256.txt
+            APK_SIGNATURE.txt
+            APK_PACKAGE.txt
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: BRASEIRO_DND_6654_ACOES_TESTES
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: ignore
