@@ -53,6 +53,11 @@ public final class CampaignContinuityGateRegressionTest {
         assertTrue(sources.length()>=4);
         assertTrue(context.toString().contains("\"journal_id\":16"));
         assertTrue(context.toString().contains("quarta pista"));
+        JSONObject prompt=CampaignContinuityGate.promptContext(log);
+        assertEquals(4,prompt.getInt("highest_explicit_clue_ordinal"));
+        assertTrue(prompt.toString().length()<9000);
+        assertTrue("A fourth clue must survive context truncation",
+            prompt.toString().contains("journal_id")&&prompt.toString().contains("16"));
         assertFalse(CampaignContinuityGate.contradiction(log,
             "Aisla diz que é a primeira pista da caça ao tesouro.").isEmpty());
     }
