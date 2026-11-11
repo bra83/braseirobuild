@@ -173,8 +173,7 @@ public final class SceneOptionDiversifier {
             String actionType=original.optString("action_type",original.optString("type","")).trim().toUpperCase(Locale.ROOT);
             if("OBSERVAR".equals(actionType)||"AGIR".equals(actionType)||"DESPISTAR".equals(actionType)||"INVESTIGAR".equals(actionType)||"EXPLORAR".equals(actionType)||"CONVERSAR".equals(actionType))
                 out.put("action_type",actionType);
-            JSONObject test = original.optJSONObject("test");
-            if (test != null) out.put("test", new JSONObject(test.toString()));
+            // Proposed actions may not pre-authorize a mechanical test.
             return out;
         } catch (Exception ignored) {
             return new JSONObject();
