@@ -86,6 +86,7 @@ public final class SceneOptionDiversifier {
             if(out.length()>=MAX_OPTIONS)break;
             String action=optionAction(fallback);
             if(action.isEmpty()||!SceneOptionVisibleEvidence.supported(fallback,narration)||isWeakOption(fallback.optString("label",""),fallback.optString("description",""),action)||!isCompatibleWithScene(action,narration,scene)||!isGroundedInScene(action,narration,scene)||!isRelevantToCurrentBeat(action,narration)||isRepeated(action,history)||isRepeated(action,accepted)||repeatsIntent(action,accepted))continue;
+            try{fallback.put("_fallback",true);}catch(Exception ignored){}
             out.put(fallback);accepted.add(action);
         }
         return out;
@@ -124,9 +125,9 @@ public final class SceneOptionDiversifier {
     }
 
         private static String currentNarrativeBeat(String normalized){
-        if(normalized==null||normalized.length()<=400)return normalized==null?"":normalized;
-        int start=Math.max(normalized.length()/2,normalized.length()-780);
-        return normalized.substring(start);
+        // The complete accepted narration is the current beat. Cutting it at
+        // the midpoint hid clues introduced at the start of a long scene.
+        return normalized==null?"":normalized;
     }
 
     private static String latestBeatForFallback(String narration){
