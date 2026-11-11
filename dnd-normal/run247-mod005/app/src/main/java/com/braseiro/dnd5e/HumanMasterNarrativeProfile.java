@@ -86,7 +86,7 @@ public final class HumanMasterNarrativeProfile {
             o.put("dialogue_preserves_player_agency",true);
             o.put("alignment_guides_values_not_mechanics",true);
             o.put("grounded_optional_actions_max",3);
-            o.put("allow_zero_optional_actions",false);
+            o.put("allow_zero_optional_actions",true);
             o.put("manual_hero_autonomy",false);
             o.put("system_hero_routine_only",true);
             o.put("system_hero_combat_assisted",true);
