@@ -21,27 +21,26 @@ public final class StoryMomentumActionRegressionTest {
             .put(new JSONObject().put("label","Perguntar sobre o horário")
                 .put("action","Pergunto à assistente sobre o horário da orientação."))
             .put(new JSONObject().put("label","Ler os avisos")
-                .put("action","Leio os avisos que estão no painel do Hall."));
+                .put("action","Leio os avisos que estão no painel."));
         JSONArray rendered=StoryMomentumAction.ensureVisible(choices,
             "A assistente aponta o painel de avisos, onde aparece o horário da orientação.");
-        assertEquals(4,rendered.length());
+        assertEquals("Two genuine choices plus initiative, no filler",3,rendered.length());
         assertTrue(StoryMomentumAction.isRequest(rendered.getJSONObject(0).getString("action")));
-        assertTrue(rendered.getJSONObject(1).getString("label").toUpperCase().contains("AVISOS"));
-        assertTrue(rendered.getJSONObject(2).getString("label").toUpperCase().contains("HORÁRIO"));
-        assertEquals("DESPISTAR",rendered.getJSONObject(3).optString("action_type"));
+        assertTrue(rendered.getJSONObject(1).getString("label").toUpperCase().contains("HORÁRIO"));
+        assertTrue(rendered.getJSONObject(2).getString("label").toUpperCase().contains("AVISOS"));
     }
 
     @Test public void reloadDoesNotDuplicateOrBuryStoryButton() throws Exception {
         JSONArray once=StoryMomentumAction.ensureVisible(
-            new JSONArray().put(new JSONObject().put("label","Ouvir o aviso")
+            new JSONArray().put(new JSONObject().put("label","Escutar a funcionária")
                 .put("action","Escuto a mensagem da funcionária.")),
             "Uma funcionária anunciou a orientação.");
         JSONArray twice=StoryMomentumAction.ensureVisible(once,"Uma funcionária anunciou a orientação.");
-        assertEquals(4,once.length());
-        assertEquals(4,twice.length());
+        assertEquals(2,once.length());
+        assertEquals(2,twice.length());
         assertTrue(StoryMomentumAction.isRequest(twice.getJSONObject(0).getString("action")));
         JSONArray history=SceneOptionDiversifier.appendHistory(new JSONArray(),twice);
-        assertEquals(3,history.length());
+        assertEquals(1,history.length());
         assertEquals(once.toString(),twice.toString());
         assertEquals(once.getJSONObject(1).optString("action"),history.getString(0));
         assertTrue(SceneOptionVisibleEvidence.allSupported(twice,
