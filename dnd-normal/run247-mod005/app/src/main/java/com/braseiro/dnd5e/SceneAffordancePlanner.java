@@ -46,7 +46,7 @@ public final class SceneAffordancePlanner {
             out.add(choice("CONVERSAR","PERGUNTAR AOS GUARDAS SOBRE A PASSAGEM",
                 "Pergunto aos guardas que vigiam a ponte se a passagem está permitida."));
             out.add(choice("EXPLORAR","EXAMINAR A TRAVESSIA",
-                "Examinei visualmente a estrutura da ponte e suas entradas para escolher um caminho, sem presumir sua segurança."));
+                "Examino visualmente a estrutura da ponte e suas entradas para escolher um caminho, sem presumir sua segurança."));
         }
         return out;
     }
