@@ -1,0 +1,112 @@
+name: DnD Professional Scene Actions - Full QA and APK
+on:
+  push:
+    branches: [fix/dnd-6654-actions-professional-20261111]
+    paths:
+      - '.github/workflows/dnd-professional-actions-release-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-jvm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Verify unchanged storage and signed-upgrade baseline
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005
+          grep -q '^VERSION_NAME=6.6.54-four-grounded-actions-20261106$' "$root/version.properties"
+          grep -q '^VERSION_CODE=203900617$' "$root/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$root/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$root/version.properties"
+          test -s "$root/signing/debug.keystore"
+      - name: Full Android JVM and Robolectric suite
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 85
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --stacktrace
+      - name: Print actionable failures
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          total=0
+          for path in glob.glob("dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml"):
+              root=ET.parse(path).getroot()
+              for case in root.iter("testcase"):
+                  for failure in case.findall("failure"):
+                      total+=1
+                      if total<=80: print("FAIL:",case.get("classname"),case.get("name"),failure.get("message","")[:850])
+          print("TOTAL_FAILING_CASES:",total)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DND_PROFESSIONAL_FULL_JVM_REPORTS
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: warn
+
+  candidate-apk:
+    needs: full-jvm
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Build full-asset candidate
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 60
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify package, signing, compatibility and sha
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DND_PROFESSIONAL_SIGNER.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DND_PROFESSIONAL_PACKAGE.txt
+          grep -q "package: name='com.braseiro.dnd5e'" DND_PROFESSIONAL_PACKAGE.txt
+          grep -q "versionCode='203900617'" DND_PROFESSIONAL_PACKAGE.txt
+          cp "$apk" BRASEIRO_DND_6654_ACOES_PROFISSIONAL_CANDIDATO.apk
+          sha256sum BRASEIRO_DND_6654_ACOES_PROFISSIONAL_CANDIDATO.apk > DND_PROFESSIONAL_SHA256.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: BRASEIRO_DND_6654_ACOES_PROFISSIONAL_APK
+          path: |
+            BRASEIRO_DND_6654_ACOES_PROFISSIONAL_CANDIDATO.apk
+            DND_PROFESSIONAL_SIGNER.txt
+            DND_PROFESSIONAL_PACKAGE.txt
+            DND_PROFESSIONAL_SHA256.txt
+          if-no-files-found: error
