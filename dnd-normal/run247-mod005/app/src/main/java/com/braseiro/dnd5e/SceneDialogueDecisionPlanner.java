@@ -17,6 +17,10 @@ public final class SceneDialogueDecisionPlanner {
     /** Actual interlocutor in the visible beat, not an old NPC from persistence. */
     public static String namedInterlocutor(String narration) {
         if (narration == null || narration.isEmpty()) return "";
+        Matcher byLabel=Pattern.compile(
+            "(?m)(?:^|\\n)\\s*([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s*:\\s*[—-]"
+        ).matcher(narration);
+        while(byLabel.find())if(validName(byLabel.group(1)))return byLabel.group(1);
         Matcher byAttribution=Pattern.compile(
             "(?u)\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\b"
         ).matcher(narration);
