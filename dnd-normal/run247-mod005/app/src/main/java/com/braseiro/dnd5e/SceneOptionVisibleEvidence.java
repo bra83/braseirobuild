@@ -59,6 +59,8 @@ public final class SceneOptionVisibleEvidence {
         String proposed=fold(option.optString("label","")+" "+action+" "+option.optString("description",""));
         String visible=fold(narration);
         if(visible.isEmpty()||proposed.isEmpty())return false;
+        if(!SceneActionEvidence.namedReferencesExist(narration,action))return false;
+        if(!SceneActionEvidence.physicallyGrounded(narration,action))return false;
         // Abstract subjects are not objects one can inspect, address or deceive.
         // The recent screenshot generated "examino o silêncio" from a noun match.
         String declared=fold(action);
