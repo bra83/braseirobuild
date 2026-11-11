@@ -279,6 +279,13 @@ public final class MasterOrchestrator {
                 String previous=db.getStoryState().optString("last_narration","");
                 String repetition=BraseiroNarrativeDirector.repeatedTurnProblem(
                         safe.optString("narration",""),previous);
+                if(repetition.isEmpty()&&StoryMomentumAction.isRequest(action)){
+                    // The voluntary story-momentum button must result in a
+                    // substantive new beat, not a paraphrase of the last scene.
+                    repetition=BraseiroNarrativeDirector.qualityProblem(
+                        safe.optString("narration",""),
+                        new JSONArray().put(previous),action,"PLAYER_ACTION");
+                }
                 if(!repetition.isEmpty()){
                     JSONObject report=safe.optJSONObject("_master_validation");
                     if(report==null){report=new JSONObject();safe.put("_master_validation",report);}
