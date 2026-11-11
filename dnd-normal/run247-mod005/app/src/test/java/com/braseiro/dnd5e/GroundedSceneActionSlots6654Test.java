@@ -55,7 +55,8 @@ public final class GroundedSceneActionSlots6654Test {
         JSONArray legacy=invalidGuardActions();
         legacy.put(StoryMomentumAction.option());
         JSONArray safe=StoryMomentumAction.ensureVisible(legacy,SILVERQUILL);
-        assertEquals(4,safe.length());
+        // All persisted nonmomentum entries are fake guards, so none survives.
+        assertEquals(1,safe.length());
         for(int i=1;i<safe.length();i++)
             assertFalse("A guard NPC must not appear in a saved menu just because a student guarda o papel",
                 SceneOptionVisibleEvidence.guardNounPresent(safe.getJSONObject(i).optString("action")));
