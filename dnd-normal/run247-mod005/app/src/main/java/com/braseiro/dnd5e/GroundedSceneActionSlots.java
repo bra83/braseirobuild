@@ -189,6 +189,11 @@ public final class GroundedSceneActionSlots {
                 "Aproximo-me "+preposition("de",focus)+" e tento examiná-lo diretamente, sem assumir que tenho acesso ou que obtive sucesso.");
         }
         if(DESPISTAR.equals(type)){
+            // Concealment is not a mandatory third category. Require an
+            // observable motive such as an opponent, watchful witness or threat.
+            if(!hasAny(narration,"rivais","rival","veteranos","guarda","guardas",
+                    "sentinela","vigia","observando","suspeita","esconder",
+                    "ocultar","espreita","perseguicao","inimigos"))return null;
             if(!actor.isEmpty()){
                 String target=!subject.isEmpty()?subject:("a conversa com "+actor);
                 return choice(type,"DISFARÇAR INTERESSE "+upper(preposition("por",target)),
