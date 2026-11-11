@@ -27,6 +27,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
       - name: Install Android SDK
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
@@ -37,6 +38,7 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
             --tests 'com.braseiro.dnd5e.AuditSceneSuggestedActions20261110Test' \
+            --tests 'com.braseiro.dnd5e.ProfessionalSceneActionsContract20261111Test' \
             --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest' \
             --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
             --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
