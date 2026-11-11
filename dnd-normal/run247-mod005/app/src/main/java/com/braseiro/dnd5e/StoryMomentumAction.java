@@ -50,23 +50,35 @@ public final class StoryMomentumAction {
             o.put("action",discovered?SceneDiscoveredLead.progressAction(narration):ACTION);
             o.put("story_momentum",true);
         }catch(Exception ignored){}
-        return o;
+        return SceneActionEvidence.bind(o,narration);
     }
 
     /** Compatible with persisted options from earlier versions. Never force
      * another action: the user has to click this dedicated choice. */
-    public static JSONArray ensureVisible(JSONArray options,String narration){
+    /** Display an already vetted result. Never regenerate from saved cards. */
+    public static JSONArray withChoices(JSONArray choices,String narration){
         JSONArray out=new JSONArray();
-        if(narration==null||narration.trim().isEmpty())return options==null?out:options;
+        if(narration==null||narration.trim().isEmpty())return out;
         out.put(option(narration));
-        // Re-adjudicate even persisted/stale choices when rendering the scene.
-        // A saved action that refers to an invisible guard must never reappear.
-        JSONArray context=GroundedSceneActionSlots.contextual(options,narration,null,0);
-        for(int i=0;i<context.length()&&i<ContextualSceneActionFactory.MIN_CONTEXTUAL;i++){
-            JSONObject item=context.optJSONObject(i);
-            if(item!=null)out.put(item);
+        if(choices==null)return out;
+        for(int i=0;i<choices.length()&&out.length()<4;i++){
+            JSONObject item=choices.optJSONObject(i);
+            if(item==null||isRequest(item.optString("action","")))continue;
+            String ticket=item.optString("scene_fingerprint","");
+            if(!ticket.isEmpty()&&!SceneActionEvidence.hash(narration).equals(ticket))continue;
+            if(!SceneActionEvidence.valid(item,narration))continue;
+            boolean duplicate=false;
+            for(int j=1;j<out.length();j++)
+                if(SceneActionEvidence.sameDecision(item.optString("action",""),
+                        out.optJSONObject(j).optString("action",""))){duplicate=true;break;}
+            if(!duplicate)out.put(SceneActionEvidence.bind(item,narration));
         }
         return out;
+    }
+
+    /** Restored choices are revalidated, never replaced by speculative fillers. */
+    public static JSONArray ensureVisible(JSONArray options,String narration){
+        return withChoices(options,narration);
     }
 
     /** A lead-follow click authorizes the stated player movement, unlike waiting. */
