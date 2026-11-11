@@ -62,8 +62,14 @@ public final class GroundedSceneActionSlots {
             if(fallback==null&&silverquill)fallback=silverquillChoice(slot,actor,visible);
             if(fallback==null)fallback=SceneDialogueDecisionPlanner.choice(slot,visible);
             if(fallback==null)fallback=ScenePhysicalCluePlanner.choice(slot,visible);
-            if(fallback==null)fallback=groundedChoice(slot,actor,focus,topic,visible);
             if(fallback!=null)pool.add(fallback);
+        }
+
+        // Affordances are physical and specific, unlike keyword templates.
+        pool.addAll(SceneAffordancePlanner.candidates(visible));
+        for(String slot:slots){
+            JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
+            if(generic!=null)pool.add(generic);
         }
 
         // Generic templates never preempt a direct answer to a revealed clue.
