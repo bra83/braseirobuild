@@ -46,7 +46,10 @@ public final class SceneActionEvidence {
         String a=normalize(action),full=normalize(narration),stage=normalize(currentStage(narration));
         if(!PHYSICAL_ACTION.matcher(a).matches())return true;
         for(String prop:PHYSICAL_PROPS){
-            if(!has(a,prop))continue;
+            // A mentioned location or topic is not necessarily the object of
+            // the action: "observo Aisla quando fala dos livros" is valid.
+            String pattern=".*\\b(?:observo|examino|inspeciono|aproximo|toco|pego|apanho|abro|viro|leio|interajo|reviro|vasculho|investigo|analiso|movo|empurro|puxo|checo|confiro|olho|manuseio)\\b(?:\\s+(?:me|de|do|da|dos|das|um|uma|o|a|os|as|ao|aos|no|na|nos|nas|com|sobre|diretamente|atentamente|cuidadosamente)){0,5}\\s+"+prop+"\\b.*";
+            if(!a.matches(pattern))continue;
             if(has(stage,prop))continue;
             // Quoted/reported content establishes a topic, not reach.
             if(narration!=null&&(narration.indexOf('—')>=0||narration.indexOf('“')>=0))return false;
