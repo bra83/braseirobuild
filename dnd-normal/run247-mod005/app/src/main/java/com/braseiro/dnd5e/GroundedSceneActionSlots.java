@@ -92,7 +92,9 @@ public final class GroundedSceneActionSlots {
             if(!SceneOptionDiversifier.isGroundedInScene(action,visible,new JSONObject()))continue;
             if(SceneActionEvidence.sameDecision(action,declaredAction))continue;
             boolean seen=false;
-            if(recentHistory!=null)for(int i=0;i<recentHistory.length();i++){
+            // Six recent scenes are enough to avoid local loops without
+            // forbidding legitimate interactions for the entire campaign.
+            if(recentHistory!=null)for(int i=Math.max(0,recentHistory.length()-18);i<recentHistory.length();i++){
                 if(SceneActionEvidence.sameDecision(action,recentHistory.optString(i,""))){seen=true;break;}
             }
             if(seen)continue;
