@@ -21,29 +21,74 @@ public final class GroundedSceneActionSlots {
     public static final String OBSERVAR="OBSERVAR", AGIR="AGIR", DESPISTAR="DESPISTAR";
     private static final String[] TYPES={OBSERVAR,AGIR,DESPISTAR};
 
-    public static JSONArray contextual(JSONArray proposed,String narration,JSONObject ignoredPersistedScene,int beat) {
+    public static JSONArray contextual(JSONArray proposed,String narration,JSONObject scene,int beat) {
+        return contextual(proposed,new JSONArray(),narration,"",scene,beat);
+    }
+
+    /**
+     * Single final selection gate. Both model and deterministic candidates must
+     * pass the same evidence, novelty and uniqueness policies. Never refill
+     * after this method returns; it may legitimately return zero choices.
+     */
+    public static JSONArray contextual(JSONArray proposed,JSONArray recentHistory,
+                                       String narration,String declaredAction,JSONObject scene,int beat) {
         JSONArray out=new JSONArray();
         if(narration==null||narration.trim().isEmpty())return out;
         String visible=narration;
-        String actor=visibleActor(visible);
-        String focus=visibleFocus(visible);
+        String actor=visibleActor(visible),focus=visibleFocus(visible);
         String topic=visibleTopic(visible,focus);
-        boolean silverquillRiddle=has(visible,"silverquill")&&has(visible,"charada")&&has(visible,"selos");
+        boolean silverquill=has(visible,"silverquill")&&has(visible,"charada")&&has(visible,"selos");
+        java.util.ArrayList<JSONObject> pool=new java.util.ArrayList<>();
 
-        for(String type:TYPES){
-            JSONObject selected=null;
-            // A purpose-built choice beats an LLM's generic "look around" sentence.
-            if(SceneDiscoveredLead.available(visible))selected=SceneDiscoveredLead.typedChoice(type,visible);
-            if(selected==null&&silverquillRiddle) selected=silverquillChoice(type,actor,visible);
-            // The LLM proposes; the core accepts only a grounded, typed and
-            // non-generic candidate. Deterministic decisions are a safety fallback,
-            // never a replacement for a better scene-aware model suggestion.
-            if(selected==null)selected=bestModelChoice(proposed,type,visible,actor,focus,topic);
-            if(selected==null)selected=SceneDialogueDecisionPlanner.choice(type,visible);
-            if(selected==null)selected=ScenePhysicalCluePlanner.choice(type,visible);
-            if(selected==null)selected=groundedChoice(type,actor,focus,topic,visible);
-            if(selected!=null && SceneOptionVisibleEvidence.supported(selected,visible)
-                    && !duplicateAction(out,selected.optString("action","")))out.put(selected);
+        // The Gemini model supplies proposed decisions, but cannot author a
+        // mechanically executable check or override the current scene.
+        if(proposed!=null)for(int i=0;i<proposed.length()&&i<16;i++){
+            JSONObject model=proposed.optJSONObject(i);
+            if(model==null)continue;
+            String a=model.optString("action","").trim();
+            String type=actionType(model);
+            if(a.isEmpty()||type.isEmpty()||StoryMomentumAction.isRequest(a))continue;
+            if(weak(a+" "+model.optString("label","")))continue;
+            JSONObject candidate=choice(type,cleanTitle(model.optString("label",type),type),a);
+            pool.add(candidate);
+        }
+
+        // Conservative fallbacks. They compete with the model, not bypass it.
+        String[] slots={OBSERVAR,AGIR,DESPISTAR};
+        for(String slot:slots){
+            JSONObject fallback=null;
+            if(SceneDiscoveredLead.available(visible))
+                fallback=SceneDiscoveredLead.typedChoice(slot,visible);
+            if(fallback==null&&silverquill)fallback=silverquillChoice(slot,actor,visible);
+            if(fallback==null)fallback=SceneDialogueDecisionPlanner.choice(slot,visible);
+            if(fallback==null)fallback=ScenePhysicalCluePlanner.choice(slot,visible);
+            if(fallback==null)fallback=groundedChoice(slot,actor,focus,topic,visible);
+            if(fallback!=null)pool.add(fallback);
+        }
+
+        // Prefer distinct type families, in context, with no quotas.
+        java.util.HashSet<String> usedTypes=new java.util.HashSet<>();
+        for(JSONObject candidate:pool){
+            if(out.length()>=3)break;
+            String action=candidate.optString("action",""),type=actionType(candidate);
+            if(action.isEmpty()||type.isEmpty()||usedTypes.contains(type))continue;
+            if(!SceneActionEvidence.valid(candidate,visible))continue;
+            if(!SceneOptionDiversifier.isRelevantToCurrentBeat(action,visible))continue;
+            if(!SceneOptionDiversifier.isGroundedInScene(action,visible,new JSONObject()))continue;
+            if(SceneActionEvidence.sameDecision(action,declaredAction))continue;
+            boolean seen=false;
+            if(recentHistory!=null)for(int i=0;i<recentHistory.length();i++){
+                if(SceneActionEvidence.sameDecision(action,recentHistory.optString(i,""))){seen=true;break;}
+            }
+            if(seen)continue;
+            for(int i=0;i<out.length();i++){
+                if(SceneActionEvidence.sameDecision(action,out.optJSONObject(i).optString("action",""))){seen=true;break;}
+            }
+            if(seen)continue;
+            // The UI never gets an LLM supplied check or imaginary DC.
+            JSONObject sanitized=choice(type,cleanTitle(candidate.optString("label",""),type),action);
+            out.put(SceneActionEvidence.bind(sanitized,visible));
+            usedTypes.add(type);
         }
         return out;
     }
@@ -112,9 +157,7 @@ public final class GroundedSceneActionSlots {
     private static String actionType(JSONObject o){
         String explicit=o.optString("action_type",o.optString("type","")).toUpperCase(Locale.ROOT);
         for(String type:TYPES)if(type.equals(explicit))return type;
-        // The third contextual slot is adaptive, not mandatory deception.
-        if("INVESTIGAR".equals(explicit)||"EXPLORAR".equals(explicit))return DESPISTAR;
-        if("CONVERSAR".equals(explicit))return AGIR;
+        if("INVESTIGAR".equals(explicit)||"EXPLORAR".equals(explicit)||"CONVERSAR".equals(explicit))return explicit;
         String label=fold(o.optString("label",""));
         if(label.startsWith("observar "))return OBSERVAR;
         if(label.startsWith("agir "))return AGIR;
@@ -196,7 +239,6 @@ public final class GroundedSceneActionSlots {
     }
 
     private static String visibleFocus(String narration){
-        if(has(narration,"grupo aguarda"))return "o grupo que aguarda";
         if(SceneOptionVisibleEvidence.diaryNounPresent(narration))return "o diário";
         String[][] objects={
           {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
@@ -214,7 +256,7 @@ public final class GroundedSceneActionSlots {
           {"arbusto","o arbusto"},{"manuscrito","o manuscrito"},{"escada","a escada"},
           {"grupo","o grupo"},{"salão","o salão"},{"sala","a sala"}
         };
-        String n=" "+fold(narration)+" ";
+        String n=" "+fold(SceneActionEvidence.currentStage(narration))+" ";
         // Words from reported speech may describe a distant place, not a
         // reachable object. Select a concrete, visible artefact; never the
         // abstractions "silêncio"/"pausa" or remote "arbustos" as props.
