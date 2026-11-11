@@ -44,7 +44,7 @@ public final class GroundedSceneActionSlots {
         // mechanically executable check or override the current scene.
         if(proposed!=null)for(int i=0;i<proposed.length()&&i<16;i++){
             JSONObject model=proposed.optJSONObject(i);
-            if(model==null)continue;
+            if(model==null||model.optBoolean("_fallback",false))continue;
             String a=model.optString("action","").trim();
             String type=actionType(model);
             if(a.isEmpty()||type.isEmpty()||StoryMomentumAction.isRequest(a))continue;
@@ -64,6 +64,15 @@ public final class GroundedSceneActionSlots {
             if(fallback==null)fallback=ScenePhysicalCluePlanner.choice(slot,visible);
             if(fallback==null)fallback=groundedChoice(slot,actor,focus,topic,visible);
             if(fallback!=null)pool.add(fallback);
+        }
+
+        // Generic templates never preempt a direct answer to a revealed clue.
+        if(proposed!=null)for(int i=0;i<proposed.length()&&i<16;i++){
+            JSONObject fallback=proposed.optJSONObject(i);
+            if(fallback==null||!fallback.optBoolean("_fallback",false))continue;
+            String action=fallback.optString("action",""),type=actionType(fallback);
+            if(!action.isEmpty()&&!type.isEmpty()&&!weak(action))
+                pool.add(choice(type,cleanTitle(fallback.optString("label",type),type),action));
         }
 
         // Prefer distinct type families, in context, with no quotas.
