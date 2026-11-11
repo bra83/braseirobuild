@@ -34,9 +34,12 @@ public final class FourSceneActionsDropdownRegressionTest {
                 narration,"Olho ao redor",scene,turn+1);
             // Sparse atmospheric beats have no three concrete player affordances.
             // Do not fabricate a prop merely to satisfy the old four-card quota.
-            boolean noConcreteAffordance=turn==6||turn==7||turn==9;
-            assertEquals("No invented cards in scene "+turn+" : "+result,
-                    noConcreteAffordance?1:4,result.length());
+            // Optional suggestions are capped, not artificially padded.
+            boolean noConcreteAffordance=turn==6||turn==7||turn==9||turn==11;
+            assertTrue("Scene options capped at four: "+result,result.length()>=1&&result.length()<=4);
+            if(noConcreteAffordance)assertEquals("No invented cards in atmospheric beat",1,result.length());
+            else if(turn==0||turn==1||turn==3||turn==5||turn==10)
+                assertTrue("Playable scene needs a grounded choice: "+result,result.length()>=2);
             assertTrue("Initiative is always explicit",StoryMomentumAction.isRequest(result.getJSONObject(0).getString("action")));
             Set<String> distinct = new HashSet<>();
             for(int i=1;i<result.length();i++) {
@@ -62,7 +65,7 @@ public final class FourSceneActionsDropdownRegressionTest {
             .put("action","Pergunto aos estudantes sobre o painel de avisos."));
         JSONArray result=SceneOptionDiversifier.ensureAlways(raw,new JSONArray(),sceneText,
             "Entro na biblioteca",new JSONObject(),2);
-        assertEquals(4,result.length());
+        assertTrue(result.toString(),result.length()>=2&&result.length()<=4);
         assertTrue(StoryMomentumAction.isRequest(result.getJSONObject(0).getString("action")));
     }
 
@@ -70,14 +73,13 @@ public final class FourSceneActionsDropdownRegressionTest {
         String narration="Uma bibliotecária se aproxima de Kvothe para falar sobre as aulas.";
         JSONArray a=StoryMomentumAction.ensureVisible(new JSONArray(),narration);
         JSONArray b=StoryMomentumAction.ensureVisible(a,narration);
-        assertEquals(4,a.length());
-        assertEquals(4,b.length());
+        // Rendering cannot invent three actions from an empty saved menu.
+        assertEquals(1,a.length());
+        assertEquals(1,b.length());
         assertEquals(a.toString(),b.toString());
         assertEquals("ESCUTAR A BIBLIOTECÁRIA",b.optJSONObject(0).optString("label"));
         assertTrue(StoryMomentumAction.isRequest(b.optJSONObject(0).optString("action")));
-        assertEquals("OBSERVAR",b.optJSONObject(1).optString("action_type"));
-        assertEquals("AGIR",b.optJSONObject(2).optString("action_type"));
-        assertEquals("DESPISTAR",b.optJSONObject(3).optString("action_type"));
+        assertEquals("Stable one-card momentum menu",1,b.length());
         assertEquals(0d,SceneActionClock.minutesFor(StoryMomentumAction.ACTION),0.0001);
         assertFalse(StoryMomentumAction.instruction(true).contains("teletransportá-lo para"));
     }
@@ -100,9 +102,9 @@ public final class FourSceneActionsDropdownRegressionTest {
             JSONObject scene=new JSONObject().put("location","Strixhaven • Biblioplex").put("objective","Investigar os acontecimentos em Strixhaven • Biblioplex");
             JSONArray raw=SceneOptionDiversifier.diversify(new JSONArray(),new JSONArray(),narration,"Olho ao redor",scene,1);
             JSONArray filled=ContextualSceneActionFactory.complete(raw,narration,scene,1);
-            assertEquals("FOCUS="+anchor+" sampleGrounded="+SceneOptionDiversifier.isGroundedInScene(sample,narration,scene)
-                +" sampleCurrent="+SceneOptionDiversifier.isRelevantToCurrentBeat(sample,narration)
-                +" raw="+raw+" filled="+filled,3,filled.length());
+            assertTrue("No forced three-card quota: "+filled,filled.length()>=1&&filled.length()<=3);
+            for(int j=0;j<filled.length();j++)
+                assertTrue(SceneActionEvidence.valid(filled.getJSONObject(j),narration));
         }
     }
 }
