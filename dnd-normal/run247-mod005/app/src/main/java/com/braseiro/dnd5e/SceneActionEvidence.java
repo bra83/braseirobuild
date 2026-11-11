@@ -139,6 +139,7 @@ public final class SceneActionEvidence {
         if(option==null)return new JSONObject();
         try{
             JSONObject safe=new JSONObject(option.toString());
+            safe.remove("test"); // An option can never authorize a dice check.
             safe.put("scene_fingerprint",hash(narration));
             safe.put("action_id",hash(narration+"|"+safe.optString("action")+"|"+safe.optString("action_type")));
             return safe;
