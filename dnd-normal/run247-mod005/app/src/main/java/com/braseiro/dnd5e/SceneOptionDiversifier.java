@@ -98,8 +98,9 @@ public final class SceneOptionDiversifier {
                                          String narration, String declaredAction,
                                          JSONObject scene, int beatNumber) {
         JSONArray natural=diversify(source,recentHistory,narration,declaredAction,scene,beatNumber);
-        JSONArray complete=ContextualSceneActionFactory.complete(natural,narration,scene,beatNumber);
-        return StoryMomentumAction.ensureVisible(complete,narration);
+        JSONArray complete=GroundedSceneActionSlots.contextual(
+            natural,recentHistory,narration,declaredAction,scene,beatNumber);
+        return StoryMomentumAction.withChoices(complete,narration);
     }
 
     /**
