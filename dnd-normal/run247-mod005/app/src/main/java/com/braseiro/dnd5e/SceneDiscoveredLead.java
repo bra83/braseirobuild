@@ -28,11 +28,27 @@ public final class SceneDiscoveredLead {
     public static String destination(String narration){
         String n=fold(narration);
         if(n.isEmpty())return "";
-        if(has(n,"mural de raizes"))return "o mural de raízes";
-        if(has(n,"mural"))return "o mural";
-        if(has(n,"escadaria"))return "a escadaria";
-        if(has(n,"ponte"))return "a ponte";
-        if(has(n,"entrada") && has(n,"cafe do biblioplex"))return "a entrada do Café do Biblioplex";
+        // Resolve the destination from the clause that actually gives a route,
+        // not from any object mentioned earlier as background or negation.
+        int reveal=Math.max(n.lastIndexOf("pista esta decifrada"),
+                    Math.max(n.lastIndexOf("pista foi decifrada"),
+                             n.lastIndexOf("pista revelada")));
+        String tail=reveal<0?n:n.substring(reveal);
+        java.util.regex.Matcher direct=java.util.regex.Pattern.compile(
+            "(?:siga|seguir|dirija se|ir|va|caminho leva|leva|aponta|indica|conduz)\\s+(?:ate\\s+|para\\s+|ao\\s+|a\\s+|o\\s+|à\\s+)?(?:a\\s+|o\\s+)?((?:torre|jardim|entrada|porta|sala|biblioteca|ponte|mural|cafe|observatorio|templo|ruina|escadaria|poco|laboratorio|sal[aã]o)\\b[^,;:.]{0,70})"
+        ).matcher(tail);
+        if(direct.find()){
+            String name=direct.group(1).replaceAll("\\s+e nao\\b.*$","").trim();
+            name=name.replaceAll("\\s+(?:antes que|enquanto|mas|porque)\\b.*$","").trim();
+            if(!name.isEmpty())return (name.startsWith("a ")||name.startsWith("o ")?"":"a ")+name;
+        }
+        // The established Strixhaven clue explicitly points to a specific
+        // intersection of two landmarks, not simply to a word "mural".
+        if(has(n,"intersecao")&&has(n,"cafe do biblioplex")&&has(n,"mural de raizes")
+                &&(has(n,"apontando")||has(n,"indica")||has(n,"coordenadas")))
+            return "o mural de raízes";
+        if(has(n,"proximo elemento")&&has(n,"aponta")&&has(n,"mural de raizes"))
+            return "o mural de raízes";
         return "";
     }
 
