@@ -19,7 +19,8 @@ import java.util.Set;
  * concretos da cena. Se não houver opção confiável, o campo de ação livre permanece.
  */
 public final class SceneOptionDiversifier {
-    private static final int MAX_OPTIONS = ContextualSceneActionFactory.MIN_CONTEXTUAL;
+    // Candidate reservoir; the last-mile selector alone chooses up to three.
+    private static final int MAX_OPTIONS = 12;
     private static final int MAX_HISTORY = 60; // cobre mais que a janela legada: MAX_HISTORY = 24
 
     private SceneOptionDiversifier() {}
