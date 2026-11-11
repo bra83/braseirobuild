@@ -276,7 +276,7 @@ public final class GroundedSceneActionSlots {
           {"mapa","o mapa"},{"painel","o painel"},{"folhetos","os folhetos"},
           {"prancheta","a prancheta"},{"porta","a porta"},{"ponte","a ponte"},
           {"arbusto","o arbusto"},{"manuscrito","o manuscrito"},{"escada","a escada"},
-          {"grupo","o grupo"},{"salão","o salão"},{"sala","a sala"}
+          {"escadaria","a escadaria"}
         };
         String n=" "+fold(SceneActionEvidence.currentStage(narration))+" ";
         // Words from reported speech may describe a distant place, not a
