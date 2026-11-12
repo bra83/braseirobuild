@@ -64,6 +64,12 @@ public final class ProfessionalSceneActionsContract20261111Test {
         assertTrue("evidence: "+counter,SceneActionEvidence.valid(counter,narration));
         assertTrue("current beat: "+counter,SceneOptionDiversifier.isRelevantToCurrentBeat(action,narration));
         assertTrue("grounding: "+counter,SceneOptionDiversifier.isGroundedInScene(action,narration,new JSONObject()));
+        assertFalse("Must differ from entered action",
+            SceneActionEvidence.sameDecision(action,"Entro no Firejolt Cafe para observar os estudantes"));
+        JSONArray local=GroundedSceneActionSlots.contextual(
+            new JSONArray(),new JSONArray(),narration,
+            "Entro no Firejolt Cafe para observar os estudantes",new JSONObject(),5);
+        assertEquals("Raw grounded selector: "+local,3,local.length());
         JSONArray actual=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
             narration,"Entro no Firejolt Cafe para observar os estudantes",new JSONObject(),5);
         assertEquals("3 grounded actions plus voluntary momentum: "+actual,4,actual.length());
