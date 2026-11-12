@@ -50,6 +50,15 @@ public final class SceneAffordancePlanner {
             out.add(choice("EXPLORAR","APROXIMAR-ME DA MESA DE INSCRIÇÕES",
                 "Aproximo-me da mesa de inscrições indicada na cena para verificar o procedimento, sem presumir que já fui inscrito."));
         }
+        if(has(stage,"roteiro") && has(stage,"anotacoes")
+                && has(stage,"nota dobrada")){
+            out.add(choice("OBSERVAR","CONFERIR AS ANOTAÇÕES DO ROTEIRO",
+                "Leio as anotações nas margens do roteiro encadernado, sem presumir conhecer seu significado."));
+            out.add(choice("AGIR","DESDOBRAR A NOTA DO ROTEIRO",
+                "Tento desdobrar a nota encontrada no roteiro para ler exatamente o que ela informa, sem presumir outra pista."));
+            out.add(choice("INVESTIGAR","COMPARAR O ROTEIRO E A NOTA",
+                "Comparo a nota dobrada com as anotações do roteiro, procurando uma relação sem presumir que a encontrei."));
+        }
         if(has(stage,"folhetos")||has(stage,"folheto")){
             out.add(choice("OBSERVAR","LER OS FOLHETOS DISPONÍVEIS",
                 "Leio os folhetos que estão à vista e verifico o que oferecem, sem presumir o conteúdo."));
