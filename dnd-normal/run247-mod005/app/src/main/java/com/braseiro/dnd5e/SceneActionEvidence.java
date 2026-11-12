@@ -151,7 +151,7 @@ public final class SceneActionEvidence {
             safe.put("scene_fingerprint",hash(narration));
             safe.put("action_id",hash(narration+"|"+safe.optString("action")+"|"+safe.optString("action_type")));
             return safe;
-        }catch(Exception e){return option;}
+        }catch(Exception e){return new JSONObject();} // Fail closed: never return unvalidated model data.
     }
 
     static boolean ticketMatches(JSONObject option,String narration){
