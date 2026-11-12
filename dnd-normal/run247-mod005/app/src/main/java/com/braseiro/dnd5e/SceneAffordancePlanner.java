@@ -110,6 +110,30 @@ public final class SceneAffordancePlanner {
             out.add(choice("EXPLORAR","EXAMINAR A TRAVESSIA",
                 "Examino visualmente a estrutura da ponte e suas entradas para escolher um caminho, sem presumir sua segurança."));
         }
+        // Two independent activities actually visible at the orientation:
+        // the paperboard theatre rehearsal and the employee taking registrations.
+        // These are intentional attempts, not assumed discoveries or enrolments.
+        if(has(stage,"encenacao")&&has(stage,"armadilhas")&&has(stage,"papelao")
+                &&has(stage,"inscricoes")&&has(stage,"funcionaria")){
+            out.add(choice("OBSERVAR","OBSERVAR A ENCENAÇÃO",
+                "Observo como a Guilda prepara as armadilhas de papelão para a encenação, sem interferir nos preparativos."));
+            out.add(choice("CONVERSAR","PERGUNTAR À FUNCIONÁRIA SOBRE AS INSCRIÇÕES",
+                "Pergunto à funcionária como funcionam as inscrições dos recém-chegados, aguardando sua resposta."));
+            out.add(choice("EXPLORAR","CONHECER A GUILDA DE RPG LIVE-ACTION",
+                "Aproximo-me da Guilda de RPG Live-Action para saber como participar da encenação, sem presumir que fui aceito."));
+        }
+        // Here the awakened shrubs are explicitly acting in the current garden,
+        // unlike rumours about shrubs elsewhere. Observe, address, or explore
+        // the visible planting beds; never materialize an absent NPC or clue.
+        if(has(stage,"jardim dos livros")&&has(stage,"arbustos despertados")
+                &&has(stage,"canteiros")&&has(stage,"estudantes")){
+            out.add(choice("OBSERVAR","OBSERVAR OS ARBUSTOS DESPERTADOS",
+                "Observo os arbustos despertados ajustando as raízes junto aos canteiros."));
+            out.add(choice("CONVERSAR","FALAR COM OS ESTUDANTES SOBRE OS ARBUSTOS",
+                "Pergunto aos estudantes que passam pelos canteiros se conhecem os arbustos despertados, sem presumir a resposta."));
+            out.add(choice("EXPLORAR","EXAMINAR OS CANTEIROS",
+                "Examino os canteiros onde os arbustos despertados ajustam as raízes, sem tocar nas plantas nem presumir uma descoberta."));
+        }
         return out;
     }
 
