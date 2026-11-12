@@ -53,6 +53,10 @@ public final class GroundedSceneActionSlots {
             pool.add(candidate);
         }
 
+        // Concrete affordances outrank generic keyword-based slot fillers.
+        // Model choices remain first, subject to the same final evidence gate.
+        pool.addAll(SceneAffordancePlanner.candidates(visible));
+
         // Conservative fallbacks. They compete with the model, not bypass it.
         String[] slots={OBSERVAR,AGIR,DESPISTAR};
         for(String slot:slots){
@@ -65,8 +69,6 @@ public final class GroundedSceneActionSlots {
             if(fallback!=null)pool.add(fallback);
         }
 
-        // Affordances are physical and specific, unlike keyword templates.
-        pool.addAll(SceneAffordancePlanner.candidates(visible));
         for(String slot:slots){
             JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
             if(generic!=null)pool.add(generic);
