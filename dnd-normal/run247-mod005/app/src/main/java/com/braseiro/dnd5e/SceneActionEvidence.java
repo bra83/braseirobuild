@@ -50,12 +50,27 @@ public final class SceneActionEvidence {
             // the action: "observo Aisla quando fala dos livros" is valid.
             String pattern=".*\\b(?:observo|examino|inspeciono|aproximo|toco|pego|apanho|abro|viro|leio|interajo|reviro|vasculho|investigo|analiso|movo|empurro|puxo|checo|confiro|olho|manuseio)\\b(?:\\s+(?:me|de|do|da|dos|das|um|uma|o|a|os|as|ao|aos|no|na|nos|nas|com|sobre|diretamente|atentamente|cuidadosamente)){0,5}\\s+"+prop+"\\b.*";
             if(!a.matches(pattern))continue;
-            if(has(stage,prop))continue;
+            // An indirect note/report does not put a remotely referenced
+            // object within physical reach of the player.
+            if(has(stage,prop) && !reportedOnlyObject(full,prop))continue;
+            if(reportedOnlyObject(full,prop))return false;
             // Quoted/reported content establishes a topic, not reach.
             if(narration!=null&&(narration.indexOf('—')>=0||narration.indexOf('“')>=0))return false;
             if(REPORTED_REMOTE.matcher(full).matches())return false;
         }
         return true;
+    }
+
+    private static boolean reportedOnlyObject(String narration,String prop){
+        // "nota indicando que os adereços estão guardados no armário" is
+        // information, not evidence that the armário is beside the hero.
+        String n=normalize(narration),p=normalize(prop);
+        int pivot=n.indexOf(" indicando que ");
+        if(pivot<0)pivot=n.indexOf(" relata que ");
+        if(pivot<0)pivot=n.indexOf(" menciona que ");
+        if(pivot<0)return false;
+        String report=n.substring(pivot);
+        return has(report,p) && !has(n.substring(0,pivot),p);
     }
 
     static boolean namedReferencesExist(String narration,String action){
