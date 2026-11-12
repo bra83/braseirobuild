@@ -30,6 +30,27 @@ public final class ProfessionalSceneActionsContract20261111Test {
         assertNull("No mechanically executable LLM test",safe.getJSONObject(1).optJSONObject("test"));
     }
 
+    @Test public void maliciousModelMechanicsNeverReachActionCard() throws Exception {
+        String narration="Uma assistente segura uma prancheta na recepção.";
+        JSONObject supplied=new JSONObject().put("action_type","AGIR")
+            .put("label","Perguntar à assistente")
+            .put("action","Pergunto à assistente sobre a recepção.")
+            .put("test",new JSONObject().put("dc",99))
+            .put("check",new JSONObject().put("skill","deception"))
+            .put("roll","natural 20").put("dc",99)
+            .put("result","success").put("effects",new JSONObject().put("gold",9999))
+            .put("state_patch",new JSONObject().put("clock",999))
+            .put("time_delta",999);
+        JSONObject safe=SceneActionEvidence.bind(supplied,narration);
+        for(String key:new String[]{"test","check","roll","dc","result",
+                "effects","state_patch","time_delta"}){
+            assertFalse("Model must not control mechanical field: "+key,safe.has(key));
+        }
+        assertTrue(SceneActionEvidence.ticketMatches(safe,narration));
+        assertEquals("Pergunto à assistente sobre a recepção.",
+            safe.getString("action"));
+    }
+
     @Test public void sceneTicketExpiresOnNarrativeChange() throws Exception {
         String original="Uma assistente consulta uma prancheta na recepção.";
         JSONObject raw=new JSONObject().put("action_type","OBSERVAR")
