@@ -1,0 +1,85 @@
+name: DnD Professional Actions - Device Preview APK
+on:
+  push:
+    branches: [fix/dnd-6654-actions-professional-20261111]
+    paths:
+      - '.github/workflows/dnd-professional-actions-device-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            dnd-normal/run247-mod005
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android SDK 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Validate storage and upgrade compatibility
+        run: |
+          set -euo pipefail
+          root=dnd-normal/run247-mod005
+          grep -q '^VERSION_NAME=6.6.54-four-grounded-actions-20261106$' "$root/version.properties"
+          grep -q '^VERSION_CODE=203900617$' "$root/version.properties"
+          grep -q '^DB_SCHEMA=61$' "$root/version.properties"
+          grep -q '^BACKUP_FORMAT=21$' "$root/version.properties"
+          test -s "$root/signing/debug.keystore"
+      - name: Verify focused scene and rule-boundary regressions
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain \
+            --tests 'com.braseiro.dnd5e.AuditSceneSuggestedActions20261110Test' \
+            --tests 'com.braseiro.dnd5e.ProfessionalSceneActionsContract20261111Test' \
+            --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest' \
+            --tests 'com.braseiro.dnd5e.RevealedClueActionGroundingRegressionTest' \
+            --tests 'com.braseiro.dnd5e.GroundedSceneActionSlots6654Test' \
+            --tests 'com.braseiro.dnd5e.StoryMomentumActionRegressionTest' \
+            --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest'
+      - name: Build full-asset debug APK
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 45
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify signing, app id, version and checksum
+        run: |
+          set -euo pipefail
+          apk=dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DEVICE_PREVIEW_SIGNING.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DEVICE_PREVIEW_PACKAGE.txt
+          grep -q "package: name='com.braseiro.dnd5e'" DEVICE_PREVIEW_PACKAGE.txt
+          grep -q "versionCode='203900617'" DEVICE_PREVIEW_PACKAGE.txt
+          cp "$apk" BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+          sha256sum BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk > DEVICE_PREVIEW_SHA256.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: DND_6654_PROFESSIONAL_DEVICE_PREVIEW_NOT_RELEASE
+          path: |
+            BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+            DEVICE_PREVIEW_SHA256.txt
+            DEVICE_PREVIEW_SIGNING.txt
+            DEVICE_PREVIEW_PACKAGE.txt
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DND_6654_PROFESSIONAL_DEVICE_PREVIEW_TESTS
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
+          if-no-files-found: warn
