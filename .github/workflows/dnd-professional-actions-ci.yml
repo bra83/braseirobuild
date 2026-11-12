@@ -47,7 +47,8 @@ jobs:
             --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
-            --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest'
+            --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest'
       - name: Print failed assertions and actual values
         if: failure()
         run: |
