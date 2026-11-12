@@ -4,6 +4,8 @@ on:
     branches: [fix/dnd-6654-actions-professional-20261111]
     paths:
       - '.github/workflows/dnd-professional-actions-device-preview.yml'
+      - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**'
+      - 'dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -50,7 +52,10 @@ jobs:
             --tests 'com.braseiro.dnd5e.StoryMomentumActionRegressionTest' \
             --tests 'com.braseiro.dnd5e.FourSceneActionsDropdownRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' \
-            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest'
+            --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest'
       - name: Build full-asset debug APK
         working-directory: dnd-normal/run247-mod005
         timeout-minutes: 45
