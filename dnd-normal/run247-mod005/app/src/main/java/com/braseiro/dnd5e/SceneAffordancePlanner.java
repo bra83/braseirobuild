@@ -59,6 +59,25 @@ public final class SceneAffordancePlanner {
             out.add(choice("INVESTIGAR","COMPARAR O ROTEIRO E A NOTA",
                 "Comparo a nota dobrada com as anotações do roteiro, procurando uma relação sem presumir que a encontrei."));
         }
+        // A visible service counter is a separate exploration decision from
+        // watching a document or questioning nearby students.
+        if(has(stage,"balcao") && !has(stage,"balcao de atendimento")){
+            out.add(choice("EXPLORAR","APROXIMAR-ME DO BALCÃO",
+                "Aproximo-me do balcão que está à vista para observar o atendimento, sem presumir que alguém me atendeu."));
+        }
+        // A named interlocutor can disclose a destination without making its
+        // props physically reachable. Following it is a voluntary attempt.
+        if(has(SceneActionEvidence.normalize(narration),"recado no quadro")
+                && has(SceneActionEvidence.normalize(narration),"cozinha")){
+            out.add(choice("EXPLORAR","PROCURAR O QUADRO JUNTO À COZINHA",
+                "Decido procurar o quadro junto à cozinha mencionado na conversa, sem presumir que já li o recado."));
+        }
+        if(has(stage,"placa solta") && has(stage,"monitor")){
+            out.add(choice("OBSERVAR","OBSERVAR A PLACA SOLTA",
+                "Observo a placa solta no piso que o monitor está examinando, sem pressupor a causa."));
+            out.add(choice("EXPLORAR","APROXIMAR-ME DO MONITOR",
+                "Aproximo-me do monitor junto à placa solta para saber se precisa de ajuda, aguardando sua reação."));
+        }
         if(has(stage,"folhetos")||has(stage,"folheto")){
             out.add(choice("OBSERVAR","LER OS FOLHETOS DISPONÍVEIS",
                 "Leio os folhetos que estão à vista e verifico o que oferecem, sem presumir o conteúdo."));
