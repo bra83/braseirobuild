@@ -83,6 +83,120 @@ public final class SceneAffordancePlanner {
             out.add(choice("EXPLORAR","APROXIMAR-ME DA PORTA ENTREABERTA",
                 "Aproximo-me da porta entreaberta para observar a origem aparente do brilho azulado, sem entrar nem pressupor o que há dentro."));
         }
+        // Place-specific affordances are based on multiple present, independent
+        // props/actors from the accepted beat. No fallback reads stale NPC state.
+        if(has(stage,"capitao") && has(stage,"marcadores") && has(stage,"caixote")){
+            out.add(choice("OBSERVAR","OBSERVAR OS MARCADORES",
+                "Observo os marcadores de campo que o capitão está ajustando antes de interferir no treino."));
+            out.add(choice("AGIR","FALAR COM O CAPITÃO",
+                "Pergunto ao capitão como estão sendo preparados os marcadores para o treino."));
+            out.add(choice("EXPLORAR","VERIFICAR O CAIXOTE",
+                "Aproximo-me do caixote de equipamentos para ver o que está acessível, sem pegar nada."));
+        }
+        if(has(stage,"pesquisador") && has(stage,"fragmentos de ceramica") && has(stage,"caixa lacrada")){
+            out.add(choice("OBSERVAR","EXAMINAR OS FRAGMENTOS",
+                "Examino visualmente os fragmentos de cerâmica sobre a bancada sem removê-los."));
+            out.add(choice("AGIR","FALAR COM O PESQUISADOR",
+                "Pergunto ao pesquisador anão o que está fazendo com os fragmentos de cerâmica."));
+            out.add(choice("EXPLORAR","VERIFICAR A CAIXA LACRADA",
+                "Aproximo-me da caixa lacrada para observar seu exterior, sem abri-la."));
+        }
+        if(has(stage,"guardas") && has(stage,"carrocas") && has(stage,"barqueiro")){
+            out.add(choice("OBSERVAR","OBSERVAR A INSPEÇÃO",
+                "Observo os guardas verificando as carroças junto ao portão."));
+            out.add(choice("AGIR","PERGUNTAR AOS GUARDAS",
+                "Pergunto aos guardas como funciona a passagem pelo portão e aguardo a resposta."));
+            out.add(choice("EXPLORAR","APROXIMAR-ME DO BARQUEIRO",
+                "Aproximo-me do barqueiro junto ao píer para saber se há uma travessia disponível."));
+        }
+        if(has(stage,"mercadora de mapas") && has(stage,"mensageiro") && has(stage,"banca")){
+            out.add(choice("OBSERVAR","OBSERVAR OS MAPAS",
+                "Examino visualmente os mapas que a mercadora enrola sobre a banca."));
+            out.add(choice("AGIR","PERGUNTAR À MERCADORA",
+                "Pergunto à mercadora o que mostram os mapas da banca, sem presumir suas informações."));
+            out.add(choice("EXPLORAR","ABORDAR O MENSAGEIRO",
+                "Aproximo-me do mensageiro que procura viajantes rumo ao norte para ouvir sua proposta."));
+        }
+        if(has(stage,"mestre de cais") && has(stage,"caixotes") && has(stage,"passarela")){
+            out.add(choice("OBSERVAR","OBSERVAR OS SELOS",
+                "Observo os selos de cera nos caixotes conferidos pelo mestre de cais."));
+            out.add(choice("AGIR","PERGUNTAR SOBRE OS CAIXOTES",
+                "Pergunto ao mestre de cais sobre os caixotes que está conferindo."));
+            out.add(choice("EXPLORAR","EXAMINAR A PASSARELA",
+                "Examino visualmente a passarela de embarque antes de decidir se a utilizo."));
+        }
+        if(has(stage,"marco de pedra rachado") && has(stage,"bifurcacao") && has(stage,"carroca parada")){
+            out.add(choice("OBSERVAR","LER O MARCO DE PEDRA",
+                "Examino o marco de pedra rachado para ler o que ainda indica."));
+            out.add(choice("AGIR","EXAMINAR A CARROÇA",
+                "Aproximo-me da carroça parada à beira da bifurcação para observar sinais visíveis, sem presumir ocupantes."));
+            out.add(choice("INVESTIGAR","COMPARAR AS DIREÇÕES",
+                "Comparo as direções da bifurcação com o marco de pedra antes de escolher um trajeto."));
+        }
+        if(has(stage,"obelisco") && has(stage,"wilem") && has(stage,"simmon") && has(stage,"fogueira")){
+            out.add(choice("OBSERVAR","EXAMINAR O OBELISCO",
+                "Examino o obelisco diante dos viajantes sem assumir conhecer a inscrição."));
+            out.add(choice("AGIR","PERGUNTAR A WILEM",
+                "Pergunto a Wilem o que os viajantes sabem sobre o obelisco."));
+            out.add(choice("CONVERSAR","FALAR COM SIMMON",
+                "Dirijo-me a Simmon junto à fogueira e pergunto sobre a viagem do grupo."));
+        }
+        if(has(stage,"wilem") && has(stage,"inscricoes do obelisco") && has(stage,"rota leste")){
+            out.add(choice("OBSERVAR","OBSERVAR AS INSCRIÇÕES",
+                "Examino as inscrições do obelisco antes de decidir entre as alternativas."));
+            out.add(choice("AGIR","PERGUNTAR SOBRE A ROTA",
+                "Pergunto a Wilem o que sabe sobre a rota leste mencionada na conversa."));
+            out.add(choice("EXPLORAR","AVALIAR O CAMINHO LESTE",
+                "Procuro avaliar o começo da rota leste indicada por Wilem, sem presumir que já a percorri."));
+        }
+        if(has(stage,"estalajadeiro") && has(stage,"chaves de bronze") && has(stage,"quadro de avisos")){
+            out.add(choice("OBSERVAR","LER OS AVISOS",
+                "Leio os avisos visíveis no quadro da estrada, sem presumir seu conteúdo."));
+            out.add(choice("AGIR","FALAR COM O ESTALAJADEIRO",
+                "Pergunto ao estalajadeiro a que correspondem as chaves de bronze no balcão."));
+            out.add(choice("EXPLORAR","OBSERVAR AS CHAVES",
+                "Examino visualmente as chaves de bronze sobre o balcão sem pegá-las."));
+        }
+        if(has(stage,"porta de ferro") && has(stage,"relevo de serpente") && has(stage,"pedestal")){
+            out.add(choice("OBSERVAR","EXAMINAR O RELEVO",
+                "Observo o relevo de serpente na porta de ferro sem tocar no mecanismo."));
+            out.add(choice("EXPLORAR","CONFERIR O PEDESTAL",
+                "Aproximo-me do pedestal baixo no piso para examinar sua superfície sem acioná-lo."));
+            out.add(choice("INVESTIGAR","COMPARAR PORTA E PEDESTAL",
+                "Comparo os detalhes visíveis do pedestal com o relevo de serpente na porta, sem presumir ligação."));
+        }
+        if(has(stage,"rastros recentes") && has(stage,"estatua partida") && has(stage,"alavanca")){
+            out.add(choice("OBSERVAR","SEGUIR OS RASTROS COM OS OLHOS",
+                "Observo a direção dos rastros recentes no chão antes de pisar neles."));
+            out.add(choice("AGIR","VERIFICAR A ALAVANCA",
+                "Aproximo-me da alavanca na parede norte para inspecioná-la sem puxá-la."));
+            out.add(choice("INVESTIGAR","EXAMINAR A ESTÁTUA PARTIDA",
+                "Examino visualmente a estátua partida perto dos rastros, sem presumir que o objeto foi movido."));
+        }
+        if(has(stage,"altar de basalto") && has(stage,"cofre de prata") && has(stage,"pergaminho lacrado")){
+            out.add(choice("OBSERVAR","EXAMINAR O PERGAMINHO",
+                "Examino o pergaminho lacrado junto ao cofre de prata sem romper o lacre."));
+            out.add(choice("AGIR","CONFERIR O COFRE",
+                "Tento verificar o exterior do cofre de prata fechado sem abri-lo."));
+            out.add(choice("EXPLORAR","OBSERVAR O ALTAR",
+                "Aproximo-me do altar de basalto para examinar sua superfície sem tocar nos objetos."));
+        }
+        if(has(stage,"nicho") && has(stage,"inscricoes arcanas") && has(stage,"diario aberto") && has(stage,"frascos")){
+            out.add(choice("OBSERVAR","OBSERVAR AS INSCRIÇÕES",
+                "Examino as inscrições arcanas nos nichos de pedra antes de interpretá-las."));
+            out.add(choice("AGIR","LER O DIÁRIO ABERTO",
+                "Procuro ler as anotações visíveis no diário aberto sobre a mesa de alquimia."));
+            out.add(choice("INVESTIGAR","CONFERIR OS FRASCOS",
+                "Comparo as etiquetas dos frascos sobre a mesa sem destampá-los."));
+        }
+        if(has(stage,"marco do percurso") && has(stage,"mapa") && has(stage,"cofre recuperado")){
+            out.add(choice("OBSERVAR","CONSULTAR O MAPA",
+                "Examino o mapa reunido sobre a pedra plana junto ao grupo."));
+            out.add(choice("AGIR","CONFERIR O COFRE",
+                "Tento verificar o estado do cofre recuperado que está sobre a pedra plana, sem abri-lo."));
+            out.add(choice("INVESTIGAR","COMPARAR MAPA E MARCO",
+                "Comparo as indicações do mapa com a posição do obelisco no Marco do Percurso, sem presumir correspondência."));
+        }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
         if(has(SceneActionEvidence.normalize(narration),"recado no quadro")
