@@ -139,7 +139,15 @@ public final class SceneActionEvidence {
         if(option==null)return new JSONObject();
         try{
             JSONObject safe=new JSONObject(option.toString());
-            safe.remove("test"); // An option can never authorize a dice check.
+            // Suggested actions express player intent only. Never allow model
+            // metadata to authorize a check, set its DC, decide a roll, or
+            // predeclare its mechanical outcome.
+            for(String key:new String[]{"test","check","skill_check","saving_throw",
+                    "roll","dice","dc","difficulty_class","target_number",
+                    "result","success","failure","effects","mechanical_effects",
+                    "state_patch","world_patch","resource_delta","time_delta"}){
+                safe.remove(key);
+            }
             safe.put("scene_fingerprint",hash(narration));
             safe.put("action_id",hash(narration+"|"+safe.optString("action")+"|"+safe.optString("action_type")));
             return safe;
