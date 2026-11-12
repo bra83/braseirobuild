@@ -194,8 +194,8 @@ public final class SceneAffordancePlanner {
                 "Examino o mapa reunido sobre a pedra plana junto ao grupo."));
             out.add(choice("AGIR","CONFERIR O COFRE",
                 "Tento verificar o estado do cofre recuperado que está sobre a pedra plana, sem abri-lo."));
-            out.add(choice("INVESTIGAR","COMPARAR MAPA E MARCO",
-                "Comparo as indicações do mapa com a posição do obelisco no Marco do Percurso, sem presumir correspondência."));
+            out.add(choice("INVESTIGAR","CONFERIR O OBELISCO",
+                "Examino o obelisco no Marco do Percurso em busca de marcas visíveis, sem presumir ter encontrado uma nova pista."));
         }
         // A stated destination is an invitation to choose a route, not proof
         // that its contents are accessible where the party currently stands.
