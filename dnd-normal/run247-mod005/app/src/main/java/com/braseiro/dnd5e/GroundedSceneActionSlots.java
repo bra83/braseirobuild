@@ -53,11 +53,10 @@ public final class GroundedSceneActionSlots {
             pool.add(candidate);
         }
 
-        // Concrete affordances outrank generic keyword-based slot fillers.
-        // Model choices remain first, subject to the same final evidence gate.
-        pool.addAll(SceneAffordancePlanner.candidates(visible));
-
-        // Conservative fallbacks. They compete with the model, not bypass it.
+        // Directly observed dialogue or a handled clue has precedence over
+        // generic affordances: OBSERVAR, AGIR, then the meaningful third decision.
+        // Otherwise a lone EXPLORAR fallback can occupy the first card and
+        // displace a more grounded player choice.
         String[] slots={OBSERVAR,AGIR,DESPISTAR};
         for(String slot:slots){
             JSONObject fallback=null;
@@ -68,6 +67,10 @@ public final class GroundedSceneActionSlots {
             if(fallback==null)fallback=ScenePhysicalCluePlanner.choice(slot,visible);
             if(fallback!=null)pool.add(fallback);
         }
+
+        // These must be backed by present objects or explicit directions;
+        // no old NPC state or generic keyword-only filler authorizes them.
+        pool.addAll(SceneAffordancePlanner.candidates(visible));
 
         for(String slot:slots){
             JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
