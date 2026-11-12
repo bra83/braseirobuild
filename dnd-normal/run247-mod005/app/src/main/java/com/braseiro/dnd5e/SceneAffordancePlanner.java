@@ -75,6 +75,14 @@ public final class SceneAffordancePlanner {
             out.add(choice("INVESTIGAR","INVESTIGAR O BARULHO MENCIONADO",
                 "Procuro a grade de ventilação mencionada no bilhete para tentar localizar a origem do barulho, sem presumir ter encontrado algo."));
         }
+        // A door explicitly ajar in the present corridor is an independent
+        // affordance from reading the nearby notebook. Approaching does not
+        // presume entry, a perception result, or permission to open it.
+        if(has(stage,"porta entreaberta") && has(stage,"brilho azulado")
+                && has(stage,"caderno")){
+            out.add(choice("EXPLORAR","APROXIMAR-ME DA PORTA ENTREABERTA",
+                "Aproximo-me da porta entreaberta para observar a origem aparente do brilho azulado, sem entrar nem pressupor o que há dentro."));
+        }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
         if(has(SceneActionEvidence.normalize(narration),"recado no quadro")
