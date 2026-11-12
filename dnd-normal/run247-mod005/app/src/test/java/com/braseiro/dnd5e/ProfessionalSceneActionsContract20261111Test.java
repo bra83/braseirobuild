@@ -51,6 +51,24 @@ public final class ProfessionalSceneActionsContract20261111Test {
             safe.getString("action"));
     }
 
+    @Test public void firejoltCounterIsIndependentGroundedChoice() throws Exception {
+        String narration="O aroma de especiarias e café recém-passado domina o Firejolt Cafe. "+
+            "No balcão de cobre, o gerente Ellina serve canecas fumegantes enquanto "+
+            "dois estudantes de Prismari discutem sobre um mapa rabiscado na mesa do canto.";
+        JSONObject counter=null;
+        for(JSONObject item:SceneAffordancePlanner.candidates(narration)){
+            if(item.optString("action","").contains("balcão que está à vista"))counter=item;
+        }
+        assertNotNull("Visible physical counter must generate EXPLORAR option",counter);
+        String action=counter.getString("action");
+        assertTrue("evidence: "+counter,SceneActionEvidence.valid(counter,narration));
+        assertTrue("current beat: "+counter,SceneOptionDiversifier.isRelevantToCurrentBeat(action,narration));
+        assertTrue("grounding: "+counter,SceneOptionDiversifier.isGroundedInScene(action,narration,new JSONObject()));
+        JSONArray actual=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
+            narration,"Entro no Firejolt Cafe para observar os estudantes",new JSONObject(),5);
+        assertEquals("3 grounded actions plus voluntary momentum: "+actual,4,actual.length());
+    }
+
     @Test public void sceneTicketExpiresOnNarrativeChange() throws Exception {
         String original="Uma assistente consulta uma prancheta na recepção.";
         JSONObject raw=new JSONObject().put("action_type","OBSERVAR")
