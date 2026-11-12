@@ -65,6 +65,16 @@ public final class SceneAffordancePlanner {
             out.add(choice("EXPLORAR","APROXIMAR-ME DO BALCÃO",
                 "Aproximo-me do balcão que está à vista para conhecer o funcionamento do atendimento, sem presumir que sou atendido."));
         }
+        // The notice at Firejolt Café gives two independent leads. They
+        // authorize player choices to look for those places, not instant travel,
+        // access, a completed task or the result of an investigation.
+        if(has(stage,"bilhete") && has(stage,"caixas de ingredientes")
+                && has(stage,"deposito dos fundos") && has(stage,"grade de ventilacao")){
+            out.add(choice("AGIR","PROCURAR O DEPÓSITO DOS FUNDOS",
+                "Decido procurar o depósito dos fundos mencionado no bilhete para saber como ajudar a organizar as caixas de ingredientes, sem presumir acesso."));
+            out.add(choice("INVESTIGAR","INVESTIGAR O BARULHO MENCIONADO",
+                "Procuro a grade de ventilação mencionada no bilhete para tentar localizar a origem do barulho, sem presumir ter encontrado algo."));
+        }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
         if(has(SceneActionEvidence.normalize(narration),"recado no quadro")
