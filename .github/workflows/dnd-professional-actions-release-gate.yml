@@ -10,7 +10,11 @@ permissions:
 jobs:
   full-jvm:
     runs-on: ubuntu-latest
-    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ['ABCDEF', 'GHIJKL', 'MNOPQR', 'STUVWXYZ0123456789']
+    timeout-minutes: 125
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,10 +42,16 @@ jobs:
           test -s "$root/signing/debug.keystore"
       - name: Full Android JVM and Robolectric suite
         working-directory: dnd-normal/run247-mod005
-        timeout-minutes: 85
+        timeout-minutes: 115
+        env:
+          TEST_INITIALS: ${{ matrix.group }}
         run: |
           chmod +x gradlew
-          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --stacktrace
+          filters=()
+          for ((i=0; i<${#TEST_INITIALS}; i++)); do
+            filters+=(--tests "com.braseiro.dnd5e.${TEST_INITIALS:i:1}*")
+          done
+          ./gradlew :app:testDebugUnitTest -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --stacktrace "${filters[@]}"
       - name: Print actionable failures
         if: failure()
         run: |
@@ -59,7 +69,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: DND_PROFESSIONAL_FULL_JVM_REPORTS
+          name: DND_PROFESSIONAL_FULL_JVM_REPORTS_${{ matrix.group }}
           path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
           if-no-files-found: warn
 
