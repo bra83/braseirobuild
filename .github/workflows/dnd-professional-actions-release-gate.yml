@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: ['ABCDEF', 'GHIJKL', 'MNOPQR', 'STUVWXYZ0123456789']
+        group: ['A', 'B', 'C', 'D', 'E', 'F', 'GHIJKL', 'MNOPQR', 'STUVWXYZ0123456789']
     timeout-minutes: 125
     steps:
       - uses: actions/checkout@v4
