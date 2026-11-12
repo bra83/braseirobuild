@@ -263,11 +263,11 @@ public final class GroundedSceneActionSlots {
     private static String visibleFocus(String narration){
         if(SceneOptionVisibleEvidence.diaryNounPresent(narration))return "o diário";
         String[][] objects={
+          {"roteiro","o roteiro"},{"nota dobrada","a nota dobrada"},
           {"quadro de desafios","o quadro de desafios"},{"quadro","o quadro"},
           {"charada","a charada"},{"selos","os selos"},{"inscricoes","as inscrições"},
           {"alavanca","a alavanca"},{"marcadores","os marcadores"},
           {"cofre","o cofre"},{"obelisco","o obelisco"},{"fogueira","a fogueira"},
-          {"roteiro","o roteiro"},{"nota dobrada","a nota dobrada"},
           {"caderno","o caderno"},{"frascos","os frascos"},
           {"caixote","o caixote"},{"armario","o armário"},
           {"bifurcacao","a bifurcação"},{"carroca","a carroça"},
