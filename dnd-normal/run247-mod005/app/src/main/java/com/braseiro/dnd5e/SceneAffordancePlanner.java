@@ -39,6 +39,17 @@ public final class SceneAffordancePlanner {
             out.add(choice("CONVERSAR","PERGUNTAR AOS ESTUDANTES SOBRE OS ARBUSTOS",
                 "Pergunto aos estudantes que passam o que sabem sobre os arbustos despertados, sem presumir que conheçam a resposta."));
         }
+        // Reading a newly located announcement is a different player
+        // decision from locating it. The notice must be visible, not merely
+        // mentioned in a remote rumour.
+        if(has(stage,"panfleto") && has(stage,"audicoes")){
+            out.add(choice("EXPLORAR","LER O ANÚNCIO DE AUDIÇÕES",
+                "Leio o panfleto de audições que está diante de mim, procurando identificar as instruções e sem presumir que me inscrevi."));
+        }
+        if(has(stage,"mesa de inscricoes")){
+            out.add(choice("EXPLORAR","APROXIMAR-ME DA MESA DE INSCRIÇÕES",
+                "Aproximo-me da mesa de inscrições indicada na cena para verificar o procedimento, sem presumir que já fui inscrito."));
+        }
         if(has(stage,"folhetos")||has(stage,"folheto")){
             out.add(choice("OBSERVAR","LER OS FOLHETOS DISPONÍVEIS",
                 "Leio os folhetos que estão à vista e verifico o que oferecem, sem presumir o conteúdo."));
