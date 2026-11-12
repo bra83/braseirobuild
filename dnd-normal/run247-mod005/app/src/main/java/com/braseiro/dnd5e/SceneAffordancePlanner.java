@@ -63,7 +63,7 @@ public final class SceneAffordancePlanner {
         // watching a document or questioning nearby students.
         if(has(stage,"balcao") && !has(stage,"balcao de atendimento")){
             out.add(choice("EXPLORAR","APROXIMAR-ME DO BALCÃO",
-                "Aproximo-me do balcão que está à vista para observar o atendimento, sem presumir que alguém me atendeu."));
+                "Aproximo-me do balcão que está à vista para conhecer o funcionamento do atendimento, sem presumir que sou atendido."));
         }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
