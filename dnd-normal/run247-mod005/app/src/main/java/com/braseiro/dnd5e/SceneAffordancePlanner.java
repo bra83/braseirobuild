@@ -181,7 +181,7 @@ public final class SceneAffordancePlanner {
             out.add(choice("EXPLORAR","OBSERVAR O ALTAR",
                 "Aproximo-me do altar de basalto para examinar sua superfície sem tocar nos objetos."));
         }
-        if(has(stage,"nicho") && has(stage,"inscricoes arcanas") && has(stage,"diario aberto") && has(stage,"frascos")){
+        if(has(stage,"nichos") && has(stage,"inscricoes arcanas") && has(stage,"diario aberto") && has(stage,"frascos")){
             out.add(choice("OBSERVAR","OBSERVAR AS INSCRIÇÕES",
                 "Examino as inscrições arcanas nos nichos de pedra antes de interpretá-las."));
             out.add(choice("AGIR","LER O DIÁRIO ABERTO",
@@ -196,6 +196,15 @@ public final class SceneAffordancePlanner {
                 "Tento verificar o estado do cofre recuperado que está sobre a pedra plana, sem abri-lo."));
             out.add(choice("INVESTIGAR","COMPARAR MAPA E MARCO",
                 "Comparo as indicações do mapa com a posição do obelisco no Marco do Percurso, sem presumir correspondência."));
+        }
+        // A stated destination is an invitation to choose a route, not proof
+        // that its contents are accessible where the party currently stands.
+        if(has(SceneActionEvidence.normalize(narration),"wilem")
+                && has(SceneActionEvidence.normalize(narration),"inscricoes do obelisco")
+                && has(SceneActionEvidence.normalize(narration),"rota leste")){
+            out.add(choice("OBSERVAR","OBSERVAR WILEM","Observo a reação de Wilem enquanto ele explica as alternativas junto ao obelisco."));
+            out.add(choice("AGIR","PERGUNTAR A WILEM","Pergunto a Wilem o que sabe sobre as inscrições do obelisco antes de escolher."));
+            out.add(choice("EXPLORAR","PROCURAR O CAMINHO LESTE","Decido procurar o início da rota leste indicada por Wilem, sem presumir que cheguei ao destino."));
         }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
