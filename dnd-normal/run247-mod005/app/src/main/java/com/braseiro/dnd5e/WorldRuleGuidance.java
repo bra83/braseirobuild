@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * citação decorativa anexada depois.
  */
 public final class WorldRuleGuidance {
-    private static final Pattern DURATION=Pattern.compile("(?iu)(\\d+(?:[.,]\\d+)?)\\s*(minutos?|minutes?|horas?|hours?|dias?|days?|rodadas?|rounds?|turnos?|turns?)");
+    private static final Pattern DURATION=Pattern.compile("(?i)(\\d+(?:[.,]\\d+)?)\\s*(minutos?|minutes?|horas?|hours?|dias?|days?|rodadas?|rounds?|turnos?|turns?)");
     private final JSONObject best;
     private final JSONObject source;
     private final int score;
