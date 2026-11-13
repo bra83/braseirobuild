@@ -206,6 +206,17 @@ public final class SceneAffordancePlanner {
             out.add(choice("AGIR","PERGUNTAR A WILEM","Pergunto a Wilem o que sabe sobre as inscrições do obelisco antes de escolher."));
             out.add(choice("EXPLORAR","PROCURAR O CAMINHO LESTE","Decido procurar o início da rota leste indicada por Wilem, sem presumir que cheguei ao destino."));
         }
+        // Bow's End Tavern: the host and the active throwing game are two
+        // independent interaction points. The challenge board is incidental.
+        if(has(stage,"tulk")&&has(stage,"taverneiro")&&has(stage,"arremessos")
+                &&has(stage,"grupo")&&has(stage,"quadro de desafios")){
+            out.add(choice("OBSERVAR","OBSERVAR A DISPUTA DE ARREMESSOS",
+                "Observo como o grupo disputa os arremessos junto ao quadro de desafios, sem participar ainda."));
+            out.add(choice("AGIR","PERGUNTAR A TULK SOBRE A DISPUTA",
+                "Pergunto a Tulk como funciona a disputa de arremessos e se é possível participar, sem presumir sua resposta."));
+            out.add(choice("EXPLORAR","APROXIMAR-ME DOS PARTICIPANTES",
+                "Aproximo-me dos participantes da disputa para entender as regras em vigor, sem iniciar um arremesso por conta própria."));
+        }
         // A named interlocutor can disclose a destination without making its
         // props physically reachable. Following it is a voluntary attempt.
         if(has(SceneActionEvidence.normalize(narration),"recado no quadro")
