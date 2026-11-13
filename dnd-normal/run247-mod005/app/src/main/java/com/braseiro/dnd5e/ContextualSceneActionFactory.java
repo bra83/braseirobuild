@@ -107,7 +107,7 @@ public final class ContextualSceneActionFactory {
         String fromBeat = match(beat, ACTORS);
         // "guarda o papel" is an action by a student, not the presence of a guard.
         if ("o guarda".equals(fromBeat) && !SceneOptionVisibleEvidence.guardNounPresent(beat))
-            fromBeat=match(beat.replaceAll("(?iu)\\bguarda\\b"," "),ACTORS);
+            fromBeat=match(beat.replaceAll("(?i)\\bguarda\\b"," "),ACTORS);
         if (!fromBeat.isEmpty()) return fromBeat;
         // A named speaker is a stronger anchor than a generic noun: never
         // invent a speaker, read only an explicit "Nome: — fala" in this beat.
@@ -149,7 +149,7 @@ public final class ContextualSceneActionFactory {
         // Extract a real noun phrase from the latest narrated beat. This makes
         // sparse scenes playable without fabricating a prop or another character.
         java.util.regex.Matcher matcher=java.util.regex.Pattern.compile(
-            "(?iu)\\b(?:a|o|os|as|um|uma|uns|umas)\\s+[\\p{L}]{4,}\\b")
+            "(?i)\\b(?:a|o|os|as|um|uma|uns|umas)\\s+[\\p{L}]{4,}\\b")
             .matcher(beat);
         String best="";
         while(matcher.find()){
@@ -171,7 +171,7 @@ public final class ContextualSceneActionFactory {
         if(has(n,"perigo"))return "o perigo";
         if(has(n,"orientacao"))return "a orientação";
         java.util.regex.Matcher words=java.util.regex.Pattern.compile(
-            "(?iu)\\b[\\p{L}]{5,}\\b").matcher(beat);
+            "(?i)\\b[\\p{L}]{5,}\\b").matcher(beat);
         String token="";
         while(words.find()){
             String t=words.group();
