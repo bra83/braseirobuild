@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 
 /** Repara somente textos gerados por versões antigas que contradizem a ficha. */
 public final class CharacterIdentityCoherence {
-    private static final Pattern GENERATED_CLASS=Pattern.compile("(?iu)(classe\\s+)(.+?)(\\s+e mantém a mesma aparência entre cenas)");
-    private static final Pattern HISTORY_CLASS=Pattern.compile("(?iu)(caminho de\\s+)(.+?)(\\.\\s+Um acontecimento)");
-    private static final Pattern IDENTITY=Pattern.compile("(?iu)(identidade\\s+)[\\p{L}-]+");
-    private static final Pattern SPECIES_FEATURE=Pattern.compile("(?iu)(Traços de espécie:\\s*)([^—\\n.]+)");
-    private static final Pattern SUBCLASS_FEATURE=Pattern.compile("(?iu)(Subclasse de nível\\s+\\d+\\s*:\\s*)([^.\\n]+)");
+    private static final Pattern GENERATED_CLASS=Pattern.compile("(?i)(classe\\s+)(.+?)(\\s+e mantém a mesma aparência entre cenas)");
+    private static final Pattern HISTORY_CLASS=Pattern.compile("(?i)(caminho de\\s+)(.+?)(\\.\\s+Um acontecimento)");
+    private static final Pattern IDENTITY=Pattern.compile("(?i)(identidade\\s+)[\\p{L}-]+");
+    private static final Pattern SPECIES_FEATURE=Pattern.compile("(?i)(Traços de espécie:\\s*)([^—\\n.]+)");
+    private static final Pattern SUBCLASS_FEATURE=Pattern.compile("(?i)(Subclasse de nível\\s+\\d+\\s*:\\s*)([^.\\n]+)");
     private static final String[] SPECIES={"Humano","Anão","Anã","Elfo","Elfa","Halfling","Golias","Gnomo","Gnoma","Draconato","Draconata","Tiefling","Aasimar","Orc","Meio-orc","Meio-elfo"};
 
     private CharacterIdentityCoherence() {}
@@ -68,7 +68,7 @@ public final class CharacterIdentityCoherence {
         String subclass=subclass(cls);if(subclass.length()>0)out=replaceTail(SUBCLASS_FEATURE,out,subclass);
         if(foreignSpecies!=null&&foreignSpecies.length()>0){
             String badAdjective=identityAdjective(foreignSpecies);
-            if(subclass.length()>0)out=out.replaceAll("(?iu)Linhagem\\s+"+Pattern.quote(badAdjective),Matcher.quoteReplacement(subclass));
+            if(subclass.length()>0)out=out.replaceAll("(?i)Linhagem\\s+"+Pattern.quote(badAdjective),Matcher.quoteReplacement(subclass));
         }
         return out.replaceAll("[ \\t]+\\n","\\n").replaceAll(" {2,}"," ").trim();
     }
