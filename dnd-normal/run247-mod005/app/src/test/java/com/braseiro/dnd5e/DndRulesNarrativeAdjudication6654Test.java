@@ -29,6 +29,21 @@ public final class DndRulesNarrativeAdjudication6654Test {
         }
     }
 
+    @Test public void delayedRollWordingNeverMasksUnrolledSuccess() throws Exception {
+        String action="Tento decifrar a charada de Silverquill para descobrir os selos.";
+        for(String narration:new String[]{
+                "O Mestre pede um teste. Logo depois, Kvothe decifra a charada.",
+                "Ainda não se sabe o resultado. Mas você consegue descobrir a resposta.",
+                "Kvothe aguarda a rolagem. Em seguida você encontra a solução.",
+                "Antes de rolar, Kvothe fracassa na tentativa."}){
+            assertTrue(narration,DndActionCheckPolicy.unresolvedOutcomeClaimed(narration));
+            assertTrue(narration,DndActionCheckPolicy.missingRequiredResolution(action,
+                new JSONObject().put("narration",narration),false));
+        }
+        assertFalse(DndActionCheckPolicy.unresolvedOutcomeClaimed(
+            "O Mestre pede um teste. Kvothe aguarda a rolagem, sem saber a resposta."));
+    }
+
     @Test public void ordinaryTalkObservationAndTravelDoNotForceDice() throws Exception {
         for(String action:new String[]{
                 "Pergunto à aluna se ela participa do salão de poesia.",
