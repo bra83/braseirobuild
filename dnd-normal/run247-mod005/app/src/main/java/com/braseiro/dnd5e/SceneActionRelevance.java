@@ -107,9 +107,19 @@ public final class SceneActionRelevance {
         if(count==0)return true;
         // A secondary scenery prop cannot monopolize the player's decisions.
         if(BACKGROUND.contains(focus)&&!goalMatch(candidate,scene))return false;
-        // Even when central to a quest, two different verbs do not justify
-        // three variations on the same document, interlocutor or activity.
-        return count<2 && goalMatch(candidate,scene);
+        // Other focal points may legitimately sustain several tactics when
+        // they are the only meaningful focus (e.g. negotiating with guards).
+        // The selector tries distinct foci before considering these repeats.
+        return count<3;
+    }
+
+    static boolean focusAlreadyChosen(JSONObject candidate,JSONArray selected){
+        String target=focus(candidate);
+        if(target.isEmpty()||selected==null)return false;
+        for(int i=0;i<selected.length();i++){
+            if(target.equals(focus(selected.optJSONObject(i))))return true;
+        }
+        return false;
     }
 
     private static int score(JSONObject option,String narration,
