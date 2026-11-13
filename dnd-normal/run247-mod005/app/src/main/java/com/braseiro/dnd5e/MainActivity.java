@@ -1745,6 +1745,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             openJournal.setTextColor(GOLD);
             openJournal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});
             controlsBox.addView(openJournal,new LinearLayout.LayoutParams(-1,dp(34)));
+            Button openMissions=smallButton("📋 MISSÕES ATIVAS / FINALIZADAS",Color.rgb(60,43,25));
+            openMissions.setTextColor(GOLD);
+            openMissions.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v){navigate("Missões");}
+            });
+            controlsBox.addView(openMissions,new LinearLayout.LayoutParams(-1,dp(34)));
+
             if(hasFailedGeminiRequest()){
                 LinearLayout failCard=card();failCard.setBackground(makeBg(Color.rgb(55,20,20),RED,10));
                 failCard.addView(text("O Gemini não respondeu. A ação continua pendente e salva.",11,RED,true));
