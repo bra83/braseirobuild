@@ -21,27 +21,27 @@ import java.util.regex.Pattern;
  * não relacionado em outro parágrafo da página.
  */
 public final class RuleProcedureCompiler {
-    private static final Pattern DICE=Pattern.compile("(?iu)\\b(\\d{1,3})?d(\\d{1,4})(?:\\s*([+\\-])\\s*(\\d{1,3}))?\\b");
-    private static final Pattern DC=Pattern.compile("(?iu)\\b(?:CD|DC|classe de dificuldade|difficulty class|teste contra|save dc)\\s*[:=]?\\s*(\\d{1,2})\\b");
-    private static final Pattern ATTACK_BONUS=Pattern.compile("(?iu)\\b(?:b[oô]nus de ataque|attack bonus|to hit)\\s*[:=]?\\s*([+\\-]?\\d{1,2})\\b");
-    private static final Pattern ARMOR_CLASS=Pattern.compile("(?iu)\\b(?:CA|AC|classe de armadura|armor class)\\s*[:=]?\\s*(\\d{1,2})\\b");
-    private static final Pattern NUMBER_UNIT=Pattern.compile("(?iu)\\b(\\d+(?:[.,]\\d+)?)\\s*(p[eé]s?|feet|ft|metros?|m|quil[oô]metros?|km|milhas?|miles?|horas?|hours?|dias?|days?|rodadas?|rounds?|turnos?|turns?|minutos?|minutes?|po|pp|pc|gp|sp|cp|%)\\b");
-    private static final Pattern FIXED_EFFECT=Pattern.compile("(?iu)\\b(?:sofre|recebe|causa|recupera|cura|perde|ganha|consome|gasta|reduz|costs?|takes?|deals?|heals?|regains?|loses?|reduces?)\\s+(\\d{1,4})\\b");
-    private static final Pattern BONUS=Pattern.compile("(?iu)(?:b[oô]nus|penalidade|modifier|modificador|penalty)\\s*(?:de|of|:|=)?\\s*([+\\-]\\s*\\d{1,2})");
-    private static final Pattern DURATION=Pattern.compile("(?iu)\\b(?:por|durante|for|until|até|ate)\\s+(?:até\\s+|ate\\s+|up to\\s+)?(\\d+(?:[.,]\\d+)?)?\\s*(rodadas?|rounds?|turnos?|turns?|minutos?|minutes?|horas?|hours?|dias?|days?|até o fim do próximo turno|ate o fim do proximo turno|until the end of your next turn)\\b");
-    private static final Pattern RANGE=Pattern.compile("(?iu)\\b(?:alcance|range|within|a até|a ate|até|ate)\\s*(?:de|of|:)?\\s*(\\d+(?:[.,]\\d+)?)\\s*(p[eé]s?|feet|ft|metros?|m|quil[oô]metros?|km|milhas?|miles?)\\b");
-    private static final Pattern TARGET_COUNT=Pattern.compile("(?iu)\\b(?:até|ate|up to|uma|um|one|cada|each|todas?|todos?|all)\\s+(\\d+\\s+)?(?:criatura|criaturas|creature|creatures|alvo|alvos|target|targets|objeto|objetos|object|objects|aliado|aliados|ally|allies|inimigo|inimigos|enemy|enemies)\\b");
-    private static final Pattern AREA=Pattern.compile("(?iu)\\b(?:cone|cubo|cube|esfera|sphere|cilindro|cylinder|linha|line|raio|radius)\\s*(?:de|of|:)?\\s*(\\d+(?:[.,]\\d+)?)?\\s*(p[eé]s?|feet|ft|metros?|m)?\\b");
-    private static final Pattern ACTION_PHRASE=Pattern.compile("(?iu)\\b(?:como|com|usando|as)\\s+(?:uma|an)?\\s*(?:ação|acao|action)\\b");
-    private static final Pattern BONUS_ACTION_PHRASE=Pattern.compile("(?iu)\\b(?:ação bônus|acao bonus|bonus action)\\b");
-    private static final Pattern REACTION_PHRASE=Pattern.compile("(?iu)\\b(?:reação|reacao|reaction)\\b");
-    private static final Pattern CROSS_REFERENCE=Pattern.compile("(?iu)\\b(?:consulte|veja|conforme|de acordo com|na tabela|tabela anterior|página|pagina|capítulo|capitulo|see|refer to|as shown|the table|previous table|chapter|page)\\b");
-    private static final Pattern CONCENTRATION=Pattern.compile("(?iu)\\b(?:concentração|concentracao|concentration)\\b");
-    private static final Pattern ADVANTAGE=Pattern.compile("(?iu)\\b(?:vantagem|advantage)\\b");
-    private static final Pattern DISADVANTAGE=Pattern.compile("(?iu)\\b(?:desvantagem|disadvantage)\\b");
-    private static final Pattern LEVEL_PREREQUISITE=Pattern.compile("(?iu)\\b(?:nível|nivel|level)\\s*(\\d{1,2})\\b");
-    private static final Pattern REPEAT_TIMING=Pattern.compile("(?iu)\\b(?:ao final|no final|no início|no inicio|at the end|at the start|repete|repeat|novamente|again)\\b[^.!?]{0,100}\\b(?:turno|turn|rodada|round|dia|day|descanso|rest)\\b");
-    private static final Pattern EXPLICIT_QUANTITY=Pattern.compile("(?iu)\\b(?:gasta|gaste|gastam|consome|consuma|consumir|perde|reduz|reduzir|recupera|recupere|ganha|recebe|concede|compra|vende|fabrica|encontra|destrói|destroi|spends?|costs?|consumes?|loses?|reduces?|regains?|recovers?|gains?|grants?|buys?|sells?|crafts?|finds?|destroys?)\\s+(exatamente\\s+|exactly\\s+)?(\\d{1,4}|um|uma|one|dois|duas|two|três|tres|three|metade|half|todos?|todas?|all)\\b");
+    private static final Pattern DICE=Pattern.compile("(?i)\\b(\\d{1,3})?d(\\d{1,4})(?:\\s*([+\\-])\\s*(\\d{1,3}))?\\b");
+    private static final Pattern DC=Pattern.compile("(?i)\\b(?:CD|DC|classe de dificuldade|difficulty class|teste contra|save dc)\\s*[:=]?\\s*(\\d{1,2})\\b");
+    private static final Pattern ATTACK_BONUS=Pattern.compile("(?i)\\b(?:b[oô]nus de ataque|attack bonus|to hit)\\s*[:=]?\\s*([+\\-]?\\d{1,2})\\b");
+    private static final Pattern ARMOR_CLASS=Pattern.compile("(?i)\\b(?:CA|AC|classe de armadura|armor class)\\s*[:=]?\\s*(\\d{1,2})\\b");
+    private static final Pattern NUMBER_UNIT=Pattern.compile("(?i)\\b(\\d+(?:[.,]\\d+)?)\\s*(p[eé]s?|feet|ft|metros?|m|quil[oô]metros?|km|milhas?|miles?|horas?|hours?|dias?|days?|rodadas?|rounds?|turnos?|turns?|minutos?|minutes?|po|pp|pc|gp|sp|cp|%)\\b");
+    private static final Pattern FIXED_EFFECT=Pattern.compile("(?i)\\b(?:sofre|recebe|causa|recupera|cura|perde|ganha|consome|gasta|reduz|costs?|takes?|deals?|heals?|regains?|loses?|reduces?)\\s+(\\d{1,4})\\b");
+    private static final Pattern BONUS=Pattern.compile("(?i)(?:b[oô]nus|penalidade|modifier|modificador|penalty)\\s*(?:de|of|:|=)?\\s*([+\\-]\\s*\\d{1,2})");
+    private static final Pattern DURATION=Pattern.compile("(?i)\\b(?:por|durante|for|until|até|ate)\\s+(?:até\\s+|ate\\s+|up to\\s+)?(\\d+(?:[.,]\\d+)?)?\\s*(rodadas?|rounds?|turnos?|turns?|minutos?|minutes?|horas?|hours?|dias?|days?|até o fim do próximo turno|ate o fim do proximo turno|until the end of your next turn)\\b");
+    private static final Pattern RANGE=Pattern.compile("(?i)\\b(?:alcance|range|within|a até|a ate|até|ate)\\s*(?:de|of|:)?\\s*(\\d+(?:[.,]\\d+)?)\\s*(p[eé]s?|feet|ft|metros?|m|quil[oô]metros?|km|milhas?|miles?)\\b");
+    private static final Pattern TARGET_COUNT=Pattern.compile("(?i)\\b(?:até|ate|up to|uma|um|one|cada|each|todas?|todos?|all)\\s+(\\d+\\s+)?(?:criatura|criaturas|creature|creatures|alvo|alvos|target|targets|objeto|objetos|object|objects|aliado|aliados|ally|allies|inimigo|inimigos|enemy|enemies)\\b");
+    private static final Pattern AREA=Pattern.compile("(?i)\\b(?:cone|cubo|cube|esfera|sphere|cilindro|cylinder|linha|line|raio|radius)\\s*(?:de|of|:)?\\s*(\\d+(?:[.,]\\d+)?)?\\s*(p[eé]s?|feet|ft|metros?|m)?\\b");
+    private static final Pattern ACTION_PHRASE=Pattern.compile("(?i)\\b(?:como|com|usando|as)\\s+(?:uma|an)?\\s*(?:ação|acao|action)\\b");
+    private static final Pattern BONUS_ACTION_PHRASE=Pattern.compile("(?i)\\b(?:ação bônus|acao bonus|bonus action)\\b");
+    private static final Pattern REACTION_PHRASE=Pattern.compile("(?i)\\b(?:reação|reacao|reaction)\\b");
+    private static final Pattern CROSS_REFERENCE=Pattern.compile("(?i)\\b(?:consulte|veja|conforme|de acordo com|na tabela|tabela anterior|página|pagina|capítulo|capitulo|see|refer to|as shown|the table|previous table|chapter|page)\\b");
+    private static final Pattern CONCENTRATION=Pattern.compile("(?i)\\b(?:concentração|concentracao|concentration)\\b");
+    private static final Pattern ADVANTAGE=Pattern.compile("(?i)\\b(?:vantagem|advantage)\\b");
+    private static final Pattern DISADVANTAGE=Pattern.compile("(?i)\\b(?:desvantagem|disadvantage)\\b");
+    private static final Pattern LEVEL_PREREQUISITE=Pattern.compile("(?i)\\b(?:nível|nivel|level)\\s*(\\d{1,2})\\b");
+    private static final Pattern REPEAT_TIMING=Pattern.compile("(?i)\\b(?:ao final|no final|no início|no inicio|at the end|at the start|repete|repeat|novamente|again)\\b[^.!?]{0,100}\\b(?:turno|turn|rodada|round|dia|day|descanso|rest)\\b");
+    private static final Pattern EXPLICIT_QUANTITY=Pattern.compile("(?i)\\b(?:gasta|gaste|gastam|consome|consuma|consumir|perde|reduz|reduzir|recupera|recupere|ganha|recebe|concede|compra|vende|fabrica|encontra|destrói|destroi|spends?|costs?|consumes?|loses?|reduces?|regains?|recovers?|gains?|grants?|buys?|sells?|crafts?|finds?|destroys?)\\s+(exatamente\\s+|exactly\\s+)?(\\d{1,4}|um|uma|one|dois|duas|two|três|tres|three|metade|half|todos?|todas?|all)\\b");
 
     private static final String[] CONDITIONS={
             "Agarrado","Agarrada","Amedrontado","Amedrontada","Atordoado","Atordoada","Caído","Caída","Cego","Cega","Contido","Contida","Enfeitiçado","Enfeitiçada","Envenenado","Envenenada",
@@ -277,7 +277,7 @@ public final class RuleProcedureCompiler {
     private static JSONArray findPrerequisites(String sentence)throws Exception{
         JSONArray out=new JSONArray();String n=norm(sentence);Matcher level=LEVEL_PREREQUISITE.matcher(sentence==null?"":sentence);
         while(level.find())putUnique(out,"level:"+level.group(1));
-        Matcher cls=Pattern.compile("(?iu)\\b(?:classe|class)\\s*[:=]?\\s*([\\p{L}][\\p{L} -]{1,40})").matcher(sentence==null?"":sentence);
+        Matcher cls=Pattern.compile("(?i)\\b(?:classe|class)\\s*[:=]?\\s*([\\p{L}][\\p{L} -]{1,40})").matcher(sentence==null?"":sentence);
         if(cls.find())putUnique(out,"class:"+clean(cls.group(1)).replaceAll("[.,;:].*$",""));
         if(contains(n,"descanso curto","short rest"))putUnique(out,"short_rest");
         if(contains(n,"descanso longo","long rest"))putUnique(out,"long_rest");
