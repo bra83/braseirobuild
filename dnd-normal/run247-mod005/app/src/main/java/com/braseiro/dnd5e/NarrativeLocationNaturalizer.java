@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
  */
 public final class NarrativeLocationNaturalizer {
     private static final Pattern HEX_ID = Pattern.compile("(?<![A-Za-z0-9])([A-Z]{1,3}[0-9]{1,4})(?![A-Za-z0-9])");
-    private static final Pattern GENERIC_AT_CURRENT = Pattern.compile("(?iu)\\b(?:no|neste|nesse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?(?:\\s+(?:nesta|nessa)\\s+área)?\\b");
-    private static final Pattern GENERIC_FROM_CURRENT = Pattern.compile("(?iu)\\b(?:do|deste|desse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
-    private static final Pattern GENERIC_SUBJECT = Pattern.compile("(?iu)\\b(?:o|este|esse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
-    private static final Pattern GENERIC_BARE = Pattern.compile("(?iu)\\bhex(?:ágono)?(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
+    private static final Pattern GENERIC_AT_CURRENT = Pattern.compile("(?i)\\b(?:no|neste|nesse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?(?:\\s+(?:nesta|nessa)\\s+área)?\\b");
+    private static final Pattern GENERIC_FROM_CURRENT = Pattern.compile("(?i)\\b(?:do|deste|desse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
+    private static final Pattern GENERIC_SUBJECT = Pattern.compile("(?i)\\b(?:o|este|esse)\\s+(?:hex(?:ágono)?)(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
+    private static final Pattern GENERIC_BARE = Pattern.compile("(?i)\\bhex(?:ágono)?(?:\\s+[A-Z]{1,3}[0-9]{1,4})?\\b");
 
     private NarrativeLocationNaturalizer() { }
 
@@ -222,7 +222,7 @@ public final class NarrativeLocationNaturalizer {
     }
 
     private static String finish(String value){
-        return PortugueseNarrationSanitizer.sanitize(value).replaceAll("(?iu)\\b(?:nesta|nessa) região nesta área\\b","nesta região").replaceAll(" {2,}"," ").trim();
+        return PortugueseNarrationSanitizer.sanitize(value).replaceAll("(?i)\\b(?:nesta|nessa) região nesta área\\b","nesta região").replaceAll(" {2,}"," ").trim();
     }
 
     private static final class CurrentReference {
@@ -238,7 +238,7 @@ public final class NarrativeLocationNaturalizer {
         }
         static CurrentReference place(String value){
             String lower=value.toLowerCase(Locale.ROOT);
-            if(lower.startsWith("na ")||lower.startsWith("no ")||lower.startsWith("nas ")||lower.startsWith("nos ")||lower.startsWith("em ")||lower.startsWith("nesta ")||lower.startsWith("neste "))return new CurrentReference(value,"desse local",value.replaceFirst("(?iu)^(na|no|nas|nos|em)\\s+",""),value.replaceFirst("(?iu)^(na|no|nas|nos|em|nesta|neste)\\s+",""));
+            if(lower.startsWith("na ")||lower.startsWith("no ")||lower.startsWith("nas ")||lower.startsWith("nos ")||lower.startsWith("em ")||lower.startsWith("nesta ")||lower.startsWith("neste "))return new CurrentReference(value,"desse local",value.replaceFirst("(?i)^(na|no|nas|nos|em)\\s+",""),value.replaceFirst("(?i)^(na|no|nas|nos|em|nesta|neste)\\s+",""));
             if(lower.startsWith("a "))return new CurrentReference("na "+value.substring(2),"da "+value.substring(2),value,value.substring(2));
             if(lower.startsWith("o "))return new CurrentReference("no "+value.substring(2),"do "+value.substring(2),value,value.substring(2));
             return proper(value);
