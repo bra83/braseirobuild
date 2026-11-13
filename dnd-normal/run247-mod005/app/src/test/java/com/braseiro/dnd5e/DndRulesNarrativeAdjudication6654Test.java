@@ -109,6 +109,16 @@ public final class DndRulesNarrativeAdjudication6654Test {
                 assertTrue("Invalid DC must fail closed: "+dc,validated.optBoolean("_mechanics_blocked"));
                 assertNull("Invalid DC may not become a roll: "+dc,validated.optJSONObject("pending_test"));
             }
+            for(String ability:new String[]{"","Inexistente","Perícia","Charisma42"}){
+                JSONObject invalidAbility=new JSONObject().put("narration","Aguarde a rolagem.")
+                    .put("pending_test",new JSONObject().put("required",true).put("dc",14)
+                        .put("type","ability").put("ability",ability)
+                        .put("skill","Investigação"));
+                JSONObject checked=arbiter.validate(invalidAbility,RIDDLE);
+                assertTrue("Unknown ability must not be treated as Wisdom: "+ability,
+                    checked.optBoolean("_mechanics_blocked"));
+                assertNull(checked.optJSONObject("pending_test"));
+            }
             JSONObject correct=new JSONObject().put("narration","Aguarde a rolagem.")
                 .put("pending_test",new JSONObject().put("required",true).put("dc",14)
                     .put("type","ability").put("ability","Inteligência")
