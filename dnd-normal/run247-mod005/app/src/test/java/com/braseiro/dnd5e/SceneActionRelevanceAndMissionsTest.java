@@ -79,6 +79,34 @@ public final class SceneActionRelevanceAndMissionsTest {
             "",scene).get(0));
     }
 
+    @Test public void speakingNpcAndLiveObjectiveBeatIncidentalNotebook()throws Exception{
+        JSONObject scene=new JSONObject().put("objective",
+            "Investigar o desaparecimento de uma aluna")
+            .put("active_quests",new JSONArray().put(
+                new JSONObject().put("title","Aluna desaparecida")
+                    .put("objective","Descobrir onde a aluna desaparecida foi vista")));
+        JSONObject notebook=option("OBSERVAR",
+            "Examino as páginas do caderno sobre a mesa.");
+        JSONObject speaker=option("CONVERSAR",
+            "Pergunto a Aisla sobre o desaparecimento da aluna.");
+        JSONObject objective=option("INVESTIGAR",
+            "Investigo o desaparecimento da aluna com as testemunhas presentes.");
+        List<JSONObject> options=new ArrayList<>();
+        options.add(notebook);
+        options.add(speaker);
+        options.add(objective);
+        List<JSONObject> chosen=SceneActionRelevance.order(options,
+            "Aisla: — A aluna desapareceu ontem. Aisla espera nossa resposta. "
+                +"Há um caderno esquecido sobre uma mesa.",
+            "",scene);
+        assertNotEquals("An incidental notebook must not be the top option",
+            notebook,chosen.get(0));
+        assertTrue("A scene-level goal should outrank incidental scenery",
+            chosen.indexOf(objective)<chosen.indexOf(notebook));
+        assertTrue("The speaking NPC should outrank incidental scenery",
+            chosen.indexOf(speaker)<chosen.indexOf(notebook));
+    }
+
     @Test public void activeAndCompletedQuestsRemainAfterDatabaseReopen()throws Exception{
         long first=db.addQuest("Inscrições na Guilda","Falar com a funcionária",
             "A vaga extracurricular",0);
