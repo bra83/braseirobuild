@@ -48,7 +48,15 @@ jobs:
             --tests 'com.braseiro.dnd5e.SceneOptionVisibleEvidenceRegressionTest' \
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
-            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest'
+            --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
+            --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
+            --tests 'com.braseiro.dnd5e.MasterConsultationFreshnessRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest' \
+            --tests 'com.braseiro.dnd5e.SessionTurnQualityRegressionTest' \
+            --tests 'com.braseiro.dnd5e.AdventureContinuityPersistenceTest' \
+            --tests 'com.braseiro.dnd5e.NarrativeCanonPersistenceTest' \
+            --tests 'com.braseiro.dnd5e.NarrativeDefinitiveLeakRegressionTest'
       - name: Print failed assertions and actual values
         if: failure()
         run: |
