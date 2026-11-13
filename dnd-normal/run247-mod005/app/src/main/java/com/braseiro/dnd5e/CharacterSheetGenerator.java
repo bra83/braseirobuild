@@ -551,13 +551,13 @@ public final class CharacterSheetGenerator {
         String out = text;
 
         // Corrige frases gravadas por versões antigas ou devolvidas pela IA.
-        out = out.replaceAll("(?iu)cresceu aprendendo a sobreviver como\\s+(humano|humana|anão|anã|elfo|elfa|halfling|gnomo|gnoma|golias|orc|orque|tiefling|aasimar|draconato|draconata)",
+        out = out.replaceAll("(?i)cresceu aprendendo a sobreviver como\\s+(humano|humana|anão|anã|elfo|elfa|halfling|gnomo|gnoma|golias|orc|orque|tiefling|aasimar|draconato|draconata)",
                 "cresceu entre " + java.util.regex.Matcher.quoteReplacement(community));
-        out = out.replaceAll("(?iu)cresceu entre costumes\\s+(humanos|humanas|anões|anãs|élficos|élficas|halflings|gnômicos|gnômicas|golias|orcs|tieflings|celestiais|dracônicos|dracônicas)",
+        out = out.replaceAll("(?i)cresceu entre costumes\\s+(humanos|humanas|anões|anãs|élficos|élficas|halflings|gnômicos|gnômicas|golias|orcs|tieflings|celestiais|dracônicos|dracônicas)",
                 "cresceu entre " + java.util.regex.Matcher.quoteReplacement(community));
-        out = out.replaceAll("(?iu)(suas?|as) raízes\\s+(humanas|anãs|élficas|halflings|gnômicas|golias|orcs|tieflings|celestiais|dracônicas)",
+        out = out.replaceAll("(?i)(suas?|as) raízes\\s+(humanas|anãs|élficas|halflings|gnômicas|golias|orcs|tieflings|celestiais|dracônicas)",
                 "$1 raízes " + java.util.regex.Matcher.quoteReplacement(roots));
-        out = out.replaceAll("(?iu)(identidade|herança|linhagem)\\s+(humana|anã|élfica|halfling|gnômica|golias|orc|tiefling|celestial|dracônica|meio-élfica|meio-orc)",
+        out = out.replaceAll("(?i)(identidade|herança|linhagem)\\s+(humana|anã|élfica|halfling|gnômica|golias|orc|tiefling|celestial|dracônica|meio-élfica|meio-orc)",
                 "$1 " + java.util.regex.Matcher.quoteReplacement(identity));
 
         // Linhas de origem que afirmem outra espécie são substituídas por uma frase inequívoca.
