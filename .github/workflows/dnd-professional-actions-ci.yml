@@ -32,7 +32,7 @@ jobs:
         working-directory: dnd-normal/run247-mod005
         run: |
           set -euo pipefail
-          if grep -RInF --include='*.java' --include='*.kt' -e '(?U)' -e '(?u)' app/src/main/java; then
+          if grep -RInE --include='*.java' --include='*.kt' '\(\?[A-Za-z-]*[uU][A-Za-z-]*\)' app/src/main/java; then
             echo "::error::Android ICU rejects Java-only (?U)/(?u) embedded regex flags. Replace before shipping APK."
             exit 1
           fi
