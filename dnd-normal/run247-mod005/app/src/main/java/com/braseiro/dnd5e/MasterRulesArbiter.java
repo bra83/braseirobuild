@@ -68,14 +68,28 @@ public final class MasterRulesArbiter {
         if("Ladrão".equalsIgnoreCase(cls))x.put("thief_skills",mystaraRules.thiefSkillsJson(level));
     }
 
+    /**
+     * Only an explicit integral JSON number in the D&D ability-check range
+     * may authorize a pending test. In particular JSONObject.optInt(...,10)
+     * silently replaces malformed model output with an invented DC 10.
+     */
+    private static boolean validDifficultyClass(JSONObject test){
+        if(test==null||!test.has("dc")||test.isNull("dc"))return false;
+        Object raw=test.opt("dc");
+        if(!(raw instanceof Number))return false;
+        double value=((Number)raw).doubleValue();
+        return !Double.isNaN(value)&&!Double.isInfinite(value)
+                &&value==Math.rint(value)&&value>=5d&&value<=30d;
+    }
+
     public JSONObject validate(JSONObject envelope,String action){
         if(envelope==null)return new JSONObject();JSONArray warnings=new JSONArray();int verifiedMechanics=0,blockedMechanics=0;try{
             Map<String,JSONObject> heroes=heroesByName();
             JSONObject test=envelope.optJSONObject("pending_test");if(test!=null&&test.optBoolean("required",true)){
                 String actor=test.optString("character","").trim();if(actor.length()>0&&!heroes.containsKey(normalize(actor))){test.remove("character");test.put("actor_selection_required",true);warnings.put("O teste citava um personagem inexistente; o aplicativo pedirá a seleção do ator.");}
                 String n=normalize(action+" "+db.getSceneState().optString("danger")+" "+db.getSceneState().optString("threats_json"));if(!hasRisk(n)&&!oppositionPresent(n)&&!hasRelevantUncertainty(n,test)){envelope.put("pending_test",JSONObject.NULL);warnings.put("Teste removido: ação claramente trivial, sem dificuldade, oposição ou incerteza relevante.");}
-                else if(isMystara())validateMystaraTest(test,warnings);else if(!test.has("dc")||test.isNull("dc")){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("O Mestre não definiu a CD do teste; o aplicativo não fabricará uma CD 10.");}else{
-                    int dc=Math.max(5,Math.min(30,test.optInt("dc",10)));test.put("dc",dc);test.put("mode",validMode(test.optString("mode","Normal")));String ability=validAbility(test.optString("ability","Sabedoria"));test.put("ability",ability);String skill=validSkill(test.optString("skill",""));if(skill.length()>0)test.put("skill",skill);else test.remove("skill");applyTravelCheckMode(test,skill,warnings);applyConditionTestMode(test,heroes,warnings);
+                else if(isMystara())validateMystaraTest(test,warnings);else if(!validDifficultyClass(test)){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("O Mestre informou CD ausente, inválida ou fora da faixa 5–30; nenhuma CD será presumida, convertida ou ajustada.");}else{
+                    int dc=((Number)test.opt("dc")).intValue();test.put("dc",dc);test.put("mode",validMode(test.optString("mode","Normal")));String ability=validAbility(test.optString("ability","Sabedoria"));test.put("ability",ability);String skill=validSkill(test.optString("skill",""));if(skill.length()>0)test.put("skill",skill);else test.remove("skill");applyTravelCheckMode(test,skill,warnings);applyConditionTestMode(test,heroes,warnings);
                 }
             }
             JSONObject verifiedTest=envelope.optJSONObject("pending_test");
