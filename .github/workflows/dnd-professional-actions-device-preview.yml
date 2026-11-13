@@ -1,4 +1,4 @@
-name: DnD Professional Actions - Device Preview APK
+name: DnD 6.6.55 Android Regex Startup Hotfix - Device Preview APK
 on:
   push:
     branches: [fix/dnd-6654-actions-professional-20261111]
@@ -25,6 +25,14 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Reject unsupported Android ICU inline Unicode regex flags
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          if grep -RInF --include='*.java' --include='*.kt' -e '(?U)' -e '(?u)' app/src/main/java; then
+            echo "::error::Android ICU rejects Java-only (?U)/(?u) embedded regex flags. Replace before shipping APK."
+            exit 1
+          fi
       - name: Install Android SDK 35
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
@@ -56,6 +64,7 @@ jobs:
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
             --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            --tests 'com.braseiro.dnd5e.AndroidRegexStartupCompatibilityTest' \
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterConsultationFreshnessRegressionTest' \
@@ -77,15 +86,15 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DEVICE_PREVIEW_SIGNING.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DEVICE_PREVIEW_PACKAGE.txt
           grep -q "package: name='com.braseiro.dnd5e'" DEVICE_PREVIEW_PACKAGE.txt
-          grep -q "versionCode='203900617'" DEVICE_PREVIEW_PACKAGE.txt
-          cp "$apk" BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
-          sha256sum BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk > DEVICE_PREVIEW_SHA256.txt
+          grep -q "versionCode='203900618'" DEVICE_PREVIEW_PACKAGE.txt
+          cp "$apk" BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
+          sha256sum BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk > DEVICE_PREVIEW_SHA256.txt
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: DND_6654_PROFESSIONAL_DEVICE_PREVIEW_NOT_RELEASE
+          name: DND_6655_ANDROID_REGEX_HOTFIX_PREVIEW_NOT_RELEASE
           path: |
-            BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+            BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
             DEVICE_PREVIEW_SHA256.txt
             DEVICE_PREVIEW_SIGNING.txt
             DEVICE_PREVIEW_PACKAGE.txt
@@ -93,6 +102,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: DND_6654_PROFESSIONAL_DEVICE_PREVIEW_TESTS
+          name: DND_6655_ANDROID_REGEX_HOTFIX_TESTS
           path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
           if-no-files-found: warn
