@@ -493,7 +493,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private boolean isKnownScreen(String screen){
         if(screen==null)return false;
-        return "Aventura".equals(screen)||"Campanha".equals(screen)||"Mestre IA".equals(screen)||"Combate".equals(screen)||"Companhia".equals(screen)||"Mundo Vivo".equals(screen)||"Guildas".equals(screen)||"Mapa".equals(screen)||"Dados".equals(screen)||"Heróis".equals(screen)||"Diário".equals(screen)||"Manuais".equals(screen)||"Tokens".equals(screen)||"Áudio".equals(screen)||"Config".equals(screen);
+        return "Aventura".equals(screen)||"Campanha".equals(screen)||"Mestre IA".equals(screen)||"Combate".equals(screen)||"Companhia".equals(screen)||"Mundo Vivo".equals(screen)||"Guildas".equals(screen)||"Mapa".equals(screen)||"Dados".equals(screen)||"Heróis".equals(screen)||"Missões".equals(screen)||"Diário".equals(screen)||"Manuais".equals(screen)||"Tokens".equals(screen)||"Áudio".equals(screen)||"Config".equals(screen);
     }
 
     protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);handleIncomingIntent(intent);}
@@ -875,7 +875,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button stop=smallButton("PARAR",RED);stop.setTextSize(10);stop.setOnClickListener(new View.OnClickListener(){public void onClick(View v){cancelNarrationAudio();if(narrativeAudio!=null)narrativeAudio.stopAll();setStatus("Áudio interrompido. Nenhum evento antigo permanecerá na fila.");}});header.addView(stop,new LinearLayout.LayoutParams(dp(86),dp(40)));
         root.addView(header,new LinearLayout.LayoutParams(-1,dp(54)));
         shellNavScroll=new HorizontalScrollView(this);final HorizontalScrollView navScroll=shellNavScroll;navScroll.setHorizontalScrollBarEnabled(false);LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);nav.setPadding(dp(4),dp(3),dp(4),dp(3));
-        String[] names=isStrixhavenAdventure()?new String[]{"Aventura","Mestre IA","Dados","Combate","Heróis","Companhia","Mundo Vivo","Diário","Manuais","Áudio","Config"}:new String[]{"Aventura","Mestre IA","Combate","Companhia","Mundo Vivo","Guildas","Mapa","Dados","Heróis","Diário","Manuais","Tokens","Áudio","Config"};
+        String[] names=isStrixhavenAdventure()?new String[]{"Aventura","Mestre IA","Dados","Combate","Heróis","Companhia","Mundo Vivo","Missões","Diário","Manuais","Áudio","Config"}:new String[]{"Aventura","Mestre IA","Combate","Companhia","Mundo Vivo","Guildas","Mapa","Dados","Heróis","Missões","Diário","Manuais","Tokens","Áudio","Config"};
         if(!isMystaraWorld() && new WilemCookbookEngine(db).ownerExists()){
             String[] extended=java.util.Arrays.copyOf(names,names.length+1);
             extended[names.length]="Caldeirão";names=extended;
@@ -948,7 +948,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(navigationInProgress&&now-lastNavigationClickAt<700L)return;
         lastNavigationClickAt=now;currentScreen=n;if(shellNavScroll!=null)shellNavScroll.setVisibility(isStrixhavenAdventure()&&"Mestre IA".equals(n)?View.GONE:View.VISIBLE);
         // Core play screens must reflect SQLite after returning from another screen.
-        boolean liveCoreScreen="Heróis".equals(n)||"Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
+        boolean liveCoreScreen="Missões".equals(n)||"Heróis".equals(n)||"Caldeirão".equals(n)||(!isMystaraWorld()&&!isStrixhavenAdventure()&&
             ("Combate".equals(n)||"Heróis".equals(n)||"Mestre IA".equals(n)||"Aventura".equals(n)||"Dados".equals(n)));
         View cached=screenCache.get(n);Long cachedAt=screenCacheTime.get(n);boolean cacheValid=!liveCoreScreen&&cached!=null&&("Mapa".equals(n)||(cachedAt!=null&&now-cachedAt.longValue()<120000L));
         if(cacheValid){ViewGroup parent=(ViewGroup)cached.getParent();if(parent!=null)parent.removeView(cached);content.removeAllViews();content.addView(cached,new FrameLayout.LayoutParams(-1,-1));navigationInProgress=false;lastSuccessfulScreen=n;if("Mapa".equals(n))focusMapOnCurrentPosition();return;}
@@ -956,7 +956,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ui.post(new Runnable(){public void run(){boolean rendered=false;try{renderScreen(n);rendered=true;lastSuccessfulScreen=n;}catch(final Throwable e){AppLog.e("Navigation","Falha ao abrir a tela "+n+".",e);screenCache.remove(n);screenCacheTime.remove(n);content.removeAllViews();LinearLayout box=new LinearLayout(MainActivity.this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(18),dp(24),dp(18),dp(24));box.addView(text("Não foi possível abrir "+n,20,RED,true));box.addView(text("A tela foi isolada para o aplicativo continuar aberto. "+safeUiError(e),13,MUTED,false));Button retry=button("TENTAR NOVAMENTE",GOLD);retry.setTextColor(Color.BLACK);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(n);}});box.addView(retry);Button safe=button("VOLTAR PARA "+lastSuccessfulScreen.toUpperCase(Locale.US),PANEL2);safe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigationInProgress=false;currentScreen="";navigate(lastSuccessfulScreen);}});box.addView(safe);content.addView(box,new FrameLayout.LayoutParams(-1,-1));}finally{navigationInProgress=false;if(rendered)cacheCurrentScreen();}}});
     }
 
-    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
+    private void renderScreen(String n){if("Aventura".equals(n)||"Campanha".equals(n))showCampaign();else if("Heróis".equals(n))showHeroes();else if("Companhia".equals(n))showPartyDirector();else if("Mundo Vivo".equals(n))showLivingWorld();else if("Guildas".equals(n))showGuilds();else if("Dados".equals(n))showDice();else if("Combate".equals(n))showCombat();else if("Mestre IA".equals(n))showNarrator();else if("Missões".equals(n))showQuests(false);else if("Diário".equals(n))showJournal();else if("Manuais".equals(n))showManuals("");else if("Tokens".equals(n))showTokens("","Todos");else if("Mapa".equals(n))showMap();else if("Áudio".equals(n))showAudio();else if("Caldeirão".equals(n))showWilemCookbook();else showSettings();}
 
     /* package */ void returnToActiveSession(){
         navigationInProgress=false;
@@ -9017,7 +9017,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /** Pequeno construtor que evita espalhar try/catch só para montar JSON interno. */
     private static final class JSONObjectSafe{final JSONObject o=new JSONObject();JSONObjectSafe putSafe(String k,Object v){try{o.put(k,v);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}return this;}JSONObject value(){return o;}}
 
-    private void finalizeStreamingNarrationNow(){if(!aiBusy||streamingNarration.trim().length()==0)return;String problem=narrationQualityProblem(streamingNarration,lastPrompt);if(problem.length()>0){toast("O trecho ainda não forma uma cena cinematográfica completa.");setStatus("Texto parcial preservado na tela, mas não aplicado: "+problem+".");return;}aiRequestGeneration++;int received=streamingNarration.length();ChoiceSplit split=splitNarrationChoices(streamingNarration,new JSONArray());lastNarration=completeNarrationSafely(split.narration);lastVisualPrompt=sanitizeVisualSource(lastNarration);JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());history=SceneOptionDiversifier.appendHistory(history,currentOptions==null?new JSONArray():currentOptions);JSONArray streamedOptions=SceneOptionDiversifier.diversify(split.options,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);currentOptions=SceneOptionDiversifier.ensureAlways(streamedOptions,history,lastNarration,lastPrompt,db.getSceneState(),db.getMasterRuntimeState().optInt("beat_no",0)+1);db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(history,currentOptions).toString());pendingTest=new JSONObject();aiBusy=false;streamingNarration="";persistStory(lastPrompt);if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,pendingAiInputChars,received);setStatus("Cena completa encerrada com o texto já recebido.");showNarrator();}
+    private void finalizeStreamingNarrationNow(){if(!aiBusy||streamingNarration.trim().length()==0)return;String problem=narrationQualityProblem(streamingNarration,lastPrompt);if(problem.length()>0){toast("O trecho ainda não forma uma cena cinematográfica completa.");setStatus("Texto parcial preservado na tela, mas não aplicado: "+problem+".");return;}aiRequestGeneration++;int received=streamingNarration.length();ChoiceSplit split=splitNarrationChoices(streamingNarration,new JSONArray());lastNarration=completeNarrationSafely(split.narration);lastVisualPrompt=sanitizeVisualSource(lastNarration);JSONArray history=SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory());history=SceneOptionDiversifier.appendHistory(history,currentOptions==null?new JSONArray():currentOptions);JSONArray streamedOptions=SceneOptionDiversifier.diversify(split.options,history,lastNarration,lastPrompt,questAwareSuggestionScene(db.getSceneState()),db.getMasterRuntimeState().optInt("beat_no",0)+1);currentOptions=SceneOptionDiversifier.ensureAlways(streamedOptions,history,lastNarration,lastPrompt,questAwareSuggestionScene(db.getSceneState()),db.getMasterRuntimeState().optInt("beat_no",0)+1);db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(history,currentOptions).toString());pendingTest=new JSONObject();aiBusy=false;streamingNarration="";persistStory(lastPrompt);if(masterOrchestrator!=null)masterOrchestrator.afterAccepted(activeMasterPlan,lastNarration,pendingAiInputChars,received);setStatus("Cena completa encerrada com o texto já recebido.");showNarrator();}
     /** 2024-only narrative vocabulary: do not alter Mystara, 2014, sheet data or RAG excerpts. */
     private String canonicalize2024Narration(String text){
         if(text==null||text.isEmpty()||db==null||isMystaraWorld())return text==null?"":text;
@@ -10107,8 +10107,46 @@ private void speakGemini(String text){
             JSONArray updates=envelope==null?null:envelope.optJSONArray("npc_updates");
             if(updates!=null)for(int i=0;i<updates.length();i++){JSONObject npc=updates.optJSONObject(i);if(npc==null)continue;String name=GeneratedTextSanitizer.scalar(npc.toString(),"name").trim();if(name.length()>0&&names.add(name.toLowerCase(Locale.ROOT))){JSONObject cleanNpc=new JSONObject(npc.toString());cleanNpc.put("name",name);present.put(cleanNpc);}}
             projected.put("present_npcs_json",present.toString());
+            projected.put("active_quests",activeQuestsForSuggestions(envelope));
         }catch(Exception ignored){AppLog.ignored("SceneOptions","Não foi possível projetar todo o estado da cena.",ignored);}
         return projected;
+    }
+
+    /** Only active, persistent quests influence a scene's option priority. */
+    private JSONArray activeQuestsForSuggestions(JSONObject envelope){
+        JSONArray result=new JSONArray();
+        if(db==null)return result;
+        try{
+            java.util.HashSet<String> seen=new java.util.HashSet<>();
+            for(JSONObject quest:db.listQuests("active",30)){
+                if(quest==null)continue;
+                String title=quest.optString("title","").trim();
+                if(title.isEmpty()||!seen.add(title.toLowerCase(Locale.ROOT)))continue;
+                result.put(new JSONObject().put("title",title)
+                    .put("objective",quest.optString("objective",""))
+                    .put("stage",quest.optString("stage","")));
+            }
+            JSONArray updates=envelope==null?null:envelope.optJSONArray("quest_updates");
+            if(updates!=null)for(int i=0;i<updates.length();i++){
+                JSONObject quest=updates.optJSONObject(i);
+                if(quest==null||quest.optString("status","active").equalsIgnoreCase("completed"))continue;
+                String title=quest.optString("title","").trim();
+                if(title.isEmpty()||!seen.add(title.toLowerCase(Locale.ROOT)))continue;
+                result.put(new JSONObject().put("title",title)
+                    .put("objective",quest.optString("objective",""))
+                    .put("stage",quest.optString("stage","")));
+            }
+        }catch(Exception e){AppLog.w("SceneOptions","Falha ao ler missões ativas para priorização.",e);}
+        return result;
+    }
+
+    private JSONObject questAwareSuggestionScene(JSONObject source){
+        JSONObject scene;
+        try{scene=new JSONObject(source==null?"{}":source.toString());}
+        catch(Exception e){scene=new JSONObject();}
+        try{scene.put("active_quests",activeQuestsForSuggestions(null));}
+        catch(Exception e){AppLog.w("SceneOptions","Contexto de missões indisponível.",e);}
+        return scene;
     }
 
     private void normalizeProjectedSceneArray(JSONObject projected,JSONObject proposed,String publicKey,String storageKey){
@@ -10858,6 +10896,113 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
             }
         }
         return visible;
+    }
+
+    private static boolean questIsFinished(String status){
+        String s=status==null?"":status.trim().toLowerCase(Locale.ROOT);
+        return "completed".equals(s)||"complete".equals(s)||"concluded".equals(s)
+            ||"concluida".equals(s)||"concluída".equals(s)||"done".equals(s)
+            ||"finished".equals(s)||"resolved".equals(s)||"failed".equals(s)
+            ||"abandoned".equals(s)||"cancelled".equals(s)||"canceled".equals(s);
+    }
+
+    /** Dedicated, database-backed quests screen; no quest is inferred from prose. */
+    private void showQuests(final boolean finished){
+        currentScreen="Missões";
+        if(shellNavScroll!=null)shellNavScroll.setVisibility(View.VISIBLE);
+        ScrollView screen=page("Missões","Objetivos registrados da campanha, salvos no banco de dados.");
+        LinearLayout body=body(screen);
+        Button back=button("← VOLTAR À SESSÃO",GOLD);
+        back.setTextColor(Color.BLACK);
+        back.setOnClickListener(new View.OnClickListener(){public void onClick(View v){returnToActiveSession();}});
+        body.addView(back);
+
+        final List<JSONObject> all=db.listQuests("",500);
+        int activeCount=0,finishedCount=0;
+        for(JSONObject q:all)if(questIsFinished(q.optString("status","active")))finishedCount++;else activeCount++;
+        LinearLayout tabs=new LinearLayout(this);
+        tabs.setOrientation(LinearLayout.HORIZONTAL);
+        Button active=button("ATIVAS ("+activeCount+")",finished?PANEL2:GOLD);
+        Button done=button("FINALIZADAS ("+finishedCount+")",finished?GOLD:PANEL2);
+        active.setTextColor(finished?TEXT:Color.BLACK);
+        done.setTextColor(finished?Color.BLACK:TEXT);
+        active.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showQuests(false);}});
+        done.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showQuests(true);}});
+        tabs.addView(active,new LinearLayout.LayoutParams(0,dp(46),1f));
+        tabs.addView(done,new LinearLayout.LayoutParams(0,dp(46),1f));
+        body.addView(tabs);
+
+        Button add=button("+ REGISTRAR MISSÃO",PANEL2);
+        add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){newQuestFromMissionScreen();}});
+        body.addView(add);
+
+        int displayed=0;
+        for(JSONObject q:all){
+            final boolean closed=questIsFinished(q.optString("status","active"));
+            if(closed!=finished)continue;
+            displayed++;
+            final long id=q.optLong("id",0);
+            final String stage=q.optString("stage","");
+            LinearLayout row=card();
+            row.addView(text(q.optString("title","Missão sem título"),18,GOLD,true));
+            String status=q.optString("status","active");
+            row.addView(text((closed?"FINALIZADA":"ATIVA")+" • "+status+
+                (q.optLong("updated_at",0)>0?" • "+formatDate(q.optLong("updated_at")):""),
+                11,MUTED,false));
+            if(!stage.trim().isEmpty())row.addView(text("ETAPA: "+stage,13,TEXT,true));
+            String objective=q.optString("objective","");
+            if(!objective.trim().isEmpty())row.addView(text("OBJETIVO: "+objective,14,TEXT,false));
+            String stakes=q.optString("stakes","");
+            if(!stakes.trim().isEmpty())row.addView(text("EM JOGO: "+stakes,13,MUTED,false));
+            String progress=q.optString("progress_json","");
+            if(!progress.isEmpty()&&!"{}".equals(progress)&&!"null".equals(progress)){
+                try{
+                    JSONObject details=new JSONObject(progress);
+                    String summary=details.optString("summary",details.optString("note",
+                        details.optString("progress","")));
+                    if(!summary.trim().isEmpty())row.addView(text("PROGRESSO: "+summary,13,TEXT,false));
+                }catch(Exception ignored){/* Preserve raw JSON in database without UI mutation. */}
+            }
+            if(id>0){
+                Button change=smallButton(closed?"REABRIR MISSÃO":"MARCAR COMO FINALIZADA",PANEL2);
+                change.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(closed?"Reabrir missão?":"Finalizar missão?")
+                        .setMessage("Esta alteração será salva na campanha. Os objetivos e o histórico serão preservados.")
+                        .setNegativeButton("Cancelar",null)
+                        .setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface dialog,int which){
+                                db.updateQuestStatus(id,closed?"active":"completed",stage);
+                                showQuests(!closed);
+                            }
+                        }).show();
+                }});
+                row.addView(change);
+            }
+            body.addView(row);
+        }
+        if(displayed==0)body.addView(empty(finished
+            ?"Ainda não há missões finalizadas registradas."
+            :"Ainda não há missões ativas registradas."));
+    }
+
+    private void newQuestFromMissionScreen(){
+        LinearLayout fields=new LinearLayout(this);
+        fields.setOrientation(LinearLayout.VERTICAL);
+        fields.setPadding(dp(12),0,dp(12),0);
+        final EditText title=labeledField(fields,"Nome da missão","",false);
+        final EditText objective=labeledField(fields,"Objetivo atual","",true);
+        final EditText stakes=labeledField(fields,"O que está em jogo?","",true);
+        new AlertDialog.Builder(this).setTitle("Registrar missão")
+            .setView(fields).setNegativeButton("Cancelar",null)
+            .setPositiveButton("SALVAR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog,int which){
+                    String name=title.getText().toString().trim();
+                    if(name.isEmpty()){toast("Informe o nome da missão.");return;}
+                    db.addQuest(name,objective.getText().toString(),stakes.getText().toString(),0);
+                    showQuests(false);
+                }
+            }).show();
     }
 
     private void showJournal(){
