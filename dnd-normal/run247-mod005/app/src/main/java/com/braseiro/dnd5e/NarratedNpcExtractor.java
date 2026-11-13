@@ -22,9 +22,9 @@ public final class NarratedNpcExtractor {
     private static final String PROPER="[A-ZÁÉÍÓÚÂÊÔÃÕÇ][\\p{L}'’-]{1,28}";
     private static final String NAME=PROPER+"(?:\\s+"+PROPER+"){0,2}";
     private static final String TITLES="barão|baronesa|lorde|lady|rei|rainha|duque|duquesa|conde|condessa|capitão|capitã|general|mestre|mestra|sacerdote|sacerdotisa|mercador|mercadora|prefeito|prefeita|arquimago|arquimaga";
-    private static final Pattern TITLED=Pattern.compile("(?u)\\b((?i:"+TITLES+"))\\s+("+NAME+")\\b");
-    private static final Pattern INTRODUCED=Pattern.compile("(?u)(?i:\\bchamad[oa]|\\bconhecid[oa] como|\\bse apresenta como|\\bdiz se chamar|\\bo nome (?:dele|dela) é)\\s+("+NAME+")");
-    private static final Pattern ACTING=Pattern.compile("(?u)\\b("+NAME+")\\s+(?i:diz|fala|responde|pergunta|sussurra|grita|avisa|aponta|ergue|oferece|entrega|entra|surge|aproxima-se|observa|recua|sorri|hesita|declara|ordena|exige)\\b");
+    private static final Pattern TITLED=Pattern.compile("\\b((?i:"+TITLES+"))\\s+("+NAME+")\\b");
+    private static final Pattern INTRODUCED=Pattern.compile("(?i:\\bchamad[oa]|\\bconhecid[oa] como|\\bse apresenta como|\\bdiz se chamar|\\bo nome (?:dele|dela) é)\\s+("+NAME+")");
+    private static final Pattern ACTING=Pattern.compile("\\b("+NAME+")\\s+(?i:diz|fala|responde|pergunta|sussurra|grita|avisa|aponta|ergue|oferece|entrega|entra|surge|aproxima-se|observa|recua|sorri|hesita|declara|ordena|exige)\\b");
 
     private static final String GENERIC_ROLES=
             "velho|velha|homem|mulher|rapaz|moça|moca|garoto|garota|criança|crianca|"+
@@ -46,9 +46,9 @@ public final class NarratedNpcExtractor {
             "puxa|puxam|ataca|atacam|ameaça|ameaca|ameaçam|ameacam|acena|acenam|para|param|interrompe|interrompem";
     private static final String COUNTS="dois|duas|três|tres|quatro|cinco|seis|sete|oito|nove|dez|\\d{1,2}";
     private static final Pattern GENERIC_ACTOR=Pattern.compile(
-            "(?iu)\\b(?:(um|uma|o|a|os|as)\\s+)?(?:((?:"+COUNTS+"))\\s+)?("+GENERIC_ROLES+")\\b(?=[^.!?\\n]{0,120}\\b(?:"+ACTIONS+")\\b)");
+            "(?i)\\b(?:(um|uma|o|a|os|as)\\s+)?(?:((?:"+COUNTS+"))\\s+)?("+GENERIC_ROLES+")\\b(?=[^.!?\\n]{0,120}\\b(?:"+ACTIONS+")\\b)");
     private static final Pattern GROUP_PRESENT=Pattern.compile(
-            "(?iu)\\b(?:um|uma|o|a)?\\s*(?:grupo|aglomerado|multidão|multidao|fila|bando)\\s+de\\s+(viajantes|mercadores|guardas|soldados|refugiados|camponeses|aldeões|aldeoes|transeuntes|marinheiros|pescadores)\\b");
+            "(?i)\\b(?:um|uma|o|a)?\\s*(?:grupo|aglomerado|multidão|multidao|fila|bando)\\s+de\\s+(viajantes|mercadores|guardas|soldados|refugiados|camponeses|aldeões|aldeoes|transeuntes|marinheiros|pescadores)\\b");
 
     private NarratedNpcExtractor(){}
 
