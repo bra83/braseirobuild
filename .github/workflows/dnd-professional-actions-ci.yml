@@ -28,6 +28,14 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Reject unsupported Android ICU inline Unicode regex flags
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          if grep -RInF --include='*.java' --include='*.kt' -e '(?U)' -e '(?u)' app/src/main/java; then
+            echo "::error::Android ICU rejects Java-only (?U)/(?u) embedded regex flags. Replace before shipping APK."
+            exit 1
+          fi
       - name: Install Android SDK
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
@@ -49,6 +57,7 @@ jobs:
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' \
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
             --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
+            --tests 'com.braseiro.dnd5e.AndroidRegexStartupCompatibilityTest' \
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterConsultationFreshnessRegressionTest' \
