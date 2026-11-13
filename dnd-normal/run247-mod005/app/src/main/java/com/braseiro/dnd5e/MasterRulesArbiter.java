@@ -73,6 +73,13 @@ public final class MasterRulesArbiter {
      * may authorize a pending test. In particular JSONObject.optInt(...,10)
      * silently replaces malformed model output with an invented DC 10.
      */
+    private static boolean recognizedAbility(String raw){
+        String n=normalize(raw);
+        return n.startsWith("for") || n.startsWith("des") || n.startsWith("con")
+                || n.startsWith("int") || n.startsWith("sab") || n.startsWith("car")
+                || "str".equals(n) || "dex".equals(n) || "wis".equals(n) || "cha".equals(n);
+    }
+
     private static boolean validDifficultyClass(JSONObject test){
         if(test==null||!test.has("dc")||test.isNull("dc"))return false;
         Object raw=test.opt("dc");
@@ -88,7 +95,7 @@ public final class MasterRulesArbiter {
             JSONObject test=envelope.optJSONObject("pending_test");if(test!=null&&test.optBoolean("required",true)){
                 String actor=test.optString("character","").trim();if(actor.length()>0&&!heroes.containsKey(normalize(actor))){test.remove("character");test.put("actor_selection_required",true);warnings.put("O teste citava um personagem inexistente; o aplicativo pedirá a seleção do ator.");}
                 String n=normalize(action+" "+db.getSceneState().optString("danger")+" "+db.getSceneState().optString("threats_json"));if(!hasRisk(n)&&!oppositionPresent(n)&&!hasRelevantUncertainty(n,test)){envelope.put("pending_test",JSONObject.NULL);warnings.put("Teste removido: ação claramente trivial, sem dificuldade, oposição ou incerteza relevante.");}
-                else if(isMystara())validateMystaraTest(test,warnings);else if(!validDifficultyClass(test)){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("O Mestre informou CD ausente, inválida ou fora da faixa 5–30; nenhuma CD será presumida, convertida ou ajustada.");}else{
+                else if(isMystara())validateMystaraTest(test,warnings);else if(!validDifficultyClass(test) || !recognizedAbility(test.optString("ability",""))){envelope.put("pending_test",JSONObject.NULL);envelope.put("_mechanics_blocked",true);warnings.put("Teste bloqueado: CD ausente/inválida (faixa 5–30), ou atributo não reconhecido. Nenhum atributo ou CD será presumido.");}else{
                     int dc=((Number)test.opt("dc")).intValue();test.put("dc",dc);test.put("mode",validMode(test.optString("mode","Normal")));String ability=validAbility(test.optString("ability","Sabedoria"));test.put("ability",ability);String skill=validSkill(test.optString("skill",""));if(skill.length()>0)test.put("skill",skill);else test.remove("skill");applyTravelCheckMode(test,skill,warnings);applyConditionTestMode(test,heroes,warnings);
                 }
             }
