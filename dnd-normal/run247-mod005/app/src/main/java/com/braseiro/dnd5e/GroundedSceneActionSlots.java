@@ -229,7 +229,7 @@ public final class GroundedSceneActionSlots {
 
     private static String visibleActor(String narration){
         // Identify the speaker, if a speaker label exists in the actual narration.
-        Matcher m=Pattern.compile("(?iu)\\b(aluna(?: de [\\p{L}-]+)?|aluno(?: de [\\p{L}-]+)?|estudante(?: de [\\p{L}-]+)?|veterana|veterano|professora?|bibliotec[aá]ria?|auxiliar|assistente|funcion[aá]ria?|taverneira?|mercador|guarda)\\s*:").matcher(narration);
+        Matcher m=Pattern.compile("(?i)\\b(aluna(?: de [\\p{L}-]+)?|aluno(?: de [\\p{L}-]+)?|estudante(?: de [\\p{L}-]+)?|veterana|veterano|professora?|bibliotec[aá]ria?|auxiliar|assistente|funcion[aá]ria?|taverneira?|mercador|guarda)\\s*:").matcher(narration);
         String speaker="";
         while(m.find())speaker=m.group(1);
         if(!speaker.isEmpty() && (!has(speaker,"guarda")||SceneOptionVisibleEvidence.guardNounPresent(narration)))
@@ -340,7 +340,7 @@ public final class GroundedSceneActionSlots {
     }
     private static String stripArticle(String phrase){return fold(phrase).replaceFirst("^(o|a|os|as|um|uma)\\s+","");}
     private static String cleanTitle(String label,String type){
-        String v=label==null?"":label.trim().replaceFirst("(?iu)^(OBSERVAR|AGIR|DESPISTAR)\\s*[•:—-]\\s*","");
+        String v=label==null?"":label.trim().replaceFirst("(?i)^(OBSERVAR|AGIR|DESPISTAR)\\s*[•:—-]\\s*","");
         if(v.length()>70)v=v.substring(0,70).trim();
         return v.isEmpty()?"DECISÃO SOBRE A CENA":v;
     }
