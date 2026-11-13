@@ -58,6 +58,7 @@ jobs:
             --tests 'com.braseiro.dnd5e.GeminiVoiceAndNarrativeQualityTest' \
             --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
             --tests 'com.braseiro.dnd5e.AndroidRegexStartupCompatibilityTest' \
+            --tests 'com.braseiro.dnd5e.SceneActionRelevanceAndMissionsTest' \
             --tests 'com.braseiro.dnd5e.DndRulesNarrativeAdjudication6654Test' \
             --tests 'com.braseiro.dnd5e.MasterQuestionAndUnrolledTestRegressionTest' \
             --tests 'com.braseiro.dnd5e.MasterConsultationFreshnessRegressionTest' \
