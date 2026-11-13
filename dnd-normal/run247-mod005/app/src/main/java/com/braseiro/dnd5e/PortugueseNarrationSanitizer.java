@@ -121,7 +121,7 @@ public final class PortugueseNarrationSanitizer {
         text=text.replaceAll("\\s+([,.;:!?])","$1").replaceAll("([,.;:!?…])(?=[A-Za-zÀ-ÿ])","$1 ");
         text=text.replaceAll("([.!?…])([“\"'])(?=[A-Za-zÀ-ÿ])","$1 $2");
         text=text.replaceAll("(?<=[A-Za-zÀ-ÿ0-9])([”’\"')\\]])(?=[A-Za-zÀ-ÿ])","$1 ");
-        text=text.replaceAll("(?iu)\\b(\\p{L}{3,})(?:\\s+\\1){1,2}\\b","$1");
+        text=text.replaceAll("(?i)\\b(\\p{L}{3,})(?:\\s+\\1){1,2}\\b","$1");
         text=text.replaceAll(" {2,}"," ").replaceAll("\\n{3,}","\n\n");
         return text.trim();
     }
