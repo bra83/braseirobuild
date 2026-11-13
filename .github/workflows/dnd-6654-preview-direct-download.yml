@@ -1,0 +1,52 @@
+name: Braseiro DnD 6.6.54 - Direct APK Preview
+on:
+  push:
+    branches:
+      - fix/dnd-6654-actions-professional-20261111
+    paths:
+      - .github/workflows/dnd-6654-preview-direct-download.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-verified-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: braseiro-dnd-6654-device-preview-20261113
+    steps:
+      - name: Confirm approved source run
+        run: |
+          set -euo pipefail
+          test "$(gh api "repos/$GH_REPO/actions/runs/43351081388" --jq '.conclusion')" = "success"
+          test "$(gh api "repos/$GH_REPO/actions/runs/43351081388" --jq '.head_sha')" = "9273f60df7ffee58fcd1e329dafb92625ed34e9a"
+      - name: Download verified APK from approved run
+        run: |
+          set -euo pipefail
+          mkdir -p apk
+          gh run download 43351081388 --repo "$GH_REPO" --name DND_6654_PROFESSIONAL_DEVICE_PREVIEW_NOT_RELEASE --dir apk
+          test -s apk/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+      - name: Verify original SHA-256 and file type
+        run: |
+          set -euo pipefail
+          (cd apk && sha256sum -c DEVICE_PREVIEW_SHA256.txt)
+          file apk/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk | grep -q 'Android package'
+          sha256sum apk/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+      - name: Publish public prerelease download (not final)
+        run: |
+          set -euo pipefail
+          apk=apk/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+          if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$apk#Braseiro_DnD_6.6.54_PREVIEW.apk" --clobber --repo "$GH_REPO"
+          else
+            gh release create "$TAG" "$apk#Braseiro_DnD_6.6.54_PREVIEW.apk" \
+              --repo "$GH_REPO" \
+              --target 9273f60df7ffee58fcd1e329dafb92625ed34e9a \
+              --title "Braseiro D&D 6.6.54 - APK de teste" \
+              --notes "Versão de teste do Galaxy A57. Build e verificações automatizadas aprovados no run 43351081388. Não é uma versão homologada em dispositivo físico. Faça backup antes de instalar." \
+              --prerelease
+          fi
+          gh release view "$TAG" --repo "$GH_REPO" --json url,assets
