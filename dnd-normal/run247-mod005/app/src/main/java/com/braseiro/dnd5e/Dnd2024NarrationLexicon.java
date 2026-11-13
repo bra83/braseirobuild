@@ -15,7 +15,7 @@ public final class Dnd2024NarrationLexicon {
     private Dnd2024NarrationLexicon(){}
 
     private static final Pattern NONCANONICAL_SPECIES =
-        Pattern.compile("(?iu)(?<![\\p{L}\\p{N}_])(?:orcos|orco|gn[oô]mias|gn[oô]mia)(?![\\p{L}\\p{N}_])");
+        Pattern.compile("(?i)(?<![\\p{L}\\p{N}_])(?:orcos|orco|gn[oô]mias|gn[oô]mia)(?![\\p{L}\\p{N}_])");
 
     public static String correct(String narration){
         if(narration==null||narration.isEmpty())return narration==null?"":narration;
