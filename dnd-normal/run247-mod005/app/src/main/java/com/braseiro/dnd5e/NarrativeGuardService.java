@@ -22,15 +22,15 @@ public final class NarrativeGuardService {
             "(?i)\\b(?:a cena responde(?: ao último gesto)?|antes que qualquer explicação(?: seja necessária)?|a cena não pede uma resposta|o sistema calculou)[^.!?…]*[.!?…]?");
 
     private static final Pattern REPETITIVE_CRUTCH = Pattern.compile(
-            "(?iu)(?:[,\n;]\\s*|\\s+|^)(?:o que (?:você|o grupo|vocês) faz(?:em)?\\??|o que você decide\\??|como (?:você|vocês) pretendem agir\\??)\\s*$");
+            "(?i)(?:[,\n;]\\s*|\\s+|^)(?:o que (?:você|o grupo|vocês) faz(?:em)?\\??|o que você decide\\??|como (?:você|vocês) pretendem agir\\??)\\s*$");
 
     private static final Pattern AI_VOICE = Pattern.compile(
-            "(?iu)\\b(?:como uma ia|como inteligência artificial|assistente virtual|prompt|pipeline|json)\\b");
+            "(?i)\\b(?:como uma ia|como inteligência artificial|assistente virtual|prompt|pipeline|json)\\b");
 
     // Instruções operacionais não pertencem à ficção. Os padrões são deliberadamente
     // específicos: falar de uma missão ou de um mestre dentro do mundo é permitido.
     private static final Pattern INTERNAL_DIRECTIVES = Pattern.compile(
-            "(?iu)(?:\\b(?:estado da campanha|dados persistidos|estado persistente|motor b[áa]rbara|motor barbara|"
+            "(?i)(?:\\b(?:estado da campanha|dados persistidos|estado persistente|motor b[áa]rbara|motor barbara|"
             + "miss[ãa]o artificialmente acrescentada|missao artificialmente acrescentada|miss[ãa]o artificialmente|"
             + "aus[êe]ncia de um trilho|ausencia de um trilho|o sistema invente|o braseiro n[ãa]o transforma|"
             + "n[úu]meros invis[íi]veis|numeros invisiveis|sem identidades inventadas apenas para encher|"
@@ -85,7 +85,7 @@ public final class NarrativeGuardService {
             + "|\\bele estabelece o ch[ãa]o\\b|\\bele estabelece o chao\\b)");
 
     private static final Pattern EMOTION_HIJACK = Pattern.compile(
-            "(?iu)\\b(?:você sente medo|você fica impressionado|você odeia|vocês sentem pavor)\\b");
+            "(?i)\\b(?:você sente medo|você fica impressionado|você odeia|vocês sentem pavor)\\b");
 
     public static final class ValidationResult {
         public final boolean valid;
@@ -105,7 +105,7 @@ public final class NarrativeGuardService {
      * from what a character could have seen or heard.
      */
     private static final Pattern DIRECTIVE_LEAK = Pattern.compile(
-        "(?iu)(?:quando um novo reino,?\\s*templo,?\\s*povo|"
+        "(?i)(?:quando um novo reino,?\\s*templo,?\\s*povo|"
         +"dever[aá] ganhar contexto no momento em que importar|"
         +"ser despejado como uma sequ[eê]ncia de nomes|"
         +"o presente imediato,? ent[aã]o,? ganha prioridade|"
@@ -121,7 +121,7 @@ public final class NarrativeGuardService {
     );
 
     private static final Pattern RULE_META = Pattern.compile(
-        "(?iu)(?:^|[.!?]\\s+)(?:o mestre deve|a narra[cç][aã]o deve|"
+        "(?i)(?:^|[.!?]\\s+)(?:o mestre deve|a narra[cç][aã]o deve|"
         +"a cena deve|n[aã]o revele|n[aã]o antecipe|n[aã]o force|"
         +"n[aã]o invente|deve ser apresentado|dever[aá] aparecer|"
         +"contextualize |descreva primeiro|priorize o presente imediato)"
