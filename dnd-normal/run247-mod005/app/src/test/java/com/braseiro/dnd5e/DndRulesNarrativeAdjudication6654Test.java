@@ -87,6 +87,39 @@ public final class DndRulesNarrativeAdjudication6654Test {
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
     }
 
+    @Test public void neverCoerceMalformedOrOutOfRangeDcToTenOrBoundary() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        String file="dnd6654-bad-dc-"+System.nanoTime()+".db";
+        AppDb db=new AppDb(context,file);
+        try {
+            db.setActiveMapProfile("dnd");
+            db.saveCampaign("Strixhaven",DndRulesEngine.PROFILE_2024,
+                "Fantasia acadêmica",true,true,false,"");
+            MasterRulesArbiter arbiter=new MasterRulesArbiter(db);
+            Object[] invalid={JSONObject.NULL,"abc","14",0,4,31,999,14.25d};
+            for(Object dc:invalid){
+                JSONObject test=new JSONObject().put("required",true)
+                    .put("type","ability").put("ability","Inteligência")
+                    .put("skill","Investigação").put("dc",dc);
+                JSONObject candidate=new JSONObject()
+                    .put("narration","A cena aguarda uma tentativa.")
+                    .put("pending_test",test)
+                    .put("state_updates",new JSONArray());
+                JSONObject validated=arbiter.validate(candidate,RIDDLE);
+                assertTrue("Invalid DC must fail closed: "+dc,validated.optBoolean("_mechanics_blocked"));
+                assertNull("Invalid DC may not become a roll: "+dc,validated.optJSONObject("pending_test"));
+            }
+            JSONObject correct=new JSONObject().put("narration","Aguarde a rolagem.")
+                .put("pending_test",new JSONObject().put("required",true).put("dc",14)
+                    .put("type","ability").put("ability","Inteligência")
+                    .put("skill","Investigação"));
+            JSONObject accepted=arbiter.validate(correct,RIDDLE);
+            assertFalse("Valid numeric DC should not be mechanically blocked",
+                accepted.optBoolean("_mechanics_blocked"));
+            assertEquals(14,accepted.getJSONObject("pending_test").getInt("dc"));
+        } finally { db.close(); context.deleteDatabase(file); }
+    }
+
     @Test public void preserveIntellectualCheckButNeverInventDcTen() throws Exception{
         Context context=RuntimeEnvironment.getApplication();
         String file="dnd6654-rules-"+System.nanoTime()+".db";
