@@ -74,9 +74,10 @@ public final class DndActionCheckPolicy {
     public static boolean unresolvedOutcomeClaimed(String narration){
         String n=fold(narration);
         if(n.isEmpty())return false;
-        if(any(n,"ainda nao","aguarda a rolagem","aguardando a rolagem",
-            "antes de rolar","precisa rolar","pede um teste","necessario um teste",
-            "para descobrir sera necessario","pare antes do resultado"))return false;
+        // A deferral statement does not excuse a later narration of success.
+        // E.g. "É preciso rolar. Em seguida Kvothe decifra a charada" must
+        // still be rejected. Only the outcome language below is authoritative
+        // for detecting prematurely resolved consequential challenges.
         return any(n,"kvothe consegue","kvothe conseguiu","voce consegue","voce conseguiu",
              "kvothe descobre","voce descobre","kvothe decifra","voce decifra",
              "kvothe identifica","voce identifica","kvothe encontra","voce encontra",
