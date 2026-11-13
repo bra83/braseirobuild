@@ -1,0 +1,64 @@
+name: DnD 6.6.55 Android 15 Emulator - Upgrade and Startup Smoke
+on:
+  push:
+    branches: [fix/dnd-6654-actions-professional-20261111]
+    paths:
+      - '.github/workflows/dnd-6655-android-emulator-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android-startup-upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Fetch both signed APK versions for an upgrade test
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p before after
+          gh release download braseiro-dnd-6654-device-preview-20261113 --pattern '*.apk' --dir before --repo "$GH_REPO"
+          gh release download braseiro-dnd-6655-android-startup-hotfix-20261113 --pattern '*.apk' --dir after --repo "$GH_REPO"
+          test -s before/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+          test -s after/BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
+      - name: Install and launch on a clean Android 15 emulator, checking upgrade preserves data
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 750
+          script: |
+            set -euo pipefail
+            adb install -r before/BRASEIRO_DND_6654_PROFESSIONAL_DEVICE_PREVIEW.apk
+            adb shell "run-as com.braseiro.dnd5e sh -c 'mkdir -p files; echo persisted > files/hotfix-update-marker.txt'"
+            adb install -r after/BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
+            adb shell run-as com.braseiro.dnd5e cat files/hotfix-update-marker.txt | grep -q persisted
+            adb shell dumpsys package com.braseiro.dnd5e | grep -q 'versionCode=203900618'
+            adb logcat -c
+            adb shell am start -W -n com.braseiro.dnd5e/.MainActivity
+            sleep 45
+            adb logcat -d -v time > android-startup.log
+            adb exec-out screencap -p > android-startup.png
+            adb shell uiautomator dump /sdcard/window.xml >/dev/null || true
+            adb exec-out cat /sdcard/window.xml > android-window.xml || true
+            if grep -Ei 'PatternSyntaxException|FATAL EXCEPTION: main|Braseiro iniciou em modo de recupera' android-startup.log android-window.xml; then
+              echo 'ANDROID_STARTUP_RECOVERY_OR_REGEX_ERROR_DETECTED'
+              exit 1
+            fi
+            adb shell pidof com.braseiro.dnd5e
+            echo 'ANDROID_15_UPGRADE_DATA_AND_STARTUP_SMOKE_PASS'
+      - name: Preserve emulator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DND_6655_ANDROID_15_EMULATOR_STARTUP_EVIDENCE
+          path: |
+            android-startup.log
+            android-startup.png
+            android-window.xml
+          if-no-files-found: warn
