@@ -95,7 +95,12 @@ public final class DndActionCheckPolicy {
     public static boolean missingRequiredResolution(String action,JSONObject envelope,boolean rollRecorded){
         if(rollRecorded||resolvedRoll(fold(action)))return false;
         JSONObject pending=envelope==null?null:envelope.optJSONObject("pending_test");
-        if(pending!=null&&pending.optBoolean("required",true))return false;
+        // A pending roll authorizes asking for the die, not narrating its
+        // result. Check the narration even when the model supplied a
+        // structurally valid pending_test; otherwise success can leak before
+        // the player rolls and be persisted as canon.
+        if(pending!=null&&pending.optBoolean("required",true))
+            return unresolvedOutcomeClaimed(envelope.optString("narration",""));
         if(explicitTest(action))return true;
         if(!consequentialChallenge(action,null))return false;
         return unresolvedOutcomeClaimed(envelope==null?"":envelope.optString("narration",""));
