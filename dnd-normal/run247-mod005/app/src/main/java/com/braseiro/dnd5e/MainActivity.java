@@ -9035,8 +9035,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String narration=GeneratedTextSanitizer.narrative(raw);
         JSONArray options=ensureSceneOptions(source,narration);
         String[] lines=narration.split("\n",-1);ArrayList<String> extracted=new ArrayList<String>();int cut=lines.length;boolean marker=false;
-        Pattern numbered=Pattern.compile("(?iu)^\\s*(?:op(?:ç|c)[aã]o\\s*)?(\\d{1,2})\\s*[.): -]\\s*(.+?)\\s*$");
-        Pattern choiceMarker=Pattern.compile("(?iu)^\\s*(?:op(?:ç|c)[õo]es|sugest[õo]es|escolhas|o que (?:voc[eê]|o grupo) faz\\??|caminhos poss[ií]veis)\\s*:?\\s*$");
+        Pattern numbered=Pattern.compile("(?i)^\\s*(?:op(?:ç|c)[aã]o\\s*)?(\\d{1,2})\\s*[.): -]\\s*(.+?)\\s*$");
+        Pattern choiceMarker=Pattern.compile("(?i)^\\s*(?:op(?:ç|c)[õo]es|sugest[õo]es|escolhas|o que (?:voc[eê]|o grupo) faz\\??|caminhos poss[ií]veis)\\s*:?\\s*$");
         for(int i=lines.length-1;i>=0;i--){String line=lines[i].trim();if(line.length()==0){if(!extracted.isEmpty())cut=i;continue;}Matcher match=numbered.matcher(line);if(match.matches()){extracted.add(0,GeneratedTextSanitizer.scalar(match.group(2),"action"));cut=i;continue;}if(!extracted.isEmpty()&&choiceMarker.matcher(line).matches()){marker=true;cut=i;continue;}break;}
         if(extracted.isEmpty()){
             InlineChoiceTail inline=extractInlineChoiceTail(narration);
@@ -9048,14 +9048,14 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     private InlineChoiceTail extractInlineChoiceTail(String text){
         if(text==null||text.length()<20)return null;
-        Pattern marker=Pattern.compile("(?iu)(?:^|\\s)(\\d{1,2})\\s*[.)]\\s+");Matcher matcher=marker.matcher(text);
+        Pattern marker=Pattern.compile("(?i)(?:^|\\s)(\\d{1,2})\\s*[.)]\\s+");Matcher matcher=marker.matcher(text);
         ArrayList<Integer> starts=new ArrayList<Integer>();ArrayList<Integer> contentStarts=new ArrayList<Integer>();ArrayList<Integer> numbers=new ArrayList<Integer>();
         while(matcher.find()){int number;try{number=Integer.parseInt(matcher.group(1));}catch(Exception ignored){continue;}if(starts.isEmpty()&&number!=1)continue;if(!numbers.isEmpty()&&number!=numbers.get(numbers.size()-1)+1)continue;starts.add(matcher.start());contentStarts.add(matcher.end());numbers.add(number);if(numbers.size()>=4)break;}
         if(numbers.size()<2)return null;
         int first=starts.get(0);if(first<Math.max(60,text.length()-1400))return null;
         ArrayList<String> actions=new ArrayList<String>();for(int i=0;i<numbers.size();i++){int from=contentStarts.get(i),to=i+1<starts.size()?starts.get(i+1):text.length();String action=GeneratedTextSanitizer.scalar(text.substring(from,to).trim(),"action");action=action.replaceAll("[;•\\s]+$","").trim();if(action.length()>0)actions.add(action);}
         if(actions.size()<2)return null;
-        String narration=text.substring(0,first).replaceFirst("(?iu)\\s*(?:op(?:ç|c)[õo]es|sugest[õo]es|escolhas|o que (?:voc[eê]|o grupo) faz\\??|caminhos poss[ií]veis)\\s*:?\\s*$","").trim();
+        String narration=text.substring(0,first).replaceFirst("(?i)\\s*(?:op(?:ç|c)[õo]es|sugest[õo]es|escolhas|o que (?:voc[eê]|o grupo) faz\\??|caminhos poss[ií]veis)\\s*:?\\s*$","").trim();
         if(narration.length()<20)return null;return new InlineChoiceTail(GeneratedTextSanitizer.narrative(narration),actions);
     }
 
