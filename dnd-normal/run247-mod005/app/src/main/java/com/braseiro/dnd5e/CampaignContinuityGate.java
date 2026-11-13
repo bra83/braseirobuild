@@ -23,13 +23,13 @@ public final class CampaignContinuityGate {
     private CampaignContinuityGate(){}
 
     private static final Pattern ORDINAL=Pattern.compile(
-        "(?iu)\\b(primeir[ao]|segund[ao]|terceir[ao]|quart[ao]|quint[ao]|sext[ao]|setim[ao]|oitav[ao]|non[ao]|decim[ao])\\s+pista\\b");
+        "(?i)\\b(primeir[ao]|segund[ao]|terceir[ao]|quart[ao]|quint[ao]|sext[ao]|setim[ao]|oitav[ao]|non[ao]|decim[ao])\\s+pista\\b");
     private static final Pattern FIRST=Pattern.compile(
-        "(?iu)\\b(?:primeira|primeiro)\\s+pista\\b");
+        "(?i)\\b(?:primeira|primeiro)\\s+pista\\b");
     private static final Pattern CLUE_SUCCESS=Pattern.compile(
-        "(?iu)(?:\\bpista\\b.{0,100}\\b(?:decifrad[ao]|desvendad[ao]|encontrad[ao]|revelad[ao]|resolvid[ao])\\b"
+        "(?i)(?:\\bpista\\b.{0,100}\\b(?:decifrad[ao]|desvendad[ao]|encontrad[ao]|revelad[ao]|resolvid[ao])\\b"
         +"|\\b(?:decifrad[ao]|desvendad[ao]|encontrad[ao]|revelad[ao]|resolvid[ao])\\b.{0,90}\\bpista\\b)");
-    private static final Pattern HUNT=Pattern.compile("(?iu)(ca[cç]a\\s+(?:de\\s+)?boas[- ]vindas|ca[cç]a\\s+ao\\s+tesouro|orienta[cç][aã]o)");
+    private static final Pattern HUNT=Pattern.compile("(?i)(ca[cç]a\\s+(?:de\\s+)?boas[- ]vindas|ca[cç]a\\s+ao\\s+tesouro|orienta[cç][aã]o)");
     private static final int MAX_SCENES_SCANNED=120;
 
     public static boolean historicalQuestion(String question){
