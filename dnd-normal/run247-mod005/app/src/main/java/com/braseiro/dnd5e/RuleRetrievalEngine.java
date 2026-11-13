@@ -60,8 +60,8 @@ public final class RuleRetrievalEngine {
         new IntentSpec("mundo_vivo","eventos facções npc agenda calendário domínio construção recrutamento administração","events factions npc schedule calendar domain building recruitment administration","evento","calend","dominio","construc","recrut","administr","world event","domain")
     };
 
-    private static final Pattern DICE=Pattern.compile("(?iu)\\b(?:\\d{1,3})?d\\d{1,4}(?:\\s*[+\\-]\\s*\\d{1,3})?\\b");
-    private static final Pattern NUMBER_WITH_UNIT=Pattern.compile("(?iu)\\b\\d+(?:[.,]\\d+)?\\s*(?:ft|feet|p[eé]s?|m|metros?|km|milhas?|horas?|dias?|rodadas?|turnos?|po|pp|pc|gp|sp|cp|%)\\b");
+    private static final Pattern DICE=Pattern.compile("(?i)\\b(?:\\d{1,3})?d\\d{1,4}(?:\\s*[+\\-]\\s*\\d{1,3})?\\b");
+    private static final Pattern NUMBER_WITH_UNIT=Pattern.compile("(?i)\\b\\d+(?:[.,]\\d+)?\\s*(?:ft|feet|p[eé]s?|m|metros?|km|milhas?|horas?|dias?|rodadas?|turnos?|po|pp|pc|gp|sp|cp|%)\\b");
     private final AppDb db;
 
     public RuleRetrievalEngine(AppDb database){db=database;}
@@ -277,7 +277,7 @@ public final class RuleRetrievalEngine {
 
     static String openingRuleFocus(String value){
         String source=value==null?"":value;
-        Matcher marker=Pattern.compile("(?iu)FOCO DE REGRAS PARA A ABERTURA\\s*:\\s*(.{8,420}?)(?:\\.\\s+(?:A CENA|GARANTA|NÃO|NAO|INTRODUZA)|\\n|$)").matcher(source);
+        Matcher marker=Pattern.compile("(?i)FOCO DE REGRAS PARA A ABERTURA\\s*:\\s*(.{8,420}?)(?:\\.\\s+(?:A CENA|GARANTA|NÃO|NAO|INTRODUZA)|\\n|$)").matcher(source);
         if(marker.find())return clean(marker.group(1));
         return "interação social investigação percepção exploração viagem encontro atitude de NPC e testes de habilidade";
     }
