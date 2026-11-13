@@ -65,9 +65,10 @@ public final class DndRulesNarrativeAdjudication6654Test {
         }
         JSONObject pending=new JSONObject().put("required",true).put("dc",14)
             .put("ability","Inteligência").put("skill","Investigação");
-        assertFalse(MasterTestRequestGuard.wouldResolveWithoutRoll(RIDDLE,
-            new JSONObject().put("narration","Kvothe decifra a charada.")
-               .put("pending_test",pending),false));
+        assertTrue("A pending roll must not license a narrated result",
+            MasterTestRequestGuard.wouldResolveWithoutRoll(RIDDLE,
+                new JSONObject().put("narration","Kvothe decifra a charada.")
+                    .put("pending_test",pending),false));
         assertFalse(MasterTestRequestGuard.wouldResolveWithoutRoll(RIDDLE,
             new JSONObject().put("narration","Kvothe decifra a charada."),true));
         assertFalse(MasterTestRequestGuard.wouldResolveWithoutRoll(RIDDLE,
@@ -95,6 +96,8 @@ public final class DndRulesNarrativeAdjudication6654Test {
         assertTrue(MasterTestRequestGuard.isPreparedPendingCheck(valid));
         assertFalse(MasterTestRequestGuard.isPreparedPendingCheck(noDc));
         valid.put("narration","Kvothe decifra a pista e descobre a resposta.");
+        assertTrue("A resposta do Mestre não pode resolver a pista sem o dado",
+            DndActionCheckPolicy.missingRequiredResolution(action,valid,false));
         assertTrue(MasterTestRequestGuard.requiresRemoteCorrection(action,valid));
         assertFalse(MasterTestRequestGuard.isPreparedPendingCheck(valid));
         valid.put("narration","Kvothe aguarda a rolagem.");
