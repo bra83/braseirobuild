@@ -67,6 +67,8 @@ public final class SceneActionRelevance {
         if(option==null)return "";
         String action=norm(option.optString("action",""));
         if(action.isEmpty())return "";
+        // Named places such as Jardim dos Livros are not book props.
+        if(has(action,"jardim dos livros"))return "jardim";
         for(String[] group:TARGETS){
             for(int i=1;i<group.length;i++){
                 if(has(action,group[i]))return group[0];
@@ -124,23 +126,13 @@ public final class SceneActionRelevance {
 
     private static int score(JSONObject option,String narration,
                              String declaredAction,JSONObject scene){
-        String action=norm(option.optString("action",""));
-        String visible=norm(narration);
         String focus=focus(option);
-        int score=0;
-        if(goalMatch(option,scene))score+=14;
-        String last=visible.substring(Math.max(0,visible.length()*2/3));
-        if(!focus.isEmpty()&&has(last,focus))score+=3;
-        String interlocutor=norm(SceneDialogueDecisionPlanner.namedInterlocutor(narration));
-        if(!interlocutor.isEmpty()&&has(action,interlocutor))score+=5;
-        if(hasAny(action,"respondo","pergunto","converso","abordo","decido","sigo a pista"))
-            score+=2;
-        if(hasAny(action,"inscricoes","matricula","ameaca","desafio","convite",
-                "competicao","aula","prova","missao"))score+=3;
-        if(BACKGROUND.contains(focus)&&!goalMatch(option,scene))score-=5;
-        if(!norm(declaredAction).isEmpty()&&sharesMeaningfulWord(action,norm(declaredAction)))
-            score+=1;
-        return score;
+        // Preserve the authored category and action order unless there is
+        // objective-level evidence. Low-salience props are penalized, but
+        // individual verbs never gain priority solely for sounding active.
+        if(goalMatch(option,scene))return 20;
+        if(BACKGROUND.contains(focus))return -6;
+        return 0;
     }
 
     static boolean goalMatch(JSONObject option,JSONObject scene){
