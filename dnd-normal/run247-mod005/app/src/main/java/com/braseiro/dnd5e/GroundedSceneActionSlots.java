@@ -86,15 +86,18 @@ public final class GroundedSceneActionSlots {
                 pool.add(choice(type,cleanTitle(fallback.optString("label",type),type),action));
         }
 
-        // Prefer distinct type families, in context, with no quotas.
+        // Relevance before category: favor the currently active objective and
+        // different decision targets, not three verbs about incidental scenery.
+        java.util.List<JSONObject> ordered=SceneActionRelevance.order(pool,visible,declaredAction,scene);
         java.util.HashSet<String> usedTypes=new java.util.HashSet<>();
-        for(JSONObject candidate:pool){
+        for(JSONObject candidate:ordered){
             if(out.length()>=3)break;
             String action=candidate.optString("action",""),type=actionType(candidate);
             if(action.isEmpty()||type.isEmpty()||usedTypes.contains(type))continue;
             if(!SceneActionEvidence.valid(candidate,visible))continue;
             if(!SceneOptionDiversifier.isRelevantToCurrentBeat(action,visible))continue;
             if(!SceneOptionDiversifier.isGroundedInScene(action,visible,new JSONObject()))continue;
+            if(!SceneActionRelevance.diverse(candidate,out,scene,visible))continue;
             if(SceneActionEvidence.sameDecision(action,declaredAction))continue;
             boolean seen=false;
             // Six recent scenes are enough to avoid local loops without
