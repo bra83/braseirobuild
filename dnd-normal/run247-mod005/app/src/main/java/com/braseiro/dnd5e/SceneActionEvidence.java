@@ -76,7 +76,7 @@ public final class SceneActionEvidence {
     static boolean namedReferencesExist(String narration,String action){
         if(action==null)return false;
         String n=normalize(narration);
-        Matcher m=Pattern.compile("(?U)\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{Ll}]{2,})\\b").matcher(action);
+        Matcher m=Pattern.compile("\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{Ll}]{2,})\\b").matcher(action);
         while(m.find()){
             String name=normalize(m.group(1));
             // Sentence-initial common verbs and inflection, plus the player.
