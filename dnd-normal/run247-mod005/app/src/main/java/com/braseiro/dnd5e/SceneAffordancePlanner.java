@@ -82,6 +82,8 @@ public final class SceneAffordancePlanner {
                 && has(stage,"caderno")){
             out.add(choice("EXPLORAR","APROXIMAR-ME DA PORTA ENTREABERTA",
                 "Aproximo-me da porta entreaberta para observar a origem aparente do brilho azulado, sem entrar nem pressupor o que há dentro."));
+            out.add(choice("AGIR","CHAMAR À PORTA ENTREABERTA",
+                "Bato de leve na porta entreaberta e aguardo por uma resposta, sem entrar nem presumir que alguém esteja dentro."));
         }
         // Place-specific affordances are based on multiple present, independent
         // props/actors from the accepted beat. No fallback reads stale NPC state.
