@@ -22,13 +22,13 @@ public final class SceneDialogueDecisionPlanner {
         ).matcher(narration);
         while(byLabel.find())if(validName(byLabel.group(1)))return byLabel.group(1);
         Matcher byAttribution=Pattern.compile(
-            "(?u)\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\b"
+            "\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\b"
         ).matcher(narration);
         String name="";
         while(byAttribution.find()) if (validName(byAttribution.group(1))) name=byAttribution.group(1);
         if (!name.isEmpty()) return name;
         Matcher byAction=Pattern.compile(
-            "(?u)\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s+(?:solta|sorri|ri|comenta|pergunta|explica|responde|entrega|alcança|diz|fala|retruca)\\b"
+            "\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s+(?:solta|sorri|ri|comenta|pergunta|explica|responde|entrega|alcança|diz|fala|retruca)\\b"
         ).matcher(narration);
         while(byAction.find()) if (validName(byAction.group(1))) name=byAction.group(1);
         return name;
