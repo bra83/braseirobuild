@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 
 /** Estrutura determinística de uma página. Nenhuma classificação torna uma regra executável. */
 public final class ManualPageStructureAnalyzer {
-    private static final Pattern PAGE_REF=Pattern.compile("(?iu)\\b(?:p(?:á|a)gina|page|cap(?:í|i)tulo|chapter|tabela|table)\\s+(?:anterior|previous|seguinte|next|\\d{1,4}|[ivxlcdm]{1,8})\\b");
+    private static final Pattern PAGE_REF=Pattern.compile("(?i)\\b(?:p(?:á|a)gina|page|cap(?:í|i)tulo|chapter|tabela|table)\\s+(?:anterior|previous|seguinte|next|\\d{1,4}|[ivxlcdm]{1,8})\\b");
     private static final Pattern BULLET=Pattern.compile("(?m)^\\s*(?:[-•*]|\\d{1,3}[.)])\\s+\\S+");
     private static final Pattern TABLE_ROW=Pattern.compile("(?m)^\\s*\\S+(?:\\s{2,}|\\t)\\S+(?:\\s{2,}|\\t)\\S+.*$");
-    private static final Pattern STAT_LINE=Pattern.compile("(?iu)^(?:CA|AC|PV|HP|deslocamento|speed|FOR|STR|DES|DEX|CON|INT|SAB|WIS|CAR|CHA|salvaguardas?|saving throws?|perícias?|skills?|sentidos?|senses?|idiomas?|languages?|ND|CR)\\b");
+    private static final Pattern STAT_LINE=Pattern.compile("(?i)^(?:CA|AC|PV|HP|deslocamento|speed|FOR|STR|DES|DEX|CON|INT|SAB|WIS|CAR|CHA|salvaguardas?|saving throws?|perícias?|skills?|sentidos?|senses?|idiomas?|languages?|ND|CR)\\b");
 
     private ManualPageStructureAnalyzer(){}
 
