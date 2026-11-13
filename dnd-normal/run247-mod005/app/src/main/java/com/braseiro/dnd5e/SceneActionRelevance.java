@@ -126,13 +126,45 @@ public final class SceneActionRelevance {
 
     private static int score(JSONObject option,String narration,
                              String declaredAction,JSONObject scene){
-        String focus=focus(option);
-        // Preserve the authored category and action order unless there is
-        // objective-level evidence. Low-salience props are penalized, but
-        // individual verbs never gain priority solely for sounding active.
-        if(goalMatch(option,scene))return 20;
-        if(BACKGROUND.contains(focus))return -6;
-        return 0;
+        String focus=focus(option),action=norm(option.optString("action",""));
+        int score=0;
+        // A recorded quest is a persistent objective, not merely a noun.
+        if(goalMatch(option,scene))score+=20;
+        // The current scene objective is a stronger signal than any prop
+        // mentioned in atmospheric prose. Require two substantive tokens
+        // to avoid promoting an incidental "book", "map" or "caderno".
+        if(scene!=null && sharesObjective(action,scene.optString("objective","")))
+            score+=12;
+        String interlocutor=norm(SceneDialogueDecisionPlanner.namedInterlocutor(narration));
+        // An NPC who is actually speaking/acting in this scene can be
+        // relevant, but never conjure an NPC from the campaign history.
+        if(!interlocutor.isEmpty()&&has(action,interlocutor))score+=8;
+        // Explicitly narrated decisions and current complications beat
+        // decoration. Physical evidence is still checked independently.
+        String n=norm(narration);
+        if(hasAny(action,"desaparecimento","desaparecido","ameaca","acusacao",
+                "convite","desafio","inscricao","inscricoes","prova","missao",
+                "pedido de ajuda","pista revelada") && hasAny(n,
+                "desaparecimento","desaparecido","ameaca","acusacao",
+                "convite","desafio","inscricao","inscricoes","prova",
+                "pedido de ajuda","pista revelada"))score+=5;
+        // A book or notebook is not automatically an objective just because
+        // the model can propose observing it in several different ways.
+        if(BACKGROUND.contains(focus)&&!goalMatch(option,scene)
+                &&(scene==null||!sharesObjective(action,scene.optString("objective",""))))
+            score-=12;
+        return score;
+    }
+
+    private static boolean sharesObjective(String action,String objective){
+        if(action==null||objective==null||objective.trim().isEmpty())return false;
+        int shared=0;
+        Set<String> counted=new HashSet<>();
+        for(String token:norm(objective).split(" ")){
+            if(token.length()<5||stopword(token)||!counted.add(token))continue;
+            if(has(action,token)&&++shared>=2)return true;
+        }
+        return false;
     }
 
     static boolean goalMatch(JSONObject option,JSONObject scene){
