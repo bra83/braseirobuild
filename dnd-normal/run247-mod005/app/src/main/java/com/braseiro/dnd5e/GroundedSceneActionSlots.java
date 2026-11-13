@@ -90,7 +90,13 @@ public final class GroundedSceneActionSlots {
         // different decision targets, not three verbs about incidental scenery.
         java.util.List<JSONObject> ordered=SceneActionRelevance.order(pool,visible,declaredAction,scene);
         java.util.HashSet<String> usedTypes=new java.util.HashSet<>();
+        // First pass: three independent focal points. Only if the scene has
+        // fewer can a central (not incidental) focus appear again.
+        for(int pass=0;pass<2&&out.length()<3;pass++){
         for(JSONObject candidate:ordered){
+            boolean repeatedFocus=SceneActionRelevance.focusAlreadyChosen(candidate,out);
+            if(pass==0&&repeatedFocus)continue;
+            if(pass==1&&!repeatedFocus)continue;
             if(out.length()>=3)break;
             String action=candidate.optString("action",""),type=actionType(candidate);
             if(action.isEmpty()||type.isEmpty()||usedTypes.contains(type))continue;
@@ -114,6 +120,7 @@ public final class GroundedSceneActionSlots {
             JSONObject sanitized=choice(type,cleanTitle(candidate.optString("label",""),type),action);
             out.put(SceneActionEvidence.bind(sanitized,visible));
             usedTypes.add(type);
+        }
         }
         return out;
     }
