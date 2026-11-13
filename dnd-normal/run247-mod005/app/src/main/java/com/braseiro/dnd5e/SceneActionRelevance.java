@@ -60,8 +60,7 @@ public final class SceneActionRelevance {
         {"fogueira","fogueira"}
     };
     private static final Set<String> BACKGROUND=new HashSet<>();
-    static{ Collections.addAll(BACKGROUND,"caderno","livro","papel","mesa","quadro",
-        "caixote","chave","roteiro","mapa","diario"); }
+    static{ Collections.addAll(BACKGROUND,"caderno","mesa","quadro","caixote"); }
 
     static String focus(JSONObject option){
         if(option==null)return "";
