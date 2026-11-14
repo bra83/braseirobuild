@@ -27,11 +27,9 @@ public final class SceneStateEngine {
                 copyNonEmpty(incoming, merged,
                         "location", "hex_id", "weather", "lighting",
                         "danger", "objective", "present_npcs", "threats", "clues", "pending_consequences");
-                // O modelo às vezes devolve o exemplo do contrato (dia 1). O relógio da
-                // campanha nunca pode andar para trás por causa disso.
-                int currentDay = Math.max(1, current.optInt("day_number", 1));
-                int incomingDay = Math.max(1, incoming.optInt("day_number", currentDay));
-                merged.put("day_number", Math.max(currentDay, incomingDay));
+                // The model can propose prose, never set the day counter.
+                // Even increasing it to a later day would bypass world-tick consequences.
+                merged.put("day_number", Math.max(1,current.optInt("day_number",1)));
             }
             if (mapState != null && mapState.optString("current_hex_id").length() > 0)
                 merged.put("hex_id", mapState.optString("current_hex_id"));
