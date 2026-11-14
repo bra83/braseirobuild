@@ -93,6 +93,31 @@ public final class PostStrixhavenActivitiesEngine {
             return c.moveToFirst()?c.getInt(0):0;
         }
     }
+    /**
+     * A verified Atlas hex takes priority over a terrain selected in the UI.
+     * Unverified/absent hex data keeps the manual terrain workflow available.
+     * This prevents a forest DC being used while the confirmed Atlas position
+     * identifies a mountain or desert.
+     */
+    static String effectiveForageTerrain(String requested,JSONObject map,JSONObject hex){
+        if(map==null||hex==null||map.optString("map_package_id","").trim().isEmpty()
+                ||map.optString("current_hex_id","").trim().isEmpty())return requested;
+        String canonical=hex.optString("terrain_primary","").trim();
+        String status=hex.optString("review_status","").trim().toLowerCase(Locale.ROOT);
+        double confidence=hex.optDouble("terrain_confidence",0d);
+        boolean confirmed="verified".equals(status)
+                ||("automatic".equals(status)&&Double.isFinite(confidence)&&confidence>=0.80d);
+        if(!confirmed||canonical.isEmpty()||"unassigned".equalsIgnoreCase(canonical)
+                ||"null".equalsIgnoreCase(canonical))return requested;
+        return canonical;
+    }
+    private String effectiveForageTerrain(String requested){
+        JSONObject map=db.getMapState();
+        String packageId=map.optString("map_package_id","").trim();
+        String hexId=map.optString("current_hex_id","").trim();
+        if(packageId.isEmpty()||hexId.isEmpty())return requested;
+        return effectiveForageTerrain(requested,map,db.getMapHex(packageId,hexId));
+    }
     public static int foragingDc(String terrain){
         String t=(terrain==null?"":terrain).toLowerCase(Locale.ROOT);
         if(t.contains("floresta")||t.contains("forest")||t.contains("bosque")||t.contains("pântano")||
@@ -121,7 +146,7 @@ public final class PostStrixhavenActivitiesEngine {
     /** Plan a local two-hour stage; its duration is a UI scheduling assumption. */
     public synchronized JSONObject planForage(long characterId,String terrain,boolean hunting){
         try{
-            requireDnd();JSONObject h=hero(characterId);int dc=foragingDc(terrain);
+            requireDnd();JSONObject h=hero(characterId);terrain=effectiveForageTerrain(terrain);int dc=foragingDc(terrain);
             int d=day();if(countSameDay("forage",characterId,d)>0)
                 throw new IllegalStateException("Já existe tentativa de caça/coleta neste dia de campanha para este herói.");
             JSONObject scene=db.getSceneState();
