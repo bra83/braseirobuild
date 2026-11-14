@@ -50,10 +50,6 @@ public final class PostStrixhavenActivitiesEngine {
                 TABLE+"(world_profile,character_id,day_number,kind,status)");
     }
     private int day(){return Math.max(1,db.getSceneState().optInt("day_number",1));}
-    private static JSONObject mapBinding(JSONObject map)throws Exception{
-        return new JSONObject().put("map_package_id",map.optString("map_package_id",""))
-                .put("map_hex_id",map.optString("current_hex_id",""));
-    }
     private static void requireSameForageHex(JSONObject payload,JSONObject now){
         String packageId=payload.optString("map_package_id","").trim();
         String hex=payload.optString("map_hex_id","").trim();
