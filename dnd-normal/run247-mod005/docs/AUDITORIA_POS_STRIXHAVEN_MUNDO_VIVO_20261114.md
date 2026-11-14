@@ -103,3 +103,29 @@
 - As ações diretas `DESCANSO CURTO • 1H` e `DORMIR • 8H` passam pela prévia/commit do `WorldStateEngine` e confirmam avanço climático na mesma transação SQLite. Os botões aparecem apenas em D&D, preservando Mystara.
 - Regra-base 2024 consultada em `https://www.dndbeyond.com/sources/dnd/br-2024/rules-glossary`: descanso longo requer pelo menos 8h, com mínimo 6h de sono, e intervalo mínimo de 16h antes de iniciar o próximo. Interrupções e casos extraordinários ainda exigem validação específica; não certificar sem teste.
 - **Nota de QA:** CI 26/26 não certifica geração de recompensas de caça e trabalho, ciclo completo de encontro/combate, regressão global BRELGA, assinatura/instalação APK ou hardware Galaxy A57. O projeto permanece sem liberação integral.
+
+
+## Bloco completo de implementação pós-Strixhaven — evidência de 14/11/2026
+
+### Build e execução reais do SHA e90aa02b539f0edaa4636f2610552b0ecc741b4b
+- [GitHub Actions RUN 43575888892](https://github.com/bra83/braseirobuild/actions/runs/43575888892): **9 suítes; 35 testes; 0 falhas; 0 erros; 0 ignorados; BUILD SUCCESSFUL em testDebugUnitTest e assembleDebug**.
+- HEAD validado na PR: \`e90aa02b539f0edaa4636f2610552b0ecc741b4b\`. SHA de checkout/merge do CI: \`a5d5395b68bde5ea46a7f8f511450754eb9fe98a\`.
+- APK \`app/build/outputs/apk/debug/app-debug.apk\`: **333.156.561 bytes**, gerado sem \`braseiro.qaLiteAssets=true\`.
+- Validação do ZIP interno do APK: \`assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip\` presente, **102.373.336 bytes**.
+- Artefato preservado por 14 dias: [dnd-post-strixhaven-full-debug — artifact ID 14106645038](https://github.com/bra83/braseirobuild/actions/runs/43575888892/artifacts/14106645038); contêiner de download de 294.516.542 bytes. O artefato do GitHub Actions é um ZIP que contém o arquivo \`app-debug.apk\`; não é o ZIP de um novo projeto.
+- **Android Galaxy A57 físico NÃO homologado**; testes são em runner Ubuntu, Gradle e Robolectric. A assinatura estável deve ser verificada frente ao APK instalado antes de qualquer atualização.
+
+### Fluxos funcionais implementados neste bloco
+1. **Caça/coleta reais:** \`PostStrixhavenActivitiesEngine.planForage/resolveForage\`; d20 local via \`rollDiceInteractive\`, modificador de Sabedoria/Sobrevivência do motor, CD por terreno, d6 de comida e d6 de água, conversão controlada em dias inteiros de provisões da companhia com excedentes, passagem de tempo de campanha, auditoria, diário, transação SQLite e clima. Falhas gastam tempo sem prêmio; replays não duplicam.
+2. **Trabalho contratado:** \`offerJob/acceptJob/finishJob\`; valor e empregador negociados pelo jogador, turno de 1 a 12h em horas inteiras, ouro na ficha uma única vez, recibo persistente, limite local de um turno por dia, sem XP arbitrário. Valor salarial é contrato ficcional, **não tabela oficial D&D**.
+3. **Imprevistos/encontros opcionais:** \`PostStrixhavenEncounterEngine\` gera candidatos em limites de 6 horas de tempo real da campanha, com probabilidades e textos locais conforme terreno/clima; máximo de 2 pendências; registro único; permite ignorar, investigar, concluir narrativamente ou solicitar hostilidade real. **Não há ataque, criatura, dano, recompensa ou XP inventados**.
+4. **Combate vinculado:** \`reconcileNativeCombat\` conecta evento opcional ao \`combat.action=start\` validado pelo Master e ao estado \`combat_state.encounter_id\`, e só finaliza com término validado; resultado do encontro não concede loot por conta própria.
+5. **Separação Strixhaven/Faerûn:** \`AppDb.isStrixhavenAdventureActive\` lê o mesmo perfil SharedPreferences usado pelo UI; os novos motores são bloqueados enquanto Strixhaven estiver ativo. Mystara permanece congelado.
+6. **UI Android:** painel \`CAÇA, COLETA E TRABALHOS\`; botão de preparar rolagens nativas; acordo de emprego, aceite, conclusão e cancelamento; painel \`ENCONTROS E IMPREVISTOS\`, ações opcionais e passagem ao Mestre; descanso 1h/8h e relógio/hora já implementados.
+7. **Testes end-to-end sobre SQLite real:** \`PostStrixhavenActivitiesRobolectricTest\`, \`PostStrixhavenEncounterRobolectricTest\`, \`PostStrixhavenWorldLifecycleRobolectricTest\`, \`PostStrixhavenSandboxSubsystemRobolectricTest\`, \`CoreGameLaunchRobolectricTest\` e demais conjuntos do workflow. Nova suíte exige os botões na UI do Android.
+
+### Limites de homologação que não devem ser omitidos
+- O código garante a persistência automatizada nos cenários cobertos, **não** prova campanha longa livre de regressões, escolha contextual correta do Gemini em todos os casos nem encontros de combate completos em hardware físico.
+- A integração com o motor de combate fica condicionada ao Mestre emitir o evento validado e ao sistema aplicar corretamente as regras e rolagens; testes com o serviço externo real da IA em sessões de muitas cenas **não executados**.
+- Regressão integral BRELGA em runner self-hosted: status \`pending\` na data da evidência.
+- APK debug: **arquivo de teste, não distribuição final**; não foi testada atualização de instalação existente, preservação de saves no Galaxy A57, nem assinatura em dispositivo. Não mesclar esta PR sem evidência desses gates.
