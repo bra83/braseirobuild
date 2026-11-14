@@ -8991,15 +8991,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
      * Mystara's existing travel implementation is left untouched.
      */
     private boolean advanceConfirmedDndMapTravelHours(double elapsedHours){
-        if(!Double.isFinite(elapsedHours)||elapsedHours<=0d||worldStateEngine==null)return false;
-        try{
-            JSONObject tick=worldStateEngine.previewConfirmedMapElapsed(elapsedHours);
-            if(tick.optString("error","").length()>0)return false;
-            return worldStateEngine.commit(tick);
-        }catch(Exception error){
-            AppLog.e("WorldTime","O avanço canônico da viagem falhou.",error);
+        if(!Double.isFinite(elapsedHours)||elapsedHours<=0d)return false;
+        JSONObject committed=new ConfirmedMapTravelWorldGateway(db).commit(elapsedHours,"destino do mapa");
+        if(!committed.optBoolean("committed",false)){
+            AppLog.w("WorldTime","Viagem sem commit de relógio/clima: "+committed.optString("error",""),null);
             return false;
         }
+        return true;
     }
 
     private void applyDndTravel(MapBoardView mapView,Spinner routeOwner,TextView routeInfo,TextView currentHexInfo,ArrayList<String> route,String next,String previous,JSONObject report){
