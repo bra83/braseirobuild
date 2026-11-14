@@ -1,0 +1,60 @@
+name: Braseiro DnD 6.6.56 - Contextual Actions and Missions APK
+on:
+  push:
+    branches:
+      - fix/dnd-6654-actions-professional-20261111
+    paths:
+      - .github/workflows/dnd-6656-context-missions-direct-download.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-verified-context-missions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN: "43543124588"
+      SOURCE_SHA: 9e2436990f7b277973c775e7ff0b83b9f136bcbc
+      TAG: braseiro-dnd-6656-context-missions-20261113
+    steps:
+      - name: Require successful code and version regression build
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            state=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq '.status')
+            if [ "$state" = "completed" ]; then break; fi
+            sleep 5
+          done
+          test "$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq '.conclusion')" = "success"
+          test "$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq '.head_sha')" = "$SOURCE_SHA"
+      - name: Download verified Android hotfix APK
+        run: |
+          set -euo pipefail
+          mkdir -p apk
+          gh run download "$SOURCE_RUN" --repo "$GH_REPO" --name DND_6656_CONTEXT_ACTIONS_MISSIONS_PREVIEW_NOT_RELEASE --dir apk
+          test -s apk/BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk
+      - name: Verify SHA-256, package and monotonic update code
+        run: |
+          set -euo pipefail
+          (cd apk && sha256sum -c DEVICE_PREVIEW_SHA256.txt)
+          grep -q "package: name='com.braseiro.dnd5e'" apk/DEVICE_PREVIEW_PACKAGE.txt
+          grep -q "versionCode='203900619'" apk/DEVICE_PREVIEW_PACKAGE.txt
+          file apk/BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk | grep -q 'Android package'
+      - name: Publish unzipped APK as public prerelease asset
+        run: |
+          set -euo pipefail
+          apk=apk/BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk
+          if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$apk" --clobber --repo "$GH_REPO"
+          else
+            gh release create "$TAG" "$apk" \
+              --repo "$GH_REPO" \
+              --target "$SOURCE_SHA" \
+              --title "Braseiro D&D 6.6.56 - Ações contextuais e Missões" \
+              --notes "Prévia de teste com priorização de ações por objetivos ativos e focos narrativos independentes; nova aba de Missões ativas/concluídas persistida no SQLite. Inclui correções de regex Android da 6.6.55. Versão code 203900619; banco schema 61, backup 21, assinatura de atualização preservada. Gates automáticos executados no run 43543124588. Faça backup antes da atualização. Não homologado no Galaxy A57 físico." \
+              --prerelease
+          fi
+          gh release view "$TAG" --repo "$GH_REPO" --json url,assets
