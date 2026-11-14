@@ -99,6 +99,48 @@ public class PostStrixhavenEncounterRobolectricTest {
         assertEquals(0,db.getCombatState().optInt("running",0));
     }
 
+    @Test public void nativeCombatStartAndEndReconcileOnlyBoundEncounter() throws Exception {
+        long id=0;
+        for(int i=0;i<250&&id==0;i++){
+            int beforeDay=1+i/4,afterDay=beforeDay;
+            double beforeHour=(i%4)*6d,afterHour=beforeHour+6d;
+            if(afterHour>=24d){afterDay++;afterHour-=24d;}
+            JSONObject proposed=encounters.onWorldTick(
+                    tick(beforeDay,beforeHour,afterDay,afterHour,6d));
+            if(proposed.optBoolean("offered"))id=proposed.optLong("encounter_id");
+        }
+        assertTrue(id>0);
+        JSONObject request=encounters.choose(id,"combat","Hostilidade será julgada pelo Mestre.");
+        assertTrue(request.toString(),request.optBoolean("ok"));
+        assertEquals("combat_pending",encounters.get(id).optString("status"));
+        JSONObject unrelated=encounters.reconcileNativeCombat(
+                new JSONObject().put("action","start"),"Outro combate em outra região");
+        assertFalse("Unrelated combat linked to encounter",unrelated.optBoolean("reconciled"));
+        db.setCombatRunningChecked(true);
+        String nativeId=db.getCombatState().optString("encounter_id");
+        assertTrue(nativeId.length()>10);
+        JSONObject linked=encounters.reconcileNativeCombat(
+                new JSONObject().put("action","start"),"ENCONTRO OPCIONAL #"+id+"; validar criatura.");
+        assertTrue(linked.toString(),linked.optBoolean("reconciled"));
+        assertEquals(nativeId,
+                new JSONObject(encounters.get(id).optString("outcome_json")).optString("native_combat_id"));
+        assertFalse("Active combat must never resolve encounter",
+                encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"")
+                     .optBoolean("reconciled"));
+        db.setCombatRunningChecked(false);
+        JSONObject closed=encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"");
+        assertTrue(closed.toString(),closed.optBoolean("reconciled"));
+        assertEquals("resolved",encounters.get(id).optString("status"));
+        assertEquals(0,new JSONObject(encounters.get(id).optString("outcome_json")).optInt("xp_delta"));
+        assertEquals(0,new JSONObject(encounters.get(id).optString("outcome_json")).optInt("gold_delta"));
+        assertFalse("Combat completion was applied twice",
+                encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"")
+                    .optBoolean("reconciled"));
+        db.close();db=new AppDb(context,databaseName);db.setActiveMapProfile("dnd");
+        encounters=new PostStrixhavenEncounterEngine(db);
+        assertEquals("resolved",encounters.get(id).optString("status"));
+    }
+
     @Test public void worldTickIntegratesWithoutForcingEncounter() throws Exception {
         WorldStateEngine world=new WorldStateEngine(db);
         JSONObject plan=world.preview("Passo 6 horas estudando os arredores de Yartar");
