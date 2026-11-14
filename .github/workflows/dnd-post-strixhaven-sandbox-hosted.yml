@@ -29,10 +29,22 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android SDK 35
-        uses: android-actions/setup-android@v3
-      - name: Install Android build platform
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Use runner's installed Android SDK directly
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT/cmdline-tools"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          echo "SDKMANAGER=$SDKMANAGER" >> "$GITHUB_ENV"
+      - name: Install Android 35 directly (no obsolete tools package)
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
       - name: Test real SQLite world lifecycle and existing adventure integration
         working-directory: dnd-normal/run247-mod005
         shell: bash
