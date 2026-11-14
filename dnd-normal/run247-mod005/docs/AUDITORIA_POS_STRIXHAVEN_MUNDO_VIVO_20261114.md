@@ -147,3 +147,14 @@
 - **Não executar merge em branch canônica** nem rotular 100% produção antes desses gates. O APK é debug QA e a PR segue em DRAFT.
 
 - Checagem independente após download do artefato CI: extraído somente `app-debug.apk`, tamanho **333.156.572 bytes**, Atlas interno **102.373.336 bytes**, **SHA-256 `6cb50ce7cd6d7558fc34776b5e1a8b22fd1961894ef33a93266b8a1438251e2e`**. Arquivo disponibilizado como `Braseiro_DnD_Pos_Strixhaven_QA_2026-11-14.apk` nesta conversa, sem novo ZIP de projeto.
+
+## Verificação complementar — vínculo do encontro ao combate nativo
+
+- **Falha de integridade identificada:** o encerramento podia resolver um encontro pendente baseando-se apenas na existência de um único encontro ligado a algum combate anterior, sem conferir o ID do combate que acabara. Os 35 testes anteriores não cobriam o caso de combate não relacionado.
+- **Correção aplicada:** o host `MainActivity` captura `combat_state.encounter_id` antes da ação nativa `combat.action=end` zerar o combate; `PostStrixhavenEncounterEngine.reconcileNativeCombat` exige correspondência exata com `outcome_json.native_combat_id` no mesmo commit SQLite; a assinatura antiga de dois parâmetros não pode encerrar um combate sem esse ID.
+- **Regressão implementada:** `PostStrixhavenEncounterRobolectricTest.nativeCombatStartAndEndReconcileOnlyBoundEncounter` agora rejeita ID diferente, falta de ID e somente libera finalização com ID correto, sem recompensas ou execução duplicada.
+- **Fonte validada:** código SHA `bb5b1c8d6eac7bc4b8dc152d4a4bdd438fc9c9a0`. [Workflow GitHub Actions #43592191225](https://github.com/bra83/braseirobuild/actions/runs/43592191225): **35/35 PASS, 9 suítes, 0 failures, 0 errors, 0 skipped; `testDebugUnitTest` e `assembleDebug` BUILD SUCCESSFUL**.
+- Novo APK de QA validado localmente após baixar o artefato: **333.156.568 bytes**, SHA-256 **`692fdbd029d7121110a0bbdd2999e10223c6a681f6375f228f9892349d2dd49e`**, Atlas Faerûn interno **102.373.336 bytes**.
+- [Artefato da revisão corrigida no GitHub](https://github.com/bra83/braseirobuild/actions/runs/43592191225/artifacts/14112199466), arquivo ZIP de transporte GitHub Actions que contém o `app-debug.apk` (não é projeto ZIP). O APK isolado também está disponível como `Braseiro_DnD_Pos_Strixhaven_QA_2026-11-14.apk`.
+- **Pendências:** workflow integral BRELGA no SHA da correção segue `pending`; não houve homologação física no Galaxy A57, validação de assinatura de upgrade nem ensaio completo de campanha com Gemini real.
+- **Aviso não fatal de build:** Chaquopy não conseguiu pré-compilar `.pyc` porque o buildPython disponível era 3.14.4; `BUILD SUCCESSFUL`, mas essa compatibilidade merece auditoria própria. Dependências Node também emitiram avisos de depreciação.
