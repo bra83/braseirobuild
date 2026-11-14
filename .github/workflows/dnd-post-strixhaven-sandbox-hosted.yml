@@ -113,3 +113,83 @@ jobs:
           print('POST_STRIXHAVEN_TEST_CLASSES_PASS=TRUE')
           print('ANDROID_DEVICE_HOMOLOGATED=FALSE')
           PY
+
+  full-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Use installed Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT/cmdline-tools"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Editorial evidence and source contract gates
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools -p 'test_validate_editorial_coverage.py' -v
+          python3 tools/check_483_runtime_links.py --out docs/editorial-483-runtime-links.json
+          python3 tools/validate_editorial_coverage.py --json
+          python3 -m unittest discover -s tools -p 'test_editorial_483_runtime_assessment.py' -v
+          python3 tools/editorial_483_runtime_assessment.py --json --output build/editorial-483/report.json
+          python3 -m unittest discover -s tools -p 'test_verify_xsac_163_source_qa.py' -v
+          python3 tools/verify_xsac_163_source_qa.py --json-out build/xsac-163/source-report.json
+          python3 -m unittest discover -s tools -p 'test_verify_xmm_503_source.py' -v
+          python3 tools/verify_xmm_503_source.py --json-out build/xmm-503/source-report.json
+      - name: Full real-asset Android JVM and Robolectric regression
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+      - name: Summarize ALL JUnit XML and enforce adventure transaction tests
+        if: always()
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET, os
+          paths=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          counts={k:0 for k in ('tests','failures','errors','skipped')}
+          for path in paths:
+              root=ET.parse(path).getroot()
+              for k in counts: counts[k]+=int(root.get(k,'0'))
+          name='TEST-com.braseiro.dnd5e.adventure.AdventureTransactionSafetyRobolectricTest.xml'
+          matching=[p for p in paths if p.endswith(name)]
+          print('REGRESSION_SOURCE_SHA='+os.environ.get('GITHUB_SHA',''))
+          print('REGRESSION_XML_SUITES=',len(paths))
+          print('REGRESSION_XML_COUNTS=',counts)
+          print('TRANSACTION_TEST_XML_FOUND=',len(matching)==1)
+          if len(matching)!=1 or not paths or counts['tests']==0 or any(counts[k] for k in ('failures','errors','skipped')):
+              raise SystemExit('REGRESSION_NOT_CERTIFIED')
+          expected=ET.parse(matching[0]).getroot()
+          if int(expected.get('tests','0'))!=7:
+              raise SystemExit('REQUIRED_TRANSACTION_CASES_NOT_SEVEN')
+          print('FULL_REGRESSION_XML_PASS=TRUE')
+          print('ANDROID_PHYSICAL_DEVICE_CERTIFIED=FALSE')
+          PY
+      - name: Upload full regression XML evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-post-strixhaven-full-regression-xml
+          path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          if-no-files-found: warn
+          retention-days: 14
