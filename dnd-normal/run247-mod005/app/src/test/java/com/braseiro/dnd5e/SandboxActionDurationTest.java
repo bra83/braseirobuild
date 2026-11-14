@@ -11,12 +11,15 @@ public class SandboxActionDurationTest {
         assertEquals(4d,SandboxActionDuration.estimate("Trabalho na taverna").hours,0.001d);
         assertEquals(1d,SandboxActionDuration.estimate("Investigo os arredores da taverna").hours,0.001d);
         assertEquals(2d,SandboxActionDuration.estimate("Patrulho o bairro").hours,0.001d);
+        assertEquals(1d,SandboxActionDuration.estimate("Investigar: Kvothe vasculha o arquivo").hours,0.001d);
+        assertEquals(2d,SandboxActionDuration.estimate("Caçar: Kvothe segue os rastros").hours,0.001d);
     }
 
     @Test public void quickActivitiesHaveFractionalDuration() {
         assertEquals(.5d,SandboxActionDuration.estimate("Compro mantimentos").hours,0.001d);
         assertEquals(.25d,SandboxActionDuration.estimate("Converso com o taverneiro").hours,0.001d);
         assertEquals(.1d,SandboxActionDuration.estimate("Observo os arredores").hours,0.001d);
+        assertEquals(.1d,SandboxActionDuration.estimate("Observar: Kvothe examina o barro").hours,0.001d);
     }
 
     @Test public void queriesAndTravelRemainNonAdvancing() {
