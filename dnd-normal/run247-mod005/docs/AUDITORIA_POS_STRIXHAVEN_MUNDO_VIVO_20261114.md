@@ -30,7 +30,7 @@
 6. `SceneStateEngine.java`: envelopes do Gemini deixam de definir `day_number`, `clock_hour` e `time_of_day`; mensagens da IA não impõem relógio. O relógio da cena é conciliado exclusivamente com estado persistido.
 
 ## Evidência e pendências para revisão
-- `SandboxActionDuration.java` compilado via `javac`, com 12 verificações locais em executável independente: **12/12 PASS** para a versão inicial. Após ampliação de verbos, testes JUnit foram adicionados/atualizados, ainda **não executados** neste ambiente.
+- `SandboxActionDuration.java` compilado via `javac`, com 15 verificações locais em executável independente: **15/15 PASS** para a versão atualizada do estimador. Testes JUnit foram adicionados/atualizados, porém **a suíte JUnit do Android não foi executada** neste ambiente.
 - Teste Android Gradle, Robolectric, SQLite e aparelho Galaxy A57 **NÃO EXECUTADOS**; estes itens não estão certificados.
 - Verificar em integração se `WorldStateEngine.preview` e `commit` são invocados em toda ação concluída, inclusive ações sugeridas.
 - Verificar se duração de ação deve ser declarada/ajustada pelo mestre antes do commit em tarefas interrompidas. Estimativa fixa não autoriza declarar sucesso, duração final sem revisão em casos ambíguos ou recursos encontrados.
