@@ -211,7 +211,13 @@ public final class WorldStateEngine {
                     report.put("spontaneous_encounter",spontaneous);
                 }
 
-                if(report.optBoolean("long_rest",false)){applyLongRestBenefits(report);travelRules.resetDailyTravelChecked();}
+                if(report.optBoolean("long_rest",false)){
+                    applyLongRestBenefits(report);
+                    // A long rest attempted before its rule cooldown must not
+                    // reset travel exhaustion or other spent daily travel state.
+                    if(report.optBoolean("long_rest_mechanical_benefits_applied",false))
+                        travelRules.resetDailyTravelChecked();
+                }
                 else if(report.optBoolean("short_rest",false))applyShortRestBenefits(report);
                 db.addAuditEvent("mundo","Avanço local do mundo",summary(report),"{}",report.toString(),true);
             }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}});
