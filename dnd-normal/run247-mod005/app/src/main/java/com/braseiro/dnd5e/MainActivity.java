@@ -5104,23 +5104,51 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         int day=Math.max(1,scene.optInt("day_number",1));
         String weather=scene.optString("weather","Céu limpo").trim();
         if(weather.length()==0)weather="Céu limpo";
-        SceneTemporalResolver.Result temporal=SceneTemporalResolver.resolve(
-                scene.optString("time_of_day","Manhã"),scene.optDouble("clock_hour",9d),scene.has("clock_hour"),
-                "",0d,false,lastNarration,scene.optString("lighting",""));
-        String time=temporal.label;
-        try{
-            if(Math.abs(scene.optDouble("clock_hour",-99d)-temporal.hour)>.01d||!time.equals(scene.optString("time_of_day"))||!temporal.lighting.equals(scene.optString("lighting"))){
-                scene.put("clock_hour",temporal.hour);scene.put("time_of_day",time);scene.put("lighting",temporal.lighting);db.saveSceneState(scene);
-            }
-        }catch(Exception error){AppLog.w("SceneClock","Não foi possível reparar o relógio da cena.",error);}
+        double hour=scene.optDouble("clock_hour",SceneTemporalResolver.hourForLabel(scene.optString("time_of_day","Manhã")));
+        String time;
+        if(isMystaraWorld()){
+            // Preserva exatamente o comportamento temporal legado de Mystara.
+            SceneTemporalResolver.Result temporal=SceneTemporalResolver.resolve(
+                    scene.optString("time_of_day","Manhã"),hour,scene.has("clock_hour"),
+                    "",0d,false,lastNarration,scene.optString("lighting",""));
+            time=temporal.label;
+            try{
+                if(Math.abs(scene.optDouble("clock_hour",-99d)-temporal.hour)>.01d
+                        ||!time.equals(scene.optString("time_of_day"))
+                        ||!temporal.lighting.equals(scene.optString("lighting"))){
+                    scene.put("clock_hour",temporal.hour);
+                    scene.put("time_of_day",time);
+                    scene.put("lighting",temporal.lighting);
+                    db.saveSceneState(scene);
+                    hour=temporal.hour;
+                }
+            }catch(Exception error){AppLog.w("SceneClock","Não foi possível reparar o relógio da cena.",error);}
+        }else{
+            // Em D&D a apresentação não é uma transação. A narração não pode
+            // saltar horas ou dias ao desenhar a faixa de status.
+            time=SceneTemporalResolver.labelForHour(hour);
+        }
 
+        int minuteOfDay=((int)Math.round((((hour%24d)+24d)%24d)*60d))%1440;
+        String clock=String.format(Locale.US,"%02d:%02d",minuteOfDay/60,minuteOfDay%60);
         LinearLayout strip=card();
         strip.setOrientation(LinearLayout.HORIZONTAL);
         strip.setGravity(Gravity.CENTER);
         strip.addView(sceneStatusCell(weatherIcon(weather),shortWeatherLabel(weather)),new LinearLayout.LayoutParams(0,dp(72),1));
         strip.addView(sceneStatusCell("◈","DIA "+day),new LinearLayout.LayoutParams(0,dp(72),1));
-        strip.addView(sceneStatusCell(timeIcon(time),timeLabel(time)),new LinearLayout.LayoutParams(0,dp(72),1));
+        strip.addView(sceneStatusCell(timeIcon(time),timeLabel(time)+" "+clock),new LinearLayout.LayoutParams(0,dp(72),1));
         parent.addView(strip);
+        if(!isMystaraWorld()){
+            JSONObject rhythm=db.getTravelRulesState();
+            double last=rhythm.optDouble("last_long_rest_completed_absolute_hour",
+                    rhythm.optDouble("rest_rhythm_baseline_absolute_hour",Double.NaN));
+            double hoursSince=SandboxRestPolicy.hoursSinceLongRest(last,(day-1)*24d+hour,false);
+            if(SandboxRestPolicy.overdue(hoursSince)){
+                parent.addView(text("DESCANSO ATRASADO • Consulte as regras do perfil ativo.",10,GOLD,true));
+            }else if(SandboxRestPolicy.recommended(hoursSince)){
+                parent.addView(text("DESCANSO RECOMENDADO • Considere repousar antes de prosseguir.",10,GOLD,true));
+            }
+        }
     }
 
     private LinearLayout sceneStatusCell(String icon,String label){
@@ -8958,10 +8986,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         try{if(packageId==null||hexId==null||!isAtlasContractRuntime(packageId)||!db.isValidMapHex(packageId,hexId))return false;JSONObject row=db.getRawMapHex(packageId,hexId);JSONObject pack=db.getMapPackage(packageId);double u=row.optDouble("center_u",Double.NaN),v=row.optDouble("center_v",Double.NaN);if(Double.isNaN(u)||Double.isNaN(v))return false;String frame=pack.optString("coordinate_frame_id",db.getCoordinateFrameIdForPackage(packageId));db.saveAtlasPositionForProfile(activeWorldProfile(),packageId,hexId,u,v,frame,"ready","{}");AtlasScenePositionReconciler.reconcilePersistedScene(db,reason==null?"posição canônica do Atlas":reason);return hexId.equalsIgnoreCase(db.getMapState().optString("current_hex_id",""));}catch(Exception e){AppLog.e("Atlas","Falha ao persistir posição canônica do grupo.",e);return false;}
     }
 
+    /** The D&D map travel engine already consumed movement resources.
+     * Advance the same world tick used by narration without charging again.
+     * Mystara's existing travel implementation is left untouched.
+     */
+    private boolean advanceConfirmedDndMapTravelHours(double elapsedHours){
+        if(!Double.isFinite(elapsedHours)||elapsedHours<=0d||worldStateEngine==null)return false;
+        try{
+            JSONObject tick=worldStateEngine.previewConfirmedMapElapsed(elapsedHours);
+            if(tick.optString("error","").length()>0)return false;
+            return worldStateEngine.commit(tick);
+        }catch(Exception error){
+            AppLog.e("WorldTime","O avanço canônico da viagem falhou.",error);
+            return false;
+        }
+    }
+
     private void applyDndTravel(MapBoardView mapView,Spinner routeOwner,TextView routeInfo,TextView currentHexInfo,ArrayList<String> route,String next,String previous,JSONObject report){
         try{safety.createSnapshot("Antes da viagem "+previous+" → "+next);}catch(Exception e){toast("Movimento bloqueado porque o snapshot falhou.");return;}
         if(!travelRulesEngine.commit(report)){toast("A viagem não foi aplicada porque o estado mecânico não pôde ser salvo. O mapa permaneceu no hex anterior.");return;}
-        if(!advanceSceneHours(report.optDouble("elapsed_hours",report.optDouble("hours",0)))){restoreTravelSnapshot("Falha ao avançar o relógio da viagem.");return;}
+        if(!advanceConfirmedDndMapTravelHours(report.optDouble("elapsed_hours",report.optDouble("hours",0)))){restoreTravelSnapshot("Falha ao avançar o Mundo Vivo durante a viagem.");return;}
         route.remove(0);String packageId=db.getMapState().optString("map_package_id","");if(isAtlasContractRuntime(packageId)&&!commitAtlasCurrentHex(packageId,next,"movimento de viagem confirmado")){restoreTravelSnapshot("Falha ao salvar a nova posição canônica no Atlas.");return;}mapView.setCurrentHexId(next);mapView.setRoute(route);if(route.isEmpty()&&next.equals(mapView.getDestinationHexId()))mapView.setDestination("");saveTravel(mapView,routeOwner);
         if(!next.equals(db.getMapState().optString("current_hex_id"))){restoreTravelSnapshot("Falha ao salvar a nova posição no mapa.");return;}
         db.addJournal("Viagem: "+previous+" → "+next,travelRulesJournal(report),"Viagem");db.addAuditEvent("regras_viagem","Trecho percorrido segundo "+report.optString("rules_profile","D&D"),previous+" → "+next,"{}",report.toString(),true);currentHexInfo.setText("Hex atual: "+next+briefHexLabel(db.getMapState().optString("map_package_id"),next));updateRouteInfo(routeInfo,mapView);int exhaustion=report.optJSONArray("exhaustion_changes")==null?0:report.optJSONArray("exhaustion_changes").length();toast(exhaustion>0?"Viagem concluída; houve falha em salvaguarda e a Exaustão foi atualizada.":"Viagem concluída segundo "+report.optString("rules_profile","as regras selecionadas")+".");
