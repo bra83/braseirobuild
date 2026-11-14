@@ -57,6 +57,7 @@ jobs:
             --tests com.braseiro.dnd5e.PostStrixhavenWorldLifecycleRobolectricTest \
             --tests com.braseiro.dnd5e.PostStrixhavenSandboxSubsystemRobolectricTest \
             --tests com.braseiro.dnd5e.PostStrixhavenActivitiesRobolectricTest \
+            --tests com.braseiro.dnd5e.PostStrixhavenEncounterRobolectricTest \
             --tests com.braseiro.dnd5e.LivingWorldCatchUpRulesTest \
             --tests com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest \
             --tests com.braseiro.dnd5e.CoreGameLaunchRobolectricTest
