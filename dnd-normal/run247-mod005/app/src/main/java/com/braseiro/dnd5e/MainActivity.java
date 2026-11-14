@@ -7609,6 +7609,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         addLivingWorldAutomationPanel(b,state,day);
         addWorldSixPanel(b,day);
         if(!isMystaraWorld()&&!isStrixhavenAdventure())addPostStrixhavenActivitiesPanel(b);
+        if(!isMystaraWorld()&&!isStrixhavenAdventure())addPostStrixhavenEncounterPanel(b);
 
         JSONObject troupe=livingWorldEngine.troupe();LinearLayout troupeCard=card();troupeCard.addView(text("TRUPE / MODO DE VIDA DO GRUPO",17,GOLD,true));if(troupe.length()==0)troupeCard.addView(text("Nenhuma trupe configurada. O grupo pode manter uma base, vagar junto ou atuar como companhia itinerante.",13,MUTED,false));else{troupeCard.addView(text(troupe.optString("name","Companhia")+" • "+troupe.optString("troupe_mode","itinerante"),16,TEXT,true));troupeCard.addView(text("Agora: "+emptyAs(troupe.optString("current_location"),"local não definido")+" • Base: "+emptyAs(troupe.optString("home_base"),"sem base fixa"),13,MUTED,false));troupeCard.addView(text("Integrantes: "+looseArrayLines(troupe.optString("members_json","[]")).replace("\n",", "),13,TEXT,false));if(troupe.optString("notes").length()>0)troupeCard.addView(text(troupe.optString("notes"),12,MUTED,false));}Button editTroupe=button(troupe.length()==0?"CRIAR TRUPE":"EDITAR TRUPE",PANEL2);editTroupe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){livingWorldTroupeDialog();}});troupeCard.addView(editTroupe);b.addView(troupeCard);
 
@@ -7843,6 +7844,92 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 }});
             }
         });
+    }
+
+    /** Encounters are optional prompts, never forced combat or loot. */
+    private void addPostStrixhavenEncounterPanel(LinearLayout parent){
+        PostStrixhavenEncounterEngine engine=new PostStrixhavenEncounterEngine(db);
+        LinearLayout box=card();
+        box.addView(text("ENCONTROS E IMPREVISTOS",17,GOLD,true));
+        box.addView(text("As oportunidades surgem quando o tempo do mundo avança. Você pode investigar ou ignorar. Não existe combate, dano, tesouro ou missão obrigatória gerados por esta lista.",12,MUTED,false));
+        List<JSONObject> events=engine.recent(12);
+        if(events.isEmpty())box.addView(text("Nenhum encontro foi registrado até agora. Viagens, dias de trabalho e exploração podem trazer acontecimentos.",12,MUTED,false));
+        for(final JSONObject event:events){
+            final long eventId=event.optLong("id");
+            final String status=event.optString("status","");
+            box.addView(text(event.optString("title")+" • "+status.replace('_',' ')+
+                    "\n"+event.optString("description")+
+                    "\n"+event.optString("location")+" • dia "+event.optInt("day_number"),12,
+                    ("offered".equals(status)||"engaged".equals(status))?TEXT:MUTED,false));
+            if("offered".equals(status)){
+                LinearLayout options=new LinearLayout(this);options.setOrientation(LinearLayout.HORIZONTAL);
+                Button engage=smallButton("INVESTIGAR",GREEN),ignore=smallButton("IGNORAR",PANEL2);
+                engage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runPostStrixhavenEncounterChoice(event,"investigate","O grupo decide investigar.");}});
+                ignore.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runPostStrixhavenEncounterChoice(event,"ignore","O grupo não interfere.");}});
+                options.addView(engage,new LinearLayout.LayoutParams(0,dp(44),1));
+                options.addView(ignore,new LinearLayout.LayoutParams(0,dp(44),1));
+                box.addView(options);
+            }else if("engaged".equals(status)){
+                LinearLayout options=new LinearLayout(this);options.setOrientation(LinearLayout.HORIZONTAL);
+                Button complete=smallButton("DESFECHO NARRATIVO",PANEL2),combat=smallButton("AVALIAR COMBATE",RED);
+                complete.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    final EditText resolution=input("O que aconteceu, sem recompensas ou efeitos mecânicos automáticos?","",true);
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Desfecho do encontro")
+                      .setView(resolution).setNegativeButton("Voltar",null)
+                      .setPositiveButton("CONCLUIR",new DialogInterface.OnClickListener(){
+                          public void onClick(DialogInterface d,int which){
+                              if(value(resolution).trim().length()<8){toast("Descreva o resultado confirmado.");return;}
+                              runPostStrixhavenEncounterChoice(event,"resolve",value(resolution));
+                          }
+                      }).show();
+                }});
+                combat.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Encaminhar ao combate")
+                      .setMessage("Somente se houver hostilidade real. O Mestre verificará as regras e o motor de combate receberá os participantes, sem rolagens fictícias nem dano automático.")
+                      .setNegativeButton("Voltar",null)
+                      .setPositiveButton("PEDIR AO MESTRE",new DialogInterface.OnClickListener(){
+                          public void onClick(DialogInterface d,int which){
+                              runPostStrixhavenEncounterChoice(event,"combat","O jogador solicita a resolução de hostilidade conforme as regras.");
+                          }
+                      }).show();
+                }});
+                options.addView(complete,new LinearLayout.LayoutParams(0,dp(42),1));
+                options.addView(combat,new LinearLayout.LayoutParams(0,dp(42),1));
+                box.addView(options);
+            }else if("combat_pending".equals(status)){
+                box.addView(text("PENDENTE DE COMBATE • O registro permanece aberto e não concede recompensas. Resolva no motor de combate.",11,GOLD,true));
+            }
+        }
+        parent.addView(box);
+    }
+
+    private void runPostStrixhavenEncounterChoice(final JSONObject event,final String choice,
+                                                   final String narrative){
+        try{safety.beforeDestructiveChange("encontro opcional — "+choice);}
+        catch(Exception e){toast("Encontro bloqueado: "+e.getMessage());return;}
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            final JSONObject result=new PostStrixhavenEncounterEngine(db).choose(
+                    event.optLong("id"),choice,narrative);
+            ui.post(new Runnable(){public void run(){
+                if(!result.optBoolean("ok",false)){
+                    toast("Encontro não alterado: "+result.optString("error","Falha."));return;
+                }
+                screenCache.remove("Mundo Vivo");
+                if("investigate".equals(choice)||"combat".equals(choice)){
+                    navigate("Mestre IA");
+                    String directive="ENCONTRO OPCIONAL #"+event.optLong("id")+
+                        ". Local: "+event.optString("location")+". Contexto: "+event.optString("description")+
+                        ". Ação declarada: "+("combat".equals(choice)?
+                          "O grupo está avaliando uma possível hostilidade. NÃO invente inimigos automáticos: siga as regras de encontro e abra combate via combat.action=start somente se a ficção justificar.":
+                          "O grupo resolveu investigar. Narre reações específicas, pergunte o que fazem e respeite a opção de abandonar o encontro.")+
+                        " Não invente recompensas, dano, resultados de testes ou alterações de ficha.";
+                    sendAi("Narrador",directive);
+                }else{
+                    if("Mundo Vivo".equals(currentScreen))showLivingWorld();
+                    toast("Decisão persistida no Mundo Vivo, sem efeitos mecânicos não autorizados.");
+                }
+            }});
+        }});
     }
 
     private void addLivingWorldAutomationPanel(LinearLayout parent,final JSONObject state,final int day){
