@@ -115,6 +115,27 @@ public class PostStrixhavenActivitiesRobolectricTest {
         assertEquals(8d,db.getSceneState().optDouble("clock_hour"),.001d);
         assertEquals(0,new JSONObject(db.getCharacter(hero).optString("sheet_json","{}")).optInt("gold"));
     }
+    @Test public void foragingMustBeResolvedInTheHexWhereItWasPlanned() throws Exception {
+        db.getWritableDatabase().execSQL(
+                "UPDATE map_world_state SET map_package_id=?,current_hex_id=? WHERE world_profile=?",
+                new Object[]{"test-atlas","D040","dnd"});
+        JSONObject plan=engine.planForage(hero,"Floresta",true);
+        assertTrue(plan.toString(),plan.optBoolean("ok"));
+        long activity=plan.optLong("activity_id");
+        db.getWritableDatabase().execSQL(
+                "UPDATE map_world_state SET current_hex_id=? WHERE world_profile=?",
+                new Object[]{"D041","dnd"});
+        JSONObject wrong=engine.resolveForage(activity,20,6,6);
+        assertFalse("Moved hero must not resolve old forage",wrong.optBoolean("ok"));
+        assertEquals(8d,db.getSceneState().optDouble("clock_hour"),0.001d);
+        assertEquals("planned",engine.get(activity).optString("status"));
+        db.getWritableDatabase().execSQL(
+                "UPDATE map_world_state SET current_hex_id=? WHERE world_profile=?",
+                new Object[]{"D040","dnd"});
+        JSONObject result=engine.resolveForage(activity,20,6,6);
+        assertTrue(result.toString(),result.optBoolean("ok"));
+        assertEquals(10d,db.getSceneState().optDouble("clock_hour"),0.001d);
+    }
     @Test public void verifiedAtlasTerrainOverridesManualForagingChoice() throws Exception {
         JSONObject map=new JSONObject().put("map_package_id","faerun")
                 .put("current_hex_id","D040");
