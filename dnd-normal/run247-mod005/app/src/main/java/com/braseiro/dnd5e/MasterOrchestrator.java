@@ -248,10 +248,6 @@ public final class MasterOrchestrator {
         if(!deferred&&plan.environmentalPlan!=null&&plan.environmentalPlan.length()>0)environmentalDirector.commitChecked(plan.environmentalPlan,narration);
         npcAgency.applyConfirmed(envelope,confirmedTick==null?new JSONObject():confirmedTick,narration);
         applyWorldEnvelope(envelope);
-        // Only validated native combat can resolve a sandbox encounter, never narration.
-        JSONObject nativeCombat=envelope.optJSONObject("combat");
-        if(nativeCombat!=null&&nativeCombat.length()>0)
-            new PostStrixhavenEncounterEngine(db).reconcileNativeCombat(nativeCombat,plan.userPrompt);
         storeValidationState(envelope,plan);
     }
     public synchronized void markConsequencesCommitted(Plan plan){if(plan!=null)plan.committed=true;}
