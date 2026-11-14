@@ -61,6 +61,38 @@ jobs:
             --tests com.braseiro.dnd5e.LivingWorldCatchUpRulesTest \
             --tests com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest \
             --tests com.braseiro.dnd5e.CoreGameLaunchRobolectricTest
+      - name: Build full-asset Android debug APK (no QA-lite mode)
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify release-map asset exists in debug APK
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,zipfile
+          path='app/build/outputs/apk/debug/app-debug.apk'
+          assert os.path.getsize(path)>1024*1024,'APK_TOO_SMALL'
+          with zipfile.ZipFile(path) as z:
+              asset='assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip'
+              assert asset in z.namelist(), 'FAERUN_MAP_MISSING_IN_APK'
+              item=z.getinfo(asset)
+              assert item.file_size>1000000, 'FAERUN_MAP_INCOMPLETE'
+              print('DND_FULL_MAP_ASSET_OK=',item.file_size,'bytes')
+          print('DND_FULL_DEBUG_APK_BYTES=',os.path.getsize(path))
+          print('DND_DEBUG_SHA=',os.environ.get('GITHUB_SHA','unknown'))
+          print('ANDROID_HARDWARE_HOMOLOGATED=FALSE')
+          PY
+      - name: Upload full debug APK for device validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-post-strixhaven-full-debug
+          path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+          if-no-files-found: error
       - name: Count actual JUnit XML results
         if: always()
         working-directory: dnd-normal/run247-mod005
