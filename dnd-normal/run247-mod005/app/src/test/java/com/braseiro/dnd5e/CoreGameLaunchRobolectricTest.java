@@ -34,6 +34,10 @@ public final class CoreGameLaunchRobolectricTest {
             assertTrue("combat screen did not open",openCoreScreen(root,"Abrir Combate","Combate"));
             assertTrue("dice screen did not open",openCoreScreen(root,"Abrir Dados","Dados"));
             assertTrue("map screen did not open",openCoreScreen(root,"Abrir Mapa","MUNDO DO MAPA"));
+            assertTrue("living world navigation missing",hasContentDescription(root,"Abrir Mundo Vivo"));
+            assertTrue("living world screen did not open",openCoreScreen(root,"Abrir Mundo Vivo","Mundo Vivo"));
+            assertTrue("short rest control missing",hasText(root,"DESCANSO CURTO • 1H"));
+            assertTrue("long rest control missing",hasText(root,"DORMIR • 8H"));
         } finally {
             controller.pause().stop().destroy();
         }
