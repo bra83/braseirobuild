@@ -128,13 +128,24 @@ public class PostStrixhavenEncounterRobolectricTest {
                 encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"")
                      .optBoolean("reconciled"));
         db.setCombatRunningChecked(false);
-        JSONObject closed=encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"");
+        JSONObject unrelatedEnd=encounters.reconcileNativeCombat(
+                new JSONObject().put("action","end"),"","enc-unrelated-other-combat");
+        assertFalse("Unrelated native battle falsely closed encounter",
+                unrelatedEnd.optBoolean("reconciled"));
+        assertEquals("combat_pending",encounters.get(id).optString("status"));
+        JSONObject unverifiedEnd=encounters.reconcileNativeCombat(
+                new JSONObject().put("action","end"),"");
+        assertFalse("No host-confirmed ID should never close battle",
+                unverifiedEnd.optBoolean("reconciled"));
+        assertEquals("combat_pending",encounters.get(id).optString("status"));
+        JSONObject closed=encounters.reconcileNativeCombat(
+                new JSONObject().put("action","end"),"",nativeId);
         assertTrue(closed.toString(),closed.optBoolean("reconciled"));
         assertEquals("resolved",encounters.get(id).optString("status"));
         assertEquals(0,new JSONObject(encounters.get(id).optString("outcome_json")).optInt("xp_delta"));
         assertEquals(0,new JSONObject(encounters.get(id).optString("outcome_json")).optInt("gold_delta"));
         assertFalse("Combat completion was applied twice",
-                encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"")
+                encounters.reconcileNativeCombat(new JSONObject().put("action","end"),"",nativeId)
                     .optBoolean("reconciled"));
         db.close();db=new AppDb(context,databaseName);db.setActiveMapProfile("dnd");
         encounters=new PostStrixhavenEncounterEngine(db);
