@@ -204,6 +204,13 @@ public final class WorldStateEngine {
                 JSONObject simulation=report.optJSONObject("living_world_simulation");
                 if(simulation!=null&&!livingSimulation.commit(simulation))throw new Exception("A simulação do Mundo Vivo não pôde ser confirmada.");
 
+                // Only canonical elapsed game time may offer an optional encounter.
+                // Created within the same SQL transaction as day/time and world effects.
+                if(hours>0d&&report.optBoolean("living_world_enabled",true)){
+                    JSONObject spontaneous=new PostStrixhavenEncounterEngine(db).onWorldTick(report);
+                    report.put("spontaneous_encounter",spontaneous);
+                }
+
                 if(report.optBoolean("long_rest",false)){applyLongRestBenefits(report);travelRules.resetDailyTravelChecked();}
                 else if(report.optBoolean("short_rest",false))applyShortRestBenefits(report);
                 db.addAuditEvent("mundo","Avanço local do mundo",summary(report),"{}",report.toString(),true);
