@@ -57,7 +57,8 @@ jobs:
             --tests com.braseiro.dnd5e.PostStrixhavenWorldLifecycleRobolectricTest \
             --tests com.braseiro.dnd5e.PostStrixhavenSandboxSubsystemRobolectricTest \
             --tests com.braseiro.dnd5e.LivingWorldCatchUpRulesTest \
-            --tests com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest
+            --tests com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest \
+            --tests com.braseiro.dnd5e.CoreGameLaunchRobolectricTest
       - name: Count actual JUnit XML results
         if: always()
         working-directory: dnd-normal/run247-mod005
