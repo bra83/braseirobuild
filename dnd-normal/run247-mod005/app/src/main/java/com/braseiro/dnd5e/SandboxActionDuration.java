@@ -23,9 +23,13 @@ public final class SandboxActionDuration {
         }
     }
 
+    public static boolean isInquiry(String action) {
+        return isNonAdvancing(normalize(action), action);
+    }
+
     public static Estimate estimate(String action) {
         String text = normalize(action);
-        if (text.isEmpty() || isNonAdvancing(text, action)) return none();
+        if (text.isEmpty() || isInquiry(action)) return none();
         // Travel is measured by TravelRulesEngine from map distance/time; do not guess it here.
         if (contains(text, "viajo", "viajamos", "viagem", "caminho ate", "caminhamos ate", "sigo ate", "vou ate", "desloco ate", "marchar", "marcha por", "atravesso a regiao")) return none();
         if (contains(text, "procuro trabalho", "busco trabalho", "procurar emprego", "procuro emprego", "busco emprego", "procuro contrato", "busco contrato", "quadro de avisos", "ofertas de trabalho", "procuro um bico", "alguem que esteja contratando", "quem esteja contratando", "contratando aventureiros")) return new Estimate(1d, "procurar_trabalho");
