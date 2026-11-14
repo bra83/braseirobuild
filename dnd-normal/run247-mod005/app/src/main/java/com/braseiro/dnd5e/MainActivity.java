@@ -7588,6 +7588,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         calendar.addView(text("Envelhecer nunca altera atributos, PV, nível ou outras estatísticas automaticamente. Atividades só mudam ficha, inventário ou recursos quando uma regra do mundo ativo tem fonte, página e trecho registrados.",12,GREEN,false));
         LinearLayout calendarActions=new LinearLayout(this);calendarActions.setOrientation(LinearLayout.HORIZONTAL);Button advance=smallButton("AVANÇAR TEMPO",GOLD),settings=smallButton("CONFIGURAR",PANEL2);advance.setTextColor(Color.BLACK);advance.setOnClickListener(new View.OnClickListener(){public void onClick(View v){livingWorldAdvanceDialog();}});settings.setOnClickListener(new View.OnClickListener(){public void onClick(View v){livingWorldSettingsDialog(state);}});calendarActions.addView(advance,new LinearLayout.LayoutParams(0,dp(48),1));calendarActions.addView(settings,new LinearLayout.LayoutParams(0,dp(48),1));calendar.addView(calendarActions);b.addView(calendar);
 
+        if(!isMystaraWorld()){
+            LinearLayout restActions=card();
+            restActions.addView(text("DESCANSO E VIGÍLIA",16,GOLD,true));
+            restActions.addView(text("O tempo avança no calendário real da campanha. Descanso longo exige 8 horas, incluindo sono suficiente, e só recupera recursos quando elegível pelas regras selecionadas.",12,MUTED,false));
+            LinearLayout restRow=new LinearLayout(this);
+            restRow.setOrientation(LinearLayout.HORIZONTAL);
+            Button shortRest=smallButton("DESCANSO CURTO • 1H",PANEL2);
+            Button longRest=smallButton("DORMIR • 8H",GREEN);
+            shortRest.setContentDescription("Fazer descanso curto de uma hora");
+            longRest.setContentDescription("Dormir e fazer descanso longo de oito horas");
+            shortRest.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirmWorldRestAction("Faço um descanso curto de 1 hora");}});
+            longRest.setOnClickListener(new View.OnClickListener(){public void onClick(View v){confirmWorldRestAction("Durmo 8 horas e faço um descanso longo");}});
+            restRow.addView(shortRest,new LinearLayout.LayoutParams(0,dp(46),1));
+            restRow.addView(longRest,new LinearLayout.LayoutParams(0,dp(46),1));
+            restActions.addView(restRow);
+            b.addView(restActions);
+        }
+
         addLivingWorldAutomationPanel(b,state,day);
         addWorldSixPanel(b,day);
 
@@ -7690,6 +7708,60 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         year.setInputType(InputType.TYPE_CLASS_NUMBER);days.setInputType(InputType.TYPE_CLASS_NUMBER);rate.setInputType(InputType.TYPE_CLASS_NUMBER);cap.setInputType(InputType.TYPE_CLASS_NUMBER);
         f.addView(enabled);f.addView(background);f.addView(cardWithLabel("INTENSIDADE",mode));f.addView(text("A sincronização é local, auditada e limitada. Eventos mecânicos não verificados permanecem pendentes em vez de alterar fichas silenciosamente.",12,GREEN,false));
         new AlertDialog.Builder(this).setTitle("Configurar Mundo Vivo").setView(scrollableDialogView(f)).setNegativeButton("Cancelar",null).setPositiveButton("SALVAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){livingWorldEngine.saveSettings(enabled.isChecked(),livingWorldModeValue(String.valueOf(mode.getSelectedItem())),value(calendar),num(year,1),num(days,365),value(notes));livingWorldEngine.saveBackgroundSettings(background.isChecked(),num(rate,24),num(cap,72));screenCache.remove("Mundo Vivo");showLivingWorld();}}).show();
+    }
+
+    /** Direct player-authorized rest: no Gemini narration needed, no invented dice. */
+    private void confirmWorldRestAction(final String action){
+        if(isMystaraWorld()||worldStateEngine==null)return;
+        final JSONObject preview=worldStateEngine.preview(action);
+        if(preview.optString("error","").length()>0){
+            toast("Descanso indisponível: "+preview.optString("error"));return;
+        }
+        if(preview.optDouble("hours_advanced",0d)<=0d){
+            toast("Não foi possível determinar a duração do descanso.");return;
+        }
+        final boolean longRest=preview.optBoolean("long_rest",false);
+        final JSONObject recovery=preview.optJSONObject("long_rest_benefits");
+        String message="Dia "+preview.optInt("day_before")+" • "+
+                preview.optString("time_before")+" → Dia "+preview.optInt("day_after")+" • "+
+                preview.optString("time_after")+"\nAvanço: "+
+                preview.optDouble("hours_advanced")+" hora(s).";
+        if(longRest && recovery!=null && !recovery.optBoolean("time_eligible",false)){
+            message+="\n\nO descanso será registrado, mas ainda não pode conceder benefícios: aguarde 16 horas após o último descanso longo concluído.";
+        }else if(longRest){
+            message+="\n\nA recuperação dependerá da elegibilidade do personagem e das regras locais.";
+        }
+        message+="\n\nA passagem do tempo também atualizará clima, NPCs, eventos e o Mundo Vivo.";
+        new AlertDialog.Builder(this)
+            .setTitle(longRest?"Confirmar descanso longo":"Confirmar descanso curto")
+            .setMessage(message).setNegativeButton("Cancelar",null)
+            .setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface d,int which){
+                    try{
+                        safety.beforeDestructiveChange("descanso explícito no Mundo Vivo");
+                        db.runInTransactionChecked(new AppDb.CheckedTransaction(){
+                            @Override public void run() throws Exception {
+                                if(!worldStateEngine.commit(preview))
+                                    throw new IllegalStateException(preview.optString("commit_error","Falha no commit do descanso"));
+                                if(environmentalDirector!=null){
+                                    JSONObject plan=environmentalDirector.preview(action);
+                                    if(plan.optString("error","").length()>0)
+                                        throw new IllegalStateException("Falha climática: "+plan.optString("error"));
+                                    environmentalDirector.commitChecked(plan,"");
+                                }
+                            }
+                        });
+                        screenCache.clear();
+                        showLivingWorld();
+                        toast(preview.optBoolean("long_rest_mechanical_benefits_applied",false)?
+                            "Descanso confirmado e recuperação registrada.":
+                            "Descanso confirmado. Consulte os benefícios e o horário atual.");
+                    }catch(Exception e){
+                        AppLog.e("WorldRest","Falha ao confirmar descanso e ambiente.",e);
+                        toast("Descanso não confirmado: "+e.getMessage());
+                    }
+                }
+            }).show();
     }
 
     private void livingWorldHeroDialog(final JSONObject hero,final JSONObject life){
