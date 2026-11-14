@@ -216,7 +216,7 @@ public final class PostStrixhavenActivitiesEngine {
                 throw new IllegalArgumentException("Informe o contratante confirmado na ficção.");
             if(agreedGold<0||agreedGold>1000)
                 throw new IllegalArgumentException("Acordo salarial em PO inválido.");
-            if(!Double.isFinite(hours)||hours<1d||hours>12d)
+            if(!Double.isFinite(hours)||hours<1d||hours>12d||Math.abs(hours-Math.rint(hours))>.001d)
                 throw new IllegalArgumentException("Turno deve durar de 1 a 12 horas.");
             if(countSameDay("job",characterId,day())>0)
                 throw new IllegalStateException("Já existe turno contratado para este herói neste dia.");
@@ -257,9 +257,9 @@ public final class PostStrixhavenActivitiesEngine {
             hero(heroId);
             final int wage=task.optInt("agreed_gold");
             final double hours=task.optDouble("duration_hours");
-            String hoursText=String.format(Locale.US,"%.2f",hours).replace(",",".");
+            int wholeHours=(int)Math.round(hours);
             WorldStateEngine clock=new WorldStateEngine(db);
-            JSONObject tick=clock.preview("Trabalho por "+hoursText+" horas para "+task.optString("employer"));
+            JSONObject tick=clock.preview("Trabalho por "+wholeHours+" horas para "+task.optString("employer"));
             // WorldStateEngine has integer-hour parsing; fractional shifts are
             // intentionally prohibited until its parser supports decimal hours.
             if(Math.abs(hours-Math.rint(hours))>.001d)
