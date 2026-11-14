@@ -55,6 +55,7 @@ jobs:
             --tests com.braseiro.dnd5e.SandboxActionDurationTest \
             --tests com.braseiro.dnd5e.SandboxRestPolicyTest \
             --tests com.braseiro.dnd5e.PostStrixhavenWorldLifecycleRobolectricTest \
+            --tests com.braseiro.dnd5e.PostStrixhavenSandboxSubsystemRobolectricTest \
             --tests com.braseiro.dnd5e.LivingWorldCatchUpRulesTest \
             --tests com.braseiro.dnd5e.SimulatedGameSessionNarrativeTest
       - name: Count actual JUnit XML results
