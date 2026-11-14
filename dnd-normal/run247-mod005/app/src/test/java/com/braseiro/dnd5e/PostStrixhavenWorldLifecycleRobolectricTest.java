@@ -140,6 +140,31 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertTrue(invalid.optString("error").length()>0);
     }
 
+    @Test public void mapTravelPersistsDayNightWeatherAndDirectorAcrossReopen() throws Exception {
+        JSONObject initialEnvironment=db.getEnvironmentalDirectorState();
+        JSONObject first=new ConfirmedMapTravelWorldGateway(db).commit(13.5d,"Bosque ao norte de Yartar");
+        assertTrue("Map world/weather gateway failed: "+first.optString("error"),first.optBoolean("committed"));
+        assertEquals(1,db.getSceneState().optInt("day_number"));
+        assertEquals(21.5d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertNotNull(first.optJSONObject("weather_system"));
+        JSONObject persisted=db.getEnvironmentalDirectorState();
+        assertTrue("Environmental director has no persisted state",persisted.length()>0);
+        assertTrue("Environment should record the current campaign day",persisted.optInt("last_day",0)>=1);
+        assertTrue("No last-hour synchronization recorded",
+                persisted.has("last_clock_hour"));
+        JSONObject second=new ConfirmedMapTravelWorldGateway(db).commit(8d,"Bosque profundo");
+        assertTrue("Cross-midnight gateway failed: "+second.optString("error"),second.optBoolean("committed"));
+        assertEquals(2,db.getSceneState().optInt("day_number"));
+        assertEquals(5.5d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertEquals(2,db.getEnvironmentalDirectorState().optInt("last_day",0));
+        String savedWeather=db.getSceneState().optString("weather");
+        db.close();db=new AppDb(context,dbName);db.setActiveMapProfile("dnd");
+        assertEquals(2,db.getSceneState().optInt("day_number"));
+        assertEquals(5.5d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertEquals(savedWeather,db.getSceneState().optString("weather"));
+        assertEquals(2,db.getEnvironmentalDirectorState().optInt("last_day",0));
+    }
+
     @Test public void twoCompetingPreviewsCannotBothCommit() throws Exception {
         WorldStateEngine engine=new WorldStateEngine(db);
         JSONObject first=engine.preview("Investigo os arredores da taverna");
