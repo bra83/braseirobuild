@@ -22,24 +22,95 @@ public final class WorldStateEngine {
         eventConsequences=new WorldEventConsequenceEngine(database);
     }
 
-    public JSONObject preview(String playerAction){/*BR_JSON_WRAP*/try{
+    /** World tick for a map segment already resolved by TravelRulesEngine.
+     * Resources were committed by the travel gateway: never charge them twice.
+     * No map movement is performed here; MainActivity commits the route separately.
+     */
+    public JSONObject previewConfirmedMapElapsed(double elapsedHours){
+        if(!Double.isFinite(elapsedHours)||elapsedHours<=0d){
+            try{return new JSONObject().put("error","INVALID_CONFIRMED_MAP_DURATION");}
+            catch(Exception ignored){return new JSONObject();}
+        }
+        return previewInternal("MUNDO_VIVO_DESLOCAMENTO_MAPA_CONFIRMADO",elapsedHours,true);
+    }
+
+    public JSONObject preview(String playerAction){return previewInternal(playerAction,Double.NaN,false);}
+
+    private JSONObject previewInternal(String playerAction,double confirmedHours,boolean resourcesAlreadyHandled){/*BR_JSON_WRAP*/try{
         JSONObject report=new JSONObject();try{
-            int requestedHours=inferHours(playerAction);
+            boolean nonAdvancingInquiry=SandboxActionDuration.isInquiry(playerAction);
+            // A combat round cannot be transformed into hours of rest or
+            // recover resources by submitting a narrative rest command.
+            if(!nonAdvancingInquiry&&db.getCombatState().optInt("running",0)==1
+                    &&(isLongRest(playerAction)||isShortRest(playerAction)))
+                return report.put("error","Descanso não permitido durante combate ativo.");
+            int requestedHours=nonAdvancingInquiry?0:inferHours(playerAction);
             JSONObject scene=db.getSceneState();
             int currentDay=Math.max(1,scene.optInt("day_number",1));
             double currentHour=normalizeHour(scene.optDouble("clock_hour",hourFromLabel(scene.optString("time_of_day",""))));
             String previewFingerprint=worldTickFingerprint(scene);
             String clocksFingerprint=WorldClockSnapshotGuard.digest(db.listWorldClocks(true,1000));
             JSONObject travelPreview=travelRules.previewNarrativeAction(playerAction,requestedHours);
+            SandboxActionDuration.Estimate sandbox=SandboxActionDuration.estimate(playerAction);
             double elapsedHours=requestedHours;
-            if(travelPreview.optBoolean("requires_map_segment",false))elapsedHours=0d;
-            else if(travelPreview.optBoolean("mechanics_apply",false))elapsedHours=Math.max(0d,travelPreview.optDouble("elapsed_hours",travelPreview.optDouble("movement_hours",requestedHours)));
+            String durationSource=requestedHours>0?"explicit_or_rest":"unresolved";
+            if(travelPreview.optBoolean("requires_map_segment",false)){
+                elapsedHours=0d;durationSource="map_segment_required";
+            }else if(travelPreview.optBoolean("mechanics_apply",false)){
+                elapsedHours=Math.max(0d,travelPreview.optDouble("elapsed_hours",travelPreview.optDouble("movement_hours",requestedHours)));
+                durationSource="travel_rules";
+            }else if(requestedHours==0&&!travelPreview.optBoolean("travel_detected",false)
+                    &&db.getCombatState().optInt("running",0)!=1
+                    &&!String.valueOf(db.getActiveMapProfile()).toLowerCase(Locale.ROOT).contains("mystara")){
+                double minutes=explicitMinutes(playerAction);
+                elapsedHours=minutes>0d?minutes:sandbox.hours;
+                durationSource=minutes>0d?"explicit_minutes":sandbox.source;
+            }
+            if(resourcesAlreadyHandled){
+                elapsedHours=confirmedHours;
+                durationSource="confirmed_map_segment";
+            }
             double total=currentHour+elapsedHours;
             int projectedDay=currentDay+(int)Math.floor(total/24d);
             double projectedHour=normalizeHour(total);
-            report.put("world_tick_fingerprint",previewFingerprint);report.put("world_clocks_fingerprint",clocksFingerprint);report.put("hours_requested",requestedHours);report.put("hours_advanced",round2(elapsedHours));report.put("long_rest",isLongRest(playerAction));report.put("short_rest",isShortRest(playerAction));if(report.optBoolean("long_rest",false))report.put("long_rest_benefits",longRestPreview(currentDay,currentHour));report.put("day_before",currentDay);report.put("day_after",projectedDay);report.put("clock_hour_before",round2(currentHour));report.put("clock_hour_after",round2(projectedHour));report.put("time_before",scene.optString("time_of_day",labelForHour(currentHour)));report.put("time_after",labelForHour(projectedHour));report.put("travel_rules",travelPreview);
+            boolean validLongRest=!nonAdvancingInquiry&&SandboxRestPolicy.validLong(isLongRest(playerAction),elapsedHours);
+            boolean validShortRest=!nonAdvancingInquiry&&SandboxRestPolicy.validShort(isShortRest(playerAction),elapsedHours,validLongRest);
+            report.put("world_tick_fingerprint",previewFingerprint).put("world_clocks_fingerprint",clocksFingerprint)
+                    .put("hours_requested",resourcesAlreadyHandled?round2(confirmedHours):requestedHours).put("hours_advanced",round2(elapsedHours))
+                    .put("external_travel_resources_handled",resourcesAlreadyHandled)
+                    .put("duration_source",durationSource).put("activity_category",sandbox.category)
+                    .put("long_rest",validLongRest).put("short_rest",validShortRest);
+            if(!nonAdvancingInquiry&&(isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest)
+                report.put("rest_insufficient_duration",true);
+            if(validLongRest)report.put("long_rest_benefits",longRestPreview(currentDay,currentHour));
+            report.put("day_before",currentDay).put("day_after",projectedDay)
+                    .put("clock_hour_before",round2(currentHour)).put("clock_hour_after",round2(projectedHour))
+                    .put("time_before",scene.optString("time_of_day",labelForHour(currentHour)))
+                    .put("time_after",labelForHour(projectedHour)).put("travel_rules",travelPreview);
+            JSONObject restLedger=db.getTravelRulesState();
+            double beforeAbsolute=(currentDay-1)*24d+currentHour;
+            double afterAbsolute=(projectedDay-1)*24d+projectedHour;
+            double lastRest=restLedger.optDouble("last_long_rest_completed_absolute_hour",
+                    restLedger.optDouble("rest_rhythm_baseline_absolute_hour",beforeAbsolute));
+            if(!Double.isFinite(lastRest)||lastRest>afterAbsolute)lastRest=beforeAbsolute;
+            boolean restMayComplete=validLongRest&&report.optJSONObject("long_rest_benefits").optBoolean("time_eligible",false);
+            double awakeHours=SandboxRestPolicy.hoursSinceLongRest(lastRest,afterAbsolute,restMayComplete);
+            report.put("rest_watch",new JSONObject().put("hours_since_last_long_rest",round2(awakeHours))
+                    .put("rest_recommended",SandboxRestPolicy.recommended(awakeHours)).put("rest_overdue",SandboxRestPolicy.overdue(awakeHours))
+                    .put("requires_rule_adjudication",SandboxRestPolicy.overdue(awakeHours))
+                    .put("automatic_exhaustion_applied",false));
+            if(elapsedHours>0d){
+                String notice="Dia "+projectedDay+" • "+labelForHour(projectedHour)+" • "+clockText(projectedHour);
+                if(projectedDay>currentDay)notice+=" • Novo dia";
+                if(SandboxRestPolicy.overdue(awakeHours))notice+=" • Descanso atrasado: consultar regras";
+                else if(SandboxRestPolicy.recommended(awakeHours))notice+=" • Descanso recomendado";
+                report.put("time_transition_notice",notice);
+            }
 
-            JSONObject resourcePreview=travelPreview.optBoolean("mechanics_apply",false)?travelPreview.optJSONObject("resource_consumption"):travelRules.previewElapsedTimeResources(elapsedHours,"world-time|"+playerAction+"|"+currentDay+"|"+currentHour);report.put("company_resources_consumed",resourcePreview==null?new JSONObject():resourcePreview);
+            JSONObject resourcePreview=resourcesAlreadyHandled?new JSONObject():(travelPreview.optBoolean("mechanics_apply",false)
+                    ?travelPreview.optJSONObject("resource_consumption")
+                    :travelRules.previewElapsedTimeResources(elapsedHours,"world-time|"+playerAction+"|"+currentDay+"|"+currentHour));
+            report.put("company_resources_consumed",resourcePreview==null?new JSONObject():resourcePreview);
 
             boolean livingEnabled=new LivingWorldEngine(db).state().optInt("enabled",1)==1;
             report.put("living_world_enabled",livingEnabled);
@@ -109,6 +180,14 @@ public final class WorldStateEngine {
                 }
                 double hours=Math.max(0d,report.optDouble("hours_advanced",0d));
                 if(hours>0d){
+                    JSONObject restLedger=db.getTravelRulesState();
+                    if(!restLedger.has("rest_rhythm_baseline_absolute_hour")
+                            &&!restLedger.has("last_long_rest_completed_absolute_hour")){
+                        double startAbsolute=(Math.max(1,report.optInt("day_before",1))-1)*24d
+                                +normalizeHour(report.optDouble("clock_hour_before",9d));
+                        restLedger.put("rest_rhythm_baseline_absolute_hour",startAbsolute);
+                        db.saveTravelRulesStateChecked(restLedger);
+                    }
                     JSONObject scene=db.getSceneState();
                     scene.put("day_number",Math.max(1,report.optInt("day_after",scene.optInt("day_number",1))));
                     scene.put("clock_hour",normalizeHour(report.optDouble("clock_hour_after",scene.optDouble("clock_hour",9d))));
@@ -130,7 +209,20 @@ public final class WorldStateEngine {
                 JSONObject simulation=report.optJSONObject("living_world_simulation");
                 if(simulation!=null&&!livingSimulation.commit(simulation))throw new Exception("A simulação do Mundo Vivo não pôde ser confirmada.");
 
-                if(report.optBoolean("long_rest",false)){applyLongRestBenefits(report);travelRules.resetDailyTravelChecked();}
+                // Only canonical elapsed game time may offer an optional encounter.
+                // Created within the same SQL transaction as day/time and world effects.
+                if(hours>0d&&report.optBoolean("living_world_enabled",true)){
+                    JSONObject spontaneous=new PostStrixhavenEncounterEngine(db).onWorldTick(report);
+                    report.put("spontaneous_encounter",spontaneous);
+                }
+
+                if(report.optBoolean("long_rest",false)){
+                    applyLongRestBenefits(report);
+                    // A long rest attempted before its rule cooldown must not
+                    // reset travel exhaustion or other spent daily travel state.
+                    if(report.optBoolean("long_rest_mechanical_benefits_applied",false))
+                        travelRules.resetDailyTravelChecked();
+                }
                 else if(report.optBoolean("short_rest",false))applyShortRestBenefits(report);
                 db.addAuditEvent("mundo","Avanço local do mundo",summary(report),"{}",report.toString(),true);
             }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}});
@@ -377,8 +469,26 @@ public final class WorldStateEngine {
             }
             db.updateCharacterSheetChecked(id,next.toString());applied.put(new JSONObject().put("id",id).put("name",ch.optString("name")).put("available_hit_dice",Math.max(0,next.optInt("hit_dice_max",ch.optInt("level",1))-next.optInt("hit_dice_spent",0))).put("hit_dice_choice_pending",next.optBoolean("short_rest_hit_dice_choice_pending",false)));}report.put("short_rest_resources_applied",true).put("short_rest_characters",applied);}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
-    private static boolean isShortRest(String action){String n=action==null?"":action.toLowerCase(Locale.ROOT);return n.contains("descanso curto");}
-    private static boolean isLongRest(String action){String n=action==null?"":action.toLowerCase(Locale.ROOT);return n.contains("descanso longo")||n.contains("durmo")||n.contains("dormimos")||n.contains("passamos a noite");}
+    private static boolean isShortRest(String action){
+        String n=action==null?"":action.toLowerCase(Locale.ROOT);
+        return n.contains("descanso curto")&&!n.contains("não faço")&&!n.contains("nao faco");
+    }
+    private static boolean isLongRest(String action){
+        String n=action==null?"":action.toLowerCase(Locale.ROOT);
+        // Spending the night awake (guard duty, labor, combat, travel) is NOT
+        // a long rest even when eight hours pass. Only explicit rest/sleep intent
+        // may request recovery; frequency and duration are checked separately.
+        boolean overnightSleep=n.contains("passamos a noite")&&
+                (n.contains("dormindo")||n.contains("descansando")||n.contains("em descanso"));
+        boolean requested=n.contains("descanso longo")||n.contains("durmo")
+                ||n.contains("dormimos")||n.contains("dormir")||overnightSleep;
+        boolean denied=n.contains("não durmo")||n.contains("nao durmo")
+                ||n.contains("não vou dormir")||n.contains("nao vou dormir")
+                ||n.contains("sem dormir")||n.contains("sem descanso")
+                ||n.contains("não descansamos")||n.contains("nao descansamos")
+                ||n.contains("não faço descanso")||n.contains("nao faco descanso");
+        return requested&&!denied;
+    }
     private static int inferHours(String action){
         String n=action==null?"":action.toLowerCase(Locale.ROOT);
         if(n.contains("mundo_vivo_avanco_confirmado:")){
@@ -389,13 +499,22 @@ public final class WorldStateEngine {
         if(weeks.find())try{return Math.min(876000,Integer.parseInt(weeks.group(1))*7*24);}catch(Exception ignored){AppLog.ignored("WorldStateEngine","Semanas inválidas.",ignored);}
         java.util.regex.Matcher days=java.util.regex.Pattern.compile("(\\d{1,5})\\s*dias?").matcher(n);
         if(days.find())try{return Math.min(876000,Integer.parseInt(days.group(1))*24);}catch(Exception ignored){AppLog.ignored("WorldStateEngine","Dias inválidos.",ignored);}
-        if(n.contains("descanso longo")||n.contains("durmo")||n.contains("dormimos")||n.contains("passamos a noite"))return 8;
-        if(n.contains("descanso curto"))return 1;
         java.util.regex.Matcher hours=java.util.regex.Pattern.compile("(\\d{1,4})\\s*horas?").matcher(n);
         if(hours.find())try{return Math.min(876000,Integer.parseInt(hours.group(1)));}catch(Exception ignored){AppLog.ignored("WorldStateEngine","Horas inválidas.",ignored);}
-        java.util.regex.Matcher minutes=java.util.regex.Pattern.compile("(\\d{1,4})\\s*minutos?").matcher(n);
-        if(minutes.find())try{return Integer.parseInt(minutes.group(1))>=30?1:0;}catch(Exception ignored){AppLog.ignored("WorldStateEngine","Minutos inválidos.",ignored);}
+        // Minutes take precedence over default rest duration; fractional time is resolved by preview().
+        if(hasExplicitMinutes(n))return 0;
+        if(isLongRest(action))return 8;
+        if(isShortRest(action))return 1;
         return 0;
+    }
+    private static boolean hasExplicitMinutes(String text){
+        return java.util.regex.Pattern.compile("(\\d{1,4})\\s*(minutos?|mins?)\\b").matcher(text==null?"":text).find();
+    }
+    private static double explicitMinutes(String text){
+        java.util.regex.Matcher match=java.util.regex.Pattern.compile("(\\d{1,4})\\s*(minutos?|mins?)\\b")
+                .matcher(text==null?"":text.toLowerCase(Locale.ROOT));
+        if(!match.find())return 0d;
+        try{return Math.min(9999d,Double.parseDouble(match.group(1)))/60d;}catch(NumberFormatException error){return 0d;}
     }
     private static double hourFromLabel(String value){String n=value==null?"":value.toLowerCase(Locale.ROOT);if(n.contains("madrugada"))return 3;if(n.contains("amanhe"))return 6;if(n.contains("manhã")||n.contains("manha"))return 9;if(n.contains("meio-dia")||n.contains("meio dia"))return 12;if(n.contains("tarde"))return 15;if(n.contains("entard"))return 18;if(n.contains("noite"))return 21;return 9;}
     private static String labelForHour(double hour){if(hour<5)return "Madrugada";if(hour<8)return "Amanhecer";if(hour<12)return "Manhã";if(hour<14)return "Meio-dia";if(hour<18)return "Tarde";if(hour<20)return "Entardecer";return "Noite";}
@@ -404,5 +523,16 @@ public final class WorldStateEngine {
     private static JSONObject parseObject(String raw){try{return new JSONObject(raw);}catch(Exception e){return new JSONObject();}}
     private static JSONArray parseArray(String raw){try{return new JSONArray(raw);}catch(Exception e){return new JSONArray();}}
     private static String fitJson(JSONObject source,int max){/*BR_JSON_WRAP*/try{String raw=source.toString();if(raw.length()<=max)return raw;try{JSONObject lean=new JSONObject();lean.put("quests",source.optJSONArray("quests"));lean.put("clocks",source.optJSONArray("clocks"));lean.put("visible_knowledge",source.optJSONArray("visible_knowledge"));lean.put("director_only_hidden_facts",source.optJSONArray("director_only_hidden_facts"));lean.put("hidden_facts_rule",source.optString("hidden_facts_rule"));lean.put("context_reduced",true);raw=lean.toString();if(raw.length()<=max)return raw;return new JSONObject().put("context_reduced",true).put("excerpt",raw.substring(0,Math.min(max-80,raw.length()))).toString();}catch(Exception e){return "{\"context_reduced\":true}";}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
-    private static String summary(JSONObject report){return report.optDouble("hours_advanced",0)+" hora(s) • dia "+report.optInt("day_before",1)+" → "+report.optInt("day_after",1)+" • "+(report.optJSONArray("events_triggered")==null?0:report.optJSONArray("events_triggered").length())+" evento(s) • "+(report.optJSONArray("clocks_advanced")==null?0:report.optJSONArray("clocks_advanced").length())+" relógio(s)";}
+    private static String clockText(double hour){
+        int minutes=((int)Math.round(normalizeHour(hour)*60d))%1440;
+        return String.format(Locale.ROOT,"%02d:%02d",minutes/60,minutes%60);
+    }
+    private static String summary(JSONObject report){
+        String at="dia "+report.optInt("day_after",1)+" • "+clockText(report.optDouble("clock_hour_after",9d));
+        JSONObject watch=report.optJSONObject("rest_watch");
+        String rest=watch!=null&&watch.optBoolean("rest_overdue",false)?" • descanso atrasado":watch!=null&&watch.optBoolean("rest_recommended",false)?" • descanso recomendado":"";
+        return report.optDouble("hours_advanced",0)+" hora(s) • "+at+rest
+                +" • "+(report.optJSONArray("events_triggered")==null?0:report.optJSONArray("events_triggered").length())+" evento(s)"
+                +" • "+(report.optJSONArray("clocks_advanced")==null?0:report.optJSONArray("clocks_advanced").length())+" relógio(s)";
+    }
 }

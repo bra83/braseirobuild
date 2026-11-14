@@ -36,6 +36,11 @@ public class AppDb extends SQLiteOpenHelper {
         setWriteAheadLoggingEnabled(true);
     }
 
+    /** The same canonical preference used by the UI; never infer campaign exit from scene prose. */
+    public boolean isStrixhavenAdventureActive(){
+        return StrixhavenAdventureProfile.isActive(appContext);
+    }
+
     /** Trabalho persistente que deve ser concluído por inteiro ou revertido. */
     public interface CheckedTransaction {
         void run() throws Exception;

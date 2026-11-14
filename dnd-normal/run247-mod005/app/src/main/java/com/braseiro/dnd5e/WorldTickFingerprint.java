@@ -26,6 +26,7 @@ public final class WorldTickFingerprint {
             // Seal exactly the fields consumed by WorldStateEngine.commit.
             JSONObject payload=new JSONObject();
             String[] fields={"world_tick_fingerprint","world_clocks_fingerprint","hours_requested","hours_advanced",
+                    "external_travel_resources_handled","duration_source","activity_category",
                     "long_rest","short_rest","long_rest_benefits","day_before","day_after","clock_hour_before",
                     "clock_hour_after","time_before","time_after","travel_rules","company_resources_consumed",
                     "living_world_enabled","events_triggered","event_consequence_preview","clocks_advanced",

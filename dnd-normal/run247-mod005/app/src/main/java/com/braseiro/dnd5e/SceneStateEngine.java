@@ -25,21 +25,21 @@ public final class SceneStateEngine {
             JSONObject merged = new JSONObject(current.toString());
             if (incoming != null) {
                 copyNonEmpty(incoming, merged,
-                        "location", "hex_id", "time_of_day", "clock_hour", "weather", "lighting",
+                        "location", "hex_id", "weather", "lighting",
                         "danger", "objective", "present_npcs", "threats", "clues", "pending_consequences");
-                // O modelo às vezes devolve o exemplo do contrato (dia 1). O relógio da
-                // campanha nunca pode andar para trás por causa disso.
-                int currentDay = Math.max(1, current.optInt("day_number", 1));
-                int incomingDay = Math.max(1, incoming.optInt("day_number", currentDay));
-                merged.put("day_number", Math.max(currentDay, incomingDay));
+                // The model can propose prose, never set the day counter.
+                // Even increasing it to a later day would bypass world-tick consequences.
+                merged.put("day_number", Math.max(1,current.optInt("day_number",1)));
             }
             if (mapState != null && mapState.optString("current_hex_id").length() > 0)
                 merged.put("hex_id", mapState.optString("current_hex_id"));
             infer(merged, narration);
+            // Only the deterministic world clock may advance a campaign's time.
+            // AI scene_state and narrated cues are not authorized temporal commits.
+            // Reconcile lighting against the persisted clock, without changing that clock.
             SceneTemporalResolver.Result temporal=SceneTemporalResolver.resolve(
                     current.optString("time_of_day","Manhã"),current.optDouble("clock_hour",9d),current.has("clock_hour"),
-                    incoming==null?"":incoming.optString("time_of_day"),incoming==null?0d:incoming.optDouble("clock_hour",0d),incoming!=null&&incoming.has("clock_hour"),
-                    narration,merged.optString("lighting",""));
+                    "",0d,false,"",merged.optString("lighting",""));
             merged.put("clock_hour",temporal.hour);merged.put("time_of_day",temporal.label);merged.put("lighting",temporal.lighting);
             JSONArray npcs = envelope == null ? null : envelope.optJSONArray("npc_updates");
             mergeNpcUpdatesIntoPresence(merged,npcs);

@@ -34,6 +34,14 @@ public final class CoreGameLaunchRobolectricTest {
             assertTrue("combat screen did not open",openCoreScreen(root,"Abrir Combate","Combate"));
             assertTrue("dice screen did not open",openCoreScreen(root,"Abrir Dados","Dados"));
             assertTrue("map screen did not open",openCoreScreen(root,"Abrir Mapa","MUNDO DO MAPA"));
+            assertTrue("living world navigation missing",hasContentDescription(root,"Abrir Mundo Vivo"));
+            assertTrue("living world screen did not open",openCoreScreen(root,"Abrir Mundo Vivo","Mundo Vivo"));
+            assertTrue("short rest control missing",hasText(root,"DESCANSO CURTO • 1H"));
+            assertTrue("long rest control missing",hasText(root,"DORMIR • 8H"));
+            assertTrue("post-Strixhaven foraging header missing",hasText(root,"CAÇA, COLETA E TRABALHOS"));
+            assertTrue("post-Strixhaven forage action missing",hasText(root,"CAÇAR / COLETAR"));
+            assertTrue("post-Strixhaven job action missing",hasText(root,"TRABALHO / CONTRATO"));
+            assertTrue("emergent encounter panel missing",hasText(root,"ENCONTROS E IMPREVISTOS"));
         } finally {
             controller.pause().stop().destroy();
         }
