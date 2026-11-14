@@ -24,13 +24,13 @@
 ## Correção implementada **nesta branch**
 1. `SandboxActionDuration.java`: estimativas **de design, não texto de regra oficial** para ações declaradas e concluídas: trabalho (4h), procura de contratos (1h), caça/forrageamento (2h), patrulha (2h), investigação (1h), comércio (30min), conversa (15min), observação (6min). Comandos no infinitivo e rótulos de sugestões aceitos. Perguntas, negações e deslocamento indefinido não fazem avançar.
 2. `WorldStateEngine.java`: tempo fracionário e estimado calculado em prévia, apenas consolidado pelo `commit` transacional já existente; viagens continuam no `TravelRulesEngine`; combates e Mystara excluídos das estimativas. Duração explícita sobrepõe estimativa.
-3. Descanso com horas declaradas inferiores a 8h (longo) ou 1h (curto) não concede benefício de descanso. Inclui aviso sobre duração insuficiente; não autoriza efeitos automáticos não documentados.
+3. Descanso com horas declaradas inferiores a 8h (longo) ou 1h (curto) não concede benefício de descanso. `SandboxRestPolicy.java` separa critérios testáveis e avisos sem penalidades automáticas; inclui aviso sobre duração insuficiente.
 4. `rest_watch`: referência persistida do último descanso longo e aviso a partir de 16h/24h desde sua conclusão. **Não aplica Exaustão automaticamente**; após 24h exige adjudicação de regra conforme edição/perfil.
 5. Prévia fornece `time_transition_notice` com dia e hora canônica (HH:mm); resumo de auditoria inclui dia/hora e aviso de descanso. Não alegar que o HUD Android já mostra esse campo.
 6. `SceneStateEngine.java`: envelopes do Gemini deixam de definir `day_number`, `clock_hour` e `time_of_day`; mensagens da IA não impõem relógio. O relógio da cena é conciliado exclusivamente com estado persistido.
 
 ## Evidência e pendências para revisão
-- `SandboxActionDuration.java` compilado via `javac`, com 15 verificações locais em executável independente: **15/15 PASS** para a versão atualizada do estimador. Testes JUnit foram adicionados/atualizados, porém **a suíte JUnit do Android não foi executada** neste ambiente.
+- `SandboxActionDuration.java` compilado via `javac`, com **15/15 PASS** em executável independente. `SandboxRestPolicy.java` compilado via `javac`, com **14/14 PASS** em executável independente; **29/29 verificações locais**. Testes JUnit correspondentes foram adicionados, mas **a suíte JUnit do Android não foi executada** neste ambiente.
 - Teste Android Gradle, Robolectric, SQLite e aparelho Galaxy A57 **NÃO EXECUTADOS**; estes itens não estão certificados.
 - Verificar em integração se `WorldStateEngine.preview` e `commit` são invocados em toda ação concluída, inclusive ações sugeridas.
 - Verificar se duração de ação deve ser declarada/ajustada pelo mestre antes do commit em tarefas interrompidas. Estimativa fixa não autoriza declarar sucesso, duração final sem revisão em casos ambíguos ou recursos encontrados.
