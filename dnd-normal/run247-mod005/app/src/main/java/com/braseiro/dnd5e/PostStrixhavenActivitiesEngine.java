@@ -50,6 +50,18 @@ public final class PostStrixhavenActivitiesEngine {
                 TABLE+"(world_profile,character_id,day_number,kind,status)");
     }
     private int day(){return Math.max(1,db.getSceneState().optInt("day_number",1));}
+    private static JSONObject mapBinding(JSONObject map)throws Exception{
+        return new JSONObject().put("map_package_id",map.optString("map_package_id",""))
+                .put("map_hex_id",map.optString("current_hex_id",""));
+    }
+    private static void requireSameForageHex(JSONObject payload,JSONObject now){
+        String packageId=payload.optString("map_package_id","").trim();
+        String hex=payload.optString("map_hex_id","").trim();
+        if(packageId.isEmpty()||hex.isEmpty())return; // manual scenes without a bound Atlas hex
+        if(!packageId.equals(now.optString("map_package_id","").trim())
+                ||!hex.equals(now.optString("current_hex_id","").trim()))
+            throw new IllegalStateException("A posição no Atlas mudou desde o início da caça/coleta; cancele e planeje novamente.");
+    }
     private JSONObject hero(long id){
         JSONObject h=db.getCharacter(id);
         if(id<=0||h.length()==0||h.optInt("active",0)!=1)
@@ -152,7 +164,9 @@ public final class PostStrixhavenActivitiesEngine {
             JSONObject scene=db.getSceneState();
             long id=insert("forage",characterId,scene.optString("location",""),terrain,dc,"",0,2d,
                     new JSONObject().put("hunting",hunting).put("source","DMG 2024 · Running Exploration · Foraging")
-                         .put("rule_family","survival_foraging"),"planned");
+                         .put("rule_family","survival_foraging")
+                         .put("map_package_id",db.getMapState().optString("map_package_id",""))
+                         .put("map_hex_id",db.getMapState().optString("current_hex_id","")),"planned");
             return new JSONObject().put("ok",true).put("activity_id",id).put("dc",dc)
                     .put("hero",h.optString("name")).put("ability","Sabedoria (Sobrevivência)")
                     .put("hours",2d).put("rule","DMG 2024 Foraging");
@@ -176,6 +190,7 @@ public final class PostStrixhavenActivitiesEngine {
                 throw new IllegalStateException("A caça/coleta não está pendente.");
             if(task.optInt("day_number")!=day())
                 throw new IllegalStateException("O dia mudou: reagende para preservar o limite diário.");
+            requireSameForageHex(parse(task.optString("payload_json","{}")),db.getMapState());
             JSONObject h=hero(task.optLong("character_id"));
             int wis=rules.modifier(h.optInt("wis",10));
             int modifier=rules.d20CheckBonus(h,"wisdom","survival");
