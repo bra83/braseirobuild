@@ -145,3 +145,5 @@
 - **BRELGA regressão total**: workflow self-hosted está PENDING no SHA testado.
 - **Campanha longa com Gemini real, variação contextual dos encontros e consequências completas em todas as regras**: cobertura automatizada focal, não validação exaustiva.
 - **Não executar merge em branch canônica** nem rotular 100% produção antes desses gates. O APK é debug QA e a PR segue em DRAFT.
+
+- Checagem independente após download do artefato CI: extraído somente `app-debug.apk`, tamanho **333.156.572 bytes**, Atlas interno **102.373.336 bytes**, **SHA-256 `6cb50ce7cd6d7558fc34776b5e1a8b22fd1961894ef33a93266b8a1438251e2e`**. Arquivo disponibilizado como `Braseiro_DnD_Pos_Strixhaven_QA_2026-11-14.apk` nesta conversa, sem novo ZIP de projeto.
