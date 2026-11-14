@@ -72,4 +72,26 @@
 - \`MainActivity.applyDndTravel\`: chama o avanço de mundo canônico para D&D antes de consolidar a rota; preserva snapshot/restore do fluxo existente e não altera o trajeto Mystara.
 - \`MainActivity.addSceneStatusStrip\`: exibe dia, hora/minuto e período de dia do estado persistente; renderização do D&D não regrava a hora com inferência da narração; avisos de descanso não aplicam penalidade.
 - \`PostStrixhavenWorldLifecycleRobolectricTest\`: cenário de 1h45 de viagem confirmada, nenhum consumo duplicado, replay rejeitado. \`CoreGameLaunchRobolectricTest\` integra o gate da interface.
-- **Aceitação pendente no momento desta atualização:** terceira execução hosted [43559304481](https://github.com/bra83/braseirobuild/actions/runs/43559304481), SHA \`5f0dcf56135683cf50d1001268811f51956e09b4\`. Só mudar para PASS com XML final verificado.
+**Aceitação comprovada:** terceira execução hosted [43559304481](https://github.com/bra83/braseirobuild/actions/runs/43559304481): 7 suítes Robolectric/JUnit, **24 testes, 0 falhas, 0 erros, 0 ignorados; BUILD SUCCESSFUL**. GitHub Actions checkout/merge SHA `b58d0fe8894cdaff83fde33b40941f49c93f5408`, PR código `5f0dcf56135683cf50d1001268811f51956e09b4` nesse pacote. Não é homologação de todas as regras nem do aparelho físico.
+
+## Matriz de declaração auditável por capacidade
+
+| Capacidade | Evidência | Estado |
+| --- | --- | --- |
+| Ação sandbox → tempo → SQLite → reabertura | RUN 43559304481 / PostStrixhavenWorldLifecycleRobolectricTest | **PASS no cenário automatizado** |
+| Dia/noite, descanso mínimo e não avanço por pergunta | RUN 43559304481 / SandboxRestPolicyTest + integração | **PASS no cenário automatizado** |
+| Viagem de mapa → Mundo Vivo sem dupla cobrança | RUN 43559304481 / previewConfirmedMapElapsed + replay | **PASS no cenário automatizado** |
+| Estado de cena: IA sem autoridade para mudar relógio | RUN 43559304481 / SceneStateEngine com estado real | **PASS no cenário automatizado** |
+| Inicialização e navegação básica do Android | RUN 43559304481 / CoreGameLaunchRobolectricTest | **PASS no Robolectric; físico não testado** |
+| Contrato de guilda: aceitar → quest → completar → reabrir | RUN 43559304481 / PostStrixhavenSandboxSubsystemRobolectricTest | **PASS no cenário automatizado** |
+| Caça e trabalho: atividade persistida sem recompensa fictícia | RUN 43559304481 / PostStrixhavenSandboxSubsystemRobolectricTest | **PASS de persistência e bloqueio** |
+| Proposta espontânea opcional | RUN 43559304481 / SpontaneousEventEngine | **PASS de proposta, não encontro completo** |
+| Motor de clima + direção emergente | RUN 43559304481 / EnvironmentalDirector + WorldSixCoordinator | **PASS de snapshot, não evolução completa** |
+| Caça com rolagem, alimento/inventário/recursos autorizados | Sem E2E completo de recompensa | **NÃO HOMOLOGADO** |
+| Trabalho remunerado com salário e saldo auditáveis | Sem E2E completo de pagamento | **NÃO HOMOLOGADO** |
+| Encontro completo com combate e consequências | Sem E2E pós-Strixhaven de combate | **NÃO HOMOLOGADO** |
+| Clima evoluindo por vários dias e reabertura | Sem cobertura longa completa | **NÃO HOMOLOGADO** |
+| Suíte de regressão geral BRELGA | Runner self-hosted ainda sem concluir | **PENDENTE / INFRA** |
+| APK + Galaxy A57 físico | Nenhuma validação física nesta branch | **NÃO HOMOLOGADO** |
+
+**Critério para declarar tudo:** CI de regressão geral no SHA exato, E2E completos restantes, APK compatível e Android físico sem regressão. A certificação parcial não pode ser apresentada como lançamento integral.
