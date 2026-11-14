@@ -100,6 +100,12 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
     @Test public void adviceIsNonAdvancingAndExplicitMinutesStayFractional() throws Exception {
         JSONObject question=preview("Posso caçar aqui?");
         assertEquals(0d,question.optDouble("hours_advanced"),.001d);
+        JSONObject restQuestion=preview("Preciso dormir?");
+        assertEquals(0d,restQuestion.optDouble("hours_advanced"),.001d);
+        assertFalse(restQuestion.optBoolean("long_rest"));
+        JSONObject durationQuestion=preview("Quanto tempo levaria dormir por 8 horas?");
+        assertEquals(0d,durationQuestion.optDouble("hours_advanced"),.001d);
+        assertFalse(durationQuestion.optBoolean("long_rest"));
         JSONObject timed=apply("Faço anotações durante 15 minutos");
         assertEquals(.25d,timed.optDouble("hours_advanced"),.001d);
         assertEquals(8.25d,db.getSceneState().optDouble("clock_hour"),.001d);
@@ -110,7 +116,7 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
                 .put("day_number",99).put("clock_hour",23d)
                 .put("time_of_day","Noite").put("location","Yartar"));
         new SceneStateEngine(db).apply(ai,
-                "Ao amanhecer do dia seguinte todos se reúnem na praça.","".isEmpty()?new JSONObject():null);
+                "Ao amanhecer do dia seguinte todos se reúnem na praça.",new JSONObject());
         JSONObject actual=db.getSceneState();
         assertEquals(1,actual.optInt("day_number"));
         assertEquals(8d,actual.optDouble("clock_hour"),.001d);
