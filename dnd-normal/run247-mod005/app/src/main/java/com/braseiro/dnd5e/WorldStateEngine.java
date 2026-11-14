@@ -56,7 +56,7 @@ public final class WorldStateEngine {
                     .put("hours_requested",requestedHours).put("hours_advanced",round2(elapsedHours))
                     .put("duration_source",durationSource).put("activity_category",sandbox.category)
                     .put("long_rest",validLongRest).put("short_rest",validShortRest);
-            if(!nonAdvancingInquiry&&(isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest
+            if(!nonAdvancingInquiry&&(isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest)
                 report.put("rest_insufficient_duration",true);
             if(validLongRest)report.put("long_rest_benefits",longRestPreview(currentDay,currentHour));
             report.put("day_before",currentDay).put("day_after",projectedDay)
