@@ -39,6 +39,11 @@ public final class WorldStateEngine {
     private JSONObject previewInternal(String playerAction,double confirmedHours,boolean resourcesAlreadyHandled){/*BR_JSON_WRAP*/try{
         JSONObject report=new JSONObject();try{
             boolean nonAdvancingInquiry=SandboxActionDuration.isInquiry(playerAction);
+            // A combat round cannot be transformed into hours of rest or
+            // recover resources by submitting a narrative rest command.
+            if(!nonAdvancingInquiry&&db.getCombatState().optInt("running",0)==1
+                    &&(isLongRest(playerAction)||isShortRest(playerAction)))
+                return report.put("error","Descanso não permitido durante combate ativo.");
             int requestedHours=nonAdvancingInquiry?0:inferHours(playerAction);
             JSONObject scene=db.getSceneState();
             int currentDay=Math.max(1,scene.optInt("day_number",1));
