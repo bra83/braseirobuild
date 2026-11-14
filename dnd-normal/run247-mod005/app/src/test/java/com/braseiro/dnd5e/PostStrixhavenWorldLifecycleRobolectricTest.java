@@ -165,6 +165,29 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertEquals(2,db.getEnvironmentalDirectorState().optInt("last_day",0));
     }
 
+    @Test public void longRestTakesEightHoursAndObeysSixteenHourCooldown() throws Exception {
+        WorldStateEngine world=new WorldStateEngine(db);
+        JSONObject rest=world.preview("Faço um descanso longo por 8 horas");
+        assertTrue("Long rest was not recognized",rest.optBoolean("long_rest"));
+        assertTrue(rest.optJSONObject("long_rest_benefits").optBoolean("time_eligible"));
+        assertEquals(8d,rest.optDouble("hours_advanced"),.001d);
+        assertTrue("Rest commit rejected: "+rest.optString("commit_error"),world.commit(rest));
+        assertEquals(16d,db.getSceneState().optDouble("clock_hour"),.001d);
+        JSONObject ledger=db.getTravelRulesState();
+        assertEquals(16d,ledger.optDouble("last_long_rest_completed_absolute_hour"),.001d);
+        JSONObject tooSoon=world.preview("Faço outro descanso longo por 8 horas");
+        assertTrue(tooSoon.optBoolean("long_rest"));
+        assertFalse("Second rest too early should not restore benefits",
+                tooSoon.optJSONObject("long_rest_benefits").optBoolean("time_eligible"));
+        assertTrue(world.commit(tooSoon));
+        assertFalse("Second rest illegally recharged resources",
+                tooSoon.optBoolean("long_rest_mechanical_benefits_applied"));
+        assertEquals(2,db.getSceneState().optInt("day_number"));
+        assertEquals(0d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertEquals(16d,db.getTravelRulesState().optDouble(
+                "last_long_rest_completed_absolute_hour"),.001d);
+    }
+
     @Test public void twoCompetingPreviewsCannotBothCommit() throws Exception {
         WorldStateEngine engine=new WorldStateEngine(db);
         JSONObject first=engine.preview("Investigo os arredores da taverna");
