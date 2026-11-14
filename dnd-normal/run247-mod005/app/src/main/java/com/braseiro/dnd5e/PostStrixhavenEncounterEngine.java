@@ -181,6 +181,13 @@ public final class PostStrixhavenEncounterEngine {
      * End binding requires an already linked native encounter, never prose.
      */
     public synchronized JSONObject reconcileNativeCombat(JSONObject combatEnvelope,String actionText)throws Exception{
+        // Compatibility entrypoint does not have a host-authenticated completed ID.
+        // It can link a START but can never finalize an END.
+        return reconcileNativeCombat(combatEnvelope,actionText,"");
+    }
+
+    public synchronized JSONObject reconcileNativeCombat(JSONObject combatEnvelope,String actionText,
+                                                           String hostConfirmedEndedCombatId)throws Exception{
         JSONObject out=new JSONObject().put("reconciled",false);
         if(!applicable()||combatEnvelope==null)return out;
         String action=combatEnvelope.optString("action","none").trim().toLowerCase(Locale.ROOT);
@@ -211,16 +218,20 @@ public final class PostStrixhavenEncounterEngine {
             return out.put("reconciled",true).put("encounter_id",id).put("native_combat_id",nativeId);
         }
         if(state.optInt("running",0)==1)return out.put("reason","combat_still_running");
+        // The native engine clears combat_state.encounter_id on END. Only the
+        // ID captured by the host BEFORE that end action may authorize closing.
+        String endedId=hostConfirmedEndedCombatId==null?"":hostConfirmedEndedCombatId.trim();
+        if(endedId.isEmpty())return out.put("reason","missing_host_confirmed_combat_id");
         List<JSONObject> encounters=recent(50);
         JSONObject matched=null;
         for(JSONObject encounter:encounters){
             if(!"combat_pending".equals(encounter.optString("status")))continue;
             JSONObject previous=readJson(encounter.optString("outcome_json","{}"));
-            if(previous.optString("native_combat_id","").length()==0)continue;
-            if(matched!=null)return out.put("reason","ambiguous_combat_receipt");
+            if(!endedId.equals(previous.optString("native_combat_id","")))continue;
+            if(matched!=null)return out.put("reason","ambiguous_native_combat_id");
             matched=encounter;
         }
-        if(matched==null)return out.put("reason","no_bound_combat");
+        if(matched==null)return out.put("reason","no_encounter_bound_to_completed_combat");
         long id=matched.optLong("id");
         JSONObject result=readJson(matched.optString("outcome_json","{}"));
         result.put("status","resolved").put("native_combat_ended_at",System.currentTimeMillis());
