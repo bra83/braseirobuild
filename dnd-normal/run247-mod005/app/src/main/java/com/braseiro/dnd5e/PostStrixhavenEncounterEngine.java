@@ -39,8 +39,7 @@ public final class PostStrixhavenEncounterEngine {
     }
     private boolean applicable(){
         if("mystara".equalsIgnoreCase(profile()))return false;
-        String campaign=db.getCampaign().optString("adventure_profile","").toLowerCase(Locale.ROOT);
-        return !campaign.contains("strixhaven");
+        return !db.isStrixhavenAdventureActive();
     }
     private static JSONObject row(Cursor c)throws Exception{
         JSONObject o=new JSONObject();for(int i=0;i<c.getColumnCount();i++){
