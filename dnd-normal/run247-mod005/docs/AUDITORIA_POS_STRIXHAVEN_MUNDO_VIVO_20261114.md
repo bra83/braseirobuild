@@ -95,3 +95,11 @@
 | APK + Galaxy A57 físico | Nenhuma validação física nesta branch | **NÃO HOMOLOGADO** |
 
 **Critério para declarar tudo:** CI de regressão geral no SHA exato, E2E completos restantes, APK compatível e Android físico sem regressão. A certificação parcial não pode ser apresentada como lançamento integral.
+
+## Complemento de 14/11/2026 — clima e descanso explícito
+
+- GitHub Actions [43571624597](https://github.com/bra83/braseirobuild/actions/runs/43571624597): 25 testes PASS em 7 suítes, 0 falhas, 0 erros, 0 ignorados, `BUILD SUCCESSFUL`. Valida `ConfirmedMapTravelWorldGateway`: viagem confirmada → relógio + memória climática de forma transacional → mudança de dia/noite → reabertura SQLite sem perder clima. Check-out SHA `f10a1a6d64c9ecf6ba711216f6f04e2dfe7ba636`.
+- GitHub Actions [43572081517](https://github.com/bra83/braseirobuild/actions/runs/43572081517): **26 testes PASS** em 7 suítes, 0 falhas/erros/ignorados, `BUILD SUCCESSFUL`. Check-out SHA `a58883e37d867a620886c8bb5d93393a55d2db9d`. Acrescentou teste de descanso de 8 horas e intervalo de 16 horas antes de iniciar outro com benefícios; `CoreGameLaunchRobolectricTest` verifica os dois botões de descanso na interface Mundo Vivo.
+- As ações diretas `DESCANSO CURTO • 1H` e `DORMIR • 8H` passam pela prévia/commit do `WorldStateEngine` e confirmam avanço climático na mesma transação SQLite. Os botões aparecem apenas em D&D, preservando Mystara.
+- Regra-base 2024 consultada em `https://www.dndbeyond.com/sources/dnd/br-2024/rules-glossary`: descanso longo requer pelo menos 8h, com mínimo 6h de sono, e intervalo mínimo de 16h antes de iniciar o próximo. Interrupções e casos extraordinários ainda exigem validação específica; não certificar sem teste.
+- **Nota de QA:** CI 26/26 não certifica geração de recompensas de caça e trabalho, ciclo completo de encontro/combate, regressão global BRELGA, assinatura/instalação APK ou hardware Galaxy A57. O projeto permanece sem liberação integral.
