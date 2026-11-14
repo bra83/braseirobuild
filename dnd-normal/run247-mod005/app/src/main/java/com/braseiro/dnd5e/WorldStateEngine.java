@@ -22,7 +22,21 @@ public final class WorldStateEngine {
         eventConsequences=new WorldEventConsequenceEngine(database);
     }
 
-    public JSONObject preview(String playerAction){/*BR_JSON_WRAP*/try{
+    /** World tick for a map segment already resolved by TravelRulesEngine.
+     * Resources were committed by the travel gateway: never charge them twice.
+     * No map movement is performed here; MainActivity commits the route separately.
+     */
+    public JSONObject previewConfirmedMapElapsed(double elapsedHours){
+        if(!Double.isFinite(elapsedHours)||elapsedHours<=0d){
+            try{return new JSONObject().put("error","INVALID_CONFIRMED_MAP_DURATION");}
+            catch(Exception ignored){return new JSONObject();}
+        }
+        return previewInternal("MUNDO_VIVO_DESLOCAMENTO_MAPA_CONFIRMADO",elapsedHours,true);
+    }
+
+    public JSONObject preview(String playerAction){return previewInternal(playerAction,Double.NaN,false);}
+
+    private JSONObject previewInternal(String playerAction,double confirmedHours,boolean resourcesAlreadyHandled){/*BR_JSON_WRAP*/try{
         JSONObject report=new JSONObject();try{
             boolean nonAdvancingInquiry=SandboxActionDuration.isInquiry(playerAction);
             int requestedHours=nonAdvancingInquiry?0:inferHours(playerAction);
@@ -47,13 +61,18 @@ public final class WorldStateEngine {
                 elapsedHours=minutes>0d?minutes:sandbox.hours;
                 durationSource=minutes>0d?"explicit_minutes":sandbox.source;
             }
+            if(resourcesAlreadyHandled){
+                elapsedHours=confirmedHours;
+                durationSource="confirmed_map_segment";
+            }
             double total=currentHour+elapsedHours;
             int projectedDay=currentDay+(int)Math.floor(total/24d);
             double projectedHour=normalizeHour(total);
             boolean validLongRest=!nonAdvancingInquiry&&SandboxRestPolicy.validLong(isLongRest(playerAction),elapsedHours);
             boolean validShortRest=!nonAdvancingInquiry&&SandboxRestPolicy.validShort(isShortRest(playerAction),elapsedHours,validLongRest);
             report.put("world_tick_fingerprint",previewFingerprint).put("world_clocks_fingerprint",clocksFingerprint)
-                    .put("hours_requested",requestedHours).put("hours_advanced",round2(elapsedHours))
+                    .put("hours_requested",resourcesAlreadyHandled?round2(confirmedHours):requestedHours).put("hours_advanced",round2(elapsedHours))
+                    .put("external_travel_resources_handled",resourcesAlreadyHandled)
                     .put("duration_source",durationSource).put("activity_category",sandbox.category)
                     .put("long_rest",validLongRest).put("short_rest",validShortRest);
             if(!nonAdvancingInquiry&&(isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest)
@@ -83,7 +102,10 @@ public final class WorldStateEngine {
                 report.put("time_transition_notice",notice);
             }
 
-            JSONObject resourcePreview=travelPreview.optBoolean("mechanics_apply",false)?travelPreview.optJSONObject("resource_consumption"):travelRules.previewElapsedTimeResources(elapsedHours,"world-time|"+playerAction+"|"+currentDay+"|"+currentHour);report.put("company_resources_consumed",resourcePreview==null?new JSONObject():resourcePreview);
+            JSONObject resourcePreview=resourcesAlreadyHandled?new JSONObject():(travelPreview.optBoolean("mechanics_apply",false)
+                    ?travelPreview.optJSONObject("resource_consumption")
+                    :travelRules.previewElapsedTimeResources(elapsedHours,"world-time|"+playerAction+"|"+currentDay+"|"+currentHour));
+            report.put("company_resources_consumed",resourcePreview==null?new JSONObject():resourcePreview);
 
             boolean livingEnabled=new LivingWorldEngine(db).state().optInt("enabled",1)==1;
             report.put("living_world_enabled",livingEnabled);
