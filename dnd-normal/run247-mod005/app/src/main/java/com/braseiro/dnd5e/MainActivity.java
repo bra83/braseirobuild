@@ -7608,6 +7608,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         addLivingWorldAutomationPanel(b,state,day);
         addWorldSixPanel(b,day);
+        if(!isMystaraWorld()&&!isStrixhavenAdventure())addPostStrixhavenActivitiesPanel(b);
 
         JSONObject troupe=livingWorldEngine.troupe();LinearLayout troupeCard=card();troupeCard.addView(text("TRUPE / MODO DE VIDA DO GRUPO",17,GOLD,true));if(troupe.length()==0)troupeCard.addView(text("Nenhuma trupe configurada. O grupo pode manter uma base, vagar junto ou atuar como companhia itinerante.",13,MUTED,false));else{troupeCard.addView(text(troupe.optString("name","Companhia")+" • "+troupe.optString("troupe_mode","itinerante"),16,TEXT,true));troupeCard.addView(text("Agora: "+emptyAs(troupe.optString("current_location"),"local não definido")+" • Base: "+emptyAs(troupe.optString("home_base"),"sem base fixa"),13,MUTED,false));troupeCard.addView(text("Integrantes: "+looseArrayLines(troupe.optString("members_json","[]")).replace("\n",", "),13,TEXT,false));if(troupe.optString("notes").length()>0)troupeCard.addView(text(troupe.optString("notes"),12,MUTED,false));}Button editTroupe=button(troupe.length()==0?"CRIAR TRUPE":"EDITAR TRUPE",PANEL2);editTroupe.setOnClickListener(new View.OnClickListener(){public void onClick(View v){livingWorldTroupeDialog();}});troupeCard.addView(editTroupe);b.addView(troupeCard);
 
@@ -7637,6 +7638,211 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
         }
         b.addView(activityCard);
+    }
+
+    /**
+     * Post-Strixhaven economic/exploration controls. Dice are rolled locally, not by Gemini.
+     * The engine validates sources, character status, time and idempotent SQLite receipts.
+     */
+    private void addPostStrixhavenActivitiesPanel(LinearLayout parent){
+        final PostStrixhavenActivitiesEngine engine=new PostStrixhavenActivitiesEngine(db);
+        LinearLayout panel=card();
+        panel.addView(text("CAÇA, COLETA E TRABALHOS",17,GOLD,true));
+        panel.addView(text("Cada ação passa pelo relógio do mundo. A coleta exige Sobrevivência e dados reais do app; um trabalho só paga o valor previamente registrado e aceito. Não há XP ou tesouros inventados.",12,MUTED,false));
+        LinearLayout buttons=new LinearLayout(this);
+        buttons.setOrientation(LinearLayout.HORIZONTAL);
+        Button forage=smallButton("CAÇAR / COLETAR",GREEN),job=smallButton("TRABALHO / CONTRATO",PANEL2);
+        forage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showPostStrixhavenForageDialog();}});
+        job.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showPostStrixhavenJobDialog();}});
+        buttons.addView(forage,new LinearLayout.LayoutParams(0,dp(46),1));
+        buttons.addView(job,new LinearLayout.LayoutParams(0,dp(46),1));
+        panel.addView(buttons);
+        List<JSONObject> receipts=engine.recent(15);
+        if(receipts.isEmpty())panel.addView(text("Sem contratos ou expedições registrados.",12,MUTED,false));
+        for(final JSONObject task:receipts){
+            final long id=task.optLong("id",0);
+            final boolean food="forage".equals(task.optString("kind"));
+            final String status=task.optString("status","planned");
+            JSONObject hero=db.getCharacter(task.optLong("character_id",0));
+            String title=(food?"CAÇA/COLETA":"TRABALHO")+" • "+hero.optString("name","Herói");
+            String detail=food?(task.optString("terrain")+" • Sobrevivência CD "+task.optInt("dc")):
+                    (task.optString("employer")+" • "+task.optInt("agreed_gold")+" PO / "+
+                     task.optDouble("duration_hours")+"h");
+            JSONObject result=parseLooseJson(task.optString("result_json","{}"));
+            if("completed".equals(status))detail+="\nCONCLUÍDO • "+
+                    (food?(result.optBoolean("success")?"Encontrou recursos: ":"Sem recursos: ")+
+                        result.optInt("food_lb")+" lb comida, "+result.optInt("water_gal")+" gal água":
+                         "Pagamento creditado: "+result.optInt("gold_earned")+" PO");
+            else detail+="\nEstado: "+status.replace('_',' ');
+            panel.addView(text(title+"\n"+detail,12,"completed".equals(status)?GREEN:TEXT,false));
+            if("planned".equals(status)&&food){
+                Button resolve=smallButton("ROLAR SOBREVIVÊNCIA E COLETAR",GREEN);
+                resolve.setOnClickListener(new View.OnClickListener(){public void onClick(View v){rollPostStrixhavenForage(task);}});
+                panel.addView(resolve);
+            }else if("offered".equals(status)){
+                Button accept=smallButton("ACEITAR TRABALHO",GREEN);
+                accept.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runPostStrixhavenActivity("accept",id,0,0,0);}});
+                panel.addView(accept);
+            }else if("accepted".equals(status)){
+                Button work=smallButton("CUMPRIR TURNO E RECEBER",GREEN);
+                work.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Concluir trabalho")
+                       .setMessage("Cumprir "+task.optDouble("duration_hours")+" hora(s) para "+task.optString("employer")+
+                               " e receber "+task.optInt("agreed_gold")+" PO, conforme o acordo aceito?"+
+                               "\nO tempo e o Mundo Vivo também avançarão.")
+                       .setNegativeButton("Cancelar",null).setPositiveButton("CONFIRMAR",new DialogInterface.OnClickListener(){
+                          public void onClick(DialogInterface d,int which){runPostStrixhavenActivity("finish",id,0,0,0);}
+                       }).show();
+                }});
+                panel.addView(work);
+            }
+            if("planned".equals(status)||"offered".equals(status)||"accepted".equals(status)){
+                Button cancel=smallButton("CANCELAR ATIVIDADE",PANEL2);
+                cancel.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+                    new AlertDialog.Builder(MainActivity.this).setTitle("Cancelar")
+                      .setMessage("Cancelar esta atividade sem consumir tempo e sem conceder recompensa?")
+                      .setNegativeButton("Voltar",null).setPositiveButton("CANCELAR",new DialogInterface.OnClickListener(){
+                          public void onClick(DialogInterface d,int which){runPostStrixhavenActivity("cancel",id,0,0,0);}
+                      }).show();
+                }});
+                panel.addView(cancel);
+            }
+        }
+        parent.addView(panel);
+    }
+
+    private void showPostStrixhavenForageDialog(){
+        final List<JSONObject> heroes=db.listActiveCharacters();
+        if(heroes.isEmpty()){toast("Nenhum herói ativo para caçar ou coletar.");return;}
+        String[] names=new String[heroes.size()];
+        for(int i=0;i<heroes.size();i++)names[i]=heroes.get(i).optString("name","Herói");
+        LinearLayout form=new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(12));
+        final Spinner hero=spinner(names,names[0]);
+        String observed="";
+        JSONObject map=db.getMapState();
+        String packageId=map.optString("map_package_id","");
+        String current=map.optString("current_hex_id","");
+        if(packageId.length()>0&&current.length()>0)
+            observed=db.getMapHex(packageId,current).optString("terrain_primary","");
+        String[] terrains={"Floresta","Costa","Pântano","Colina","Pradaria","Montanha","Deserto","Ártico","Urbano","Subterrâneo"};
+        String preferred=terrains[0];
+        String lower=observed.toLowerCase(Locale.ROOT);
+        if(lower.contains("forest")||lower.contains("floresta")||lower.contains("bosque"))preferred="Floresta";
+        else if(lower.contains("coast")||lower.contains("costa"))preferred="Costa";
+        else if(lower.contains("swamp")||lower.contains("pantano")||lower.contains("pântano"))preferred="Pântano";
+        else if(lower.contains("hill")||lower.contains("colina"))preferred="Colina";
+        else if(lower.contains("grass")||lower.contains("prad")||lower.contains("plan"))preferred="Pradaria";
+        else if(lower.contains("mountain")||lower.contains("mont"))preferred="Montanha";
+        else if(lower.contains("desert")||lower.contains("deserto"))preferred="Deserto";
+        else if(lower.contains("arctic")||lower.contains("artic"))preferred="Ártico";
+        else if(lower.contains("urban")||lower.contains("cidade"))preferred="Urbano";
+        final Spinner terrain=spinner(terrains,preferred);
+        final Spinner kind=spinner(new String[]{"Coletar comida e água","Caçar e procurar provisões"},"Coletar comida e água");
+        form.addView(cardWithLabel("HERÓI",hero));
+        form.addView(text("Terreno no Atlas: "+(observed.length()>0?observed:"não identificado")+
+                ". Selecione apenas o terreno onde o grupo realmente está; caso contrário, corrija a posição no mapa antes.",11,MUTED,false));
+        form.addView(cardWithLabel("TERRENO CONFIRMADO",terrain));
+        form.addView(cardWithLabel("ATIVIDADE",kind));
+        form.addView(text("Agendamento local de 2 horas. O teste é Sabedoria (Sobrevivência), CD do DMG 2024. Falha consome tempo mas não cria alimento. Um herói faz no máximo uma tentativa por dia de campanha.",12,GREEN,false));
+        new AlertDialog.Builder(this).setTitle("Preparar caça/coleta")
+          .setView(scrollableDialogView(form)).setNegativeButton("Voltar",null)
+          .setPositiveButton("AGENDAR",new DialogInterface.OnClickListener(){
+              public void onClick(DialogInterface d,int which){
+                  long characterId=heroes.get(Math.max(0,hero.getSelectedItemPosition())).optLong("id");
+                  JSONObject planned=new PostStrixhavenActivitiesEngine(db).planForage(
+                        characterId,String.valueOf(terrain.getSelectedItem()),kind.getSelectedItemPosition()==1);
+                  if(!planned.optBoolean("ok")){toast(planned.optString("error"));return;}
+                  screenCache.remove("Mundo Vivo");showLivingWorld();
+                  toast("Atividade preparada. Role o teste local na agenda para obter recursos.");
+              }
+          }).show();
+    }
+
+    private void showPostStrixhavenJobDialog(){
+        final List<JSONObject> heroes=db.listActiveCharacters();
+        if(heroes.isEmpty()){toast("Nenhum herói ativo para contratar.");return;}
+        String[] names=new String[heroes.size()];
+        for(int i=0;i<heroes.size();i++)names[i]=heroes.get(i).optString("name","Herói");
+        LinearLayout form=new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(12),0,dp(12),dp(12));
+        final Spinner hero=spinner(names,names[0]);
+        final EditText employer=labeledField(form,"Empregador que ofereceu o serviço","",false);
+        final EditText agreed=labeledField(form,"Pagamento combinado em PO (inteiro)","1",false);
+        final EditText hours=labeledField(form,"Duração do turno em horas (1–12)","4",false);
+        agreed.setInputType(InputType.TYPE_CLASS_NUMBER);hours.setInputType(InputType.TYPE_CLASS_NUMBER);
+        form.addView(cardWithLabel("HERÓI",hero));
+        form.addView(text("Registre somente uma oferta realmente negociada com um NPC ou guilda na ficção. Não é uma tabela de salários oficiais de D&D; o acordo será imutável após aceito e não concede XP.",12,GREEN,false));
+        new AlertDialog.Builder(this).setTitle("Registrar oferta de trabalho")
+          .setView(scrollableDialogView(form)).setNegativeButton("Voltar",null)
+          .setPositiveButton("REGISTRAR OFERTA",new DialogInterface.OnClickListener(){
+              public void onClick(DialogInterface d,int which){
+                  long characterId=heroes.get(Math.max(0,hero.getSelectedItemPosition())).optLong("id");
+                  JSONObject offered=new PostStrixhavenActivitiesEngine(db).offerJob(
+                        characterId,value(employer),num(agreed,0),num(hours,4));
+                  if(!offered.optBoolean("ok")){toast(offered.optString("error"));return;}
+                  screenCache.remove("Mundo Vivo");showLivingWorld();
+                  toast("Oferta registrada. Aceite o acordo para poder cumprir o turno.");
+              }
+          }).show();
+    }
+
+    private void rollPostStrixhavenForage(final JSONObject task){
+        final long id=task.optLong("id",0),characterId=task.optLong("character_id",0);
+        final JSONObject hero=db.getCharacter(characterId);
+        if(id<=0||hero.length()==0){toast("Expedição ou herói não encontrado.");return;}
+        final String actor=hero.optString("name","Herói");
+        rollDiceInteractive("1d20","Normal",actor,characterId,new DiceUiCallback(){
+            public void done(DiceResult check){
+                final int d20=check.total;
+                int bonus=rulesEngine.d20CheckBonus(hero,"wisdom","survival");
+                if(d20+bonus<task.optInt("dc")){
+                    runPostStrixhavenActivity("forage",id,d20,1,1);
+                    return;
+                }
+                rollDiceInteractive("1d6","Normal",actor,characterId,new DiceUiCallback(){
+                    public void done(DiceResult food){
+                        final int foodResult=food.total;
+                        rollDiceInteractive("1d6","Normal",actor,characterId,new DiceUiCallback(){
+                            public void done(DiceResult water){
+                                runPostStrixhavenActivity("forage",id,d20,foodResult,water.total);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    private void runPostStrixhavenActivity(final String mode,final long id,final int d20,
+                                           final int food,final int water){
+        try{safety.beforeDestructiveChange("atualização de atividade sandbox: "+mode);}
+        catch(Exception e){toast("Ação bloqueada: "+e.getMessage());return;}
+        AppExecutors.io().execute(new Runnable(){
+            public void run(){
+                JSONObject result;
+                try{
+                    PostStrixhavenActivitiesEngine engine=new PostStrixhavenActivitiesEngine(db);
+                    if("forage".equals(mode))result=engine.resolveForage(id,d20,food,water);
+                    else if("finish".equals(mode))result=engine.finishJob(id);
+                    else if("accept".equals(mode))result=engine.acceptJob(id);
+                    else if("cancel".equals(mode))result=engine.cancel(id);
+                    else result=new JSONObject().put("ok",false).put("error","Ação desconhecida.");
+                }catch(Exception e){result=new JSONObject();try{result.put("ok",false).put("error",e.getMessage());}catch(Exception ignored){}}
+                final JSONObject out=result;
+                ui.post(new Runnable(){public void run(){
+                    if(!out.optBoolean("ok",false)){toast("Atividade não aplicada: "+out.optString("error","Falha não identificada."));return;}
+                    JSONObject receipt=out.optJSONObject("receipt");
+                    screenCache.remove("Mundo Vivo");
+                    if("Mundo Vivo".equals(currentScreen))showLivingWorld();
+                    if(receipt==null)toast("Atividade "+("cancel".equals(mode)?"cancelada":"registrada")+".");
+                    else if("forage".equals(mode))toast(receipt.optBoolean("success",false)?
+                        ("Coleta: +"+receipt.optInt("food_lb")+" lb comida; +"+receipt.optInt("water_gal")+" gal água."):
+                        "Coleta sem sucesso: tempo avançou, sem recursos.");
+                    else toast("Turno concluído: +"+receipt.optInt("gold_earned")+" PO; horário atualizado.");
+                }});
+            }
+        });
     }
 
     private void addLivingWorldAutomationPanel(LinearLayout parent,final JSONObject state,final int day){
