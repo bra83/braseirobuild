@@ -49,8 +49,8 @@ public final class WorldStateEngine {
             double total=currentHour+elapsedHours;
             int projectedDay=currentDay+(int)Math.floor(total/24d);
             double projectedHour=normalizeHour(total);
-            boolean validLongRest=isLongRest(playerAction)&&elapsedHours>=8d;
-            boolean validShortRest=isShortRest(playerAction)&&elapsedHours>=1d&&!validLongRest;
+            boolean validLongRest=SandboxRestPolicy.validLong(isLongRest(playerAction),elapsedHours);
+            boolean validShortRest=SandboxRestPolicy.validShort(isShortRest(playerAction),elapsedHours,validLongRest);
             report.put("world_tick_fingerprint",previewFingerprint).put("world_clocks_fingerprint",clocksFingerprint)
                     .put("hours_requested",requestedHours).put("hours_advanced",round2(elapsedHours))
                     .put("duration_source",durationSource).put("activity_category",sandbox.category)
@@ -69,16 +69,16 @@ public final class WorldStateEngine {
                     restLedger.optDouble("rest_rhythm_baseline_absolute_hour",beforeAbsolute));
             if(!Double.isFinite(lastRest)||lastRest>afterAbsolute)lastRest=beforeAbsolute;
             boolean restMayComplete=validLongRest&&report.optJSONObject("long_rest_benefits").optBoolean("time_eligible",false);
-            double awakeHours=restMayComplete?0d:Math.max(0d,afterAbsolute-lastRest);
+            double awakeHours=SandboxRestPolicy.hoursSinceLongRest(lastRest,afterAbsolute,restMayComplete);
             report.put("rest_watch",new JSONObject().put("hours_since_last_long_rest",round2(awakeHours))
-                    .put("rest_recommended",awakeHours>=16d).put("rest_overdue",awakeHours>=24d)
-                    .put("requires_rule_adjudication",awakeHours>=24d)
+                    .put("rest_recommended",SandboxRestPolicy.recommended(awakeHours)).put("rest_overdue",SandboxRestPolicy.overdue(awakeHours))
+                    .put("requires_rule_adjudication",SandboxRestPolicy.overdue(awakeHours))
                     .put("automatic_exhaustion_applied",false));
             if(elapsedHours>0d){
                 String notice="Dia "+projectedDay+" • "+labelForHour(projectedHour)+" • "+clockText(projectedHour);
                 if(projectedDay>currentDay)notice+=" • Novo dia";
-                if(awakeHours>=24d)notice+=" • Descanso atrasado: consultar regras";
-                else if(awakeHours>=16d)notice+=" • Descanso recomendado";
+                if(SandboxRestPolicy.overdue(awakeHours))notice+=" • Descanso atrasado: consultar regras";
+                else if(SandboxRestPolicy.recommended(awakeHours))notice+=" • Descanso recomendado";
                 report.put("time_transition_notice",notice);
             }
 
