@@ -1,4 +1,4 @@
-name: DnD 6.6.55 Android Regex Startup Hotfix - Device Preview APK
+name: DnD 6.6.56 Contextual Actions and Missions - Device Preview APK
 on:
   push:
     branches: [fix/dnd-6654-actions-professional-20261111]
@@ -42,8 +42,8 @@ jobs:
         run: |
           set -euo pipefail
           root=dnd-normal/run247-mod005
-          grep -q '^VERSION_NAME=6.6.55-android-regex-hotfix-20261113$' "$root/version.properties"
-          grep -q '^VERSION_CODE=203900618$' "$root/version.properties"
+          grep -q '^VERSION_NAME=6.6.56-contextual-actions-missions-20261113$' "$root/version.properties"
+          grep -q '^VERSION_CODE=203900619$' "$root/version.properties"
           grep -q '^DB_SCHEMA=61$' "$root/version.properties"
           grep -q '^BACKUP_FORMAT=21$' "$root/version.properties"
           test -s "$root/signing/debug.keystore"
@@ -88,15 +88,15 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk" > DEVICE_PREVIEW_SIGNING.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > DEVICE_PREVIEW_PACKAGE.txt
           grep -q "package: name='com.braseiro.dnd5e'" DEVICE_PREVIEW_PACKAGE.txt
-          grep -q "versionCode='203900618'" DEVICE_PREVIEW_PACKAGE.txt
-          cp "$apk" BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
-          sha256sum BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk > DEVICE_PREVIEW_SHA256.txt
+          grep -q "versionCode='203900619'" DEVICE_PREVIEW_PACKAGE.txt
+          cp "$apk" BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk
+          sha256sum BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk > DEVICE_PREVIEW_SHA256.txt
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: DND_6655_ANDROID_REGEX_HOTFIX_PREVIEW_NOT_RELEASE
+          name: DND_6656_CONTEXT_ACTIONS_MISSIONS_PREVIEW_NOT_RELEASE
           path: |
-            BRASEIRO_DND_6655_ANDROID_REGEX_HOTFIX.apk
+            BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk
             DEVICE_PREVIEW_SHA256.txt
             DEVICE_PREVIEW_SIGNING.txt
             DEVICE_PREVIEW_PACKAGE.txt
@@ -104,6 +104,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: DND_6655_ANDROID_REGEX_HOTFIX_TESTS
+          name: DND_6656_CONTEXT_ACTIONS_MISSIONS_TESTS
           path: dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/
           if-no-files-found: warn
