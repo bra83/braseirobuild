@@ -30,6 +30,8 @@ public final class PostStrixhavenActivitiesEngine {
     private void requireDnd(){
         if("mystara".equalsIgnoreCase(db.getActiveMapProfile()))
             throw new IllegalStateException("MYSTARA_FROZEN");
+        if(db.isStrixhavenAdventureActive())
+            throw new IllegalStateException("STRIXHAVEN_ACTIVE");
         if(db.getCombatState().optInt("running",0)==1)
             throw new IllegalStateException("A atividade não pode iniciar durante o combate.");
     }
