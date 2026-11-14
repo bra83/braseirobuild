@@ -129,3 +129,19 @@
 - A integração com o motor de combate fica condicionada ao Mestre emitir o evento validado e ao sistema aplicar corretamente as regras e rolagens; testes com o serviço externo real da IA em sessões de muitas cenas **não executados**.
 - Regressão integral BRELGA em runner self-hosted: status \`pending\` na data da evidência.
 - APK debug: **arquivo de teste, não distribuição final**; não foi testada atualização de instalação existente, preservação de saves no Galaxy A57, nem assinatura em dispositivo. Não mesclar esta PR sem evidência desses gates.
+
+
+## Versão testável mais recente — descanso frequente, CI e APK final de QA
+
+- Código head homologado pelo CI: \`259a2474aae7816e617485d420941a72a5b1c93a\` (depois das correções de caça, emprego, encontros, UI, clima e descanso).
+- [Workflow GitHub Actions RUN 43576565159](https://github.com/bra83/braseirobuild/actions/runs/43576565159), commit do merge de checkout \`685135ac4b10b00465ea321d42bcdec3f1966235\`: **35/35 testes PASS**, 9 suítes, 0 falhas, 0 erros, 0 ignored; **Gradle testDebugUnitTest e assembleDebug BUILD SUCCESSFUL**.
+- APK com todos os assets, \`app-debug.apk\`: **333.156.572 bytes**; Atlas interno \`assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip\`: **102.373.336 bytes**, confirmado por inspeção ZIP no runner.
+- Artefato CI válido e não expirado no momento da gravação: [dnd-post-strixhaven-full-debug, artifact 14106364567](https://github.com/bra83/braseirobuild/actions/runs/43576565159/artifacts/14106364567), pacote GitHub Actions de **294.517.044 bytes**, retenção do workflow de 14 dias. Dentro deste pacote está o APK de teste; não é um novo projeto ZIP.
+- Regressão adicional: descansa-se por 8 horas, mas segundo descanso longo antes do prazo mínimo de 16 horas **não restaura recursos e não reseta contador diário de viagem**. Novo teste comprova manutenção de \`hours_today=4\` e \`last_long_rest_completed_absolute_hour\`.
+- Faerûn depois da saída explícita de Strixhaven; perfil active Strixhaven bloqueia ativação prematura; Mystara inalterado.
+
+### Gates ainda impossíveis de marcar como aprovação de produção
+- **Galaxy A57 físico, assinatura existente e migração do save**: NÃO testados.
+- **BRELGA regressão total**: workflow self-hosted está PENDING no SHA testado.
+- **Campanha longa com Gemini real, variação contextual dos encontros e consequências completas em todas as regras**: cobertura automatizada focal, não validação exaustiva.
+- **Não executar merge em branch canônica** nem rotular 100% produção antes desses gates. O APK é debug QA e a PR segue em DRAFT.
