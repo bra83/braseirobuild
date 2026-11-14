@@ -175,6 +175,9 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertEquals(16d,db.getSceneState().optDouble("clock_hour"),.001d);
         JSONObject ledger=db.getTravelRulesState();
         assertEquals(16d,ledger.optDouble("last_long_rest_completed_absolute_hour"),.001d);
+        JSONObject travelState=db.getTravelRulesState();
+        travelState.put("hours_today",4d);
+        db.saveTravelRulesState(travelState);
         JSONObject tooSoon=world.preview("Faço outro descanso longo por 8 horas");
         assertTrue(tooSoon.optBoolean("long_rest"));
         assertFalse("Second rest too early should not restore benefits",
@@ -182,6 +185,8 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertTrue(world.commit(tooSoon));
         assertFalse("Second rest illegally recharged resources",
                 tooSoon.optBoolean("long_rest_mechanical_benefits_applied"));
+        assertEquals("Ineligible rest reset the daily travel counter",4d,
+                db.getTravelRulesState().optDouble("hours_today"),.001d);
         assertEquals(2,db.getSceneState().optInt("day_number"));
         assertEquals(0d,db.getSceneState().optDouble("clock_hour"),.001d);
         assertEquals(16d,db.getTravelRulesState().optDouble(
