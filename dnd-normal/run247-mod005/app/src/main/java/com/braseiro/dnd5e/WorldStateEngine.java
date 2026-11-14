@@ -74,6 +74,13 @@ public final class WorldStateEngine {
                     .put("rest_recommended",awakeHours>=16d).put("rest_overdue",awakeHours>=24d)
                     .put("requires_rule_adjudication",awakeHours>=24d)
                     .put("automatic_exhaustion_applied",false));
+            if(elapsedHours>0d){
+                String notice="Dia "+projectedDay+" • "+labelForHour(projectedHour)+" • "+clockText(projectedHour);
+                if(projectedDay>currentDay)notice+=" • Novo dia";
+                if(awakeHours>=24d)notice+=" • Descanso atrasado: consultar regras";
+                else if(awakeHours>=16d)notice+=" • Descanso recomendado";
+                report.put("time_transition_notice",notice);
+            }
 
             JSONObject resourcePreview=travelPreview.optBoolean("mechanics_apply",false)?travelPreview.optJSONObject("resource_consumption"):travelRules.previewElapsedTimeResources(elapsedHours,"world-time|"+playerAction+"|"+currentDay+"|"+currentHour);report.put("company_resources_consumed",resourcePreview==null?new JSONObject():resourcePreview);
 
@@ -465,5 +472,16 @@ public final class WorldStateEngine {
     private static JSONObject parseObject(String raw){try{return new JSONObject(raw);}catch(Exception e){return new JSONObject();}}
     private static JSONArray parseArray(String raw){try{return new JSONArray(raw);}catch(Exception e){return new JSONArray();}}
     private static String fitJson(JSONObject source,int max){/*BR_JSON_WRAP*/try{String raw=source.toString();if(raw.length()<=max)return raw;try{JSONObject lean=new JSONObject();lean.put("quests",source.optJSONArray("quests"));lean.put("clocks",source.optJSONArray("clocks"));lean.put("visible_knowledge",source.optJSONArray("visible_knowledge"));lean.put("director_only_hidden_facts",source.optJSONArray("director_only_hidden_facts"));lean.put("hidden_facts_rule",source.optString("hidden_facts_rule"));lean.put("context_reduced",true);raw=lean.toString();if(raw.length()<=max)return raw;return new JSONObject().put("context_reduced",true).put("excerpt",raw.substring(0,Math.min(max-80,raw.length()))).toString();}catch(Exception e){return "{\"context_reduced\":true}";}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
-    private static String summary(JSONObject report){return report.optDouble("hours_advanced",0)+" hora(s) • dia "+report.optInt("day_before",1)+" → "+report.optInt("day_after",1)+" • "+(report.optJSONArray("events_triggered")==null?0:report.optJSONArray("events_triggered").length())+" evento(s) • "+(report.optJSONArray("clocks_advanced")==null?0:report.optJSONArray("clocks_advanced").length())+" relógio(s)";}
+    private static String clockText(double hour){
+        int minutes=((int)Math.round(normalizeHour(hour)*60d))%1440;
+        return String.format(Locale.ROOT,"%02d:%02d",minutes/60,minutes%60);
+    }
+    private static String summary(JSONObject report){
+        String at="dia "+report.optInt("day_after",1)+" • "+clockText(report.optDouble("clock_hour_after",9d));
+        JSONObject watch=report.optJSONObject("rest_watch");
+        String rest=watch!=null&&watch.optBoolean("rest_overdue",false)?" • descanso atrasado":watch!=null&&watch.optBoolean("rest_recommended",false)?" • descanso recomendado":"";
+        return report.optDouble("hours_advanced",0)+" hora(s) • "+at+rest
+                +" • "+(report.optJSONArray("events_triggered")==null?0:report.optJSONArray("events_triggered").length())+" evento(s)"
+                +" • "+(report.optJSONArray("clocks_advanced")==null?0:report.optJSONArray("clocks_advanced").length())+" relógio(s)";
+    }
 }
