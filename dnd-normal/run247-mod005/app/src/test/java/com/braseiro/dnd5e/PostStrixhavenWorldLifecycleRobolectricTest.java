@@ -165,6 +165,22 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertEquals(2,db.getEnvironmentalDirectorState().optInt("last_day",0));
     }
 
+    @Test public void overnightWorkAndWatchDoNotBecomeLongRest() throws Exception {
+        WorldStateEngine world=new WorldStateEngine(db);
+        JSONObject watch=world.preview("Passamos a noite em vigília durante 8 horas");
+        assertEquals("",watch.optString("error"));
+        assertEquals(8d,watch.optDouble("hours_advanced"),.001d);
+        assertFalse("Overnight watch was mislabeled as a long rest",watch.optBoolean("long_rest"));
+        assertFalse(watch.has("long_rest_benefits"));
+        assertTrue(world.commit(watch));
+        assertEquals(16d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertFalse(db.getTravelRulesState().has("last_long_rest_completed_absolute_hour"));
+        JSONObject explicitlyAwake=world.preview("Passamos a noite sem dormir por 8 horas");
+        assertFalse("Sleepless night granted long rest",explicitlyAwake.optBoolean("long_rest"));
+        JSONObject sleep=world.preview("Passamos a noite dormindo por 8 horas");
+        assertTrue("Explicit overnight sleep should still be eligible",sleep.optBoolean("long_rest"));
+    }
+
     @Test public void activeNativeCombatCannotFastForwardTimeThroughRest() throws Exception {
         db.setCombatRunningChecked(true);
         WorldStateEngine world=new WorldStateEngine(db);
