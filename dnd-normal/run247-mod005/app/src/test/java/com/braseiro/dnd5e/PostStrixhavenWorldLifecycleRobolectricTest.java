@@ -165,6 +165,23 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertEquals(2,db.getEnvironmentalDirectorState().optInt("last_day",0));
     }
 
+    @Test public void activeNativeCombatCannotFastForwardTimeThroughRest() throws Exception {
+        db.setCombatRunningChecked(true);
+        WorldStateEngine world=new WorldStateEngine(db);
+        JSONObject longRest=world.preview("Durmo por 8 horas");
+        assertTrue("Active combat must block a long rest",longRest.optString("error").contains("combate"));
+        assertFalse(world.commit(longRest));
+        JSONObject shortRest=world.preview("Faço um descanso curto de 1 hora");
+        assertTrue("Active combat must block a short rest",shortRest.optString("error").contains("combate"));
+        assertFalse(world.commit(shortRest));
+        assertEquals(8d,db.getSceneState().optDouble("clock_hour"),.001d);
+        db.setCombatRunningChecked(false);
+        JSONObject allowed=world.preview("Faço descanso curto por 1 hora");
+        assertEquals("",allowed.optString("error"));
+        assertTrue(world.commit(allowed));
+        assertEquals(9d,db.getSceneState().optDouble("clock_hour"),.001d);
+    }
+
     @Test public void longRestTakesEightHoursAndObeysSixteenHourCooldown() throws Exception {
         WorldStateEngine world=new WorldStateEngine(db);
         JSONObject rest=world.preview("Faço um descanso longo por 8 horas");
