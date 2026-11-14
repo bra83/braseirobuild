@@ -56,3 +56,20 @@
 14. Mundo aberto: jogador pode ignorar boatos, mudar de rumo e escolher ficar em uma cidade, sem roteiro forçado.
 
 **Critério de aceite:** apenas marcar cada linha PASS quando existir evidência do fluxo real no SHA preciso; código e relatório sozinhos não são prova.
+
+
+## Evidência incremental verificada no GitHub Actions — 14/11/2026
+- RUN [43558580714](https://github.com/bra83/braseirobuild/actions/runs/43558580714): 5 XML suites, 18 testes, 0 failures, 0 errors, 0 skipped; Gradle \`BUILD SUCCESSFUL\`, SHA \`4e825a5fff666d8933f14b1e48d7553c66d05a71\`. Inclui regras puras, SQLite, passagem temporal, cena, aventura em Faerûn, persistência.
+- RUN [43558908873](https://github.com/bra83/braseirobuild/actions/runs/43558908873): 6 XML suites, 22 testes, 0 failures, 0 errors, 0 skipped; Gradle \`BUILD SUCCESSFUL\`, SHA \`a42dd9e77b33c8649c6d76ca00e2df11136e0750\`. Inclui guildas, contratos, caça/trabalho persistentes, eventos opcionais, diretor climático, Mundo Vivo 6.0.
+- Regressão BRELGA full suite: **pendente** por runner de serviço. Nem um run focado nem 29 verificações \`javac\` independentes certificam 100% das regras ou comportamento Android físico.
+- Os testes de trabalho/caça comprovaram **persistência + duração + proibição de recompensa imaginária**, e **NÃO** a concessão mecânica de pagamento, carne ou água.
+- Os encontros testados foram propostas opcionais; ainda **NÃO** o ciclo completo de encontros com seleção, rolagens, consequências e persistência.
+- O clima testado foi snapshot de funcionamento do diretor; ainda **NÃO** trajetória climática completa sob campanhas longas e aparelho físico.
+
+## Terceiro pacote: integração de viagem no mapa e HUD canônico
+- \`WorldStateEngine.previewConfirmedMapElapsed\`: conecta viagem mecânica já confirmada ao \`WorldStateEngine.commit\` para atualizar NPCs, facções, relógios, calendários e agendamento de eventos uma única vez; não aplica recursos que \`TravelRulesEngine.commit\` já contabilizou.
+- \`WorldTickFingerprint\`: sela que recursos da viagem já foram contabilizados, proibindo alteração do modo de cobrança após gerar prévia.
+- \`MainActivity.applyDndTravel\`: chama o avanço de mundo canônico para D&D antes de consolidar a rota; preserva snapshot/restore do fluxo existente e não altera o trajeto Mystara.
+- \`MainActivity.addSceneStatusStrip\`: exibe dia, hora/minuto e período de dia do estado persistente; renderização do D&D não regrava a hora com inferência da narração; avisos de descanso não aplicam penalidade.
+- \`PostStrixhavenWorldLifecycleRobolectricTest\`: cenário de 1h45 de viagem confirmada, nenhum consumo duplicado, replay rejeitado. \`CoreGameLaunchRobolectricTest\` integra o gate da interface.
+- **Aceitação pendente no momento desta atualização:** terceira execução hosted [43559304481](https://github.com/bra83/braseirobuild/actions/runs/43559304481), SHA \`5f0dcf56135683cf50d1001268811f51956e09b4\`. Só mudar para PASS com XML final verificado.
