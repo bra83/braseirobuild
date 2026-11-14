@@ -123,6 +123,23 @@ public class PostStrixhavenWorldLifecycleRobolectricTest {
         assertEquals("Manhã",actual.optString("time_of_day"));
     }
 
+    @Test public void confirmedMapTravelAdvancesLivingWorldWithoutChargingResourcesTwice() throws Exception {
+        WorldStateEngine engine=new WorldStateEngine(db);
+        JSONObject confirmed=engine.previewConfirmedMapElapsed(1.75d);
+        assertEquals("",confirmed.optString("error"));
+        assertTrue(confirmed.optBoolean("external_travel_resources_handled"));
+        assertEquals("confirmed_map_segment",confirmed.optString("duration_source"));
+        assertEquals(1.75d,confirmed.optDouble("hours_advanced"),.001d);
+        assertFalse("Map travel must not consume the same provisions a second time",
+                confirmed.optJSONObject("company_resources_consumed").optBoolean("mechanics_apply"));
+        assertEquals(8d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertTrue("Canonical map tick failed: "+confirmed.optString("commit_error"),engine.commit(confirmed));
+        assertEquals(9.75d,db.getSceneState().optDouble("clock_hour"),.001d);
+        assertFalse("Map travel preview was replayed",engine.commit(confirmed));
+        JSONObject invalid=engine.previewConfirmedMapElapsed(Double.NaN);
+        assertTrue(invalid.optString("error").length()>0);
+    }
+
     @Test public void twoCompetingPreviewsCannotBothCommit() throws Exception {
         WorldStateEngine engine=new WorldStateEngine(db);
         JSONObject first=engine.preview("Investigo os arredores da taverna");
