@@ -6371,6 +6371,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 db.markSceneCommitCommittingChecked(commitId);
                 JSONArray stateUpdates=prepared.optJSONArray("state_updates");
                 JSONObject combatPlan=prepared.optJSONObject("combat");
+                // Capture the native battle ID BEFORE applyCombatPlan(end) clears it.
+                // It is host-derived, never a Gemini-provided or narrative ID.
+                final String hostCombatIdBefore=db.getCombatState().optInt("running",0)==1
+                        ?db.getCombatState().optString("encounter_id",""):"";
                 String stateSummary=applyStateUpdates(stateUpdates);
                 String combatSummary=applyCombatPlan(combatPlan,externalInitiatives);
                 String sceneSummary="";
@@ -6390,6 +6394,15 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 // Mestre propõe -> D&D valida -> SQLite confirma. O orquestrador só toca
                 // estado persistente dentro desta mesma transação do host.
                 if(masterOrchestrator!=null)masterOrchestrator.afterConsequencesApplied(activeMasterPlan,prepared,lastNarration);
+                // Same SQLite scene transaction, after the validated native combat
+                // operation. END requires the actual ID captured before reset.
+                if(combatPlan!=null&&!isMystaraWorld()){
+                    String nativeAction=combatPlan.optString("action","none").toLowerCase(Locale.ROOT);
+                    if("start".equals(nativeAction)||"end".equals(nativeAction))
+                        new PostStrixhavenEncounterEngine(db).reconcileNativeCombat(
+                            combatPlan,activeMasterPlan==null?"":activeMasterPlan.userPrompt,
+                            hostCombatIdBefore);
+                }
                 syncPresentNpcsIntoRunningCombat(prepared,externalInitiatives);
                 String combatAction=combatPlan==null?"none":combatPlan.optString("action","none").toLowerCase(Locale.ROOT);
                 if(("start".equals(combatAction)||"update".equals(combatAction))&&lastNarration!=null&&lastNarration.trim().length()>0)db.addJournalChecked("Combate • Rodada "+db.getCombatState().optInt("round_no",1),stripMarkdown(lastNarration),"Combate");
