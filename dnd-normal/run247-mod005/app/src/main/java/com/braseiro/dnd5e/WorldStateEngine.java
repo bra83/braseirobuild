@@ -24,7 +24,8 @@ public final class WorldStateEngine {
 
     public JSONObject preview(String playerAction){/*BR_JSON_WRAP*/try{
         JSONObject report=new JSONObject();try{
-            int requestedHours=inferHours(playerAction);
+            boolean nonAdvancingInquiry=SandboxActionDuration.isInquiry(playerAction);
+            int requestedHours=nonAdvancingInquiry?0:inferHours(playerAction);
             JSONObject scene=db.getSceneState();
             int currentDay=Math.max(1,scene.optInt("day_number",1));
             double currentHour=normalizeHour(scene.optDouble("clock_hour",hourFromLabel(scene.optString("time_of_day",""))));
@@ -49,13 +50,13 @@ public final class WorldStateEngine {
             double total=currentHour+elapsedHours;
             int projectedDay=currentDay+(int)Math.floor(total/24d);
             double projectedHour=normalizeHour(total);
-            boolean validLongRest=SandboxRestPolicy.validLong(isLongRest(playerAction),elapsedHours);
-            boolean validShortRest=SandboxRestPolicy.validShort(isShortRest(playerAction),elapsedHours,validLongRest);
+            boolean validLongRest=!nonAdvancingInquiry&&SandboxRestPolicy.validLong(isLongRest(playerAction),elapsedHours);
+            boolean validShortRest=!nonAdvancingInquiry&&SandboxRestPolicy.validShort(isShortRest(playerAction),elapsedHours,validLongRest);
             report.put("world_tick_fingerprint",previewFingerprint).put("world_clocks_fingerprint",clocksFingerprint)
                     .put("hours_requested",requestedHours).put("hours_advanced",round2(elapsedHours))
                     .put("duration_source",durationSource).put("activity_category",sandbox.category)
                     .put("long_rest",validLongRest).put("short_rest",validShortRest);
-            if((isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest)
+            if(!nonAdvancingInquiry&&(isLongRest(playerAction)||isShortRest(playerAction))&&!validLongRest&&!validShortRest
                 report.put("rest_insufficient_duration",true);
             if(validLongRest)report.put("long_rest_benefits",longRestPreview(currentDay,currentHour));
             report.put("day_before",currentDay).put("day_after",projectedDay)
