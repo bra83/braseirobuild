@@ -115,6 +115,26 @@ public class PostStrixhavenActivitiesRobolectricTest {
         assertEquals(8d,db.getSceneState().optDouble("clock_hour"),.001d);
         assertEquals(0,new JSONObject(db.getCharacter(hero).optString("sheet_json","{}")).optInt("gold"));
     }
+    @Test public void verifiedAtlasTerrainOverridesManualForagingChoice() throws Exception {
+        JSONObject map=new JSONObject().put("map_package_id","faerun")
+                .put("current_hex_id","D040");
+        JSONObject mountain=new JSONObject().put("terrain_primary","Montanha")
+                .put("review_status","verified").put("terrain_confidence",1d);
+        String selected=PostStrixhavenActivitiesEngine.effectiveForageTerrain(
+                "Floresta",map,mountain);
+        assertEquals("Montanha",selected);
+        assertEquals(20,PostStrixhavenActivitiesEngine.foragingDc(selected));
+        JSONObject weak=new JSONObject().put("terrain_primary","Montanha")
+                .put("review_status","automatic").put("terrain_confidence",0.55d);
+        assertEquals("Floresta",PostStrixhavenActivitiesEngine.effectiveForageTerrain(
+                "Floresta",map,weak));
+        JSONObject strong=new JSONObject().put("terrain_primary","Deserto")
+                .put("review_status","automatic").put("terrain_confidence",0.91d);
+        assertEquals("Deserto",PostStrixhavenActivitiesEngine.effectiveForageTerrain(
+                "Floresta",map,strong));
+        assertEquals("Floresta",PostStrixhavenActivitiesEngine.effectiveForageTerrain(
+                "Floresta",new JSONObject(),mountain));
+    }
     @Test public void forageDcsUseReal2024TerrainAndUnknownNeverDefaults() {
         assertEquals(10,PostStrixhavenActivitiesEngine.foragingDc("Floresta"));
         assertEquals(10,PostStrixhavenActivitiesEngine.foragingDc("Pântano"));
