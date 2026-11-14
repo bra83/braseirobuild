@@ -172,6 +172,81 @@ public final class PostStrixhavenEncounterEngine {
                 selection[1], "{}",out.toString(),true);
         return out;
     }
+    /**
+     * A verified Master combat start/end event reconciles the optional
+     * encounter to its native combat ID. Combat itself remains wholly owned
+     * by the existing rules engine. No HP/XP/loot is applied here.
+     *
+     * Start binding requires the exact #id action token sent from the UI.
+     * End binding requires an already linked native encounter, never prose.
+     */
+    public synchronized JSONObject reconcileNativeCombat(JSONObject combatEnvelope,String actionText)throws Exception{
+        JSONObject out=new JSONObject().put("reconciled",false);
+        if(!applicable()||combatEnvelope==null)return out;
+        String action=combatEnvelope.optString("action","none").trim().toLowerCase(Locale.ROOT);
+        if(!"start".equals(action)&&!"end".equals(action))return out;
+        JSONObject state=db.getCombatState();
+        if("start".equals(action)){
+            java.util.regex.Matcher m=java.util.regex.Pattern.compile(
+                    "(?i)ENCONTRO\\s+OPCIONAL\\s*#\\s*(\\d{1,15})").matcher(actionText==null?"":actionText);
+            if(!m.find())return out.put("reason","unrelated_combat");
+            long id=Long.parseLong(m.group(1));
+            JSONObject encounter=get(id);
+            if(!"combat_pending".equals(encounter.optString("status")))
+                return out.put("reason","encounter_not_pending");
+            String nativeId=state.optString("encounter_id","");
+            if(state.optInt("running",0)!=1||nativeId.trim().length()==0)
+                return out.put("reason","combat_not_started");
+            JSONObject old=readJson(encounter.optString("outcome_json","{}"));
+            if(old.optString("native_combat_id").length()>0)
+                return out.put("reconciled",nativeId.equals(old.optString("native_combat_id")))
+                          .put("idempotent",true);
+            old.put("native_combat_id",nativeId).put("native_combat_started_at",System.currentTimeMillis());
+            ContentValues v=new ContentValues();v.put("outcome_json",old.toString());
+            if(sql().update(TABLE,v,"id=? AND world_profile=? AND status='combat_pending'",
+                   new String[]{String.valueOf(id),profile()})!=1)
+                throw new IllegalStateException("Encounter/combat link lost.");
+            db.addAuditEvent("sandbox_encontro","Combate vinculado ao encontro",
+                    encounter.optString("title"),"{}",old.toString(),true);
+            return out.put("reconciled",true).put("encounter_id",id).put("native_combat_id",nativeId);
+        }
+        if(state.optInt("running",0)==1)return out.put("reason","combat_still_running");
+        List<JSONObject> encounters=recent(50);
+        JSONObject matched=null;
+        for(JSONObject encounter:encounters){
+            if(!"combat_pending".equals(encounter.optString("status")))continue;
+            JSONObject previous=readJson(encounter.optString("outcome_json","{}"));
+            if(previous.optString("native_combat_id","").length()==0)continue;
+            if(matched!=null)return out.put("reason","ambiguous_combat_receipt");
+            matched=encounter;
+        }
+        if(matched==null)return out.put("reason","no_bound_combat");
+        long id=matched.optLong("id");
+        JSONObject result=readJson(matched.optString("outcome_json","{}"));
+        result.put("status","resolved").put("native_combat_ended_at",System.currentTimeMillis());
+        result.put("combat_resolved_by_native_gateway",true)
+              .put("xp_delta",0).put("gold_delta",0).put("items_granted",0);
+        ContentValues v=new ContentValues();v.put("status","resolved");
+        v.put("outcome_json",result.toString());v.put("resolved_at",System.currentTimeMillis());
+        if(sql().update(TABLE,v,"id=? AND world_profile=? AND status='combat_pending'",
+                new String[]{String.valueOf(id),profile()})!=1)
+            throw new IllegalStateException("Native combat completion changed.");
+        db.addAuditEvent("sandbox_encontro","Encontro concluído pelo combate nativo",
+                matched.optString("title"),matched.toString(),result.toString(),true);
+        db.addJournal("Encontro concluído — "+matched.optString("title"),
+                "O motor de combate encerrou o encontro vinculado "+
+                result.optString("native_combat_id")+
+                ". Recompensas só podem vir dos procedimentos mecânicos do combate.",
+                "Mundo Vivo");
+        return out.put("reconciled",true).put("encounter_id",id)
+                  .put("native_combat_id",result.optString("native_combat_id"))
+                  .put("status","resolved");
+    }
+
+    private static JSONObject readJson(String s){
+        try{return new JSONObject(s==null?"{}":s);}catch(Exception ignored){return new JSONObject();}
+    }
+
     public synchronized JSONObject choose(long id,String choice,String outcome){
         JSONObject response=new JSONObject();
         try{
