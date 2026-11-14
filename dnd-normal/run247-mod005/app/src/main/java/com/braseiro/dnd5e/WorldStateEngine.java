@@ -475,9 +475,19 @@ public final class WorldStateEngine {
     }
     private static boolean isLongRest(String action){
         String n=action==null?"":action.toLowerCase(Locale.ROOT);
-        return (n.contains("descanso longo")||n.contains("durmo")||n.contains("dormimos")
-                ||n.contains("dormir")||n.contains("passamos a noite"))
-                &&!n.contains("não durmo")&&!n.contains("nao durmo")&&!n.contains("não vou dormir")&&!n.contains("nao vou dormir");
+        // Spending the night awake (guard duty, labor, combat, travel) is NOT
+        // a long rest even when eight hours pass. Only explicit rest/sleep intent
+        // may request recovery; frequency and duration are checked separately.
+        boolean overnightSleep=n.contains("passamos a noite")&&
+                (n.contains("dormindo")||n.contains("descansando")||n.contains("em descanso"));
+        boolean requested=n.contains("descanso longo")||n.contains("durmo")
+                ||n.contains("dormimos")||n.contains("dormir")||overnightSleep;
+        boolean denied=n.contains("não durmo")||n.contains("nao durmo")
+                ||n.contains("não vou dormir")||n.contains("nao vou dormir")
+                ||n.contains("sem dormir")||n.contains("sem descanso")
+                ||n.contains("não descansamos")||n.contains("nao descansamos")
+                ||n.contains("não faço descanso")||n.contains("nao faco descanso");
+        return requested&&!denied;
     }
     private static int inferHours(String action){
         String n=action==null?"":action.toLowerCase(Locale.ROOT);
