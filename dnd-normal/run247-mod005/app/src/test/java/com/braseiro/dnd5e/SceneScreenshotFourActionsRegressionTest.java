@@ -49,6 +49,24 @@ public class SceneScreenshotFourActionsRegressionTest {
         assertTrue("Need forward opportunity: "+actual,path);
     }
 
+    @Test public void alreadySavedOneCardSceneRecoversFourWithoutGemini() throws Exception {
+        JSONArray saved=new JSONArray().put(StoryMomentumAction.option(LIVE_SCENE));
+        JSONArray restored=StoryMomentumAction.ensureVisible(saved,LIVE_SCENE);
+        assertEquals("Recover on 6.6.59 open: "+restored,4,restored.length());
+        assertEquals("No forced movement or autopilot",
+                StoryMomentumAction.ACTION,restored.getJSONObject(0).getString("action"));
+        assertEquals("ACOMPANHAR OS PREPARATIVOS DA CAÇA",
+                restored.getJSONObject(0).getString("label"));
+        for(int i=0;i<restored.length();i++)
+            assertTrue("Click ticket: "+restored.getJSONObject(i),
+                SceneActionEvidence.ticketMatches(restored.getJSONObject(i),LIVE_SCENE));
+    }
+
+    @Test public void recognizesFullTwoWordNpcAsCurrentSpeaker() {
+        assertEquals("Urzmaktok Grojsh",SceneDialogueDecisionPlanner.namedInterlocutor(LIVE_SCENE));
+        assertEquals(3,SceneOpenWorldActionPlanner.candidates(LIVE_SCENE).size());
+    }
+
     @Test public void noAdjacentActorShallBeStolenFromOldScene() throws Exception {
         String scene="O pátio está silencioso. Uma pequena estaca de apoio está ao lado da planta. "+
             "O caminho para o saguão está livre, mas não há oficial nem guarda aqui.";
