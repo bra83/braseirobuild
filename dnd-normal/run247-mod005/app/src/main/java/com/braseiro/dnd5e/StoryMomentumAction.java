@@ -25,6 +25,8 @@ public final class StoryMomentumAction {
         String beat=narration==null?"":narration.toLowerCase(java.util.Locale.ROOT);
         String label=LABEL;
         final boolean discovered=SceneDiscoveredLead.available(narration);
+        final boolean orientationImminent=(beat.contains("caça de orientação")||beat.contains("caca de orientacao"))
+                && (beat.contains("daqui a pouco")||beat.contains("instruções")||beat.contains("instrucoes"));
         if(discovered)label=SceneDiscoveredLead.progressLabel(narration);
         if(!discovered&&beat.contains("charada")&&beat.contains("selos"))label="DEIXAR A DISCUSSÃO DOS SELOS AVANÇAR";
         else if(beat.contains("bibliotecária")||beat.contains("bibliotecaria"))label="ESCUTAR A BIBLIOTECÁRIA";
@@ -36,14 +38,17 @@ public final class StoryMomentumAction {
         else if(beat.contains("pausa")||beat.contains("silêncio"))label="PERMITIR UMA NOVA INICIATIVA";
         else if(beat.contains("taverna")||beat.contains("estalagem"))label="ESCUTAR O MOVIMENTO DO SALÃO";
         if(discovered)label=SceneDiscoveredLead.progressLabel(narration); // Explicit objective always beats historic keyword matching.
+        else if(orientationImminent)label="ACOMPANHAR OS PREPARATIVOS DA CAÇA";
         String currentInterlocutor=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
-        if(!discovered&&!currentInterlocutor.isEmpty())
+        if(!discovered&&!orientationImminent&&!currentInterlocutor.isEmpty())
             label="DAR ESPAÇO PARA "+currentInterlocutor.toUpperCase(new java.util.Locale("pt","BR"))+" CONTINUAR";
         JSONObject o=new JSONObject();
         try{
             o.put("label",label);
             o.put("description",discovered
                 ? "Decido seguir até o local indicado pela pista já revelada e procurar a próxima evidência; nenhuma descoberta ou teste é presumido."
+                :orientationImminent
+                ? "Permaneço atento aos preparativos da caça de orientação e deixo o mundo tomar a próxima iniciativa, sem mover meu personagem nem presumir instruções já recebidas."
                 :beat.contains("charada")&&beat.contains("selos")
                 ?"Acompanho a discussão da charada e dos selos, deixando os estudantes tomarem sua própria iniciativa sem decidir nada por meu personagem."
                 :"Permaneço atento à iniciativa das pessoas e aos acontecimentos já presentes, sem presumir o que vão fazer.");
@@ -78,7 +83,22 @@ public final class StoryMomentumAction {
 
     /** Restored choices are revalidated, never replaced by speculative fillers. */
     public static JSONArray ensureVisible(JSONArray options,String narration){
-        return withChoices(options,narration);
+        JSONArray checked=withChoices(options,narration);
+        if(checked.length()>=4||narration==null||narration.trim().isEmpty())return checked;
+        // Upgrade/reopen must not freeze old one-card scenes forever: recover
+        // current visible action affordances without spending another model call.
+        // Repair is allowed ONLY when the narrator actually shows a speaking
+        // actor and two distinct grounded features; sparse scenes still fail closed.
+        if(SceneOpenWorldActionPlanner.candidates(narration).size()<3)return checked;
+        JSONArray existing=new JSONArray();
+        for(int i=1;i<checked.length();i++) {
+            JSONObject option=checked.optJSONObject(i);
+            if(option!=null)existing.put(option);
+        }
+        JSONArray generated=GroundedSceneActionSlots.contextual(
+                existing,new JSONArray(),narration,"",new JSONObject(),0);
+        JSONArray recovered=withChoices(generated,narration);
+        return recovered.length()>checked.length()?recovered:checked;
     }
 
     /** A lead-follow click authorizes the stated player movement, unlike waiting. */
