@@ -90,12 +90,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-boot-timeout: 900
-          script: |
-            set -euo pipefail
-            python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py \
-              --previous qa-old-6654/BRASEIRO_DND_6654_CLUE_OPTIONS_DEVICE_APK/BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk \
-              --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk \
-              --evidence qa-6654-to-6655
+          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6654/BRASEIRO_DND_6654_CLUE_OPTIONS_DEVICE_APK/BRASEIRO_DND_6.6.54_ACOES_PISTA_TESTE.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6654-to-6655
       - name: Publish Android emulator upgrade evidence
         if: always()
         uses: actions/upload-artifact@v4
