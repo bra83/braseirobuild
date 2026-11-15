@@ -32,4 +32,17 @@ jobs:
               print('MATCH',i+1)
               for j in range(max(0,i-12),min(len(ls),i+20)):
                 print(f'{j+1}: {ls[j][:320]}')
+          p=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java')
+          lines=p.read_text().splitlines()
+          for start,end in [(7278,7355),(7550,7660),(7680,7810),(7800,7875)]:
+            print('FOCUSED_MAIN',start,end)
+            for i in range(start-1,end):
+              print(f'{i+1}: {lines[i][:700]}')
+          p=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java')
+          lines=p.read_text().splitlines()
+          for i,l in enumerate(lines):
+            if 'Plan prepare(' in l or 'prepare(' in l and 'Plan' in l:
+              print('ORCHESTRATOR_PREPARE',i+1)
+              for j in range(max(0,i-10),min(len(lines),i+150)):
+                print(f'{j+1}: {lines[j][:600]}')
           PY
