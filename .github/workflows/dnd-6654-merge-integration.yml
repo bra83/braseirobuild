@@ -53,6 +53,42 @@ jobs:
           test -f dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/PostStrixhavenEncounterEngine.java
           test -f dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/PostStrixhavenLongCampaignRobolectricTest.java
           git diff --stat origin/fix/dnd-6654-four-grounded-actions-20261106 > integration-diff-summary.txt || true
+      - name: Restore three-way merge portions required for mechanical integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e')
+          appdb=root/'AppDb.java'
+          db=appdb.read_text(encoding='utf8')
+          if 'boolean isStrixhavenAdventureActive()' not in db:
+              assert 'public AppDb(Context context)' in db,'AppDb constructor unavailable'
+              needle='    public AppDb(Context context)'
+              addition='    public boolean isStrixhavenAdventureActive(){\n        return StrixhavenAdventureProfile.isActive(appContext);\n    }\n\n'
+              db=db.replace(needle,addition+needle,1)
+              appdb.write_text(db,encoding='utf8')
+          main=root/'MainActivity.java'
+          code=main.read_text(encoding='utf8')
+          if 'final String hostCombatIdBefore=' not in code:
+              needle='JSONObject combatPlan=prepared.optJSONObject("combat");'
+              assert code.count(needle)==1,'Combate não pôde ser vinculado com segurança'
+              before='final String hostCombatIdBefore=db.getCombatState().optInt("running",0)==1\n' \
+                  '                        ?db.getCombatState().optString("encounter_id",""):"";'
+              code=code.replace(needle,needle+'\n                '+before,1)
+              main.write_text(code,encoding='utf8')
+          assert 'boolean isStrixhavenAdventureActive()' in db
+          assert 'final String hostCombatIdBefore=' in code
+          print('MERGE_CONFLICT_CORE_WIRING_RESTORED=TRUE')
+          PY
+      - name: Validate merged feature source markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/PostStrixhavenActivitiesEngine.java
+          test -f dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/PostStrixhavenEncounterEngine.java
+          test -f dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/PostStrixhavenLongCampaignRobolectricTest.java
+
       - name: Configure Java 17 and Android SDK 35
         uses: actions/setup-java@v4
         with:
