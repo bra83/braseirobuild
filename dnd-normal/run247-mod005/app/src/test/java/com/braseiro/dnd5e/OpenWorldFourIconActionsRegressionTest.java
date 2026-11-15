@@ -35,7 +35,7 @@ public final class OpenWorldFourIconActionsRegressionTest {
         assertTrue("Missing second place opportunity: "+actions,types.contains("EXPLORAR"));
     }
 
-    @Test public void sparseSceneDoesNotFabricatePeopleOrProps() {
+    @Test public void sparseSceneDoesNotFabricatePeopleOrProps() throws Exception {
         String scene="Uma breve pausa.";
         JSONArray actions=SceneOptionDiversifier.ensureAlways(new JSONArray(),new JSONArray(),
                 scene,"",new JSONObject().put("present_npcs_json","[{\\\"name\\\":\\\"um oficial\\\"}]"),12);
