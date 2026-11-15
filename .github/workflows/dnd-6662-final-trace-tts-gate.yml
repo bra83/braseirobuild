@@ -1,4 +1,5 @@
 name: DnD 6.6.62 TTS and private diagnostic complete handoff QA
+# CI correction: Plan.compactContext and safe lexical NPC observer identity.
 on:
   push:
     branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
