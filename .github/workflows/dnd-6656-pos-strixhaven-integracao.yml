@@ -83,33 +83,38 @@ jobs:
           # the canonical clock, but an accepted local action still may.
           scene_path=root/'SceneStateEngine.java'
           scene=scene_path.read_text(encoding='utf8')
-          block_start=scene.index('            SceneTemporalResolver.Result temporal=')
-          block_end=scene.index('            JSONArray npcs = envelope',block_start)
-          replacement="""            // Local authoritative clock: Gemini's scene JSON and prose can
-            // never jump day/hour. Preserve 6.6.56 accepted-action minutes,
-            // unless the WorldStateEngine already committed their duration.
-            int resolvedDay=Math.max(1,current.optInt("day_number",1));
-            double hour=current.optDouble("clock_hour",9d);
-            if(!Double.isFinite(hour))hour=9d;
-            String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
-            boolean alreadyAdvancedOnAccept=envelope!=null
-                    &&envelope.optBoolean("_clock_advanced_on_accept",false);
-            double minutes=(alreadyAdvancedOnAccept
-                    ||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))
-                    ?0d:SceneActionClock.minutesFor(declared);
-            if(minutes>0d){
-                double total=hour+minutes/60d;
-                resolvedDay+=(int)Math.floor(total/24d);
-                hour=total%24d;
-            }
-            merged.put("day_number",resolvedDay);
-            merged.put("clock_hour",hour);
-            merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
-            merged.put("lighting",SceneTemporalResolver.resolveLighting(
-                    SceneTemporalResolver.labelForHour(hour),"",merged.optString("lighting","")));
-          """
-          scene=scene[:block_start]+replacement+scene[block_end:]
-          scene_path.write_text(scene,encoding='utf8')
+          if 'SceneTemporalResolver.Result temporal=' in scene:
+              block_start=scene.index('            SceneTemporalResolver.Result temporal=')
+              block_end=scene.index('            JSONArray npcs = envelope',block_start)
+              replacement="""            // Local authoritative clock: Gemini's scene JSON and prose can
+                // never jump day/hour. Preserve 6.6.56 accepted-action minutes,
+                // unless the WorldStateEngine already committed their duration.
+                int resolvedDay=Math.max(1,current.optInt("day_number",1));
+                double hour=current.optDouble("clock_hour",9d);
+                if(!Double.isFinite(hour))hour=9d;
+                String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
+                boolean alreadyAdvancedOnAccept=envelope!=null
+                        &&envelope.optBoolean("_clock_advanced_on_accept",false);
+                double minutes=(alreadyAdvancedOnAccept
+                        ||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))
+                        ?0d:SceneActionClock.minutesFor(declared);
+                if(minutes>0d){
+                    double total=hour+minutes/60d;
+                    resolvedDay+=(int)Math.floor(total/24d);
+                    hour=total%24d;
+                }
+                merged.put("day_number",resolvedDay);
+                merged.put("clock_hour",hour);
+                merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
+                merged.put("lighting",SceneTemporalResolver.resolveLighting(
+                        SceneTemporalResolver.labelForHour(hour),"",merged.optString("lighting","")));
+              """
+              scene=scene[:block_start]+replacement+scene[block_end:]
+              scene_path.write_text(scene,encoding='utf8')
+          elif 'double minutes=(alreadyAdvancedOnAccept' in scene:
+              print('SCENE_CLOCK_ALREADY_CANONICAL_AFTER_MERGE=TRUE')
+          else:
+              raise AssertionError('Could not identify safe scene clock implementation')
           assert 'double minutes=(alreadyAdvancedOnAccept' in scene
           print('SIX_SIX_FIFTY_FOUR_SCENE_PERSISTED_TIME_AUTHORITY=PASS')
           assert 'boolean isStrixhavenAdventureActive()' in db
