@@ -1,0 +1,40 @@
+name: DnD 6.6.57 scene action UI source probe
+on:
+  push:
+    branches: [fix/dnd-6657-four-contextual-icon-actions-20261115]
+    paths: [.github/workflows/dnd-6657-scene-ui-probe.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Inspect actual action/UI code from 6.6.57
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib,re
+          root=pathlib.Path("dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e")
+          p=root/"MainActivity.java"
+          lines=p.read_text(encoding="utf-8").splitlines()
+          print("MAIN_LINES",len(lines),"SOURCE",p)
+          patterns=[
+            r"SceneOptionDiversifier|GroundedSceneActionSlots|StoryMomentumAction",
+            r"sceneOption|scene_option|suggestedAction|suggested_action|optionDropdown|actionDropdown|optionSpinner|suggestions|suggestedChoices",
+            r"op[cç][oõ]es|a[cç][oõ]es sugeridas|sugest[oõ]es|menu de a[cç][oõ]es",
+          ]
+          for pat in patterns:
+            matches=[i for i,line in enumerate(lines) if re.search(pat,line,re.I)]
+            print("PROBE_PATTERN",pat,"HITS",len(matches))
+            for i in matches[:65]:
+              snippet=" | ".join(f"{j+1}:{lines[j].strip()[:230]}" for j in range(max(0,i-1),min(len(lines),i+2)))
+              print("MATCH",snippet)
+          for lo,hi in [(7258,7358),(1577,1602),(1677,1724),(8320,8375),(9692,9704)]:
+            print("SOURCE_RANGE",lo,hi)
+            for i in range(lo-1,min(hi,len(lines))):
+              print(f"SOURCE_L{i+1} {lines[i][:300]}")
+          PY
