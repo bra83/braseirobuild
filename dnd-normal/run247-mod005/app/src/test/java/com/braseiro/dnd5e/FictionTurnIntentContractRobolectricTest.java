@@ -68,6 +68,10 @@ public class FictionTurnIntentContractRobolectricTest {
         assertEquals("",person.optString("visible_weapons"));
         assertFalse(person.optBoolean("is_identified_by_observer"));
         assertFalse(person.toString().contains("secrets"));
+        String resolver=FictionTurnIntent.contract("Como essa pessoa é?",scene(),"PLAYER_ACTION").toString();
+        assertFalse("Unknown NPC name leaked through referent",resolver.toLowerCase().contains("urzmaktok"));
+        assertFalse("Unknown NPC role leaked through referent",resolver.toLowerCase().contains("jardineiro"));
+        assertFalse("Internal ID leaked through referent",resolver.toLowerCase().contains("npc-urzmaktok"));
     }
     @Test public void T04_spatialVisibilityDoesNotInventExit()throws Exception{
         observe("O que vejo à minha esquerda?");
