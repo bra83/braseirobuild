@@ -94,15 +94,20 @@ public final class FictionTurnIntent {
             JSONArray matches=new JSONArray();
             for(int i=0;i<present.length();i++){
                 JSONObject npc=present.optJSONObject(i);
-                if(npc==null||npc.optBoolean("departed",false)||npc.optBoolean("left_scene",false)
-                        ||npc.optBoolean("anonymous",false))continue;
+                if(npc==null||npc.optBoolean("departed",false)||npc.optBoolean("left_scene",false))continue;
                 String name=npc.optString("name","").trim();
                 if(name.isEmpty())continue;
                 String normalizedName=fold(name);
                 if(!demonstrative && !q.contains(normalizedName))continue;
-                JSONObject visible=new JSONObject().put("id",npc.optString("id",name))
-                        .put("name",name).put("role",npc.optString("role",""))
-                        .put("visual_description",npc.optString("visual_description",""));
+                // Resolve *which visible person* without passing internal NPC IDs,
+                // classified roles or an unknown canonical name to the model.
+                // Presentation/knowledge is controlled by NpcPerceptionLedger.
+                String lighting=fold(scene.optString("lighting",scene.optString("light","")));
+                boolean dark=(contains(lighting,"escuridao","breu","darkness","no light")
+                        && !scene.optBoolean("perception_visibility_ok",false));
+                JSONObject visible=new JSONObject().put("scene_index",i)
+                    .put("target_visible",!dark)
+                    .put("visible_description",dark?"":npc.optString("visual_description",""));
                 matches.put(visible);
             }
             result.put("demonstrative",demonstrative).put("candidates",matches)
