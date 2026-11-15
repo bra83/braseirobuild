@@ -212,7 +212,7 @@ public final class GroundedSceneActionSlots {
         if(AGIR.equals(type)){
             if(!actor.isEmpty()){
                 if(!subject.isEmpty())return choice(type,"FALAR COM "+upper(actor)+" SOBRE "+upper(subject),
-                    "Pergunto "+preposition("a",actor)+" sobre "+subject+" mencionado nesta cena e espero a resposta antes de tomar outra decisão.");
+                    "Pergunto "+preposition("a",actor)+" sobre "+subject+" nesta conversa e aguardo a resposta antes de decidir.");
                 return choice(type,"FALAR COM "+upper(actor),
                     "Dirijo-me "+preposition("a",actor)+" e respondo à interação em curso com uma pergunta esclarecedora, sem presumir a resposta.");
             }
@@ -237,6 +237,8 @@ public final class GroundedSceneActionSlots {
     }
 
     private static String visibleActor(String narration){
+        String named=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
+        if(!named.isEmpty())return named;
         // Identify the speaker, if a speaker label exists in the actual narration.
         Matcher m=Pattern.compile("(?i)\\b(aluna(?: de [\\p{L}-]+)?|aluno(?: de [\\p{L}-]+)?|estudante(?: de [\\p{L}-]+)?|veterana|veterano|professora?|bibliotec[aá]ria?|auxiliar|assistente|funcion[aá]ria?|taverneira?|mercador|guarda)\\s*:").matcher(narration);
         String speaker="";
