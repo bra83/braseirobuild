@@ -1,0 +1,83 @@
+name: DnD 6.6.60 fix stuck context and full regression
+on:
+  push:
+    branches: [fix/dnd-6658-real-scene-four-actions-20261115]
+    paths:
+      - .github/workflows/dnd-6660-fix-stuck-context.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch-test-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+          persist-credentials: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android API 35
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Apply fail-safe timeout and bump 6.6.60
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          python3 tools/qa_patch_stuck_context_watchdog.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('version.properties');s=p.read_text()
+          assert 'VERSION_CODE=203900622' in s
+          s=s.replace('VERSION_CODE=203900622','VERSION_CODE=203900623')
+          s=s.replace('VERSION_NAME=6.6.59-live-scene-actions-recovery-QA','VERSION_NAME=6.6.60-context-timeout-recovery-QA')
+          p.write_text(s)
+          PY
+      - name: Run all unit and Robolectric tests
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          d={k:0 for k in ('tests','failures','errors','skipped')}
+          fs=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          for f in fs:
+            root=ET.parse(f).getroot()
+            for k in d:d[k]+=int(root.get(k,0))
+          print('ALL_TESTS',d,'SUITES',len(fs))
+          assert d['tests']>=3180 and d['failures']==d['errors']==d['skipped']==0
+          PY
+      - name: Build and validate APK
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile,hashlib
+          p=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(p) as z:
+            assert z.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+          print('APK_BYTES',p.stat().st_size,'SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Commit verified source to same QA branch
+        run: |
+          git config user.name 'Braseiro QA bot'
+          git config user.email 'qa-bot@users.noreply.github.com'
+          git add dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java dnd-normal/run247-mod005/version.properties
+          git commit -m "fix(dnd): watchdog context and prompt assembly; unblock stalled action safely [6.6.60]"
+          git push origin HEAD:fix/dnd-6658-real-scene-four-actions-20261115
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: braseiro-dnd-6660-stuck-context-fixed-QA
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14
