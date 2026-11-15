@@ -17,6 +17,18 @@ public final class NpcPerceptionLedger {
         return (observer==null?"party":observer.trim())+"|"+stable.toLowerCase(Locale.ROOT);
     }
 
+    /** Opaque public identifier: IDs like npc-urzmaktok must never leak a
+     * character's unknown canonical name in the model-facing prompt.
+     */
+    private static String publicRef(String internalKey){
+        try{
+            byte[] digest=java.security.MessageDigest.getInstance("SHA-256")
+                .digest(internalKey.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder out=new StringBuilder("npc_");
+            for(int i=0;i<12;i++)out.append(String.format(java.util.Locale.ROOT,"%02x",digest[i]&0xff));
+            return out.toString();
+        }catch(Exception error){return "npc_opaque";}
+    }
     public static JSONArray publicOnstage(AppDb db,JSONObject scene,String acceptedNarration,String observer){
         JSONArray visible=new JSONArray(),raw=FictionTurnIntent.present(scene);
         for(int i=0;i<raw.length();i++)try{
