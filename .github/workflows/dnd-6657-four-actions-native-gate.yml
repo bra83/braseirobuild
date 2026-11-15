@@ -32,19 +32,21 @@ jobs:
           finish=text.index("    private void addOptionButton(",start)
           head,tail=text[:start],text[finish:]
           text=text[start:finish]
-          old='''            LinearLayout item=new LinearLayout(this);
-            item.setOrientation(LinearLayout.VERTICAL);
-            item.setPadding(dp(12),dp(9),dp(12),dp(9));'''
-          new='''            LinearLayout item=new LinearLayout(this);
-            item.setOrientation(LinearLayout.HORIZONTAL);
-            item.setGravity(Gravity.TOP);
-            item.setPadding(dp(12),dp(9),dp(12),dp(9));'''
-          assert text.count(old)==1,"Could not locate exact popup row; refusing an ambiguous patch"
+          old='item.setOrientation(LinearLayout.VERTICAL);'
+          new='item.setOrientation(LinearLayout.HORIZONTAL); item.setGravity(Gravity.TOP);'
+          print("POPUP_ORIENTATION_MARKER_COUNT",text.count(old))
+          assert text.count(old)==1,"Could not isolate popup row orientation; refusing an ambiguous patch"
           text=text.replace(old,new,1)
-          old='''            item.addView(text(title,12,GOLD,true));
-            item.addView(text(detail,11,Color.rgb(236,225,198),false));'''
-          new='''            // Native vector icons, semantically selected from the SAME option
-            // whose action ticket handleOption validates and dispatches.
+          old='item.addView(text(title,12,GOLD,true));'
+          print("TITLE_ROW_MARKER_COUNT",text.count(old))
+          assert text.count(old)==1,"Could not locate contextual title row"
+          text=text.replace(old,"__BR_ACTION_TITLEROW__",1)
+          old='item.addView(text(detail,11,Color.rgb(236,225,198),false));'
+          print("DETAIL_ROW_MARKER_COUNT",text.count(old))
+          assert text.count(old)==1,"Could not locate contextual detail row"
+          text=text.replace(old,"__BR_ACTION_DETAILROW__",1)
+
+          new='''            // Native vector icons are bound to the SAME option used for dispatch.
             String kind=option.optString("action_type",option.optString("type",""))
                     .trim().toUpperCase(Locale.ROOT);
             int iconId=momentum?R.drawable.br_scene_clock:
@@ -63,8 +65,8 @@ jobs:
             actionText.addView(text(title,12,GOLD,true));
             actionText.addView(text(detail,13,Color.rgb(236,225,198),false));
             item.addView(actionText,new LinearLayout.LayoutParams(0,-2,1));'''
-          assert text.count(old)==1,"Could not locate action text row; refusing an ambiguous patch"
-          text=text.replace(old,new,1)
+          text=text.replace("__BR_ACTION_TITLEROW__\n            __BR_ACTION_DETAILROW__",new,1)
+          assert "Native vector icons are bound" in text and "__BR_ACTION_" not in text
           text=head+text+tail
           prompt="options deve propor ATÉ TRÊS decisões verdadeiramente distintas"
           assert text.count(prompt)==1,"Expected precisely one active AI options prompt"
