@@ -128,5 +128,47 @@ answer='''
         }catch(Exception ignored){}
 '''
 rep("validation-diagnostic",apply,apply+answer)
+
+# Never approve a playable scene with only one or two generic buttons.
+rep("scene-four-choice-fail-closed",
+    '            newOptions = nonAdvancing?previousOptions:(narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray());',
+    '            newOptions = nonAdvancing?previousOptions:(narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray());\n'
+    '            if(!SceneChoiceCommitGate.canCommit(narrativeResponse,nonAdvancing,\n'
+    '                    newPendingTest!=null&&newPendingTest.length()>0,newOptions.length())){\n'
+    '                final int offered=newOptions.length();\n'
+    '                ui.post(new Runnable(){public void run(){\n'
+    '                    if(requestGen!=aiRequestGeneration)return;\n'
+    '                    markMasterRequestFailed("Narrador",action,"PLAYER_ACTION",\n'
+    '                        SceneChoiceCommitGate.reason(offered),false);\n'
+    '                }});\n'
+    '                return;\n'
+    '            }')
+rep("four-choices-error-status",
+    '        final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");',
+    '        final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");\n'
+    '        final boolean choicesFailure=!apiFailure&&error!=null&&error.startsWith("ESCOLHAS:");')
+rep("four-choices-status-label",
+    '        setStatus(contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(',
+    '        setStatus(choicesFailure?"A cena não foi aceita: faltaram escolhas válidas. A ação continua pendente.":\n'
+    '            (contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(')
+# The status label now has one extra parenthesis to close the new branch.
+rep("four-choices-status-close",
+    '            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.")));',
+    '            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço."))));')
+rep("four-choices-dialog-title",
+    'new AlertDialog.Builder(this).setTitle(contextFailure?"A preparação do Mestre foi interrompida":(',
+    'new AlertDialog.Builder(this).setTitle(choicesFailure?"A cena não apresentou quatro ações úteis":(contextFailure?"A preparação do Mestre foi interrompida":(')
+# Title now needs one extra paren. The original had nested ternaries.
+rep("four-choices-dialog-title-end",
+    '"O Mestre não conseguiu preparar o teste"))',
+    '"O Mestre não conseguiu preparar o teste")))')
+rep("four-choices-dialog-detail",
+    '.setMessage((contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":',
+    '.setMessage((choicesFailure?"As opções não passaram pelo critério de quatro ações válidas. Nenhuma cena nova foi confirmada. ":\n'
+    '                    (contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":')
+rep("four-choices-dialog-detail-close",
+    '"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. ")))+',
+    '"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))))+')
+
 p.write_text(s,encoding="utf8")
 print("DONE: TTS follows accepted observation, local opted-in trace redacts secrets")
