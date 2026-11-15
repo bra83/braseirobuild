@@ -80,7 +80,7 @@ public final class SceneOpenWorldActionPlanner {
             "Pergunto "+dative(actor)+" como funciona a situação envolvendo "+first+
             " e aguardo a resposta antes de decidir."));
         out.add(option("EXPLORAR","VERIFICAR O ACESSO A "+upper(second),
-            "Aproximo-me "+genitive(second)+" para verificar como alcançá-lo, "+
+            "Aproximo-me "+genitive(second)+" para verificar as condições de acesso, "+
             "sem assumir que a passagem está livre ou que a tentativa teve sucesso."));
         return out;
     }
