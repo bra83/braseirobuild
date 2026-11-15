@@ -1,0 +1,164 @@
+name: DnD 6.6.58 four real scene actions + icons gated QA
+on:
+  push:
+    branches:
+      - fix/dnd-6657-four-contextual-icon-actions-20261115
+    paths:
+      - .github/workflows/dnd-6657-four-actions-native-gate.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout actual 6.6.57 base with all DnD source and assets
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Wire icons and semantic contract into the production Android UI, not a mockup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("dnd-normal/run247-mod005")
+          path=root/"app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
+          text=path.read_text(encoding="utf8")
+          old='''            LinearLayout item=new LinearLayout(this);
+            item.setOrientation(LinearLayout.VERTICAL);
+            item.setPadding(dp(12),dp(9),dp(12),dp(9));'''
+          new='''            LinearLayout item=new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setGravity(Gravity.TOP);
+            item.setPadding(dp(12),dp(9),dp(12),dp(9));'''
+          assert text.count(old)==1,"Could not locate exact popup row; refusing an ambiguous patch"
+          text=text.replace(old,new,1)
+          old='''            item.addView(text(title,12,GOLD,true));
+            item.addView(text(detail,11,Color.rgb(236,225,198),false));'''
+          new='''            // Native vector icons, semantically selected from the SAME option
+            // whose action ticket handleOption validates and dispatches.
+            String kind=option.optString("action_type",option.optString("type",""))
+                    .trim().toUpperCase(Locale.ROOT);
+            int iconId=momentum?R.drawable.br_scene_clock:
+                    "OBSERVAR".equals(kind)?R.drawable.br_scene_eye:
+                    ("AGIR".equals(kind)||"CONVERSAR".equals(kind))?R.drawable.br_scene_talk:
+                    R.drawable.br_scene_people;
+            android.widget.ImageView categoryIcon=new android.widget.ImageView(this);
+            categoryIcon.setImageResource(iconId);
+            categoryIcon.setColorFilter(GOLD);
+            categoryIcon.setContentDescription(null);
+            LinearLayout.LayoutParams iconLp=new LinearLayout.LayoutParams(dp(25),dp(25));
+            iconLp.setMargins(0,dp(3),dp(10),0);
+            item.addView(categoryIcon,iconLp);
+            LinearLayout actionText=new LinearLayout(this);
+            actionText.setOrientation(LinearLayout.VERTICAL);
+            actionText.addView(text(title,12,GOLD,true));
+            actionText.addView(text(detail,13,Color.rgb(236,225,198),false));
+            item.addView(actionText,new LinearLayout.LayoutParams(0,-2,1));'''
+          assert text.count(old)==1,"Could not locate action text row; refusing an ambiguous patch"
+          text=text.replace(old,new,1)
+          prompt="options deve propor ATÉ TRÊS decisões verdadeiramente distintas"
+          assert text.count(prompt)==1,"Expected precisely one active AI options prompt"
+          text=text.replace(prompt,
+              "options deve propor TRÊS decisões independentes, específicas da cena e jogáveis, "
+              "com verbos concretos, alvos realmente presentes e ação completa para cada escolha; "
+              "priorize OBSERVAR, AGIR ou CONVERSAR e EXPLORAR, INVESTIGAR ou DESPISTAR conforme os fatos; "
+              "não invente NPCs, objetos, pistas ou sucesso para preencher a lista. "
+              "Uma quarta opção de avançar a narrativa é oferecida pelo VTT, não pelo Gemini; "
+              "proponha TRÊS decisões verdadeiramente distintas",
+              1)
+          path.write_text(text,encoding="utf8")
+          version=root/"version.properties"
+          props=version.read_text(encoding="utf8")
+          assert "VERSION_CODE=203900620" in props and "VERSION_NAME=6.6.57-" in props
+          props=props.replace("VERSION_CODE=203900620","VERSION_CODE=203900621",1)
+          props=props.replace("VERSION_NAME=6.6.57-post-strixhaven-integration-QA",
+                              "VERSION_NAME=6.6.58-four-contextual-icon-actions-QA",1)
+          assert "DB_SCHEMA=61" in props and "BACKUP_FORMAT=21" in props
+          version.write_text(props,encoding="utf8")
+          for icon in ["eye","talk","people","clock"]:
+              f=root/f"app/src/main/res/drawable-nodpi/br_scene_{icon}.xml"
+              assert f.is_file() and "<vector" in f.read_text()
+          assert "SceneOpenWorldActionPlanner.candidates(visible)" in (root/"app/src/main/java/com/braseiro/dnd5e/GroundedSceneActionSlots.java").read_text()
+          print("NATIVE_ANDROID_ROW_AND_4_ACTION_PROMPT_PATCH=PASS")
+          PY
+      - name: Configure Java 17 and Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Ensure Android 35 SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Reproduce gate scene with 4 actionable suggestions
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.OpenWorldFourIconActionsRegressionTest' --no-daemon --console=plain --stacktrace
+      - name: Full genuine DnD regression with all assets
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as E
+          files=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          c={k:0 for k in ("tests","failures","errors","skipped")}
+          for f in files:
+              t=E.parse(f).getroot()
+              for k in c:c[k]+=int(t.get(k,0))
+          required=['OpenWorldFourIconActionsRegressionTest','FourSceneActionsDropdownRegressionTest',
+                    'GroundedSceneActionSlots6654Test','AppDbBackupRobolectricTest',
+                    'PostStrixhavenLongCampaignRobolectricTest']
+          for x in required:assert any(z.endswith(x+'.xml') for z in files), x
+          print('FOUR_ICON_NATIVE_ALL_TESTS=',c,'SUITES=',len(files))
+          assert c['tests']>=3175 and all(c[k]==0 for k in ('failures','errors','skipped'))
+          PY
+      - name: Build APK with full original Faerun Atlas
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          import zipfile,os,hashlib
+          apk='app/build/outputs/apk/debug/app-debug.apk'
+          with zipfile.ZipFile(apk) as z:
+              atlas='assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip'
+              assert z.getinfo(atlas).file_size==102373336
+              print("VECTOR_ICONS_PACKAGED=",len([a for a in z.namelist() if 'br_scene_' in a]))
+          print("NATIVE_6658_APK_BYTES=",os.path.getsize(apk))
+          print("NATIVE_6658_APK_SHA256=",hashlib.sha256(open(apk,'rb').read()).hexdigest())
+          PY
+      - name: Upload real QA APK and XML evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6658-four-contextual-icons-native-qa
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14
+      - name: Publish source changes on isolated branch ONLY IF all gates pass
+        if: success()
+        run: |
+          set -euo pipefail
+          git config user.name "braseiro-qa[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java dnd-normal/run247-mod005/version.properties
+          git commit -m "fix(dnd): render four scene choices with vector icons and insist on contextual Gemini options"
+          git push origin HEAD:refs/heads/fix/dnd-6657-four-contextual-icon-actions-20261115
+          echo "NATIVE_ICON_UI_BRANCH_PUSH=PASS RELEASE_AUTHORIZED=FALSE"
