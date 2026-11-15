@@ -28,7 +28,9 @@ O primeiro contato pós-Strixhaven permanece **Yartar, DM28**, somente depois de
 
 **Ancorações canônicas previstas (8):** Yartar, Triboar, Westbridge, Red Larch, Beliard, Womford, Waterdeep e Neverwinter. **Só Yartar/DM28 tem o hex explicitamente informado/confirmado nesta entrega**; nenhuma outra coordenada foi criada. O motor confere o nome exato e o hex corrente do banco do Atlas antes de oferecer um gancho. Localizações secundárias criadas para esta temporada são invenções originais situadas *dentro* dessas áreas, nunca substituições dos catálogos oficiais.
 
-**Conteúdo do pacote:** 5 facções originais, 6 arcos abertos, 10 aventuras opcionais com consequências previstas para a inação, 12 encontros de viagem/cotidiano, 10 locais preparados e 4 modelos de relógio não instanciados. Gerador de 6 categorias × 6 subcategorias × 6 resultados = **216 entradas básicas**, combináveis por **12 lançamentos de D6**; saída é só uma premissa, não evento factual.
+**Conteúdo do pacote:** 5 facções originais, 6 arcos abertos, 10 aventuras opcionais com consequências previstas para a inação, 12 encontros de viagem/cotidiano, 10 locais preparados e 4 modelos de relógio não instanciados.
+
+**Aventura importável já escrita:** `app/src/main/assets/faerun_seasons/adventures/as_mulas_voltaram_v1.json`, usando o contrato `braseiro.adventure/v1` que já existe no aplicativo: 5 locais, 4 NPCs originais, 5 objetivos, 6 encontros, 6 pistas e 4 segredos privados. Ainda requer importação explícita e validação integrada; não é iniciada automaticamente. Gerador de 6 categorias × 6 subcategorias × 6 resultados = **216 entradas básicas**, combináveis por **12 lançamentos de D6**; saída é só uma premissa, não evento factual.
 
 ### 3. Divisão editorial em três volumes
 
@@ -36,9 +38,9 @@ O primeiro contato pós-Strixhaven permanece **Yartar, DM28**, somente depois de
 | --- | --- | --- |
 | I — O Norte em movimento | Panorama regional, ganchos, seis conflitos, gerador | Dados iniciais presentes no JSON; material de leitura diagramado ainda não criado |
 | II — Gente e Caminhos | Facções, encontros, dez locais e suas pistas | Dados iniciais presentes; mapas táticos/ilustrações autorais ainda não criados |
-| III — Convergências | Aventuras, relógios, consequências e conexões | Dez premissas, quatro relógios-modelo e possibilidades de inação; aventuras totalmente roteirizadas e testes de balanceamento ainda pendentes |
+| III — Convergências | Aventuras, relógios, consequências e conexões | Dez premissas, uma aventura completa em JSON, quatro relógios-modelo e possibilidades de inação; outras nove aventuras completas e testes de balanceamento ainda pendentes |
 
-Isso é uma **base jogável de ganchos** e um **contrato técnico**, não uma temporada editorial completa ou uma campanha 100% homologada.
+Isso é uma **base programada de ganchos**, uma aventura estruturada importável e um **contrato técnico**, não uma temporada editorial completa ou uma campanha 100% homologada.
 
 ### 4. Integração real nesta branch
 
