@@ -18,11 +18,11 @@ public final class SceneDialogueDecisionPlanner {
     public static String namedInterlocutor(String narration) {
         if (narration == null || narration.isEmpty()) return "";
         Matcher byLabel=Pattern.compile(
-            "(?m)(?:^|\\n)\\s*([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s*:\\s*[—-]"
+            "(?m)^[ \\t]*([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}(?:[ \\t]+[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}){0,3})[ \\t]*:[ \\t]*[—-]"
         ).matcher(narration);
         while(byLabel.find())if(validName(byLabel.group(1)))return byLabel.group(1);
         Matcher byAttribution=Pattern.compile(
-            "\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\b"
+            "\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}(?:\\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}){0,2})\\b"
         ).matcher(narration);
         String name="";
         while(byAttribution.find()) if (validName(byAttribution.group(1))) name=byAttribution.group(1);
