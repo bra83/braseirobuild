@@ -34,6 +34,12 @@ public class SceneScreenshotFourActionsRegressionTest {
         for(int i=1;i<actual.length();i++){
             JSONObject o=actual.getJSONObject(i);
             String action=o.getString("action");
+            String label=o.getString("label");
+            assertFalse("Duplicate action type prefix: "+label,label.contains("EXPLORAR • EXPLORAR"));
+            assertFalse("Malformed Portuguese: "+label,label.contains("A O SAGUÃO"));
+            if("EXPLORAR".equals(o.optString("action_type")))
+                assertTrue("Must follow the visible saguão route: "+label,
+                    label.contains("AO SAGUÃO"));
             assertTrue("Visible evidence: "+o,SceneOptionVisibleEvidence.supported(o,LIVE_SCENE));
             assertTrue("Ticket/real click: "+o,SceneActionEvidence.ticketMatches(o,LIVE_SCENE));
             assertTrue("No duplicate category: "+o,types.add(o.optString("action_type")));
