@@ -4,6 +4,7 @@ on:
     branches:
       - fix/dnd-6661-immersao-continuidade-handoff-20261115
     paths:
+      - .github/workflows/dnd-6661-upgrade-from-6660.yml
       - dnd-normal/run247-mod005/version.properties
       - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
   workflow_dispatch:
