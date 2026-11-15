@@ -18,11 +18,11 @@ public final class SceneDialogueDecisionPlanner {
     public static String namedInterlocutor(String narration) {
         if (narration == null || narration.isEmpty()) return "";
         Matcher byLabel=Pattern.compile(
-            "(?m)(?:^|\\n)\\s*([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s*:\\s*[—-]"
+            "(?m)^[ \\t]*([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}(?:[ \\t]+[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}){0,3})[ \\t]*:[ \\t]*[—-]"
         ).matcher(narration);
         while(byLabel.find())if(validName(byLabel.group(1)))return byLabel.group(1);
         Matcher byAttribution=Pattern.compile(
-            "\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\b"
+            "\\b(?:diz|pergunta|comenta|avisa|explica|responde|murmura|retruca|conta)\\s+([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}(?:\\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}){0,2})\\b"
         ).matcher(narration);
         String name="";
         while(byAttribution.find()) if (validName(byAttribution.group(1))) name=byAttribution.group(1);
@@ -61,8 +61,18 @@ public final class SceneDialogueDecisionPlanner {
         if(who.isEmpty() || subject.isEmpty())return null;
         String n=fold(narration), label="", action="", type=slot;
         if(GroundedSceneActionSlots.OBSERVAR.equals(slot)) {
-            label="OBSERVAR AS REAÇÕES DE "+upper(who);
-            action="Presto atenção aos gestos e à expressão de "+who+" quando menciona "+subject+", sem pressupor o que está pensando.";
+            // Current narrated physical focus must not disappear behind a
+            // generic "watch the NPC's expression" option. No result inferred.
+            String focal=SceneOpenWorldActionPlanner.primaryVisibleFocus(narration);
+            if(!focal.isEmpty()){
+                label="OBSERVAR "+upper(focal)+" E "+upper(who);
+                action="Observo "+focal+" e os gestos de "+who+" enquanto fala sobre "+subject+
+                        ", procurando apenas sinais perceptíveis sem presumir sua intenção.";
+            }else{
+                label="OBSERVAR AS REAÇÕES DE "+upper(who);
+                action="Presto atenção aos gestos e à expressão de "+who+" quando menciona "+subject+
+                        ", sem pressupor o que está pensando.";
+            }
         } else if(GroundedSceneActionSlots.AGIR.equals(slot)) {
             label="PERGUNTAR A "+upper(who)+" SOBRE "+upper(subject);
             action="Pergunto a "+who+" o que sabe sobre "+subject+" e escuto sua resposta antes de decidir o próximo passo.";

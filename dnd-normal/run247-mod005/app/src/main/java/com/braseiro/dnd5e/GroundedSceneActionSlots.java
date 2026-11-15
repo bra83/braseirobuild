@@ -73,7 +73,8 @@ public final class GroundedSceneActionSlots {
         pool.addAll(SceneAffordancePlanner.candidates(visible));
         // Reusable open-world actor + two-visible-features fallback. Always
         // validate against the SAME scene evidence and repeat gates below.
-        pool.addAll(SceneOpenWorldActionPlanner.candidates(visible));
+        // Open-world proposals must NOT displace more specific actionable
+        // scene choices. They fill missing slots only after canonical ranking.
 
         for(String slot:slots){
             JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
@@ -92,6 +93,8 @@ public final class GroundedSceneActionSlots {
         // Relevance before category: favor the currently active objective and
         // different decision targets, not three verbs about incidental scenery.
         java.util.List<JSONObject> ordered=SceneActionRelevance.order(pool,visible,declaredAction,scene);
+        ordered.addAll(SceneActionRelevance.order(
+            SceneOpenWorldActionPlanner.candidates(visible),visible,declaredAction,scene));
         java.util.HashSet<String> usedTypes=new java.util.HashSet<>();
         // Keep the authored OBSERVAR / AGIR / contextual-third order when
         // the focal subject is important. Only repetitive, non-quest scenery
@@ -212,7 +215,7 @@ public final class GroundedSceneActionSlots {
         if(AGIR.equals(type)){
             if(!actor.isEmpty()){
                 if(!subject.isEmpty())return choice(type,"FALAR COM "+upper(actor)+" SOBRE "+upper(subject),
-                    "Pergunto "+preposition("a",actor)+" sobre "+subject+" mencionado nesta cena e espero a resposta antes de tomar outra decisão.");
+                    "Pergunto "+preposition("a",actor)+" sobre "+subject+" nesta conversa e aguardo a resposta antes de decidir.");
                 return choice(type,"FALAR COM "+upper(actor),
                     "Dirijo-me "+preposition("a",actor)+" e respondo à interação em curso com uma pergunta esclarecedora, sem presumir a resposta.");
             }
@@ -222,7 +225,10 @@ public final class GroundedSceneActionSlots {
         if(DESPISTAR.equals(type)){
             // Concealment is not a mandatory third category. Require an
             // observable motive such as an opponent, watchful witness or threat.
-            if(!hasAny(narration,"rivais","rival","veteranos","guarda","guardas",
+            // Reported dialogue about remote rivals is NOT proof that a
+            // witness is presently watching the hero. Only onstage narration.
+            String onstage=SceneOpenWorldActionPlanner.visibleNarratorStage(narration);
+            if(!hasAny(onstage,"rivais","rival","veteranos","guarda","guardas",
                     "sentinela","vigia","observando","suspeita","esconder",
                     "ocultar","espreita","perseguicao","inimigos"))return null;
             if(!actor.isEmpty()){
@@ -237,6 +243,8 @@ public final class GroundedSceneActionSlots {
     }
 
     private static String visibleActor(String narration){
+        String currentSpeaker=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
+        if(!currentSpeaker.isEmpty())return currentSpeaker;
         // Identify the speaker, if a speaker label exists in the actual narration.
         Matcher m=Pattern.compile("(?i)\\b(aluna(?: de [\\p{L}-]+)?|aluno(?: de [\\p{L}-]+)?|estudante(?: de [\\p{L}-]+)?|veterana|veterano|professora?|bibliotec[aá]ria?|auxiliar|assistente|funcion[aá]ria?|taverneira?|mercador|guarda)\\s*:").matcher(narration);
         String speaker="";
@@ -349,7 +357,7 @@ public final class GroundedSceneActionSlots {
     }
     private static String stripArticle(String phrase){return fold(phrase).replaceFirst("^(o|a|os|as|um|uma)\\s+","");}
     private static String cleanTitle(String label,String type){
-        String v=label==null?"":label.trim().replaceFirst("(?i)^(OBSERVAR|AGIR|DESPISTAR)\\s*[•:—-]\\s*","");
+        String v=label==null?"":label.trim().replaceFirst("(?i)^(OBSERVAR|AGIR|DESPISTAR|EXPLORAR|INVESTIGAR|CONVERSAR)\\s*[•:—-]\\s*","");
         if(v.length()>70)v=v.substring(0,70).trim();
         return v.isEmpty()?"DECISÃO SOBRE A CENA":v;
     }
