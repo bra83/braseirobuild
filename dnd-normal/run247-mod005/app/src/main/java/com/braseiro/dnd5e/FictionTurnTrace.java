@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public final class FictionTurnTrace {
     public static final String PREF_ENABLED="fiction_turn_trace_opt_in";
     private static final long MAX_BYTES=512L*1024L;
+    private static final Object FILE_LOCK=new Object();
     private static final Pattern API_KEY=Pattern.compile("AIza[0-9A-Za-z_-]{15,}");
     private static final Pattern BEARER=Pattern.compile("(?i)Bearer\\s+[a-z0-9._~+/=-]{8,}");
     private static final Pattern JSON_SECRET=Pattern.compile(
@@ -30,12 +31,13 @@ public final class FictionTurnTrace {
     }
     public static void setEnabled(final Context context,final SharedPreferences preferences,boolean on){
         if(preferences==null)return;
-        preferences.edit().putBoolean(PREF_ENABLED,on).apply();
-        if(!on&&context!=null){
-            // Revoke opt-in and erase the local trace, not merely hide its UI.
-            try{File file=destination(context);if(file.exists()&&!file.delete())
-                AppLog.w("FictionTrace","Could not delete disabled private trace",null);}
-            catch(Exception ignored){}
+        synchronized(FILE_LOCK){
+            preferences.edit().putBoolean(PREF_ENABLED,on).apply();
+            if(!on&&context!=null){
+                try{File file=destination(context);if(file.exists()&&!file.delete())
+                    AppLog.w("FictionTrace","Could not delete disabled private trace",null);}
+                catch(Exception ignored){}
+            }
         }
     }
     public static String redact(String raw){
@@ -57,9 +59,15 @@ public final class FictionTurnTrace {
                 .put("phase",phase==null?"":phase);
             if(values!=null)event.put("data",values);
             String sanitized=redact(event.toString());
-            line=(sanitized.length()>12000?sanitized.substring(0,11980)+"[TRUNCATED]":sanitized)+"\n";
+            if(sanitized.length()>12000){
+                sanitized=new JSONObject().put("schema",1).put("local_only",true)
+                    .put("phase",phase==null?"":phase).put("oversize_event_dropped",true)
+                    .put("original_length",sanitized.length()).toString();
+            }
+            line=sanitized+"\n";
         }catch(Exception ignored){return;}
         AppExecutors.serial().execute(new Runnable(){public void run(){
+            synchronized(FILE_LOCK){
             if(!isEnabled(preferences))return; // opt-out wins over queued writes
             try{
                 File f=destination(app);
@@ -72,6 +80,7 @@ public final class FictionTurnTrace {
                     stream.write(line.getBytes(StandardCharsets.UTF_8));
                 }
             }catch(Exception e){AppLog.e("FictionTrace","Nonfatal local trace write error",e);}
+            }
         }});
     }
 }
