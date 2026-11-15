@@ -27,7 +27,7 @@ rep("narrator-android","speakNativeNarrationWithSfx(stripMarkdown(lastNarration)
 rep("avoid-last-scene-SFX",
     'if(engine!=null)engine.prepareSceneAsync(clean,environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt),db.getSceneState(),null);',
     'if(engine!=null)engine.prepareSceneAsync(clean,\n'
-    '    FictionTurnAudio.observation(text,currentFictionAnswer())?new JSONObject():\n'
+    '    FictionTurnAudio.observation(clean,currentFictionAnswer())?new JSONObject():\n'
     '        (environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt)),\n'
     '    db.getSceneState(),null);',2)
 
@@ -91,7 +91,7 @@ plan='''
                 .put("request_id",aiPipelineGeneration)
                 .put("plan_ready",preparedPlan==null?"no_plan":preparedPlan.contextReady)
                 .put("scene_fingerprint",SceneActionEvidence.hash(lastNarration))
-                .put("context_length",preparedPlan==null?0:preparedPlan.context.length())
+                .put("context_length",preparedPlan==null?0:preparedPlan.compactContext.length())
                 .put("context_error",preparedPlan==null?"":preparedPlan.contextError)
                 .put("context_hash",preparedPlan==null?"":preparedPlan.stateHash)
                 .put("narrative_intent",preparedPlan==null?"":preparedPlan.narrativeIntent)
