@@ -28,6 +28,10 @@ jobs:
           root=Path("dnd-normal/run247-mod005")
           path=root/"app/src/main/java/com/braseiro/dnd5e/MainActivity.java"
           text=path.read_text(encoding="utf8")
+          start=text.index("    private void showSceneActionDropdown(")
+          finish=text.index("    private void addOptionButton(",start)
+          head,tail=text[:start],text[finish:]
+          text=text[start:finish]
           old='''            LinearLayout item=new LinearLayout(this);
             item.setOrientation(LinearLayout.VERTICAL);
             item.setPadding(dp(12),dp(9),dp(12),dp(9));'''
@@ -61,6 +65,7 @@ jobs:
             item.addView(actionText,new LinearLayout.LayoutParams(0,-2,1));'''
           assert text.count(old)==1,"Could not locate action text row; refusing an ambiguous patch"
           text=text.replace(old,new,1)
+          text=head+text+tail
           prompt="options deve propor ATÉ TRÊS decisões verdadeiramente distintas"
           assert text.count(prompt)==1,"Expected precisely one active AI options prompt"
           text=text.replace(prompt,
