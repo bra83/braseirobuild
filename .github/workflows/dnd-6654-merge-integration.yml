@@ -1,0 +1,125 @@
+name: DnD 6.6.54 safe post-Strixhaven integration attempt
+on:
+  push:
+    branches:
+      - fix/dnd-6654-pos-strixhaven-integration-20261114
+    paths:
+      - .github/workflows/dnd-6654-merge-integration.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  integrate-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integration branch with full history and sparse DnD tree
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+          persist-credentials: true
+      - name: Merge isolated post-Strixhaven changes WITHOUT losing the 6.6.54 branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/heads/fix/dnd-post-strixhaven-worldtime-20261114:refs/remotes/origin/post-strixhaven'
+          git config user.name "braseiro-qa[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # On conflicting HUNKS, preserve 6.6.54. Non-conflicting new features
+          # are applied by the normal three-way Git merge. Tests must prove parity.
+          git merge --no-edit --no-ff -X ours origin/post-strixhaven \
+            -m "integration(dnd): reconcile QA post-Strixhaven on 6.6.54 without overwriting existing fixes"
+          test -z "$(git diff --name-only --diff-filter=U)"
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('dnd-normal/run247-mod005/version.properties')
+          lines=path.read_text(encoding='utf8').splitlines()
+          options={}
+          for line in lines:
+              if '=' in line:
+                  k,v=line.split('=',1)
+                  options[k]=v
+          assert int(options['VERSION_CODE'])==203900617, options
+          assert options['DB_SCHEMA']=='61',options
+          assert options['BACKUP_FORMAT']=='21',options
+          lines=['VERSION_NAME=6.6.55-post-strixhaven-integration-QA' if x.startswith('VERSION_NAME=') else
+                 'VERSION_CODE=203900618' if x.startswith('VERSION_CODE=') else x for x in lines]
+          path.write_text('\n'.join(lines)+'\n',encoding='utf8')
+          print('BASE_6_6_54_VERSION_UPGRADE_GATE=PASS; RELEASE_AUTHORIZED=FALSE')
+          PY
+          test -f dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/PostStrixhavenActivitiesEngine.java
+          test -f dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/PostStrixhavenEncounterEngine.java
+          test -f dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/PostStrixhavenLongCampaignRobolectricTest.java
+          git diff --stat origin/fix/dnd-6654-four-grounded-actions-20261106 > integration-diff-summary.txt || true
+      - name: Configure Java 17 and Android SDK 35
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Make sure Android toolchain is installed
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Run full old+new suite with original map assets (never QA-lite)
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          files=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          counts={k:0 for k in ('tests','failures','errors','skipped')}
+          for path in files:
+              root=ET.parse(path).getroot()
+              for key in counts: counts[key]+=int(root.get(key,'0'))
+          required=['PostStrixhavenWorldLifecycleRobolectricTest','PostStrixhavenActivitiesRobolectricTest',
+                    'PostStrixhavenEncounterRobolectricTest','PostStrixhavenLongCampaignRobolectricTest',
+                    'CoreGameLaunchRobolectricTest']
+          for name in required:
+              assert any(path.endswith(name+'.xml') for path in files), name
+          print('6_6_54_INTEGRATED_FULL_TESTS=',counts,'SUITES=',len(files))
+          assert counts['tests']>0 and not any(counts[k] for k in ('failures','errors','skipped'))
+          PY
+      - name: Build complete Android APK
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          import zipfile,os,hashlib
+          path='app/build/outputs/apk/debug/app-debug.apk'
+          with zipfile.ZipFile(path) as z:
+              asset='assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip'
+              assert z.getinfo(asset).file_size==102373336
+          print('INTEGRATION_APK_BYTES=',os.path.getsize(path))
+          print('INTEGRATION_APK_SHA256=',hashlib.sha256(open(path,'rb').read()).hexdigest())
+          PY
+      - name: Upload 6.6.54 integrated debug APK and test XML
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6654-integrated-post-strixhaven-qa
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14
+      - name: Publish isolated integration branch only after all gates pass
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A -- dnd-normal/run247-mod005
+          git commit -m "qa(dnd): bump integrated 6.6.54 candidate to versionCode 203900618"
+          git push origin HEAD:refs/heads/fix/dnd-6654-pos-strixhaven-integration-20261114
+          echo 'INTEGRATION_BRANCH_PUSHED=TRUE; PRODUCTION_MERGE=FALSE; DEVICE_QA=PENDING'
