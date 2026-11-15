@@ -75,7 +75,7 @@ public final class FictionTurnIntent {
         if(scene==null)return Condition.UNKNOWN;
         String weather=fold(scene.optString("weather",""));
         if(weather.isEmpty()||weather.equals("desconhecido"))return Condition.UNKNOWN;
-        return contains(weather,"chuva","chov","tempestade","garoa","aguaceiro")?
+        return contains(weather,"chuva","chov","chuvisc","tempestade","garoa","aguaceiro")?
                 Condition.TRUE:Condition.FALSE;
     }
 
