@@ -216,12 +216,19 @@ jobs:
           repository: bra83/braseirobuild
           github-token: ${{ github.token }}
           path: qa-previous
+      - name: Ensure compatible build-tools 35 for local APK signature inspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
+            sdkmanager 'build-tools;35.0.0' 'platform-tools'
+          fi
       - name: Verify signatures, version codes and package IDs before upgrade
         shell: bash
         run: |
           set -euo pipefail
           for version in previous current; do
-            if [ "$version" = previous ]; then apk=qa-previous/app-debug.apk; else apk=qa-current/app-debug.apk; fi
+            if [ "$version" = previous ]; then apk=qa-previous/dnd-post-strixhaven-full-debug/app-debug.apk; else apk=qa-current/app-debug.apk; fi
             test -s "$apk"
             "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | grep 'Signer #1 certificate SHA-256 digest' | tee "qa-$version-cert.txt"
             "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep '^package:' | tee "qa-$version-package.txt"
@@ -251,7 +258,7 @@ jobs:
           emulator-boot-timeout: 900
           script: |
             set -euo pipefail
-            python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-previous/app-debug.apk --current qa-current/app-debug.apk --evidence qa-emulator-evidence
+            python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-previous/dnd-post-strixhaven-full-debug/app-debug.apk --current qa-current/app-debug.apk --evidence qa-emulator-evidence
       - name: Publish emulator evidence and signer fingerprints
         if: always()
         uses: actions/upload-artifact@v4
