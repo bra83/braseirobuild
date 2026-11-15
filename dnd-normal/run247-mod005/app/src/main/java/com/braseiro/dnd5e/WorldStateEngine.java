@@ -397,6 +397,9 @@ public final class WorldStateEngine {
                 boolean relevant=isRelevantFact(fact,normalized);String visibility=fact.optString("visibility");if("mestre".equals(visibility)){if(hidden.length()<8&&(relevant||hidden.length()<3))hidden.put(compactFact(fact));}else if(visible.length()<14&&(relevant||visible.length()<6))visible.put(compactFact(fact));
             }
             out.put("visible_knowledge",visible);out.put("director_only_hidden_facts",hidden);out.put("hidden_facts_rule","Use para planejar, nunca revele diretamente antes da condição de revelação.");
+            // Demand-driven Faerun season candidates; never state mutations or observed facts.
+            JSONObject faerunSeason = FaerunSeasonRuntime.context(db, focus);
+            if(faerunSeason.length()>0)out.put("faerun_season_director_only",faerunSeason);
         }catch(Exception ignored){AppLog.ignored("WorldStateEngine","Falha tolerada; a execução continuou.",ignored);}return fitJson(out,6200);
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
@@ -522,7 +525,7 @@ public final class WorldStateEngine {
     private static double round2(double value){return Math.round(value*100d)/100d;}
     private static JSONObject parseObject(String raw){try{return new JSONObject(raw);}catch(Exception e){return new JSONObject();}}
     private static JSONArray parseArray(String raw){try{return new JSONArray(raw);}catch(Exception e){return new JSONArray();}}
-    private static String fitJson(JSONObject source,int max){/*BR_JSON_WRAP*/try{String raw=source.toString();if(raw.length()<=max)return raw;try{JSONObject lean=new JSONObject();lean.put("quests",source.optJSONArray("quests"));lean.put("clocks",source.optJSONArray("clocks"));lean.put("visible_knowledge",source.optJSONArray("visible_knowledge"));lean.put("director_only_hidden_facts",source.optJSONArray("director_only_hidden_facts"));lean.put("hidden_facts_rule",source.optString("hidden_facts_rule"));lean.put("context_reduced",true);raw=lean.toString();if(raw.length()<=max)return raw;return new JSONObject().put("context_reduced",true).put("excerpt",raw.substring(0,Math.min(max-80,raw.length()))).toString();}catch(Exception e){return "{\"context_reduced\":true}";}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+    private static String fitJson(JSONObject source,int max){/*BR_JSON_WRAP*/try{String raw=source.toString();if(raw.length()<=max)return raw;try{JSONObject lean=new JSONObject();if(source.optJSONObject("faerun_season_director_only")!=null)lean.put("faerun_season_director_only",source.optJSONObject("faerun_season_director_only"));lean.put("quests",source.optJSONArray("quests"));lean.put("clocks",source.optJSONArray("clocks"));lean.put("visible_knowledge",source.optJSONArray("visible_knowledge"));lean.put("director_only_hidden_facts",source.optJSONArray("director_only_hidden_facts"));lean.put("hidden_facts_rule",source.optString("hidden_facts_rule"));lean.put("context_reduced",true);raw=lean.toString();if(raw.length()<=max)return raw;return new JSONObject().put("context_reduced",true).put("excerpt",raw.substring(0,Math.min(max-80,raw.length()))).toString();}catch(Exception e){return "{\"context_reduced\":true}";}}catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
     private static String clockText(double hour){
         int minutes=((int)Math.round(normalizeHour(hour)*60d))%1440;
         return String.format(Locale.ROOT,"%02d:%02d",minutes/60,minutes%60);
