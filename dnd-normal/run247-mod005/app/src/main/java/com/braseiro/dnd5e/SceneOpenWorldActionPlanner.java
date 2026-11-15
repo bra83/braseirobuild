@@ -50,7 +50,7 @@ public final class SceneOpenWorldActionPlanner {
         {"plantas","as plantas"},{"planta","a planta"},
         {"estacas","as estacas"},{"estaca","a estaca"},
         {"trilha","a trilha"},{"bifurcacao","a bifurcação"},
-        {"sagu ao","o saguão"},{"saguao","o saguão"},
+        {"saguao","o saguão"},
         {"caminho","o caminho"},{"entrada","a entrada"},
         {"barraca","a barraca"},{"tenda","a tenda"},
         {"balcoes","os balcões"},{"balcao","o balcão"},
