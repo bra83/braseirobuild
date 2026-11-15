@@ -31,6 +31,10 @@ public class AppDb extends SQLiteOpenHelper {
     private volatile boolean worldProfileDataBootstrapped=false;
     private volatile boolean mapWorldStateBootstrapped=false;
 
+    public boolean isStrixhavenAdventureActive(){
+        return StrixhavenAdventureProfile.isActive(appContext);
+    }
+
     public AppDb(Context context) { this(context,DB_NAME); }
     /** Construtor de sandbox usado pelo verificador de round-trip 5.0. */
     AppDb(Context context,String databaseName) {

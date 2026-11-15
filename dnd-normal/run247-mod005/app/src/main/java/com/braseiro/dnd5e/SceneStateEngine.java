@@ -25,48 +25,40 @@ public final class SceneStateEngine {
             JSONObject merged = new JSONObject(current.toString());
             if (incoming != null) {
                 copyNonEmpty(incoming, merged,
-                        "location", "hex_id", "time_of_day", "clock_hour", "weather", "lighting",
+                        "location", "hex_id", "weather", "lighting",
                         "danger", "objective", "present_npcs", "threats", "clues", "pending_consequences");
-                // O modelo às vezes devolve o exemplo do contrato (dia 1). O relógio da
-                // campanha nunca pode andar para trás por causa disso.
-                int currentDay = Math.max(1, current.optInt("day_number", 1));
-                int incomingDay = Math.max(1, incoming.optInt("day_number", currentDay));
-                merged.put("day_number", Math.max(currentDay, incomingDay));
+                // The model can propose prose, never set the day counter.
+                // Even increasing it to a later day would bypass world-tick consequences.
+                merged.put("day_number", Math.max(1,current.optInt("day_number",1)));
             }
             if (mapState != null && mapState.optString("current_hex_id").length() > 0)
                 merged.put("hex_id", mapState.optString("current_hex_id"));
             infer(merged, narration);
-            SceneTemporalResolver.Result temporal=SceneTemporalResolver.resolve(
-                    current.optString("time_of_day","Manhã"),current.optDouble("clock_hour",9d),current.has("clock_hour"),
-                    incoming==null?"":incoming.optString("time_of_day"),incoming==null?0d:incoming.optDouble("clock_hour",0d),incoming!=null&&incoming.has("clock_hour"),
-                    narration,merged.optString("lighting",""));
-            // Relógio de campanha: uma descrição de iluminação não redefine as
-            // 09:00; cada ação aprovada avança minutos mesmo quando o modelo
-            // repete o último horário no JSON. Consultas continuam congeladas.
-            double hour=temporal.hour;
-            int currentDay=Math.max(1,current.optInt("day_number",1));
-            int resolvedDay=Math.max(currentDay,merged.optInt("day_number",currentDay));
-            double oldHour=current.optDouble("clock_hour",9d);
-            if(!Double.isFinite(oldHour))oldHour=9d;
-            boolean oldHourKnown=current.has("clock_hour");
-            boolean dayAdvanced=resolvedDay>currentDay;
-            if(oldHourKnown&&!dayAdvanced&&hour+0.00001d<oldHour)hour=oldHour;
-            String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
-            boolean alreadyAdvancedOnAccept=envelope!=null&&envelope.optBoolean("_clock_advanced_on_accept",false);
-            double minutes=(alreadyAdvancedOnAccept||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))?0d:SceneActionClock.minutesFor(declared);
-            boolean modelMovedClock=dayAdvanced||(incoming!=null&&incoming.has("clock_hour")
-                    && incoming.optDouble("clock_hour",oldHour)>oldHour+0.00001d);
-            if(oldHourKnown&&!modelMovedClock&&!temporal.narrationWasAuthoritative&&minutes>0d){
-                double absolute=hour+minutes/60d;
-                int newDays=(int)Math.floor(absolute/24d);
-                if(newDays>0)resolvedDay+=newDays;
-                hour=absolute%24d;
-            }
-            merged.put("day_number",resolvedDay);
-            merged.put("clock_hour",hour);
-            merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
-            merged.put("lighting",SceneTemporalResolver.resolveLighting(
-                    SceneTemporalResolver.labelForHour(hour),narration,temporal.lighting));
+            // Only the deterministic world clock may advance a campaign's time.
+            // AI scene_state and narrated cues are not authorized temporal commits.
+            // Reconcile lighting against the persisted clock, without changing that clock.
+            // Local authoritative clock: Gemini's scene JSON and prose can
+  // never jump day/hour. Preserve 6.6.54 accepted-action minutes,
+  // unless the WorldStateEngine already committed their duration.
+  int resolvedDay=Math.max(1,current.optInt("day_number",1));
+  double hour=current.optDouble("clock_hour",9d);
+  if(!Double.isFinite(hour))hour=9d;
+  String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
+  boolean alreadyAdvancedOnAccept=envelope!=null
+          &&envelope.optBoolean("_clock_advanced_on_accept",false);
+  double minutes=(alreadyAdvancedOnAccept
+          ||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))
+          ?0d:SceneActionClock.minutesFor(declared);
+  if(minutes>0d){
+      double total=hour+minutes/60d;
+      resolvedDay+=(int)Math.floor(total/24d);
+      hour=total%24d;
+  }
+  merged.put("day_number",resolvedDay);
+  merged.put("clock_hour",hour);
+  merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
+  merged.put("lighting",SceneTemporalResolver.resolveLighting(
+          SceneTemporalResolver.labelForHour(hour),"",merged.optString("lighting","")));
             JSONArray npcs = envelope == null ? null : envelope.optJSONArray("npc_updates");
             mergeNpcUpdatesIntoPresence(merged,npcs);
             db.saveSceneStateChecked(merged);
