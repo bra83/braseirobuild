@@ -1,0 +1,107 @@
+name: DnD 6.6.56 to 6.6.57 Android in-place upgrade and save integrity
+on:
+  push:
+    branches:
+      - fix/dnd-6656-pos-strixhaven-integration-20261114
+    paths:
+      - .github/workflows/dnd-6656-device-upgrade-emulator.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integrated 6.6.57 candidate only
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK for build and signer check
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT/cmdline-tools"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Build full integrated 6.6.57 APK with all Faerun assets
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Download real 6.6.56 baseline APK from November 10
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 14092672437
+          run-id: 43543124588
+          repository: bra83/braseirobuild
+          github-token: ${{ github.token }}
+          path: qa-old-6656
+      - name: Compare real 6.6.56 and integrated candidate package, signer and version
+        shell: bash
+        run: |
+          set -euo pipefail
+          old='qa-old-6656/DND_6656_CONTEXT_ACTIONS_MISSIONS_PREVIEW_NOT_RELEASE/BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk'
+          new='dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$old"
+          test -s "$new"
+          for prefix in old new; do
+            apk="$old"
+            if [ "$prefix" = new ]; then apk="$new"; fi
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | grep 'Signer #1 certificate SHA-256 digest:' > "qa-$prefix-cert.txt"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep '^package:' > "qa-$prefix-package.txt"
+          done
+          diff -u qa-old-cert.txt qa-new-cert.txt
+          python3 - <<'PY'
+          import re
+          def extract(path):
+              line=open(path,encoding='utf8').read()
+              return (re.search("name='([^']+)'",line).group(1),
+                      int(re.search("versionCode='([^']+)'",line).group(1)))
+          old,new=extract('qa-old-package.txt'),extract('qa-new-package.txt')
+          assert old==('com.braseiro.dnd5e',203900619),old
+          assert new==('com.braseiro.dnd5e',203900620),new
+          print('REAL_6656_TO_6657_PACKAGE_SIGNER_VERSION_GATE=PASS')
+          print('PHYSICAL_GALAXY_A57_NOT_TESTED=TRUE')
+          PY
+          sha256sum "$old" "$new" > qa-apk-sha256.txt
+      - name: Enable hardware acceleration where supported
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo 'KVM_NOT_FOUND'; fi
+      - name: Android 35 actual upgrade without uninstall -- DB and private save canaries
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6656/DND_6656_CONTEXT_ACTIONS_MISSIONS_PREVIEW_NOT_RELEASE/BRASEIRO_DND_6656_CONTEXT_ACTIONS_MISSIONS.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6656-to-6657
+      - name: Publish Android emulator upgrade evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6656-to-integrated-6657-emulator-upgrade-evidence
+          path: |
+            qa-6656-to-6657/result.json
+            qa-old-cert.txt
+            qa-new-cert.txt
+            qa-old-package.txt
+            qa-new-package.txt
+            qa-apk-sha256.txt
+          retention-days: 14
+          if-no-files-found: warn
