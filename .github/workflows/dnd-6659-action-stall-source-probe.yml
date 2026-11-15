@@ -53,6 +53,6 @@ jobs:
           for k in range(len(lines)):
               line=lines[k]
               if any(term in line for term in ("void setStatus(", "private void sendAi(", "aiPipelineGeneration", "aiRequestGeneration", "onDestroy(", "MASTER_PREPAR", "Watchdog", "cancelAi")):
-                  if 'setStatus(' in line and not re.search(r"void setStatus\\(",line):continue
+                  if 'setStatus(' in line and 'void setStatus(' not in line:continue
                   print("METHOD_LINE",k+1,line[:500])
           PY
