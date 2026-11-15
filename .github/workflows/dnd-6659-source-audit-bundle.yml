@@ -1,0 +1,27 @@
+name: DnD 6.6.59 source snapshot for exact action stall audit
+on:
+  push:
+    branches: [fix/dnd-6659-action-status-stall-20261115]
+    paths: [.github/workflows/dnd-6659-source-audit-bundle.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6659-native-sources-for-local-audit
+          path: |
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppExecutors.java
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/GeminiService.java
+            dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/*RobolectricTest.java
+            dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/*UiRobolectricTest.java
+            dnd-normal/run247-mod005/version.properties
+          retention-days: 2
