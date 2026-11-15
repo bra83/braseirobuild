@@ -45,4 +45,14 @@ jobs:
           print("PIPELINE_MATCHES",len(p))
           for i in p[:110]:
               print("PIPE",i+1,lines[i].strip()[:250])
+          print("---- NATIVE STATUS / ACTION PIPELINE SOURCE RANGES ----")
+          for lo,hi in [(7295,7410),(7515,7605),(7625,7742),(7740,7804),(7800,7908),(7900,7970),(8060,8178),(9060,9100),(9400,9445)]:
+              print("RANGE",lo,hi)
+              for k in range(lo-1,min(hi,len(lines))):
+                  print("CODE_L%d "%(k+1)+lines[k][:510])
+          for k in range(len(lines)):
+              line=lines[k]
+              if re.search(r"void setStatus\\(|void sendAi\\(|aiPipelineGeneration\\s*\\+|aiRequestGeneration\\s*\\+|onDestroy\\(|postDelayed\\(|cancel.*Ai|prepar.*timeout|Watchdog",line,re.I):
+                  if 'setStatus(' in line and not re.search(r"void setStatus\\(",line):continue
+                  print("METHOD_LINE",k+1,line[:500])
           PY
