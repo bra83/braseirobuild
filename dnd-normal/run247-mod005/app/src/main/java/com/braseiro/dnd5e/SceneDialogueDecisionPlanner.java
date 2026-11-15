@@ -61,8 +61,18 @@ public final class SceneDialogueDecisionPlanner {
         if(who.isEmpty() || subject.isEmpty())return null;
         String n=fold(narration), label="", action="", type=slot;
         if(GroundedSceneActionSlots.OBSERVAR.equals(slot)) {
-            label="OBSERVAR AS REAÇÕES DE "+upper(who);
-            action="Presto atenção aos gestos e à expressão de "+who+" quando menciona "+subject+", sem pressupor o que está pensando.";
+            // Current narrated physical focus must not disappear behind a
+            // generic "watch the NPC's expression" option. No result inferred.
+            String focal=SceneOpenWorldActionPlanner.primaryVisibleFocus(narration);
+            if(!focal.isEmpty()){
+                label="OBSERVAR "+upper(focal)+" E "+upper(who);
+                action="Observo "+focal+" e os gestos de "+who+" enquanto fala sobre "+subject+
+                        ", procurando apenas sinais perceptíveis sem presumir sua intenção.";
+            }else{
+                label="OBSERVAR AS REAÇÕES DE "+upper(who);
+                action="Presto atenção aos gestos e à expressão de "+who+" quando menciona "+subject+
+                        ", sem pressupor o que está pensando.";
+            }
         } else if(GroundedSceneActionSlots.AGIR.equals(slot)) {
             label="PERGUNTAR A "+upper(who)+" SOBRE "+upper(subject);
             action="Pergunto a "+who+" o que sabe sobre "+subject+" e escuto sua resposta antes de decidir o próximo passo.";
