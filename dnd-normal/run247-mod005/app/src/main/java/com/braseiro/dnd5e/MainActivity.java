@@ -7583,15 +7583,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error).putBoolean(RETRY_PREFIX+"api_failure",apiFailure).commit();
         }
         final boolean chronologyFailure=!apiFailure&&error!=null&&error.startsWith("CONTINUIDADE:");
-        setStatus(apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
+        final boolean contextTimeout=!apiFailure&&error!=null&&error.startsWith("CONTEXTO:");
+        setStatus(contextTimeout?"PREPARAÇÃO DEMOROU DEMAIS. A ação está salva para tentar novamente.":
+            (apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
             (chronologyFailure?"CONTRADIÇÃO NA CONTINUIDADE. A cena foi preservada e a nova resposta não foi aplicada.":
-            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço."));
+            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.")));
         updateNarratorBusyUi();
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))
-                .setMessage((apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":(chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))+"Sua ação foi preservada para tentar novamente.\n\n"+
+            new AlertDialog.Builder(this).setTitle(contextTimeout?"Preparação do Mestre demorou demais":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste")))
+                .setMessage((contextTimeout?"O contexto não ficou pronto a tempo. Nenhuma ação foi aplicada. ":(apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":(chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. ")))+"Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
                 .setNeutralButton("MESTRE OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){runExplicitOfflineMaster();}})
@@ -7759,12 +7761,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(opening)adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.CONTEXT,"Montando game_bus e contexto operacional");
         boolean retrievalSkipped=retrieval!=null&&retrieval.bundle.optBoolean("retrieval_skipped",false);
         setStatus(retrievalSkipped?"Contexto local pronto; montando o estado da campanha sem nova busca de regras...":"Regras localizadas; montando o estado da campanha...");
+        // 6.6.60: the previous prepare() had no watchdog. On a stalled IO queue
+        // aiBusy remained true forever, blocking every further player action.
+        // This timeout NEVER pretends the action succeeded or invokes offline AI.
+        final java.util.concurrent.atomic.AtomicBoolean planCallbackArrived=new java.util.concurrent.atomic.AtomicBoolean(false);
+        ui.postDelayed(new Runnable(){public void run(){
+            if(planCallbackArrived.get()||!aiBusy||pipelineId!=aiPipelineGeneration)return;
+            ++aiPipelineGeneration; // reject any stale planning callback/turn.
+            AppLog.e("MainActivity","Master context prepare exceeded 20 seconds; preserving action",new IllegalStateException("MasterOrchestrator.prepare timeout"));
+            markMasterRequestFailed(mode,requestedText,inputChannel,
+                "CONTEXTO: A preparação do estado da campanha excedeu 20 segundos. Nenhuma chamada ao Gemini foi feita. A ação foi preservada para tentar novamente.",false);
+        }},20000L);
         AppExecutors.io().execute(new Runnable(){public void run(){
             MasterOrchestrator.Plan plan=null;Throwable failure=null;
             try{plan=masterOrchestrator.prepare(mode,requestedText,mapContext,audioDiagnosticSnapshot(),retrieval==null?new JSONObject():retrieval.bundle,inputChannel);}
             catch(Throwable error){failure=error;AppLog.e("MainActivity","Falha ao montar o contexto operacional depois da busca de regras.",error);}
             final MasterOrchestrator.Plan readyPlan=plan;final Throwable readyFailure=failure;
             ui.post(new Runnable(){public void run(){
+                planCallbackArrived.set(true);
                 if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
                 if(readyFailure!=null){aiBusy=false;activeMasterPlan=null;masterOrchestrator.setActivePlanForValidation(null);if(masterSideQueryActive)restoreAfterMasterSideQuery();if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());activeMasterPromotionTurnId="";}setStatus("A busca de regras terminou, mas o contexto da campanha não pôde ser montado: "+safeMessage(readyFailure));toast("Falha ao preparar o estado da campanha. Nenhuma chamada ao Gemini foi feita.");if("Mestre IA".equals(currentScreen))showNarrator();else if(isStrixhavenAdventure())showStrixhavenSession();return;}
                 continueSendAiAfterRuleSearch(mode,requestedText,mapContext,retrieval,readyPlan,inputChannel);
@@ -7789,6 +7803,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String effectiveUserText=activeMasterPlan==null?userText:activeMasterPlan.userPrompt;
         final String model=prefs.getString("text_model","gemini-3.5-flash-lite").trim();pendingAiModel=model;
         final long preparationPipeline=aiPipelineGeneration;
+        final long promptStartRequestGeneration=aiRequestGeneration;
+        // The prompt-assembly stage was also unbounded; never strand the UI
+        // if it is starved behind another IO job. Once a Gemini request starts
+        // aiRequestGeneration changes and this watchdog becomes inert.
+        ui.postDelayed(new Runnable(){public void run(){
+            if(!aiBusy||preparationPipeline!=aiPipelineGeneration
+                ||aiRequestGeneration!=promptStartRequestGeneration)return;
+            ++aiPipelineGeneration;
+            AppLog.e("MainActivity","Master prompt assembly exceeded 25 seconds; preserving action",new IllegalStateException("Prompt assembly timeout"));
+            markMasterRequestFailed(mode,userText,inputChannel,
+                "CONTEXTO: A montagem do prompt excedeu 25 segundos. O Gemini não recebeu esta ação. A ação foi preservada para nova tentativa.",false);
+        }},25000L);
         if(openingRequest)adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.NARRATIVE,"Montando prompt e escrevendo a primeira cena");
         updateAdventureStartupMessage(openingRequest?"Regras prontas. Montando o contexto da campanha em segundo plano…":"Regras prontas. Montando o contexto da cena em segundo plano…");
         updateNarratorBusyUi();
