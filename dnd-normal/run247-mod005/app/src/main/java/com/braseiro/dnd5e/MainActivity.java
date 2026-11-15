@@ -101,6 +101,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Callable;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -295,6 +296,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private long aiRuleSearchResolvedPipeline=-1L;
     private static final long RULE_SEARCH_WATCHDOG_MS=18000L;
     private static final long OPENING_RULE_SEARCH_WATCHDOG_MS=3500L;
+    // Pre-Gemini world/party/knowledge snapshot must never leave aiBusy locked.
+    private static final long MASTER_PREPARATION_WATCHDOG_MS=30000L;
+    private MasterPreparationCoordinator masterContextPreparation;
     private int pendingAiInputChars=0;
     private String pendingAiModel="";
     private boolean tokenSyncRunning=false;
@@ -512,7 +516,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     protected void onStop(){super.onStop();if(maintenance!=null&&!isChangingConfigurations())maintenance.onBackground();}
 
-    protected void onDestroy(){if(uiResponsivenessMonitor!=null)uiResponsivenessMonitor.stop();
+    protected void onDestroy(){
+        if(masterContextPreparation!=null)masterContextPreparation.cancel();
+        if(uiResponsivenessMonitor!=null)uiResponsivenessMonitor.stop();
         if(localTableServer!=null)localTableServer.stop();
         if(activeCharonRequest!=null){activeCharonRequest.cancel();activeCharonRequest=null;}
         if(maintenance!=null)maintenance.stop();
@@ -7557,8 +7563,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void clearFailedGeminiRequest(){
         if(prefs!=null)prefs.edit().remove(RETRY_PREFIX+"pending").remove(RETRY_PREFIX+"mode")
           .remove(RETRY_PREFIX+"action").remove(RETRY_PREFIX+"channel")
-          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").remove(RETRY_PREFIX+"api_failure").apply();
+          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").remove(RETRY_PREFIX+"api_failure").remove(RETRY_PREFIX+"context_failure").apply();
     }
+    private void markMasterPreparationFailed(final String mode,final String action,
+            final String channel,final String explanation){
+        // No Gemini request has started; the action may be retried from the same
+        // persisted scene, but NEVER silently finished by an offline engine.
+        activeMasterPlan=null;pendingAiInputChars=0;
+        if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);
+        markMasterRequestFailed(mode,action,channel,
+            "CONTEXTO DO MESTRE: "+(explanation==null?"preparação interrompida":explanation),false);
+    }
+
     private void markGeminiRequestFailed(final String mode,final String action,final String channel,final String error){
         markMasterRequestFailed(mode,action,channel,error,true);
     }
@@ -7567,6 +7583,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private void markMasterRequestFailed(final String mode,final String action,final String channel,final String error,final boolean apiFailure){
         aiBusy=false;streamingNarration="";
+        final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");
         if(masterSideQueryActive)restoreAfterMasterSideQuery();
         if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){
             updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());
@@ -7580,18 +7597,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putString(RETRY_PREFIX+"action",action==null?"":action)
                 .putString(RETRY_PREFIX+"channel",channel==null?"PLAYER_ACTION":channel)
                 .putString(RETRY_PREFIX+"scene",geminiRetryIdentity())
-                .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error).putBoolean(RETRY_PREFIX+"api_failure",apiFailure).commit();
+                .putString(RETRY_PREFIX+"error",error==null?"Falha desconhecida":error)
+                .putBoolean(RETRY_PREFIX+"api_failure",apiFailure)
+                .putBoolean(RETRY_PREFIX+"context_failure",contextFailure).commit();
         }
         final boolean chronologyFailure=!apiFailure&&error!=null&&error.startsWith("CONTINUIDADE:");
-        setStatus(apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
+        setStatus(contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(
+            apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
             (chronologyFailure?"CONTRADIÇÃO NA CONTINUIDADE. A cena foi preservada e a nova resposta não foi aplicada.":
-            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço."));
+            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.")));
         updateNarratorBusyUi();
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))
-                .setMessage((apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":(chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))+"Sua ação foi preservada para tentar novamente.\n\n"+
+            new AlertDialog.Builder(this).setTitle(contextFailure?"A preparação do Mestre foi interrompida":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste")))
+                .setMessage((contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":
+                    (apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":
+                    (chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. ")))+
+                    "Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
                 .setNeutralButton("MESTRE OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){runExplicitOfflineMaster();}})
@@ -7640,8 +7663,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout panel=card();
         panel.addView(text("MESTRE: GEMINI POR PADRÃO",12,GOLD,true));
         if(hasFailedGeminiRequest()){
-            panel.addView(text(prefs.getBoolean(RETRY_PREFIX+"api_failure",true)?"O Gemini falhou. A ação continua pendente e NÃO foi resolvida pelo Mestre offline.":"O Mestre gerou uma proposta inválida de teste. A ação continua pendente, sem rolagem e sem avançar a cena.",11,RED,false));
-            Button retry=button("TENTAR NOVAMENTE (GEMINI)",GREEN);
+            panel.addView(text(prefs.getBoolean(RETRY_PREFIX+"context_failure",false)?"Preparação do Mestre interrompida. A ação foi preservada sem avançar a cena.":(prefs.getBoolean(RETRY_PREFIX+"api_failure",true)?"O Gemini falhou. A ação continua pendente e NÃO foi resolvida pelo Mestre offline.":"O Mestre gerou uma proposta inválida de teste. A ação continua pendente, sem rolagem e sem avançar a cena."),11,RED,false));
+            Button retry=button(prefs.getBoolean(RETRY_PREFIX+"context_failure",false)?
+                "TENTAR NOVAMENTE":"TENTAR NOVAMENTE (GEMINI)",GREEN);
             retry.setEnabled(!aiBusy);
             retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
             panel.addView(retry);
@@ -7759,17 +7783,47 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(opening)adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.CONTEXT,"Montando game_bus e contexto operacional");
         boolean retrievalSkipped=retrieval!=null&&retrieval.bundle.optBoolean("retrieval_skipped",false);
         setStatus(retrievalSkipped?"Contexto local pronto; montando o estado da campanha sem nova busca de regras...":"Regras localizadas; montando o estado da campanha...");
-        AppExecutors.io().execute(new Runnable(){public void run(){
-            MasterOrchestrator.Plan plan=null;Throwable failure=null;
-            try{plan=masterOrchestrator.prepare(mode,requestedText,mapContext,audioDiagnosticSnapshot(),retrieval==null?new JSONObject():retrieval.bundle,inputChannel);}
-            catch(Throwable error){failure=error;AppLog.e("MainActivity","Falha ao montar o contexto operacional depois da busca de regras.",error);}
-            final MasterOrchestrator.Plan readyPlan=plan;final Throwable readyFailure=failure;
-            ui.post(new Runnable(){public void run(){
+        if(masterContextPreparation==null)
+            masterContextPreparation=new MasterPreparationCoordinator(
+                ui,AppExecutors.masterPreparation(),MASTER_PREPARATION_WATCHDOG_MS);
+        masterContextPreparation.prepare(new Callable<MasterOrchestrator.Plan>(){
+            @Override public MasterOrchestrator.Plan call(){
+                // The source scene, party, NPC and knowledge state are assembled
+                // off the UI thread, isolated from RAG/index/image I/O queues.
+                return masterOrchestrator.prepare(mode,requestedText,mapContext,
+                    audioDiagnosticSnapshot(),retrieval==null?new JSONObject():retrieval.bundle,inputChannel);
+            }
+        },new MasterPreparationCoordinator.Callbacks<MasterOrchestrator.Plan>(){
+            @Override public void onPrepared(MasterOrchestrator.Plan readyPlan){
                 if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
-                if(readyFailure!=null){aiBusy=false;activeMasterPlan=null;masterOrchestrator.setActivePlanForValidation(null);if(masterSideQueryActive)restoreAfterMasterSideQuery();if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());activeMasterPromotionTurnId="";}setStatus("A busca de regras terminou, mas o contexto da campanha não pôde ser montado: "+safeMessage(readyFailure));toast("Falha ao preparar o estado da campanha. Nenhuma chamada ao Gemini foi feita.");if("Mestre IA".equals(currentScreen))showNarrator();else if(isStrixhavenAdventure())showStrixhavenSession();return;}
-                continueSendAiAfterRuleSearch(mode,requestedText,mapContext,retrieval,readyPlan,inputChannel);
-            }});
-        }});
+                if(readyPlan==null){
+                    markMasterPreparationFailed(mode,requestedText,inputChannel,
+                        "O contexto retornou vazio; não houve chamada ao Gemini.");
+                    return;
+                }
+                try {
+                    continueSendAiAfterRuleSearch(mode,requestedText,mapContext,
+                        retrieval,readyPlan,inputChannel);
+                }catch(Throwable error){
+                    AppLog.e("MainActivity","Falha ao concluir contexto preparado do Mestre.",error);
+                    markMasterPreparationFailed(mode,requestedText,inputChannel,
+                        "Não foi possível continuar depois de montar o contexto: "+safeMessage(error));
+                }
+            }
+            @Override public void onFailure(Throwable error){
+                if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
+                AppLog.e("MainActivity","Falha ao montar contexto do Mestre fora da UI.",error);
+                markMasterPreparationFailed(mode,requestedText,inputChannel,
+                    "Falha de preparação, tarefa ocupada ou rejeitada: "+safeMessage(error));
+            }
+            @Override public void onTimeout(){
+                if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
+                ++aiPipelineGeneration; // invalidate every late callback from this turn
+                markMasterPreparationFailed(mode,requestedText,inputChannel,
+                    "A montagem do estado da campanha excedeu 30 segundos. "+
+                    "A tarefa anterior foi cancelada; nenhuma nova cena foi confirmada.");
+            }
+        });
     }
 
     /** Continua a chamada somente depois que a biblioteca local terminou. */
@@ -7784,7 +7838,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(openingRequest&&!openingGrounded){
             JSONObject hot=EssentialRulesCache.snapshot(activeWorldProfile());try{activeRuleRetrieval.put("status","opening_fiction_grounded").put("essential_rules_cache",hot).put("sufficient_for_mechanics",false).put("mechanics_blocked",true).put("opening_narrative",true);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha ao anexar cache essencial.",ignored);}
         }
-        if(activeMasterPlan!=null&&!activeMasterPlan.contextReady){if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(null);String reason=activeMasterPlan.contextError.length()==0?"O estado operacional não pôde ser montado com segurança.":activeMasterPlan.contextError;activeMasterPlan=null;aiBusy=false;if(masterSideQueryActive)restoreAfterMasterSideQuery();if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());activeMasterPromotionTurnId="";}toast("O Mestre foi bloqueado para não narrar com contexto incompleto.");setStatus(reason);updateNarratorBusyUi();if("Mestre IA".equals(currentScreen))showNarrator();else if(isStrixhavenAdventure())showStrixhavenSession();return;}
+        if(activeMasterPlan!=null&&!activeMasterPlan.contextReady){
+            String reason=activeMasterPlan.contextError.length()==0?
+                "O estado operacional não pôde ser montado com segurança.":
+                activeMasterPlan.contextError;
+            markMasterPreparationFailed(mode,userText,inputChannel,reason);
+            return;
+        }
         if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(activeMasterPlan);
         final String effectiveUserText=activeMasterPlan==null?userText:activeMasterPlan.userPrompt;
         final String model=prefs.getString("text_model","gemini-3.5-flash-lite").trim();pendingAiModel=model;
