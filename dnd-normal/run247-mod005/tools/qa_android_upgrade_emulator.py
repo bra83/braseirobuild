@@ -99,10 +99,12 @@ def insert_canary(dbfile):
 
 
 def restore_synthetic_db(dbfile):
-    adb("shell", "run-as", PKG, "sh", "-c",
-        "rm -f databases/" + DB + "-wal databases/" + DB + "-shm")
-    adb("shell", "-T", "run-as", PKG, "sh", "-c",
-        "cat > databases/" + DB, input_bytes=dbfile.read_bytes(), timeout=180)
+    # Android adb shell may split 'sh -c' arguments unexpectedly. Invoke
+    # commands directly through run-as with separate argv, preserving bytes.
+    adb("shell", "run-as", PKG, "rm", "-f",
+        "databases/" + DB + "-wal", "databases/" + DB + "-shm")
+    adb("shell", "-T", "run-as", PKG, "dd",
+        "of=databases/" + DB, input_bytes=dbfile.read_bytes(), timeout=180)
 
 
 def log_and_assert(path, payload):
@@ -130,8 +132,9 @@ def main():
     insert_canary(pre)
     before_with_canary = inspect(pre)
     restore_synthetic_db(pre)
-    adb("shell", "run-as", PKG, "sh", "-c",
-        "mkdir -p files && printf '" + FILE_TOKEN + "' > files/qa_upgrade_canary.txt")
+    adb("shell", "run-as", PKG, "mkdir", "-p", "files")
+    adb("shell", "-T", "run-as", PKG, "dd",
+        "of=files/qa_upgrade_canary.txt", input_bytes=FILE_TOKEN.encode("utf8"))
     # Upgrade in place: NO uninstall and NO -d downgrade flag.
     adb("install", "-r", str(new), timeout=240)
     app_start()
