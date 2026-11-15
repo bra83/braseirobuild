@@ -1,4 +1,5 @@
 name: DnD 6.6.61 immersive handoff full QA gate
+# QA cycle 2: distinguish chuvisco as precipitation in conditional actions.
 on:
   push:
     branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
