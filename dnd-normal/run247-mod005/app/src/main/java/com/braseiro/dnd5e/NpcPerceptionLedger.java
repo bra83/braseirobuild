@@ -41,16 +41,22 @@ public final class NpcPerceptionLedger {
             boolean introduced=record.length()>0
                 ||(acceptedNarration!=null && acceptedNarration.toLowerCase(Locale.ROOT)
                         .contains(name.toLowerCase(Locale.ROOT)));
+            String lighting=FictionTurnIntent.fold(scene.optString("lighting",
+                scene.optString("light","")));
+            boolean dark=(lighting.contains("escuridao")||lighting.contains("breu")
+                ||lighting.contains("darkness")||lighting.contains("no light"))
+                && !scene.optBoolean("perception_visibility_ok",false);
             JSONObject pub=new JSONObject()
-                .put("stable_ref",key(observer,npc))
+                .put("stable_ref",publicRef(key(observer,npc)))
                 .put("is_identified_by_observer",introduced)
                 .put("name_known_to_observer",introduced?name:"")
-                .put("role",npc.optString("role",""))
-                .put("visible_description",npc.optString("visual_description",record.optString("imprint","")))
-                .put("visible_clothing",npc.optString("clothing",""))
-                .put("visible_equipment",npc.optString("visible_equipment",""))
-                .put("visible_weapons",npc.optString("visible_weapons",""))
-                .put("visibility_of_weapons_established",npc.has("visible_weapons"))
+                .put("visible_role",dark?"":npc.optString("visible_role",""))
+                .put("visible_description",dark?"":npc.optString("visual_description",record.optString("imprint","")))
+                .put("visible_clothing",dark?"":npc.optString("clothing",""))
+                .put("visible_equipment",dark?"":npc.optString("visible_equipment",""))
+                .put("visible_weapons",dark?"":npc.optString("visible_weapons",""))
+                .put("visibility_of_weapons_established",!dark&&npc.has("visible_weapons"))
+                .put("perception_limited_by_darkness",dark)
                 .put("identified_source",record.length()>0?"previously_accepted":(introduced?"accepted_current_scene":"not_yet_presented"));
             visible.put(pub);
         }catch(Exception ignored){}
