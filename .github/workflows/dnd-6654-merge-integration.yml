@@ -77,28 +77,39 @@ jobs:
                   '                        ?db.getCombatState().optString("encounter_id",""):"";'
               code=code.replace(needle,needle+'\n                '+before,1)
               main.write_text(code,encoding='utf8')
-          # Preserve 6.6.54's accepted-action clock accounting, but the AI
-          # never has authority to override the canonical day or hour.
+          # Keep 6.6.54 NPC/scenery logic; only replace the unsafe temporal
+          # calculation. AI text, AI day/time JSON and narration cannot mutate
+          # the canonical clock, but an accepted local action still may.
           scene_path=root/'SceneStateEngine.java'
           scene=scene_path.read_text(encoding='utf8')
-          old='"location", "hex_id", "time_of_day", "clock_hour", "weather", "lighting",'
-          assert old in scene,'Expected scene time copy clause not found'
-          scene=scene.replace(old,'"location", "hex_id", "weather", "lighting",',1)
-          start=scene.index('                // O modelo às vezes devolve o exemplo do contrato (dia 1).')
-          end=scene.index('\n            }\n            if (mapState != null',start)
-          scene=scene[:start]+'''                // Authoritative day comes from the persisted world tick, never AI.
-                merged.put("day_number", Math.max(1,current.optInt("day_number",1)));'''+scene[end:]
-          old_time='incoming==null?"":incoming.optString("time_of_day"),incoming==null?0d:incoming.optDouble("clock_hour",0d),incoming!=null&&incoming.has("clock_hour"),'
-          assert old_time in scene,'AI scene time resolver changed'
-          scene=scene.replace(old_time,'"",0d,false,',1)
-          old_narration='narration,merged.optString("lighting",""));'
-          assert old_narration in scene,'Narrative clock resolver changed'
-          scene=scene.replace(old_narration,'"",merged.optString("lighting",""));',1)
-          moved='boolean modelMovedClock=dayAdvanced||(incoming!=null&&incoming.has("clock_hour")\n                    && incoming.optDouble("clock_hour",oldHour)>oldHour+0.00001d);'
-          assert moved in scene,'Expected modelMovedClock formula not found'
-          scene=scene.replace(moved,'boolean modelMovedClock=false;',1)
+          block_start=scene.index('            SceneTemporalResolver.Result temporal=')
+          block_end=scene.index('            JSONArray npcs = envelope',block_start)
+          replacement="""            // Local authoritative clock: Gemini's scene JSON and prose can
+            // never jump day/hour. Preserve 6.6.54 accepted-action minutes,
+            // unless the WorldStateEngine already committed their duration.
+            int resolvedDay=Math.max(1,current.optInt("day_number",1));
+            double hour=current.optDouble("clock_hour",9d);
+            if(!Double.isFinite(hour))hour=9d;
+            String declared=envelope==null?"":envelope.optString("_accepted_player_action","");
+            boolean alreadyAdvancedOnAccept=envelope!=null
+                    &&envelope.optBoolean("_clock_advanced_on_accept",false);
+            double minutes=(alreadyAdvancedOnAccept
+                    ||(envelope!=null&&envelope.optBoolean("_non_advancing",false)))
+                    ?0d:SceneActionClock.minutesFor(declared);
+            if(minutes>0d){
+                double total=hour+minutes/60d;
+                resolvedDay+=(int)Math.floor(total/24d);
+                hour=total%24d;
+            }
+            merged.put("day_number",resolvedDay);
+            merged.put("clock_hour",hour);
+            merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
+            merged.put("lighting",SceneTemporalResolver.resolveLighting(
+                    SceneTemporalResolver.labelForHour(hour),"",merged.optString("lighting","")));
+"""
+          scene=scene[:block_start]+replacement+scene[block_end:]
           scene_path.write_text(scene,encoding='utf8')
-          assert 'boolean modelMovedClock=false;' in scene
+          assert 'double minutes=(alreadyAdvancedOnAccept' in scene
           print('SIX_SIX_FIFTY_FOUR_SCENE_PERSISTED_TIME_AUTHORITY=PASS')
           assert 'boolean isStrixhavenAdventureActive()' in db
           assert 'final String hostCombatIdBefore=' in code
