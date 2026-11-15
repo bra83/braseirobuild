@@ -73,7 +73,8 @@ public final class GroundedSceneActionSlots {
         pool.addAll(SceneAffordancePlanner.candidates(visible));
         // Reusable open-world actor + two-visible-features fallback. Always
         // validate against the SAME scene evidence and repeat gates below.
-        pool.addAll(SceneOpenWorldActionPlanner.candidates(visible));
+        // Open-world proposals must NOT displace more specific actionable
+        // scene choices. They fill missing slots only after canonical ranking.
 
         for(String slot:slots){
             JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
@@ -92,6 +93,8 @@ public final class GroundedSceneActionSlots {
         // Relevance before category: favor the currently active objective and
         // different decision targets, not three verbs about incidental scenery.
         java.util.List<JSONObject> ordered=SceneActionRelevance.order(pool,visible,declaredAction,scene);
+        ordered.addAll(SceneActionRelevance.order(
+            SceneOpenWorldActionPlanner.candidates(visible),visible,declaredAction,scene));
         java.util.HashSet<String> usedTypes=new java.util.HashSet<>();
         // Keep the authored OBSERVAR / AGIR / contextual-third order when
         // the focal subject is important. Only repetitive, non-quest scenery
@@ -222,7 +225,10 @@ public final class GroundedSceneActionSlots {
         if(DESPISTAR.equals(type)){
             // Concealment is not a mandatory third category. Require an
             // observable motive such as an opponent, watchful witness or threat.
-            if(!hasAny(narration,"rivais","rival","veteranos","guarda","guardas",
+            // Reported dialogue about remote rivals is NOT proof that a
+            // witness is presently watching the hero. Only onstage narration.
+            String onstage=SceneOpenWorldActionPlanner.visibleNarratorStage(narration);
+            if(!hasAny(onstage,"rivais","rival","veteranos","guarda","guardas",
                     "sentinela","vigia","observando","suspeita","esconder",
                     "ocultar","espreita","perseguicao","inimigos"))return null;
             if(!actor.isEmpty()){
