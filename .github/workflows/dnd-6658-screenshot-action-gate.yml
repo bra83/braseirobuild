@@ -1,0 +1,88 @@
+name: DnD 6.6.59 screenshot-level four action QA
+on:
+  push:
+    branches: [fix/dnd-6658-real-scene-four-actions-20261115]
+    paths:
+      - .github/workflows/dnd-6658-screenshot-action-gate.yml
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneScreenshotFourActionsRegressionTest.java
+      - dnd-normal/run247-mod005/version.properties
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android API 35
+        shell: bash
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Test exact screenshot and absence of invented NPCs
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.SceneScreenshotFourActionsRegressionTest' --no-daemon --console=plain --stacktrace || {
+            python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          for path in glob.glob('app/build/test-results/testDebugUnitTest/TEST-*ScreenshotFour*.xml'):
+              root=ET.parse(path).getroot()
+              for case in root.findall('.//testcase'):
+                  err=case.find('failure')
+                  if err is not None:
+                      print('SCREENSHOT_TEST_FAILED:',case.get('name'),err.get('message'),(err.text or '')[:1800])
+          PY
+            exit 1
+          }
+      - name: Full original DnD regression and 6.6.59 build
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          fs=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          d={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in fs:
+            root=ET.parse(f).getroot()
+            for k in d:d[k]+=int(root.get(k,0))
+          print('ALL_TESTS',d,'SUITES',len(fs))
+          assert d['tests']>=3177
+          assert not (d['failures'] or d['errors'] or d['skipped'])
+          PY
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,zipfile
+          v=(Path('version.properties')).read_text()
+          assert 'VERSION_CODE=203900622' in v,v
+          assert 'DB_SCHEMA=61' in v and 'BACKUP_FORMAT=21' in v
+          p=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(p) as a:
+              assert a.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+              assert len([x for x in a.namelist() if 'br_scene_' in x])>=4
+          print('APK_BYTES',p.stat().st_size,'SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: dnd-6659-four-actions-urz-grojsh-regression-qa
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14
