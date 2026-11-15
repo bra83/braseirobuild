@@ -102,7 +102,7 @@ start=code.index("    private void deliverAiRuleSearch(")
 end=code.index("    /** Continua a chamada somente depois que a biblioteca local terminou. */",start)
 block=code[start:end]
 begin=block.index("        AppExecutors.io().execute(new Runnable(){public void run(){")
-stop=block.index("        }});",begin)+len("        }});")
+stop=block.index("\n        }});",begin)+len("\n        }});")
 previous=block[begin:stop]
 for required in ("masterOrchestrator.prepare(", "readyFailure", "continueSendAiAfterRuleSearch"):
     if required not in previous:raise AssertionError("Unexpected original master orchestration body missing "+required)
