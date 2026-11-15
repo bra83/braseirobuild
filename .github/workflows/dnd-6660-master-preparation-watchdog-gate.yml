@@ -1,4 +1,5 @@
 name: DnD 6.6.60 pre-Gemini master preparation watchdog full QA
+# Revision 2: exact outer async callback boundary in MainActivity patch.
 on:
   push:
     branches: [fix/dnd-6659-action-status-stall-20261115]
