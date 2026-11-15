@@ -8807,6 +8807,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 db.markSceneCommitCommittingChecked(commitId);
                 JSONArray stateUpdates=prepared.optJSONArray("state_updates");
                 JSONObject combatPlan=prepared.optJSONObject("combat");
+                final String hostCombatIdBefore=db.getCombatState().optInt("running",0)==1
+                        ?db.getCombatState().optString("encounter_id",""):"";
                 String stateSummary=applyStateUpdates(stateUpdates,commitId);
                 String combatSummary=applyCombatPlan(combatPlan,externalInitiatives);
                 String sceneSummary="";
