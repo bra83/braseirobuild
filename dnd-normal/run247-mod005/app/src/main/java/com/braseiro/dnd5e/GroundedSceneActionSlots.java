@@ -351,7 +351,7 @@ public final class GroundedSceneActionSlots {
     }
     private static String stripArticle(String phrase){return fold(phrase).replaceFirst("^(o|a|os|as|um|uma)\\s+","");}
     private static String cleanTitle(String label,String type){
-        String v=label==null?"":label.trim().replaceFirst("(?i)^(OBSERVAR|AGIR|DESPISTAR)\\s*[•:—-]\\s*","");
+        String v=label==null?"":label.trim().replaceFirst("(?i)^(OBSERVAR|AGIR|DESPISTAR|EXPLORAR|INVESTIGAR|CONVERSAR)\\s*[•:—-]\\s*","");
         if(v.length()>70)v=v.substring(0,70).trim();
         return v.isEmpty()?"DECISÃO SOBRE A CENA":v;
     }
