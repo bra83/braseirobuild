@@ -1,4 +1,5 @@
 name: DnD 6.6.62 TTS and private diagnostic complete handoff QA
+# Full acceptance cycle includes opaque NPC identities and strict four-option fail-closed.
 # CI correction: Plan.compactContext and safe lexical NPC observer identity.
 on:
   push:
@@ -48,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.FictionTurnAudioTraceRobolectricTest' --tests 'com.braseiro.dnd5e.FictionTurnIntentContractRobolectricTest' --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' --no-daemon --console=plain --stacktrace
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.FictionTurnAudioTraceRobolectricTest' --tests 'com.braseiro.dnd5e.FictionTurnIntentContractRobolectricTest' --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' --tests 'com.braseiro.dnd5e.SceneChoiceCommitGateTest' --no-daemon --console=plain --stacktrace
           python3 - <<'PY'
           import xml.etree.ElementTree as ET,glob
           cases=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*FictionTurnAudioTrace*.xml')
@@ -69,7 +70,7 @@ jobs:
             r=ET.parse(f).getroot()
             for k in n:n[k]+=int(r.get(k,0))
           print('HANDOFF_FULL_6662',n,'SUITES',len(fs))
-          assert n['tests']>=3208 and all(n[k]==0 for k in ('failures','errors','skipped'))
+          assert n['tests']>=3211 and all(n[k]==0 for k in ('failures','errors','skipped'))
           PY
       - name: Compile real Android APK and validate Faerun atlas
         working-directory: dnd-normal/run247-mod005
