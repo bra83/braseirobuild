@@ -106,7 +106,7 @@ jobs:
             merged.put("time_of_day",SceneTemporalResolver.labelForHour(hour));
             merged.put("lighting",SceneTemporalResolver.resolveLighting(
                     SceneTemporalResolver.labelForHour(hour),"",merged.optString("lighting","")));
-"""
+          """
           scene=scene[:block_start]+replacement+scene[block_end:]
           scene_path.write_text(scene,encoding='utf8')
           assert 'double minutes=(alreadyAdvancedOnAccept' in scene
