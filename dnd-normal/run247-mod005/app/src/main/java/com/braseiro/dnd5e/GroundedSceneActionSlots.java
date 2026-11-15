@@ -71,6 +71,9 @@ public final class GroundedSceneActionSlots {
         // These must be backed by present objects or explicit directions;
         // no old NPC state or generic keyword-only filler authorizes them.
         pool.addAll(SceneAffordancePlanner.candidates(visible));
+        // Reusable open-world actor + two-visible-features fallback. Always
+        // validate against the SAME scene evidence and repeat gates below.
+        pool.addAll(SceneOpenWorldActionPlanner.candidates(visible));
 
         for(String slot:slots){
             JSONObject generic=groundedChoice(slot,actor,focus,topic,visible);
