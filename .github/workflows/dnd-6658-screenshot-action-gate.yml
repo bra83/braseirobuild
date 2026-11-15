@@ -6,6 +6,7 @@ on:
       - .github/workflows/dnd-6658-screenshot-action-gate.yml
       - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/**
       - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneScreenshotFourActionsRegressionTest.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneActualActionMenuUiRobolectricTest.java
       - dnd-normal/run247-mod005/version.properties
   workflow_dispatch:
 permissions:
@@ -36,10 +37,10 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.SceneScreenshotFourActionsRegressionTest' --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest' --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest' --no-daemon --console=plain --stacktrace || {
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.SceneScreenshotFourActionsRegressionTest' --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest' --tests 'com.braseiro.dnd5e.SceneTurnBoundaryRegressionTest' --tests 'com.braseiro.dnd5e.SceneActualActionMenuUiRobolectricTest' --no-daemon --console=plain --stacktrace || {
             python3 - <<'PY'
           import glob,xml.etree.ElementTree as ET
-          for path in glob.glob('app/build/test-results/testDebugUnitTest/TEST-*Screenshot*.xml') + glob.glob('app/build/test-results/testDebugUnitTest/TEST-*TurnBoundary*.xml'):
+          for path in glob.glob('app/build/test-results/testDebugUnitTest/TEST-*Screenshot*.xml') + glob.glob('app/build/test-results/testDebugUnitTest/TEST-*TurnBoundary*.xml') + glob.glob('app/build/test-results/testDebugUnitTest/TEST-*ActionMenuUi*.xml'):
               root=ET.parse(path).getroot()
               for case in root.findall('.//testcase'):
                   err=case.find('failure')
