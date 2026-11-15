@@ -49,7 +49,7 @@
       "existsInAtlasOnly": true
     },
     {
-      "id": "pátio_das_mulas",
+      "id": "patio_das_mulas",
       "name": "Pátio do Tratador",
       "canonical": false,
       "parentPlaceId": "yartar_dm28",
@@ -112,7 +112,7 @@
       "knowledgeLimit": "Não conhece o destino dos condutores nem todos os termos do contrato."
     },
     {
-      "id": "lira_escrivã",
+      "id": "lira_escriva",
       "name": "Lira, escrivã",
       "race": "humana",
       "kind": "original",
@@ -185,7 +185,7 @@
       "id": "mulas_arreios",
       "name": "As cordas não combinam",
       "description": "Observação inicial das três mulas; os materiais diferem, mas não provam ataque. Procurar rastros pode merecer teste apenas se houver incerteza e consequência.",
-      "locationId": "pátio_das_mulas",
+      "locationId": "patio_das_mulas",
       "trigger": "jogador_examina_animais",
       "multipleApproaches": true,
       "autoresolve": false
@@ -240,7 +240,7 @@
     {
       "id": "cabrestos",
       "description": "Corda com nó diferente em cada animal; sinal de troca de arreio, sem indicar sozinho seu autor.",
-      "locationId": "pátio_das_mulas",
+      "locationId": "patio_das_mulas",
       "revealCondition": "examinar os cabrestos; teste só se o host entender haver incerteza"
     },
     {
