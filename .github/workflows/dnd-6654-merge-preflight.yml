@@ -1,0 +1,53 @@
+name: DnD 6.6.54 post-Strixhaven integration preflight
+on:
+  push:
+    branches:
+      - fix/dnd-6654-pos-strixhaven-integration-20261114
+    paths:
+      - .github/workflows/dnd-6654-merge-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  merge-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout complete history without downloading every blob
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Dry-run three-way merge onto 6.6.54 without modifying release branch
+        shell: bash
+        run: |
+          set -uo pipefail
+          git fetch --no-tags origin '+refs/heads/fix/dnd-post-strixhaven-worldtime-20261114:refs/remotes/origin/post-strixhaven'
+          git config user.email 'qa@braseiro.invalid'
+          git config user.name 'Braseiro QA Merge Preflight'
+          set +e
+          git merge --no-commit --no-ff origin/post-strixhaven
+          result=$?
+          set -e
+          git diff --name-only --diff-filter=U | tee merge-conflicts.txt
+          git status --short > merge-status.txt
+          echo "MERGE_EXIT_CODE=$result"
+          echo "UNRESOLVED_FILES=$(wc -l < merge-conflicts.txt)"
+          echo "INTEGRATION_START=6.6.54"
+          echo "AUTOMATIC_RELEASE_AUTHORIZED=FALSE"
+          if [ "$result" -ne 0 ]; then
+            echo 'A branch 6.6.54 divergiu; integração deve resolver conflitos preservando suas funções.'
+            exit 1
+          fi
+          echo 'MERGE_CLEAN=TRUE; STILL_REQUIRES_FULL_TESTS_AND_DEVICE_QA=TRUE'
+      - name: Publish exact conflict names and merge status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6654-post-strixhaven-merge-preflight
+          path: |
+            merge-conflicts.txt
+            merge-status.txt
+          if-no-files-found: warn
+          retention-days: 14
