@@ -69,9 +69,15 @@ public class FictionTurnIntentContractRobolectricTest {
         assertFalse(person.optBoolean("is_identified_by_observer"));
         assertFalse(person.toString().contains("secrets"));
     }
-    @Test public void T04_spatialVisibilityDoesNotInventExit(){
+    @Test public void T04_spatialVisibilityDoesNotInventExit()throws Exception{
         observe("O que vejo à minha esquerda?");
         assertTrue(FictionTurnDirective.forTurn("O que vejo à minha esquerda?",scene(),"PLAYER_ACTION").contains("Não invente"));
+        JSONObject dark=new JSONObject(scene().toString()).put("lighting","escuridão total");
+        JSONObject hidden=NpcPerceptionLedger.publicOnstage(db,dark,"","party").optJSONObject(0);
+        assertTrue(hidden.optBoolean("perception_limited_by_darkness"));
+        assertEquals("",hidden.optString("visible_description"));
+        assertEquals("",hidden.optString("visible_weapons"));
+        assertFalse(hidden.optBoolean("visibility_of_weapons_established"));
     }
     @Test public void T05_twoVisibleNpcsDemandClarification() throws Exception{
         JSONObject s=scene();s.put("present_npcs_json",new JSONArray()
@@ -161,7 +167,10 @@ public class FictionTurnIntentContractRobolectricTest {
     }
     @Test public void T17_groundingHasStableIdButNoHiddenName() {
         JSONObject o=NpcPerceptionLedger.publicOnstage(db,scene(),"","party").optJSONObject(0);
-        assertTrue(o.optString("stable_ref").contains("npc-urzmaktok"));
+        assertTrue(o.optString("stable_ref").startsWith("npc_"));
+        assertFalse("Unknown NPC name must not appear even inside the stable ID",
+            o.optString("stable_ref").toLowerCase().contains("urzmaktok"));
+        assertFalse("Internal role must not leak",o.has("role"));
         assertEquals("",o.optString("name_known_to_observer"));
     }
     @Test public void T18_combatAppearanceQuestionIsFree() {
