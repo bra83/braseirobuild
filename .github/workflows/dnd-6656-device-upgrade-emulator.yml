@@ -2,7 +2,7 @@ name: DnD 6.6.56 to 6.6.57 Android in-place upgrade and save integrity
 on:
   push:
     branches:
-      - fix/dnd-6656-pos-strixhaven-integration-20261114
+      - fix/dnd-6656-pos-strixhaven-integrado-20261114
     paths:
       - .github/workflows/dnd-6656-device-upgrade-emulator.yml
   workflow_dispatch:
