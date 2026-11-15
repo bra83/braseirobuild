@@ -1,0 +1,338 @@
+{
+  "schema": "braseiro.adventure/v1",
+  "id": "faerun.s01.as_mulas_voltaram.v1",
+  "system": "dnd5e-2024",
+  "worldId": "faerun-campanha-principal",
+  "timelineId": "principal",
+  "title": "As Mulas Voltaram",
+  "author": "Braseiro — conteúdo original",
+  "description": "Aventura opcional de investigação e relações sociais em Yartar (Vale do Dessarin). Sem vilão obrigatório: a verdade emerge da análise de recibos, percursos e testemunhos. Indicação editorial: níveis 1–5, ajuste de desafios pelo host D&D 2024. A sequência é aberta e não força combate, rolagens ou solução.",
+  "seasonId": "temporada-01-as-contas-da-estrada-longa",
+  "rulesAuthority": "D&D 2024 host; nenhum resultado mecânico é determinado pelo pacote",
+  "canonicalGeography": {
+    "start_place": "Yartar",
+    "start_verified_hex": "DM28",
+    "atlas_policy": "verify_exact_name_and_hex_before_opening",
+    "other_coordinates": "not_guessed"
+  },
+  "start": {
+    "locationId": "yartar_dm28",
+    "hook": "Um tratador de animais em Yartar procura discretamente aventureiros: três mulas de um comboio chegaram desacompanhadas, sem os condutores e com arreios trocados. Ele oferece mostrar o que sabe, mas não exige que aceitem o trabalho.",
+    "notAccepted": true,
+    "entryRequirements": [
+      "campaign_world_profile_dnd",
+      "not_strixhaven_active",
+      "atlas_yartar_dm28_confirmed"
+    ],
+    "startTime": "indeterminado; respeitar relógio vigente da campanha"
+  },
+  "story": {
+    "premise": "Um comboio comercial não chegou ao destino planejado. Três mulas reapareceram em Yartar sem a equipe, criando temores de um ataque; não há prova de violência.",
+    "background": "A viagem foi alterada após um desacordo contratual. Parte da carga foi levada a outro depósito para evitar um pedágio contestado. Durante a mudança de percurso, o responsável pelo comboio sofreu um acidente leve e buscou abrigo com dois ajudantes. Um negociante local interpreta a ausência como possível furto; uma segunda parte prefere ocultar a mudança do trajeto para evitar multas. Isso não significa que todos os desaparecidos estejam a salvo: o seu estado atual deve ser confirmado em jogo por fatos, testemunhos e procedimentos do host. Os detalhes podem evoluir por decisões e ações confirmadas, sem presumir que os jogadores já descobriram os fatos.",
+    "playerIntroduction": "O som de ferraduras ecoa entre carroças e barris. Um homem com manchas de barro na túnica aponta, preocupado, para três mulas amarradas à sombra. Cada uma traz uma corda diferente, mas nenhuma carrega as sacolas esperadas. Ele faz uma pergunta curta: 'Vocês sabem seguir pistas sem acusar a primeira pessoa que aparece?'",
+    "design": "Mistério não linear com três possíveis linhas de apuração: animais, documentos e pessoas. Trabalhos cotidianos, negociação e ajuda humanitária são caminhos igualmente legítimos.",
+    "worldStateContract": "Nenhuma informação a respeito dos desaparecidos será introduzida como fato observado antes de sua confirmação em cena."
+  },
+  "locations": [
+    {
+      "id": "yartar_dm28",
+      "name": "Yartar",
+      "canonical": true,
+      "atlasHex": "DM28",
+      "description": "Cidade canônica e porta de entrada desta aventura. A existência da cidade é do Atlas; nenhuma cena é considerada visitada automaticamente.",
+      "possibleApproaches": [
+        "perguntar",
+        "trabalhar",
+        "descansar",
+        "sair"
+      ],
+      "existsInAtlasOnly": true
+    },
+    {
+      "id": "pátio_das_mulas",
+      "name": "Pátio do Tratador",
+      "canonical": false,
+      "parentPlaceId": "yartar_dm28",
+      "description": "Pátio original de campanha, com três mulas cansadas, marcas de cabresto e um tratador que tem interesse pessoal no retorno dos condutores.",
+      "observable": [
+        "cordas diferentes",
+        "três mulas cansadas",
+        "pouca carga"
+      ],
+      "secretsNotPlayerKnowledge": true
+    },
+    {
+      "id": "escritorio_de_recibos",
+      "name": "Escritório do Escrivão",
+      "canonical": false,
+      "parentPlaceId": "yartar_dm28",
+      "description": "Escritório original de campanha que mantém registros de despacho, pagamentos e horários; não há acesso irrestrito aos arquivos.",
+      "observable": [
+        "livros-caixa",
+        "balcão de atendimento",
+        "mensagens lacradas"
+      ]
+    },
+    {
+      "id": "deposito_do_porto",
+      "name": "Depósito do Porto",
+      "canonical": false,
+      "parentPlaceId": "yartar_dm28",
+      "description": "Depósito privado original de campanha, com inventário de caixotes e contratos de frete. Entrada depende de autorização, negociação ou ação adjudicada.",
+      "observable": [
+        "caixotes",
+        "vigia eventual (somente se confirmado pelo host)",
+        "registros de carga"
+      ]
+    },
+    {
+      "id": "desvio_da_estrada",
+      "name": "O Desvio da Estrada",
+      "canonical": false,
+      "parentPlaceId": "yartar_dm28",
+      "description": "Um trecho de estrada secundária, cuja posição exata só deve ser marcada depois de viagem e comprovação no Atlas. Não criar hex ou distância.",
+      "observable": [
+        "rastros potencialmente deteriorados",
+        "solo irregular"
+      ],
+      "mapLocationStatus": "pending_confirmed_route"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "maret_tratador",
+      "name": "Maret, tratador",
+      "race": "humano",
+      "kind": "original",
+      "description": "Tratador experiente, preocupado com o trabalho e com os homens que faltam.",
+      "goals": "Encontrar os condutores; recuperar as mulas sem causar confusão.",
+      "schedule": "Atende ao pátio quando presente, dorme em quarto simples; horários exatos seguem o relógio do jogo.",
+      "secret": "Reconheceu uma das cordas como pertencente a um frete concorrente, mas teme iniciar uma briga.",
+      "presentAtStart": "conditional_host_validation",
+      "knowledgeLimit": "Não conhece o destino dos condutores nem todos os termos do contrato."
+    },
+    {
+      "id": "lira_escrivã",
+      "name": "Lira, escrivã",
+      "race": "humana",
+      "kind": "original",
+      "description": "Escrivã pragmática que guarda recibos e não fornece documentos confidenciais gratuitamente.",
+      "goals": "Proteger a confiabilidade dos livros e evitar acusação infundada.",
+      "schedule": "Expediente comercial adaptado ao dia e contexto local.",
+      "secret": "Percebeu uma divergência em duas vias de um recibo.",
+      "presentAtStart": false,
+      "knowledgeLimit": "Conhece documentos a que teve acesso, não acontecimentos na estrada."
+    },
+    {
+      "id": "tavel_mercador",
+      "name": "Tavel, comerciante",
+      "race": "humano",
+      "kind": "original",
+      "description": "Empresário de temperamento cauteloso, com receio de perder a próxima remessa.",
+      "goals": "Evitar prejuízos e recuperar bens pelos meios de contrato.",
+      "schedule": "Pode estar no porto ou ausente em negócios.",
+      "secret": "Sugeriu mudança de rota a um funcionário, mas não ordenou ocultação de condutores.",
+      "presentAtStart": false,
+      "knowledgeLimit": "Não presenciou o trajeto; conhece apenas mensagens recebidas."
+    },
+    {
+      "id": "erlen_condutor",
+      "name": "Erlen, condutor",
+      "race": "humano",
+      "kind": "original",
+      "description": "Condutor contratado, possivelmente ferido e fora de contato; não presumir estado físico no tempo presente.",
+      "goals": "Restabelecer contato e cumprir o acordo se ainda possível.",
+      "schedule": "Incerto até descoberta",
+      "secret": "Há versões contraditórias sobre a decisão de mudar a rota.",
+      "presentAtStart": false,
+      "knowledgeLimit": "Só sabe do que vivenciou, sem onisciência."
+    }
+  ],
+  "objectives": [
+    {
+      "id": "achar_condutores",
+      "title": "Descobrir o paradeiro dos condutores",
+      "description": "Obter indícios independentes sobre o trajeto e verificar a segurança dos envolvidos. Não exigir combate.",
+      "optional": true
+    },
+    {
+      "id": "entender_carga",
+      "title": "Conferir manifesto e carga",
+      "description": "Comparar papéis somente quando obtidos legitimamente ou por decisão adjudicada.",
+      "optional": true
+    },
+    {
+      "id": "resolver_direitos",
+      "title": "Decidir como lidar com uma disputa de frete",
+      "description": "Negociar com interessados; evitar impor julgamento do mestre.",
+      "optional": true
+    },
+    {
+      "id": "auxiliar_viajantes",
+      "title": "Ajudar pessoas afetadas",
+      "description": "Prestar cuidados, organizar resgate ou buscar ajuda conforme evidência.",
+      "optional": true
+    },
+    {
+      "id": "recusar_contrato",
+      "title": "Não se envolver",
+      "description": "O grupo pode recusar a investigação, partir de Yartar ou aceitar outro serviço.",
+      "optional": true
+    }
+  ],
+  "encounters": [
+    {
+      "id": "mulas_arreios",
+      "name": "As cordas não combinam",
+      "description": "Observação inicial das três mulas; os materiais diferem, mas não provam ataque. Procurar rastros pode merecer teste apenas se houver incerteza e consequência.",
+      "locationId": "pátio_das_mulas",
+      "trigger": "jogador_examina_animais",
+      "multipleApproaches": true,
+      "autoresolve": false
+    },
+    {
+      "id": "balcao_dos_recibos",
+      "name": "Recibo em duas vias",
+      "description": "Há divergência entre cópias de despacho. Conseguir acesso depende de relação e escolhas, não de onisciência.",
+      "locationId": "escritorio_de_recibos",
+      "trigger": "jogador_procura_documentos",
+      "multipleApproaches": true,
+      "autoresolve": false
+    },
+    {
+      "id": "carga_em_disputa",
+      "name": "Contrato contestado",
+      "description": "Dois interessados discordam sobre responsabilidade pelo prejuízo. A conversa pode levar a acordo parcial.",
+      "locationId": "deposito_do_porto",
+      "trigger": "jogador_procura_partes",
+      "multipleApproaches": true,
+      "autoresolve": false
+    },
+    {
+      "id": "desvio_irregular",
+      "name": "O caminho alternativo",
+      "description": "A estrada secundária pode ser investigada após viagem real e geografia validada; sinais dependem de clima e tempo transcorrido.",
+      "locationId": "desvio_da_estrada",
+      "trigger": "posicao_confirmada_mais_intencao",
+      "multipleApproaches": true,
+      "autoresolve": false
+    },
+    {
+      "id": "chuva_e_rastros",
+      "name": "O tempo apaga rastros",
+      "description": "Mudança meteorológica já confirmada pode tornar indícios menos confiáveis. Nunca inventar chuva para forçar teste.",
+      "locationId": "desvio_da_estrada",
+      "trigger": "confirmed_weather_rain",
+      "multipleApproaches": true,
+      "autoresolve": false
+    },
+    {
+      "id": "acordo_incompleto",
+      "name": "Um acordo não resolve tudo",
+      "description": "Mesmo com carga recuperada, alguém pode continuar desaparecido; nunca concluir toda a história por uma única negociação.",
+      "locationId": "yartar_dm28",
+      "trigger": "confirmed_partial_resolution",
+      "multipleApproaches": true,
+      "autoresolve": false
+    }
+  ],
+  "clues": [
+    {
+      "id": "cabrestos",
+      "description": "Corda com nó diferente em cada animal; sinal de troca de arreio, sem indicar sozinho seu autor.",
+      "locationId": "pátio_das_mulas",
+      "revealCondition": "examinar os cabrestos; teste só se o host entender haver incerteza"
+    },
+    {
+      "id": "recibo_duplo",
+      "description": "Dois exemplares do mesmo frete apresentam horários incompatíveis.",
+      "locationId": "escritorio_de_recibos",
+      "revealCondition": "obter acesso autorizado ou adjudicado aos registros"
+    },
+    {
+      "id": "rota_alternativa",
+      "description": "Há indício documental de um desvio planejado, mas não prova que foi efetivamente percorrido.",
+      "locationId": "escritorio_de_recibos",
+      "revealCondition": "comparar documentos ou depoimentos"
+    },
+    {
+      "id": "caixote_reetiquetado",
+      "description": "Marca antiga sob etiqueta recente num caixote cuja procedência é contestada.",
+      "locationId": "deposito_do_porto",
+      "revealCondition": "inspecionar carga confirmada presente"
+    },
+    {
+      "id": "marca_ferradura",
+      "description": "Vestígio de ferradura comum à região, pouco conclusivo sem comparação temporal.",
+      "locationId": "desvio_da_estrada",
+      "revealCondition": "visitar o local e procurar rastros que ainda existam"
+    },
+    {
+      "id": "relato_condutor",
+      "description": "Um depoimento futuro pode esclarecer a mudança de rota, sujeito ao estado e presença da pessoa.",
+      "locationId": "yartar_dm28",
+      "revealCondition": "encontrar efetivamente o condutor e conversar"
+    }
+  ],
+  "secrets": [
+    {
+      "id": "rota_pactuada",
+      "visibility": "gm_only",
+      "truth": "A decisão de alterar a rota foi discutida antes do desaparecimento; não há prova de quem executou o novo plano.",
+      "revealCondition": "apurar origem das duas vias do recibo e ouvir parte envolvida"
+    },
+    {
+      "id": "erro_de_registro",
+      "visibility": "gm_only",
+      "truth": "Uma divergência de horário deriva de reescrita de registro, não necessariamente falsificação maliciosa.",
+      "revealCondition": "comparação documental competente e testemunho"
+    },
+    {
+      "id": "interesse_no_caos",
+      "visibility": "gm_only",
+      "truth": "Um concorrente espera ganhar negócios com o atraso, mas não está estabelecido como responsável pelo sumiço.",
+      "revealCondition": "descobrir motivos com fatos observáveis, não presumir culpa"
+    },
+    {
+      "id": "abrigados_ou_nao",
+      "visibility": "gm_only",
+      "truth": "A hipótese de acidente e abrigo é plausível; o paradeiro atual deve ser determinado por acontecimentos canônicos da campanha.",
+      "revealCondition": "investigação ou notícia confirmada pelo host"
+    }
+  ],
+  "possibleResolutions": [
+    {
+      "id": "resgate_comprovado",
+      "requires": "segurança dos condutores confirmada e ação de resgate executada",
+      "consequence": "retorno ou auxílio a pessoas; eventuais recompensas exigem compromisso e gateway confirmado"
+    },
+    {
+      "id": "contrato_reconciliado",
+      "requires": "prova suficiente e concordância das partes",
+      "consequence": "acordo comercial, com impactos de reputação somente após registro"
+    },
+    {
+      "id": "paradeiro_incerto",
+      "requires": "investigação incompleta",
+      "consequence": "questão permanece aberta; rumores e mundo podem avançar pelas regras vigentes"
+    },
+    {
+      "id": "grupo_recusa",
+      "requires": "jogador explicitamente declina",
+      "consequence": "nenhuma missão aceita; o mundo segue sua rotina sem narrar fracasso do grupo"
+    }
+  ],
+  "masterRuntimeRestrictions": {
+    "hideSecretsFromPlayer": true,
+    "noAutomaticTests": true,
+    "noAutomaticLoot": true,
+    "noAutomaticXP": true,
+    "noAutomaticTravel": true,
+    "noAutomaticNPCSpawns": true,
+    "noPredeclaredSuccess": true,
+    "allowPlayerDecline": true,
+    "useCanonicalAtlas": true,
+    "keepWorldStateTransactionAuthority": true,
+    "noMystara": true
+  }
+}
