@@ -86,20 +86,28 @@ public final class SceneOpenWorldActionPlanner {
         if(second.equals(first))return out;
         out.add(option("OBSERVAR","OBSERVAR "+upper(first),
             "Observo "+first+" e o movimento ao redor antes de decidir como agir."));
-        out.add(option("AGIR","PERGUNTAR A "+upper(actor)+" SOBRE "+upper(first),
+        out.add(option("AGIR","PERGUNTAR "+upper(dative(actor))+" SOBRE "+upper(first),
             "Pergunto "+dative(actor)+" como funciona a situação envolvendo "+first+
             " e aguardo a resposta antes de decidir."));
         if(!destination.isEmpty()&&destination.equals(second)){
-            out.add(option("EXPLORAR","SEGUIR EM DIREÇÃO A "+upper(second),
+            out.add(option("EXPLORAR","SEGUIR EM DIREÇÃO "+upper(dative(second)),
                 "Decido seguir pelo caminho indicado em direção "+dative(second)+
                 ", sem presumir que já cheguei ao destino ou que atravessei obstáculos."));
         }else{
-            out.add(option("EXPLORAR","VERIFICAR O ACESSO A "+upper(second),
+            out.add(option("EXPLORAR","VERIFICAR O ACESSO "+upper(dative(second)),
                 "Aproximo-me "+genitive(second)+" para observar as condições de acesso, "+
                 "sem presumir que já entrei ou que minha tentativa teve sucesso."));
         }
         return out;
     }
+    /** Most prominent physically narrated focus, independent of NPC dialogue.
+     * Dialogue proposals can combine it with the speaking character.
+     */
+    static String primaryVisibleFocus(String narration){
+        ArrayList<String> found=visibleFoci(visibleNarratorStage(narration));
+        return found.isEmpty()?"":found.get(0);
+    }
+
     /** Physical narration before AND after a separated dialogue paragraph.
      * Quoted speech can report an off-stage place but cannot place it next
      * to the hero. A narrator epilogue can reveal a new visible exit.
