@@ -1,0 +1,104 @@
+name: DnD 6.6.60 pre-Gemini master preparation watchdog full QA
+# Revision 2: exact outer async callback boundary in MainActivity patch.
+on:
+  push:
+    branches: [fix/dnd-6659-action-status-stall-20261115]
+    paths: [.github/workflows/dnd-6660-master-preparation-watchdog-gate.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verified-6660:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact 6.6.59 parent with all production assets
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+          fetch-depth: 0
+          filter: blob:none
+      - name: Apply fail-closed precise MainActivity patch
+        run: python3 dnd-normal/run247-mod005/tools/qa_patch_master_preparation_watchdog.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare Android build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Test simulated hung worker, safe retry and real Activity UI
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest             --tests 'com.braseiro.dnd5e.MasterPreparationCoordinatorRobolectricTest'             --tests 'com.braseiro.dnd5e.MasterPreparationFailureUiRobolectricTest'             --tests 'com.braseiro.dnd5e.SceneScreenshotFourActionsRegressionTest'             --tests 'com.braseiro.dnd5e.SceneActionsUserScreenshotsRegressionTest'             --tests 'com.braseiro.dnd5e.SceneActualActionMenuUiRobolectricTest'             --no-daemon --console=plain --stacktrace
+      - name: Run full historical DnD regression (2024, Strixhaven and game core)
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          fs=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          scores={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in fs:
+              root=ET.parse(f).getroot()
+              for k in scores:scores[k]+=int(root.get(k,0))
+          required=['MasterPreparationCoordinatorRobolectricTest','MasterPreparationFailureUiRobolectricTest',
+                    'SceneScreenshotFourActionsRegressionTest','SceneActualActionMenuUiRobolectricTest',
+                    'FourSceneActionsDropdownRegressionTest','AppDbBackupRobolectricTest']
+          for name in required:
+              assert any(f.endswith('/TEST-com.braseiro.dnd5e.'+name+'.xml') for f in fs),name
+          print('MASTER_PREPARATION_6660_ALL_TESTS',scores,'SUITES',len(fs))
+          assert scores['tests']>=3185 and all(scores[k]==0 for k in ('failures','errors','skipped'))
+          PY
+      - name: Build 6.6.60 real full-assets QA APK
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,zipfile
+          v=Path('version.properties').read_text(encoding='utf8')
+          assert 'VERSION_CODE=203900623' in v
+          assert 'DB_SCHEMA=61' in v and 'BACKUP_FORMAT=21' in v
+          apk=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(apk) as z:
+              assert z.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+              assert len([x for x in z.namelist() if 'br_scene_' in x])>=4
+          print('MASTER_PREPARATION_6660_APK_BYTES',apk.stat().st_size)
+          print('MASTER_PREPARATION_6660_APK_SHA256',hashlib.sha256(apk.read_bytes()).hexdigest())
+          PY
+      - name: Upload verified APK and evidence after all tests succeed
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6660-master-preparation-timeout-qa
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14
+      - name: Commit real source changes only on green (isolated QA branch)
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "braseiro-qa[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java dnd-normal/run247-mod005/version.properties
+          git commit -m "fix(dnd): isolate MasterOrchestrator snapshot and fail closed on stalled pre-Gemini stage"
+          git fetch origin fix/dnd-6659-action-status-stall-20261115
+          git rebase origin/fix/dnd-6659-action-status-stall-20261115
+          git push origin HEAD:refs/heads/fix/dnd-6659-action-status-stall-20261115
+          echo "MASTER_PREPARATION_6660_SOURCE_PUSH=PASS RELEASE_AUTHORIZED=FALSE"
