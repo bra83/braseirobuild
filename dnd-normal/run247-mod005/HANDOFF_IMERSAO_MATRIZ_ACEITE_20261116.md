@@ -19,7 +19,7 @@ Branch de implementação: `fix/dnd-6662-handoff-full-gates-20261116`, derivado 
 | Áudio corresponde exclusivamente à resposta aceita e não à última cena antiga | `FictionTurnAudio` e patch de TTS da 6.6.62 | `FictionTurnAudioTraceRobolectricTest`, replay misto | TTS físico/latência/vozes de NPC não verificados no Galaxy A57 |
 | Diagnóstico privado por opt-in, com chaves ocultadas | `FictionTurnTrace` e controles da 6.6.62 | `FictionTurnAudioTraceRobolectricTest` | Inspecionar exportação no aparelho; não registrar segredos reais sem consentimento |
 | Aceitação T01–T20 e 40 turnos diversos | `FictionTurnIntentContractRobolectricTest` e replay misto adicional | CI https://github.com/bra83/braseirobuild/actions/runs/43808627639 | **Não afirmar 40 turnos reais Gemini**: os testes são determinísticos |
-| Atualização APK 6.6.61→6.6.62 preservando backup e fichas | Android build e upgrade gate ainda a completar | Nenhuma evidência nova | **BLOQUEADO** até teste real de upgrade |
+| Atualização APK 6.6.61→6.6.62 preservando backup e fichas | Script de upgrade em emulador Android 35 com canários de cena, ficha sintética, inventário e diário | [Run 43809825164](https://github.com/bra83/braseirobuild/actions/runs/43809825164) **FAIL**: cena voltou de dia 17/18h45 ao dia 1/9h, apesar de SQLite íntegro e arquivo privado salvo; [novo diagnóstico](https://github.com/bra83/braseirobuild/actions/runs/43865743746) em execução | **BLOQUEADO** até isolar a etapa da perda e obter PASS; nenhuma campanha real foi usada |
 | Quatro transcrições de referência exigidas no handoff | Ainda sem material verificável em teste | Nenhuma | **BLOQUEADO**: não inventar transcrições nem dizer que foram comparadas |
 | Certificação no Galaxy A57 e Gemini API real | Precisa de dispositivo e credenciais no ambiente de QA | Nenhuma execução direta aqui | **BLOQUEADO**: não reivindicar certificado físico |
 
@@ -28,7 +28,8 @@ Branch de implementação: `fix/dnd-6662-handoff-full-gates-20261116`, derivado 
 - Base sucessora 6.6.61, versãoCode 203900624: https://github.com/bra83/braseirobuild/actions/runs/43806616651 — 3213/3213 testes PASS, APK compilado.
 - Primeira integração 6.6.62: https://github.com/bra83/braseirobuild/actions/runs/43766444033 — 2 testes assíncronos falharam, logo reprovação integral.
 - Nova integração com correção das fixtures de cena, NPC desconhecido, replay misto e TTS: https://github.com/bra83/braseirobuild/actions/runs/43808907278 — **3.215/3.215 PASS**, 240 suítes, 0 falhas/errors/skips, compilação Android e ZIP do Atlas integral; artefato GitHub 14199518474; SHA256 do APK `39a4a5d2cdf8fee07a097d2db1cb11bc8f0bd18f114423cb405fe7f2fc419216`.
-- O upgrade sem desinstalação 6.6.61→6.6.62 está sob [run 43809825164](https://github.com/bra83/braseirobuild/actions/runs/43809825164); exigir resultado final antes de classificar o gate de preservação.
+- O upgrade sem desinstalação 6.6.61→6.6.62 [run 43809825164](https://github.com/bra83/braseirobuild/actions/runs/43809825164) **falhou**: antes, cena em dia 17 às 18h45; depois, local vazio, dia 1 às 9h; arquivo privado preservado, integridade SQLite ok e schema 61. **Não aprovar atualização de usuário.**
+- Diagnóstico de regressão acrescentado à mesma branch QA: compara SQLite depois da reinjeção do canário, depois de `adb install -r` mas antes do lançamento da nova Activity e depois do primeiro lançamento; inclui ficha, inventário e diário sintéticos. [Nova execução 43865743746](https://github.com/bra83/braseirobuild/actions/runs/43865743746) ainda sem conclusão verificada. Necessário corrigir causa e repetir gate até PASS.
 - A suíte passou sem testes ignorados. APK continua QA até concluir integração e validações externas.
 
 ## Resultado da auditoria
