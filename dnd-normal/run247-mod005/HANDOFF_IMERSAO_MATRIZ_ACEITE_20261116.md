@@ -27,8 +27,9 @@ Branch de implementação: `fix/dnd-6662-handoff-full-gates-20261116`, derivado 
 
 - Base sucessora 6.6.61, versãoCode 203900624: https://github.com/bra83/braseirobuild/actions/runs/43806616651 — 3213/3213 testes PASS, APK compilado.
 - Primeira integração 6.6.62: https://github.com/bra83/braseirobuild/actions/runs/43766444033 — 2 testes assíncronos falharam, logo reprovação integral.
-- Nova integração com correção das fixtures de cena, NPC desconhecido, replay misto e TTS: https://github.com/bra83/braseirobuild/actions/runs/43808627639 — resultado deve ser consultado; nunca declarar sucesso antes do job concluir.
-- A suite precisa passar sem testes ignorados. APK não será promovido enquanto qualquer gate crítico estiver em vermelho.
+- Nova integração com correção das fixtures de cena, NPC desconhecido, replay misto e TTS: https://github.com/bra83/braseirobuild/actions/runs/43808907278 — **3.215/3.215 PASS**, 240 suítes, 0 falhas/errors/skips, compilação Android e ZIP do Atlas integral; artefato GitHub 14199518474; SHA256 do APK `39a4a5d2cdf8fee07a097d2db1cb11bc8f0bd18f114423cb405fe7f2fc419216`.
+- O upgrade sem desinstalação 6.6.61→6.6.62 está sob [run 43809825164](https://github.com/bra83/braseirobuild/actions/runs/43809825164); exigir resultado final antes de classificar o gate de preservação.
+- A suíte passou sem testes ignorados. APK continua QA até concluir integração e validações externas.
 
 ## Resultado da auditoria
 
