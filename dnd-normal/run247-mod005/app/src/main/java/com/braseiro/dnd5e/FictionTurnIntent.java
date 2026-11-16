@@ -96,9 +96,9 @@ public final class FictionTurnIntent {
                 JSONObject npc=present.optJSONObject(i);
                 if(npc==null||npc.optBoolean("departed",false)||npc.optBoolean("left_scene",false))continue;
                 String name=npc.optString("name","").trim();
-                if(name.isEmpty())continue;
+                // Anonymous people can still be observed; DB registration is not discovery.
                 String normalizedName=fold(name);
-                if(!demonstrative && !q.contains(normalizedName))continue;
+                if(!demonstrative && (normalizedName.isEmpty() || !q.contains(normalizedName)))continue;
                 // Resolve *which visible person* without passing internal NPC IDs,
                 // classified roles or an unknown canonical name to the model.
                 // Presentation/knowledge is controlled by NpcPerceptionLedger.
