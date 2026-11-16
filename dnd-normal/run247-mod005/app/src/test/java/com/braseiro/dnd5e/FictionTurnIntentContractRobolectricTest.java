@@ -92,6 +92,21 @@ public class FictionTurnIntentContractRobolectricTest {
         assertTrue(r.optBoolean("non_advancing"));
         assertTrue(r.optJSONObject("referent").optBoolean("ambiguous"));
     }
+    @Test public void T05b_anonymousPersonRemainsObservableWithoutInventedName() throws Exception {
+        JSONObject s=scene();
+        s.put("present_npcs_json",new JSONArray().put(new JSONObject()
+            .put("id","anonymous-visitor").put("name","")
+            .put("visual_description","Uma figura de capa azul junto ao arco.")).toString());
+        JSONObject result=FictionTurnIntent.contract("Como essa pessoa é?",s,"PLAYER_ACTION");
+        assertEquals("FICTION_OBSERVATION",result.optString("kind"));
+        assertTrue(result.optBoolean("non_advancing"));
+        JSONObject referent=result.optJSONObject("referent");
+        assertFalse("Visible anonymous person must resolve",referent.optBoolean("unresolved"));
+        assertEquals(1,referent.optJSONArray("candidates").length());
+        assertFalse("Private ID must not be in observation",referent.toString().contains("anonymous-visitor"));
+        assertEquals("Uma figura de capa azul junto ao arco.",
+            referent.optJSONObject("target").optString("visible_description"));
+    }
     @Test public void T06_speechToExistingNpcDoesNotBecomeHelp(){
         assertEquals(FictionTurnIntent.Kind.CHARACTER_SPEECH,
             FictionTurnIntent.classify("Pergunto a ela por que está me olhando."));
