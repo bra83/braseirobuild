@@ -136,7 +136,7 @@ public final class FictionMixedFortyTurnRobolectricTest {
             }
             JSONObject persisted=db.getSceneState();
             assertEquals("Clock changed without explicit host tick at "+turn,
-                firstClock+((explicitWorldTicks*3)%24),persisted.optDouble("clock_hour"),0.002);
+                ((firstClock+explicitWorldTicks*3)%24),persisted.optDouble("clock_hour"),0.002);
             assertEquals("Unexpected day change at "+turn,
                 firstDay+(int)((firstClock+explicitWorldTicks*3)/24),
                 persisted.optInt("day_number"));
