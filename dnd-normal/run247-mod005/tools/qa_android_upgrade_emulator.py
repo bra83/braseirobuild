@@ -39,7 +39,10 @@ def app_start():
                                 "test", "-s", "databases/" + DB],
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if check.returncode == 0:
-            time.sleep(8)
+            # The Activity can create SQLite long before the heavy UI/engine
+            # finishes its asynchronous initialization. A short 8-second wait
+            # previously allowed false positives on cold-start upgrades.
+            time.sleep(45)
             return
         time.sleep(2)
     raise RuntimeError("App did not create the expected SQLite database after launch")
