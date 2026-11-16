@@ -1,0 +1,35 @@
+# Handoff de imersão e continuidade — matriz de aceite por função
+
+Branch de implementação: `fix/dnd-6662-handoff-full-gates-20261116`, derivado do sucessor `fix/dnd-6661-immersao-continuidade-handoff-20261115`. Não construir projeto novo nem regredir as versões 6.6.54–6.6.61.
+
+> IMPORTANTE: **correção de NPC não equivale a conclusão do handoff**. Somente provas efetivamente realizadas são marcadas como verificadas; testes de intenção não são qualidade narrativa ao vivo.
+
+| Critério exigido | Onde foi implementado | Evidência atual | Limite |
+|---|---|---|---|
+| Perguntas sobre tempo, aparência, roupa e armas no campo de ação | `FictionTurnIntent`, `FictionTurnDirective`, `MasterOrchestrator` | `FictionTurnIntentContractRobolectricTest.T01,T02,T03,T18` | Resposta textual Gemini ao vivo ainda não verificada |
+| Separação entre diálogo, pergunta de regras, investigação e ação | `FictionTurnIntent.classify` e entrada do `MasterOrchestrator` | `T06–T08`, `NarratorConsultationRoutingRegressionTest`, `FictionMixedFortyTurnRobolectricTest` | Não substituir por um classificador lexical genérico sem auditoria |
+| Pergunta + comando condicional na ordem correta | `FictionTurnIntent.condition`, `FictionTurnDirective` | `T09,T16`, replay misto | O estado verdadeiro da chuva não autoriza inventar abrigo nem declarar sucesso |
+| Não revelar nome oculto, profissão, arma ou segredo de NPC | `NpcPerceptionLedger`, `FictionObserverProjection`, `FictionTurnIntent.resolveReferent` | `T03,T04,T05,T05b,T05c,T10,T11,T17` | Necessita conferir o prompt final e todas as fontes de contexto |
+| Identidade de NPC persistida apenas após apresentação aceita | `NpcPerceptionLedger.commitAcceptedPresentation` e `AppDb` | `T10`, `FictionMixedFortyTurnRobolectricTest` | Não é substituto de campanha real com Gemini |
+| Perguntas perceptivas não gastam turno/minutos nem alteram cena | `FictionTurnIntent.freezesWorld`, `MasterOrchestrator` | `T01,T12–T15,T19`, replay misto | Verificar UI e voz quando o Gemini efetivamente responde |
+| Mestre conversa, descreve com naturalidade e não repete abertura | `HumanMasterNarrativeProfile`, `FictionTurnDirective` | Inspeção de instruções e testes de contrato | **Qualidade narrativa ainda não homologada por transcrições reais** |
+| Regras determinísticas, pistas, rolagem e rejeição de sucessos fabricados | `MasterOrchestrator`, `SceneChoiceCommitGate` e motores de regras existentes | Testes antigos, `T07,T19` | E2E de rolagens e consequência no jogo real pendente |
+| Quatro escolhas ancoradas, incluindo iniciativa, sem troca de cena espúria | `SceneOptionDiversifier`, `GroundedSceneActionSlots`, `StoryMomentumAction`, `SceneChoiceCommitGate` | `SceneScreenshotFourActionsRegressionTest`, `SceneActualActionMenuUiRobolectricTest`, `T12–T14` | Faltam experiências repetidas de sessão real com Gemini |
+| Preservação de relógio, mundo, missões, conhecimento, SQLite | `AppDb`, `WorldStateEngine`, sistema de persistência existente | `T20`, `FictionMixedFortyTurnRobolectricTest`, regressão antiga | Replay OFFLINE e com apenas efeitos autorizados; não é transcrição de campanha completa |
+| Áudio corresponde exclusivamente à resposta aceita e não à última cena antiga | `FictionTurnAudio` e patch de TTS da 6.6.62 | `FictionTurnAudioTraceRobolectricTest`, replay misto | TTS físico/latência/vozes de NPC não verificados no Galaxy A57 |
+| Diagnóstico privado por opt-in, com chaves ocultadas | `FictionTurnTrace` e controles da 6.6.62 | `FictionTurnAudioTraceRobolectricTest` | Inspecionar exportação no aparelho; não registrar segredos reais sem consentimento |
+| Aceitação T01–T20 e 40 turnos diversos | `FictionTurnIntentContractRobolectricTest` e replay misto adicional | CI https://github.com/bra83/braseirobuild/actions/runs/43808627639 | **Não afirmar 40 turnos reais Gemini**: os testes são determinísticos |
+| Atualização APK 6.6.61→6.6.62 preservando backup e fichas | Android build e upgrade gate ainda a completar | Nenhuma evidência nova | **BLOQUEADO** até teste real de upgrade |
+| Quatro transcrições de referência exigidas no handoff | Ainda sem material verificável em teste | Nenhuma | **BLOQUEADO**: não inventar transcrições nem dizer que foram comparadas |
+| Certificação no Galaxy A57 e Gemini API real | Precisa de dispositivo e credenciais no ambiente de QA | Nenhuma execução direta aqui | **BLOQUEADO**: não reivindicar certificado físico |
+
+## CI e qualidade
+
+- Base sucessora 6.6.61, versãoCode 203900624: https://github.com/bra83/braseirobuild/actions/runs/43806616651 — 3213/3213 testes PASS, APK compilado.
+- Primeira integração 6.6.62: https://github.com/bra83/braseirobuild/actions/runs/43766444033 — 2 testes assíncronos falharam, logo reprovação integral.
+- Nova integração com correção das fixtures de cena, NPC desconhecido, replay misto e TTS: https://github.com/bra83/braseirobuild/actions/runs/43808627639 — resultado deve ser consultado; nunca declarar sucesso antes do job concluir.
+- A suite precisa passar sem testes ignorados. APK não será promovido enquanto qualquer gate crítico estiver em vermelho.
+
+## Resultado da auditoria
+
+Implementação e aprovação automatizada podem reduzir erros comprovados, mas qualidade de narrativa, 40 turnos reais e experiência física não podem ser inferidas de 3213/3213 testes unitários. Exigir evidência em vez de rótulo `100%`.
