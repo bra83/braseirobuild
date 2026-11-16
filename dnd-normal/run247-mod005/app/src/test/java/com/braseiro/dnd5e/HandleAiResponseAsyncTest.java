@@ -81,9 +81,7 @@ public class HandleAiResponseAsyncTest {
     @Test
     public void testHandleAiResponseExecutesAsynchronouslyAndAppliesToUi() throws Exception {
         JSONObject envelope = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
-        envelope.put("narration", "No pátio, a chuva fina escurece as pedras antigas. Um mercador fecha sua barraca sob o toldo. "+
-            "Um oficial observa a fila diante dos portões, enquanto carroças seguem para os estábulos; "+
-            "o mercador indica a entrada aos viajantes.");
+        envelope.put("narration", SceneScreenshotFourActionsRegressionTest.LIVE_SCENE);
         envelope.put("visual_prompt", "Pátio de pedras antigas, chuva fina, arquitetura gótica de Baldur's Gate");
         JSONArray options = new JSONArray();
         JSONObject opt1 = new JSONObject().put("label", "Entrar na estalagem").put("action", "Entrar na estalagem");
@@ -96,6 +94,12 @@ public class HandleAiResponseAsyncTest {
         // present multiple genuinely reachable scene affordances. A bare,
         // one-object paragraph was no longer a valid narrative turn.
         // The acceptance test still checks real async UI + SQLite behavior.
+        JSONArray proposals=SceneOptionDiversifier.ensureAlways(
+            envelope.getJSONArray("options"), new JSONArray(),
+            envelope.getString("narration"), "Observar o pátio",
+            activity.db.getSceneState(),35);
+        assertEquals("Async fixture must pass 4-choice commit gate: "+proposals,4,proposals.length());
+
         // Trigger handleAiResponse
         activity.handleAiResponse(envelope.toString(), "Observar o pátio");
 
@@ -112,13 +116,13 @@ public class HandleAiResponseAsyncTest {
         // Check that narration was updated in activity
         assertNotNull(activity.lastNarration);
         assertTrue("A narração deve ter sido aplicada na UI",
-                activity.lastNarration.contains("a chuva fina escurece"));
+                activity.lastNarration.contains("Urzmaktok Grojsh"));
 
         // Check that story was persisted to database
         JSONObject story = activity.db.getStoryState();
         assertNotNull(story);
         assertTrue("Persistência SQLite da narrativa deve estar consistente",
-                story.optString("last_narration", "").contains("a chuva fina escurece"));
+                story.optString("last_narration", "").contains("Urzmaktok Grojsh"));
 
         // Check footer status
         assertNotNull(activity.statusText);
@@ -161,13 +165,15 @@ public class HandleAiResponseAsyncTest {
         envA.put("_master_validation", new JSONObject().put("valid", true));
 
         JSONObject envB = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
-        envB.put("narration", "O sino da torre soa três vezes enquanto a chuva engrossa diante das barracas do pátio. "+
-            "Um oficial indica os estábulos aos viajantes que atravessam os portões, "+
-            "enquanto um mercador observa a fila e recolhe caixotes.");
+        envB.put("narration", SceneScreenshotFourActionsRegressionTest.LIVE_SCENE);
         envB.put("visual_prompt", "Visual B legítimo");
         envB.put("options", new JSONArray());
         envB.put("_master_validation", new JSONObject().put("valid", true));
 
+        JSONArray complete=SceneOptionDiversifier.ensureAlways(
+            envB.getJSONArray("options"),new JSONArray(),
+            envB.getString("narration"),"Observo o pátio",activity.db.getSceneState(),35);
+        assertEquals("New-generation scene must remain playable: "+complete,4,complete.length());
         final java.util.concurrent.CountDownLatch aStarted = new java.util.concurrent.CountDownLatch(1);
         final java.util.concurrent.CountDownLatch bFinished = new java.util.concurrent.CountDownLatch(1);
         final java.util.concurrent.CountDownLatch aFinished = new java.util.concurrent.CountDownLatch(1);
@@ -210,7 +216,7 @@ public class HandleAiResponseAsyncTest {
         // 1. Verificação da UI: Somente B pode estar na UI
         assertNotNull(activity.lastNarration);
         assertTrue("A UI deve refletir exclusivamente a resposta B",
-                activity.lastNarration.contains("O sino da torre soa três vezes"));
+                activity.lastNarration.contains("Urzmaktok Grojsh"));
         assertFalse("A UI NUNCA pode ser contaminada pela resposta obsoleta A",
                 activity.lastNarration.contains("Uma carroça vermelha atravessa o pátio"));
 
@@ -219,7 +225,7 @@ public class HandleAiResponseAsyncTest {
         assertNotNull(story);
         String persistedNarration = story.optString("last_narration", "");
         assertTrue("O banco de dados deve conter exclusivamente a narrativa da resposta B",
-                persistedNarration.contains("O sino da torre soa três vezes"));
+                persistedNarration.contains("Urzmaktok Grojsh"));
         assertFalse("O banco de dados NUNCA pode ter sido sobrescrito pela resposta obsoleta A",
                 persistedNarration.contains("Uma carroça vermelha atravessa o pátio"));
         assertEquals("A última ação persistida deve ser a da resposta B",
