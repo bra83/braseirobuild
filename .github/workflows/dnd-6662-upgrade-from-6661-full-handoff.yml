@@ -5,6 +5,7 @@ on:
       - fix/dnd-6662-handoff-full-gates-20261116
     paths:
       - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py
       - .github/workflows/dnd-6662-upgrade-from-6661-full-handoff.yml
   workflow_dispatch:
 permissions:
