@@ -81,7 +81,9 @@ public class HandleAiResponseAsyncTest {
     @Test
     public void testHandleAiResponseExecutesAsynchronouslyAndAppliesToUi() throws Exception {
         JSONObject envelope = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
-        envelope.put("narration", "No pátio, a chuva fina escurece as pedras antigas. Um mercador fecha sua barraca sob o toldo.");
+        envelope.put("narration", "No pátio, a chuva fina escurece as pedras antigas. Um mercador fecha sua barraca sob o toldo. "+
+            "Um oficial observa a fila diante dos portões, enquanto carroças seguem para os estábulos; "+
+            "o mercador indica a entrada aos viajantes.");
         envelope.put("visual_prompt", "Pátio de pedras antigas, chuva fina, arquitetura gótica de Baldur's Gate");
         JSONArray options = new JSONArray();
         JSONObject opt1 = new JSONObject().put("label", "Entrar na estalagem").put("action", "Entrar na estalagem");
@@ -90,6 +92,10 @@ public class HandleAiResponseAsyncTest {
         JSONObject validation = new JSONObject().put("valid", true);
         envelope.put("_master_validation", validation);
 
+        // With strict four-choice commit validation, the ACCEPTED scene must
+        // present multiple genuinely reachable scene affordances. A bare,
+        // one-object paragraph was no longer a valid narrative turn.
+        // The acceptance test still checks real async UI + SQLite behavior.
         // Trigger handleAiResponse
         activity.handleAiResponse(envelope.toString(), "Observar o pátio");
 
@@ -155,7 +161,9 @@ public class HandleAiResponseAsyncTest {
         envA.put("_master_validation", new JSONObject().put("valid", true));
 
         JSONObject envB = new JSONObject().put("protocol_version",MasterProtocolV1.VERSION);
-        envB.put("narration", "O sino da torre soa três vezes enquanto a chuva engrossa diante das barracas do pátio.");
+        envB.put("narration", "O sino da torre soa três vezes enquanto a chuva engrossa diante das barracas do pátio. "+
+            "Um oficial indica os estábulos aos viajantes que atravessam os portões, "+
+            "enquanto um mercador observa a fila e recolhe caixotes.");
         envB.put("visual_prompt", "Visual B legítimo");
         envB.put("options", new JSONArray());
         envB.put("_master_validation", new JSONObject().put("valid", true));
