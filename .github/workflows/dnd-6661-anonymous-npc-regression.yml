@@ -1,0 +1,59 @@
+name: DnD 6.6.61 anonymous NPC and full regression
+on:
+  push:
+    branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
+    paths: [.github/workflows/dnd-6661-anonymous-npc-regression.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android
+        run: |
+          sdk="$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
+          "$(find "$sdk/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -1)" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Test entire suite without excluding failures
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          fs=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          d={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in fs:
+            root=ET.parse(f).getroot()
+            for k in d:d[k]+=int(root.get(k,0))
+          print('IMMERSION_QA',d,'SUITES',len(fs))
+          assert d['tests']>=3211 and all(d[k]==0 for k in ('failures','errors','skipped'))
+          PY
+      - name: Build APK with original map assets
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          import zipfile,hashlib
+          from pathlib import Path
+          p=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(p) as z:
+            assert z.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+          print('APK_SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: dnd-6661-anonymous-npc-full-regression
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
