@@ -107,6 +107,27 @@ public class FictionTurnIntentContractRobolectricTest {
         assertEquals("Uma figura de capa azul junto ao arco.",
             referent.optJSONObject("target").optString("visible_description"));
     }
+    @Test public void T05c_anonymousVisibleNpcEntersPublicLedgerWithoutName() throws Exception {
+        JSONObject anonymous=new JSONObject().put("id","npc-unknown-42")
+            .put("name","").put("anonymous",true)
+            .put("visual_description","Uma pessoa de capa azul junto ao arco.")
+            .put("visible_weapons","");
+        JSONObject stage=scene();
+        stage.put("present_npcs_json",new JSONArray().put(anonymous).toString());
+        JSONArray publicNpcs=NpcPerceptionLedger.publicOnstage(db,stage,"","party");
+        assertEquals("Anonymous but present NPC must be visible",1,publicNpcs.length());
+        JSONObject visible=publicNpcs.getJSONObject(0);
+        assertEquals("Uma pessoa de capa azul junto ao arco.",visible.optString("visible_description"));
+        assertEquals("",visible.optString("name_known_to_observer"));
+        assertFalse(visible.optBoolean("is_identified_by_observer"));
+        assertFalse(visible.toString().contains("npc-unknown-42"));
+        assertTrue(visible.optString("stable_ref").startsWith("npc_"));
+        NpcPerceptionLedger.commitAcceptedPresentation(db,stage,
+            "A pessoa de capa azul inclina a cabeça.","party");
+        assertEquals("",NpcPerceptionLedger.publicOnstage(db,stage,"","party")
+            .getJSONObject(0).optString("name_known_to_observer"));
+    }
+
     @Test public void T06_speechToExistingNpcDoesNotBecomeHelp(){
         assertEquals(FictionTurnIntent.Kind.CHARACTER_SPEECH,
             FictionTurnIntent.classify("Pergunto a ela por que está me olhando."));
