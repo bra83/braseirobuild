@@ -132,18 +132,36 @@ def main():
     insert_canary(pre)
     before_with_canary = inspect(pre)
     restore_synthetic_db(pre)
+    # Probe the device copy, not just the edited host snapshot. This separates
+    # an invalid test injection from genuine Android upgrade data loss.
+    restored_before_upgrade = inspect(database_snapshot(evidence / "restored_before_upgrade"))
     adb("shell", "run-as", PKG, "mkdir", "-p", "files")
     adb("shell", "-T", "run-as", PKG, "dd",
         "of=files/qa_upgrade_canary.txt", input_bytes=FILE_TOKEN.encode("utf8"))
     # Upgrade in place: NO uninstall and NO -d downgrade flag.
     adb("install", "-r", str(new), timeout=240)
+    # Android package replacement must not touch existing app-private SQLite.
+    # Capture this before the new Application/Activity can initialize anything.
+    installed_before_launch = inspect(database_snapshot(evidence / "installed_before_launch"))
     app_start()
     stop()
     after_db = database_snapshot(evidence / "after")
     after = inspect(after_db)
     marker = adb("exec-out", "run-as", PKG, "cat",
                  "files/qa_upgrade_canary.txt").decode(errors="replace").strip()
-    passed = (after["scene"] == (LOCATION, 17, 18.75)
+    expected_scene = (LOCATION, 17, 18.75)
+    restored_ok = restored_before_upgrade["scene"] == expected_scene
+    install_ok = installed_before_launch["scene"] == expected_scene
+    launch_ok = after["scene"] == expected_scene
+    if not restored_ok:
+        failure_stage = "synthetic_db_restore_failed"
+    elif not install_ok:
+        failure_stage = "apk_install_modified_db_before_first_launch"
+    elif not launch_ok:
+        failure_stage = "first_app_launch_overwrote_scene"
+    else:
+        failure_stage = "none"
+    passed = (restored_ok and install_ok and launch_ok
               and before_with_canary["characters"] == after["characters"]
               and marker == FILE_TOKEN
               and after["schema_version"] >= before["schema_version"])
@@ -154,7 +172,10 @@ def main():
             "current_sha256": hashlib.sha256(new.read_bytes()).hexdigest()},
         "old_original": before,
         "old_with_synthetic_save": before_with_canary,
+        "restored_before_upgrade": restored_before_upgrade,
+        "installed_before_first_launch": installed_before_launch,
         "new_after_upgrade": after,
+        "failure_stage": failure_stage,
         "private_file_canary_preserved": marker == FILE_TOKEN,
         "upgrade_command": "adb install -r (without uninstall)",
         "passed": passed,
