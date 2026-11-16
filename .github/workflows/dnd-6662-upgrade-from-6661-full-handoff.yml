@@ -96,7 +96,8 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 900
           script: |
-            set -euo pipefail
+            # reactivecircus executes this field with /bin/sh, not bash.
+            set -eu
             mkdir -p qa-6661-to-6662
             failed=0
             for cycle in 1 2 3; do
