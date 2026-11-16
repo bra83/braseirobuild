@@ -35,3 +35,5 @@ Branch de implementação: `fix/dnd-6662-handoff-full-gates-20261116`, derivado 
 ## Resultado da auditoria
 
 Implementação e aprovação automatizada podem reduzir erros comprovados, mas qualidade de narrativa, 40 turnos reais e experiência física não podem ser inferidas de 3213/3213 testes unitários. Exigir evidência em vez de rótulo `100%`.
+
+- Gate adicional de estabilidade: [run 43974963290](https://github.com/bra83/braseirobuild/actions/runs/43974963290) executa **três ciclos isolados** de atualização em emulador, cada um preservando estado de mundo, ficha, inventário, diário e arquivo privado. Os ciclos começam com instalação limpa da **fixture sintética antiga**, mas a transição 6.6.61→6.6.62 ocorre sempre via `adb install -r`, sem apagar os dados no momento do upgrade. A conclusão ainda deve ser confirmada por `qa-6661-to-6662/summary.json`; não marcar PASS por antecipação. A primeira execução com perda de cena usou fixture sem personagens; não assumir causalidade demonstrada até confirmar via teste diferencial.
