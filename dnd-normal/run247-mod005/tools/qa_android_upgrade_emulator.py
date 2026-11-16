@@ -18,6 +18,8 @@ PKG = "com.braseiro.dnd5e"
 DB = "braseiro_dnd.db"
 LOCATION = "QA_UPGRADE_PERSISTENCE_20261114"
 FILE_TOKEN = "BRASEIRO_UPGRADE_CANARY_DO_NOT_DELETE"
+HERO_NAME = "QA_UPGRADE_HERO_20261116"
+JOURNAL_TITLE = "QA_UPGRADE_JOURNAL_20261116"
 
 
 def adb(*parts, input_bytes=None, timeout=150):
@@ -79,8 +81,15 @@ def inspect(dbfile):
             "WHERE world_profile='dnd'").fetchone()
         characters = connection.execute("SELECT COUNT(*) FROM characters").fetchone()[0] \
             if "characters" in tables else None
+        hero = connection.execute(
+            "SELECT name,level,hp,equipment,sheet_json FROM characters WHERE world_profile='dnd' AND name=?",
+            (HERO_NAME,)).fetchone()
+        journal = connection.execute(
+            "SELECT title,body,kind FROM journal WHERE world_profile='dnd' AND title=?",
+            (JOURNAL_TITLE,)).fetchone()
         return dict(integrity=integrity, schema_version=schema_version,
-                    table_count=len(tables), scene=row, characters=characters)
+                    table_count=len(tables), scene=row, characters=characters,
+                    qa_hero=hero, qa_journal=journal)
 
 
 def insert_canary(dbfile):
@@ -93,9 +102,25 @@ def insert_canary(dbfile):
         connection.execute(
             "UPDATE scene_state_profiles SET location=?,day_number=?,clock_hour=? "
             "WHERE world_profile='dnd'", (LOCATION, 17, 18.75))
+        # Representative non-user hero, character-sheet inventory and journal.
+        # These are disposable synthetic records, never real campaign data.
+        stamp = int(time.time() * 1000)
+        equipment = json.dumps([{"name":"QA_RATION","quantity":3}], sort_keys=True)
+        sheet = json.dumps({"qa_probe":True,"inventory":[{"name":"QA_RATION","quantity":3}]}, sort_keys=True)
+        connection.execute(
+            "INSERT INTO characters(world_profile,name,species,class_name,level,hp,max_hp,ac,"
+            "equipment,sheet_json,active,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("dnd",HERO_NAME,"Humano","Mago",2,11,11,13,equipment,sheet,1,stamp,stamp))
+        connection.execute(
+            "INSERT INTO journal(world_profile,title,body,kind,canonical_fact,source_kind,created_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            ("dnd",JOURNAL_TITLE,"QA entry: scene preserved","QA",1,"qa",stamp))
         connection.commit()
         connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
-    assert inspect(dbfile)["scene"] == (LOCATION, 17, 18.75)
+    snapshot = inspect(dbfile)
+    assert snapshot["scene"] == (LOCATION, 17, 18.75)
+    assert snapshot["qa_hero"] is not None and snapshot["qa_journal"] is not None
 
 
 def restore_synthetic_db(dbfile):
@@ -159,10 +184,20 @@ def main():
         failure_stage = "apk_install_modified_db_before_first_launch"
     elif not launch_ok:
         failure_stage = "first_app_launch_overwrote_scene"
+    elif before_with_canary["qa_hero"] != after["qa_hero"] or before_with_canary["qa_journal"] != after["qa_journal"]:
+        failure_stage = "structured_hero_or_journal_changed"
     else:
         failure_stage = "none"
     passed = (restored_ok and install_ok and launch_ok
               and before_with_canary["characters"] == after["characters"]
+              and before_with_canary["qa_hero"] is not None
+              and before_with_canary["qa_hero"] == restored_before_upgrade["qa_hero"]
+              and before_with_canary["qa_hero"] == installed_before_launch["qa_hero"]
+              and before_with_canary["qa_hero"] == after["qa_hero"]
+              and before_with_canary["qa_journal"] is not None
+              and before_with_canary["qa_journal"] == restored_before_upgrade["qa_journal"]
+              and before_with_canary["qa_journal"] == installed_before_launch["qa_journal"]
+              and before_with_canary["qa_journal"] == after["qa_journal"]
               and marker == FILE_TOKEN
               and after["schema_version"] >= before["schema_version"])
     summary = {
