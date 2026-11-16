@@ -240,6 +240,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private String lastSuccessfulScreen="Aventura";
     /* package */ String lastNarration="";
     private String lastPrompt="";
+    private String lastFictionAnswer="";
+    private String lastFictionAnswerSceneHash="";
     private ImageView sceneImage;
     private TextView narratorOutput;
     private ProgressBar narratorProgress;
@@ -1718,6 +1720,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ScrollView narrativeScroll=new ScrollView(this);narrativeScroll.setFillViewport(false);LinearLayout narrativeBox=new LinearLayout(this);narrativeBox.setOrientation(LinearLayout.VERTICAL);narrativeBox.setPadding(dp(2),dp(2),dp(2),dp(4));
         String narration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration==null||lastNarration.trim().length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre está escrevendo a cena…":"Você chegou a Strixhaven. No primeiro ano, o programa é geral: explore o Campus Central e visite os cinco colégios antes de qualquer escolha futura de matrícula. Toque em um local do mapa para se deslocar."):lastNarration);
         strixhavenNarrationOutput=text(GeneratedTextSanitizer.humanText(narration),14,Color.rgb(244,234,211),false);strixhavenNarrationOutput.setLineSpacing(0,1.12f);narrativeBox.addView(strixhavenNarrationOutput);
+        String fictionAnswer=currentFictionAnswer();
+        if(!fictionAnswer.isEmpty()){
+            narrativeBox.addView(text("ESCLARECIMENTO NESTA CENA",11,GOLD,true));
+            narrativeBox.addView(text(fictionAnswer,13,Color.rgb(235,225,199),false));
+        }
         narrativeScroll.addView(narrativeBox);drawer.addView(narrativeScroll,new LinearLayout.LayoutParams(-1,0,1));
         // A lista suspensa deixa todas as escolhas acessíveis sem cobrir a narração.
         if(visibleOptions.length()>0){
@@ -6531,7 +6538,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String shownNarration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration.length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre começou a escrever...":"A aventura ainda não começou."):lastNarration);
         addNarratorSectionSafely(b,"Personagens e posição no mapa",new Runnable(){public void run(){addScenePresencePanel(b);}});
 
-        LinearLayout response=card();LinearLayout narrationHeader=new LinearLayout(this);narrationHeader.setGravity(Gravity.CENTER_VERTICAL);narrationHeader.addView(text("NARRAÇÃO",13,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));int sourceCount=safeCurrentSourceCount();Button sourceInfo=smallButton(sourceCount>0?"ⓘ FONTES "+sourceCount:"ⓘ FONTES",PANEL2);sourceInfo.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSourceInfoDialog();}});narrationHeader.addView(sourceInfo);response.addView(narrationHeader);addNarrationChapters(response,shownNarration);b.addView(response);
+        LinearLayout response=card();LinearLayout narrationHeader=new LinearLayout(this);narrationHeader.setGravity(Gravity.CENTER_VERTICAL);narrationHeader.addView(text("NARRAÇÃO",13,GOLD,true),new LinearLayout.LayoutParams(0,-2,1));int sourceCount=safeCurrentSourceCount();Button sourceInfo=smallButton(sourceCount>0?"ⓘ FONTES "+sourceCount:"ⓘ FONTES",PANEL2);sourceInfo.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showSourceInfoDialog();}});narrationHeader.addView(sourceInfo);response.addView(narrationHeader);addNarrationChapters(response,shownNarration);
+        String fictionAnswer=currentFictionAnswer();
+        if(!fictionAnswer.isEmpty()){
+            response.addView(text("ESCLARECIMENTO NESTA CENA",12,GOLD,true));
+            response.addView(text(fictionAnswer,14,TEXT,false));
+        }
+        b.addView(response);
         addMasterSupportCard(b);
         boolean hasPendingTest=pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true);if(hasPendingTest)addPendingTestCard(b,pendingTest);
         // Compatibilidade: SceneOptionDiversifier.diversify continua sendo a primeira etapa dentro de ensureAlways.
@@ -6764,7 +6777,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void promoteMasterQuestionToAction(String turnId,String rawQuestion){String q=rawQuestion==null?"":rawQuestion.trim();if(q.length()==0||aiBusy)return;String currentScene=currentMasterConversationSceneFingerprint();JSONArray history=masterConversationHistory();boolean allowed=false;JSONObject selectedTurn=null;for(int i=0;i<history.length();i++){JSONObject turn=history.optJSONObject(i);if(turn==null)continue;String id=turn.optString("turn_id",stableFingerprint(turn.optString("scene_fingerprint",currentScene)+"|legacy|"+turn.optString("question","")));String status=turn.optString("promotion_status","available");if(id.equals(turnId)&&currentScene.equals(turn.optString("scene_fingerprint",currentScene))&&("available".equals(status)||"cancelled".equals(status)||status.length()==0)){allowed=true;selectedTurn=turn;break;}}if(!allowed){toast("Essa possibilidade já foi usada ou pertence a outra cena.");return;}String advisory=masterPromotionAdvisoryContext(selectedTurn);boolean retrying="cancelled".equals(selectedTurn.optString("promotion_status","available"));JSONObject promotionDetails=new JSONObject();try{promotionDetails.put("hint_authority","advisory_only");if(advisory.length()>0)promotionDetails.put("promotion_advisory",advisory);if(retrying){promotionDetails.put("retry_count",selectedTurn.optInt("retry_count",0)+1);String[] stale={"test_key","test_label","test_ability","test_skill","test_mode","test_dc","test_source_rule_id","roll_id","roll_actor","roll_formula","roll_mode","roll_natural","roll_total","roll_outcome","roll_source","resolved_after_roll","resolved_without_roll","resolution_excerpt","resolution_scene_fingerprint"};for(String key:stale)promotionDetails.put(key,JSONObject.NULL);}}catch(Exception ignored){AppLog.ignored("MasterConversation","Falha ao registrar contexto consultivo da promoção.",ignored);}activeMasterPromotionTurnId=turnId;activeMasterPromotionQuestion=q;activeMasterPromotionFromRoll=false;updateMasterConversationTurn(turnId,"awaiting_master",promotionDetails);prefs.edit().putString("ai_mode","Narrador").apply();String declared="O jogador confirma que quer TENTAR na ficção a possibilidade discutida na consulta anterior. master_turn_id="+turnId+". Pergunta anterior: "+q+". "+(advisory.length()>0?"CONTEXTO AUXILIAR NÃO AUTORITATIVO da conversa azul: "+advisory+". NÃO copie isso como regra, não fixe CD por causa desta sugestão e não force essa perícia; use apenas como pista de intenção. ":"")+"Trate isto agora como PLAYER_ACTION. Decida o enquadramento mecânico de forma independente pelas regras recuperadas e pelo estado atual. Se houver incerteza e consequência real, peça o teste apropriado pelas regras e pause para a rolagem; depois da rolagem, interprete o resultado e retorne à história. Não considere a consulta anterior como ação já realizada.";sendAi("Narrador",declared);}
 
     /* package */ static boolean shouldRouteNarratorQuestionToMaster(String text){
-        return MasterQuestionIntentGuard.isConsultation(text);
+        // PLAYER_ACTION is its own input channel. A question mark never
+        // redirects the current scene to the blue GM_HELP panel.
+        return false;
     }
 
     /** A dispute about previous scenes is an audit, never an NPC role-play. */
@@ -6857,7 +6872,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout response=card();response.addView(text("NARRAÇÃO",13,GOLD,true));String safeNarration=lastNarration==null||lastNarration.trim().length()==0?"A aventura ainda não começou.":lastNarration;addNarrationChapters(response,safeNarration);b.addView(response);
         addMasterSupportCard(b);
 
-        LinearLayout command=card();command.addView(text("AÇÃO LIVRE DO PERSONAGEM / GRUPO",13,GOLD,true));narratorInput=input("Descreva somente a ação que o personagem ou grupo executa. Dúvidas ficam no quadro azul acima.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);narratorInput.setEnabled(!aiBusy);command.addView(narratorInput);
+        LinearLayout command=card();command.addView(text("AÇÃO LIVRE DO PERSONAGEM / GRUPO",13,GOLD,true));narratorInput=input("Declare uma ação, fale com um NPC ou pergunte o que o personagem percebe nesta cena.","",true);if(pendingRestoredNarratorDraft!=null&&pendingRestoredNarratorDraft.length()>0){narratorInput.setText(pendingRestoredNarratorDraft);narratorInput.setSelection(narratorInput.length());pendingRestoredNarratorDraft="";}narratorInput.setMinLines(3);narratorInput.setEnabled(!aiBusy);command.addView(narratorInput);
         Button send=button(aiBusy?"AGUARDE...":"ENVIAR AO MESTRE",GOLD);send.setTextColor(Color.BLACK);send.setEnabled(!aiBusy);send.setOnClickListener(new View.OnClickListener(){public void onClick(View v){String query=narratorInput.getText().toString().trim();if(query.length()==0){toast("Descreva uma ação ou pergunta.");return;}String mode=narratorMode==null?"Narrador":String.valueOf(narratorMode.getSelectedItem());prefs.edit().putString("ai_mode",mode).apply();sendAi(mode,query);}});command.addView(send);b.addView(command);
 
         LinearLayout links=new LinearLayout(this);links.setOrientation(LinearLayout.HORIZONTAL);Button manuals=smallButton("MANUAIS",PANEL2),settings=smallButton("CONFIGURAÇÕES",PANEL2);manuals.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Manuais");}});settings.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Config");}});links.addView(manuals,new LinearLayout.LayoutParams(0,dp(48),1));links.addView(settings,new LinearLayout.LayoutParams(0,dp(48),1));b.addView(links);
@@ -7963,11 +7978,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(masterSideQueryActive)return "GM_HELP";
         return "";
     }
+    private String currentFictionAnswer(){
+        String fingerprint=SceneActionEvidence.hash(lastNarration==null?"":lastNarration);
+        if(fingerprint.equals(lastFictionAnswerSceneHash))return lastFictionAnswer;
+        if(prefs==null)return "";
+        try{JSONObject saved=new JSONObject(prefs.getString("fiction_observation_"+activeWorldProfile(),"{}"));
+            if(fingerprint.equals(saved.optString("scene_fingerprint","")))
+                return saved.optString("answer","");
+        }catch(Exception ignored){}
+        return "";
+    }
+
     private boolean activeTurnNonAdvancing(String userText){
         String channel=activeInputChannel();
         if("GM_HELP".equals(channel))return true;
-        if("PLAYER_ACTION".equals(channel))return false;
-        return BraseiroNarrativeDirector.isNonAdvancing(userText);
+        if("PLAYER_ACTION".equals(channel))return FictionTurnIntent.freezesWorld(
+            FictionTurnIntent.classify(userText),userText,db==null?null:db.getSceneState());
+        return FictionTurnIntent.freezesWorld(FictionTurnIntent.classify(userText),
+            userText,db==null?null:db.getSceneState())||BraseiroNarrativeDirector.isNonAdvancing(userText);
     }
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
@@ -8446,7 +8474,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
             boolean narrativeResponse = "Narrador".equals(lastAiMode);
             JSONObject projectedScene = projectSceneForSuggestions(env, newCast);
-            newOptions = narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray();
+            // A perceptive answer must NOT replace the scene or rebind choices.
+            newOptions = nonAdvancing?previousOptions:(narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray());
 
             JSONObject sourceAudit = lastAiUsedRag ? buildRagSourceAudit(lastRagCitations) : characterRulesValidator.auditAiAnswer(lastAiMode, env, lastAiManuals);
             JSONObject previousMasterSupport = copyJsonObject(lastMasterSupport);
@@ -8611,6 +8640,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             action == null ? "" : action);
                 }
 
+                if (!changes && masterEnvelopeValid && narrativeResponse)try{
+                    // Only the ACCEPTED text can register a character as known.
+                    NpcPerceptionLedger.commitAcceptedPresentation(db,db.getSceneState(),calculatedNarration,"party");
+                }catch(Exception receiptFailure){AppLog.w("NpcPerception","Could not persist accepted visible NPC presentation",receiptFailure);}
                 if (masterOrchestrator != null && !changes) {
                     masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                 }
@@ -8650,6 +8683,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             else if("Mestre IA".equals(currentScreen))showNarrator();
             return;
         }
+        if(payload.nonAdvancing){
+            // Answer in the same scene, never replace the accepted scene
+            // narration, options, pending test, TTS source or world clock.
+            this.lastFictionAnswer=canonicalize2024Narration(payload.lastNarration);
+            this.lastFictionAnswerSceneHash=SceneActionEvidence.hash(lastNarration==null?"":lastNarration);
+            if(prefs!=null)try{prefs.edit().putString("fiction_observation_"+activeWorldProfile(),
+                new JSONObject().put("scene_fingerprint",lastFictionAnswerSceneHash)
+                    .put("answer",lastFictionAnswer).toString()).apply();}catch(Exception ignored){}
+            clearFailedGeminiRequest();
+            setStatus("Esclarecimento respondido sem avançar a cena, o relógio ou o turno.");
+            if(isStrixhavenAdventure())showStrixhavenSession();
+            else if("Mestre IA".equals(currentScreen))showNarrator();
+            return;
+        }
+        lastFictionAnswer="";lastFictionAnswerSceneHash="";
+        if(prefs!=null)prefs.edit().remove("fiction_observation_"+activeWorldProfile()).apply();
         this.lastNarration = canonicalize2024Narration(payload.lastNarration);
         this.currentOptions = payload.currentOptions;
         this.currentSceneCastPreview = payload.currentSceneCastPreview;
@@ -9758,6 +9807,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }catch(Throwable dynamicError){AppLog.w("DynamicMaster","Direção criativa indisponível; Mestre canônico preservado.",dynamicError);}
         p.append("Todo conteúdo visível deve estar em português do Brasil. Responda SOMENTE com um JSON válido, começando por narration. Termine a narração em frase completa e revise palavras coladas. Na prosa de narration, nunca diga hex, hexágono, célula, grade nem um código cartográfico como EH92. Use o nome confirmado do local, a região ou reino confirmado, o tipo de terreno confirmado ou, quando o atlas ainda não souber, a expressão esta região. Códigos de hex só podem existir em campos técnicos de estado e rota. Referência narrativa do local atual: ").append(NarrativeLocationNaturalizer.currentNarrativeLabel(db)).append(".\n");
         p.append("CANAL DE ENTRADA AUTORITATIVO: ").append(activeInputChannel().length()==0?"LEGACY":activeInputChannel()).append(". PLAYER_ACTION nunca vira dúvida por pontuação; GM_HELP nunca avança a ficção.\n");
+        p.append("PRIORIDADE DA INTENÇÃO E DO CONHECIMENTO NESTE TURNO: ")
+            .append(FictionTurnDirective.forTurn(userText,db.getSceneState(),activeInputChannel())).append("\n");
         p.append("ESTADO COMPACTO AUTORITATIVO E PLANO LOCAL:\n").append(activeMasterPlan==null?"{}":activeMasterPlan.compactContext).append("\n");
         p.append("AGÊNCIA: todos os heróis ativos coexistem. Resolva declarações em causal_order. Nunca decida ação importante por herói em modo manual. Pode oferecer reação, sensação ou observação coerente, mas a decisão continua do jogador. Recursos limitados só podem ser gastos quando declarados ou confirmados. Respeite subgrupos, distância, conhecimento individual e spotlight_hint.\n");
         p.append("FIREWALL DE CONHECIMENTO: o contexto já contém somente fatos reveláveis. Não invente conhecimento para personagens, não revele plano oculto de facção, segredo de NPC ou consequência futura. knowledge_updates registra apenas algo que realmente se tornou conhecido nesta batida.\n");

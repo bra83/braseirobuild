@@ -1,0 +1,39 @@
+name: DnD 6.6.61 handoff source snapshot
+on:
+  push:
+    branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
+    paths:
+      - .github/workflows/dnd-6661-handoff-source-snapshot.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            dnd-normal/run247-mod005/app/src/main/java
+            dnd-normal/run247-mod005/app/src/test/java
+            dnd-normal/run247-mod005/version.properties
+            dnd-normal/run247-mod005/tools
+          filter: blob:none
+      - name: Package inspected source in one small archive
+        run: |
+          python3 - <<'PY'
+          import zipfile,pathlib,hashlib
+          root=pathlib.Path('dnd-normal/run247-mod005')
+          files=list((root/'app/src/main/java').rglob('*.java'))+list((root/'app/src/test/java').rglob('*.java'))
+          files+=list((root/'tools').glob('qa_patch*.py'))+[root/'version.properties']
+          with zipfile.ZipFile('dnd-6661-source-review.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=7) as z:
+            for p in files:
+              if p.is_file():z.write(p)
+          print('SNAPSHOT_FILES',len(files),'ZIP_BYTES',pathlib.Path('dnd-6661-source-review.zip').stat().st_size,'SHA256',hashlib.sha256(pathlib.Path('dnd-6661-source-review.zip').read_bytes()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6661-handoff-source-review
+          path: dnd-6661-source-review.zip
+          retention-days: 5

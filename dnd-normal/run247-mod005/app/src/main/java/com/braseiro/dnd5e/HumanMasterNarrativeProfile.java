@@ -44,7 +44,12 @@ public final class HumanMasterNarrativeProfile {
      */
     public static String turnInstruction(String action, boolean advancing){
         String declared=action==null?"":action.trim();
-        if(!advancing)return "MODO CONSULTA FORA DA FICÇÃO: responda diretamente ao jogador, sem avançar relógio, NPC, estado ou história. Não reintroduza a cena.";
+        if(!advancing){
+            FictionTurnIntent.Kind intent=FictionTurnIntent.classify(action);
+            if(intent==FictionTurnIntent.Kind.FICTION_OBSERVATION||intent==FictionTurnIntent.Kind.MIXED_CONDITIONAL)
+                return "MODO PERCEPÇÃO NA FICÇÃO: responda ao personagem em sua situação atual, sem avançar relógio, cena, NPCs, combate, recursos ou estado. Não reintroduza a cena; não revele segredo nem escreva ações do personagem.";
+            return "MODO CONSULTA FORA DA FICÇÃO: responda diretamente ao jogador, sem avançar relógio, NPC, estado ou história. Não reintroduza a cena.";
+        }
         return "MESA AO VIVO — TURNO ATUAL, PRIORIDADE MÁXIMA:\n"
             +"A descrição anterior é CONTEXTO, NÃO uma cena para reescrever. "
             +"A ação declarada abaixo é o assunto central da resposta. Comece pelo efeito da tentativa: "

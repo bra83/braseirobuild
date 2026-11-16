@@ -1,0 +1,106 @@
+name: DnD 6.6.62 TTS and private diagnostic complete handoff QA
+# Full acceptance cycle includes opaque NPC identities and strict four-option fail-closed.
+# CI correction: Plan.compactContext and safe lexical NPC observer identity.
+on:
+  push:
+    branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
+    paths: [.github/workflows/dnd-6662-final-trace-tts-gate.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android 35
+        run: |
+          set -euo pipefail
+          sdk="$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$sdk" >> "$GITHUB_ENV"
+          "$(find "$sdk/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -1)" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Patch exactly prior QA build, keep schema and backups
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          python3 tools/qa_patch_6662_trace_and_tts.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('version.properties');s=p.read_text()
+          assert 'VERSION_CODE=203900624' in s
+          assert 'VERSION_NAME=6.6.61-immersive-continuity-QA' in s
+          s=s.replace('VERSION_CODE=203900624','VERSION_CODE=203900625')
+          s=s.replace('VERSION_NAME=6.6.61-immersive-continuity-QA',
+                      'VERSION_NAME=6.6.62-immersive-tts-trace-QA')
+          assert 'DB_SCHEMA=61' in s and 'BACKUP_FORMAT=21' in s
+          p.write_text(s)
+          PY
+      - name: Focused voice and trace tests, handoff T01-T20 and 40-turn replay
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.FictionTurnAudioTraceRobolectricTest' --tests 'com.braseiro.dnd5e.FictionTurnIntentContractRobolectricTest' --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' --tests 'com.braseiro.dnd5e.SceneChoiceCommitGateTest' --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET,glob
+          cases=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*FictionTurnAudioTrace*.xml')
+          assert len(cases)==1
+          root=ET.parse(cases[0]).getroot()
+          print('VOICE_AND_DIAGNOSTIC',root.attrib)
+          assert int(root.attrib['tests'])>=3 and int(root.attrib['failures'])==int(root.attrib['errors'])==0
+          PY
+      - name: Full historical DnD Robolectric regression
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET,glob
+          fs=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          n={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in fs:
+            r=ET.parse(f).getroot()
+            for k in n:n[k]+=int(r.get(k,0))
+          print('HANDOFF_FULL_6662',n,'SUITES',len(fs))
+          assert n['tests']>=3211 and all(n[k]==0 for k in ('failures','errors','skipped'))
+          PY
+      - name: Compile real Android APK and validate Faerun atlas
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          import hashlib,zipfile
+          from pathlib import Path
+          p=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(p) as z:
+            assert z.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+            assert len([x for x in z.namelist() if 'br_scene_' in x])>=4
+          print('HANDOFF_FINAL_6662_APK_BYTES',p.stat().st_size)
+          print('HANDOFF_FINAL_6662_SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Commit verified source ONLY if all QA gates pass
+        run: |
+          set -euo pipefail
+          git config user.name 'braseiro-immersive-qa[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java \
+            dnd-normal/run247-mod005/version.properties
+          git commit -m 'fix(dnd): match accepted perception in TTS; opt-in private trace, 6.6.62 QA'
+          git push origin HEAD:refs/heads/fix/dnd-6661-immersao-continuidade-handoff-20261115
+          echo 'HANDOFF_6662_COMMITTED=TRUE'
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: braseiro-dnd-6662-immersive-tts-trace-QA
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14

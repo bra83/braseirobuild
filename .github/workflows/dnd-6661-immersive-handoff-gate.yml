@@ -1,0 +1,113 @@
+name: DnD 6.6.61 immersive handoff full QA gate
+# QA cycle 2: distinguish chuvisco as precipitation in conditional actions.
+on:
+  push:
+    branches: [fix/dnd-6661-immersao-continuidade-handoff-20261115]
+    paths: [.github/workflows/dnd-6661-immersive-handoff-gate.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  implement-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: dnd-normal/run247-mod005
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Strictly apply source patch only on verified successor
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          grep -q '^VERSION_CODE=203900623$' version.properties
+          grep -q '^DB_SCHEMA=61$' version.properties
+          grep -q '^BACKUP_FORMAT=21$' version.properties
+          python3 tools/qa_apply_6661_fiction_handoff.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('version.properties');s=p.read_text()
+          assert 'VERSION_NAME=6.6.60-master-context-watchdog-QA' in s,s
+          s=s.replace('VERSION_NAME=6.6.60-master-context-watchdog-QA','VERSION_NAME=6.6.61-immersive-continuity-QA')
+          s=s.replace('VERSION_CODE=203900623','VERSION_CODE=203900624')
+          assert 'DB_SCHEMA=61' in s and 'BACKUP_FORMAT=21' in s
+          p.write_text(s)
+          PY
+      - name: Run handoff 20 cases and 40-turn SQLite scenario
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest --tests 'com.braseiro.dnd5e.FictionTurnIntentContractRobolectricTest' --tests 'com.braseiro.dnd5e.NarratorConsultationRoutingRegressionTest' --tests 'com.braseiro.dnd5e.SessionTurnQualityRegressionTest' --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          files=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*FictionTurnIntentContract*.xml')
+          assert len(files)==1
+          root=ET.parse(files[0]).getroot()
+          print('FOCUSED_HANDOFF_TESTS',root.attrib)
+          assert int(root.attrib['tests'])>=20 and int(root.attrib['failures'])==0 and int(root.attrib['errors'])==0
+          replay=' '.join(x.text or '' for x in root.findall('system-out'))
+          print('OFFLINE_REPLAY_TURN_COUNT',replay.count('REPLAY_TURN '))
+          assert replay.count('REPLAY_TURN ')>=40
+          PY
+      - name: Entire historical D&D regression suite
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:testDebugUnitTest --no-daemon --console=plain --stacktrace
+          python3 - <<'PY'
+          import glob,xml.etree.ElementTree as ET
+          files=glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml')
+          d={k:0 for k in ('tests','failures','errors','skipped')}
+          for f in files:
+            root=ET.parse(f).getroot()
+            for k in d:d[k]+=int(root.get(k,0))
+          print('HANDOFF_FULL_TESTS',d,'SUITES',len(files))
+          assert d['tests']>=3200 and d['failures']==d['errors']==d['skipped']==0
+          PY
+      - name: Build complete signed Android QA APK preserving Faerun
+        working-directory: dnd-normal/run247-mod005
+        run: |
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile,hashlib
+          apk=Path('app/build/outputs/apk/debug/app-debug.apk')
+          with zipfile.ZipFile(apk) as z:
+            assert z.getinfo('assets/maps/PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip').file_size==102373336
+            assert len([n for n in z.namelist() if 'br_scene_' in n])>=4
+          print('HANDOFF_APK_BYTES',apk.stat().st_size)
+          print('HANDOFF_APK_SHA256',hashlib.sha256(apk.read_bytes()).hexdigest())
+          PY
+      - name: Commit source ONLY after full passing gate
+        run: |
+          set -euo pipefail
+          git config user.name "braseiro-handoff-qa[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java \
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterOrchestrator.java \
+            dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/HumanMasterNarrativeProfile.java \
+            dnd-normal/run247-mod005/version.properties
+          git commit -m "fix(dnd): make scene observations nonadvancing and persistent; preserve NPC presentation, options and context"
+          git push origin HEAD:refs/heads/fix/dnd-6661-immersao-continuidade-handoff-20261115
+          echo "HANDOFF_BRANCH_CODE_PUBLISHED=TRUE"
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: braseiro-dnd-6661-immersive-handoff-QA
+          path: |
+            dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+            dnd-normal/run247-mod005/app/build/test-results/testDebugUnitTest/TEST-*.xml
+          retention-days: 14

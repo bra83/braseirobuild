@@ -1,19 +1,20 @@
 package com.braseiro.dnd5e;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/** Questions cannot be silently promoted into actions with presumed success. */
+/** Handoff 2026-11-15: input field never silently changes channel. */
 public final class NarratorConsultationRoutingRegressionTest {
-    @Test public void questionsAreConsultationsNotResolvedActions(){
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Faço algum teste pra tentar decifrar esse enigma?"));
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Tem algum teste que eu possa fazer para descobrir o local?"));
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Quais perícias posso usar?"));
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Consigo ler a inscrição?"));
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Qual teste"));
-        assertTrue(MainActivity.shouldRouteNarratorQuestionToMaster("Onde está o Biblioplex"));
+    @Test public void queriesStayInMainSceneWithoutAutoRedirect(){
+        for(String question:new String[]{
+            "Como está o tempo?","Como essa pessoa é?","Está armado?",
+            "Consigo ler a inscrição?","Onde está o Biblioplex?",
+            "Faço algum teste pra tentar decifrar esse enigma?",
+            "Tem algum teste que eu possa fazer para descobrir o local?",
+            "Qual regra determina a Percepção passiva?",
+            "Quais perícias posso usar?","Qual teste"
+        })assertFalse(question,MainActivity.shouldRouteNarratorQuestionToMaster(question));
     }
-    @Test public void explicitDeclaredActionsAndSystemPromotionsRemainActions(){
+    @Test public void declaredActionsAndSystemPromotionsRemainActions(){
         assertFalse(MainActivity.shouldRouteNarratorQuestionToMaster("Observo os estudantes e aguardo a resposta."));
         assertFalse(MainActivity.shouldRouteNarratorQuestionToMaster("Caminho até a mesa e examino o pergaminho."));
         assertFalse(MainActivity.shouldRouteNarratorQuestionToMaster(
