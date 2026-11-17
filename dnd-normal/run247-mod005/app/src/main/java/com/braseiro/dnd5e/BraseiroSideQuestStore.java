@@ -26,7 +26,8 @@ public final class BraseiroSideQuestStore {
                 "scope TEXT NOT NULL, module_id TEXT NOT NULL, title TEXT NOT NULL, " +
                 "world_id TEXT NOT NULL, timeline_id TEXT NOT NULL, package_json TEXT NOT NULL, " +
                 "enabled INTEGER NOT NULL DEFAULT 1, state TEXT NOT NULL DEFAULT 'unaccepted', " +
-                "imported_at INTEGER NOT NULL, PRIMARY KEY(scope,module_id))");
+                "imported_at INTEGER NOT NULL, location_index TEXT NOT NULL DEFAULT '', " +
+                "PRIMARY KEY(scope,module_id))");
         sql.execSQL("CREATE TABLE IF NOT EXISTS braseiro_sidequest_rumors (" +
                 "scope TEXT NOT NULL, module_id TEXT NOT NULL, rumor_id TEXT NOT NULL, " +
                 "source TEXT NOT NULL, location TEXT NOT NULL, day_number INTEGER NOT NULL, " +
@@ -65,7 +66,7 @@ public final class BraseiroSideQuestStore {
         ContentValues row = new ContentValues();
         row.put("scope",scope()); row.put("module_id",id); row.put("title",pkg.getString("title"));
         row.put("world_id",world); row.put("timeline_id",timeline);
-        row.put("package_json",pkg.toString()); row.put("enabled",1);
+        row.put("package_json",pkg.toString()); row.put("location_index",locationIndex(pkg)); row.put("enabled",1);
         row.put("state","unaccepted"); row.put("imported_at",System.currentTimeMillis());
         if (sql.insertOrThrow("braseiro_sidequest_modules",null,row) < 0)
             throw new IllegalStateException("Não foi possível registrar a missão secundária.");
@@ -116,6 +117,38 @@ public final class BraseiroSideQuestStore {
         // Never delete committed canonical events, journal, NPCs or main story.
     }
 
+    /**
+     * Tiny non-secret index so each scene never reparses every 2 MB module.
+     * A positive match is only a prefilter; eligibleRumors still verifies place.
+     */
+    private static String locationIndex(JSONObject pkg) {
+        StringBuilder index=new StringBuilder("|");
+        JSONArray locs=pkg.optJSONArray("locations");
+        for(int i=0;locs!=null&&i<locs.length();i++){
+            JSONObject location=locs.optJSONObject(i);if(location==null)continue;
+            for(String key:new String[]{"id","name","atlasHex"}){
+                String value=location.optString(key,"");
+                if(!value.isEmpty()&&!value.equals("null"))
+                    index.append(normalized(value).trim()).append("|");
+            }
+        }
+        JSONObject geo=pkg.optJSONObject("canonicalGeography");
+        JSONArray anchors=geo==null?null:geo.optJSONArray("canonicalAnchors");
+        for(int i=0;anchors!=null&&i<anchors.length();i++){
+            JSONObject place=anchors.optJSONObject(i);
+            if(place!=null)index.append(normalized(place.optString("name")).trim()).append("|");
+        }
+        return index.toString();
+    }
+    private static boolean indexCouldMatch(String index,String scene,String hex){
+        if(index==null||index.trim().isEmpty())return true; // legacy row
+        if(scene==null||scene.trim().isEmpty())return false;
+        for(String candidate:index.split("\\|")){
+            if(candidate.trim().length()>=5&&containsPlace(scene,candidate))return true;
+            if(!hex.isEmpty()&&candidate.trim().equalsIgnoreCase(hex))return true;
+        }
+        return false;
+    }
     private static String normalized(String text) {
         if(text == null) return "";
         String lowered = Normalizer.normalize(text,Normalizer.Form.NFD)
@@ -286,9 +319,13 @@ public final class BraseiroSideQuestStore {
             String location=scene.optString("location","");
             String hex=map.optString("current_hex_id","");
             JSONArray nearby=new JSONArray();
-            for(JSONObject row:db.queryList("SELECT module_id,title,package_json,state FROM braseiro_sidequest_modules " +
-                    "WHERE scope=? AND enabled=1 ORDER BY imported_at LIMIT 100",new String[]{scope()})) {
-                JSONObject pkg=new JSONObject(row.optString("package_json","{}"));
+            for(JSONObject row:db.queryList("SELECT module_id,title,location_index,state FROM braseiro_sidequest_modules " +
+                    "WHERE scope=? AND enabled=1 ORDER BY imported_at LIMIT 200",new String[]{scope()})) {
+                if(!indexCouldMatch(row.optString("location_index"),location,hex))continue;
+                JSONObject raw=db.queryOne("SELECT package_json FROM braseiro_sidequest_modules WHERE scope=? AND module_id=?",
+                    new String[]{scope(),row.optString("module_id")});
+                if(raw.length()==0)continue;
+                JSONObject pkg=new JSONObject(raw.optString("package_json","{}"));
                 JSONArray candidates=eligibleRumors(pkg,location,hex),unheard=new JSONArray();
                 for(int i=0;i<candidates.length();i++){
                     JSONObject candidate=candidates.optJSONObject(i);
