@@ -226,5 +226,55 @@ def main():
         raise RuntimeError("ANDROID_UPGRADE_SAVE_INTEGRITY_FAILED")
 
 
+def run_repeated_cycles():
+    """Run independent emulator fixtures; the in-place update never uninstalls."""
+    import sys
+    import traceback
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--previous", required=True)
+    parser.add_argument("--current", required=True)
+    parser.add_argument("--evidence", default="qa-emulator-evidence")
+    parser.add_argument("--cycles", type=int, default=1)
+    args = parser.parse_args()
+    if not 1 <= args.cycles <= 6:
+        raise ValueError("cycles must be between 1 and 6")
+    base = Path(args.evidence)
+    base.mkdir(parents=True, exist_ok=True)
+    results = []
+    for index in range(1, args.cycles + 1):
+        cycle_dir = base / ("cycle-%d" % index)
+        print("=== INDEPENDENT_ANDROID_UPGRADE_CYCLE %d/%d ===" % (index, args.cycles), flush=True)
+        try:
+            if index > 1:
+                # Clean up the previous *disposable test installation* only.
+                # main() always performs the actual upgrade with adb install -r.
+                removed = subprocess.run(["adb", "uninstall", PKG],
+                                         capture_output=True, text=True, timeout=240)
+                if removed.returncode != 0:
+                    raise RuntimeError("Synthetic test uninstall failed: " + removed.stderr)
+            sys.argv = [sys.argv[0], "--previous", args.previous,
+                        "--current", args.current, "--evidence", str(cycle_dir)]
+            main()
+            report_path = cycle_dir / "result.json"
+            report = json.loads(report_path.read_text(encoding="utf8"))
+            results.append({"cycle": index, "passed": bool(report.get("passed")),
+                            "failure_stage": report.get("failure_stage"),
+                            "before": report.get("old_with_synthetic_save", {}).get("scene"),
+                            "after": report.get("new_after_upgrade", {}).get("scene")})
+        except Exception as error:
+            traceback.print_exc()
+            results.append({"cycle": index, "passed": False,
+                            "failure_stage": type(error).__name__ + ": " + str(error)})
+    overall = {"rounds": args.cycles,
+               "all_passed": len(results) == args.cycles and all(x["passed"] for x in results),
+               "round_results": results}
+    (base / "summary.json").write_text(
+        json.dumps(overall, ensure_ascii=False, indent=2), encoding="utf8")
+    print("ANDROID_UPGRADE_MULTI_CYCLE_SUMMARY=" +
+          json.dumps(overall, ensure_ascii=False), flush=True)
+    if not overall["all_passed"]:
+        raise RuntimeError("ANDROID_UPGRADE_MULTI_CYCLE_GATE_FAILED")
+
+
 if __name__ == "__main__":
-    main()
+    run_repeated_cycles()
