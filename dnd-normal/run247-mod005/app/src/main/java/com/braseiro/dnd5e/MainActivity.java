@@ -8777,6 +8777,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     // Only the ACCEPTED text can register a character as known.
                     NpcPerceptionLedger.commitAcceptedPresentation(db,db.getSceneState(),calculatedNarration,"party");
                 }catch(Exception receiptFailure){AppLog.w("NpcPerception","Could not persist accepted visible NPC presentation",receiptFailure);}
+                if(!changes && masterEnvelopeValid && narrativeResponse && !isMystaraWorld()){
+                    new BraseiroSideQuestStore(db).recordAcceptedNarration(
+                        calculatedNarration,db.getSceneState().optString("location",""),
+                        db.getSceneState().optInt("day_number",1));
+                }
                 if (masterOrchestrator != null && !changes) {
                     masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                 }
@@ -9139,6 +9144,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(
                         SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory()),
                         currentOptions).toString());
+                    if(!isMystaraWorld())
+                        new BraseiroSideQuestStore(db).recordAcceptedNarration(
+                            lastNarration,db.getSceneState().optString("location",""),
+                            db.getSceneState().optInt("day_number",1));
                     if(isStrixhavenAdventure()
                             && !StoryMomentumAction.isRequest(prepared.optString("_accepted_player_action",lastPrompt)))
                         processStrixhavenOfficialProgress(prepared,lastNarration);
