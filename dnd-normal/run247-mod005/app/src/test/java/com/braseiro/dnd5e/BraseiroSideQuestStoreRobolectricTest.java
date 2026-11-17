@@ -125,6 +125,41 @@ public class BraseiroSideQuestStoreRobolectricTest {
         assertEquals(2,restored.length());
         assertFalse(restored.getJSONObject(1).optBoolean("enabled"));
     }
+    @Test public void followingIsExplicitAndDoesNotTouchWorldState() throws Exception {
+        BraseiroAdventureStore main=new BraseiroAdventureStore(db);
+        main.importJson(sample("principal","Campanha principal").toString());
+        BraseiroSideQuestStore side=new BraseiroSideQuestStore(db);
+        side.importJson(sample("optional","Missão secundária").toString());
+        side.setFollowing("optional",true);
+        assertEquals("following",side.listInstalled().getJSONObject(0).optString("state"));
+        assertEquals("principal",main.masterContext().optString("activeId"));
+        assertEquals(0,db.listQuests("active",100).size());
+        side.setFollowing("optional",false);
+        assertEquals("unaccepted",side.listInstalled().getJSONObject(0).optString("state"));
+    }
+    @Test public void playableLocalMaterialIsGatedAndRemainsPrivate() throws Exception {
+        JSONObject pkg=sample("local","Aventura");
+        pkg.getJSONArray("encounters").put(new JSONObject().put("id","e01")
+            .put("locationId","luskan").put("type","social")
+            .put("description","Uma cobrança inesperada nas docas.")
+            .put("trigger","Somente quando o host confirmar a localização."));
+        pkg.put("clues",new JSONArray().put(new JSONObject()
+            .put("id","c01").put("locationId","luskan")
+            .put("description","Um documento tem assinatura incompleta.")
+            .put("revealCondition","investigação efetivamente realizada")));
+        pkg.getJSONArray("npcs").put(new JSONObject().put("id","npc01")
+            .put("name","Lena Fen").put("publicRole","vigia").put("appearance","sobretudo azul")
+            .put("secret","SEGREDO_QUE_NAO_PODE_VAZAR")
+            .put("places",new JSONArray().put("luskan")));
+        JSONObject far=BraseiroSideQuestStore.localSceneMaterial(pkg,"Waterdeep","");
+        assertEquals(0,far.getJSONArray("optional_encounters").length());
+        assertEquals(0,far.getJSONArray("conditional_clues_private").length());
+        JSONObject near=BraseiroSideQuestStore.localSceneMaterial(pkg,"Luskan","");
+        assertEquals(1,near.getJSONArray("optional_encounters").length());
+        assertEquals(1,near.getJSONArray("conditional_clues_private").length());
+        assertEquals(1,near.getJSONArray("possible_npcs_NOT_spawned").length());
+        assertFalse(near.toString().contains("SEGREDO_QUE_NAO_PODE_VAZAR"));
+    }
     @Test public void incompatibleMainWorldNeverOverwritten() throws Exception {
         BraseiroAdventureStore main=new BraseiroAdventureStore(db);
         JSONObject principal=sample("principal","Principal").put("worldId","faerun-world-x");
