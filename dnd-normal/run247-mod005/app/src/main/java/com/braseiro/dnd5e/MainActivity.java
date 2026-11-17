@@ -1824,6 +1824,24 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 Button retry=smallButton("TENTAR NOVAMENTE",GREEN);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
                 Button off=smallButton("MESTRE OFFLINE",PANEL2);off.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
                 failRow.addView(retry,new LinearLayout.LayoutParams(0,dp(38),1));failRow.addView(off,new LinearLayout.LayoutParams(0,dp(38),1));
+                Button unlock=smallButton("LIBERAR CENA SEM APAGAR O SAVE",PANEL2);
+                unlock.setOnClickListener(v->{
+                    if(aiBusy){toast("Termine ou interrompa a tentativa em andamento.");return;}
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Liberar a cena existente?")
+                        .setMessage("Apenas o pedido que falhou será retirado da fila de repetição. " +
+                            "A cena, fichas, campanha, diário e posição não serão apagados. " +
+                            "O texto da ação será mantido no campo para você revisar.")
+                        .setNegativeButton("CANCELAR",null)
+                        .setPositiveButton("LIBERAR", (dialog,which)->{
+                            String saved=prefs.getString(RETRY_PREFIX+"action","");
+                            pendingRestoredNarratorDraft=saved;
+                            clearFailedGeminiRequest();
+                            setStatus("Cena preservada; ação anterior no campo para revisão. Nenhuma nova ação executada.");
+                            if(isStrixhavenAdventure())showStrixhavenSession();else showNarrator();
+                        }).show();
+                });
+                failCard.addView(unlock);
                 failCard.addView(failRow);controlsBox.addView(failCard);
             }
             if(pendingTest!=null&&pendingTest.length()>0&&pendingTest.optBoolean("required",true))addPendingTestCard(controlsBox,pendingTest);
@@ -7725,9 +7743,70 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             .setMessage("O motor local será usado por escolha manual. As próximas ações voltarão a tentar o Gemini normalmente.")
             .setNegativeButton("CANCELAR",null)
             .setPositiveButton("USAR OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
-                manualOfflineNextRequest=true;
-                sendAi(mode,action,channel);
+                sendIndependentOfflineRecovery(mode,action,channel);
             }}).show();
+    }
+
+    /** Independent recovery: skips Gemini, RAG and MasterOrchestrator.prepare entirely. */
+    private static final class EmergencyOfflineTurn {
+        final MasterOrchestrator.Plan plan;
+        final JSONObject envelope;
+        EmergencyOfflineTurn(MasterOrchestrator.Plan p,JSONObject e){plan=p;envelope=e;}
+    }
+    private void sendIndependentOfflineRecovery(final String mode,final String action,final String channel){
+        if(aiBusy){toast("O Mestre já está trabalhando.");return;}
+        final long pipelineId=++aiPipelineGeneration;
+        final long requestId=++aiRequestGeneration;
+        manualOfflineNextRequest=false;manualOfflinePipelineId=-1L;
+        aiBusy=true;streamingNarration="";
+        lastAiMode=mode==null?"Narrador":mode;lastPrompt=action;
+        activeRuleRetrieval=new JSONObject();lastAiManuals=new JSONArray();
+        lastRagCitations=new JSONArray();lastAiUsedRag=false;pendingAiInputChars=0;
+        updateNarratorBusyUi();
+        setStatus("Recuperando a cena com Mestre offline, sem depender do Gemini ou da preparação anterior...");
+        final MasterPreparationCoordinator independent=new MasterPreparationCoordinator(
+            ui,AppExecutors.offlineRecovery(),15000L);
+        independent.prepare(new Callable<EmergencyOfflineTurn>(){
+            @Override public EmergencyOfflineTurn call() throws Exception {
+                MasterOrchestrator.Plan snapshot=OfflineMasterRecoveryContext.fromSaved(db,action,channel);
+                if(offlineMaster==null)throw new IllegalStateException("Motor local não inicializado.");
+                JSONObject response=offlineMaster.generate(mode,action,snapshot,new ArrayList<JSONObject>());
+                if(response==null||response.optString("narration","").trim().isEmpty())
+                    throw new IllegalStateException("O Mestre local não gerou narração verificável.");
+                return new EmergencyOfflineTurn(snapshot,response);
+            }
+        },new MasterPreparationCoordinator.Callbacks<EmergencyOfflineTurn>(){
+            @Override public void onPrepared(EmergencyOfflineTurn turn){
+                if(!aiBusy||pipelineId!=aiPipelineGeneration||requestId!=aiRequestGeneration)return;
+                if(turn==null||turn.plan==null||turn.envelope==null){
+                    onFailure(new IllegalStateException("Contexto local incompleto."));return;
+                }
+                activeMasterPlan=turn.plan;
+                if(masterOrchestrator!=null)masterOrchestrator.setActivePlanForValidation(turn.plan);
+                aiBusy=false;streamingNarration="";
+                setStatus("Mestre offline respondeu; validando antes de gravar consequências...");
+                handleAiResponseForOfflineRecovery(turn.envelope.toString(),action);
+            }
+            @Override public void onFailure(Throwable error){
+                if(pipelineId!=aiPipelineGeneration||requestId!=aiRequestGeneration)return;
+                aiBusy=false;streamingNarration="";
+                AppLog.e("OfflineRecovery","Recuperação local não concluída; save preservado.",error);
+                setStatus("Mestre offline não concluiu: "+safeUiError(error)+". A ação e a cena foram preservadas.");
+                updateNarratorBusyUi();
+            }
+            @Override public void onTimeout(){
+                if(pipelineId!=aiPipelineGeneration||requestId!=aiRequestGeneration)return;
+                aiBusy=false;streamingNarration="";++aiPipelineGeneration;
+                setStatus("Recuperação local excedeu 15 segundos; nenhuma cena foi aplicada. A ação continua salva.");
+                updateNarratorBusyUi();
+            }
+        });
+    }
+    private void handleAiResponseForOfflineRecovery(final String raw,final String action){
+        final long requestGen=aiRequestGeneration;
+        AppExecutors.offlineRecovery().execute(new Runnable(){
+            @Override public void run(){processAiResponseInBackground(raw,action,requestGen);}
+        });
     }
 
     /** Opt-in private diagnostic; no events leave the app without explicit share. */
