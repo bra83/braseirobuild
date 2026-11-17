@@ -20,7 +20,7 @@ public final class AppExecutors {
     // cancelled FutureTasks on every new submission; never execute stale scenes.
     // Core threads are prestarted so fresh work has a predictable execution path.
     private static final ThreadPoolExecutor MASTER_PREPARATION =
-        new ThreadPoolExecutor(2,4,45L,TimeUnit.SECONDS,
+        new ThreadPoolExecutor(4,4,45L,TimeUnit.SECONDS,
                 new java.util.concurrent.ArrayBlockingQueue<Runnable>(4),
                 namedFactory("braseiro-master-prepare"),
                 new ThreadPoolExecutor.AbortPolicy()) {
