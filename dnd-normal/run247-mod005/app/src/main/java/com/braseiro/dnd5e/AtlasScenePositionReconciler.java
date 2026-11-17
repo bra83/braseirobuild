@@ -99,9 +99,30 @@ public final class AtlasScenePositionReconciler {
         if(db==null)return new JSONObject();
         JSONObject map=db.getMapState(),scene=db.getSceneState();String packageId=map.optString("map_package_id","").trim(),hex=map.optString("current_hex_id","").trim();
         if(packageId.length()==0||hex.length()==0||db.getRawMapHex(packageId,hex).length()==0)return scene;
-        String sceneHex=scene.optString("hex_id","").trim();String location=scene.optString("location","").trim();boolean moving=!hex.equalsIgnoreCase(sceneHex);boolean changed=false;
-        if(moving){scene.put("hex_id",hex);changed=true;JSONObject best=bestConfirmedAtHex(db,packageId,hex);scene.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");}
-        else if(location.length()>0){JSONObject known=exactConfirmedLocation(db,packageId,location);if(known.length()>0&&!resolvedHex(known).equalsIgnoreCase(hex)){JSONObject best=bestConfirmedAtHex(db,packageId,hex);scene.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");changed=true;}}
+        String sceneHex=scene.optString("hex_id","").trim();String location=scene.optString("location","").trim();
+        // No saved hex means legacy/uninitialized geography, NOT proven travel.
+        // Preserve an unknown narrative sublocation while binding it to the
+        // canonical hex. Only discard the name when the Atlas positively
+        // identifies that catalogued location as belonging to another hex.
+        boolean moving=sceneHex.length()>0&&!hex.equalsIgnoreCase(sceneHex);
+        boolean needsBinding=sceneHex.length()==0;
+        boolean changed=false;
+        if(moving){
+            scene.put("hex_id",hex);changed=true;JSONObject best=bestConfirmedAtHex(db,packageId,hex);
+            scene.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");
+        }else{
+            if(needsBinding){scene.put("hex_id",hex);changed=true;}
+            if(location.length()>0){
+                JSONObject known=exactConfirmedLocation(db,packageId,location);
+                if(known.length()>0&&!resolvedHex(known).equalsIgnoreCase(hex)){
+                    JSONObject best=bestConfirmedAtHex(db,packageId,hex);
+                    scene.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");changed=true;
+                }
+            }else if(needsBinding){
+                JSONObject best=bestConfirmedAtHex(db,packageId,hex);
+                scene.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");
+            }
+        }
         if(changed){db.saveSceneStateChecked(scene);try{db.addAuditEvent("atlas","Cena reconciliada com a posição canônica",reason==null?"posição atual":reason,"{}",scene.toString(),true);}catch(Exception ignored){AppLog.ignored("AtlasScenePosition","Falha tolerada ao auditar reconciliação.",ignored);}}
         return scene;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
@@ -131,9 +152,13 @@ public final class AtlasScenePositionReconciler {
         JSONObject scene=db.getSceneState(),map=db.getMapState();String packageId=map.optString("map_package_id","").trim(),hex=map.optString("current_hex_id","").trim();
         try{
             JSONObject out=new JSONObject(scene.toString());if(packageId.length()==0||hex.length()==0||db.getRawMapHex(packageId,hex).length()==0)return out;
-            String sceneHex=out.optString("hex_id","").trim(),location=out.optString("location","").trim();boolean moving=!hex.equalsIgnoreCase(sceneHex);out.put("hex_id",hex);
+            String sceneHex=out.optString("hex_id","").trim(),location=out.optString("location","").trim();
+            boolean moving=sceneHex.length()>0&&!hex.equalsIgnoreCase(sceneHex);
+            boolean needsBinding=sceneHex.length()==0;
+            out.put("hex_id",hex);
             if(moving){JSONObject best=bestConfirmedAtHex(db,packageId,hex);out.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");}
             else if(location.length()>0){JSONObject known=exactConfirmedLocation(db,packageId,location);if(known.length()>0&&!resolvedHex(known).equalsIgnoreCase(hex)){JSONObject best=bestConfirmedAtHex(db,packageId,hex);out.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");}}
+            else if(needsBinding){JSONObject best=bestConfirmedAtHex(db,packageId,hex);out.put("location",best.length()>0?best.optString("name","Esta região"):"Esta região");}
             out.put("atlas_position_authority",true);return out;
         }catch(Exception ignored){return scene;}
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
