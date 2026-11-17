@@ -1,0 +1,1059 @@
+{
+  "schema": "braseiro.faerun.season/1",
+  "id": "temporada-01-as-contas-da-estrada-longa",
+  "revision": 1,
+  "title": "Temporada 01 — As Contas da Estrada Longa",
+  "setting": "Forgotten Realms / Faerûn",
+  "rules_profile": "dnd5e-2024",
+  "world_profile": "dnd",
+  "adventure_mode": "open_sandbox",
+  "editorial_release": [
+    {
+      "volume": "1",
+      "focus": "mundo, história e gerador"
+    },
+    {
+      "volume": "2",
+      "focus": "encontros, NPCs e locais"
+    },
+    {
+      "volume": "3",
+      "focus": "tensões avançadas e aventuras opcionais"
+    }
+  ],
+  "starting_city_id": "yartar",
+  "start_hex_requirement": {
+    "city": "Yartar",
+    "hex": "DM28",
+    "must_match_installed_atlas": true
+  },
+  "provenance": {
+    "original_content": "Braseiro: histórias, NPCs e locais secundários inéditos",
+    "canon_place_references": "Nomes e geografias de Forgotten Realms; consultar Atlas local e publicações oficiais autorizadas",
+    "dnd_rules": "D&D 2024 host (SRD 5.2.1 para conteúdo reutilizável)",
+    "taberneiros": "Metodologia modular estudada; nenhum texto, arte ou tabela reproduzido",
+    "copyright_notice": "Forgotten Realms não está licenciado pelo SRD sob CC-BY; rever licenças antes de distribuir comercialmente."
+  },
+  "contracts": {
+    "canon": "Lugar oficial só é exibido como presente se nome e hex coincidirem no Atlas instalado; novos pontos pertencem à camada de campanha.",
+    "mechanics": "O pacote nunca decide CA, CD, XP, dano, testes, tesouro, deslocamento, descanso ou resultado. Resolver exclusivamente pelo motor D&D 2024 já selecionado.",
+    "timing": "Relógios e efeitos avançam apenas com tempo canônico confirmado pelo host. Nunca por simples consulta ao Mestre.",
+    "agency": "Gancho é possibilidade, não quest aceita; jogador pode ignorar, negociar, sair ou propor abordagem própria.",
+    "secrets": "Segredos só existem para o Mestre; não atribuir conhecimento a NPC sem testemunho ou aquisição persistida.",
+    "continuity": "Não inventar sucesso, encontro realizado, viagem, NPC presente, conhecimento do herói ou mudanças retroativas.",
+    "isolation": "Proibido ativar em Mystara, Arcavios/Strixhaven ou outros sistemas; não alterar dados de campanhas anteriores."
+  },
+  "places": [
+    {
+      "id": "yartar",
+      "name": "Yartar",
+      "region": "Vale do Dessarin",
+      "type": "cidade",
+      "canonical_place": true,
+      "atlas_hex": "DM28",
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Entrada canônica pós-Strixhaven já verificada no Atlas do VTT"
+    },
+    {
+      "id": "triboar",
+      "name": "Triboar",
+      "region": "O Norte / Vale do Dessarin",
+      "type": "cidade",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Ponto de comércio e circulação, exigir coincidência no catálogo"
+    },
+    {
+      "id": "westbridge",
+      "name": "Westbridge",
+      "region": "Vale do Dessarin",
+      "type": "povoado",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Ponto de passagem pela Estrada Longa"
+    },
+    {
+      "id": "red_larch",
+      "name": "Red Larch",
+      "region": "Vale do Dessarin",
+      "type": "vila",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Ponto de apoio para viajantes e expedições"
+    },
+    {
+      "id": "beliard",
+      "name": "Beliard",
+      "region": "Vale do Dessarin",
+      "type": "povoado",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Vila rural, verificar representação exata no pacote instalado"
+    },
+    {
+      "id": "womford",
+      "name": "Womford",
+      "region": "Vale do Dessarin",
+      "type": "vila",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Ponto fluvial, verificar representação exata no pacote instalado"
+    },
+    {
+      "id": "waterdeep",
+      "name": "Waterdeep",
+      "region": "Costa da Espada",
+      "type": "metrópole",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Mercado e centros de poder, sem visita ou teleporte automáticos"
+    },
+    {
+      "id": "neverwinter",
+      "name": "Neverwinter",
+      "region": "Costa da Espada",
+      "type": "cidade",
+      "canonical_place": true,
+      "atlas_hex": null,
+      "atlas_resolution": "exact_catalog_match_required",
+      "note": "Cidade ao norte, somente como expansão de viagem confirmada"
+    }
+  ],
+  "factions": [
+    {
+      "id": "liga_dos_fretes",
+      "name": "Liga dos Fretes do Norte",
+      "kind": "original",
+      "base": "Yartar",
+      "public_goal": "Organizar contratos e proteção de mercadorias",
+      "private_pressure": "A diretoria desconfia que alguém vende itinerários de comboios",
+      "agency": "Pode contratar escoltas, mudar tarifas, negociar ou fechar rotas"
+    },
+    {
+      "id": "barqueiros_do_dessarin",
+      "name": "Irmandade da Corda Azul",
+      "kind": "original",
+      "base": "Yartar",
+      "public_goal": "Garantir segurança de barcas e travessias",
+      "private_pressure": "Dois barqueiros investigam cargas que somem sem naufrágio",
+      "agency": "Pode suspender viagens, disseminar avisos e investigar"
+    },
+    {
+      "id": "cobradores_da_pedra",
+      "name": "Consórcio da Pedra de Marco",
+      "kind": "original",
+      "base": "Westbridge",
+      "public_goal": "Cobrar conservação de um desvio de estrada",
+      "private_pressure": "Uma parte dos cobradores tem agido sem autorização",
+      "agency": "Pode negociar pedágios, evitar violência ou recorrer a mercenários"
+    },
+    {
+      "id": "vigias_das_charnecas",
+      "name": "Vigias do Junco",
+      "kind": "original",
+      "base": "Beliard",
+      "public_goal": "Preservar roças e caminhos de pastoreio",
+      "private_pressure": "Há quem pretenda incendiar o pasto para forçar a venda de terras",
+      "agency": "Pode ocultar trilhas, pedir ajuda e transferir rebanhos"
+    },
+    {
+      "id": "casa_das_lanternas",
+      "name": "Casa das Lanternas",
+      "kind": "original",
+      "base": "Triboar",
+      "public_goal": "Serviço voluntário de mensageiros e procura de desaparecidos",
+      "private_pressure": "A liderança recebe duas versões incompatíveis da mesma ocorrência",
+      "agency": "Pode organizar buscas, trocar notícias e recusar contratos"
+    }
+  ],
+  "arcs": [
+    {
+      "id": "fretes_sem_rota",
+      "title": "Os fretes que não chegam",
+      "anchors": [
+        "yartar",
+        "triboar",
+        "westbridge"
+      ],
+      "premise": "Carregamentos desaparecem em dias diferentes, sem o mesmo método aparente.",
+      "question": "Há um autor comum ou aproveitadores independentes?",
+      "stages": [
+        "inquietação",
+        "contratos mais caros",
+        "abastecimento incerto",
+        "rotas alternativas"
+      ],
+      "free_play": true
+    },
+    {
+      "id": "pedagio_partido",
+      "title": "A cobrança dividida",
+      "anchors": [
+        "westbridge",
+        "red_larch"
+      ],
+      "premise": "Duas autoridades autoproclamadas exigem tarifas pela mesma passagem.",
+      "question": "Quem possui legitimidade e quem se beneficia da confusão?",
+      "stages": [
+        "boatos",
+        "cobranças",
+        "bloqueio parcial",
+        "mediação ou conflito"
+      ],
+      "free_play": true
+    },
+    {
+      "id": "rio_sem_testemunhas",
+      "title": "O rio sem testemunhas",
+      "anchors": [
+        "yartar",
+        "womford"
+      ],
+      "premise": "Uma barca vazia retorna à margem enquanto seus tripulantes continuam desaparecidos.",
+      "question": "Houve acidente, crime, fuga ou algo que ninguém compreendeu?",
+      "stages": [
+        "barca avistada",
+        "investigação de margens",
+        "pressão nos portos",
+        "nova pista ou rumor"
+      ],
+      "free_play": true
+    },
+    {
+      "id": "cinzas_do_pasto",
+      "title": "Cinzas antes da colheita",
+      "anchors": [
+        "beliard",
+        "red_larch"
+      ],
+      "premise": "Queimadas pequenas e oportunas ameaçam lavouras e pastagens.",
+      "question": "Acidentes de seca ou pressão econômica disfarçada?",
+      "stages": [
+        "mau cheiro de fumaça",
+        "animais deslocados",
+        "falta de forragem",
+        "êxodo rural"
+      ],
+      "free_play": true
+    },
+    {
+      "id": "cartas_sem_selo",
+      "title": "Cartas sem selo",
+      "anchors": [
+        "triboar",
+        "waterdeep"
+      ],
+      "premise": "Mensagens com remetentes falsos provocam disputas por contratos e reputações.",
+      "question": "Quem altera as mensagens e qual fato verdadeiro tenta encobrir?",
+      "stages": [
+        "mensagens contraditórias",
+        "desconfiança",
+        "quebra de alianças",
+        "esclarecimento ou conflito"
+      ],
+      "free_play": true
+    },
+    {
+      "id": "pedra_que_ouve",
+      "title": "O eco sob a estrada",
+      "anchors": [
+        "red_larch",
+        "westbridge"
+      ],
+      "premise": "Obras numa estrada revelam indícios de um recinto soterrado e de sua ocupação antiga.",
+      "question": "O local guarda apenas ruínas ou algo que alguém prefere manter fechado?",
+      "stages": [
+        "obra interrompida",
+        "curiosos no local",
+        "disputa de posse",
+        "exploração ou selamento"
+      ],
+      "free_play": true
+    }
+  ],
+  "adventures": [
+    {
+      "id": "as_mulas_voltaram",
+      "title": "As Mulas Voltaram",
+      "anchor": "yartar",
+      "level_range": [
+        1,
+        5
+      ],
+      "kind": "investigação",
+      "hook": "Um tratador recebe três mulas de volta sem arreios nem condutores.",
+      "objective": "Determinar quem conduzia o comboio e se alguém precisa de resgate.",
+      "complication": "Uma mercadora reconhece a marca de uma mula, mas omite a origem.",
+      "if_ignored": "O proprietário pode oferecer recompensa a outro grupo.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "preco_da_ponte",
+      "title": "O Preço da Ponte",
+      "anchor": "westbridge",
+      "level_range": [
+        1,
+        6
+      ],
+      "kind": "negociação",
+      "hook": "Dois cobradores apresentam autorizações com selos divergentes.",
+      "objective": "Verificar o direito de passagem e evitar um confronto desnecessário.",
+      "complication": "Um dos documentos é verdadeiro, mas pode estar vencido.",
+      "if_ignored": "Caravanas buscam uma rota maior e mais cara.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "na_agua_escura",
+      "title": "O Que a Água Devolve",
+      "anchor": "womford",
+      "level_range": [
+        2,
+        6
+      ],
+      "kind": "exploração",
+      "hook": "Uma barca sem tripulação toca a margem ao amanhecer.",
+      "objective": "Investigar rastros, cargas e destino dos desaparecidos.",
+      "complication": "A carga não corresponde ao manifesto.",
+      "if_ignored": "A investigação local segue sem o grupo, sujeita a erros.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "plantio_na_bruma",
+      "title": "A Noite do Plantio",
+      "anchor": "beliard",
+      "level_range": [
+        1,
+        5
+      ],
+      "kind": "problema_social",
+      "hook": "Famílias discordam sobre quem provocou um incêndio em campo de cultivo.",
+      "objective": "Recolher evidências e apoiar uma resolução acordada.",
+      "complication": "O suspeito mais evidente estava ajudando a apagar as chamas.",
+      "if_ignored": "A hostilidade entre vizinhos cresce.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "selo_de_cera",
+      "title": "O Selo que Ninguém Usou",
+      "anchor": "triboar",
+      "level_range": [
+        2,
+        7
+      ],
+      "kind": "intriga",
+      "hook": "Uma correspondência supostamente oficial chegou antes de ter sido enviada.",
+      "objective": "Identificar a origem da falsificação e seu propósito.",
+      "complication": "Uma testemunha legítima se recusa a falar em público.",
+      "if_ignored": "Contratos continuam sendo firmados com informações falsas.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "ossos_sob_o_marco",
+      "title": "Ossos Sob o Marco",
+      "anchor": "red_larch",
+      "level_range": [
+        3,
+        8
+      ],
+      "kind": "ruínas",
+      "hook": "Trabalhadores interrompem a recuperação de uma estrada antiga.",
+      "objective": "Examinar o local e decidir, com os interessados, o que fazer com a descoberta.",
+      "complication": "A passagem desmorona quando alguém remove uma pedra solta.",
+      "if_ignored": "Uma companhia de obras sela a entrada e desvia a estrada.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "guarda_no_inverno",
+      "title": "Uma Guarda por Três Noites",
+      "anchor": "yartar",
+      "level_range": [
+        1,
+        5
+      ],
+      "kind": "trabalho",
+      "hook": "Uma casa mercantil oferece pagamento por vigiar estoque sem efetuar prisões.",
+      "objective": "Proteger os bens e descobrir a causa real dos desaparecimentos.",
+      "complication": "O responsável pode ser alguém autorizado a entrar.",
+      "if_ignored": "O negócio muda a rotina de abastecimento.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "os_quatro_recados",
+      "title": "Quatro Recados para Waterdeep",
+      "anchor": "waterdeep",
+      "level_range": [
+        4,
+        9
+      ],
+      "kind": "viagem",
+      "hook": "Um mensageiro precisa confirmar quatro notícias que chegaram por caminhos diferentes.",
+      "objective": "Conferir origens e separar fato, interesse e rumor.",
+      "complication": "Uma carta contém uma verdade inconveniente ao contratante.",
+      "if_ignored": "Decisões comerciais serão tomadas com informações incompletas.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "cavalo_sem_dono",
+      "title": "O Cavalo Sem Dono",
+      "anchor": "triboar",
+      "level_range": [
+        1,
+        5
+      ],
+      "kind": "cotidiano",
+      "hook": "Um cavalo com alforjes vazios retorna sempre ao mesmo portão.",
+      "objective": "Descobrir o que ocorreu ao dono, sem presumir crime.",
+      "complication": "O animal evita a rota que a família insiste em indicar.",
+      "if_ignored": "O animal é vendido; uma pista pode desaparecer.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    },
+    {
+      "id": "venda_das_cinzas",
+      "title": "A Venda das Cinzas",
+      "anchor": "red_larch",
+      "level_range": [
+        3,
+        8
+      ],
+      "kind": "economia",
+      "hook": "Proprietários pressionados pela seca recebem propostas abaixo do valor de suas terras.",
+      "objective": "Descobrir se existe coerção e ajudar os moradores que solicitarem auxílio.",
+      "complication": "Uma das propostas vem de um comprador legítimo sem saber das ameaças.",
+      "if_ignored": "O preço da terra despenca e famílias partem.",
+      "no_forced_outcome": true,
+      "mechanical_authority": "host_dnd2024"
+    }
+  ],
+  "encounters": [
+    {
+      "id": "pregao_tarde",
+      "anchor": "yartar",
+      "terrain": "urbano",
+      "kind": "cotidiano",
+      "situation": "O pregão encerra antes do horário esperado e comerciantes discutem o motivo.",
+      "choice": "Pedir informações, negociar ou seguir.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "ponte_em_obras",
+      "anchor": "westbridge",
+      "terrain": "estrada",
+      "kind": "obstáculo",
+      "situation": "Uma carroça imobilizada bloqueia uma passagem estreita.",
+      "choice": "Ajudar, desviar ou aguardar; tempo depende da escolha.",
+      "time": "qualquer",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "bilhete_chuva",
+      "anchor": "red_larch",
+      "terrain": "estrada",
+      "kind": "mistério",
+      "situation": "Uma carta encharcada está presa a uma estaca de aviso.",
+      "choice": "Ler somente o que ainda está legível ou deixar.",
+      "time": "chuva",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "ovelhas_soltas",
+      "anchor": "beliard",
+      "terrain": "rural",
+      "kind": "cotidiano",
+      "situation": "Ovelhas escaparam para a estrada enquanto um pastor conta o rebanho.",
+      "choice": "Oferecer ajuda ou simplesmente contornar.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "lampiao_rio",
+      "anchor": "womford",
+      "terrain": "fluvial",
+      "kind": "mistério",
+      "situation": "Um lampião aceso aparece numa margem sem barco à vista.",
+      "choice": "Observar, chamar alguém ou prosseguir.",
+      "time": "noite",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "corda_rompida",
+      "anchor": "yartar",
+      "terrain": "fluvial",
+      "kind": "risco",
+      "situation": "Uma amarra cede no cais; a carga balança sobre a água.",
+      "choice": "Afastar-se, alertar trabalhadores ou tentar ajudar.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "mercador_calado",
+      "anchor": "triboar",
+      "terrain": "urbano",
+      "kind": "social",
+      "situation": "Um vendedor se recusa a divulgar o destino da próxima caravana.",
+      "choice": "Comprar, perguntar, deixar a pessoa em paz.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "cachorro_rastro",
+      "anchor": "westbridge",
+      "terrain": "estrada",
+      "kind": "fauna",
+      "situation": "Um cão sem coleira segue marcas recentes e volta a cada bifurcação.",
+      "choice": "Acompanhar, alimentar ou ignorar.",
+      "time": "qualquer",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "sombra_poeira",
+      "anchor": "red_larch",
+      "terrain": "ruínas",
+      "kind": "ambiente",
+      "situation": "Poeira cai de uma parede abandonada quando o vento muda.",
+      "choice": "Avaliar risco, recuar ou investigar; nenhum monstro presumido.",
+      "time": "vento",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "passo_no_mato",
+      "anchor": "beliard",
+      "terrain": "rural",
+      "kind": "social",
+      "situation": "Duas figuras atravessam um campo distante sem se aproximar.",
+      "choice": "Observar ou continuar sem contato.",
+      "time": "crepúsculo",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "sapatos_porto",
+      "anchor": "womford",
+      "terrain": "fluvial",
+      "kind": "investigação",
+      "situation": "Um par de botas limpas é encontrado perto de uma embarcação danificada.",
+      "choice": "Perguntar aos barqueiros ou seguir viagem.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    },
+    {
+      "id": "semente_mapa",
+      "anchor": "triboar",
+      "terrain": "urbano",
+      "kind": "oportunidade",
+      "situation": "Uma cartógrafa oferece comparar rotas antes da estação ruim.",
+      "choice": "Conferir mapa, negociar serviço ou dispensar.",
+      "time": "dia",
+      "can_ignore": true,
+      "no_automatic_combat": true
+    }
+  ],
+  "iconic_locations": [
+    {
+      "id": "armazem_sino",
+      "anchor": "yartar",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "Armazém do Sino Torto",
+      "observable": "Guindaste manual, sineta e caixas marcadas por destino.",
+      "gm_possibility_not_fact": "Uma série de selos pode ter sido trocada antes do embarque.",
+      "dangers": "Desabamento de pilhas; vigia desconfiado.",
+      "possible_rewards": "Registros de fretes ou serviço pago negociado.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "ponte_dois_pedagios",
+      "anchor": "westbridge",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "A Passagem dos Dois Selos",
+      "observable": "Ponte estreita, duas mesas de cobrança e marcas de reparo.",
+      "gm_possibility_not_fact": "As cobranças podem corresponder a direitos diferentes.",
+      "dangers": "Confusão, risco de queda, disputa entre viajantes.",
+      "possible_rewards": "Informação, salvo-conduto legítimo se obtido.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "cais_corda_azul",
+      "anchor": "yartar",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "O Cais da Corda Azul",
+      "observable": "Atracadouro pequeno com amarras novas e antigas.",
+      "gm_possibility_not_fact": "Uma embarcação pode ter partido sem constar do registro.",
+      "dangers": "Corrente forte, carga instável.",
+      "possible_rewards": "Contato com barqueiros e rotas fluviais.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "sala_do_folheto",
+      "anchor": "triboar",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "Sala dos Mensageiros",
+      "observable": "Painel de recados, lacres e caixas individuais.",
+      "gm_possibility_not_fact": "Alguém pode estar usando uma caixa em nome de outro.",
+      "dangers": "Conflito por sigilo de mensagens.",
+      "possible_rewards": "Pista documental, contrato futuro.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "moinho_das_cinzas",
+      "anchor": "beliard",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "O Moinho das Cinzas",
+      "observable": "Moinho parado e cheiro de madeira queimada.",
+      "gm_possibility_not_fact": "A origem do fogo ainda é incerta; não assumir sabotagem.",
+      "dangers": "Estrutura danificada e desconfiança local.",
+      "possible_rewards": "Ajuda da comunidade, evidência preservada.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "bodega_tres_caminhos",
+      "anchor": "red_larch",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "A Venda dos Três Caminhos",
+      "observable": "Sala de refeições e quadro com avisos de viajantes.",
+      "gm_possibility_not_fact": "Um aviso sem assinatura pode indicar desvio real.",
+      "dangers": "Informações falsas; disputa por pouso.",
+      "possible_rewards": "Rumores classificados por fonte.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "passagem_de_pedra",
+      "anchor": "red_larch",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "Pedras sob a Estrada",
+      "observable": "Entrada parcial de obra antiga, escoras recentes.",
+      "gm_possibility_not_fact": "Pode haver um recinto histórico abaixo; natureza desconhecida.",
+      "dangers": "Escombros, terreno instável, falta de ar.",
+      "possible_rewards": "Conhecimento histórico, eventual achado validado.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "guarita_do_junco",
+      "anchor": "womford",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "Guarita do Junco",
+      "observable": "Abrigo fluvial, lampião e tabela de marés artesanais.",
+      "gm_possibility_not_fact": "Uma indicação pode registrar embarcação omitida.",
+      "dangers": "Água, lama e visibilidade.",
+      "possible_rewards": "Rotas e testemunho condicionado.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "pouso_do_cavalo",
+      "anchor": "triboar",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "O Pouso do Cavalo Cinza",
+      "observable": "Estábulo de troca, ferraduras e lista de ferradores.",
+      "gm_possibility_not_fact": "Alguém modificou horários das montarias.",
+      "dangers": "Ferimento por animais assustados.",
+      "possible_rewards": "Rota, emprego, informação.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    },
+    {
+      "id": "escritorio_da_liga",
+      "anchor": "waterdeep",
+      "canonical_status": "original_location_inside_canonical_anchor",
+      "title": "Escritório da Liga",
+      "observable": "Sala de contratos, balcão e estantes de registros.",
+      "gm_possibility_not_fact": "Um interessado pode manter cópia de uma carta suspeita.",
+      "dangers": "Custos legais ou de reputação, nunca combate automático.",
+      "possible_rewards": "Documentos e relações sociais.",
+      "map_asset_status": "original_map_not_yet_authored",
+      "player_choice_required": true
+    }
+  ],
+  "clock_templates": [
+    {
+      "id": "pressao_fretes",
+      "arc": "fretes_sem_rota",
+      "starting_value": 0,
+      "segments": 4,
+      "tick_policy": "only_confirmed_world_days_and_faction_actions",
+      "steps": [
+        "queixas",
+        "tarifas",
+        "escassez",
+        "fechamento"
+      ],
+      "consequence_mode": "proposal_requires_host_commit"
+    },
+    {
+      "id": "conflito_pedagio",
+      "arc": "pedagio_partido",
+      "starting_value": 0,
+      "segments": 4,
+      "tick_policy": "only_confirmed_world_days_and_faction_actions",
+      "steps": [
+        "boato",
+        "fila",
+        "bloqueio",
+        "negociação urgente"
+      ],
+      "consequence_mode": "proposal_requires_host_commit"
+    },
+    {
+      "id": "incendios_rurais",
+      "arc": "cinzas_do_pasto",
+      "starting_value": 0,
+      "segments": 4,
+      "tick_policy": "only_confirmed_world_days_and_faction_actions",
+      "steps": [
+        "alerta",
+        "perda local",
+        "falta de pasto",
+        "migração"
+      ],
+      "consequence_mode": "proposal_requires_host_commit"
+    },
+    {
+      "id": "rumores_carta",
+      "arc": "cartas_sem_selo",
+      "starting_value": 0,
+      "segments": 4,
+      "tick_policy": "only_confirmed_world_days_and_faction_actions",
+      "steps": [
+        "cópia",
+        "desmentido",
+        "desconfiança",
+        "ruptura"
+      ],
+      "consequence_mode": "proposal_requires_host_commit"
+    }
+  ],
+  "generator": {
+    "objective": [
+      [
+        "Encontrar um desaparecido",
+        "Recuperar um livro extraviado",
+        "Descobrir origem de um boato",
+        "Localizar um animal perdido",
+        "Rastrear uma remessa",
+        "Identificar uma testemunha"
+      ],
+      [
+        "Escoltar uma família",
+        "Proteger uma feira",
+        "Vigiar um depósito",
+        "Levar uma notícia",
+        "Garantir uma travessia",
+        "Ajudar uma comunidade"
+      ],
+      [
+        "Investigar um documento",
+        "Conferir uma dívida",
+        "Ouvir versões divergentes",
+        "Desvendar um furto",
+        "Analisar rastros",
+        "Interrogar sem coerção"
+      ],
+      [
+        "Negociar um acordo",
+        "Resolver passagem disputada",
+        "Restituir bens",
+        "Encontrar um mediador",
+        "Encerrar um contrato",
+        "Proteger um segredo confiado"
+      ],
+      [
+        "Explorar ruína local",
+        "Mapear um atalho",
+        "Visitar jazida abandonada",
+        "Examinar uma ponte",
+        "Registrar uma trilha",
+        "Reconhecer uma margem"
+      ],
+      [
+        "Sobreviver a enchente",
+        "Escapar de um deslizamento",
+        "Evitar fogo no campo",
+        "Contornar uma estrada caída",
+        "Buscar abrigo seguro",
+        "Atravessar uma noite de tempestade"
+      ]
+    ],
+    "locale": [
+      [
+        "No cais de Yartar",
+        "Em uma travessa de Yartar",
+        "Num depósito de Yartar",
+        "Junto às muralhas de Yartar",
+        "Em mercado de Yartar",
+        "Na estalagem de Yartar"
+      ],
+      [
+        "Na estrada de Westbridge",
+        "Perto de um pequeno vau",
+        "Em um desvio pedregoso",
+        "Sob uma ponte antiga",
+        "Num posto de descanso",
+        "Diante de uma guarita abandonada"
+      ],
+      [
+        "Nos arredores de Red Larch",
+        "Em obra de estrada",
+        "Num celeiro afastado",
+        "Na venda de uma vila",
+        "Em pasto de inverno",
+        "No caminho entre fazendas"
+      ],
+      [
+        "Em uma estalagem de Triboar",
+        "Em estábulo de troca",
+        "No pátio de caravanas",
+        "Em sala de mensageiros",
+        "Diante de um mural de avisos",
+        "Em pequena oficina"
+      ],
+      [
+        "Nas margens de Womford",
+        "Perto de uma barca",
+        "Junto a junco alto",
+        "Em margem lodosa",
+        "Em pequeno ancoradouro",
+        "Abaixo de uma escada de pedra"
+      ],
+      [
+        "Em pomar de Beliard",
+        "Na moenda de Beliard",
+        "Em curral de campanha",
+        "Junto a um poço",
+        "Num campo recém-ceifado",
+        "Sob uma figueira solitária"
+      ]
+    ],
+    "antagonist": [
+      [
+        "Falta de provisões",
+        "Mercado fechado",
+        "Subida inesperada de preços",
+        "Carga retida",
+        "Atraso da estação",
+        "Escassez de forragem"
+      ],
+      [
+        "Mensagens contraditórias",
+        "Rumor mal interpretado",
+        "Carta sem assinatura",
+        "Testemunha em conflito",
+        "Promessa não cumprida",
+        "Informação escondida"
+      ],
+      [
+        "Cobrador abusivo",
+        "Credor pressionando",
+        "Mercador oportunista",
+        "Empregador desonesto",
+        "Fiscal corrupto (não confirmado)",
+        "Intermediário insistente"
+      ],
+      [
+        "Travessia instável",
+        "Chuva forte",
+        "Visibilidade ruim",
+        "Trilha soterrada",
+        "Gelo fora da estação (exigir clima)",
+        "Correnteza elevada"
+      ],
+      [
+        "Rival com direito legítimo",
+        "Grupo de escolta concorrente",
+        "Explorador secreto",
+        "Família em disputa",
+        "Guia sem licença",
+        "Tripulação desconfiada"
+      ],
+      [
+        "Criatura não identificada",
+        "Rastros de predador",
+        "Animal acuado",
+        "Ruído na ruína",
+        "Sinais de acampamento recente",
+        "Desaparecimento sem prova de agressão"
+      ]
+    ],
+    "support": [
+      [
+        "A ajuda de um barqueiro",
+        "Uma anotação de viagem",
+        "Um mapa incompleto",
+        "Uma boa indicação",
+        "Uma ferramenta emprestada",
+        "Uma testemunha relutante"
+      ],
+      [
+        "Uma curandeira local",
+        "Uma escriba",
+        "Um ferrador",
+        "Um cozinheiro",
+        "Uma criança observadora",
+        "Um guarda cansado"
+      ],
+      [
+        "Um animal de carga",
+        "Um abrigo temporário",
+        "Um carroceiro disponível",
+        "Uma barca pequena",
+        "Uma corda longa",
+        "Uma lanterna protegida"
+      ],
+      [
+        "Uma dívida antiga conhecida",
+        "Um contrato preservado",
+        "Um recibo legível",
+        "Uma declaração assinada",
+        "Um livro de registros",
+        "Uma marca de mercador"
+      ],
+      [
+        "Uma rota alternativa",
+        "Uma passagem de pedestres",
+        "Um local elevado",
+        "Um atalho já mapeado",
+        "Um pontilhão de madeira",
+        "Um pátio com cobertura"
+      ],
+      [
+        "Um mediador disponível",
+        "Um conselho comunitário",
+        "Uma mensageira neutra",
+        "Um aprendiz atento",
+        "Um viajante experiente",
+        "Um antigo empregado"
+      ]
+    ],
+    "complication": [
+      [
+        "A pessoa precisa partir cedo",
+        "A ponte será fechada",
+        "A maré muda (validar local)",
+        "O contratante se ausenta",
+        "A feira encerra",
+        "A chuva ameaça o trabalho"
+      ],
+      [
+        "O alvo da suspeita possui álibi",
+        "O registro tem duas cópias",
+        "A prova é incompleta",
+        "Há testemunhas discordantes",
+        "O documento foi molhado",
+        "A rota foi alterada antes"
+      ],
+      [
+        "Há duas vítimas possíveis",
+        "A ajuda custa caro",
+        "Uma facção intervém",
+        "Os moradores são divididos",
+        "O valor da carga é incerto",
+        "Há obrigação contratual conflitante"
+      ],
+      [
+        "Um ferimento impede viagem",
+        "O animal está exausto",
+        "A água bloqueia passagem",
+        "Parte da estrada cedeu",
+        "O abrigo não comporta todos",
+        "A luz acaba antes do previsto"
+      ],
+      [
+        "O contratante omitiu informação",
+        "O interesse real é político",
+        "Uma pessoa se recusa a depor",
+        "Uma carta compromete um inocente",
+        "O boato tem fonte confiável",
+        "A melhor escolha exige renúncia"
+      ],
+      [
+        "O grupo chega tarde",
+        "Uma decisão anterior mudou a situação",
+        "Outro grupo ajudou primeiro",
+        "A parte contrária propõe acordo",
+        "A recompensa não estava garantida",
+        "O fato principal continua desconhecido"
+      ]
+    ],
+    "resolution": [
+      [
+        "Um pagamento negociado",
+        "Um favor limitado",
+        "A devolução de um bem",
+        "Uma recomendação profissional",
+        "A confiança de um morador",
+        "Um contrato futuro"
+      ],
+      [
+        "Um mapa atualizado",
+        "Um acesso legítimo",
+        "Um depoimento de valor",
+        "Uma rota segura conhecida",
+        "Um registro autorizado",
+        "Um contato de viagem"
+      ],
+      [
+        "Um objeto encontrado (avaliar regras)",
+        "Uma refeição oferecida",
+        "Uma noite de abrigo",
+        "Transporte gratuito negociado",
+        "Uma autorização temporária",
+        "Um desconto acordado"
+      ],
+      [
+        "Uma reputação local modificada",
+        "Uma dívida quitada",
+        "Uma rivalidade nova",
+        "Uma amizade adquirida",
+        "Um compromisso de retorno",
+        "Uma trégua instável"
+      ],
+      [
+        "Um mistério esclarecido parcialmente",
+        "Uma versão desmentida",
+        "Uma pista para outra região",
+        "Um segredo preservado",
+        "Uma pessoa localizada",
+        "Uma ameaça evitada sem luta"
+      ],
+      [
+        "Nenhum prêmio material",
+        "Um favor recusado",
+        "Uma obrigação cumprida",
+        "Um problema adiado",
+        "Uma nova responsabilidade",
+        "Uma questão ainda em aberto"
+      ]
+    ]
+  },
+  "level_scope_note": "Faixas de níveis são intenção editorial e não garantem balanceamento; qualquer combate exige statblock autorizado e Encounter/Rules Engine do host."
+}
