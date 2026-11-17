@@ -7,6 +7,8 @@ on:
       - dnd-normal/run247-mod005/version.properties
       - dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py
       - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CampaignSafetyManager.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AtlasScenePositionReconciler.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/AtlasLegacySceneLocationPersistenceRobolectricTest.java
       - .github/workflows/dnd-6662-upgrade-from-6661-full-handoff.yml
   workflow_dispatch:
 permissions:
@@ -43,7 +45,7 @@ jobs:
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:assembleDebug --no-daemon --console=plain
-          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --tests com.braseiro.dnd5e.AtlasLegacySceneLocationPersistenceRobolectricTest --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
           grep -q '^VERSION_CODE=203900625$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
