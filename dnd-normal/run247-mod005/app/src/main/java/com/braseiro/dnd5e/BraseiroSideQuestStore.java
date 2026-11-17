@@ -309,6 +309,53 @@ public final class BraseiroSideQuestStore {
         return sql.insertWithOnConflict("braseiro_sidequest_rumors",null,row,SQLiteDatabase.CONFLICT_IGNORE) != -1;
     }
 
+    /** Conservative evidence recognition: only after the player's scene actually committed. */
+    static boolean narrationContainsRumor(String narration,String hook) {
+        if(narration==null||hook==null||narration.trim().isEmpty()||hook.trim().isEmpty())return false;
+        String actual=normalized(narration),expected=normalized(hook).trim();
+        if(expected.length()>=18&&actual.contains(" "+expected+" "))return true;
+        java.util.HashSet<String> keywords=new java.util.HashSet<>();
+        for(String word:expected.split(" "))if(word.length()>=5)keywords.add(word);
+        if(keywords.size()<4)return false; // Tiny hints require an exact quote.
+        int found=0;
+        for(String word:keywords)if(actual.contains(" "+word+" "))found++;
+        return found>=4&&found*100>=keywords.size()*75;
+    }
+    /**
+     * Invoked ONLY at the accepted narration boundary; repeated descriptions of
+     * the same rumor are then suppressed by the persisted ledger. Never marks
+     * imported hooks heard merely because the Master considered them.
+     */
+    public synchronized int recordAcceptedNarration(String narration,String confirmedLocation,int day) {
+        if(narration==null||narration.trim().isEmpty()||
+                confirmedLocation==null||confirmedLocation.trim().isEmpty())return 0;
+        try{
+            ensureSchema(db.getWritableDatabase());
+            String hex=db.getMapState().optString("current_hex_id","");
+            int recorded=0;
+            for(JSONObject candidate:db.queryList(
+                    "SELECT module_id,location_index FROM braseiro_sidequest_modules WHERE scope=? AND enabled=1 LIMIT 200",
+                    new String[]{scope()})){
+                if(!indexCouldMatch(candidate.optString("location_index"),confirmedLocation,hex))continue;
+                String id=candidate.optString("module_id");
+                JSONObject row=db.queryOne("SELECT package_json FROM braseiro_sidequest_modules WHERE scope=? AND module_id=?",
+                        new String[]{scope(),id});
+                if(row.length()==0)continue;
+                JSONArray rumors=eligibleRumors(new JSONObject(row.optString("package_json","{}")),confirmedLocation,hex);
+                for(int i=0;i<rumors.length();i++){
+                    JSONObject rumor=rumors.optJSONObject(i);
+                    if(rumor!=null&&narrationContainsRumor(narration,rumor.optString("rumor"))
+                            &&recordConfirmedRumor(id,rumor.optString("id"),"narracao_confirmada",
+                                confirmedLocation,day))recorded++;
+                }
+            }
+            return recorded;
+        }catch(Exception error){
+            AppLog.e("SideQuestStore","Não foi possível registrar boatos confirmados.",error);
+            return 0; // Never cause a verified scene to fail because of rumor bookkeeping.
+        }
+    }
+
     /** Read-only, small, spoiler-safe candidate feed for the Master. */
     public JSONObject masterContext() {
         JSONObject out=new JSONObject();
