@@ -43,6 +43,7 @@ jobs:
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:assembleDebug --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
           grep -q '^VERSION_CODE=203900625$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
