@@ -1271,6 +1271,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     });
                 });
                 sideCard.addView(sideToggle);
+                final boolean sideFollowing="following".equals(row.optString("state"));
+                Button sideFollow=smallButton(sideFollowing?"DEIXAR DE ACOMPANHAR":"ACOMPANHAR MISSÃO OPCIONAL",PANEL2);
+                sideFollow.setOnClickListener(v->{
+                    sideFollow.setEnabled(false);
+                    AppExecutors.serial().execute(()->{
+                        try{new BraseiroSideQuestStore(db).setFollowing(moduleId,!sideFollowing);
+                            ui.post(()->{if(!isFinishing()&&!isDestroyed())showCampaign();});}
+                        catch(Exception error){ui.post(()->{sideFollow.setEnabled(true);toast("Missão: "+safeUiError(error));});}
+                    });
+                });
+                sideCard.addView(sideFollow);
                 Button removeSide=smallButton("REMOVER ARQUIVO DESTA MISSÃO",PANEL2);
                 removeSide.setOnClickListener(v->new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Remover missão secundária?")
