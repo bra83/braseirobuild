@@ -31,6 +31,14 @@ public final class MasterPreparationExecutorRecoveryRobolectricTest {
         @Override public void onTimeout(){timeouts.incrementAndGet();}
     }
 
+    private static void drainUiUntilSuccess(Recorder callback) throws InterruptedException {
+        // The worker signals before returning; its main-looper callback is posted afterward.
+        for (int i=0; i<200 && callback.successes.get()==0; i++) {
+            shadowOf(Looper.getMainLooper()).idle();
+            if (callback.successes.get()==0) Thread.sleep(15);
+        }
+    }
+
     private static Callable<String> uninterruptible(final CountDownLatch entered, final CountDownLatch release) {
         return () -> {
             entered.countDown();
@@ -55,7 +63,7 @@ public final class MasterPreparationExecutorRecoveryRobolectricTest {
             assertTrue("Second blocked worker must have started",secondStarted.await(3,TimeUnit.SECONDS));
             c.prepare(()->{freshRan.countDown();return "FRESH SCENE";},fresh);
             assertTrue("The third attempt must not be rejected or starved",freshRan.await(3,TimeUnit.SECONDS));
-            shadowOf(Looper.getMainLooper()).idle();
+            drainUiUntilSuccess(fresh);
             assertEquals(1,fresh.successes.get());
             assertEquals("FRESH SCENE",fresh.result);
             assertEquals(0,fresh.failures.get()+fresh.timeouts.get());
@@ -79,7 +87,7 @@ public final class MasterPreparationExecutorRecoveryRobolectricTest {
             assertEquals(1,expired.timeouts.get());
             c.prepare(()->{freshRan.countDown();return "CONTINUE";},fresh);
             assertTrue(freshRan.await(3,TimeUnit.SECONDS));
-            shadowOf(Looper.getMainLooper()).idle();
+            drainUiUntilSuccess(fresh);
             assertEquals(1,fresh.successes.get());
             assertEquals(0,expired.successes.get());
         } finally {
