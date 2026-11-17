@@ -115,7 +115,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private static final String WORLD_DND="dnd";
     private static final String WORLD_MYSTARA="mystara";
     private static final String FAERUN_LOGICAL_MAP_ID="forgotten_realms:faerun";
-    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027,REQ_IMPORT_BRASEIRO_ADVENTURE=1028,REQ_IMPORT_PERSONALITY=1029,REQ_SPEECH_TO_TEXT=1030;
+    private static final int REQ_MAP=1001,REQ_AUDIO_AMBIENCE=1002,REQ_AUDIO_MUSIC=1003,REQ_AUDIO_SFX=1004,REQ_IMPORT_MANUALS=1005,REQ_EXPORT_BACKUP=1006,REQ_IMPORT_BACKUP=1007,REQ_TOKEN=1008,REQ_MAP_MANIFEST=1009,REQ_DRIVE_AUTH=1010,REQ_TOKEN_PDF_FOLDER=1011,REQ_AUDIO_FOLDER=1012,REQ_AUDIO_KEYWORDS=1013,REQ_MAP_PACKAGE=1014,REQ_MAP_OVERLAY=1015,REQ_EXPORT_MAP_CORRECTIONS=1016,REQ_IMPORT_MAP_CORRECTIONS=1017,REQ_EXPORT_CHARACTER=1018,REQ_IMPORT_CHARACTER=1019,REQ_EXPORT_DIAGNOSTIC=1020,REQ_EXPORT_JOURNAL_PDF=1021,REQ_DRIVE_CONSENT=1022,REQ_MANUAL_FOLDER=1023,REQ_TOKEN_IMAGE_FOLDER=1024,REQ_BACKUP_FOLDER=1025,REQ_AUDIO_IMPORT_NOTIFICATIONS=1026,REQ_DICE_FACE_IMAGE=1027,REQ_IMPORT_BRASEIRO_ADVENTURE=1028,REQ_IMPORT_PERSONALITY=1029,REQ_SPEECH_TO_TEXT=1030,REQ_IMPORT_BRASEIRO_SIDEQUEST=1031;
     private static final String DEFAULT_FOLDER="https://drive.google.com/drive/folders/13wB-KfYCe2k5xGmb-z2D09KRDJtSyfHu";
     private static final String DEFAULT_TOKEN_FOLDER="https://drive.google.com/drive/folders/1gfBQfV6x0KAri0pdyKXpMhVlQYblLD-W";
     private static final String DEFAULT_TOKEN_IMAGE_FOLDER="https://drive.google.com/drive/folders/1AHvEEQoVQme8geVJ5PDWbz5bJiwpoTmx";
@@ -1247,6 +1247,58 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     catch(final Exception failure){ui.post(()->toast("Conclusão não confirmada: "+failure.getMessage()));}
                 });}}).show();}});
             importCard.addView(adventureComplete);b.addView(importCard);
+            // Biblioteca separada: NUNCA substitui a aventura principal ao importar.
+            LinearLayout sideCard=card();
+            sideCard.addView(text("MISSÕES SECUNDÁRIAS · JSON",16,GOLD,true));
+            sideCard.addView(text("Instale várias aventuras opcionais. Rumores surgem somente nas regiões confirmadas pelo Atlas; importar não aceita a missão, não muda a cena e não altera o Mestre principal.",12,MUTED,false));
+            Button sideImport=button("IMPORTAR MISSÃO SECUNDÁRIA JSON",GREEN);
+            sideImport.setOnClickListener(v->openFile("application/json",REQ_IMPORT_BRASEIRO_SIDEQUEST,false));
+            sideCard.addView(sideImport);
+            JSONArray installedSideQuests=new BraseiroSideQuestStore(db).listInstalled();
+            if(installedSideQuests.length()==0)sideCard.addView(text("Nenhuma missão secundária instalada.",12,MUTED,false));
+            for(int qi=0;qi<installedSideQuests.length()&&qi<60;qi++){
+                JSONObject row=installedSideQuests.optJSONObject(qi);if(row==null)continue;
+                final String moduleId=row.optString("id");
+                final boolean sideEnabled=row.optBoolean("enabled",false);
+                sideCard.addView(text(row.optString("title","Aventura")+" · "+(sideEnabled?"RUMORES HABILITADOS":"PAUSADA"),12,TEXT,true));
+                Button sideToggle=smallButton(sideEnabled?"PAUSAR RUMORES":"REATIVAR RUMORES",PANEL2);
+                sideToggle.setOnClickListener(v->{
+                    sideToggle.setEnabled(false);
+                    AppExecutors.serial().execute(()->{
+                        try{new BraseiroSideQuestStore(db).setEnabled(moduleId,!sideEnabled);
+                            ui.post(()->{if(!isFinishing()&&!isDestroyed())showCampaign();});}
+                        catch(Exception error){ui.post(()->{sideToggle.setEnabled(true);toast("Missão: "+safeUiError(error));});}
+                    });
+                });
+                sideCard.addView(sideToggle);
+                final boolean sideFollowing="following".equals(row.optString("state"));
+                Button sideFollow=smallButton(sideFollowing?"DEIXAR DE ACOMPANHAR":"ACOMPANHAR MISSÃO OPCIONAL",PANEL2);
+                sideFollow.setOnClickListener(v->{
+                    sideFollow.setEnabled(false);
+                    AppExecutors.serial().execute(()->{
+                        try{new BraseiroSideQuestStore(db).setFollowing(moduleId,!sideFollowing);
+                            ui.post(()->{if(!isFinishing()&&!isDestroyed())showCampaign();});}
+                        catch(Exception error){ui.post(()->{sideFollow.setEnabled(true);toast("Missão: "+safeUiError(error));});}
+                    });
+                });
+                sideCard.addView(sideFollow);
+                Button removeSide=smallButton("REMOVER ARQUIVO DESTA MISSÃO",PANEL2);
+                removeSide.setOnClickListener(v->new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Remover missão secundária?")
+                    .setMessage("Remove o módulo importado e seus rumores privados. A história principal e fatos canônicos já confirmados serão preservados.")
+                    .setNegativeButton("Cancelar",null)
+                    .setPositiveButton("Remover",(dialog,which)->{
+                        removeSide.setEnabled(false);
+                        AppExecutors.serial().execute(()->{
+                            try{new BraseiroSideQuestStore(db).remove(moduleId);
+                                ui.post(()->{if(!isFinishing()&&!isDestroyed())showCampaign();});}
+                            catch(Exception error){ui.post(()->{removeSide.setEnabled(true);toast("Remoção recusada: "+safeUiError(error));});}
+                        });
+                    }).show());
+                sideCard.addView(removeSide);
+            }
+            if(installedSideQuests.length()>60)sideCard.addView(text("Há mais módulos instalados; todos permanecem ativos conforme seu estado salvo.",12,MUTED,false));
+            b.addView(sideCard);
             Button bastion2024Button=smallButton("BASTIÕES • DMG 2024",GOLD);
             b.addView(bastion2024Button);
             bastion2024Button.setOnClickListener(new View.OnClickListener(){
@@ -8725,6 +8777,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     // Only the ACCEPTED text can register a character as known.
                     NpcPerceptionLedger.commitAcceptedPresentation(db,db.getSceneState(),calculatedNarration,"party");
                 }catch(Exception receiptFailure){AppLog.w("NpcPerception","Could not persist accepted visible NPC presentation",receiptFailure);}
+                if(!changes && masterEnvelopeValid && narrativeResponse && !isMystaraWorld()){
+                    new BraseiroSideQuestStore(db).recordAcceptedNarration(
+                        calculatedNarration,db.getSceneState().optString("location",""),
+                        db.getSceneState().optInt("day_number",1));
+                }
                 if (masterOrchestrator != null && !changes) {
                     masterOrchestrator.afterAccepted(activeMasterPlan, calculatedNarration, env, pendingAiInputChars, raw == null ? 0 : raw.length());
                 }
@@ -9087,6 +9144,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     db.saveSceneOptionHistory(SceneOptionDiversifier.appendHistory(
                         SceneOptionDiversifier.parseHistory(db.getSceneOptionHistory()),
                         currentOptions).toString());
+                    if(!isMystaraWorld())
+                        new BraseiroSideQuestStore(db).recordAcceptedNarration(
+                            lastNarration,db.getSceneState().optString("location",""),
+                            db.getSceneState().optInt("day_number",1));
                     if(isStrixhavenAdventure()
                             && !StoryMomentumAction.isRequest(prepared.optString("_accepted_player_action",lastPrompt)))
                         processStrixhavenOfficialProgress(prepared,lastNarration);
@@ -13544,6 +13605,46 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                 break;
             }
         }
+        return;
+    }
+    if(request==REQ_IMPORT_BRASEIRO_SIDEQUEST){
+        if(result!=RESULT_OK||data==null||data.getData()==null){
+            toast("Importação de missão secundária cancelada.");return;
+        }
+        if(isMystaraWorld()){
+            toast("Mystara está congelado. Importe somente no D&D Normal.");return;
+        }
+        final Uri sideUri=data.getData();
+        AppExecutors.serial().execute(()->{
+            try{
+                long declared=sizeOf(sideUri);
+                if(declared>2_000_000L)throw new IllegalArgumentException("O módulo excede 2 MB.");
+                java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+                try(InputStream in=getContentResolver().openInputStream(sideUri)){
+                    if(in==null)throw new IllegalArgumentException("Arquivo indisponível.");
+                    byte[] buffer=new byte[8192];int read;
+                    while((read=in.read(buffer))!=-1){
+                        if(bytes.size()+read>2_000_000)throw new IllegalArgumentException("Arquivo JSON acima de 2 MB.");
+                        bytes.write(buffer,0,read);
+                    }
+                }
+                final JSONObject resultSide=new BraseiroSideQuestStore(db).importJson(
+                    new String(bytes.toByteArray(),java.nio.charset.StandardCharsets.UTF_8));
+                ui.post(()->{
+                    if(isFinishing()||isDestroyed())return;
+                    toast(resultSide.optBoolean("alreadyInstalled")
+                        ?"Missão já instalada; progresso preservado."
+                        :"Missão opcional instalada: "+resultSide.optString("title"));
+                    showCampaign();
+                });
+            }catch(final Exception error){
+                ui.post(()->{if(!isFinishing()&&!isDestroyed())
+                    new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Missão secundária recusada")
+                        .setMessage(safeUiError(error))
+                        .setPositiveButton("OK",null).show();});
+            }
+        });
         return;
     }
     if(request==REQ_IMPORT_BRASEIRO_ADVENTURE){

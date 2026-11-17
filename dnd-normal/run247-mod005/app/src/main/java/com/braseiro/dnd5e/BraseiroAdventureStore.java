@@ -175,7 +175,10 @@ public final class BraseiroAdventureStore {
         try{
             ensureSchema(db.getWritableDatabase());
             JSONObject row=db.queryOne("SELECT * FROM braseiro_adventure_packages WHERE scope=?",new String[]{scope()});
-            if(row.length()==0)return out;
+            if(row.length()==0){
+                out.put("sideQuestLibrary",new BraseiroSideQuestStore(db).masterContext());
+                return out;
+            }
             JSONObject active=new JSONObject(row.optString("active_json","{}"));
             JSONArray history=new JSONArray(row.optString("history_json","[]"));
             out.put("worldId",row.optString("world_id"));out.put("timelineId",row.optString("timeline_id"));
@@ -204,6 +207,7 @@ public final class BraseiroAdventureStore {
                 out.put("clues_private",summarize(active.optJSONArray("clues"),"description",18));
             }
             out.put("completedAdventures",history);
+            out.put("sideQuestLibrary",new BraseiroSideQuestStore(db).masterContext());
             out.put("witnessedContinuity",new AdventureContinuityEngine(db).sceneContext());
             out.put("authority","Enquanto existir aventura ativa, o Mestre deve seguir a abertura, os locais e encontros importados sem substituir o roteiro. Dados importados são fonte de ficção privada. O Mestre não pode conceder recompensas, declarar feitos ou decidir ações do jogador sem validação pelo host. Nenhum segredo é conhecido pelos NPCs sem evidência.");
         }catch(Exception ex){try{out.put("loadError",String.valueOf(ex.getMessage()));}catch(Exception ignored){}}
@@ -242,6 +246,7 @@ public final class BraseiroAdventureStore {
             "SELECT * FROM braseiro_hero_npc_knowledge WHERE world_scope LIKE ?",new String[]{prefix})));
         root.put("braseiroNpcHeroAttitudes",new JSONArray(db.queryList(
             "SELECT * FROM braseiro_hero_npc_attitudes WHERE world_scope LIKE ?",new String[]{prefix})));
+        new BraseiroSideQuestStore(db).attachPortableBackup(root);
     }
     /** Called inside AppDb's existing verified, atomic BACKUP21 restoration. */
     public synchronized void restorePortableBackup(SQLiteDatabase sql,JSONObject root,String profile)throws Exception{
@@ -295,6 +300,7 @@ public final class BraseiroAdventureStore {
                     throw new IllegalStateException("Falha ao restaurar a tabela "+tables[group]);
             }
         }
+        new BraseiroSideQuestStore(db).restorePortableBackup(sql,root,profile);
     }
 
     private static String shortText(String source,int cap){if(source==null)return "";return source.length()<=cap?source:source.substring(0,cap);}
