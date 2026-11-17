@@ -6,6 +6,7 @@ on:
     paths:
       - dnd-normal/run247-mod005/version.properties
       - dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CampaignSafetyManager.java
       - .github/workflows/dnd-6662-upgrade-from-6661-full-handoff.yml
   workflow_dispatch:
 permissions:
