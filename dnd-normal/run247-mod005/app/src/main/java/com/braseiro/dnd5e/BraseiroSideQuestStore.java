@@ -95,6 +95,16 @@ public final class BraseiroSideQuestStore {
                 "scope=? AND module_id=?",new String[]{scope(),id}) != 1)
             throw new IllegalArgumentException("Missão secundária não encontrada.");
     }
+    /** Explicit library opt-in; never moves the player or alters the main story. */
+    public synchronized void setFollowing(String id,boolean following) {
+        ensureSchema(db.getWritableDatabase());
+        ContentValues values=new ContentValues();
+        values.put("state",following?"following":"unaccepted");
+        if(db.getWritableDatabase().update("braseiro_sidequest_modules",values,
+                "scope=? AND module_id=?",new String[]{scope(),id})!=1)
+            throw new IllegalArgumentException("Missão secundária não encontrada.");
+    }
+
     public synchronized void remove(String id) {
         SQLiteDatabase sql = db.getWritableDatabase();ensureSchema(sql);
         sql.beginTransaction();
@@ -187,6 +197,63 @@ public final class BraseiroSideQuestStore {
         return out;
     }
 
+    /**
+     * Scene tools are only available at a real, host-confirmed place. They are
+     * suggestions for investigation, NEVER a forced encounter or a state commit.
+     * No global truth, secret, hidden-NPC identity or unvisited map is exposed.
+     */
+    static JSONObject localSceneMaterial(JSONObject pkg,String label,String hex) {
+        JSONObject out=new JSONObject();
+        try {
+            JSONArray encounterFeed=new JSONArray(),clueFeed=new JSONArray();
+            JSONArray arcFeed=new JSONArray(),npcFeed=new JSONArray();
+            JSONArray encounters=pkg.optJSONArray("encounters");
+            for(int i=0;encounters!=null&&i<encounters.length()&&encounterFeed.length()<3;i++){
+                JSONObject event=encounters.optJSONObject(i);
+                if(event==null||!matchesPlace(pkg,event.optString("locationId"),label,hex))continue;
+                encounterFeed.put(new JSONObject().put("id",event.optString("id"))
+                    .put("type",event.optString("type")).put("setup_private",event.optString("description"))
+                    .put("trigger_required",event.optString("trigger"))
+                    .put("auto_resolve",false));
+            }
+            JSONArray clues=pkg.optJSONArray("clues");
+            for(int i=0;clues!=null&&i<clues.length()&&clueFeed.length()<3;i++){
+                JSONObject clue=clues.optJSONObject(i);
+                if(clue==null||!matchesPlace(pkg,clue.optString("locationId"),label,hex))continue;
+                clueFeed.put(new JSONObject().put("id",clue.optString("id"))
+                    .put("possible_evidence_private",clue.optString("description"))
+                    .put("reveal_condition",clue.optString("revealCondition"))
+                    .put("known_at_import",false));
+            }
+            JSONObject story=pkg.optJSONObject("story");
+            JSONArray arcs=story==null?null:story.optJSONArray("arcs");
+            for(int i=0;arcs!=null&&i<arcs.length()&&arcFeed.length()<2;i++){
+                JSONObject arc=arcs.optJSONObject(i);
+                if(arc==null||!matchesPlace(pkg,arc.optString("entry"),label,hex))continue;
+                arcFeed.put(new JSONObject().put("id",arc.optString("id"))
+                    .put("name_private",arc.optString("name"))
+                    .put("dramatic_question_private",arc.optString("dramatic_question"))
+                    .put("optional_scenes_private",arc.optJSONArray("scenes")==null?new JSONArray():arc.optJSONArray("scenes")));
+            }
+            JSONArray npcs=pkg.optJSONArray("npcs");
+            for(int i=0;npcs!=null&&i<npcs.length()&&npcFeed.length()<3;i++){
+                JSONObject npc=npcs.optJSONObject(i);if(npc==null)continue;
+                JSONArray places=npc.optJSONArray("places");boolean near=false;
+                for(int k=0;places!=null&&k<places.length();k++)
+                    if(matchesPlace(pkg,places.optString(k),label,hex))near=true;
+                if(!near)continue;
+                npcFeed.put(new JSONObject().put("name_private_candidate",npc.optString("name"))
+                    .put("public_role_if_present",npc.optString("publicRole"))
+                    .put("appearance_if_present",npc.optString("appearance"))
+                    .put("presence_must_be_verified_by_host",true));
+            }
+            out.put("optional_encounters",encounterFeed).put("conditional_clues_private",clueFeed)
+                .put("local_arc_material_private",arcFeed)
+                .put("possible_npcs_NOT_spawned",npcFeed);
+        }catch(Exception ignored){return new JSONObject();}
+        return out;
+    }
+
     /** Mark as heard only from a CONFIRMED scene or explicit player record. */
     public synchronized boolean recordConfirmedRumor(String moduleId,String rumorId,String source,
             String confirmedLocation,int dayNumber) throws Exception {
@@ -214,7 +281,7 @@ public final class BraseiroSideQuestStore {
         JSONObject out=new JSONObject();
         try {
             ensureSchema(db.getWritableDatabase());
-            JSONObject scene=db.getSceneState();
+            JSONObject scene=AtlasScenePositionReconciler.authoritativeSceneSnapshot(db);
             JSONObject map=db.getMapState();
             String location=scene.optString("location","");
             String hex=map.optString("current_hex_id","");
@@ -231,13 +298,26 @@ public final class BraseiroSideQuestStore {
                             "WHERE scope=? AND module_id=? AND rumor_id=?",new String[]{scope(),row.optString("module_id"),rumorId});
                     if(heard.length()==0)unheard.put(candidate);
                 }
-                if(unheard.length()==0)continue;
+                JSONObject localMaterial=localSceneMaterial(pkg,location,hex);
+                boolean localLead=false;
+                java.util.Iterator<String> localKeys=localMaterial.keys();
+                while(localKeys.hasNext()){Object payload=localMaterial.opt(localKeys.next());
+                    if(payload instanceof JSONArray && ((JSONArray)payload).length()>0)localLead=true;}
+                if(unheard.length()==0&&!localLead)continue;
+                boolean following="following".equals(row.optString("state"));
                 JSONObject exposure=new JSONObject().put("id",row.optString("module_id"))
                     .put("title_private",row.optString("title"))
-                    .put("accepted",!"unaccepted".equals(row.optString("state")))
-                    .put("localRumors",unheard);
+                    .put("accepted",following)
+                    .put("localRumors",unheard)
+                    .put("localAdventureMaterial_private",localMaterial);
+                if(following){
+                    JSONObject story=pkg.optJSONObject("story");
+                    if(story!=null)exposure.put("background_private_GM_ONLY",
+                        story.optString("background","").substring(0,
+                            Math.min(3200,story.optString("background","").length())));
+                }
                 nearby.put(exposure);
-                if(nearby.length()>=3)break;
+                if(nearby.length()>=5)break;
             }
             out.put("optional_modules_nearby",nearby)
                .put("current_location_verified_by_host",location)
@@ -246,7 +326,7 @@ public final class BraseiroSideQuestStore {
                     "sem inventar NPC presente, evento, teste, recompensa ou viagem. " +
                     "Não revele segredo, pano de fundo privado, solução, nome oculto ou destino " +
                     "que a cena não tenha comprovado. Um rumor é boato, não fato. " +
-                    "A importação não representa aceitação nem conclusão.");
+                    "A importação não representa aceitação nem conclusão. Mesmo com material local, só introduza NPCs quando realmente presentes e pistas após observação ou investigação confirmada. O modo acompanhar não presume viagem, sucesso ou resolução.");
         }catch(Exception error){
             try{out.put("loadError","Missões secundárias indisponíveis; preserve a campanha principal.");}
             catch(Exception ignored){}
