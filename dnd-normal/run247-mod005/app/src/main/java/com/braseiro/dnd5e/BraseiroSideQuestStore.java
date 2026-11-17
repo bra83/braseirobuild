@@ -391,7 +391,8 @@ public final class BraseiroSideQuestStore {
                 boolean following="following".equals(row.optString("state"));
                 JSONObject exposure=new JSONObject().put("id",row.optString("module_id"))
                     .put("title_private",row.optString("title"))
-                    .put("accepted",following)
+                    .put("following",following)
+                    .put("accepted","accepted".equals(row.optString("state")))
                     .put("localRumors",unheard)
                     .put("localAdventureMaterial_private",localMaterial);
                 if(following){
