@@ -43,6 +43,7 @@ public final class MasterPreparationCoordinator {
                 active=-1L;expired=worker;worker=null;watchdog=null;
             }
             if(expired!=null)expired.cancel(true);
+            AppExecutors.masterPreparationTimedOut(executor);
             callbacks.onTimeout();
         }};
         synchronized(this){watchdog=deadline;}

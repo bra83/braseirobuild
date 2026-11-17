@@ -1,10 +1,13 @@
-name: DnD 6.6.63 on-device three-choice deadlock fix upgrade QA
+name: DnD 6.6.64 Master executor saturation recovery upgrade QA
 on:
   push:
     branches:
-      - fix/dnd-6662-handoff-full-gates-20261116
+      - fix/dnd-6664-master-preparation-recovery-20261117
     paths:
       - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppExecutors.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterPreparationCoordinator.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/MasterPreparationExecutorRecoveryRobolectricTest.java
       - dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py
       - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CampaignSafetyManager.java
       - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneChoiceCommitGate.java
@@ -42,31 +45,31 @@ jobs:
           SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
           test -x "$SDKMANAGER"
           "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
-      - name: Build integrated 6.6.63 APK with full Faerun assets
+      - name: Build integrated 6.6.64 APK with full Faerun assets
         working-directory: dnd-normal/run247-mod005
         shell: bash
         run: |
           set -euo pipefail
           chmod +x gradlew
           ./gradlew :app:assembleDebug --no-daemon --console=plain
-          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --tests com.braseiro.dnd5e.AtlasLegacySceneLocationPersistenceRobolectricTest --tests com.braseiro.dnd5e.SceneChoiceCommitGateTest --tests com.braseiro.dnd5e.SceneThreeChoiceScreenshotRegression20261117Test --tests com.braseiro.dnd5e.GroundedSceneActionSlots6654Test --tests com.braseiro.dnd5e.SceneOptionQualityRegressionTest --tests com.braseiro.dnd5e.StoryMomentumActionRegressionTest --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --tests com.braseiro.dnd5e.AtlasLegacySceneLocationPersistenceRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationExecutorRecoveryRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationCoordinatorRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationFailureUiRobolectricTest --tests com.braseiro.dnd5e.SceneChoiceCommitGateTest --tests com.braseiro.dnd5e.SceneThreeChoiceScreenshotRegression20261117Test --tests com.braseiro.dnd5e.GroundedSceneActionSlots6654Test --tests com.braseiro.dnd5e.SceneOptionQualityRegressionTest --tests com.braseiro.dnd5e.StoryMomentumActionRegressionTest --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
-          grep -q '^VERSION_CODE=203900626$' version.properties
+          grep -q '^VERSION_CODE=203900627$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
           grep -q '^BACKUP_FORMAT=21$' version.properties
-      - name: Download actual 6.6.62 APK installed in user's upgrade
+      - name: Download verified 6.6.63 APK for no-data-loss upgrade
         uses: actions/download-artifact@v4
         with:
-          artifact-ids: 14301540743
-          run-id: 44019819856
+          artifact-ids: 14306827147
+          run-id: 44033482710
           repository: bra83/braseirobuild
           github-token: ${{ github.token }}
-          path: qa-old-6662
+          path: qa-old-6663
       - name: Verify Android in-place compatibility, signer and incremental version
         shell: bash
         run: |
           set -euo pipefail
-          old='qa-old-6662/BRASEIRO_DND_6.6.62_ANDROID35_UPGRADE_3OF3_CANDIDATE/app-debug.apk'
+          old='qa-old-6663/app-debug.apk'
           new='dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$old"
           test -s "$new"
@@ -84,9 +87,9 @@ jobs:
               return (re.search("name='([^']+)'",line).group(1),
                       int(re.search("versionCode='([^']+)'",line).group(1)))
           old,new=extract('qa-old-package.txt'),extract('qa-new-package.txt')
-          assert old==('com.braseiro.dnd5e',203900625),old
-          assert new==('com.braseiro.dnd5e',203900626),new
-          print('REAL_6662_TO_6663_PACKAGE_SIGNER_VERSION_GATE=PASS')
+          assert old==('com.braseiro.dnd5e',203900626),old
+          assert new==('com.braseiro.dnd5e',203900627),new
+          print('REAL_6663_TO_6664_PACKAGE_SIGNER_VERSION_GATE=PASS')
           print('PHYSICAL_GALAXY_A57_NOT_TESTED=TRUE')
           PY
           sha256sum "$old" "$new" > qa-apk-sha256.txt
@@ -103,12 +106,12 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-boot-timeout: 900
-          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6662/BRASEIRO_DND_6.6.62_ANDROID35_UPGRADE_3OF3_CANDIDATE/app-debug.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6662-to-6663 --cycles 3
+          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6663/app-debug.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6663-to-6664 --cycles 3
       - name: Publish verified in-place upgrade APK candidate
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6.6.63_THREE_CHOICES_NO_BLOCK_3OF3
+          name: BRASEIRO_DND_6.6.64_MASTER_CONTEXT_RECOVERY_3OF3
           path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error
@@ -116,11 +119,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dnd-6662-to-6663-actions-upgrade-evidence
+          name: dnd-6663-to-6664-context-recovery-evidence
           path: |
-            qa-6662-to-6663/**/result.json
-            qa-6662-to-6663/summary.json
-            qa-6662-to-6663/**/startup-sqlite-log.txt
+            qa-6663-to-6664/**/result.json
+            qa-6663-to-6664/summary.json
+            qa-6663-to-6664/**/startup-sqlite-log.txt
             qa-old-cert.txt
             qa-new-cert.txt
             qa-old-package.txt
