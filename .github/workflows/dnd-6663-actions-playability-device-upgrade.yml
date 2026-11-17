@@ -66,7 +66,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          old='qa-old-6662/app-debug.apk'
+          old='qa-old-6662/BRASEIRO_DND_6.6.62_ANDROID35_UPGRADE_3OF3_CANDIDATE/app-debug.apk'
           new='dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk'
           test -s "$old"
           test -s "$new"
@@ -103,7 +103,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-boot-timeout: 900
-          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6662/app-debug.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6662-to-6663 --cycles 3
+          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6662/BRASEIRO_DND_6.6.62_ANDROID35_UPGRADE_3OF3_CANDIDATE/app-debug.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6662-to-6663 --cycles 3
       - name: Publish verified in-place upgrade APK candidate
         if: success()
         uses: actions/upload-artifact@v4
