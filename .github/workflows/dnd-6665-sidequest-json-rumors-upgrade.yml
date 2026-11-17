@@ -1,0 +1,137 @@
+name: DnD 6.6.65 Optional Sidequest JSON and Rumors QA
+on:
+  push:
+    branches:
+      - feature/dnd-6665-sidequest-json-rumors-20261117
+    paths:
+      - dnd-normal/run247-mod005/version.properties
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroAdventureStore.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/BraseiroSideQuestStore.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MainActivity.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/BraseiroSideQuestStoreRobolectricTest.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AppExecutors.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/MasterPreparationCoordinator.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/MasterPreparationExecutorRecoveryRobolectricTest.java
+      - dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/CampaignSafetyManager.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneChoiceCommitGate.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/SceneOpenWorldActionPlanner.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneChoiceCommitGateTest.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/SceneThreeChoiceScreenshotRegression20261117Test.java
+      - dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/AtlasScenePositionReconciler.java
+      - dnd-normal/run247-mod005/app/src/test/java/com/braseiro/dnd5e/AtlasLegacySceneLocationPersistenceRobolectricTest.java
+      - .github/workflows/dnd-6665-sidequest-json-rumors-upgrade.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verified-upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integrated 6.6.62 candidate only
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: dnd-normal/run247-mod005
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK for build and signer check
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT/cmdline-tools"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Build integrated 6.6.65 APK with full Faerun assets
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          ./gradlew :app:testDebugUnitTest --tests com.braseiro.dnd5e.BraseiroSideQuestStoreRobolectricTest --tests com.braseiro.dnd5e.AdventureContinuityPersistenceTest --tests com.braseiro.dnd5e.CampaignSafetyStartupNoSilentRestoreRobolectricTest --tests com.braseiro.dnd5e.AtlasLegacySceneLocationPersistenceRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationExecutorRecoveryRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationCoordinatorRobolectricTest --tests com.braseiro.dnd5e.MasterPreparationFailureUiRobolectricTest --tests com.braseiro.dnd5e.SceneChoiceCommitGateTest --tests com.braseiro.dnd5e.SceneThreeChoiceScreenshotRegression20261117Test --tests com.braseiro.dnd5e.GroundedSceneActionSlots6654Test --tests com.braseiro.dnd5e.SceneOptionQualityRegressionTest --tests com.braseiro.dnd5e.StoryMomentumActionRegressionTest --no-daemon --console=plain
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          grep -q '^VERSION_CODE=203900628$' version.properties
+          grep -q '^DB_SCHEMA=61$' version.properties
+          grep -q '^BACKUP_FORMAT=21$' version.properties
+      - name: Download verified 6.6.64 APK for no-data-loss upgrade
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 14310181491
+          run-id: 44041146465
+          repository: bra83/braseirobuild
+          github-token: ${{ github.token }}
+          path: qa-old-6664
+      - name: Verify Android in-place compatibility, signer and incremental version
+        shell: bash
+        run: |
+          set -euo pipefail
+          old='qa-old-6664/BRASEIRO_DND_6.6.64_MASTER_CONTEXT_RECOVERY_3OF3/app-debug.apk'
+          new='dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$old"
+          test -s "$new"
+          for prefix in old new; do
+            apk="$old"
+            if [ "$prefix" = new ]; then apk="$new"; fi
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | grep 'Signer #1 certificate SHA-256 digest:' > "qa-$prefix-cert.txt"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep '^package:' > "qa-$prefix-package.txt"
+          done
+          diff -u qa-old-cert.txt qa-new-cert.txt
+          python3 - <<'PY'
+          import re
+          def extract(path):
+              line=open(path,encoding='utf8').read()
+              return (re.search("name='([^']+)'",line).group(1),
+                      int(re.search("versionCode='([^']+)'",line).group(1)))
+          old,new=extract('qa-old-package.txt'),extract('qa-new-package.txt')
+          assert old==('com.braseiro.dnd5e',203900627),old
+          assert new==('com.braseiro.dnd5e',203900628),new
+          print('REAL_6664_TO_6665_PACKAGE_SIGNER_VERSION_GATE=PASS')
+          print('PHYSICAL_GALAXY_A57_NOT_TESTED=TRUE')
+          PY
+          sha256sum "$old" "$new" > qa-apk-sha256.txt
+      - name: Enable hardware acceleration where supported
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; else echo 'KVM_NOT_FOUND'; fi
+      - name: Three isolated Android 35 in-place upgrades -- DB, character, inventory, diary canaries
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-boot-timeout: 900
+          script: python3 dnd-normal/run247-mod005/tools/qa_android_upgrade_emulator.py --previous qa-old-6664/BRASEIRO_DND_6.6.64_MASTER_CONTEXT_RECOVERY_3OF3/app-debug.apk --current dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk --evidence qa-6664-to-6665 --cycles 3
+      - name: Publish verified in-place upgrade APK candidate
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRASEIRO_DND_6.6.65_OPTIONAL_JSON_RUMORS_3OF3
+          path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish Android emulator upgrade evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dnd-6664-to-6665-sidequest-upgrade-evidence
+          path: |
+            qa-6664-to-6665/**/result.json
+            qa-6664-to-6665/summary.json
+            qa-6664-to-6665/**/startup-sqlite-log.txt
+            qa-old-cert.txt
+            qa-new-cert.txt
+            qa-old-package.txt
+            qa-new-package.txt
+            qa-apk-sha256.txt
+          retention-days: 14
+          if-no-files-found: warn
