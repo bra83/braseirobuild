@@ -49,6 +49,7 @@ public final class SceneOpenWorldActionPlanner {
         {"arbustos","os arbustos"},{"arbusto","o arbusto"},
         {"plantas","as plantas"},{"planta","a planta"},
         {"estacas","as estacas"},{"estaca","a estaca"},
+        {"raizes","as raízes"},{"canteiros","os canteiros"},{"canteiro","o canteiro"},
         {"trilha","a trilha"},{"bifurcacao","a bifurcação"},
         {"saguao","o saguão"},
         {"caminho","o caminho"},{"entrada","a entrada"},
@@ -75,6 +76,7 @@ public final class SceneOpenWorldActionPlanner {
         // Full name of a person who actually speaks in THIS accepted narration.
         // Never take a name from a stale persisted NPC list.
         String actor=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
+        if(actor.isEmpty())actor=namedOnstageActor(narration);
         if(actor.isEmpty())actor=latest(stage,ACTORS);
         ArrayList<String> foci=visibleFoci(stage);
         // One visible noun is insufficient to fabricate three unrelated actions.
@@ -93,6 +95,12 @@ public final class SceneOpenWorldActionPlanner {
             out.add(option("EXPLORAR","SEGUIR EM DIREÇÃO "+upper(dative(second)),
                 "Decido seguir pelo caminho indicado em direção "+dative(second)+
                 ", sem presumir que já cheguei ao destino ou que atravessei obstáculos."));
+        }else if(SceneActionEvidence.normalize(second).contains("raizes")){
+            // The actual onstage roots are a distinct inspectable focus;
+            // "check the access to roots" would be semantically nonsensical.
+            out.add(option("EXPLORAR","EXAMINAR "+upper(second),
+                "Examino "+second+" junto "+genitive(first)+
+                " para perceber seus detalhes visíveis, sem presumir que encontrei uma pista."));
         }else{
             out.add(option("EXPLORAR","VERIFICAR O ACESSO "+upper(dative(second)),
                 "Aproximo-me "+genitive(second)+" para observar as condições de acesso, "+
@@ -100,6 +108,31 @@ public final class SceneOpenWorldActionPlanner {
         }
         return out;
     }
+    /**
+     * Named participants who are actively performing a visible action also
+     * exist in the beat even when they do not deliver dialogue. Restrict this
+     * to a full name immediately followed by a narrated action, never a mere
+     * proper noun in a rumor, archive entry, map or prior scene.
+     */
+    private static String namedOnstageActor(String narration){
+        if(narration==null)return "";
+        String raw=SceneActionEvidence.currentStage(narration);
+        java.util.regex.Matcher match=java.util.regex.Pattern.compile(
+            "\\b([A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,}\\s+[A-ZÁÀÂÃÉÊÍÓÔÕÚÜÇ][\\p{L}'-]{2,})\\s+"
+            +"(?:prende|fixa|crava|ajusta|amarra|segura|aponta|examina|observa|caminha|"
+            +"abaixa|ergue|mostra|coloca|recolhe|entrega|puxa|empurra|conversa|fala|diz)\\b",
+            java.util.regex.Pattern.UNICODE_CASE).matcher(raw);
+        String actor="";
+        while(match.find()){
+            String prefix=SceneActionEvidence.normalize(raw.substring(
+                Math.max(0,match.start()-45),match.start()));
+            if(prefix.matches("(?s).*(?:relata que|conta que|menciona que|ouviu que|diz que|"
+                +"lembra que|afirma que|escreveu que)\\s*"))continue;
+            actor=match.group(1);
+        }
+        return actor;
+    }
+
     /** Most prominent physically narrated focus, independent of NPC dialogue.
      * Dialogue proposals can combine it with the speaking character.
      */
