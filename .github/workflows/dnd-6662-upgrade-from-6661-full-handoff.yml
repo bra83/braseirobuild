@@ -105,6 +105,7 @@ jobs:
           path: |
             qa-6661-to-6662/**/result.json
             qa-6661-to-6662/summary.json
+            qa-6661-to-6662/**/startup-sqlite-log.txt
             qa-old-cert.txt
             qa-new-cert.txt
             qa-old-package.txt
