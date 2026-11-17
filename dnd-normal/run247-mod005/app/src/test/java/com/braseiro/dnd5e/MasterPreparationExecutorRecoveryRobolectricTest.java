@@ -45,12 +45,14 @@ public final class MasterPreparationExecutorRecoveryRobolectricTest {
     @Test public void thirdAttemptRecoversFromTwoUninterruptibleStaleWorkers() throws Exception {
         ExecutorService pool=AppExecutors.isolatedMasterPreparationForTest();
         MasterPreparationCoordinator c=new MasterPreparationCoordinator(new Handler(Looper.getMainLooper()),pool,30000);
-        CountDownLatch entered=new CountDownLatch(2),release=new CountDownLatch(1),freshRan=new CountDownLatch(1);
+        CountDownLatch firstStarted=new CountDownLatch(1),secondStarted=new CountDownLatch(1);
+        CountDownLatch release=new CountDownLatch(1),freshRan=new CountDownLatch(1);
         Recorder first=new Recorder(),second=new Recorder(),fresh=new Recorder();
         try {
-            c.prepare(uninterruptible(entered,release),first);
-            c.prepare(uninterruptible(entered,release),second);
-            assertTrue("Both abandoned workers must actually be running",entered.await(3,TimeUnit.SECONDS));
+            c.prepare(uninterruptible(firstStarted,release),first);
+            assertTrue("First blocked worker must have started",firstStarted.await(3,TimeUnit.SECONDS));
+            c.prepare(uninterruptible(secondStarted,release),second);
+            assertTrue("Second blocked worker must have started",secondStarted.await(3,TimeUnit.SECONDS));
             c.prepare(()->{freshRan.countDown();return "FRESH SCENE";},fresh);
             assertTrue("The third attempt must not be rejected or starved",freshRan.await(3,TimeUnit.SECONDS));
             shadowOf(Looper.getMainLooper()).idle();
