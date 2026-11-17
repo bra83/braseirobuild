@@ -78,7 +78,7 @@ public final class SceneOpenWorldActionPlanner {
         String actor=SceneDialogueDecisionPlanner.namedInterlocutor(narration);
         if(actor.isEmpty())actor=namedOnstageActor(narration);
         if(actor.isEmpty())actor=latest(stage,ACTORS);
-        ArrayList<String> foci=visibleFoci(stage);
+        ArrayList<String> foci=visibleFoci(physicalStage(stage));
         // One visible noun is insufficient to fabricate three unrelated actions.
         // Continue to rely on authored/model options for sparse scenes.
         if(actor.isEmpty()||foci.size()<2)return out;
@@ -137,7 +137,7 @@ public final class SceneOpenWorldActionPlanner {
      * Dialogue proposals can combine it with the speaking character.
      */
     static String primaryVisibleFocus(String narration){
-        ArrayList<String> found=visibleFoci(visibleNarratorStage(narration));
+        ArrayList<String> found=visibleFoci(physicalStage(visibleNarratorStage(narration)));
         return found.isEmpty()?"":found.get(0);
     }
 
@@ -193,6 +193,20 @@ public final class SceneOpenWorldActionPlanner {
         }
         return result;
     }
+    /** Reported objects are leads, not objects in the hero's reach. */
+    private static String physicalStage(String stage){
+        if(stage==null)return "";
+        String[] cues={" relata que "," mencionou que "," menciona que ",
+            " contou que "," conta que "," diz que "," afirmou que ",
+            " afirma que "," ouviu que "," escreveu que "," lembra que "};
+        int stop=stage.length();
+        for(String cue:cues){
+            int at=stage.indexOf(cue);
+            if(at>=0&&at<stop)stop=at;
+        }
+        return stage.substring(0,stop);
+    }
+
     private static ArrayList<String> visibleFoci(String stage){
         ArrayList<String> found=new ArrayList<>();
         for(String[] e:FOCI){
