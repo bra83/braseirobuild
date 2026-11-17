@@ -90,9 +90,16 @@ def inspect(dbfile):
         journal = connection.execute(
             "SELECT title,body,kind FROM journal WHERE world_profile='dnd' AND title=?",
             (JOURNAL_TITLE,)).fetchone()
+        restores = connection.execute(
+            "SELECT category,title,summary FROM audit_log "
+            "WHERE title LIKE '%restaur%' ORDER BY id DESC LIMIT 5").fetchall()
+        # Keep evidence small, but prove whether a safety restore ran on boot.
+        audit_tail = connection.execute(
+            "SELECT category,title FROM audit_log ORDER BY id DESC LIMIT 8").fetchall()
         return dict(integrity=integrity, schema_version=schema_version,
                     table_count=len(tables), scene=row, characters=characters,
-                    qa_hero=hero, qa_journal=journal)
+                    qa_hero=hero, qa_journal=journal,
+                    auto_restore_audit=restores, audit_tail=audit_tail)
 
 
 def insert_canary(dbfile):
@@ -171,7 +178,17 @@ def main():
     # Android package replacement must not touch existing app-private SQLite.
     # Capture this before the new Application/Activity can initialize anything.
     installed_before_launch = inspect(database_snapshot(evidence / "installed_before_launch"))
+    adb("logcat", "-c")
     app_start()
+    # Collect application and SQLite warnings before force-stop; do not include
+    # unrelated emulator processes or arbitrary user/app narrative content.
+    raw_logs = adb("logcat", "-d", "-v", "brief", timeout=180).decode("utf8", errors="replace")
+    terms = ("AppDb", "CampaignSafety", "DatabaseMigrationGuard", "SQLite",
+             "database", "restore", "Recovery", "Startup", "AndroidRuntime", "FATAL EXCEPTION")
+    filtered = [line for line in raw_logs.splitlines()
+                if any(term.lower() in line.lower() for term in terms)]
+    (evidence / "startup-sqlite-log.txt").write_text(
+        "\n".join(filtered[-400:]), encoding="utf8")
     stop()
     after_db = database_snapshot(evidence / "after")
     after = inspect(after_db)
