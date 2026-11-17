@@ -58,7 +58,7 @@ public final class BraseiroSideQuestStore {
         JSONObject previous = db.queryOne("SELECT package_json FROM braseiro_sidequest_modules WHERE scope=? AND module_id=?",
                 new String[]{scope(),id});
         if (previous.length() > 0) {
-            if (!new JSONObject(previous.optString("package_json","{}")).similar(pkg))
+            if (!new JSONObject(previous.optString("package_json","{}")).toString().equals(pkg.toString()))
                 throw new IllegalArgumentException("ID já instalado com conteúdo diferente. Preserve a versão da missão em andamento.");
             return new JSONObject().put("ok",true).put("alreadyInstalled",true).put("id",id).put("title",pkg.getString("title"));
         }
