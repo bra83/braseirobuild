@@ -15,14 +15,20 @@ public final class AppExecutors {
     private static final ExecutorService SERIAL = Executors.newSingleThreadExecutor(namedFactory("braseiro-serial"));
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
     private static final ExecutorService HEROES = Executors.newSingleThreadExecutor(namedFactory("braseiro-heroes"));
-    // The Master's operational snapshot cannot be starved by RAG, image imports,
-    // NPC/SQLite maintenance or other general I/O. Two concurrent slots prevent
-    // an interrupted-but-unresponsive old worker from freezing every retry.
-    // SynchronousQueue avoids an unbounded backlog of obsolete campaign plans.
+    // Master context must not be rejected simply because two previous requests
+    // ignored interruption after a deadline. Keep the queue bounded and purge
+    // cancelled FutureTasks on every new submission; never execute stale scenes.
+    // Core threads are prestarted so fresh work has a predictable execution path.
     private static final ThreadPoolExecutor MASTER_PREPARATION =
-        new ThreadPoolExecutor(0,2,45L,TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),namedFactory("braseiro-master-prepare"),
-                new ThreadPoolExecutor.AbortPolicy());
+        new ThreadPoolExecutor(4,4,45L,TimeUnit.SECONDS,
+                new java.util.concurrent.ArrayBlockingQueue<Runnable>(4),
+                namedFactory("braseiro-master-prepare"),
+                new ThreadPoolExecutor.AbortPolicy()) {
+            @Override public void execute(Runnable command) {
+                purge();
+                super.execute(command);
+            }
+        };
 
     private AppExecutors() {}
 

@@ -36,11 +36,15 @@ public final class NpcPerceptionLedger {
             if(npc==null||npc.optBoolean("departed",false)||npc.optBoolean("left_scene",false)
                     ||npc.optInt("active",1)==0)continue;
             String name=npc.optString("name","").trim();
-            if(name.isEmpty())continue;
+            // An unnamed onstage person remains visually observable.
+            // An opaque internal ID is required to avoid conflating different
+            // anonymous NPCs in the observer-scoped knowledge ledger.
+            if(name.isEmpty()&&npc.optString("id","").trim().isEmpty())continue;
             JSONObject record=db.getNarrativeDiscovery("npc_observed",key(observer,npc));
-            boolean introduced=record.length()>0
+            boolean introduced=!npc.optBoolean("anonymous",false)&&!name.isEmpty()&&
+                (record.length()>0
                 ||(acceptedNarration!=null && acceptedNarration.toLowerCase(Locale.ROOT)
-                        .contains(name.toLowerCase(Locale.ROOT)));
+                        .contains(name.toLowerCase(Locale.ROOT))));
             String lighting=FictionTurnIntent.fold(scene.optString("lighting",
                 scene.optString("light","")));
             boolean dark=(lighting.contains("escuridao")||lighting.contains("breu")

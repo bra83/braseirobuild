@@ -44,19 +44,16 @@ public final class CampaignSafetyManager {
             JSONObject health = db.healthCheck();
             if (!health.optBoolean("healthy")) {
                 appendDiagnostic("Banco reprovado na inicialização: " + health);
+                // Never import a potentially stale snapshot just because a
+                // startup integrity/ledger probe failed. Such a restore can
+                // silently erase the user's newer scene, heroes and journal,
+                // particularly while other startup workers are initializing.
+                // The explicit restoreLatest()/restoreSnapshot() paths remain
+                // available after the user has reviewed the diagnostic.
                 File latest = latestValidSnapshot();
-                if (latest == null) {
-                    startupMessage = "Banco com problema e nenhum snapshot válido disponível.";
-                    return startupMessage;
-                }
-                restore(latest);
-                JSONObject after = db.healthCheck();
-                if (!after.optBoolean("healthy")) {
-                    startupMessage = "A restauração foi tentada, mas o banco ainda precisa de diagnóstico.";
-                    return startupMessage;
-                }
-                startupMessage = "Campanha recuperada automaticamente do último snapshot válido.";
-                db.addAuditEvent("segurança", "Restauração automática", startupMessage, "{}", "{}", false);
+                startupMessage = latest == null
+                    ? "Banco com inconsistência; os dados foram preservados. Nenhum snapshot válido está disponível. Exporte o diagnóstico antes de qualquer alteração."
+                    : "Banco com inconsistência; seus dados não foram sobrescritos. Há um snapshot para restauração MANUAL, mediante confirmação. Exporte o diagnóstico primeiro.";
                 return startupMessage;
             }
             if (snapshotFiles().length == 0)

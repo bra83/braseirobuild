@@ -85,17 +85,32 @@ jobs:
           ./gradlew :app:testDebugUnitTest \
             --tests 'com.braseiro.dnd5e.SceneActionContinuityRegressionTest' --tests 'com.braseiro.dnd5e.SceneOptionQualityRegressionTest' --tests 'com.braseiro.dnd5e.BraseiroVttEndToEndAuditTest' \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
-      - name: Full D&D JVM regression (all tests except two mapped archive tests)
+      # Run the Bastion DB round-trip in a clean JVM first; this test
+      # previously passed in ~1.4s alone but stalled indefinitely when
+      # reached after other Robolectric suites in the shared worker.
+      - name: Bastion persistence isolated regression (no omitted coverage)
         working-directory: dnd-normal/run247-mod005
-        timeout-minutes: 15
+        timeout-minutes: 8
         run: |
-          # A linha de base 6.6.43 concluía em cerca de seis minutos.
-          # Emitir o nome de cada teste permite localizar congelamentos reais,
-          # ao invés de aumentar um timeout de 30 minutos indefinidamente.
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.Bastion2024PersistentFlowRobolectricTest' \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
+      - name: Full D&D JVM regression (Bastion separately verified; two real-map tests separate)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 25
+        run: |
+          # Bastion round-trip already ran in isolated required step.
+          # Fork every 25 classes to bound Robolectric/SQLite shared-worker state.
+          # Trace every test so any new stall is immediately diagnosable.
           cat > /tmp/braseiro-junit-trace.gradle <<'GRADLE'
           gradle.projectsEvaluated {
               gradle.rootProject.allprojects { project ->
                   project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach { testTask ->
+                      // Separate long-running Robolectric classes into fresh
+                      // worker JVMs to prevent static-state/SQLite lock leaks.
+                      testTask.forkEvery = 25L
+                      // Executed in its own mandatory step above, never omitted.
+                      testTask.filter.excludeTestsMatching('com.braseiro.dnd5e.Bastion2024PersistentFlowRobolectricTest')
                       testTask.testLogging {
                           events 'started', 'passed', 'failed', 'skipped'
                           exceptionFormat 'full'

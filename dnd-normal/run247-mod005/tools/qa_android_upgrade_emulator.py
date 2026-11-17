@@ -18,6 +18,8 @@ PKG = "com.braseiro.dnd5e"
 DB = "braseiro_dnd.db"
 LOCATION = "QA_UPGRADE_PERSISTENCE_20261114"
 FILE_TOKEN = "BRASEIRO_UPGRADE_CANARY_DO_NOT_DELETE"
+HERO_NAME = "QA_UPGRADE_HERO_20261116"
+JOURNAL_TITLE = "QA_UPGRADE_JOURNAL_20261116"
 
 
 def adb(*parts, input_bytes=None, timeout=150):
@@ -37,7 +39,10 @@ def app_start():
                                 "test", "-s", "databases/" + DB],
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if check.returncode == 0:
-            time.sleep(8)
+            # The Activity can create SQLite long before the heavy UI/engine
+            # finishes its asynchronous initialization. A short 8-second wait
+            # previously allowed false positives on cold-start upgrades.
+            time.sleep(45)
             return
         time.sleep(2)
     raise RuntimeError("App did not create the expected SQLite database after launch")
@@ -79,8 +84,22 @@ def inspect(dbfile):
             "WHERE world_profile='dnd'").fetchone()
         characters = connection.execute("SELECT COUNT(*) FROM characters").fetchone()[0] \
             if "characters" in tables else None
+        hero = connection.execute(
+            "SELECT name,level,hp,equipment,sheet_json FROM characters WHERE world_profile='dnd' AND name=?",
+            (HERO_NAME,)).fetchone()
+        journal = connection.execute(
+            "SELECT title,body,kind FROM journal WHERE world_profile='dnd' AND title=?",
+            (JOURNAL_TITLE,)).fetchone()
+        restores = connection.execute(
+            "SELECT category,title,summary FROM audit_log "
+            "WHERE title LIKE '%restaur%' ORDER BY id DESC LIMIT 5").fetchall()
+        # Keep evidence small, but prove whether a safety restore ran on boot.
+        audit_tail = connection.execute(
+            "SELECT category,title FROM audit_log ORDER BY id DESC LIMIT 8").fetchall()
         return dict(integrity=integrity, schema_version=schema_version,
-                    table_count=len(tables), scene=row, characters=characters)
+                    table_count=len(tables), scene=row, characters=characters,
+                    qa_hero=hero, qa_journal=journal,
+                    auto_restore_audit=restores, audit_tail=audit_tail)
 
 
 def insert_canary(dbfile):
@@ -93,9 +112,25 @@ def insert_canary(dbfile):
         connection.execute(
             "UPDATE scene_state_profiles SET location=?,day_number=?,clock_hour=? "
             "WHERE world_profile='dnd'", (LOCATION, 17, 18.75))
+        # Representative non-user hero, character-sheet inventory and journal.
+        # These are disposable synthetic records, never real campaign data.
+        stamp = int(time.time() * 1000)
+        equipment = json.dumps([{"name":"QA_RATION","quantity":3}], sort_keys=True)
+        sheet = json.dumps({"qa_probe":True,"inventory":[{"name":"QA_RATION","quantity":3}]}, sort_keys=True)
+        connection.execute(
+            "INSERT INTO characters(world_profile,name,species,class_name,level,hp,max_hp,ac,"
+            "equipment,sheet_json,active,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("dnd",HERO_NAME,"Humano","Mago",2,11,11,13,equipment,sheet,1,stamp,stamp))
+        connection.execute(
+            "INSERT INTO journal(world_profile,title,body,kind,canonical_fact,source_kind,created_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            ("dnd",JOURNAL_TITLE,"QA entry: scene preserved","QA",1,"qa",stamp))
         connection.commit()
         connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
-    assert inspect(dbfile)["scene"] == (LOCATION, 17, 18.75)
+    snapshot = inspect(dbfile)
+    assert snapshot["scene"] == (LOCATION, 17, 18.75)
+    assert snapshot["qa_hero"] is not None and snapshot["qa_journal"] is not None
 
 
 def restore_synthetic_db(dbfile):
@@ -132,19 +167,57 @@ def main():
     insert_canary(pre)
     before_with_canary = inspect(pre)
     restore_synthetic_db(pre)
+    # Probe the device copy, not just the edited host snapshot. This separates
+    # an invalid test injection from genuine Android upgrade data loss.
+    restored_before_upgrade = inspect(database_snapshot(evidence / "restored_before_upgrade"))
     adb("shell", "run-as", PKG, "mkdir", "-p", "files")
     adb("shell", "-T", "run-as", PKG, "dd",
         "of=files/qa_upgrade_canary.txt", input_bytes=FILE_TOKEN.encode("utf8"))
     # Upgrade in place: NO uninstall and NO -d downgrade flag.
     adb("install", "-r", str(new), timeout=240)
+    # Android package replacement must not touch existing app-private SQLite.
+    # Capture this before the new Application/Activity can initialize anything.
+    installed_before_launch = inspect(database_snapshot(evidence / "installed_before_launch"))
+    adb("logcat", "-c")
     app_start()
+    # Collect application and SQLite warnings before force-stop; do not include
+    # unrelated emulator processes or arbitrary user/app narrative content.
+    raw_logs = adb("logcat", "-d", "-v", "brief", timeout=180).decode("utf8", errors="replace")
+    terms = ("AppDb", "CampaignSafety", "DatabaseMigrationGuard", "SQLite",
+             "database", "restore", "Recovery", "Startup", "AndroidRuntime", "FATAL EXCEPTION")
+    filtered = [line for line in raw_logs.splitlines()
+                if any(term.lower() in line.lower() for term in terms)]
+    (evidence / "startup-sqlite-log.txt").write_text(
+        "\n".join(filtered[-400:]), encoding="utf8")
     stop()
     after_db = database_snapshot(evidence / "after")
     after = inspect(after_db)
     marker = adb("exec-out", "run-as", PKG, "cat",
                  "files/qa_upgrade_canary.txt").decode(errors="replace").strip()
-    passed = (after["scene"] == (LOCATION, 17, 18.75)
+    expected_scene = (LOCATION, 17, 18.75)
+    restored_ok = restored_before_upgrade["scene"] == expected_scene
+    install_ok = installed_before_launch["scene"] == expected_scene
+    launch_ok = after["scene"] == expected_scene
+    if not restored_ok:
+        failure_stage = "synthetic_db_restore_failed"
+    elif not install_ok:
+        failure_stage = "apk_install_modified_db_before_first_launch"
+    elif not launch_ok:
+        failure_stage = "first_app_launch_overwrote_scene"
+    elif before_with_canary["qa_hero"] != after["qa_hero"] or before_with_canary["qa_journal"] != after["qa_journal"]:
+        failure_stage = "structured_hero_or_journal_changed"
+    else:
+        failure_stage = "none"
+    passed = (restored_ok and install_ok and launch_ok
               and before_with_canary["characters"] == after["characters"]
+              and before_with_canary["qa_hero"] is not None
+              and before_with_canary["qa_hero"] == restored_before_upgrade["qa_hero"]
+              and before_with_canary["qa_hero"] == installed_before_launch["qa_hero"]
+              and before_with_canary["qa_hero"] == after["qa_hero"]
+              and before_with_canary["qa_journal"] is not None
+              and before_with_canary["qa_journal"] == restored_before_upgrade["qa_journal"]
+              and before_with_canary["qa_journal"] == installed_before_launch["qa_journal"]
+              and before_with_canary["qa_journal"] == after["qa_journal"]
               and marker == FILE_TOKEN
               and after["schema_version"] >= before["schema_version"])
     summary = {
@@ -154,7 +227,10 @@ def main():
             "current_sha256": hashlib.sha256(new.read_bytes()).hexdigest()},
         "old_original": before,
         "old_with_synthetic_save": before_with_canary,
+        "restored_before_upgrade": restored_before_upgrade,
+        "installed_before_first_launch": installed_before_launch,
         "new_after_upgrade": after,
+        "failure_stage": failure_stage,
         "private_file_canary_preserved": marker == FILE_TOKEN,
         "upgrade_command": "adb install -r (without uninstall)",
         "passed": passed,
@@ -167,5 +243,55 @@ def main():
         raise RuntimeError("ANDROID_UPGRADE_SAVE_INTEGRITY_FAILED")
 
 
+def run_repeated_cycles():
+    """Run independent emulator fixtures; the in-place update never uninstalls."""
+    import sys
+    import traceback
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--previous", required=True)
+    parser.add_argument("--current", required=True)
+    parser.add_argument("--evidence", default="qa-emulator-evidence")
+    parser.add_argument("--cycles", type=int, default=1)
+    args = parser.parse_args()
+    if not 1 <= args.cycles <= 6:
+        raise ValueError("cycles must be between 1 and 6")
+    base = Path(args.evidence)
+    base.mkdir(parents=True, exist_ok=True)
+    results = []
+    for index in range(1, args.cycles + 1):
+        cycle_dir = base / ("cycle-%d" % index)
+        print("=== INDEPENDENT_ANDROID_UPGRADE_CYCLE %d/%d ===" % (index, args.cycles), flush=True)
+        try:
+            if index > 1:
+                # Clean up the previous *disposable test installation* only.
+                # main() always performs the actual upgrade with adb install -r.
+                removed = subprocess.run(["adb", "uninstall", PKG],
+                                         capture_output=True, text=True, timeout=240)
+                if removed.returncode != 0:
+                    raise RuntimeError("Synthetic test uninstall failed: " + removed.stderr)
+            sys.argv = [sys.argv[0], "--previous", args.previous,
+                        "--current", args.current, "--evidence", str(cycle_dir)]
+            main()
+            report_path = cycle_dir / "result.json"
+            report = json.loads(report_path.read_text(encoding="utf8"))
+            results.append({"cycle": index, "passed": bool(report.get("passed")),
+                            "failure_stage": report.get("failure_stage"),
+                            "before": report.get("old_with_synthetic_save", {}).get("scene"),
+                            "after": report.get("new_after_upgrade", {}).get("scene")})
+        except Exception as error:
+            traceback.print_exc()
+            results.append({"cycle": index, "passed": False,
+                            "failure_stage": type(error).__name__ + ": " + str(error)})
+    overall = {"rounds": args.cycles,
+               "all_passed": len(results) == args.cycles and all(x["passed"] for x in results),
+               "round_results": results}
+    (base / "summary.json").write_text(
+        json.dumps(overall, ensure_ascii=False, indent=2), encoding="utf8")
+    print("ANDROID_UPGRADE_MULTI_CYCLE_SUMMARY=" +
+          json.dumps(overall, ensure_ascii=False), flush=True)
+    if not overall["all_passed"]:
+        raise RuntimeError("ANDROID_UPGRADE_MULTI_CYCLE_GATE_FAILED")
+
+
 if __name__ == "__main__":
-    main()
+    run_repeated_cycles()

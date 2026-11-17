@@ -1737,8 +1737,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(!strixhavenControlsExpanded)toggleControls.setTextColor(Color.BLACK);else toggleControls.setTextColor(GOLD);
         toggleControls.setOnClickListener(new View.OnClickListener(){public void onClick(View v){strixhavenControlsExpanded=!strixhavenControlsExpanded;showStrixhavenSession();}});
         quickBar.addView(toggleControls,new LinearLayout.LayoutParams(0,dp(36),1));
-        Button qCharon=smallButton("▶ CHARON",Color.rgb(60,43,25));qCharon.setTextColor(GOLD);qCharon.setTextSize(9);qCharon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakCharonNarration(lastNarration);}});
-        Button qVoice=smallButton("▶ VOZ",Color.rgb(60,43,25));qVoice.setTextColor(GOLD);qVoice.setTextSize(9);qVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+        Button qCharon=smallButton("▶ CHARON",Color.rgb(60,43,25));qCharon.setTextColor(GOLD);qCharon.setTextSize(9);qCharon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakCharonNarration(currentAudibleNarration());}});
+        Button qVoice=smallButton("▶ VOZ",Color.rgb(60,43,25));qVoice.setTextColor(GOLD);qVoice.setTextSize(9);qVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração.");return;}speakNativeNarrationWithSfx(currentAudibleNarration());}});
         quickBar.addView(qCharon,new LinearLayout.LayoutParams(dp(76),dp(36)));
         quickBar.addView(qVoice,new LinearLayout.LayoutParams(dp(64),dp(36)));
         drawer.addView(quickBar);
@@ -1746,8 +1746,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(strixhavenControlsExpanded){
             LinearLayout controlsBox=new LinearLayout(this);controlsBox.setOrientation(LinearLayout.VERTICAL);controlsBox.setPadding(0,dp(2),0,0);
             LinearLayout mediaRow=new LinearLayout(this);mediaRow.setOrientation(LinearLayout.HORIZONTAL);mediaRow.setGravity(Gravity.CENTER_VERTICAL);
-            Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(lastNarration);}});
-            Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(lastNarration);}});
+            Button charon=smallButton("▶ CHARON",Color.rgb(60,43,25));charon.setTextColor(GOLD);charon.setContentDescription("Ouvir a narração com a voz Charon do Gemini");charon.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakCharonNarration(currentAudibleNarration());}});
+            Button androidVoice=smallButton("▶ ANDROID",Color.rgb(60,43,25));androidVoice.setTextColor(GOLD);androidVoice.setContentDescription("Ouvir a narração com a voz nativa do Android");androidVoice.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(lastNarration==null||lastNarration.trim().length()==0){toast("Ainda não há narração para ouvir.");return;}speakNativeNarrationWithSfx(currentAudibleNarration());}});
             Button geminiImage=smallButton("✦ GEMINI",GOLD);geminiImage.setTextColor(Color.BLACK);geminiImage.setContentDescription("Enviar a cena atual ao Gemini para gerar imagem");geminiImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(true);}});
             Button localImage=smallButton("🖼 LOCAL",Color.rgb(60,43,25));localImage.setTextColor(GOLD);localImage.setContentDescription("Gerar imagem da cena com a chave Gemini configurada");localImage.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
             mediaRow.addView(charon,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(androidVoice,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(geminiImage,new LinearLayout.LayoutParams(0,dp(36),1));mediaRow.addView(localImage,new LinearLayout.LayoutParams(0,dp(36),1));
@@ -1849,6 +1849,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button ruleChat=button("CONVERSAR SOBRE REGRAS",PANEL2);ruleChat.setOnClickListener(new View.OnClickListener(){public void onClick(View v){final EditText q=input("Pergunte sobre regra, aula, prova, magia ou situação.","",true);new AlertDialog.Builder(MainActivity.this).setTitle("Regras RAW/RAI").setView(q).setNegativeButton("Cancelar",null).setPositiveButton("PERGUNTAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){String t=q.getText().toString().trim();if(t.length()>0)sendMasterSideQuestion("Consulte os manuais e explique esta regra no contexto de Strixhaven: "+t);}}).show();}});body.addView(ruleChat);
         Button attach=button("ANEXAR / TROCAR LIVRO",PANEL2);attach.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showAttachManualDialog();}});body.addView(attach);
         Button manuals=button("ABRIR MANUAIS",PANEL2);manuals.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Manuais");}});body.addView(manuals);
+        addFictionTraceControls(body);
         Button academic=button("VIDA ACADÊMICA",GREEN);academic.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showStrixhavenAcademicDialog();}});body.addView(academic);
         new AlertDialog.Builder(this).setTitle("Ferramentas do Mestre • Strixhaven").setView(body).setNegativeButton("Fechar",null).setPositiveButton("APLICAR MODO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){prefs.edit().putString("ai_mode",String.valueOf(mode.getSelectedItem())).apply();toast("Modo do Mestre: "+mode.getSelectedItem());}}).show();
     }
@@ -6579,7 +6580,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         b.addView(text("A narração e a paisagem sonora só começam quando você toca em PLAY. Pode repetir quantas vezes quiser.",12,MUTED,false));LinearLayout audioRow=new LinearLayout(this);audioRow.setOrientation(LinearLayout.HORIZONTAL);Button speak=smallButton("PLAY\nCHARON + ÁUDIO",GREEN),nativeSpeak=smallButton("PLAY\nANDROID + ÁUDIO",PANEL2),journal=smallButton("DIÁRIO",PANEL2);speak.setContentDescription("Iniciar ou repetir a narração com Charon, música, ambiência e efeitos");nativeSpeak.setContentDescription("Iniciar ou repetir a narração com a voz do Android, música, ambiência e efeitos");audioRow.addView(speak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(nativeSpeak,new LinearLayout.LayoutParams(0,dp(54),1));audioRow.addView(journal,new LinearLayout.LayoutParams(0,dp(54),1));b.addView(audioRow);
         LinearLayout imageRow=new LinearLayout(this);imageRow.setOrientation(LinearLayout.HORIZONTAL);Button gemBtn=smallButton("GERAR NO GEMINI",GREEN),image=smallButton("TENTAR INTERNA",PANEL2),copy=smallButton("EDITAR PROMPT",PANEL2);imageRow.addView(gemBtn,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(image,new LinearLayout.LayoutParams(0,dp(50),1));imageRow.addView(copy,new LinearLayout.LayoutParams(0,dp(50),1));b.addView(imageRow);
         b.addView(text("No Gemini: gere a imagem e toque em Compartilhar > Braseiro D&D. Ela voltará automaticamente para esta cena.",12,MUTED,false));
-        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(lastNarration));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(lastNarration));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});
+        speak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakGemini(stripMarkdown(currentAudibleNarration()));}});nativeSpeak.setOnClickListener(new View.OnClickListener(){public void onClick(View v){speakNativeNarrationWithSfx(stripMarkdown(currentAudibleNarration()));}});journal.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Diário");}});
         gemBtn.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPromptAndOpenGemini();}});copy.setOnClickListener(new View.OnClickListener(){public void onClick(View v){editVisualPrompt(false);}});image.setOnClickListener(new View.OnClickListener(){public void onClick(View v){generateSceneImage();}});
         b.addView(modeCard);
         if(lastNarration.length()>0)ui.postDelayed(new Runnable(){public void run(){narratorScroll.smoothScrollTo(0,0);}},120);
@@ -7599,6 +7600,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void markMasterRequestFailed(final String mode,final String action,final String channel,final String error,final boolean apiFailure){
         aiBusy=false;streamingNarration="";
         final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");
+        final boolean choicesFailure=!apiFailure&&error!=null&&error.startsWith("ESCOLHAS:");
         if(masterSideQueryActive)restoreAfterMasterSideQuery();
         if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){
             updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());
@@ -7617,18 +7619,20 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putBoolean(RETRY_PREFIX+"context_failure",contextFailure).commit();
         }
         final boolean chronologyFailure=!apiFailure&&error!=null&&error.startsWith("CONTINUIDADE:");
-        setStatus(contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(
+        setStatus(choicesFailure?"A cena não foi aceita: faltaram escolhas válidas. A ação continua pendente.":
+            (contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(
             apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
             (chronologyFailure?"CONTRADIÇÃO NA CONTINUIDADE. A cena foi preservada e a nova resposta não foi aplicada.":
-            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço.")));
+            "PROPOSTA DE TESTE INVÁLIDA. A ação continua pendente, sem rolagem ou avanço."))));
         updateNarratorBusyUi();
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle(contextFailure?"A preparação do Mestre foi interrompida":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste")))
-                .setMessage((contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":
+            new AlertDialog.Builder(this).setTitle(choicesFailure?"A cena não apresentou quatro ações úteis":(contextFailure?"A preparação do Mestre foi interrompida":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))))
+                .setMessage((choicesFailure?"As opções não passaram pelo critério de quatro ações válidas. Nenhuma cena nova foi confirmada. ":
+                    (contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":
                     (apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":
-                    (chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. ")))+
+                    (chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))))+
                     "Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
@@ -7673,6 +7677,38 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 sendAi(mode,action,channel);
             }}).show();
     }
+
+    /** Opt-in private diagnostic; no events leave the app without explicit share. */
+    private void addFictionTraceControls(LinearLayout parent){
+        if(parent==null)return;
+        Button toggle=button(FictionTurnTrace.isEnabled(prefs)?
+            "DESLIGAR E APAGAR DIAGNÓSTICO LOCAL":"LIGAR DIAGNÓSTICO LOCAL DO MESTRE",PANEL2);
+        toggle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            boolean enabled=!FictionTurnTrace.isEnabled(prefs);
+            FictionTurnTrace.setEnabled(MainActivity.this,prefs,enabled);
+            toggle.setText(enabled?"DESLIGAR E APAGAR DIAGNÓSTICO LOCAL":"LIGAR DIAGNÓSTICO LOCAL DO MESTRE");
+            toast(enabled?"Diagnóstico privado ativado. Inclui texto da sessão, sem chaves API.":"Diagnóstico desligado e arquivo privado apagado.");
+        }});
+        parent.addView(toggle);
+        Button export=button("COMPARTILHAR DIAGNÓSTICO (POR SUA ESCOLHA)",PANEL2);
+        export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
+            if(!FictionTurnTrace.isEnabled(prefs)){toast("Primeiro ative o diagnóstico.");return;}
+            try{
+                java.io.File f=FictionTurnTrace.destination(MainActivity.this);
+                if(!f.isFile()){toast("Ainda não há eventos gravados.");return;}
+                byte[] bytes=java.nio.file.Files.readAllBytes(f.toPath());
+                int start=Math.max(0,bytes.length-46000);
+                String text=new String(bytes,start,bytes.length-start,java.nio.charset.StandardCharsets.UTF_8);
+                Intent intent=new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT,
+                    "Braseiro D&D / diagnóstico opt-in / "+BuildConfig.VERSION_NAME+"\n"+text);
+                startActivity(Intent.createChooser(intent,"Compartilhar diagnóstico do Mestre"));
+            }catch(Exception ex){toast("Não foi possível ler o diagnóstico local.");}
+        }});
+        parent.addView(export);
+    }
+
     private void addGeminiMasterChoiceButtons(LinearLayout parent){
         if(parent==null)return;
         LinearLayout panel=card();
@@ -7688,7 +7724,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button offline=button("MESTRE OFFLINE • USAR MANUALMENTE",PANEL2);
         offline.setEnabled(!aiBusy);
         offline.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
-        panel.addView(offline);parent.addView(panel);
+        panel.addView(offline);addFictionTraceControls(panel);parent.addView(panel);
     }
 
     private void sendAi(final String mode,String userText){
@@ -7704,6 +7740,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         final String requestedText=augmentStrixhavenOfficialPrompt(mode,inputChannel,userText==null?"":userText);
         final boolean openingRequest=RuleRetrievalEngine.isNarrativeOpeningRequest(requestedText);
         final long pipelineId=++aiPipelineGeneration;
+        if(FictionTurnTrace.isEnabled(prefs))try{
+            FictionTurnTrace.append(this,prefs,"request",new JSONObject()
+                .put("request_id",pipelineId)
+                .put("mode",mode).put("channel",inputChannel==null?"":inputChannel)
+                .put("scene_fingerprint",SceneActionEvidence.hash(lastNarration))
+                .put("state_revision",db.getStoryState().optLong("updated_at",0L))
+                .put("intent",FictionTurnIntent.contract(requestedText,db.getSceneState(),inputChannel))
+                .put("selected_model",prefs.getString("text_model",""))
+                .put("request_text",requestedText));
+        }catch(Exception ignored){}
+
         manualOfflinePipelineId=manualOfflineNextRequest?pipelineId:-1L;
         manualOfflineNextRequest=false;
         aiBusy=true;streamingNarration="";
@@ -7846,6 +7893,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(!aiBusy)return;
         activeRuleRetrieval=retrieval==null?new JSONObject():retrieval.bundle;
         activeMasterPlan=preparedPlan;
+        if(FictionTurnTrace.isEnabled(prefs))try{
+            FictionTurnTrace.append(this,prefs,"plan_prepared",new JSONObject()
+                .put("request_id",aiPipelineGeneration)
+                .put("plan_ready",preparedPlan==null?"no_plan":preparedPlan.contextReady)
+                .put("scene_fingerprint",SceneActionEvidence.hash(lastNarration))
+                .put("context_length",preparedPlan==null?0:preparedPlan.compactContext.length())
+                .put("context_error",preparedPlan==null?"":preparedPlan.contextError)
+                .put("context_hash",preparedPlan==null?"":preparedPlan.stateHash)
+                .put("narrative_intent",preparedPlan==null?"":preparedPlan.narrativeIntent)
+                .put("context_budget",34000)
+                .put("input_channel",inputChannel==null?"":inputChannel));
+        }catch(Exception ignored){}
+
         boolean openingRequest=RuleRetrievalEngine.isNarrativeOpeningRequest(userText)||activeRuleRetrieval.optBoolean("opening_narrative",false);
         String openingStatus=activeRuleRetrieval.optString("status","");
         int openingEvidence=activeRuleRetrieval.optInt("evidence_count",activeRuleRetrieval.optJSONArray("evidence")==null?0:activeRuleRetrieval.optJSONArray("evidence").length());
@@ -7989,6 +8049,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         return "";
     }
 
+    private String currentAudibleNarration(){
+        return FictionTurnAudio.select(lastNarration,currentFictionAnswer());
+    }
     private boolean activeTurnNonAdvancing(String userText){
         String channel=activeInputChannel();
         if("GM_HELP".equals(channel))return true;
@@ -7999,6 +8062,14 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void acceptOrRepairNarration(final String mode,final String originalUserText,final String raw,final String systemPrompt,final String key,final String model,final long requestId,final int repairAttempt){
+        if(FictionTurnTrace.isEnabled(prefs))try{
+            String snippet=raw==null?"":raw.substring(0,Math.min(raw.length(),8500));
+            FictionTurnTrace.append(this,prefs,"model_received",new JSONObject()
+                .put("request_id",requestId).put("mode",mode).put("model",model)
+                .put("repair_attempt",repairAttempt).put("raw_length",raw==null?0:raw.length())
+                .put("raw_response",snippet));
+        }catch(Exception ignored){}
+
         if(requestId!=aiRequestGeneration)return;
         // A requested player check must result in an actual pending roll,
         // not a narrative victory followed by an arbitration rollback.
@@ -8476,6 +8547,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             JSONObject projectedScene = projectSceneForSuggestions(env, newCast);
             // A perceptive answer must NOT replace the scene or rebind choices.
             newOptions = nonAdvancing?previousOptions:(narrativeResponse ? SceneOptionDiversifier.ensureAlways(choiceSplit.options, optionHistory, calculatedNarration, action, projectedScene, db.getMasterRuntimeState().optInt("beat_no", 0) + 1) : new JSONArray());
+            if(!SceneChoiceCommitGate.canCommit(narrativeResponse,nonAdvancing,
+                    newPendingTest!=null&&newPendingTest.length()>0,newOptions.length())){
+                final int offered=newOptions.length();
+                ui.post(new Runnable(){public void run(){
+                    if(requestGen!=aiRequestGeneration)return;
+                    markMasterRequestFailed("Narrador",action,"PLAYER_ACTION",
+                        SceneChoiceCommitGate.reason(offered),false);
+                }});
+                return;
+            }
 
             JSONObject sourceAudit = lastAiUsedRag ? buildRagSourceAudit(lastRagCitations) : characterRulesValidator.auditAiAnswer(lastAiMode, env, lastAiManuals);
             JSONObject previousMasterSupport = copyJsonObject(lastMasterSupport);
@@ -8675,6 +8756,17 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void applyAiResponseToUi(final AiResponseUiPayload payload, final long requestGen) {
+        if(FictionTurnTrace.isEnabled(prefs)&&payload!=null)try{
+            FictionTurnTrace.append(this,prefs,"answer_validated",new JSONObject()
+                .put("request_id",requestGen).put("accepted",payload.masterEnvelopeValid)
+                .put("non_advancing",payload.nonAdvancing)
+                .put("structured_changes_pending",payload.changes)
+                .put("transaction_id",payload.transactionId)
+                .put("scene_fingerprint_before",SceneActionEvidence.hash(lastNarration))
+                .put("accepted_text",payload.masterEnvelopeValid?payload.lastNarration:"")
+                .put("status",payload.statusMessage));
+        }catch(Exception ignored){}
+
         if (requestGen != aiRequestGeneration || payload == null) return;
         if(!payload.masterEnvelopeValid){
             clearFailedGeminiRequest();
@@ -9975,7 +10067,10 @@ private void speakGemini(String text){
         final NarrativeAudioEngine engine=narrativeAudio;
         // Voz e análise das camadas começam em paralelo. A biblioteca de sons nunca
         // bloqueia a primeira palavra.
-        if(engine!=null)engine.prepareSceneAsync(clean,environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt),db.getSceneState(),null);
+        if(engine!=null)engine.prepareSceneAsync(clean,
+    FictionTurnAudio.observation(clean,currentFictionAnswer())?new JSONObject():
+        (environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt)),
+    db.getSceneState(),null);
         ui.post(new Runnable(){public void run(){if(session!=charonNarrationGeneration||!isCurrentAudioSession(coordinated))return;audio.beginVoiceSession();if(engine!=null)engine.beginNarration(plainVoiceChunks(chunks));setStatus("Charon: sintetizando a leitura contínua • fallback Android já preparado • "+audioLayersStatus()+".");synthesizeChunk(chunks,0,session,coordinated);}});
     }
 
@@ -9998,7 +10093,10 @@ private void speakGemini(String text){
         if(nativeTts==null||!nativeTtsReady||!nativeTtsLanguageReady){cancelNarrationAudio();pendingRequestedNativeNarration=clean;ensureNativeTtsInitialized();setStatus("PLAY solicitado. Preparando a voz do Android sem bloquear a tela…");return;}
         cancelNarrationAudio();applyNativeNarrativeDelivery();beginCoordinatedAudioSession("Android TTS",clean);pauseBackgroundWorkForNarration();startAudioServiceSafely();final long session=++nativeNarrationSession;final List<String> chunks=nativeVoiceChunks(clean);setStatus("Voz do Android pronta • iniciando em "+chunks.size()+" bloco"+(chunks.size()==1?"":"s")+" contínuo"+(chunks.size()==1?"":"s")+"…");
         final NarrativeAudioEngine engine=narrativeAudio;
-        if(engine!=null)engine.prepareSceneAsync(clean,environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt),db.getSceneState(),null);
+        if(engine!=null)engine.prepareSceneAsync(clean,
+    FictionTurnAudio.observation(clean,currentFictionAnswer())?new JSONObject():
+        (environmentalDirector==null?lastAudioPlan:environmentalDirector.mergeAudioPlan(lastAudioPlan,lastPrompt)),
+    db.getSceneState(),null);
         ui.post(new Runnable(){public void run(){if(session!=nativeNarrationSession)return;if(engine!=null)engine.beginNarration(chunks);audio.setExternalVoiceActive(true);nativeNarrationQueue.clear();nativeNarrationQueue.addAll(chunks);nativeNarrationQueueIndex=0;synchronized(nativeVoiceSentenceByUtterance){nativeVoiceSentenceByUtterance.clear();nativeVoiceStartedUtterances.clear();}nativeVoicePendingChunks=nativeNarrationQueue.size();nativeNarrationBedStarted=true;setStatus("Voz do Android iniciando • "+audioLayersStatus()+".");speakNextNativeNarrationChunk();}});
     }
 
