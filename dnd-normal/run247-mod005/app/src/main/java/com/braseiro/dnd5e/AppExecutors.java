@@ -20,6 +20,8 @@ public final class AppExecutors {
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
     private static final ExecutorService HEROES = Executors.newSingleThreadExecutor(namedFactory("braseiro-heroes"));
     private static final ExecutorService MASTER_PREPARATION = new RecoveringMasterExecutor();
+    // This pool cannot be saturated by failed Gemini/RAG context preparation.
+    private static final ExecutorService OFFLINE_RECOVERY = new RecoveringMasterExecutor();
 
     private AppExecutors() {}
 
@@ -29,6 +31,7 @@ public final class AppExecutors {
     public static ExecutorService indexing() { return INDEXING; }
     public static ExecutorService heroes() { return HEROES; }
     public static ExecutorService masterPreparation() { return MASTER_PREPARATION; }
+    public static ExecutorService offlineRecovery() { return OFFLINE_RECOVERY; }
 
     /** A real timeout must retire the blocked workers, not merely cancel their Future. */
     static void masterPreparationTimedOut(ExecutorService selected) {
