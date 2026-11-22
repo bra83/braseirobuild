@@ -2,7 +2,7 @@ package br.com.tutorclinico;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.print.PrintManager;
+import android.print.PrintManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
