@@ -49,7 +49,7 @@ final class SecureStore {
     synchronized String read() throws Exception {
         File file = new File(context.getFilesDir(), FILE_NAME);
         AtomicFile atom = new AtomicFile(file);
-        if (!atom.exists()) return "{\"version\":1,\"cases\":[],\"appointments\":[]}";
+        if (!atom.getBaseFile().exists() && !new File(context.getFilesDir(), FILE_NAME + ".bak").exists()) return "{\"version\":1,\"cases\":[],\"appointments\":[]}";
         byte[] bytes;
         try (FileInputStream stream = atom.openRead()) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
