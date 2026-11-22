@@ -1,0 +1,214 @@
+package br.com.tutorclinico;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.print.PrintManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.InputType;
+import android.view.View;
+import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
+public final class MainActivity extends Activity {
+    private static final int EXPORT_CODE = 901;
+    private static final int IMPORT_CODE = 902;
+    private WebView web;
+    private SecureStore store;
+    private SharedPreferences pref;
+    private byte[] pendingExport;
+    private String pendingPassword;
+    private volatile boolean unlocked = false;
+    private boolean showingLock = false;
+    private long backgroundAt = 0;
+    private final Handler main = new Handler(Looper.getMainLooper());
+
+    @Override public void onCreate(Bundle state) {
+        super.onCreate(state);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        store = new SecureStore(this);
+        pref = getSharedPreferences("tutor-lock", MODE_PRIVATE);
+        web = new WebView(this);
+        web.setBackgroundColor(Color.rgb(246,248,246));
+        web.getSettings().setJavaScriptEnabled(true);
+        web.getSettings().setDomStorageEnabled(false);
+        web.getSettings().setAllowFileAccess(false);
+        web.getSettings().setAllowContentAccess(false);
+        web.getSettings().setBlockNetworkLoads(true);
+        web.setWebViewClient(new WebViewClient() {
+            @Override public void onPageFinished(WebView view, String url) {
+                if (unlocked) view.evaluateJavascript("window.appUnlock && window.appUnlock()", null);
+            }
+            @Override public boolean shouldOverrideUrlLoading(WebView view, String url) { return true; }
+            @Override public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) { return true; }
+        });
+        web.addJavascriptInterface(new Bridge(), "NativeVault");
+        web.setVisibility(View.INVISIBLE);
+        setContentView(web);
+        try (InputStream in = getAssets().open("index.html")) {
+            String html = new String(readLimited(in, 1000000), StandardCharsets.UTF_8);
+            web.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
+        } catch (Exception e) { showToast("Falha ao carregar aplicativo"); }
+        requestUnlock();
+    }
+    private static byte[] readLimited(InputStream in, int max) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] chunk = new byte[8192]; int n;
+        while ((n=in.read(chunk)) != -1) {
+            if (out.size() + n > max) throw new IllegalArgumentException("Arquivo grande demais");
+            out.write(chunk,0,n);
+        }
+        return out.toByteArray();
+    }
+    private void showToast(String msg) { main.post(() -> Toast.makeText(this, msg, Toast.LENGTH_LONG).show()); }
+    private EditText passwordInput(String hint) {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setSingleLine(true); input.setHint(hint);
+        int d = (int)(22 * getResources().getDisplayMetrics().density);
+        input.setPadding(d, d, d, d);
+        return input;
+    }
+    private void requestUnlock() {
+        if (showingLock || isFinishing()) return;
+        showingLock = true; unlocked = false; web.setVisibility(View.INVISIBLE);
+        boolean needsCreate = !pref.contains("pin_hash");
+        EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle(needsCreate ? "Proteger o Tutor Clínico" : "Desbloquear Tutor Clínico")
+            .setMessage(needsCreate ? "Os registros serão criptografados neste aparelho. Guarde seu PIN e faça cópias protegidas." : "Insira o PIN local para abrir os dados clínicos.")
+            .setView(input).setCancelable(false)
+            .setPositiveButton(needsCreate ? "Criar PIN" : "Desbloquear", null)
+            .setNegativeButton("Fechar", (d,w) -> finish()).create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String pin = input.getText().toString();
+            try {
+                if (!pin.matches("[0-9]{6,}")) { input.setError("Use pelo menos 6 dígitos"); return; }
+                if (System.currentTimeMillis() < pref.getLong("blocked_until", 0)) {
+                    showToast("Muitas tentativas. Aguarde 60 segundos."); return;
+                }
+                if (needsCreate) {
+                    String salt = SecureStore.newSalt();
+                    pref.edit().putString("pin_salt", salt).putString("pin_hash", SecureStore.hashPin(pin,salt)).apply();
+                } else {
+                    String expected = pref.getString("pin_hash", "");
+                    String actual = SecureStore.hashPin(pin, pref.getString("pin_salt", ""));
+                    if (!SecureStore.equalHash(expected, actual)) {
+                        int failures = pref.getInt("failed", 0) + 1;
+                        SharedPreferences.Editor editor = pref.edit().putInt("failed", failures);
+                        if (failures >= 5) editor.putLong("blocked_until", System.currentTimeMillis()+60000).putInt("failed",0);
+                        editor.apply(); showToast("PIN incorreto"); return;
+                    }
+                }
+                pref.edit().putInt("failed",0).putLong("blocked_until",0).apply();
+                unlocked = true; showingLock = false; backgroundAt=0;
+                web.setVisibility(View.VISIBLE); dialog.dismiss();
+                web.evaluateJavascript("window.appUnlock && window.appUnlock()", null);
+            } catch (Exception e) { showToast("Falha ao verificar PIN"); }
+        }));
+        dialog.show();
+    }
+    @Override protected void onPause() { backgroundAt = System.currentTimeMillis(); super.onPause(); }
+    @Override protected void onResume() {
+        super.onResume();
+        if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
+    }
+    @Override protected void onDestroy() { if (web != null) web.destroy(); super.onDestroy(); }
+    private void jsCallback(String fn, String arg) {
+        main.post(() -> { if (!isFinishing()) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
+    }
+    private final class Bridge {
+        @JavascriptInterface public String loadState() {
+            if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
+            try { return store.read(); }
+            catch (Exception e) { return "{\"__loadError\":\"Falha ao abrir dados criptografados. Não sobrescreva o arquivo.\"}"; }
+        }
+        @JavascriptInterface public String saveState(String json) {
+            if (!unlocked) return "Bloqueado";
+            try { store.save(json); return "OK"; }
+            catch (Exception e) { return "ERRO: " + e.getMessage(); }
+        }
+        @JavascriptInterface public void exportBackup(String password) {
+            if (!unlocked) return;
+            try { pendingExport = SecureStore.encryptBackup(store.read(), password); }
+            catch (Exception e) { showToast("Erro no backup: " + e.getMessage()); return; }
+            main.post(() -> {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE, "tutor-clinico-backup.psicbackup");
+                startActivityForResult(intent, EXPORT_CODE);
+            });
+        }
+        @JavascriptInterface public void importBackup(String password) {
+            if (!unlocked) return;
+            pendingPassword = password;
+            main.post(() -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(intent, IMPORT_CODE);
+            });
+        }
+        @JavascriptInterface public void printReport(String html) {
+            if (!unlocked) return;
+            main.post(() -> {
+                WebView printView = new WebView(MainActivity.this);
+                printView.getSettings().setBlockNetworkLoads(true);
+                printView.getSettings().setJavaScriptEnabled(false);
+                printView.setWebViewClient(new WebViewClient() {
+                    @Override public void onPageFinished(WebView view, String url) {
+                        PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
+                        manager.print("Relatório clínico", view.createPrintDocumentAdapter("relatorio"), null);
+                    }
+                });
+                printView.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
+            });
+        }
+    }
+    @Override protected void onActivityResult(int code, int result, Intent data) {
+        super.onActivityResult(code,result,data);
+        if (result != RESULT_OK || data == null || data.getData() == null) {
+            if (code == EXPORT_CODE) pendingExport = null;
+            if (code == IMPORT_CODE) pendingPassword = null;
+            return;
+        }
+        Uri uri = data.getData();
+        try {
+            if (code == EXPORT_CODE && pendingExport != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                    if (out == null) throw new IllegalStateException("Destino inacessível");
+                    out.write(pendingExport); out.flush();
+                }
+                showToast("Backup criptografado salvo");
+            } else if (code == IMPORT_CODE) {
+                byte[] bytes;
+                try (InputStream in = getContentResolver().openInputStream(uri)) {
+                    if (in == null) throw new IllegalStateException("Arquivo inacessível");
+                    bytes = readLimited(in, 12_000_000);
+                }
+                if (bytes.length > 12_000_000) throw new IllegalArgumentException("Arquivo acima do limite de 12 MB");
+                String content = SecureStore.decryptBackup(bytes, pendingPassword == null ? "" : pendingPassword);
+                jsCallback("nativeImportResult", content);
+            }
+        } catch (Exception e) { showToast("Operação não concluída: " + e.getMessage()); }
+        finally { pendingPassword = null; pendingExport = null; }
+    }
+}

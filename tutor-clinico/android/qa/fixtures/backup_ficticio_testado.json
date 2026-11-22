@@ -1,0 +1,37 @@
+[
+  {
+    "data": "2026-11-22",
+    "intensidade": 5,
+    "queixas": [
+      "ansiedade",
+      "sono"
+    ],
+    "alertas": [
+      "violencia"
+    ],
+    "sessoes": [
+      {
+        "data": "2026-11-22",
+        "texto": "REGISTRO FICTÍCIO S1. Tema: preocupação ao deitar. Palavra recorrente: cobrança. Sonho: sala sem relógio. Observação do terapeuta fictício: curiosidade. Evolução simulada: relato organizado."
+      },
+      {
+        "data": "2026-11-20",
+        "texto": "REGISTRO FICTÍCIO S2 RETROATIVO. Data anterior ao primeiro atendimento, para testar validação e ordenação."
+      }
+    ],
+    "status": "Concluído",
+    "nome": "AUDITORIA FICTÍCIA A — REVISADA",
+    "idade": "35",
+    "modalidade": "Estudo de caso",
+    "queixaTexto": "CASO INTEIRAMENTE FICTÍCIO. Penso no trabalho ao deitar e demoro a dormir.",
+    "desde": "Há alguns meses",
+    "gatilhos": "FICTÍCIO: ao deitar e antes de reuniões.",
+    "familia": "FICTÍCIO: cresceu com dois responsáveis; sem dados de pessoa real.",
+    "relacoes": "FICTÍCIO: convivência estável com parceiro inventado.",
+    "recursos": "FICTÍCIO: amigos e caminhada.",
+    "sonhos": "FICTÍCIO: sonho recorrente com uma sala sem relógio.",
+    "obs": "Teste funcional; não utilizar como prontuário real.",
+    "id": "cmwrbfu1rsxbn",
+    "criado": 1795320446175
+  }
+]
