@@ -24,4 +24,14 @@ test('Bloqueia agendamento conflitante',()=>{js("act('newAppointment');apptDraft
 test('Permite agendamento sem sobreposição',()=>{js("apptDraft.hora='09:50';act('saveAppointment')");assert.equal(js('state.appointments.length'),2);});
 test('Normaliza backup legado sem duplicar detalhes de sessões',()=>{const backup=JSON.parse(fs.readFileSync(new URL('./fixtures/backup_ficticio_testado.json',import.meta.url),'utf8'));context.legacy=backup;const result=js('normalizeImported(legacy)');assert.equal(result.cases.length,1);assert.equal(result.cases[0].sessoes.length,2);assert.ok(result.cases[0].sessoes[0].id);assert.equal(result.legacy,true);});
 test('Backup local gravado com versão correta',()=>{assert.equal(JSON.parse(saved).version,1);assert.equal(JSON.parse(saved).appointments.length,2);});
+
+test('AndroidKeyStore usa IV gerado pelo provedor (regressão de salvamento)',()=>{
+ const java=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
+ const save=java.split('synchronized void save(String json)')[1]?.split('static String hashPin')[0];
+ assert.ok(save,'Implementação save ausente');
+ assert.match(save,/cipher\.init\(Cipher\.ENCRYPT_MODE,\s*deviceKey\(\)\)/);
+ assert.match(save,/byte\[\] iv = cipher\.getIV\(\)/);
+ assert.doesNotMatch(save,/cipher\.init\(Cipher\.ENCRYPT_MODE,\s*deviceKey\(\),\s*new GCMParameterSpec/);
+ assert.match(save,/stream\.write\(iv\);\s*stream\.write\(encrypted\);/);
+});
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

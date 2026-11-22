@@ -73,9 +73,12 @@ final class SecureStore {
         if (validated.optInt("version") != 1 || !(validated.opt("cases") instanceof org.json.JSONArray)
                 || !(validated.opt("appointments") instanceof org.json.JSONArray))
             throw new IllegalArgumentException("Estrutura de dados inválida");
-        byte[] iv = new byte[12]; RNG.nextBytes(iv);
+        // AndroidKeyStore AES-GCM keys with randomized encryption require the provider to generate the IV.
+        // Supplying a caller-created IV here raises "Caller-provided IV not permitted" on Android.
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        cipher.init(Cipher.ENCRYPT_MODE, deviceKey(), new GCMParameterSpec(128, iv));
+        cipher.init(Cipher.ENCRYPT_MODE, deviceKey());
+        byte[] iv = cipher.getIV();
+        if (iv == null || iv.length != 12) throw new IllegalStateException("IV AES-GCM inesperado");
         byte[] encrypted = cipher.doFinal(json.getBytes(StandardCharsets.UTF_8));
         AtomicFile file = new AtomicFile(new File(context.getFilesDir(), FILE_NAME));
         FileOutputStream stream = null;
