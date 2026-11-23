@@ -75,7 +75,10 @@ internal class WhisperLiveEngine(
             try {
                 listener.state("MICROFONE · CARREGANDO " + display + " OFFLINE")
                 model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
-                if (!capturing.get()) return@Thread
+                if (!capturing.get()) {
+                    listener.state("PARADO · MICROFONE WHISPER NÃO INICIADO")
+                    return@Thread
+                }
                 launchCapture()
                 listener.state("GRAVANDO · " + display + " · TRANSCRIÇÃO EM TRECHOS")
                 var processed = 0

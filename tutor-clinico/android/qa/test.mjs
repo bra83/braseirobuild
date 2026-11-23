@@ -371,4 +371,32 @@ test('ECO G3 live mic engine selection passes to Android bridge and blocks paral
  assert.equal(js("ecoIsCapturing()"),false);
 });
 
+
+test('ECO G4 revisão invalida evidência que não corresponde mais à fonte',()=>{
+ const session={
+   id:'s-review',mlTranscricao:'Eu sonhei com minha mãe',mlRevisada:'',
+   mlEvidence:[{id:'ev1',status:'confirmado',label:'mãe',category:'Pessoa',quote:'Eu sonhei com minha mãe'}]
+ };
+ context.sampleEvidenceSession=session;
+ assert.equal(js('ecoEvidenceCurrent(sampleEvidenceSession,sampleEvidenceSession.mlEvidence[0])'),true);
+ session.mlRevisada='Eu sonhei com meu pai';
+ assert.equal(js('ecoEvidenceCurrent(sampleEvidenceSession,sampleEvidenceSession.mlEvidence[0])'),false);
+ assert.equal(js('ecoLongitudinalEvidence([sampleEvidenceSession]).length'),0);
+ const before=js('ecoExtractEvidence("Sonhei com minha mãe", "s").find(x=>x.label==="mãe").id');
+ const after=js('ecoExtractEvidence("Sonhei com minha avó", "s").find(x=>x.label==="avó").id');
+ assert.notEqual(before,after);
+});
+test('ECO G4 Atlas identifica recorrência confirmada sem inferir causalidade',()=>{
+ const mk=(id,data,text)=>({id,data,mlTranscricao:text,mlEvidence:[{
+  id:'e'+id,category:'Pessoa',label:'mãe',status:'confirmado',quote:'minha mãe',polarity:'menção'
+ }]});
+ context.sample1=mk('one','2026-10-01','Ontem falei com minha mãe.');
+ context.sample2=mk('two','2026-10-08','Lembrei da minha mãe.');
+ context.sample3=mk('three','2026-10-15','Não saí de casa.');
+ const rec=js('ecoLongitudinalEvidence([sample1,sample2,sample3])');
+ assert.equal(rec.length,1);
+ assert.equal(rec[0].sessions,2);
+ assert.equal(rec[0].label,'mãe');
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

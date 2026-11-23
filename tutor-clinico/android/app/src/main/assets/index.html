@@ -661,7 +661,8 @@ function ecoExtractEvidence(text,sessionId="rascunho"){
    for(const term of quote.matchAll(unicodeRx)){
     const at=term.index||0,begin=Math.max(0,at-45),prior=quote.slice(begin,at);
     const neg=/\b(não|nunca|jamais|sem)\s+(?:(?:tenho|tinha|sinto|sentia|estou|estava|me|eu|havia|tive|é)\s+)?(?:\w+\s+){0,2}$/iu.test(prior);
-    const key=[category,label,offset+at].join(":");
+    const fingerprint=Array.from(quote).reduce((n,ch)=>((n*33)^ch.charCodeAt(0))>>>0,5381).toString(36);
+    const key=[category,label,offset+at,fingerprint].join(":");
     if(seen.has(key))continue;seen.add(key);
     out.push({id:"ev:"+sessionId+":"+key,sessionId,category,label,
       quote,start:offset+at,end:offset+at+term[0].length,
@@ -673,6 +674,31 @@ function ecoExtractEvidence(text,sessionId="rascunho"){
  }
  return out.slice(0,250);
 }
+function ecoEvidenceCurrent(session,evidence){
+ if(!session || !evidence || evidence.status!=="confirmado")return false;
+ const source=String(session.mlRevisada?.trim()||session.mlTranscricao||"");
+ const quote=String(evidence.quote||"").trim();
+ return quote.length>0 && source.includes(quote);
+}
+function ecoLongitudinalEvidence(sessions){
+ const byLabel=new Map();
+ for(const s of sessions||[]){
+  const es=(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e));
+  for(const e of es){
+   const key=String(e.category||"")+"|"+String(e.label||"");
+   if(!byLabel.has(key))byLabel.set(key,[]);
+   byLabel.get(key).push({...e,sessionId:s.id,sessionDate:s.data});
+  }
+ }
+ return [...byLabel].map(([key,items])=>{
+  const ids=new Set(items.map(e=>e.sessionId));
+  const polarities=new Set(items.map(e=>e.polarity));
+  return {key,label:items[0]?.label||"",category:items[0]?.category||"",
+   sessions:ids.size,mentions:items.length,items,
+   textualVariation:polarities.has("menção")&&polarities.has("possível negação")};
+ }).filter(x=>x.sessions>=2).sort((a,b)=>b.sessions-a.sessions||b.mentions-a.mentions);
+}
+
 function ecoEvidenceForDraft(){
  if(!sessionDraft)return [];
  ecoEnsure();
@@ -680,6 +706,7 @@ function ecoEvidenceForDraft(){
  const source=reviewed?sessionDraft.mlRevisada:sessionDraft.mlTranscricao||"";
  const existing=new Set((sessionDraft.mlEvidence||[]).map(x=>x.id));
  const evidences=ecoExtractEvidence(source,sessionDraft.id).filter(x=>!existing.has(x.id));
+ for(const e of evidences)e.source=reviewed?"transcrição revisada":"transcrição automática";
  // Speaker and source time are groundable only against unchanged raw ASR text.
  if(!reviewed){
   const ranges=[];let cursor=0;
@@ -700,7 +727,14 @@ function ecoEvidencePanel(){
  let out='<section class="eco-outline"><h2>Extração factual em português</h2>'+
  '<p class="eco-caption">São sugestões obtidas por correspondência de expressões, não diagnósticos, NLP neural ou classificação clínica validada. Semelhança de palavras e negação precisam de revisão humana. Nada é confirmado automaticamente.</p>';
  out+='<h3>Confirmados por você ('+accepted.length+')</h3>';
- out+=accepted.length?accepted.slice(0,60).map(e=>'<div class="eco-evidence"><span class="eco-pill">'+esc(e.category)+' · '+esc(e.label)+'</span><p>“'+esc(e.quote)+'”</p><small>Fonte: transcrição · falante '+esc(e.speaker||"desconhecido")+' · '+esc(e.polarity||"menção")+'</small></div>').join(''):'<p class="muted small">Nenhuma marcação automática foi confirmada.</p>';
+ out+=accepted.length?accepted.slice(0,60).map(e=>{
+    const isCurrent=ecoEvidenceCurrent(sessionDraft,e);
+    return '<div class="eco-evidence"><span class="eco-pill">'+esc(e.category)+' · '+esc(e.label)+'</span>'+
+     (isCurrent?'':'<p><strong>REFERÊNCIA DESATUALIZADA — citação alterada na revisão. Não entra no Atlas.</strong></p>')+
+     '<p>“'+esc(e.quote)+'”</p><small>'+esc(e.source||"transcrição")+
+     ' · falante '+esc(e.speaker||"desconhecido")+' · '+esc(e.polarity||"menção")+'</small>'+
+     btn("Remover marcação","ecoRemoveEvidence","ghost",'data-id="'+esc(e.id)+'"')+'</div>';
+   }).join(''):'<p class="muted small">Nenhuma marcação automática foi confirmada.</p>';
  out+='<h3>Sugestões para revisar ('+proposals.length+')</h3>';
  out+=proposals.length?proposals.map(e=>'<div class="eco-evidence"><strong>'+esc(e.category)+': '+esc(e.label)+'</strong> <span class="muted small">'+esc(e.polarity)+'</span><p>“'+esc(e.quote)+'”</p>'+btn('Confirmar menção','ecoAcceptEvidence','secondary','data-id="'+esc(e.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma expressão reconhecida para sugerir.</p>';
  return out+'</section>';
@@ -820,10 +854,23 @@ function ecoAtlasScreen(){
  const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=c.sessoes||[];
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
- const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>e.status==="confirmado").map(e=>({...e,sessionDate:s.data}))).slice(-150);
+ const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data}))).slice(-150);
+ const repeated=ecoLongitudinalEvidence(ss);
+ const stale=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data})));
  out+='<div class="eco-outline"><h2>Temas registrados</h2>'+ (frequent.length?frequent.map(([k,n])=>'<span class="chip">'+esc(k)+' · '+n+'</span>').join(''):'<p class="muted">Ainda não existem marcações.</p>')+'<p class="eco-caption">Contagens de marcações manuais, não de sintomas confirmados.</p></div>';
- out+='<div class="eco-outline"><h2>Evidências confirmadas</h2><p class="eco-caption">Somente confirmações humanas. Cada item apresenta a sessão e a fala registrada.</p>'+
+ out+='<div class="eco-outline"><h2>Recorrências entre sessões</h2>'+
+ '<p class="eco-caption">Menções confirmadas em pelo menos duas sessões diferentes. São recorrências lexicais, não interpretações psicológicas.</p>'+
+ (repeated.length?repeated.slice(0,18).map(group=>'<div class="eco-evidence"><strong>'+esc(group.category)+' · '+esc(group.label)+
+ '</strong> <span class="eco-pill">'+group.sessions+' sessões</span>'+
+ (group.textualVariation?'<p class="eco-caption">Formulações positivas e possivelmente negativas: conferir o contexto. Não significa contradição clínica.</p>':'')+
+ group.items.slice(0,8).map(e=>'<p><small>'+esc(formatDate(e.sessionDate))+'</small> — “'+esc(e.quote)+'”</p>').join('')+
+ '</div>').join(''):'<p class="muted">Nenhuma recorrência confirmada em múltiplas sessões.</p>')+'</div>';
+ out+='<div class="eco-outline"><h2>Evidências confirmadas</h2><p class="eco-caption">Somente confirmações humanas com citações ainda presentes no texto vigente.</p>'+
+
  (verified.length?verified.map(e=>'<div class="eco-evidence"><strong>'+esc(e.label)+' · '+esc(formatDate(e.sessionDate))+'</strong><p>“'+esc(e.quote)+'”</p><small>'+esc(e.category)+' · '+esc(e.polarity||"menção")+' · falante '+esc(e.speaker||"desconhecido")+'</small></div>').join(''):'<p class="muted">Ainda não há evidências confirmadas.</p>')+'</div>';
+ if(stale.length)out+='<div class="eco-outline"><h2>Referências desatualizadas ('+stale.length+')</h2>'+
+ '<p class="eco-caption">Menções anteriormente confirmadas cujo trecho não corresponde mais ao texto revisado. Não são tratadas como evidência válida.</p>'+
+ stale.slice(0,25).map(e=>'<div class="eco-evidence">'+esc(formatDate(e.sessionDate))+' · '+esc(e.label)+' — “'+esc(e.quote)+'”</div>').join('')+'</div>';
  out+='<div class="eco-outline"><h2>Histórico das sessões</h2>'+ (ss.length?[...ss].sort((a,b)=>(b.data||'').localeCompare(a.data||'')).map(s=>'<div class="eco-evidence"><strong>'+esc(formatDate(s.data))+'</strong> <span class="eco-pill">'+(s.mlSegments?.length||0)+' trechos de áudio transcritos</span><p>'+esc((s.mlRevisada||s.texto||s.mlTranscricao||"Sem resumo").slice(0,270))+'</p><small>'+esc((s.mlTags||[]).slice(0,9).join(' · '))+'</small></div>').join(''):'<p class="muted">Nenhuma sessão registrada.</p>')+'</div>';
  return out;
 }
@@ -865,6 +912,16 @@ act=function(name,id){
  }
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
+ if(name==="ecoRemoveEvidence"){
+   ecoEnsure();
+   const before=JSON.stringify(sessionDraft.mlEvidence);
+   sessionDraft.mlEvidence=sessionDraft.mlEvidence.filter(e=>e.id!==id);
+   if(before===JSON.stringify(sessionDraft.mlEvidence))return;
+   const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
+   const result=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"ERRO");
+   if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Falha ao remover marcação: "+result,'red');return;}
+   render();return;
+ }
  if(name==="ecoAcceptEvidence"){
    const item=ecoEvidenceForDraft().find(e=>e.id===id);
    if(!item)return;
@@ -930,11 +987,14 @@ pdfForCase=function(c){
      ' · falante '+esc(e.speaker||"desconhecido")+
      ' · '+esc(e.startMs==null?"sem posição no áudio":Math.round(e.startMs/1000)+"s")+
      '</small> '+esc(e.text||"")+'</p>').join('');
-   const evidence='<h4>Menções confirmadas</h4>'+(s.mlEvidence||[]).filter(e=>e.status==="confirmado").map(e=>
+   const evidence='<h4>Menções confirmadas e válidas</h4>'+(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>
      '<p><strong>'+esc(e.category||"Tema")+" · "+esc(e.label||"")+'</strong> — “'+esc(e.quote||"")+
      '” <small>'+esc(e.polarity||"menção")+" · "+esc(e.speaker||"desconhecido")+'</small></p>').join('');
+   const staleEvidence=(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e));
+   const outdated='<h4>Referências desatualizadas</h4>'+staleEvidence.map(e=>'<p>“'+esc(e.quote||"")+
+   '” — alterada ou ausente na transcrição revisada, não considerada evidência atual</p>').join('');
    const history='<p><small>Versões anteriores preservadas: '+(s.revisoes||[]).length+'</small></p>';
-   return '<section style="break-before:page">'+title+record+clips+evidence+history+'</section>';
+   return '<section style="break-before:page">'+title+record+clips+evidence+outdated+history+'</section>';
  }).join('');
  return base.replace('</body></html>',
   '<h2>Anexo técnico: transcrição, trechos e evidências</h2>'+
