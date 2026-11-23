@@ -97,6 +97,7 @@ object WhisperFileEngine {
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private var chunkIndex = 0
+        private var processedFrames = 0L
         var recognizedCount = 0
             private set
 
@@ -108,27 +109,72 @@ object WhisperFileEngine {
                 val take = minOf(size - offset, SEGMENT_SIZE - pcm.size())
                 pcm.write(data, offset, take)
                 offset += take
-                if (pcm.size() == SEGMENT_SIZE) transcribeChunk()
+                if (pcm.size() == SEGMENT_SIZE) transcribeChunk(false)
             }
         }
 
         fun finish() {
-            if (listener.isActive() && pcm.size() > 0) transcribeChunk()
+            if (listener.isActive() && pcm.size() > 0) transcribeChunk(true)
         }
 
-        private fun transcribeChunk() {
+        // Energy-based pause detection (a conservative filter, NOT a neural VAD).
+        // Prefer a quiet window at a sentence boundary near 25s rather than cutting
+        // in the middle of an audible word. The remaining PCM stays in memory.
+        private fun cutAtPause(data: ByteArray): Int {
+            if(data.size < PCM_BYTES_PER_SECOND * 22) return data.size
+            val win = PCM_BYTES_PER_SECOND / 10 // 100 ms
+            var best = data.size
+            var quietest = Double.MAX_VALUE
+            val from = PCM_BYTES_PER_SECOND * 20
+            val to = data.size - PCM_BYTES_PER_SECOND
+            var pos = from
+            while (pos + win <= to) {
+                var sum = 0L
+                var j = pos
+                while (j + 1 < pos + win) {
+                    val sample = ((data[j].toInt() and 255) or (data[j + 1].toInt() shl 8)).toShort().toInt()
+                    sum += kotlin.math.abs(sample).toLong()
+                    j += 2
+                }
+                val mean = sum.toDouble() / (win / 2)
+                if (mean < quietest) {quietest = mean; best = pos + win / 2}
+                pos += win
+            }
+            return if (quietest <= 350.0) (best / 2) * 2 else data.size
+        }
+        private fun containsSpeechLikeSignal(data: ByteArray): Boolean {
+            var audible = 0
+            var i = 0
+            while (i + 1 < data.size) {
+                val sample = ((data[i].toInt() and 255) or (data[i+1].toInt() shl 8)).toShort().toInt()
+                if(kotlin.math.abs(sample) > 250) audible++
+                if(audible >= SAMPLE_RATE / 8) return true // >=125 ms above threshold
+                i += 2
+            }
+            return false
+        }
+        private fun transcribeChunk(finalChunk: Boolean) {
             if (!listener.isActive()) return
-            val bytes = pcm.toByteArray()
+            val all = pcm.toByteArray()
+            val cut = if(finalChunk)all.size else cutAtPause(all)
+            if(cut == 0)return
+            val bytes = all.copyOfRange(0,cut)
             pcm.reset()
-            if (bytes.isEmpty()) return
+            if(cut < all.size)pcm.write(all,cut,all.size-cut)
+            val baseMs = processedFrames * 1000L / SAMPLE_RATE
+            processedFrames += cut / 2L
             chunkIndex++
+            if(!containsSpeechLikeSignal(bytes)){
+                if(listener.isActive())listener.state(modelName+" · SILÊNCIO IGNORADO NO TRECHO "+chunkIndex)
+                return
+            }
             val wav = File.createTempFile(CACHE_PREFIX, ".wav", context.cacheDir)
             try {
                 writeWav(wav, bytes)
                 if (!listener.isActive()) return
-                val offsetSec = (chunkIndex - 1) * SEGMENT_SECONDS
-                val clock = (offsetSec / 60).toString() + "m" +
-                    (offsetSec % 60).toString().padStart(2, '0') + "s"
+                val offsetSec = baseMs / 1000L
+                val clock = (offsetSec / 60L).toString() + "m" +
+                    (offsetSec % 60L).toString().padStart(2, '0') + "s"
                 listener.state(modelName+" · TRANSCRIBINDO " + clock + " · TRECHO " + chunkIndex)
                 val result = runBlocking {
                     Whisper.transcribe(model, wav.absolutePath,
@@ -139,7 +185,6 @@ object WhisperFileEngine {
                     for (seg in result.segments) {
                         if (listener.isActive() && seg.text.isNotBlank()) {
                             recognizedCount++
-                            val baseMs = (chunkIndex - 1).toLong() * SEGMENT_SECONDS * 1000L
                             val maxMs = baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
                             listener.segment(seg.text.trim(), (baseMs+seg.startMs).coerceIn(baseMs,maxMs),
                               (baseMs+seg.endMs).coerceIn(baseMs,maxMs))
@@ -147,7 +192,6 @@ object WhisperFileEngine {
                     }
                 } else if (result.text.isNotBlank()) {
                     recognizedCount++
-                    val baseMs = (chunkIndex - 1).toLong() * SEGMENT_SECONDS * 1000L
                     listener.segment(result.text.trim(),baseMs,baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND)
                 }
                 if (listener.isActive())
