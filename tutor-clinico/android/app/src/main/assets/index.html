@@ -613,7 +613,7 @@ function ecoWorkspace(){
   out+='<section class="eco-recorder"><h2>● Captação e transcrição</h2><p class="eco-caption">Use o microfone ou carregue MP3, WAV, M4A ou FLAC. O Vosk PT-BR processa localmente, sem identificar quem falou. O texto pode conter erros.</p>';
   out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
   out+='<div class="stack">'+btn('● INICIAR CAPTAÇÃO','ecoStart','','aria-label="Iniciar microfone"')+btn('⇧ IMPORTAR ÁUDIO (MP3 / WAV / M4A / FLAC)','ecoImportFile','secondary','aria-label="Selecionar arquivo de áudio para transcrever"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
-  out+='<p class="eco-caption">Escolha um áudio já existente no aparelho ou no seletor de documentos. O ECO apenas lê o arquivo, sem copiar nem guardar o áudio. O arquivo original permanece onde estava. A transcrição offline pode exigir revisão.</p>';
+  out+='<p class="eco-caption">Selecione MP3, WAV (PCM), M4A ou FLAC. O ECO lê o arquivo e não cria cópia do áudio; o original permanece no local escolhido. O processamento pode ser cancelado e a transcrição precisa ser revisada.</p>';
   out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
   out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto é salvo em rascunho criptografado; o ECO não cria arquivo de áudio. Arquivos de origem continuam no dispositivo ou provedor escolhido.</p></section>';
  }else if(ecoWorkspaceTab==="marcar"){
@@ -658,6 +658,9 @@ const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
 const ecoActBase=act;
 act=function(name,id){
+ if(ecoIsCapturing() && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
+  notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
+ }
  if(name==="ecoImportFile"){
   if(!ecoConsent){notify("Confirme que é uma simulação ou que há autorização documentada antes da importação.",'red');return}
   if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}

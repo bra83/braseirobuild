@@ -105,4 +105,44 @@ test('ECO v0.4 não inventa ecos quando não há evidência',()=>{
  assert.equal(p.length,0);
 });
 
+
+test('ECO v0.5 mostra importação de áudio no fluxo da sessão',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ js("act('ecoWorkspaceTab','captura')");
+ assert.match(js("sessionScreen()"),/IMPORTAR ÁUDIO/);
+ assert.match(js("sessionScreen()"),/MP3 \/ WAV \/ M4A \/ FLAC/);
+});
+test('ECO v0.5 requer confirmação antes de selecionar arquivo',()=>{
+ context.window.NativeVault.selectAudioFile=()=>{context.filePickerCalled=true};
+ context.filePickerCalled=false;
+ js("ecoConsent=false;act('ecoImportFile')");
+ assert.equal(context.filePickerCalled,false);
+ js("ecoConsent=true;act('ecoImportFile')");
+ assert.equal(context.filePickerCalled,true);
+ assert.equal(js("ecoAudioSource"),"arquivo");
+ js('window.nativeMlState("IMPORTAÇÃO CANCELADA")');
+});
+test('ECO v0.5 reconhece importação como operação ocupada',()=>{
+ js('window.nativeMlState("PROCESSANDO ÁUDIO · 28 s")');
+ assert.equal(js("ecoIsCapturing()"),true);
+ js('window.nativeMlState("CONCLUÍDO · REVISE A TRANSCRIÇÃO")');
+ assert.equal(js("ecoIsCapturing()"),false);
+});
+test('ECO v0.5 arquivo SAF stream / decodificação local / sem upload',()=>{
+ const native=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const decoding=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/AudioFileTranscriber.java',import.meta.url),'utf8');
+ assert.match(native,/Intent\.ACTION_OPEN_DOCUMENT/);
+ assert.match(native,/intent\.setType\("audio\/\*"\)/);
+ assert.match(native,/ml\.importFile\(uri\)/);
+ assert.match(native,/AUDIO_FILE_CODE/);
+ assert.match(ml,/AudioFileTranscriber\.transcribe/);
+ assert.match(decoding,/MediaExtractor/);
+ assert.match(decoding,/MediaCodec/);
+ assert.match(decoding,/new Recognizer\(model, TARGET_RATE\)/);
+ assert.match(decoding,/recognizer\.acceptWaveForm\(pcm, size\)/);
+ assert.match(decoding,/openInputStream\(uri\)/);
+ assert.doesNotMatch(decoding,/new FileOutputStream|createTempFile|File\.createTempFile|upload|HttpURLConnection/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
