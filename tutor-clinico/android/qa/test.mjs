@@ -61,7 +61,8 @@ test('ECO: fluxo direto para gravação e marcações',()=>{
  context.cid=cid;
  js("act('ecoOpen',cid)");
  assert.equal(js("screen"),"session");
- assert.match(js("sessionScreen()"),/GRAVAR E TRANSCREVER/);
+ assert.match(js("sessionScreen()"),/INICIAR CAPTAÇÃO/);
+ js("act('ecoWorkspaceTab','marcar')");
  assert.match(js("sessionScreen()"),/data-eco-tag/);
 });
 test('ECO: alterna tema escuro e claro com persistência',()=>{
