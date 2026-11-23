@@ -147,7 +147,7 @@ function render(){
 }
 function renderNav(){
  const tabs=[['home','⌂','Início'],['eco','🎙','Gravar'],['cases','▤','Casos'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
- $('#bottom').innerHTML=tabs.map(([id,ic,label])=>`<button type="button" data-act="nav" data-id="${id}" class="${screen===id||(id==='cases'&&['case','wizard','session'].includes(screen))||(id==='agenda'&&screen==='appointment')?'active':''}"><span class="symbol">${ic}</span>${label}</button>`).join('');
+ $('#bottom').innerHTML=tabs.map(([id,ic,label])=>`<button type="button" data-act="nav" data-id="${id}" class="${screen===id||(id==='eco'&&screen==='session')||(id==='cases'&&['case','wizard'].includes(screen))||(id==='agenda'&&screen==='appointment')?'active':''}"><span class="symbol">${ic}</span>${label}</button>`).join('');
 }
 const head=(tag,title,desc='')=>`<div class="eyebrow">${esc(tag)}</div><h1>${esc(title)}</h1>${desc?`<p class="lead">${esc(desc)}</p>`:''}`;
 const btn=(txt,act,kind='secondary',attrs='')=>`<button type="button" class="btn ${kind}" data-act="${act}" ${attrs}>${esc(txt)}</button>`;
