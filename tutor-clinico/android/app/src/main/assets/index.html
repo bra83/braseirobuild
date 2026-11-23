@@ -439,7 +439,7 @@ window.nativeMlSegment=function(s){
  const text=String(s||"").trim();if(!text||screen!=="session"||!sessionDraft)return;
  ecoEnsure();
  if(sessionDraft.mlTranscricao.length>450000){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();notify("Limite atingido",'red');return}
- sessionDraft.mlSegments.push({text:text,at:new Date().toISOString(),origem:"Vosk PT-BR 0.3"});
+ sessionDraft.mlSegments.push({text:text,at:new Date().toISOString(),origem:ecoAudioSource==="arquivo"?"Vosk PT-BR · arquivo importado":"Vosk PT-BR · microfone"});
  sessionDraft.mlTranscricao=(sessionDraft.mlTranscricao+" "+text).trim();ecoPartial="";
  if(state){state.mlDraft={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};if(!persist())notify("Rascunho não salvo",'red')}
  ecoDisplay();
@@ -493,8 +493,9 @@ const ecoOldAct=act;
 act=function(name,id){
  if(name==="ecoStart"){
   if(!ecoConsent){notify("Confirme a autorização ou simulação antes da captura.",'red');return}
+  if(ecoIsCapturing()){notify("Encerre o processamento atual antes de começar outro.",'red');return}
   if(!window.NativeVault.startMlCapture){notify("Recurso exige APK Android.",'red');return}
-  ecoEnsure();ecoStatus="PREPARANDO";ecoDisplay();window.NativeVault.startMlCapture(true);return;
+  ecoAudioSource="microfone";ecoEnsure();ecoStatus="PREPARANDO";ecoDisplay();window.NativeVault.startMlCapture(true);return;
  }
  if(name==="ecoStop"){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();return}
  if(name==="ecoCategory"){ecoCategory=id;render();return}
@@ -572,7 +573,8 @@ window.appUnlock=function(){ecoOldUnlock();if(state?.mlDraft?.session&&state.cas
 // ECO 0.4 — aplicação reestruturada em torno da sessão, mantendo os dados existentes.
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
-const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus);
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO)/.test(ecoStatus);
+let ecoAudioSource="microfone";
 function ecoSummary(c){
  const ss=Array.isArray(c.sessoes)?c.sessoes:[];
  let mentions=0,dreams=0;
@@ -608,11 +610,12 @@ function ecoWorkspace(){
   ["captura","01","Captar"],["marcar","02","Marcar"],["revisar","03","Revisar"],["ecos","04","Ecos"]
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
-  out+='<section class="eco-recorder"><h2>● Captação e transcrição</h2><p class="eco-caption">Modelo Vosk PT-BR offline. Reconhece palavras enquanto o microfone está ativo; não identifica quem falou. O texto pode conter erros.</p>';
+  out+='<section class="eco-recorder"><h2>● Captação e transcrição</h2><p class="eco-caption">Use o microfone ou carregue MP3, WAV, M4A ou FLAC. O Vosk PT-BR processa localmente, sem identificar quem falou. O texto pode conter erros.</p>';
   out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
-  out+='<div class="stack">'+btn('● INICIAR CAPTAÇÃO','ecoStart','','aria-label="Iniciar microfone"')+btn('■ ENCERRAR MICROFONE','ecoStop','danger')+'</div>';
-  out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Aguardando fala. Inicie o microfone para testar.')+'</div>';
-  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">Somente o texto reconhecido é salvo no rascunho criptografado. Não existe arquivo de áudio desta sessão no ECO.</p></section>';
+  out+='<div class="stack">'+btn('● INICIAR CAPTAÇÃO','ecoStart','','aria-label="Iniciar microfone"')+btn('⇧ IMPORTAR ÁUDIO (MP3 / WAV / M4A / FLAC)','ecoImportFile','secondary','aria-label="Selecionar arquivo de áudio para transcrever"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
+  out+='<p class="eco-caption">Escolha um áudio já existente no aparelho ou no seletor de documentos. O ECO apenas lê o arquivo, sem copiar nem guardar o áudio. O arquivo original permanece onde estava. A transcrição offline pode exigir revisão.</p>';
+  out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
+  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto é salvo em rascunho criptografado; o ECO não cria arquivo de áudio. Arquivos de origem continuam no dispositivo ou provedor escolhido.</p></section>';
  }else if(ecoWorkspaceTab==="marcar"){
   const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
   out+='<section class="eco-outline"><h2>Marcações da sessão</h2><p class="eco-caption">Escolha os temas citados, sem supor que outros temas estejam ausentes. Você também pode marcar durante a captação.</p>';
@@ -655,10 +658,17 @@ const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
 const ecoActBase=act;
 act=function(name,id){
+ if(name==="ecoImportFile"){
+  if(!ecoConsent){notify("Confirme que é uma simulação ou que há autorização documentada antes da importação.",'red');return}
+  if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
+  if(!window.NativeVault.selectAudioFile){notify("Importação disponível apenas no APK Android.",'red');return}
+  ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
+  window.NativeVault.selectAudioFile(true);return;
+ }
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
- if(name==="ecoSave"){if(ecoIsCapturing()){notify("Encerre a captação antes de salvar.",'red');return;}return ecoActBase("saveSession")}
- if(name==="ecoBackCase"){if(ecoIsCapturing()){notify("Encerre a captação antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
+ if(name==="ecoSave"){if(ecoIsCapturing()){notify("Encerre o processamento antes de salvar.",'red');return;}return ecoActBase("saveSession")}
+ if(name==="ecoBackCase"){if(ecoIsCapturing()){notify("Encerre o processamento antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
  const previous=screen;
  const result=ecoActBase(name,id);
  if(name==="ecoOpen"||name==="newSession"||name==="editSession"){ecoWorkspaceTab="captura";render()}
