@@ -56,6 +56,13 @@ public final class MainActivity extends Activity {
         ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
+            @Override public void segmentDetailed(String s,long startMs,long endMs){
+                try {
+                    JSONObject v=new JSONObject();
+                    v.put("text",s);v.put("startMs",startMs);v.put("endMs",endMs);
+                    jsCallback("nativeMlSegmentDetailed",v.toString());
+                }catch(Exception e){jsCallback("nativeMlState","ERRO METADADOS DO TRECHO");}
+            }
             @Override public void partial(String s){jsCallback("nativeMlPartial",s);}
         });
         pref = getSharedPreferences("tutor-lock", MODE_PRIVATE);

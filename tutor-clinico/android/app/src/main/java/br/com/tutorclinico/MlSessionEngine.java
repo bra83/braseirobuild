@@ -15,7 +15,10 @@ import org.vosk.android.RecognitionListener;
  * never recording or copying raw audio into an app file.
  */
 final class MlSessionEngine implements RecognitionListener {
-    interface Events { void state(String s); void segment(String s); void partial(String s); }
+    interface Events {
+       void state(String s); void segment(String s); void partial(String s);
+       void segmentDetailed(String text,long startMs,long endMs);
+    }
     private final Activity activity;
     private final Events events;
     private Model model;
@@ -104,8 +107,8 @@ final class MlSessionEngine implements RecognitionListener {
                             @Override public void state(String text) {
                                 if (isActive()) events.state(text);
                             }
-                            @Override public void segment(String text) {
-                                if (isActive()) events.segment(text);
+                            @Override public void segment(String text,long startMs,long endMs) {
+                                if (isActive()) events.segmentDetailed(text,startMs,endMs);
                             }
                         });
             } catch (Exception e) {

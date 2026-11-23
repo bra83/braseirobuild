@@ -38,7 +38,7 @@ object WhisperFileEngine {
     interface Listener {
         fun isActive(): Boolean
         fun state(value: String)
-        fun segment(value: String)
+        fun segment(value: String, startMs: Long, endMs: Long)
     }
 
     @JvmStatic
@@ -134,12 +134,16 @@ object WhisperFileEngine {
                     for (seg in result.segments) {
                         if (listener.isActive() && seg.text.isNotBlank()) {
                             recognizedCount++
-                            listener.segment(seg.text.trim())
+                            val baseMs = (chunkIndex - 1).toLong() * SEGMENT_SECONDS * 1000L
+                            val maxMs = baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
+                            listener.segment(seg.text.trim(), (baseMs+seg.startMs).coerceIn(baseMs,maxMs),
+                              (baseMs+seg.endMs).coerceIn(baseMs,maxMs))
                         }
                     }
                 } else if (result.text.isNotBlank()) {
                     recognizedCount++
-                    listener.segment(result.text.trim())
+                    val baseMs = (chunkIndex - 1).toLong() * SEGMENT_SECONDS * 1000L
+                    listener.segment(result.text.trim(),baseMs,baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND)
                 }
                 if (listener.isActive())
                     listener.state("WHISPER · TRECHO " + chunkIndex + " CONCLUÍDO · CONTINUANDO")
