@@ -111,6 +111,14 @@ html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::pla
 .eco-evidence{padding:13px 14px;margin-top:10px;border:1px solid var(--border);background:var(--bg);border-radius:12px}
 .eco-evidence p{overflow-wrap:anywhere;white-space:pre-wrap}
 .eco-evidence small{color:var(--muted)}
+.eco-timeline-list{position:relative;padding-left:8px}
+.eco-timeline-list .eco-evidence{border-left:3px solid #8abd34;padding-left:13px;scroll-margin-top:96px}
+.eco-timeline-head{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.eco-timeline-head .btn{min-height:39px;min-width:67px;font-variant-numeric:tabular-nums}
+.eco-timeline-meter{height:3px;background:var(--border);overflow:hidden;border-radius:3px;margin-top:7px}
+.eco-timeline-meter span{display:block;height:3px;background:#8abd34}
+.eco-evidence:target{outline:2px solid #8abd34}
+
 .eco-atlas-links{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .eco-outline{border:1px solid var(--border);background:var(--paper);border-radius:16px;padding:14px;margin:12px 0}
 .eco-outline h3{margin:0 0 7px}
@@ -873,7 +881,7 @@ const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO|GRAVAÇÃO FINALIZADA|APP EM SEGUNDO PLANO|ENCERRANDO|PAUSANDO|CANCELANDO|INICIANDO TRANSCRIÇÃO|RETOMANDO TRANSCRIÇÃO)/.test(ecoStatus);
 const ecoIsRecording=()=>/^GRAVANDO|^FINALIZANDO GRAVAÇÃO|^APP EM SEGUNDO PLANO/.test(ecoStatus);
 const ecoIsPaused=()=>/^PAUSADO|^FALHA NA TRANSCRIÇÃO/.test(ecoStatus);
-const ecoIsTranscribing=()=>ecoIsCapturing()&&!ecoIsRecording();
+const ecoIsTranscribing=()=>/^(WHISPER|IMPORTANDO|INICIANDO TRANSCRIÇÃO|RETOMANDO TRANSCRIÇÃO|PROCESSANDO ÁUDIO|LENDO ARQUIVO)/.test(ecoStatus);
 let ecoTimelineQuery="",ecoTimelineFocused=-1;
 function ecoTimecode(ms){
  if(!Number.isFinite(ms)||ms<0)return "sem horário";
