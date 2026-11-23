@@ -61,7 +61,7 @@ test('ECO: fluxo direto para gravação e marcações',()=>{
  context.cid=cid;
  js("act('ecoOpen',cid)");
  assert.equal(js("screen"),"session");
- assert.match(js("sessionScreen()"),/INICIAR CAPTAÇÃO/);
+ assert.match(js("sessionScreen()"),/GRAVAR AO VIVO/);
  js("act('ecoWorkspaceTab','marcar')");
  assert.match(js("sessionScreen()"),/data-eco-tag/);
 });
@@ -90,7 +90,7 @@ test('ECO v0.4 usa dashboard de escuta e atalhos reais',()=>{
 });
 test('ECO v0.4 marcação, revisão e atlas sem áudio',()=>{
  js("act('ecoOpen',state.cases[0].id)");
- assert.match(js("sessionScreen()"),/Captação e transcrição/);
+ assert.match(js("sessionScreen()"),/Transcrição de áudio/);
  js("act('ecoWorkspaceTab','marcar')");
  assert.match(js("sessionScreen()"),/data-eco-tag/);
  js("act('ecoWorkspaceTab','revisar')");
@@ -155,7 +155,7 @@ test('Fluxo ECO permite começar sem sintomas, idade, intensidade ou tempo da qu
  assert.equal(js('currentCase().queixas.length'),0);
  assert.equal(js('currentCase().intensidade'),'');
  assert.equal(js('currentCase().desde'),'');
- assert.match(js('sessionScreen()'),/INICIAR CAPTAÇÃO/);
+ assert.match(js('sessionScreen()'),/GRAVAR AO VIVO/);
 });
 test('Cadastro de caso não exige seleção prévia de temas',()=>{
  js("act('newCase');draft.nome='ECO-CASE-TEST';act('wizardNext')");
@@ -188,7 +188,7 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(app,/whisper-android:1.0.0/);
  assert.match(wf,/ggml-base.bin/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/Whisper Base PT/);
+ assert.match(js("sessionScreen()"),/Whisper Base offline/);
 });
 
 test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
@@ -213,7 +213,7 @@ test('ECO 0.6.1 lê áudio por URI em trechos, sem enviar gravação inteira ao 
  assert.match(kt,/SAMPLE_RATE = 16000/);
  assert.match(kt,/SEGMENT_SECONDS = 25/);
  assert.match(kt,/File.createTempFile\\(CACHE_PREFIX, ".wav"/);
- assert.match(kt,/wav.delete\\(\\)/);
+ assert.match(kt,/wav\.delete\(\)/);
  assert.match(kt,/AudioFileTranscriber.streamPcm/);
  assert.doesNotMatch(kt,/openInputStream\\(uri\\).*FileOutputStream/s);
 });
