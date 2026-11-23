@@ -217,4 +217,94 @@ test('ECO 0.6.1 lê áudio por URI em trechos, sem enviar gravação inteira ao 
  assert.ok(kt.includes('AudioFileTranscriber.streamPcm'));
  assert.ok(!kt.includes('context.contentResolver.openInputStream(uri)?.use'));
 });
+
+test('ECO G1 backup preserva ML, marcações, evidências, extensões, versões e rascunho',()=>{
+ const sample={
+  version:1,uiTheme:'dark',mlDraft:{caseId:'x',session:{id:'draft-1',mlTranscricao:'fala incompleta'}},
+  appointments:[],cases:[{id:'x',nome:'ECO-TESTE',sessoes:[{
+   id:'s1',data:'2026-11-23',texto:'Resumo',mlTranscricao:'Sonhei com minha mãe',
+   mlRevisada:'Sonhei com minha mãe.',mlTags:['Mãe','Sonho'],
+   mlSegments:[{text:'Sonhei com minha mãe',startMs:6000,endMs:9000,speaker:'paciente',origem:'Whisper Small'}],
+   mlEvidence:[{id:'e1',label:'mãe',quote:'Sonhei com minha mãe',status:'confirmado'}],
+   extraCustom:{keep:true},
+   revisoes:[{texto:'Versão original',mlTranscricao:'Texto anterior',mlSegments:[{speaker:'desconhecido'}]}]
+  }]}]};
+ context.backupComplete=sample;
+ const data=js('normalizeImported(backupComplete)');
+ assert.equal(data.cases[0].sessoes[0].mlTranscricao,sample.cases[0].sessoes[0].mlTranscricao);
+ assert.deepEqual(data.cases[0].sessoes[0].mlSegments,sample.cases[0].sessoes[0].mlSegments);
+ assert.deepEqual(data.cases[0].sessoes[0].mlEvidence,sample.cases[0].sessoes[0].mlEvidence);
+ assert.deepEqual(data.cases[0].sessoes[0].revisoes,sample.cases[0].sessoes[0].revisoes);
+ assert.equal(data.cases[0].sessoes[0].extraCustom.keep,true);
+ assert.equal(data.mlDraft.session.mlTranscricao,'fala incompleta');
+ assert.equal(data.uiTheme,'dark');
+});
+test('ECO G1 falha injetada ao salvar nao descarta sessao em edicao',()=>{
+ js("act('ecoOpen',state.cases[0].id);sessionDraft.texto='Preservar mesmo com erro'");
+ const before=js('currentCase().sessoes.length');
+ const normal=context.window.NativeVault.saveState;
+ context.window.NativeVault.saveState=()=> 'ERRO FICTÍCIO: sem espaço';
+ js("act('ecoSave')");
+ assert.equal(js('screen'),'session');
+ assert.equal(js('sessionDraft.texto'),'Preservar mesmo com erro');
+ assert.equal(js('currentCase().sessoes.length'),before);
+ context.window.NativeVault.saveState=normal;
+ js("act('ecoSave')");
+ assert.equal(js('screen'),'case');
+ assert.equal(js('currentCase().sessoes.length'),before+1);
+});
+test('ECO G4 NLP factual PT com negacao sem criar diagnostico',()=>{
+ const e=js("ecoExtractEvidence('Eu sonhei com minha mãe na infância. Não tenho ansiedade. Meu chefe falou comigo no trabalho.','s8')");
+ assert.ok(e.some(x=>x.label==='mãe'));
+ assert.ok(e.some(x=>x.label==='infância'));
+ assert.ok(e.some(x=>x.label==='sonho'));
+ assert.ok(e.some(x=>x.label==='chefe'));
+ const neg=e.find(x=>x.label==='ansiedade');
+ assert.ok(neg);
+ assert.equal(neg.polarity,'possível negação');
+ assert.equal(e.every(x=>x.status==='sugerido'),true);
+ assert.equal(e.every(x=>typeof x.quote==='string'&&x.quote.length>0),true);
+ assert.equal(e.every(x=>x.speaker==='desconhecido'),true);
+});
+test('ECO G5 trechos Whisper conservam posicao temporal e falante desconhecido',()=>{
+ let captured='';
+ context.window.NativeVault.saveDraft=(json)=>{captured=json;return 'OK'};
+ js("act('ecoOpen',state.cases[0].id)");
+ js('ecoAudioSource="arquivo";ecoStatus="WHISPER BASE · TRECHO 1"');
+ js('window.nativeMlSegmentDetailed(JSON.stringify({text:"Sonhei com minha mãe",startMs:5000,endMs:8800}))');
+ assert.equal(js('sessionDraft.mlSegments[0].startMs'),5000);
+ assert.equal(js('sessionDraft.mlSegments[0].endMs'),8800);
+ assert.equal(js('sessionDraft.mlSegments[0].speaker'),'desconhecido');
+ assert.equal(JSON.parse(captured).session.mlSegments[0].startMs,5000);
+ const suggestions=js('ecoEvidenceForDraft()');
+ assert.ok(suggestions.some(x=>x.label==='mãe'&&x.timeMs===5000));
+ context.window.NativeVault.saveDraft=()=> 'ERRO';
+ const previous=js('sessionDraft.mlEvidence.length');
+ context.evidenceId=suggestions.find(x=>x.label==='mãe').id;
+ js("act('ecoAcceptEvidence',evidenceId)");
+ assert.equal(js('sessionDraft.mlEvidence.length'),previous);
+ context.window.NativeVault.saveDraft=()=> 'OK';
+ js("act('ecoAcceptEvidence',evidenceId)");
+ assert.equal(js('sessionDraft.mlEvidence.length'),previous+1);
+ assert.equal(js('sessionDraft.mlEvidence[0].status'),'confirmado');
+});
+test('ECO G6 arquivos incrementais AES-GCM e backup inclui rascunho',()=>{
+ const store=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(store,/synchronized void saveDraft/);
+ assert.match(store,/AES\/GCM\/NoPadding/);
+ assert.match(store,/draft\.aes/);
+ assert.match(store,/synchronized String readDraft/);
+ assert.match(main,/JSONObject journal=new JSONObject\(draft\)/);
+ assert.match(main,/export\.put\("mlDraft",journal\)/);
+ assert.match(main,/store\.saveDraft/);
+});
+test('ECO G5 PDF inclui transcricao integral, segmentos e marcacoes',()=>{
+ const person=js('currentCase()');
+ const pdf=js('pdfForCase(currentCase())');
+ assert.match(pdf,/Anexo técnico: transcrição, trechos e evidências/);
+ assert.match(pdf,/Transcrição automática sem correção/);
+ assert.match(pdf,/não é criptografado/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
