@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.database.Cursor;
+import android.provider.OpenableColumns;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 
 public final class MainActivity extends Activity {
     private static final int MIC_PERMISSION = 903;
+    private static final int AUDIO_FILE_CODE = 904;
     private MlSessionEngine ml;
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
@@ -162,7 +165,36 @@ public final class MainActivity extends Activity {
         }
         ml.start();
     }
+    private void chooseAudioFile(){
+        if(!unlocked){jsCallback("nativeMlState","ERRO ARQUIVO: app bloqueado");return;}
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("audio/*");
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{
+                "audio/mpeg","audio/mp3","audio/wav","audio/x-wav",
+                "audio/mp4","audio/x-m4a","audio/flac","audio/x-flac","audio/ogg","audio/aac"
+        });
+        try{startActivityForResult(intent,AUDIO_FILE_CODE);}
+        catch(Exception e){jsCallback("nativeMlState","ERRO ARQUIVO: seletor indisponível");}
+    }
+    private void openAudioSaf(Uri uri){
+        if(!unlocked){jsCallback("nativeMlState","ERRO ARQUIVO: app bloqueado");return;}
+        try(Cursor cur=getContentResolver().query(uri,new String[]{OpenableColumns.SIZE},null,null,null)){
+            if(cur!=null && cur.moveToFirst()){
+                int col=cur.getColumnIndex(OpenableColumns.SIZE);
+                if(col>=0&&!cur.isNull(col)&&cur.getLong(col)>AudioFileTranscriber.MAX_FILE_BYTES){
+                    jsCallback("nativeMlState","ERRO ARQUIVO: tamanho acima de 650 MB");
+                    return;
+                }
+            }
+        }catch(Exception ignored){ /* Some providers do not expose length; decoder enforces duration. */ }
+        ml.importFile(uri);
+    }
     private final class Bridge {
+        @JavascriptInterface public void selectAudioFile(boolean confirmed){
+            if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
+            main.post(()->chooseAudioFile());
+        }
         @JavascriptInterface public void startMlCapture(boolean confirmed){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->beginCapture());
@@ -222,11 +254,14 @@ public final class MainActivity extends Activity {
         if (result != RESULT_OK || data == null || data.getData() == null) {
             if (code == EXPORT_CODE) pendingExport = null;
             if (code == IMPORT_CODE) pendingPassword = null;
+            if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","IMPORTAÇÃO CANCELADA");
             return;
         }
         Uri uri = data.getData();
         try {
-            if (code == EXPORT_CODE && pendingExport != null) {
+            if (code == AUDIO_FILE_CODE) {
+                openAudioSaf(uri);
+            } else if (code == EXPORT_CODE && pendingExport != null) {
                 try (OutputStream out = getContentResolver().openOutputStream(uri)) {
                     if (out == null) throw new IllegalStateException("Destino inacessível");
                     out.write(pendingExport); out.flush();
@@ -242,7 +277,10 @@ public final class MainActivity extends Activity {
                 String content = SecureStore.decryptBackup(bytes, pendingPassword == null ? "" : pendingPassword);
                 jsCallback("nativeImportResult", content);
             }
-        } catch (Exception e) { showToast("Operação não concluída: " + e.getMessage()); }
+        } catch (Exception e) {
+            showToast("Operação não concluída: " + e.getMessage());
+            if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","ERRO ARQUIVO: " + e.getMessage());
+        }
         finally { pendingPassword = null; pendingExport = null; }
     }
 }
