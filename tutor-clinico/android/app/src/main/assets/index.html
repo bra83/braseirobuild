@@ -233,10 +233,10 @@ function act(name,id){
   if(s.data>datestr()){notify('Data de sessão futura: use a Agenda para uma consulta ainda não realizada.','red');return;}
   if(s.data<c.data){notify('Sessão anterior à data inicial do caso. Corrija a data inicial ou a data da sessão.','red');return;}
   if(editSessionId){const prior=c.sessoes.find(v=>v.id===editSessionId);if(!prior)return;
-   if(['data','texto','intervencoes','plano'].every(k=>String(s[k]||'')===String(prior[k]||''))){notify('Nenhuma alteração para registrar.');return;}
+   if(['data','texto','intervencoes','plano','mlTranscricao','mlRevisada'].every(k=>String(s[k]||'')===String(prior[k]||'')) && JSON.stringify(s.mlTags||[])===JSON.stringify(prior.mlTags||[])){notify('Nenhuma alteração para registrar.');return;}
    change(()=>{const index=c.sessoes.findIndex(v=>v.id===editSessionId);
     const old=c.sessoes[index];const revisoes=Array.isArray(old.revisoes)?old.revisoes:[];
-    const revision={data:old.data,texto:old.texto,intervencoes:old.intervencoes||'',plano:old.plano||'',registradoEm:new Date().toISOString()};
+    const revision={data:old.data,texto:old.texto,intervencoes:old.intervencoes||'',plano:old.plano||'',mlTranscricao:old.mlTranscricao||'',mlRevisada:old.mlRevisada||'',mlTags:old.mlTags||[],registradoEm:new Date().toISOString()};
     c.sessoes[index]={...s,criadoEm:old.criadoEm,revisoes:[...revisoes,revision]};});
   }else{change(()=>{c.sessoes.push(s);});}
   editSessionId=null;sessionDraft=null;screen='case';tab='sessoes';render();return;
@@ -390,7 +390,7 @@ act=function(name,id){
  if(name==="ecoCopy"){ecoEnsure();sessionDraft.mlRevisada=sessionDraft.mlTranscricao;render();return}
  if(name==="ecoFind"){ecoMatches=ecoFind();render();if(!ecoMatches.length)notify("Sem similaridades documentadas acima do limiar.");return}
  if(name==="saveSession"&&sessionDraft){ecoEnsure();if(!sessionDraft.texto?.trim())sessionDraft.texto=(sessionDraft.mlRevisada||sessionDraft.mlTranscricao||("Marcações: "+sessionDraft.mlTags.join(", "))).trim()}
- if(name==="nav"&&/CAPTURANDO|PREPARANDO/.test(ecoStatus)){notify("Encerre a captura antes de navegar.",'red');return}
+ if(/CAPTURANDO|PREPARANDO/.test(ecoStatus)&&!["ecoStop","ecoCategory","ecoFind","ecoCopy"].includes(name)){notify("Encerre a captação antes de mudar ou salvar a sessão.",'red');return}
  const sid=name==="saveSession"?sessionDraft?.id:null;
  const result=ecoOldAct(name,id);
  if(name==="saveSession"&&sid&&screen==="case"&&state?.mlDraft?.session?.id===sid){state.mlDraft=null;persist()}
