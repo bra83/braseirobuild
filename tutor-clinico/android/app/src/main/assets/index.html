@@ -462,6 +462,7 @@ function ecoEnsure(){
  if(!Array.isArray(sessionDraft.mlTags))sessionDraft.mlTags=[];
  if(!Array.isArray(sessionDraft.mlSegments))sessionDraft.mlSegments=[];
  if(!Array.isArray(sessionDraft.mlEvidence))sessionDraft.mlEvidence=[];
+ if(!Array.isArray(sessionDraft.mlEvents))sessionDraft.mlEvents=[];
  if(typeof sessionDraft.mlTranscricao!=="string")sessionDraft.mlTranscricao="";
 }
 function ecoDisplay(){
@@ -764,6 +765,82 @@ function ecoEvidenceForDraft(){
  }
  return evidences;
 }
+
+// ECO NLP factual v2: structured speech events and relations.
+// This is transparent, rule-based PT-BR extraction; it does NOT infer a diagnosis,
+// emotional motive, truthfulness or unconscious meaning. Every item cites source.
+const ecoActionRules=[
+ {kind:"Sonho relatado",verb:/\b(sonhei|sonhava|sonhou|sonhar|pesadelo)\b/giu},
+ {kind:"Lembrança relatada",verb:/\b(lembrei|lembrava|recordo|recordava|me lembro|me recordo)\b/giu},
+ {kind:"Comunicação relatada",verb:/\b(disse|falou|falei|perguntou|respondeu|gritou|pedi|conversei|contou)\b/giu},
+ {kind:"Mudança relatada",verb:/\b(mudei|mudou|mudamos|saí|entrei|comecei|terminei|parei)\b/giu},
+ {kind:"Espera relatada",verb:/\b(esperei|esperava|espero|aguardei|aguardava)\b/giu},
+ {kind:"Experiência relatada",verb:/\b(senti|sentia|sinto|chorei|chorava|acordei|tremia|tive medo)\b/giu},
+ {kind:"Conflito relatado",verb:/\b(briguei|brigamos|discuti|discutimos|brigou|discutiu)\b/giu},
+ {kind:"Perda mencionada",verb:/\b(perdi|perdeu|morreu|falecimento|morte)\b/giu}
+];
+function ecoSourceUnits(session){
+ const revised=!!session?.mlRevisada?.trim();
+ if(revised){
+  return String(session.mlRevisada).split(/(?<=[.!?…])\s+|\n+/u)
+     .filter(x=>x.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:"revisada"}));
+ }
+ const segments=session?.mlSegments||[];
+ if(segments.length)return segments.flatMap(e=>String(e.text||"").split(/(?<=[.!?…])\s+|\n+/u)
+    .filter(x=>x.trim()).map(text=>({text,atMs:e.startMs??null,speaker:e.speaker||"desconhecido",source:"automática"})));
+ return String(session?.mlTranscricao||"").split(/(?<=[.!?…])\s+|\n+/u)
+    .filter(x=>x.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:"automática"}));
+}
+function ecoStructuredEvents(session){
+ const results=[],seen=new Set();
+ for(const unit of ecoSourceUnits(session)){
+  const quote=unit.text.trim();if(!quote)continue;
+  const entities=[...new Set(ecoExtractEvidence(quote,session?.id||"rascunho").map(e=>e.label))];
+  const dates=(quote.match(/\b(ontem|hoje|amanhã|semana passada|na infância|quando era criança|naquele dia|à noite|pela manhã)\b/giu)||[]);
+  for(const rule of ecoActionRules){
+   const pattern=new RegExp(rule.verb.source,"giu");
+   for(const m of quote.matchAll(pattern)){
+    const before=quote.slice(Math.max(0,(m.index||0)-45),m.index||0);
+    const negative=/\b(não|nunca|jamais)\s+(?:(?:me|se|eu|ele|ela)\s+)?(?:\p{L}+\s+){0,2}$/iu.test(before);
+    const key=[session?.id||"rascunho",rule.kind,quote,m.index].join("|");
+    if(seen.has(key))continue;seen.add(key);
+    const hash=Array.from(key).reduce((x,ch)=>((x*31)^ch.charCodeAt(0))>>>0,7).toString(36);
+    results.push({id:"action:"+hash,kind:rule.kind,verb:m[0],quote,
+      atMs:unit.atMs,source:unit.source,speaker:unit.speaker,
+      polarity:negative?"possível negação":"relato",
+      timeReference:dates[0]||null,
+      peopleOrContext:entities,status:"sugerido"});
+   }
+  }
+ }
+ return results.slice(0,250);
+}
+function ecoEventCurrent(session,e){
+ const text=session?.mlRevisada?.trim()||session?.mlTranscricao||"";
+ return !!e&&e.status==="confirmado"&&!!e.quote&&String(text).includes(e.quote);
+}
+function ecoEventPanel(){
+ ecoEnsure();
+ const proposed=ecoStructuredEvents(sessionDraft);
+ const accepted=sessionDraft.mlEvents||[];
+ const known=new Set(accepted.map(e=>e.id));
+ let out='<section class="eco-outline"><h3>Eventos e relações relatadas — NLP factual</h3>'+
+ '<p class="eco-caption">Extrai ações mencionadas, referências temporais, pessoas e possível negação. Não infere diagnósticos, causalidade ou conflitos psicológicos. Confirme cada ocorrência após ler a frase original.</p>';
+ out+='<h4>Confirmados ('+accepted.length+')</h4>'+
+ (accepted.length?accepted.slice(0,70).map(e=>'<div class="eco-evidence"><strong>'+esc(e.kind)+'</strong>'+
+ (ecoEventCurrent(sessionDraft,e)?'':' <strong>Referência desatualizada</strong>')+
+ '<p>“'+esc(e.quote)+'”</p><small>'+esc(ecoTimecode(e.atMs))+
+ ' · '+esc(e.speaker||"desconhecido")+' · '+esc(e.polarity)+'</small></div>').join(''):'<p class="muted">Nenhum evento confirmado.</p>');
+ const toReview=proposed.filter(e=>!known.has(e.id)).slice(0,45);
+ out+='<h4>Sugestões ('+toReview.length+')</h4>'+
+ (toReview.length?toReview.map(e=>'<div class="eco-evidence"><strong>'+esc(e.kind)+'</strong>'+
+ '<p>“'+esc(e.quote)+'”</p><small>'+esc(ecoTimecode(e.atMs))+' · '+esc(e.polarity)+
+ ' · Referência temporal: '+esc(e.timeReference||"não explícita")+
+ ' · Menções associadas na mesma fala: '+esc(e.peopleOrContext.join(", ")||"nenhuma")+'</small>'+
+ btn("Confirmar evento citado","ecoAcceptEvent","secondary",'data-id="'+esc(e.id)+'"')+'</div>').join(''):'<p class="muted">Sem novas sugestões.</p>');
+ return out+'</section>';
+}
+
 function ecoEvidencePanel(){
  const proposals=ecoEvidenceForDraft().slice(0,45),accepted=sessionDraft.mlEvidence||[];
  let out='<section class="eco-outline"><h2>Extração factual em português</h2>'+
@@ -815,7 +892,8 @@ function ecoTimeline(session){
  const rows=ecoTimelineRows(session,ecoTimelineQuery);
  let out='<section class="eco-outline"><h3>◎ Linha do tempo — o que foi dito e quando</h3>'+
   '<p class="eco-caption">Horários desde o início da gravação, não horário do relógio. Toque no minuto para localizar o trecho. O áudio temporário é apagado após concluir ou descartar a transcrição, portanto não há reprodução posterior.</p>'+
-  '<label class="field">Buscar falas ou tema <input data-eco-timeline-search placeholder="Ex.: mãe, sonho, trabalho" value="'+esc(ecoTimelineQuery)+'"></label>';
+  '<label class="field">Buscar falas ou tema <input data-eco-timeline-search placeholder="Ex.: mãe, sonho, trabalho" value="'+esc(ecoTimelineQuery)+'"></label>'+
+ '<div class="actions">'+btn("Localizar na linha do tempo","ecoFilterTimeline","secondary")+'</div>';
  if(!rows.length)return out+'<p class="muted small">Ainda não existem trechos com o termo informado.</p></section>';
  const max=Math.max(1,...rows.map(e=>Number(e.endMs)||Number(e.startMs)||0));
  out+='<div class="eco-timeline-list">';
@@ -919,7 +997,7 @@ function ecoWorkspace(){
   out+=field('intervencoes','Intervenções / observações','textarea',{source:sessionDraft});
   out+=field('plano','Pontos para acompanhar','textarea',{source:sessionDraft});
   out+='<p class="eco-caption">Marcações registradas: '+esc(sessionDraft.mlTags.join(' · ')||'Nenhuma')+'</p></div>';
-  out+=ecoTimeline(sessionDraft);out+=ecoSegmentReview();out+=ecoEvidencePanel();
+  out+=ecoTimeline(sessionDraft);out+=ecoSegmentReview();out+=ecoEvidencePanel();out+=ecoEventPanel();
   out+='<section class="eco-outline"><h3>Teste objetivo da precisão — somente material fictício</h3>'+
     '<p class="eco-caption">Compare o resultado automático com uma transcrição humana de referência do MESMO áudio. O WER mede substituições, omissões e inserções por palavra; não mede segurança ou qualidade clínica. O texto de referência fica apenas na tela e não é salvo.</p>'+
     '<textarea rows="5" data-eco-reference placeholder="Cole aqui a transcrição CORRETA do áudio de teste...">'+esc(ecoReferenceText)+'</textarea>'+
@@ -949,6 +1027,14 @@ function ecoAtlasScreen(){
  const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data}))).slice(-150);
  const repeated=ecoLongitudinalEvidence(ss);
  const stale=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data})));
+ const recordedEvents=ss.flatMap(s=>(s.mlEvents||[]).filter(e=>ecoEventCurrent(s,e)).map(e=>({...e,sessionDate:s.data})));
+ const eventCounts=new Map();
+ for(const e of recordedEvents){
+    const key=e.kind;
+    if(!eventCounts.has(key))eventCounts.set(key,{sessions:new Set(),items:[]});
+    eventCounts.get(key).sessions.add(e.sessionDate);
+    eventCounts.get(key).items.push(e);
+ }
  out+='<div class="eco-outline"><h2>Temas registrados</h2>'+ (frequent.length?frequent.map(([k,n])=>'<span class="chip">'+esc(k)+' · '+n+'</span>').join(''):'<p class="muted">Ainda não existem marcações.</p>')+'<p class="eco-caption">Contagens de marcações manuais, não de sintomas confirmados.</p></div>';
  out+='<div class="eco-outline"><h2>Recorrências entre sessões</h2>'+
  '<p class="eco-caption">Menções confirmadas em pelo menos duas sessões diferentes. São recorrências lexicais, não interpretações psicológicas.</p>'+
@@ -957,6 +1043,12 @@ function ecoAtlasScreen(){
  (group.textualVariation?'<p class="eco-caption">Formulações positivas e possivelmente negativas: conferir o contexto. Não significa contradição clínica.</p>':'')+
  group.items.slice(0,8).map(e=>'<p><small>'+esc(formatDate(e.sessionDate))+'</small> — “'+esc(e.quote)+'”</p>').join('')+
  '</div>').join(''):'<p class="muted">Nenhuma recorrência confirmada em múltiplas sessões.</p>')+'</div>';
+ out+='<div class="eco-outline"><h2>Acontecimentos e falas confirmadas</h2>'+
+ '<p class="eco-caption">Ações explicitamente mencionadas. Agrupadas por tipo e sessão; não são interpretações automáticas.</p>'+
+ ([...eventCounts].length?[...eventCounts].map(([name,row])=>
+ '<div class="eco-evidence"><strong>'+esc(name)+'</strong> · '+row.sessions.size+' sessão(ões)'+
+ row.items.slice(0,10).map(e=>'<p><small>'+esc(formatDate(e.sessionDate))+' · '+esc(ecoTimecode(e.atMs))+
+ '</small> “'+esc(e.quote)+'”</p>').join('')+'</div>').join(''):'<p class="muted">Não há eventos confirmados.</p>')+'</div>';
  out+='<div class="eco-outline"><h2>Evidências confirmadas</h2><p class="eco-caption">Somente confirmações humanas com citações ainda presentes no texto vigente.</p>'+
 
  (verified.length?verified.map(e=>'<div class="eco-evidence"><strong>'+esc(e.label)+' · '+esc(formatDate(e.sessionDate))+'</strong><p>“'+esc(e.quote)+'”</p><small>'+esc(e.category)+' · '+esc(e.polarity||"menção")+' · falante '+esc(e.speaker||"desconhecido")+'</small></div>').join(''):'<p class="muted">Ainda não há evidências confirmadas.</p>')+'</div>';
@@ -1002,6 +1094,7 @@ act=function(name,id){
   else window.NativeVault.selectAudioFile(true);
   return;
  }
+ if(name==="ecoFilterTimeline"){render();return;}
  if(name==="ecoFocusSegment"){
    ecoWorkspaceTab="revisar";const index=Number(id);ecoTimelineFocused=index;render();
    const target=document.getElementById("ecoSegment-"+index)||document.getElementById("ecoTimeline-"+index);
@@ -1028,6 +1121,16 @@ act=function(name,id){
    const result=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"ERRO");
    if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Falha ao remover marcação: "+result,'red');return;}
    render();return;
+ }
+ if(name==="ecoAcceptEvent"){
+  const event=ecoStructuredEvents(sessionDraft).find(x=>x.id===id);
+  if(!event)return;
+  ecoEnsure();const old=JSON.stringify(sessionDraft.mlEvents);
+  sessionDraft.mlEvents.push({...event,status:"confirmado",reviewedAt:new Date().toISOString()});
+  const json=JSON.stringify({caseId:openedId,session:sessionDraft});
+  const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(json):(state.mlDraft={caseId:openedId,session:sessionDraft},persist()?"OK":"ERRO");
+  if(status!=="OK"){sessionDraft.mlEvents=JSON.parse(old);notify("Não foi possível salvar ocorrência: "+status,"red");return;}
+  render();return;
  }
  if(name==="ecoAcceptEvidence"){
    const item=ecoEvidenceForDraft().find(e=>e.id===id);
@@ -1059,7 +1162,7 @@ act=function(name,id){
 };
 document.addEventListener("input",e=>{
  if(e.target?.dataset?.ecoConsentReference!==undefined)ecoConsentReference=e.target.value||"";
- if(e.target?.dataset?.ecoTimelineSearch!==undefined){ecoTimelineQuery=e.target.value||"";render()}
+ if(e.target?.dataset?.ecoTimelineSearch!==undefined)ecoTimelineQuery=e.target.value||"";
  if(e.target?.dataset?.ecoReference!==undefined){ecoReferenceText=e.target.value||"";ecoBenchmarkResult=null;}
 });
 document.addEventListener("change",e=>{
@@ -1107,8 +1210,10 @@ pdfForCase=function(c){
    const staleEvidence=(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e));
    const outdated='<h4>Referências desatualizadas</h4>'+staleEvidence.map(e=>'<p>“'+esc(e.quote||"")+
    '” — alterada ou ausente na transcrição revisada, não considerada evidência atual</p>').join('');
+   const actions='<h4>Eventos relatados e confirmados</h4>'+(s.mlEvents||[]).filter(e=>ecoEventCurrent(s,e)).map(e=>
+   '<p><strong>'+esc(e.kind)+'</strong> '+esc(ecoTimecode(e.atMs))+' · “'+esc(e.quote)+'”</p>').join('');
    const history='<p><small>Versões anteriores preservadas: '+(s.revisoes||[]).length+'</small></p>';
-   return '<section style="break-before:page">'+title+record+clips+evidence+outdated+history+'</section>';
+   return '<section style="break-before:page">'+title+record+clips+evidence+actions+outdated+history+'</section>';
  }).join('');
  return base.replace('</body></html>',
   '<h2>Anexo técnico: transcrição, trechos e evidências</h2>'+
