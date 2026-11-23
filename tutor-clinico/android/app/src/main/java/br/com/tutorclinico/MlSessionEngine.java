@@ -24,6 +24,7 @@ final class MlSessionEngine implements RecognitionListener {
     private Model model;
     private SpeechService speech;
     private Recognizer rec;
+    private WhisperLiveEngine live;
     private Uri pendingFile;
     private String fileModelName="small";
     private Thread fileWorker;
@@ -35,11 +36,38 @@ final class MlSessionEngine implements RecognitionListener {
         this.activity=activity;this.events=events;
     }
 
-    synchronized void start() {
+    synchronized void start() { start("whisper-base"); }
+    synchronized void start(String engine) {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         wanted=true;
-        if (model != null) { beginMicrophone(); return; }
-        prepareModel();
+        if ("vosk".equals(engine)) {
+            if (model != null) beginMicrophone();
+            else prepareModel();
+        } else beginWhisperMicrophone("whisper-small".equals(engine)?"small":"base");
+    }
+
+    private synchronized void beginWhisperMicrophone(String modelName) {
+        if(!wanted||destroyed)return;
+        final WhisperLiveEngine worker=new WhisperLiveEngine(activity.getApplicationContext(),
+                new WhisperLiveEngine.Listener() {
+                    @Override public void state(String text) {
+                        if(!destroyed)events.state(text);
+                    }
+                    @Override public void segment(String text,long startMs,long endMs) {
+                        if(!destroyed)events.segmentDetailed(text,startMs,endMs);
+                    }
+                    @Override public void finished() {
+                        synchronized(MlSessionEngine.this) {
+                            if(live==worker){live=null;wanted=false;}
+                        }
+                        activity.runOnUiThread(() ->
+                            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                    }
+                });
+        live=worker;
+        activity.runOnUiThread(() ->
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        worker.start(modelName);
     }
 
     synchronized void importFile(Uri uri) { importFile(uri,"small"); }
@@ -51,7 +79,7 @@ final class MlSessionEngine implements RecognitionListener {
         beginFile();
     }
 
-    private boolean busy() { return wanted || preparing || importing || speech != null; }
+    private boolean busy() { return wanted || preparing || importing || speech != null || (live!=null&&live.isBusy()); }
 
     private synchronized void prepareModel() {
         preparing=true;
@@ -137,6 +165,12 @@ final class MlSessionEngine implements RecognitionListener {
     }
 
     synchronized void stop() {
+        // Preserve pending Whisper speech while a live recording is finalized.
+        if(live!=null&&live.isBusy()){
+            live.finishRecording();
+            events.state("FINALIZANDO MICROFONE · TRANSCRIÇÃO DE TRECHOS PENDENTES");
+            return;
+        }
         boolean wasActive = wanted || importing || preparing || speech != null;
         wanted=false;pendingFile=null;generation++;
         if (fileWorker != null) fileWorker.interrupt();
@@ -156,6 +190,7 @@ final class MlSessionEngine implements RecognitionListener {
 
     synchronized void destroy() {
         destroyed=true;
+        if(live!=null){live.destroy();live=null;}
         stop();
         if (!importing && model != null) {
             try { model.close(); } catch (Exception ignored) {}
