@@ -357,10 +357,12 @@ test('ECO G3 Whisper microphone uses bounded queue and audio-only ephemeral chun
 });
 test('ECO G3 live mic engine selection passes to Android bridge and blocks parallel imports',()=>{
  const cid=js('state.cases[0].id');
- js('act("ecoOpen",cid);ecoConsent=true;ecoChosenMic="whisper-base"');
+ js('act("ecoOpen",cid);ecoConsent=true;ecoConsentKind="simulacao";ecoConsentReference="";ecoStatus="PARADO";ecoChosenMic="whisper-base"');
  context.window.NativeVault.saveDraft=()=> 'OK';
  context.window.NativeVault.startMlCaptureWithEngine=(consent,engine)=>{context.liveChoice={consent,engine};};
+ assert.equal(js("ecoIsCapturing()"),false);
  js('act("ecoStart")');
+ assert.ok(context.liveChoice,"Native bridge não chamado: "+JSON.stringify({status:js("ecoStatus"),consent:js("ecoConsent"),consentKind:js("ecoConsentKind"),reference:js("ecoConsentReference")}));
  assert.deepEqual(context.liveChoice,{consent:true,engine:'whisper-base'});
  assert.equal(js("ecoIsCapturing()"),true);
  js('window.nativeMlState("FINALIZANDO MICROFONE · TRANSCRIÇÃO DE TRECHOS PENDENTES")');
