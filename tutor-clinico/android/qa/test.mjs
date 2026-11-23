@@ -188,7 +188,7 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(app,/whisper-android:1.0.0/);
  assert.match(wf,/ggml-base.bin/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/Whisper offline/);
+ assert.match(js("sessionScreen()"),/Whisper Base offline/);
 });
 
 test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{

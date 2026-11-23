@@ -548,7 +548,7 @@ act=function(name,id){
  if(name==="ecoStart"){
   if(!ecoConsent){notify("Confirme a autorização ou simulação antes da captura.",'red');return}
   if(ecoIsCapturing()){notify("O arquivo já está sendo transcrito. Não precisa iniciar captação; acompanhe o progresso.",'red');return}
-  if(!window.NativeVault.startMlCapture){notify("Recurso exige APK Android.",'red');return}
+  if(!window.NativeVault.startMlCapture && !window.NativeVault.startMlCaptureWithEngine){notify("Recurso exige APK Android.",'red');return}
   ecoAudioSource="microfone";ecoEnsure();ecoStatus="MICROFONE · PREPARANDO";ecoDisplay();
   if(window.NativeVault.startMlCaptureWithEngine)window.NativeVault.startMlCaptureWithEngine(true,ecoChosenMic);
   else window.NativeVault.startMlCapture(true);
