@@ -73,6 +73,10 @@ public final class MainActivity extends Activity {
         setContentView(web);
         try (InputStream in = getAssets().open("index.html")) {
             String html = new String(readLimited(in, 1000000), StandardCharsets.UTF_8);
+            try (InputStream icon = getAssets().open("eco_logo.png")) {
+                String iconUri = "data:image/png;base64," + android.util.Base64.encodeToString(readLimited(icon,100000),android.util.Base64.NO_WRAP);
+                html = html.replace("{{ECO_APP_ICON}}", iconUri);
+            }
             web.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
         } catch (Exception e) { showToast("Falha ao carregar aplicativo"); }
         requestUnlock();

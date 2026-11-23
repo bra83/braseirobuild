@@ -126,7 +126,10 @@ html[data-theme="dark"] .eco-pill{background:#334b29;color:#d2ff9a}
 html[data-theme="dark"] .eco-caption{color:#c6d0ca}
 @media(max-width:355px){.main-stat{padding:10px 7px}.main-stat strong{font-size:20px}.eco-workbar button{font-size:10px}.eco-quickcase{display:block}.eco-quickcase .btn{width:100%;margin-top:9px}}
 
-</style></head><body><div class="top"><div class="brand"><span class="brand-mark" aria-hidden="true">◉</span> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
+
+.eco-brand-image{width:32px;height:32px;object-fit:contain;border-radius:9px}
+.eco-welcome-image{width:76px;height:76px;object-fit:contain;border-radius:18px;margin-bottom:9px;box-shadow:0 6px 24px #07090780}
+</style></head><body><div class="top"><div class="brand"><img class="eco-brand-image" src="{{ECO_APP_ICON}}" alt=""/> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -580,7 +583,7 @@ function ecoLanding(){
  const sessions=state.cases.reduce((n,c)=>n+(c.sessoes||[]).length,0);
  const dreams=state.cases.reduce((n,c)=>n+ecoSummary(c).dreams,0);
  const recent=[...state.cases].filter(c=>(c.sessoes||[]).length).sort((a,b)=>(b.sessoes.at(-1)?.data||"").localeCompare(a.sessoes.at(-1)?.data||"")).slice(0,3);
- return '<section class="eco-welcome"><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Escutar primeiro.<br>Registrar com clareza.</h1><p>Gravação temporária e transcrição local por modelo treinado, com marcações rápidas e comparação de sessões documentadas.</p>'+btn('● INICIAR SESSÃO','nav','','data-id="eco"')+'</section>'+
+ return '<section class="eco-welcome"><img class="eco-welcome-image" src="{{ECO_APP_ICON}}" alt="Ícone ECO"/><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Escutar primeiro.<br>Registrar com clareza.</h1><p>Gravação temporária e transcrição local por modelo treinado, com marcações rápidas e comparação de sessões documentadas.</p>'+btn('● INICIAR SESSÃO','nav','','data-id="eco"')+'</section>'+
  '<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+sessions+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+dreams+'</strong><span>Sessões com sonhos marcados</span></div></div>'+
  '<div class="eco-headrow"><h2>Acesso rápido</h2></div>'+
  '<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+'</div>'+

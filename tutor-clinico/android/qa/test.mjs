@@ -54,7 +54,7 @@ test('ECO: aba Gravar visível na navegação, mesmo fora de Casos',()=>{
  assert.match(js('document.querySelector("#bottom").innerHTML'),/data-id="eco"/);
  js("act('nav','eco')");
  assert.equal(js("screen"),"eco");
- assert.match(js("ecoHubScreen()"),/Gravar e marcar/);
+ assert.match(js("ecoHubScreen()"),/Uma sessão. Quatro etapas/);
 });
 test('ECO: fluxo direto para gravação e marcações',()=>{
  const cid=js("state.cases[0].id");
