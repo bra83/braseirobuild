@@ -783,7 +783,7 @@ function ecoSegmentReview(){
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
-const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO|WHISPER|MICROFONE|FINALIZANDO)/.test(ecoStatus);
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO)/.test(ecoStatus);
 let ecoAudioSource="microfone",ecoChosenAsr="small",ecoChosenMic="whisper-base";
 let ecoReferenceText="",ecoBenchmarkResult=null;
 let ecoConsentKind="simulacao",ecoConsentReference="";

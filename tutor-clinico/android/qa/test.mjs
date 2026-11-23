@@ -414,4 +414,20 @@ test('ECO G2 taxa WER calcula exato, omissao, insercao, negacao e acentos',()=>{
  assert.match(js('sessionScreen()'),/ecoBenchmark/);
 });
 
+
+test('ECO captação e importação bloqueiam ações enquanto motores realmente processam',()=>{
+ for(const busy of [
+  'GRAVANDO · WHISPER BASE · TRANSCRIÇÃO EM TRECHOS',
+  'CAPTURANDO · VOSK PT-BR',
+  'WHISPER SMALL Q5 · DECODIFICANDO ÁUDIO',
+  'FINALIZANDO MICROFONE · PROCESSANDO ÚLTIMOS TRECHOS'
+ ]){
+   context.busyStatus=busy;
+   js('window.nativeMlState(busyStatus)');
+   assert.equal(js('ecoIsCapturing()'),true,"Estado deveria ser ocupado: "+busy);
+ }
+ js('window.nativeMlState("CONCLUÍDO · MICROFONE WHISPER BASE · REVISE O TEXTO")');
+ assert.equal(js('ecoIsCapturing()'),false);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

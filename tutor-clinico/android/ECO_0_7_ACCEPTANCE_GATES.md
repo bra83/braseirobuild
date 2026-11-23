@@ -1,6 +1,6 @@
-# ECO 0.7.0-beta — gates de aceite e limitações
+# ECO 0.8.0-beta — gates de aceite e limitações
 
-Estado: beta de desenvolvimento. A compilação e testes de lógica não certificam uso clínico.
+Estado: beta de desenvolvimento com microfone Whisper experimental e comparação WER local. A compilação e testes de lógica não certificam uso clínico.
 Não use dados reais de pacientes antes de validações independentes de segurança e base legal.
 
 | Gate | O que foi implementado neste ciclo | Evidência que ainda falta |
@@ -38,3 +38,11 @@ Não use dados reais de pacientes antes de validações independentes de seguran
 7. Revisar LGPD, segurança e assinatura release antes de dados reais.
 
 **Regra de release:** nunca chamar de "final", "100%" ou "adequado a pacientes" com gates pendentes. Registro técnico deve distinguir saída automática, revisão e nota profissional.
+
+## Gates novos 0.8
+
+- Microfone Whisper Base/Small experimental captura WAVs curtos em cache privado, reconhecimento por thread e fila limitada com erro de sobrecarga. Foi integrado e compilado; funcionamento em Galaxy não validado.
+- A transcrição ao vivo pode atrasar; se não acompanhar a velocidade da fala, a gravação deve parar explicitamente em vez de consumir memória sem limite.
+- O Atlas só considera citações confirmadas ainda presentes na transcrição vigente; marcações desatualizadas aparecem em separado.
+- A revisão oferece cálculo WER local usando transcrição de referência humana de gravação fictícia, sem persistir o texto de referência.
+- Ainda não existe diarização automática nem banco SQLite criptografado; nenhuma destas funcionalidades deve ser presumida pronta.
