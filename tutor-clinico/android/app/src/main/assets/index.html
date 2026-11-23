@@ -299,4 +299,112 @@ document.addEventListener('change',e=>{
  const k=el.dataset.field;if(k){const target=screen==='wizard'?draft:screen==='session'?sessionDraft:screen==='appointment'?apptDraft:null;if(target)target[k]=el.value;}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.search){e.preventDefault();render();}});
+
+// ECO 0.2: Vosk processes audio on Android; TF-IDF learns from prior case records.
+let ecoConsent=false,ecoStatus="PARADO",ecoPartial="",ecoCategory="Entrada",ecoMatches=[];
+const ecoGroups=[
+ ["Entrada","Queixa","Retomada","Crise","Fato recente","Mudança","Silêncio"],
+ ["Afetos","Angústia","Ansiedade","Medo","Culpa","Raiva","Tristeza","Vergonha","Desamparo","Ciúme","Alegria","Vazio","Ambivalência"],
+ ["Sintomas","Insônia","Pesadelo","Choro","Pânico","Isolamento","Ruminação","Compulsões","Dor corporal","Apetite","Uso de substâncias"],
+ ["Pessoas","Mãe","Pai","Irmã","Irmão","Tio","Tia","Avó","Avô","Parceiro(a)","Ex","Filhos","Amizade","Chefia"],
+ ["Vida","Infância","Adolescência","Vida adulta","Trabalho","Estudos","Separação","Perda","Sexualidade","Religião","Migração"],
+ ["Sonhos","Sonho recorrente","Pesadelo","Sonho lúcido","Sonho vívido","Casa","Perseguição","Queda","Morte","Separação","Reencontro","Pessoas falecidas","Despertar"],
+ ["Processo","Repetição","Evitação","Silêncio","Mudança de sentido","Associação livre","Contradição","Transferência (hipótese)"]
+];
+function ecoEnsure(){
+ if(!sessionDraft)return;
+ if(!Array.isArray(sessionDraft.mlTags))sessionDraft.mlTags=[];
+ if(!Array.isArray(sessionDraft.mlSegments))sessionDraft.mlSegments=[];
+ if(typeof sessionDraft.mlTranscricao!=="string")sessionDraft.mlTranscricao="";
+}
+function ecoDisplay(){
+ const a=$('#ecoState');if(a)a.textContent=ecoStatus;
+ const b=$('#ecoPartial');if(b)b.textContent=ecoPartial;
+ const c=$('#ecoTranscript');if(c&&sessionDraft)c.textContent=sessionDraft.mlTranscricao||"Nenhum trecho reconhecido ainda.";
+}
+window.nativeMlState=function(s){ecoStatus=String(s);ecoDisplay();if(ecoStatus.startsWith("ERRO")||ecoStatus==="MICROFONE NEGADO")notify(ecoStatus,'red')};
+window.nativeMlPartial=function(s){ecoPartial=String(s||"");ecoDisplay()};
+window.nativeMlSegment=function(s){
+ const text=String(s||"").trim();if(!text||screen!=="session"||!sessionDraft)return;
+ ecoEnsure();
+ if(sessionDraft.mlTranscricao.length>450000){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();notify("Limite atingido",'red');return}
+ sessionDraft.mlSegments.push({text:text,at:new Date().toISOString(),origem:"Vosk PT-BR 0.3"});
+ sessionDraft.mlTranscricao=(sessionDraft.mlTranscricao+" "+text).trim();ecoPartial="";
+ if(state){state.mlDraft={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};if(!persist())notify("Rascunho não salvo",'red')}
+ ecoDisplay();
+};
+const ecoStopwords=new Set("a o as os de do da dos das em na no nas nos por para com e ou que um uma uns umas se me te eu ele ela eles elas isso isto aquele aquela ser estar ter foi era ha ja muito mais menos depois antes quando como nao sim tambem apenas sobre entre ate seu sua meu minha seus suas aos ao pelo pela todos todas esse essa aqueles aqui hoje ontem entao mesmo onde quem qual quais mas nem enquanto sem pra pro porque ainda cada outra outro alguns algumas".split(" "));
+function ecoTokens(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z]{3,}/g)?.filter(w=>!ecoStopwords.has(w))||[]}
+function ecoFeatures(s){const ts=ecoTokens(s),out=[];for(let i=0;i<ts.length;i++){out.push(ts[i]);if(i+1<ts.length)out.push(ts[i]+"_"+ts[i+1])}return out}
+function ecoRank(query,docs,max=6){
+ const rows=[query,...docs.map(x=>x.text)].map(ecoFeatures),df=new Map();
+ rows.forEach(row=>{for(const w of new Set(row))df.set(w,(df.get(w)||0)+1)});
+ function vec(row){const count=new Map(),v=new Map();let norm=0;
+  row.forEach(w=>count.set(w,(count.get(w)||0)+1));
+  count.forEach((n,w)=>{const z=(1+Math.log(n))*(1+Math.log(1+(rows.length+1)/(1+df.get(w))));v.set(w,z);norm+=z*z});
+  norm=Math.sqrt(norm)||1;v.forEach((z,w)=>v.set(w,z/norm));return v}
+ const a=vec(rows[0]);
+ return docs.map((d,i)=>{const b=vec(rows[i+1]);let score=0;const shared=[];
+  a.forEach((w,k)=>{if(b.has(k)){score+=w*b.get(k);if(!k.includes("_"))shared.push(k)}});
+  return {...d,score:score,shared:shared.slice(0,8)}})
+ .filter(x=>x.score>=.065&&x.shared.length>=2).sort((a,b)=>b.score-a.score).slice(0,max);
+}
+function ecoFind(){
+ ecoEnsure();const c=currentCase();if(!c)return [];
+ const query=[sessionDraft.mlRevisada||sessionDraft.mlTranscricao,sessionDraft.texto,sessionDraft.mlTags.join(" ")].filter(Boolean).join(" ");
+ const docs=(c.sessoes||[]).filter(s=>s.id!==sessionDraft.id).map(s=>({
+  sessionId:s.id,date:s.data,origin:s.mlTranscricao?"transcrição / nota":"nota profissional",
+  text:[s.mlRevisada||s.mlTranscricao,s.texto,(s.mlTags||[]).join(" ")].filter(Boolean).join(" ").slice(0,2000)
+ })).filter(s=>s.text.trim());
+ return query.trim()?ecoRank(query,docs):[];
+}
+function ecoPanel(){
+ ecoEnsure();const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
+ let out='<div class="card"><h2>ECO — Machine Learning offline</h2>';
+ out+='<div class="alert blue">Modelo acústico Vosk PT-BR verdadeiro. Captação apenas com a tela ativa; não produz arquivo de áudio nem envia áudio para nuvem. Transcrição automática exige correção. Não separa as vozes de paciente e profissional. Use apenas dados fictícios.</div>';
+ out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo simulação ou autorização prévia documentada, com finalidade explicada.</label>';
+ out+='<p><strong>Estado do microfone:</strong> <span id="ecoState">'+esc(ecoStatus)+'</span></p><div class="actions">';
+ out+=btn("● Iniciar ML de voz","ecoStart","")+btn("■ Encerrar captação","ecoStop","danger")+'</div>';
+ out+='<h3>Falas reconhecidas (Vosk)</h3><div id="ecoTranscript" class="card subtle" style="white-space:pre-wrap;max-height:160px;overflow:auto">'+esc(sessionDraft.mlTranscricao||"Nenhum trecho reconhecido.")+'</div>';
+ out+='<p class="small muted">Reconhecimento parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p>';
+ out+='<h3>Marcações rápidas da ficha</h3><div class="tabs">';
+ out+=ecoGroups.map(g=>btn(g[0],"ecoCategory",g[0]===ecoCategory?"":"secondary",'data-id="'+esc(g[0])+'"')).join("")+'</div>';
+ out+='<div class="checklist">'+items.map(item=>'<label class="choice"><input type="checkbox" data-eco-tag="'+esc(item)+'" '+(sessionDraft.mlTags.includes(item)?'checked':'')+'>'+esc(item)+'</label>').join("")+'</div>';
+ out+='<div class="field"><label>Transcrição corrigida (toque em copiar e revise)</label><textarea data-field="mlRevisada" rows="4" placeholder="Corrija o reconhecimento automático...">'+esc(sessionDraft.mlRevisada||"")+'</textarea></div>';
+ out+='<div class="actions">'+btn("Copiar texto para revisão","ecoCopy","secondary")+btn("Encontrar ecos anteriores (ML TF-IDF)","ecoFind","secondary")+'</div>';
+ if(ecoMatches.length)out+=ecoMatches.map(m=>'<div class="card subtle"><strong>'+esc(formatDate(m.date))+'</strong> <span class="chip">Similaridade textual '+(m.score*100).toFixed(1)+'%</span><p class="small">'+esc(m.text.slice(0,450))+'</p><p class="small muted">Termos comuns: '+esc(m.shared.join(", "))+' · '+esc(m.origin)+'. Não é interpretação clínica.</p></div>').join("");
+ else out+='<p class="notice">A busca por padrões é estatística e rastreável: só compara textos realmente documentados. Não gera inferências sobre inconsciente, diagnóstico ou sonhos.</p>';
+ return out+'</div>';
+}
+const ecoOldSessionScreen=sessionScreen;
+sessionScreen=function(){const page=ecoOldSessionScreen();const i=page.indexOf('<div class="card">');return i<0?page+ecoPanel():page.slice(0,i)+ecoPanel()+page.slice(i)};
+const ecoOldAct=act;
+act=function(name,id){
+ if(name==="ecoStart"){
+  if(!ecoConsent){notify("Confirme a autorização ou simulação antes da captura.",'red');return}
+  if(!window.NativeVault.startMlCapture){notify("Recurso exige APK Android.",'red');return}
+  ecoEnsure();ecoStatus="PREPARANDO";ecoDisplay();window.NativeVault.startMlCapture(true);return;
+ }
+ if(name==="ecoStop"){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();return}
+ if(name==="ecoCategory"){ecoCategory=id;render();return}
+ if(name==="ecoCopy"){ecoEnsure();sessionDraft.mlRevisada=sessionDraft.mlTranscricao;render();return}
+ if(name==="ecoFind"){ecoMatches=ecoFind();render();if(!ecoMatches.length)notify("Sem similaridades documentadas acima do limiar.");return}
+ if(name==="saveSession"&&sessionDraft){ecoEnsure();if(!sessionDraft.texto?.trim())sessionDraft.texto=(sessionDraft.mlRevisada||sessionDraft.mlTranscricao||("Marcações: "+sessionDraft.mlTags.join(", "))).trim()}
+ if(name==="nav"&&/CAPTURANDO|PREPARANDO/.test(ecoStatus)){notify("Encerre a captura antes de navegar.",'red');return}
+ const sid=name==="saveSession"?sessionDraft?.id:null;
+ const result=ecoOldAct(name,id);
+ if(name==="saveSession"&&sid&&screen==="case"&&state?.mlDraft?.session?.id===sid){state.mlDraft=null;persist()}
+ if(name==="newSession"){ecoMatches=[];ecoConsent=false}
+ return result;
+};
+document.addEventListener("change",e=>{
+ const x=e.target;
+ if(x.dataset.ecoConsent)ecoConsent=x.checked;
+ if(x.dataset.ecoTag&&sessionDraft){ecoEnsure();const tag=x.dataset.ecoTag;
+  sessionDraft.mlTags=x.checked?[...new Set([...sessionDraft.mlTags,tag])]:sessionDraft.mlTags.filter(z=>z!==tag);
+  if(state){state.mlDraft={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};persist()}
+ }
+});
+const ecoOldUnlock=window.appUnlock;
+window.appUnlock=function(){ecoOldUnlock();if(state?.mlDraft?.session&&state.cases.some(c=>c.id===state.mlDraft.caseId)){openedId=state.mlDraft.caseId;sessionDraft=state.mlDraft.session;screen="session";render()}};
 </script></body></html>

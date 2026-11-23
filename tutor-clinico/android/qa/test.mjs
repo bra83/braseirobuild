@@ -34,4 +34,19 @@ test('AndroidKeyStore usa IV gerado pelo provedor (regressão de salvamento)',()
  assert.doesNotMatch(save,/cipher\.init\(Cipher\.ENCRYPT_MODE,\s*deviceKey\(\),\s*new GCMParameterSpec/);
  assert.match(save,/stream\.write\(iv\);\s*stream\.write\(encrypted\);/);
 });
+
+test('ML TF-IDF recupera somente evidências do histórico',()=>{
+ const docs=[{date:'2026-11-12',text:'a minha mãe brigou comigo na infância e senti muita raiva'},{date:'2026-11-13',text:'comprei um carro amarelo e fui viajar'}];
+ context.ecoDocs=docs;
+ const found=js("ecoRank('senti raiva de minha mãe na infância',ecoDocs)");
+ assert.equal(found[0].date,'2026-11-12');
+ assert.ok(found[0].shared.includes('infancia'));
+});
+test('Modelo Vosk presente com captura local sem audio salvo',()=>{
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ assert.match(ml,/new Recognizer\(model,16000\.0f\)/);
+ assert.match(ml,/new SpeechService\(rec,16000\.0f\)/);
+ assert.match(html,/Sonho recorrente/);
+ assert.match(html,/data-eco-tag/);
+});
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
