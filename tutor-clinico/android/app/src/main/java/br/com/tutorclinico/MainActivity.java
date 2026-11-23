@@ -101,7 +101,7 @@ public final class MainActivity extends Activity {
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
-            .setTitle(needsCreate ? "Proteger o Tutor Clínico" : "Desbloquear Tutor Clínico")
+            .setTitle(needsCreate ? "Proteger o ECO" : "Desbloquear ECO")
             .setMessage(needsCreate ? "Os registros serão criptografados neste aparelho. Guarde seu PIN e faça cópias protegidas." : "Insira o PIN local para abrir os dados clínicos.")
             .setView(input).setCancelable(false)
             .setPositiveButton(needsCreate ? "Criar PIN" : "Desbloquear", null)

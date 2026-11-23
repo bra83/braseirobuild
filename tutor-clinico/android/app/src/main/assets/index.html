@@ -1,5 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
-<title>Tutor Clínico</title><style>
+<title>ECO · Atlas da Escuta</title><style>
 :root{--ink:#17312f;--muted:#63716f;--teal:#146b64;--light:#e8f2ed;--paper:#fff;--bg:#f4f7f5;--border:#dee7e2;--amber:#875a22;--danger:#ad4141;--radius:17px}*{box-sizing:border-box}
 body{font:15px/1.48 -apple-system,BlinkMacSystemFont,'Roboto','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);margin:0;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:10px 15px;font-weight:650}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #79b7ae;outline-offset:1px}
@@ -18,7 +18,58 @@ main{max-width:880px;margin:auto;padding:20px 15px 107px;min-height:80vh}.eyebro
 @media(min-width:730px){main{padding:30px 30px 110px}h1{font-size:30px}.card{padding:22px}.nav{max-width:650px;left:50%;transform:translateX(-50%);border-radius:20px 20px 0 0}.stat{padding:17px}}
 @media(max-width:355px){.split{grid-template-columns:1fr}.kv{grid-template-columns:85px 1fr}.stats{gap:5px}}
 @media print {.top,.nav,.actions,.tabs,.btn{display:none!important}main{padding:0}.card{break-inside:avoid;box-shadow:none}}
-</style></head><body><div class="top"><div class="brand">Tutor Clínico<small>Prontuário local · Android</small></div><div class="top-pill">● Offline</div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
+
+/* ECO 0.3 — visual profissional: claro + carvão/neon */
+:root{--accent:#baff4a;--accent-ink:#152014}
+body{background:var(--bg);color:var(--ink)}
+.top{background:var(--paper);color:var(--ink)}
+.brand{display:flex;align-items:center;flex-wrap:wrap;gap:6px;color:var(--ink);font-size:23px;letter-spacing:.6px}
+.brand small{width:100%;padding-left:29px;line-height:1;color:var(--muted);letter-spacing:1.1px}
+.brand-mark{display:inline-grid;place-items:center;width:25px;height:25px;background:var(--accent);color:#131716;border-radius:9px;font-size:20px}
+.top-controls{display:flex;align-items:center;gap:6px}
+.theme-toggle{border:1px solid var(--border);background:var(--light);color:var(--ink);font-size:12px;padding:8px 9px}
+.btn:not(.secondary):not(.ghost):not(.danger){background:var(--accent);color:var(--accent-ink)}
+.nav button[data-id="eco"]{font-weight:800;color:#28772c}
+.nav button[data-id="eco"].active{color:var(--accent-ink);background:var(--accent)}
+.eco-hero{background:linear-gradient(135deg,#1d2322,#101313);color:#f7faf5;border:1px solid #475449;border-radius:22px;padding:22px;margin:13px 0 18px}
+.eco-hero h2{font-size:23px;line-height:1.2;margin:9px 0}
+.eco-hero p{color:#d2ddd6;font-size:14px}
+.eco-hero-symbol{font-size:34px;line-height:1;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;border:2px solid #baff4a;color:#baff4a}
+.eco-mini{font-size:11px;color:#baff4a;font-weight:700;letter-spacing:.5px}
+.eco-hero .btn{width:100%;margin-top:10px;font-size:15px;min-height:49px}
+.eco-case{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.eco-case .btn{min-height:47px}
+html[data-theme="dark"]{color-scheme:dark;--ink:#f8faf7;--muted:#c2cbc5;--teal:#baff4a;--light:#27322b;--paper:#242729;--bg:#151719;--border:#3f4944;--amber:#ffc98c;--danger:#ff938d;--accent:#baff4a;--accent-ink:#10170f}
+html[data-theme="dark"] .top{background:#1b1e20;box-shadow:0 1px 9px #0005}
+html[data-theme="dark"] .nav{background:#1b1e20;border-color:#3f4944}
+html[data-theme="dark"] .nav button{color:#d7ded9}
+html[data-theme="dark"] .nav button.active{color:#baff4a;background:#2b382a}
+html[data-theme="dark"] .nav button[data-id="eco"]{color:#baff4a}
+html[data-theme="dark"] .nav button[data-id="eco"].active{color:#10170f;background:#baff4a}
+html[data-theme="dark"] .card,html[data-theme="dark"] .card.subtle,html[data-theme="dark"] .stat{background:#242729;color:#f8faf7;border-color:#404547;box-shadow:none}
+html[data-theme="dark"] .top-pill,html[data-theme="dark"] .chip,html[data-theme="dark"] .tabs button{background:#2b382a;color:#bbff55}
+html[data-theme="dark"] .tabs button.active{background:#baff4a;color:#10170f}
+html[data-theme="dark"] .choice{background:#202325;border-color:#46504b;color:#f5f7f4}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select,html[data-theme="dark"] .search{background:#191c1e;color:#fff;border-color:#66716c}
+html[data-theme="dark"] .field label,html[data-theme="dark"] .kv strong,html[data-theme="dark"] .stat span{color:#c0cbc4}
+html[data-theme="dark"] .btn.secondary{background:#30412e;color:#d9ff9a}
+html[data-theme="dark"] .btn.ghost{background:#323537;color:#f2f4f2}
+html[data-theme="dark"] .btn.danger{background:#512e2e;color:#ffaaa3}
+html[data-theme="dark"] .alert.blue{background:#243c39;color:#d3f5ee}
+html[data-theme="dark"] .alert.red{background:#462728;color:#ffc7c7}
+html[data-theme="dark"] .alert{background:#443827;color:#ffe6b5}
+html[data-theme="dark"] .modal-content{background:#25292a}
+html[data-theme="dark"] .app-modal{background:#050607bc}
+html[data-theme="dark"] .kv{border-bottom-color:#454b49}
+html[data-theme="dark"] .timeline{border-left-color:#506c54}
+html[data-theme="dark"] .chip.gray{background:#343839;color:#d3d7d5}
+html[data-theme="dark"] .chip.good{background:#273a2c;color:#c4ffc4}
+html[data-theme="dark"] .chip.warn{background:#49371d;color:#fbd49d}
+html[data-theme="dark"] .theme-toggle{background:#303637;border-color:#4b5450;color:#fff}
+html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:#a8b0ab}
+@media(max-width:380px){.top{padding:10px 9px}.brand{font-size:21px}.top-pill{display:none}.nav button{min-width:0}.eco-hero{padding:17px}}
+
+</style></head><body><div class="top"><div class="brand"><span class="brand-mark" aria-hidden="true">◉</span> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
 const $ = s => document.querySelector(s);
@@ -90,12 +141,12 @@ function makeCase(){return {id:uid(),criado:Date.now(),nome:'',idade:'',data:dat
 function render(){
  if(!state||errorLocked) return;
  const app=$('#app');
- const screens={home:homeScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
+ const screens={home:homeScreen,eco:ecoHubScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
  app.innerHTML=(screens[screen]||homeScreen)();renderNav();
  window.scrollTo(0,0);
 }
 function renderNav(){
- const tabs=[['home','⌂','Início'],['cases','▤','Casos'],['agenda','▦','Agenda'],['study','◈','Estudos'],['settings','⚙','Ajustes']];
+ const tabs=[['home','⌂','Início'],['eco','🎙','Gravar'],['cases','▤','Casos'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
  $('#bottom').innerHTML=tabs.map(([id,ic,label])=>`<button type="button" data-act="nav" data-id="${id}" class="${screen===id||(id==='cases'&&['case','wizard','session'].includes(screen))||(id==='agenda'&&screen==='appointment')?'active':''}"><span class="symbol">${ic}</span>${label}</button>`).join('');
 }
 const head=(tag,title,desc='')=>`<div class="eyebrow">${esc(tag)}</div><h1>${esc(title)}</h1>${desc?`<p class="lead">${esc(desc)}</p>`:''}`;
@@ -360,11 +411,11 @@ function ecoFind(){
 }
 function ecoPanel(){
  ecoEnsure();const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
- let out='<div class="card"><h2>ECO — Machine Learning offline</h2>';
- out+='<div class="alert blue">Modelo acústico Vosk PT-BR verdadeiro. Captação apenas com a tela ativa; não produz arquivo de áudio nem envia áudio para nuvem. Transcrição automática exige correção. Não separa as vozes de paciente e profissional. Use apenas dados fictícios.</div>';
+ let out='<div class="card"><h2>🎙 Gravar sessão com ECO</h2>';
+ out+='<div class="alert blue">O microfone transcreve a fala ao vivo com Vosk PT-BR. Nenhum arquivo de áudio é criado ou enviado à nuvem. O texto é guardado no rascunho criptografado e deve ser revisado. Não distingue as duas vozes. Teste somente com conversas fictícias.</div>';
  out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo simulação ou autorização prévia documentada, com finalidade explicada.</label>';
- out+='<p><strong>Estado do microfone:</strong> <span id="ecoState">'+esc(ecoStatus)+'</span></p><div class="actions">';
- out+=btn("● Iniciar ML de voz","ecoStart","")+btn("■ Encerrar captação","ecoStop","danger")+'</div>';
+ out+='<p><strong>Microfone:</strong> <span id="ecoState">'+esc(ecoStatus)+'</span></p><div class="actions">';
+ out+=btn("🎙 GRAVAR E TRANSCREVER","ecoStart","")+btn("■ PARAR MICROFONE","ecoStop","danger")+'</div>';
  out+='<h3>Falas reconhecidas (Vosk)</h3><div id="ecoTranscript" class="card subtle" style="white-space:pre-wrap;max-height:160px;overflow:auto">'+esc(sessionDraft.mlTranscricao||"Nenhum trecho reconhecido.")+'</div>';
  out+='<p class="small muted">Reconhecimento parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p>';
  out+='<h3>Marcações rápidas da ficha</h3><div class="tabs">';
@@ -405,6 +456,56 @@ document.addEventListener("change",e=>{
   if(state){state.mlDraft={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};persist()}
  }
 });
+
+// ECO 0.3: gravação na navegação principal, tema persistente e marcações acessíveis.
+// A página de captura continua exigindo confirmação explícita antes de solicitar o microfone.
+function ecoHubScreen(){
+ const intro=head("ECO · escuta assistida","Gravar e marcar","Selecione um caso fictício. A transcrição é local; a gravação de áudio não vira um arquivo.");
+ const lead='<section class="eco-hero"><div class="eco-hero-symbol" aria-hidden="true">◉</div><h2>Seu microfone, à vista.</h2><p>Gravação temporária de voz com transcrição ao vivo e marcações de sintomas, sonhos, pessoas e fases da vida.</p><span class="eco-mini">Vosk PT-BR offline · sem upload de áudio · testar apenas dados fictícios</span></section>';
+ if(!state.cases.length) return intro+lead+'<div class="card"><h2>Primeiro, crie um caso de teste</h2><p>O ECO vincula a transcrição a uma sessão; nenhum dado pessoal real é necessário.</p>'+btn("＋ Criar caso fictício","newCase","")+'</div>';
+ return intro+lead+'<h2>Iniciar sessão</h2>'+state.cases.map(c=>'<div class="card eco-case"><div><strong>'+caseName(c)+'</strong><div class="muted small">'+(c.sessoes||[]).length+' sessão(ões) registrada(s)</div></div>'+btn("🎙 Iniciar gravação e marcações","ecoOpen","","data-id=\""+esc(c.id)+"\"")+'</div>').join('');
+}
+const ecoOriginalHomeScreen=homeScreen;
+homeScreen=function(){
+ return '<section class="eco-hero eco-hero-home"><div class="eco-hero-symbol" aria-hidden="true">◉</div><span class="eco-mini">ECO · ESCUTA INTELIGENTE</span><h2>Grave, transcreva e marque sua sessão</h2><p>Um toque para abrir o painel de voz e as categorias da ficha clínica.</p>'+btn("🎙 ABRIR GRAVAÇÃO","nav","","data-id=\"eco\"")+'</section>'+ecoOriginalHomeScreen();
+};
+const ecoOriginalCaseCard=caseCard;
+caseCard=function(c){
+ const original=ecoOriginalCaseCard(c);
+ return original.replace('<div class="actions">','<div class="actions">'+btn("🎙 ECO · nova sessão","ecoOpen","","data-id=\""+esc(c.id)+"\""));
+};
+const ecoOriginalCaseScreen=caseScreen;
+caseScreen=function(){
+ const c=currentCase();
+ if(!c)return ecoOriginalCaseScreen();
+ return '<div class="actions">'+btn("🎙 Gravar e marcar sessão","ecoOpen","","data-id=\""+esc(c.id)+"\"")+'</div>'+ecoOriginalCaseScreen();
+};
+const ecoOriginalRender=render;
+render=function(){
+ if(document.documentElement){
+   const theme=state?.uiTheme==="dark"?"dark":"light";
+   document.documentElement.setAttribute("data-theme",theme);
+ }
+ ecoOriginalRender();
+ const toggle=document.querySelector("#themeToggle");
+ if(toggle){toggle.textContent=state?.uiTheme==="dark"?"☀ Claro":"☾ Escuro"; if(toggle.setAttribute)toggle.setAttribute("aria-label","Alternar tema claro e escuro");}
+};
+const ecoOriginalAction=act;
+act=function(name,id){
+ if(name==="toggleTheme"){
+   if(!state)return;
+   const previous=state.uiTheme||"light";
+   state.uiTheme=previous==="dark"?"light":"dark";
+   if(!persist())state.uiTheme=previous;
+   render();return;
+ }
+ if(name==="ecoOpen"){
+   if(/CAPTURANDO|PREPARANDO/.test(ecoStatus)){notify("Encerre a captação primeiro.",'red');return;}
+   if(!state?.cases?.some(c=>c.id===id)){notify("Selecione um caso existente.",'red');return;}
+   openedId=id;editSessionId=null;sessionDraft=newSessionDraft();ecoMatches=[];ecoConsent=false;ecoStatus="PARADO";screen="session";render();return;
+ }
+ return ecoOriginalAction(name,id);
+};
 const ecoOldUnlock=window.appUnlock;
 window.appUnlock=function(){ecoOldUnlock();if(state?.mlDraft?.session&&state.cases.some(c=>c.id===state.mlDraft.caseId)){openedId=state.mlDraft.caseId;sessionDraft=state.mlDraft.session;screen="session";render()}};
 </script></body></html>

@@ -49,4 +49,34 @@ test('Modelo Vosk presente com captura local sem audio salvo',()=>{
  assert.match(html,/Sonho recorrente/);
  assert.match(html,/data-eco-tag/);
 });
+
+test('ECO: aba Gravar visível na navegação, mesmo fora de Casos',()=>{
+ assert.match(js('document.querySelector("#bottom").innerHTML'),/data-id="eco"/);
+ js("act('nav','eco')");
+ assert.equal(js("screen"),"eco");
+ assert.match(js("ecoHubScreen()"),/Gravar e marcar/);
+});
+test('ECO: fluxo direto para gravação e marcações',()=>{
+ const cid=js("state.cases[0].id");
+ context.cid=cid;
+ js("act('ecoOpen',cid)");
+ assert.equal(js("screen"),"session");
+ assert.match(js("sessionScreen()"),/GRAVAR E TRANSCREVER/);
+ assert.match(js("sessionScreen()"),/data-eco-tag/);
+});
+test('ECO: alterna tema escuro e claro com persistência',()=>{
+ js("act('toggleTheme')");
+ assert.equal(js("state.uiTheme"),"dark");
+ assert.equal(JSON.parse(saved).uiTheme,"dark");
+ js("act('toggleTheme')");
+ assert.equal(js("state.uiTheme"),"light");
+});
+test('ECO: nome do aplicativo e ícone de lançamento',()=>{
+ const manifest=fs.readFileSync(new URL('../app/src/main/AndroidManifest.xml',import.meta.url),'utf8');
+ const drawable=fs.readFileSync(new URL('../app/src/main/res/drawable/ic_app.xml',import.meta.url),'utf8');
+ assert.match(manifest,/android:label="ECO"/);
+ assert.match(drawable,/#BFFF42/);
+ assert.match(html,/data-theme="dark"/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
