@@ -33,6 +33,7 @@ final class MlSessionEngine implements RecognitionListener {
     private volatile boolean pauseRequested, paused, discarding;
     private volatile long resumeFromMs;
     private volatile boolean recordingRequested;
+    private volatile boolean deferRecognitionUntilResume;
     private Uri pendingFile;
     private String fileModelName="small";
     private Thread fileWorker;
@@ -50,6 +51,7 @@ final class MlSessionEngine implements RecognitionListener {
         wanted=true;
         recordingRequested=true;
         pauseRequested=false;paused=false;discarding=false;resumeFromMs=0L;
+        deferRecognitionUntilResume=false;
         fileModelName="whisper-base".equals(engine)?"base":"small";
         recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
@@ -64,8 +66,13 @@ final class MlSessionEngine implements RecognitionListener {
                     recordedFile=file;
                     retainedUri=Uri.fromFile(file);
                     pendingFile=retainedUri;
-                    events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · INICIANDO WHISPER");
-                    beginFile();
+                    if(deferRecognitionUntilResume){
+                        paused=true;
+                        events.state("PAUSADO · GRAVAÇÃO LOCAL FINALIZADA · RETOME PARA TRANSCREVER");
+                    }else{
+                        events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · INICIANDO WHISPER");
+                        beginFile();
+                    }
                 }
             }
         });
@@ -240,7 +247,7 @@ final class MlSessionEngine implements RecognitionListener {
             events.state("OPERAÇÃO EM ANDAMENTO");return;
         }
         if(!paused||retainedUri==null){events.state("NÃO EXISTE TRANSCRIÇÃO PAUSADA");return;}
-        wanted=true;pauseRequested=false;discarding=false;
+        wanted=true;pauseRequested=false;discarding=false;deferRecognitionUntilResume=false;
         beginFile();
     }
     synchronized void discardRemainingAudio(){
@@ -258,9 +265,14 @@ final class MlSessionEngine implements RecognitionListener {
     }
     synchronized void onHostPause(){
         if(recordingRequested&&recorder!=null){
-            // A background recording without a foreground service is unsafe.
+            // No foreground service: never keep an undisclosed recording running
+            // behind the lock screen. Preserve the WAV, then require explicit resume.
+            deferRecognitionUntilResume=true;
             recorder.finish();
             events.state("APP EM SEGUNDO PLANO · FINALIZANDO GRAVAÇÃO");
+        }else if(importing && !pauseRequested){
+            // Do not write new transcript segments after Android has hidden/locked UI.
+            pauseTranscription();
         }
     }
 
