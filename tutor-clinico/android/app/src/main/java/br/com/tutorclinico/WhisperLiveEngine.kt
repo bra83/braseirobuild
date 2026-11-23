@@ -52,7 +52,7 @@ internal class WhisperLiveEngine(
         private const val SEC = 18
         private const val MAX_BYTES = RATE * SEC * 2
         private const val CACHE_PREFIX = "eco_whisper_live_"
-        fun clearStaleFiles(context: Context) {
+        @JvmStatic fun clearStaleFiles(context: Context) {
             context.cacheDir.listFiles()?.filter {
                 it.isFile && it.name.startsWith(CACHE_PREFIX)
             }?.forEach { it.delete() }
@@ -96,7 +96,7 @@ internal class WhisperLiveEngine(
                         listener.state("MICROFONE · " + display + " · PROCESSANDO TRECHO " + processed +
                             " · " + (chunk.offsetMs / 1000) + "s")
                         val result = runBlocking {
-                            Whisper.transcribe(model, file.absolutePath,
+                            Whisper.transcribe(model!!, file.absolutePath,
                                 WhisperConfig(language = "pt", translate = false, threads = 4))
                         }
                         if (terminate.get()) break

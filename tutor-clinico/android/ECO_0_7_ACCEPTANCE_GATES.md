@@ -19,7 +19,7 @@ Não use dados reais de pacientes antes de validações independentes de seguran
 
 - Android Java WebView: interface e bridge.
 - WhisperFileEngine Kotlin: transcrição offline por arquivo, trechos de 25 s com pausa conservadora, modelos Base e Small q5_1.
-- MlSessionEngine Java: mic ao vivo ainda usa Vosk Small PT (qualidade inferior).
+- MlSessionEngine Java + WhisperLiveEngine Kotlin: mic agora oferece Whisper Base experimental, Whisper Small Q5 experimental e fallback Vosk. A fila tem capacidade limitada; excesso deve interromper captura com aviso. Ainda não há validação física da velocidade em tempo real.
 - NLP factual: implementação determinística no JS, jamais diagnóstico ou interpretação psicodinâmica automática.
 - TF-IDF: comparação lexical entre textos de sessões da mesma pessoa.
 - Persistência: vault.aes e draft.aes cifrados AES-GCM; formato de dados ainda JSON, **não** banco SQL transacional por entidade.
@@ -33,7 +33,7 @@ Não use dados reais de pacientes antes de validações independentes de seguran
 2. Importar mesmo MP3 via Small e Base; salvar transcrições e avaliar com `node qa/benchmark_asr.mjs referencia.txt gerado.txt`.
 3. Medir erros críticos, inclusive negações ("não tenho"), papéis de falantes e nomes de pessoas.
 4. Testar trechos de silêncio, transições e longos períodos; contabilizar trechos não reconhecidos.
-5. Registrar áudio fictício ao vivo; se Vosk permanecer insuficiente, substituir a arquitetura de captura após teste da viabilidade real do Whisper em fluxo contínuo.
+5. Registrar áudio fictício ao vivo; avaliar o novo microfone Whisper em tempo real e conferir explicitamente a fila limitada, o atraso, e o risco de deixar áudio não transcrito sob carga no Galaxy A57.
 6. Validar todo fluxo de importação/correção/marcação/fonte/Atlas/PDF/backup/restauro com falhas injetadas e sem perda.
 7. Revisar LGPD, segurança e assinatura release antes de dados reais.
 

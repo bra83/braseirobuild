@@ -333,4 +333,40 @@ test('ECO G9 exige referencia documental para audio autorizado',()=>{
  assert.equal(js('sessionDraft.mlConsent.documentReference'),'TERMO-FICTICIO-002');
 });
 
+
+test('ECO G3 Whisper microphone uses bounded queue and audio-only ephemeral chunks',()=>{
+ const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperLiveEngine.kt',import.meta.url),'utf8');
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(kt,/ArrayBlockingQueue<Chunk>\(2\)/);
+ assert.match(kt,/AudioRecord.Builder/);
+ assert.match(kt,/queue\.offer\(Chunk/);
+ assert.match(kt,/File\.createTempFile\(CACHE_PREFIX, ".wav"/);
+ assert.match(kt,/if \(!file\.delete\(\)\)/);
+ assert.match(kt,/Whisper\.transcribe/);
+ assert.match(kt,/listener\.segment/);
+ assert.match(kt,/processamento mais lento que a gravação/);
+ assert.match(ml,/beginWhisperMicrophone/);
+ assert.match(ml,/live\.finishRecording/);
+ assert.match(main,/startMlCaptureWithEngine/);
+ assert.match(main,/WhisperLiveEngine\.clearStaleFiles/);
+ js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
+ assert.match(js("sessionScreen()"),/Motor para o microfone/);
+ assert.match(js("sessionScreen()"),/Whisper Base offline/);
+ assert.match(js("sessionScreen()"),/Vosk · rápido/);
+});
+test('ECO G3 live mic engine selection passes to Android bridge and blocks parallel imports',()=>{
+ const cid=js('state.cases[0].id');
+ js('act("ecoOpen",cid);ecoConsent=true;ecoChosenMic="whisper-base"');
+ context.window.NativeVault.saveDraft=()=> 'OK';
+ context.window.NativeVault.startMlCaptureWithEngine=(consent,engine)=>{context.liveChoice={consent,engine};};
+ js('act("ecoStart")');
+ assert.deepEqual(context.liveChoice,{consent:true,engine:'whisper-base'});
+ assert.equal(js("ecoIsCapturing()"),true);
+ js('window.nativeMlState("FINALIZANDO MICROFONE · TRANSCRIÇÃO DE TRECHOS PENDENTES")');
+ assert.equal(js("ecoIsCapturing()"),true);
+ js('window.nativeMlState("CONCLUÍDO · MICROFONE WHISPER BASE · REVISE O TEXTO")');
+ assert.equal(js("ecoIsCapturing()"),false);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

@@ -36,6 +36,7 @@ public final class MainActivity extends Activity {
     private static final int AUDIO_FILE_CODE = 904;
     private MlSessionEngine ml;
     private String selectedAsrModel="small";
+    private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
     private WebView web;
@@ -54,6 +55,7 @@ public final class MainActivity extends Activity {
         store = new SecureStore(this);
         // Remove ephemeral audio if Android previously terminated the process.
         WhisperFileEngine.cleanupAbandonedAudio(this);
+        WhisperLiveEngine.clearStaleFiles(this);
         ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
@@ -163,7 +165,7 @@ public final class MainActivity extends Activity {
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] grants){
         super.onRequestPermissionsResult(code,permissions,grants);
         if(code==MIC_PERMISSION){
-            if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked)ml.start();
+            if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked)ml.start(selectedMicEngine);
             else jsCallback("nativeMlState","MICROFONE NEGADO");
         }
     }
@@ -173,7 +175,7 @@ public final class MainActivity extends Activity {
             requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},MIC_PERMISSION);
             return;
         }
-        ml.start();
+        ml.start(selectedMicEngine);
     }
     private void chooseAudioFile(){
         if(!unlocked){jsCallback("nativeMlState","ERRO ARQUIVO: app bloqueado");return;}
@@ -211,6 +213,14 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void selectAudioFile(boolean confirmed){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->chooseAudioFile());
+        }
+        @JavascriptInterface public void startMlCaptureWithEngine(boolean confirmed,String engine){
+            if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
+            main.post(()->{
+                selectedMicEngine="vosk".equals(engine)?"vosk":
+                        "whisper-small".equals(engine)?"whisper-small":"whisper-base";
+                beginCapture();
+            });
         }
         @JavascriptInterface public void startMlCapture(boolean confirmed){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
