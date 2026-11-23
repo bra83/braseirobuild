@@ -496,7 +496,7 @@ const ecoOldAct=act;
 act=function(name,id){
  if(name==="ecoStart"){
   if(!ecoConsent){notify("Confirme a autorização ou simulação antes da captura.",'red');return}
-  if(ecoIsCapturing()){notify("Encerre o processamento atual antes de começar outro.",'red');return}
+  if(ecoIsCapturing()){notify("O arquivo já está sendo transcrito. Não precisa iniciar captação; acompanhe o progresso.",'red');return}
   if(!window.NativeVault.startMlCapture){notify("Recurso exige APK Android.",'red');return}
   ecoAudioSource="microfone";ecoEnsure();ecoStatus="PREPARANDO";ecoDisplay();window.NativeVault.startMlCapture(true);return;
  }
@@ -576,7 +576,8 @@ window.appUnlock=function(){ecoOldUnlock();if(state?.mlDraft?.session&&state.cas
 // ECO 0.4 — aplicação reestruturada em torno da sessão, mantendo os dados existentes.
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
-const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO)/.test(ecoStatus);
+// Processing states include the model's own WHISPER progress messages.
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO|WHISPER)/.test(ecoStatus);
 let ecoAudioSource="microfone";
 function ecoSummary(c){
  const ss=Array.isArray(c.sessoes)?c.sessoes:[];
@@ -613,12 +614,12 @@ function ecoWorkspace(){
   ["captura","01","Captar"],["marcar","02","Marcar"],["revisar","03","Revisar"],["ecos","04","Ecos"]
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
-  out+='<section class="eco-recorder"><h2>● Captação e transcrição</h2><p class="eco-caption">Arquivos MP3, WAV e FLAC: Whisper Base PT offline. Microfone ao vivo: Vosk PT-BR (menos preciso). M4A/AAC ainda não são aceitos pelo Whisper. Revise o texto gerado.</p>';
+  out+='<section class="eco-recorder"><h2>● Transcrição de áudio</h2><p class="eco-caption">São dois modos independentes. Para um arquivo MP3, WAV, M4A ou FLAC, toque apenas em <strong>Importar e transcrever</strong>: o processo começa automaticamente. O botão de microfone serve exclusivamente para fala ao vivo (Vosk, menos preciso). O arquivo importado usa Whisper Base offline em trechos curtos.</p>';
   out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
-  out+='<div class="stack">'+btn('● INICIAR CAPTAÇÃO','ecoStart','','aria-label="Iniciar microfone"')+btn('⇧ IMPORTAR ÁUDIO · WHISPER (MP3 / WAV / FLAC)','ecoImportFile','secondary','aria-label="Selecionar arquivo de áudio para transcrever"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
-  out+='<p class="eco-caption">Para Whisper, selecione MP3, WAV ou FLAC. Uma cópia temporária é criada no cache privado somente durante a transcrição e apagada depois; o arquivo original não é alterado. Em caso de encerramento inesperado, o cache será limpo na próxima abertura.</p>';
+  out+='<div class="stack">'+btn('🎙 GRAVAR AO VIVO · MICROFONE','ecoStart','','aria-label="Iniciar captação ao vivo pelo microfone"')+btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar áudio e iniciar transcrição automaticamente"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
+  out+='<p class="eco-caption">A importação inicia automaticamente ao escolher um arquivo, sem tocar em Gravar. São processados trechos de até 25 segundos, um de cada vez, mostrando o andamento. Apenas o trecho atual vira WAV temporário privado, apagado após o processamento. O arquivo original permanece intocado. Áudio M4A depende do decodificador do Android.</p>';
   out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
-  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto é salvo em rascunho criptografado; o áudio é copiado temporariamente para cache privado durante processamento de arquivos e removido depois. O original permanece no local escolhido.</p></section>';
+  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto é salvo em rascunho criptografado. O ECO lê o áudio do arquivo original e cria somente um trecho WAV privado temporário de até 25 segundos, removido após cada trecho.</p></section>';
  }else if(ecoWorkspaceTab==="marcar"){
   const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
   out+='<section class="eco-outline"><h2>Marcações da sessão</h2><p class="eco-caption">Escolha os temas citados, sem supor que outros temas estejam ausentes. Você também pode marcar durante a captação.</p>';

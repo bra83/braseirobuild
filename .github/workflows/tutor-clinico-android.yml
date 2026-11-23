@@ -82,7 +82,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.6.0-whisper-base-debug
+          name: ECO-v0.6.1-whisper-chunked-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

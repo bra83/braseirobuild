@@ -110,7 +110,7 @@ test('ECO v0.5 mostra importação de áudio no fluxo da sessão',()=>{
  js("act('ecoOpen',state.cases[0].id)");
  js("act('ecoWorkspaceTab','captura')");
  assert.match(js("sessionScreen()"),/IMPORTAR ÁUDIO/);
- assert.match(js("sessionScreen()"),/MP3 \/ WAV \/ FLAC/);
+ assert.match(js("sessionScreen()"),/MP3, WAV, M4A ou FLAC/);
 });
 test('ECO v0.5 requer confirmação antes de selecionar arquivo',()=>{
  context.window.NativeVault.selectAudioFile=()=>{context.filePickerCalled=true};
@@ -178,6 +178,9 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  const wf=fs.readFileSync(new URL('../../../.github/workflows/tutor-clinico-android.yml',import.meta.url),'utf8');
  assert.match(ml,/WhisperFileEngine.transcribe/);
  assert.match(kt,/Whisper.transcribe/);
+ assert.match(kt,/AudioFileTranscriber.streamPcm/);
+ assert.match(kt,/SEGMENT_SECONDS = 25/);
+ assert.match(kt,/transcribeChunk\(\)/);
  assert.match(kt,/WhisperConfig\(language = "pt"/);
  assert.match(kt,/File.createTempFile/);
  assert.match(kt,/finally/);
@@ -186,5 +189,32 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(wf,/ggml-base.bin/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
  assert.match(js("sessionScreen()"),/Whisper Base PT/);
+});
+
+test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ js("act('ecoWorkspaceTab','captura')");
+ context.window.NativeVault.startMlCapture=()=>{context.microphoneStarted=true};
+ context.microphoneStarted=false;
+ js('ecoConsent=true;window.nativeMlState("WHISPER BASE · TRANSCRIBINDO 0m50s · TRECHO 3")');
+ assert.equal(js("ecoIsCapturing()"),true);
+ js("act('ecoStart')");
+ assert.equal(context.microphoneStarted,false);
+ js('window.nativeMlState("CONCLUÍDO · WHISPER BASE · REVISE A TRANSCRIÇÃO")');
+ assert.equal(js("ecoIsCapturing()"),false);
+ assert.match(js("sessionScreen()"),/IMPORTAR E TRANSCREVER ÁUDIO/);
+});
+test('ECO 0.6.1 lê áudio por URI em trechos, sem enviar gravação inteira ao Whisper',()=>{
+ const dec=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/AudioFileTranscriber.java',import.meta.url),'utf8');
+ const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
+ assert.match(dec,/void streamPcm\\(Context context, Uri uri, Listener listener, PcmListener receiver\\)/);
+ assert.match(dec,/interface PcmListener/);
+ assert.match(kt,/ByteArrayOutputStream\\(SEGMENT_SIZE/);
+ assert.match(kt,/SAMPLE_RATE = 16000/);
+ assert.match(kt,/SEGMENT_SECONDS = 25/);
+ assert.match(kt,/File.createTempFile\\(CACHE_PREFIX, ".wav"/);
+ assert.match(kt,/wav.delete\\(\\)/);
+ assert.match(kt,/AudioFileTranscriber.streamPcm/);
+ assert.doesNotMatch(kt,/openInputStream\\(uri\\).*FileOutputStream/s);
 });
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
