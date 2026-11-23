@@ -716,6 +716,27 @@ const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
 const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO|WHISPER)/.test(ecoStatus);
 let ecoAudioSource="microfone",ecoChosenAsr="small";
+let ecoConsentKind="simulacao",ecoConsentReference="";
+function ecoDocumentConsent(){
+ if(!sessionDraft)return false;
+ if(!ecoConsent){notify("Confirme o uso autorizado ou a simulação antes de processar áudio.",'red');return false;}
+ if(ecoConsentKind==="autorizado"&&!ecoConsentReference.trim()){
+  notify("Informe a referência do termo de autorização documentado. Não insira nome completo.",'red');
+  return false;
+ }
+ const original=sessionDraft.mlConsent;
+ sessionDraft.mlConsent={
+  kind:ecoConsentKind,attestedAt:new Date().toISOString(),
+  documentReference:ecoConsentKind==="autorizado"?ecoConsentReference.trim():"",
+  declaration:"Declaração do operador; não equivale à verificação jurídica do consentimento"
+ };
+ const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
+ const saved=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"ERRO");
+ if(saved!=="OK"){
+  sessionDraft.mlConsent=original;notify("Não é possível iniciar sem salvar a declaração: "+saved,'red');return false;
+ }
+ return true;
+}
 function ecoSummary(c){
  const ss=Array.isArray(c.sessoes)?c.sessoes:[];
  let mentions=0,dreams=0;
@@ -752,7 +773,9 @@ function ecoWorkspace(){
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
   out+='<section class="eco-recorder"><h2>● Transcrição de áudio</h2><p class="eco-caption">São dois modos independentes. Para um arquivo MP3, WAV, M4A ou FLAC, toque apenas em <strong>Importar e transcrever</strong>: o processo começa automaticamente. O botão de microfone serve exclusivamente para fala ao vivo (Vosk, menos preciso). O arquivo importado usa Whisper offline em trechos curtos, com modelos Base e Small quantizado à escolha.</p>';
-  out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
+  out+='<label class="field">Condição da gravação <select data-eco-consent-kind><option value="simulacao" '+(ecoConsentKind==="simulacao"?"selected":"")+'>Simulação com falas fictícias</option><option value="autorizado" '+(ecoConsentKind==="autorizado"?"selected":"")+'>Áudio de atendimento — autorização documentada</option></select></label>';
+  if(ecoConsentKind==="autorizado")out+='<label class="field">Referência do documento de autorização (sem nome completo)<input data-eco-consent-reference value="'+esc(ecoConsentReference)+'" placeholder="Ex.: TERMO-2026-002"></label>';
+  out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Declaro que estou autorizado a processar este áudio para a finalidade informada.</label><p class="eco-caption">Registro de declaração do operador: não substitui o termo, a base legal aplicável nem a avaliação da LGPD. Não use pacientes reais neste protótipo.</p>';
   out+='<label class="field">Qualidade de transcrição de arquivos <select data-eco-asr-model><option value="small" '+(ecoChosenAsr==="small"?"selected":"")+'>Whisper Small Q5 · maior qualidade esperada (mais lento)</option><option value="base" '+(ecoChosenAsr==="base"?"selected":"")+'>Whisper Base · mais rápido (menos preciso)</option></select></label>';
   out+='<div class="stack">'+btn('🎙 GRAVAR AO VIVO · MICROFONE','ecoStart','','aria-label="Iniciar captação ao vivo pelo microfone"')+btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar áudio e iniciar transcrição automaticamente"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
   out+='<p class="eco-caption">A importação inicia automaticamente ao escolher um arquivo, sem tocar em Gravar. São processados trechos de até 25 segundos, um de cada vez, mostrando o andamento. Apenas o trecho atual vira WAV temporário privado, apagado após o processamento. O arquivo original permanece intocado. Áudio M4A depende do decodificador do Android.</p>';
@@ -827,9 +850,10 @@ act=function(name,id){
   notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
  }
  if(name==="ecoImportFile"){
-  if(!ecoConsent){notify("Confirme que é uma simulação ou que há autorização documentada antes da importação.",'red');return}
+  if(!ecoConsent){notify("Confirme a declaração antes da importação.",'red');return}
   if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
-  if(!window.NativeVault.selectAudioFile){notify("Importação disponível apenas no APK Android.",'red');return}
+  if(!window.NativeVault.selectAudioFile && !window.NativeVault.selectAudioFileWithModel){notify("Importação disponível apenas no APK Android.",'red');return}
+  if(!ecoDocumentConsent())return;
   ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
   if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
   else window.NativeVault.selectAudioFile(true);
@@ -851,14 +875,21 @@ act=function(name,id){
  }
  if(name==="ecoSave"){if(ecoIsCapturing()){notify("Encerre o processamento antes de salvar.",'red');return;}return ecoActBase("saveSession")}
  if(name==="ecoBackCase"){if(ecoIsCapturing()){notify("Encerre o processamento antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
+ if(name==="ecoStart" && !ecoIsCapturing() && ecoConsent){
+  if(!ecoDocumentConsent())return;
+ }
  const previous=screen;
  const result=ecoActBase(name,id);
  if(name==="ecoOpen"||name==="newSession"||name==="editSession"){ecoWorkspaceTab="captura";render()}
  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
  return result;
 };
+document.addEventListener("input",e=>{
+ if(e.target?.dataset?.ecoConsentReference!==undefined)ecoConsentReference=e.target.value||"";
+});
 document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=e.target.value==="base"?"base":"small"}
+ if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
  if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
  if(e.target?.dataset?.ecoSpeaker!==undefined&&sessionDraft){
   const ix=Number(e.target.dataset.ecoSpeaker),value=e.target.value;
@@ -883,7 +914,10 @@ pdfForCase=function(c){
  const base=ecoOldPdfForCase(c);
  const section=(c.sessoes||[]).map(s=>{
    const title='<h3>Registro íntegro da sessão '+esc(formatDate(s.data))+'</h3>';
-   const record='<p><strong>Transcrição automática sem correção:</strong> '+esc(s.mlTranscricao||"Não registrada")+'</p>'+
+   const record='<p><strong>Registro da condição da gravação:</strong> '+esc(s.mlConsent?.kind||"Não documentado")+
+  ' · '+esc(s.mlConsent?.attestedAt||"Sem declaração")+
+  ' · referência '+esc(s.mlConsent?.documentReference||"Não informada")+'</p>'+
+  '<p><strong>Transcrição automática sem correção:</strong> '+esc(s.mlTranscricao||"Não registrada")+'</p>'+
    '<p><strong>Versão corrigida pelo profissional:</strong> '+esc(s.mlRevisada||"Não revisada")+'</p>'+
    '<p><strong>Marcações manuais:</strong> '+esc((s.mlTags||[]).join(" · ")||"Nenhuma")+'</p>';
    const clips='<h4>Trechos e proveniência</h4>'+(s.mlSegments||[]).map((e,i)=>
