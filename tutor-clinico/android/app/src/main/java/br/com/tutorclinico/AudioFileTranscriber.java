@@ -35,6 +35,33 @@ final class AudioFileTranscriber {
     }
     private AudioFileTranscriber() {}
 
+    // Output raw signed 16-bit little-endian PCM mono at 16 kHz to an incremental
+    // consumer. The caller controls chunking and persistence; original source
+    // is read directly through the Android content URI, never copied.
+    interface PcmListener {
+        void accept(byte[] pcm, int size) throws Exception;
+    }
+
+    static void streamPcm(Context context, Uri uri, Listener listener, PcmListener receiver) throws Exception {
+        if (!listener.isActive()) return;
+        Sink sink = new Sink(receiver, listener);
+        boolean wav;
+        try (InputStream probe = context.getContentResolver().openInputStream(uri)) {
+            if (probe == null) throw new IllegalArgumentException("Arquivo inacessível");
+            byte[] hdr = new byte[12];
+            int n = 0;
+            while (n < hdr.length) {
+                int k = probe.read(hdr, n, hdr.length - n);
+                if (k < 0) break;
+                n += k;
+            }
+            wav = n == 12 && ascii(hdr, 0, 4).equals("RIFF") && ascii(hdr, 8, 4).equals("WAVE");
+        }
+        if (wav) decodeWav(context, uri, sink, listener);
+        else decodeCompressed(context, uri, sink, listener);
+        if (listener.isActive()) sink.flush();
+    }
+
     static void transcribe(Context context, Uri uri, Model model, Listener listener) throws Exception {
         if (!listener.isActive()) return;
         listener.status("LENDO ARQUIVO · ÁUDIO LOCAL");
@@ -329,14 +356,17 @@ final class AudioFileTranscriber {
 
     private static final class Sink {
         private final Recognizer recognizer;
+        private final PcmListener pcmReceiver;
         private final Listener listener;
         private int segments;
-        Sink(Recognizer rec, Listener listener) { recognizer = rec; this.listener = listener; }
-        void feed(byte[] pcm, int size) {
+        Sink(Recognizer rec, Listener listener) { recognizer = rec; pcmReceiver = null; this.listener = listener; }
+        Sink(PcmListener receiver, Listener listener) { recognizer = null; pcmReceiver = receiver; this.listener = listener; }
+        void feed(byte[] pcm, int size) throws Exception {
             if (!listener.isActive()) return;
-            if (recognizer.acceptWaveForm(pcm, size)) emit(recognizer.getResult());
+            if (pcmReceiver != null) pcmReceiver.accept(pcm, size);
+            else if (recognizer.acceptWaveForm(pcm, size)) emit(recognizer.getResult());
         }
-        void flush() { if (listener.isActive()) emit(recognizer.getFinalResult()); }
+        void flush() { if (listener.isActive() && recognizer != null) emit(recognizer.getFinalResult()); }
         private void emit(String json) {
             try {
                 String text = new JSONObject(json).optString("text", "").trim();
