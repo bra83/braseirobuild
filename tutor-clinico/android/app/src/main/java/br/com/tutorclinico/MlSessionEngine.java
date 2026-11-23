@@ -48,6 +48,7 @@ final class MlSessionEngine implements RecognitionListener {
 
     private synchronized void beginWhisperMicrophone(String modelName) {
         if(!wanted||destroyed)return;
+        final WhisperLiveEngine[] holder=new WhisperLiveEngine[1];
         final WhisperLiveEngine worker=new WhisperLiveEngine(activity.getApplicationContext(),
                 new WhisperLiveEngine.Listener() {
                     @Override public void state(String text) {
@@ -58,12 +59,13 @@ final class MlSessionEngine implements RecognitionListener {
                     }
                     @Override public void finished() {
                         synchronized(MlSessionEngine.this) {
-                            if(live==worker){live=null;wanted=false;}
+                            if(live==holder[0]){live=null;wanted=false;}
                         }
                         activity.runOnUiThread(() ->
                             activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
                     }
                 });
+        holder[0]=worker;
         live=worker;
         activity.runOnUiThread(() ->
                 activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
