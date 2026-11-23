@@ -79,4 +79,29 @@ test('ECO: nome do aplicativo e ícone de lançamento',()=>{
  assert.match(html,/data-theme="dark"/);
 });
 
+
+test('ECO v0.4 usa dashboard de escuta e atalhos reais',()=>{
+ js("act('nav','home')");
+ assert.match(js("homeScreen()"),/INICIAR SESSÃO/);
+ assert.match(js("homeScreen()"),/Memória|Últimos registros/);
+ js("act('nav','eco')");
+ assert.match(js("ecoHubScreen()"),/Selecionar caso/);
+});
+test('ECO v0.4 marcação, revisão e atlas sem áudio',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ assert.match(js("sessionScreen()"),/Captação e transcrição/);
+ js("act('ecoWorkspaceTab','marcar')");
+ assert.match(js("sessionScreen()"),/data-eco-tag/);
+ js("act('ecoWorkspaceTab','revisar')");
+ assert.match(js("sessionScreen()"),/data-field="mlRevisada"/);
+ js("act('ecoWorkspaceTab','ecos')");
+ assert.match(js("sessionScreen()"),/TF-IDF/);
+ js("act('nav','atlas')");
+ assert.match(js("ecoAtlasScreen()"),/Histórico das sessões/);
+});
+test('ECO v0.4 não inventa ecos quando não há evidência',()=>{
+ const p=js("ecoRank('nuvem azul jardim',[{date:'2026-11-10',text:'desenho vermelho fumaça madeira'}])");
+ assert.equal(p.length,0);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

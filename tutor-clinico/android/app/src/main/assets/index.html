@@ -1,5 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
-<title>ECO · Atlas da Escuta</title><style>
+<title>ECO — Atlas da Escuta</title><style>
 :root{--ink:#17312f;--muted:#63716f;--teal:#146b64;--light:#e8f2ed;--paper:#fff;--bg:#f4f7f5;--border:#dee7e2;--amber:#875a22;--danger:#ad4141;--radius:17px}*{box-sizing:border-box}
 body{font:15px/1.48 -apple-system,BlinkMacSystemFont,'Roboto','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);margin:0;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:10px 15px;font-weight:650}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #79b7ae;outline-offset:1px}
@@ -68,6 +68,63 @@ html[data-theme="dark"] .chip.warn{background:#49371d;color:#fbd49d}
 html[data-theme="dark"] .theme-toggle{background:#303637;border-color:#4b5450;color:#fff}
 html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:#a8b0ab}
 @media(max-width:380px){.top{padding:10px 9px}.brand{font-size:21px}.top-pill{display:none}.nav button{min-width:0}.eco-hero{padding:17px}}
+
+
+/* ECO 0.4: fluxo de escuta e auditoria de dados */
+:root{--eco-line:#d4ded8}
+.main-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:16px 0}
+.main-stat{border-radius:16px;border:1px solid var(--border);background:var(--paper);padding:14px 10px;min-width:0}
+.main-stat strong{display:block;font-size:25px;color:var(--ink);line-height:1.2}
+.main-stat span{font-size:11px;color:var(--muted)}
+.eco-welcome{padding:24px 19px;border-radius:23px;border:1px solid #405048;background:radial-gradient(circle at 83% 0%,#314a27 0%,#181c1a 62%);color:#fff;margin-bottom:15px}
+.eco-welcome h1{font-size:27px;color:#fff;line-height:1.13;margin:10px 0}
+.eco-welcome p{color:#d3dfd6;font-size:14px;line-height:1.55}
+.eco-welcome .eyebrow{color:#c3ff65}
+.eco-welcome .btn{display:block;min-height:53px;width:100%;font-size:16px;margin-top:13px}
+.eco-headrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.eco-headrow h2{margin:0}
+.eco-quickcases{display:grid;gap:10px}
+.eco-quickcase{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--border);border-radius:16px;background:var(--paper);padding:13px}
+.eco-quickcase strong{display:block}
+.eco-quickcase .btn{min-height:45px}
+.eco-workbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:12px 0 16px}
+.eco-workbar button{font-size:11px;min-width:0;padding:10px 3px;min-height:50px;background:var(--light);color:var(--ink);border:1px solid var(--border);border-radius:11px}
+.eco-workbar button.active{background:#baff4a;color:#152014;border-color:#a5ee37}
+.eco-status{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--paper);margin-bottom:12px}
+.eco-status strong{font-size:13px}
+.eco-status .eco-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#8c9490;margin-right:7px}
+.eco-status.capturing .eco-dot{background:#ff5d54;box-shadow:0 0 0 4px #ff5d5429}
+.eco-status .muted{font-size:12px}
+.eco-recorder{border:1px solid var(--border);padding:18px;border-radius:20px;background:var(--paper)}
+.eco-recorder .btn{width:100%;font-size:16px;min-height:58px;border-radius:14px}
+.eco-recorder .btn.danger{min-height:52px}
+.eco-recorder .choice{margin:12px 0}
+.eco-live{padding:13px;margin:12px 0;border-radius:14px;background:var(--bg);border:1px solid var(--border);min-height:75px;max-height:235px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.eco-tabswitch{margin:12px 0}
+.eco-taggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.eco-taggrid .choice{padding:11px 9px;min-height:45px;align-items:center}
+.eco-taggrid input{min-width:18px;min-height:18px}
+.eco-taggrid label{overflow-wrap:anywhere}
+.eco-caption{font-size:12px;color:var(--muted);line-height:1.55}
+.eco-steps{font-size:12px;margin:8px 0;color:var(--muted)}
+.eco-pill{display:inline-flex;padding:5px 9px;border-radius:99px;background:#dffbcd;color:#264421;font-size:11px;font-weight:750}
+.eco-evidence{padding:13px 14px;margin-top:10px;border:1px solid var(--border);background:var(--bg);border-radius:12px}
+.eco-evidence p{overflow-wrap:anywhere;white-space:pre-wrap}
+.eco-evidence small{color:var(--muted)}
+.eco-atlas-links{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.eco-outline{border:1px solid var(--border);background:var(--paper);border-radius:16px;padding:14px;margin:12px 0}
+.eco-outline h3{margin:0 0 7px}
+.eco-mutednote{border-left:3px solid #8abf39;padding-left:10px;font-size:12px;color:var(--muted);margin:8px 0}
+.eco-bottomsave{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:10px 0 10px}
+.eco-bottomsave .btn{min-height:45px}
+html[data-theme="dark"] .eco-welcome{background:radial-gradient(circle at 90% 0%,#24391e,#17191b 68%);border-color:#3b4b42}
+html[data-theme="dark"] .main-stat,html[data-theme="dark"] .eco-quickcase,html[data-theme="dark"] .eco-outline,html[data-theme="dark"] .eco-status,html[data-theme="dark"] .eco-recorder{background:#242729;border-color:#46504b}
+html[data-theme="dark"] .eco-workbar button{background:#2b3030;color:#f4f5f2;border-color:#4c5451}
+html[data-theme="dark"] .eco-workbar button.active{background:#baff4a;color:#11180f;border-color:#baff4a}
+html[data-theme="dark"] .eco-live,html[data-theme="dark"] .eco-evidence{background:#191c1d;border-color:#464d4a;color:#f9fbf8}
+html[data-theme="dark"] .eco-pill{background:#334b29;color:#d2ff9a}
+html[data-theme="dark"] .eco-caption{color:#c6d0ca}
+@media(max-width:355px){.main-stat{padding:10px 7px}.main-stat strong{font-size:20px}.eco-workbar button{font-size:10px}.eco-quickcase{display:block}.eco-quickcase .btn{width:100%;margin-top:9px}}
 
 </style></head><body><div class="top"><div class="brand"><span class="brand-mark" aria-hidden="true">◉</span> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
@@ -141,12 +198,12 @@ function makeCase(){return {id:uid(),criado:Date.now(),nome:'',idade:'',data:dat
 function render(){
  if(!state||errorLocked) return;
  const app=$('#app');
- const screens={home:homeScreen,eco:ecoHubScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
+ const screens={home:homeScreen,eco:ecoHubScreen,atlas:ecoAtlasScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
  app.innerHTML=(screens[screen]||homeScreen)();renderNav();
  window.scrollTo(0,0);
 }
 function renderNav(){
- const tabs=[['home','⌂','Início'],['eco','🎙','Gravar'],['cases','▤','Casos'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
+ const tabs=[['home','⌂','ECO'],['eco','●','Sessão'],['cases','▤','Casos'],['atlas','◎','Atlas'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
  $('#bottom').innerHTML=tabs.map(([id,ic,label])=>`<button type="button" data-act="nav" data-id="${id}" class="${screen===id||(id==='eco'&&screen==='session')||(id==='cases'&&['case','wizard'].includes(screen))||(id==='agenda'&&screen==='appointment')?'active':''}"><span class="symbol">${ic}</span>${label}</button>`).join('');
 }
 const head=(tag,title,desc='')=>`<div class="eyebrow">${esc(tag)}</div><h1>${esc(title)}</h1>${desc?`<p class="lead">${esc(desc)}</p>`:''}`;
@@ -508,4 +565,111 @@ act=function(name,id){
 };
 const ecoOldUnlock=window.appUnlock;
 window.appUnlock=function(){ecoOldUnlock();if(state?.mlDraft?.session&&state.cases.some(c=>c.id===state.mlDraft.caseId)){openedId=state.mlDraft.caseId;sessionDraft=state.mlDraft.session;screen="session";render()}};
+
+// ECO 0.4 — aplicação reestruturada em torno da sessão, mantendo os dados existentes.
+let ecoWorkspaceTab="captura",ecoOverviewCase=null;
+const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus);
+function ecoSummary(c){
+ const ss=Array.isArray(c.sessoes)?c.sessoes:[];
+ let mentions=0,dreams=0;
+ for(const s of ss){const tags=s.mlTags||[];mentions+=tags.length;if(tags.some(t=>/sonho|pesadelo|perseguição|lúcido|vívido/i.test(t)))dreams++}
+ return {sessions:ss.length,mentions,dreams};
+}
+function ecoLanding(){
+ const sessions=state.cases.reduce((n,c)=>n+(c.sessoes||[]).length,0);
+ const dreams=state.cases.reduce((n,c)=>n+ecoSummary(c).dreams,0);
+ const recent=[...state.cases].filter(c=>(c.sessoes||[]).length).sort((a,b)=>(b.sessoes.at(-1)?.data||"").localeCompare(a.sessoes.at(-1)?.data||"")).slice(0,3);
+ return '<section class="eco-welcome"><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Escutar primeiro.<br>Registrar com clareza.</h1><p>Gravação temporária e transcrição local por modelo treinado, com marcações rápidas e comparação de sessões documentadas.</p>'+btn('● INICIAR SESSÃO','nav','','data-id="eco"')+'</section>'+
+ '<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+sessions+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+dreams+'</strong><span>Sessões com sonhos marcados</span></div></div>'+
+ '<div class="eco-headrow"><h2>Acesso rápido</h2></div>'+
+ '<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+'</div>'+
+ '<div class="eco-outline"><h3>Últimos registros</h3>'+ (recent.length?recent.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+(c.sessoes||[]).length+' sessões registradas</span></div>'+btn('Abrir','openCase','secondary','data-id="'+esc(c.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma sessão salva. Crie um caso fictício para testar.</p>')+'</div>'+
+ '<p class="eco-caption">Protótipo experimental. Não utilize dados de pacientes reais até validação de segurança e adequação legal.</p>';
+}
+function ecoSessionEntry(){
+ const intro=head("Sessões / ECO","Iniciar escuta","Escolha um caso de teste. O ECO processa áudio temporariamente e salva apenas o texto revisável.");
+ if(!state.cases.length)return intro+'<div class="eco-welcome"><h2>Comece com um caso fictício</h2><p>Após o cadastro, você poderá acessar a gravação e as marcações em um toque.</p>'+btn("＋ CRIAR CASO FICTÍCIO","newCase","")+'</div>';
+ return intro+'<div class="eco-welcome"><div class="eyebrow">● RECONHECIMENTO DE VOZ OFFLINE</div><h2>Uma sessão. Quatro etapas.</h2><p>01 Captar · 02 Marcar · 03 Revisar · 04 Encontrar ecos</p></div>'+
+ '<div class="eco-headrow"><h2>Selecionar caso</h2>'+btn('＋ Novo caso','newCase','secondary')+'</div><div class="eco-quickcases">'+state.cases.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+ecoSummary(c).sessions+' sessões · '+esc(c.status||'Em andamento')+'</span></div>'+btn("● Começar","ecoOpen","","data-id='"+esc(c.id)+"'")+'</div>').join('')+'</div>'+
+ '<p class="eco-caption">Ao iniciar, confirme a simulação. Permissão de microfone é solicitada somente quando a captação começar.</p>';
+}
+function ecoWorkspace(){
+ const c=currentCase();if(!c)return '<div class="alert red">Caso não encontrado.</div>';
+ if(!sessionDraft)return '<div class="alert red">Rascunho não encontrado.</div>';
+ ecoEnsure();
+ const isEditing=!!editSessionId;
+ let out=head("ECO / sessão",isEditing?"Revisar sessão":"Escuta e registro",c.nome||"Caso sem apelido");
+ out+='<div id="ecoStatusBanner" class="eco-status'+(ecoIsCapturing()?' capturing':'')+'"><div><span class="eco-dot"></span><strong id="ecoState">'+esc(ecoStatus)+'</strong></div><span class="muted">Áudio não é armazenado</span></div>';
+ out+='<nav class="eco-workbar" aria-label="Etapas da sessão">'+[
+  ["captura","01","Captar"],["marcar","02","Marcar"],["revisar","03","Revisar"],["ecos","04","Ecos"]
+ ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
+ if(ecoWorkspaceTab==="captura"){
+  out+='<section class="eco-recorder"><h2>● Captação e transcrição</h2><p class="eco-caption">Modelo Vosk PT-BR offline. Reconhece palavras enquanto o microfone está ativo; não identifica quem falou. O texto pode conter erros.</p>';
+  out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
+  out+='<div class="stack">'+btn('● INICIAR CAPTAÇÃO','ecoStart','','aria-label="Iniciar microfone"')+btn('■ ENCERRAR MICROFONE','ecoStop','danger')+'</div>';
+  out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Aguardando fala. Inicie o microfone para testar.')+'</div>';
+  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">Somente o texto reconhecido é salvo no rascunho criptografado. Não existe arquivo de áudio desta sessão no ECO.</p></section>';
+ }else if(ecoWorkspaceTab==="marcar"){
+  const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
+  out+='<section class="eco-outline"><h2>Marcações da sessão</h2><p class="eco-caption">Escolha os temas citados, sem supor que outros temas estejam ausentes. Você também pode marcar durante a captação.</p>';
+  out+='<div class="tabs eco-tabswitch">'+ecoGroups.map(g=>btn(g[0],"ecoTagsCategory",g[0]===ecoCategory?"":"secondary",'data-id="'+esc(g[0])+'"')).join("")+'</div>';
+  out+='<div class="eco-taggrid">'+items.map(t=>'<label class="choice"><input type="checkbox" data-eco-tag="'+esc(t)+'" '+(sessionDraft.mlTags.includes(t)?'checked':'')+'>'+esc(t)+'</label>').join("")+'</div>';
+  out+='<div class="divider"></div><h3>Selecionados ('+sessionDraft.mlTags.length+')</h3>'+chips(sessionDraft.mlTags)+'</section>';
+ }else if(ecoWorkspaceTab==="revisar"){
+  out+='<div class="eco-outline"><h2>Revisar e concluir</h2><p class="eco-caption">Transcrição automática não é um prontuário validado. Corrija os trechos relevantes e registre o que foi observado.</p>';
+  out+=field('data','Data da sessão','date',{source:sessionDraft,required:true});
+  out+='<div class="actions">'+btn('Copiar transcrição para revisão','ecoCopy','secondary')+'</div>';
+  out+=field('mlRevisada','Transcrição corrigida','textarea',{source:sessionDraft,placeholder:'Revise o texto reconhecido pelo Vosk'});
+  out+=field('texto','Registro clínico / síntese','textarea',{source:sessionDraft,placeholder:'Relato factual e síntese profissional'});
+  out+=field('intervencoes','Intervenções / observações','textarea',{source:sessionDraft});
+  out+=field('plano','Pontos para acompanhar','textarea',{source:sessionDraft});
+  out+='<p class="eco-caption">Marcações registradas: '+esc(sessionDraft.mlTags.join(' · ')||'Nenhuma')+'</p></div>';
+ }else if(ecoWorkspaceTab==="ecos"){
+  out+='<div class="eco-outline"><h2>Ecos documentados</h2><p class="eco-caption">Busca estatística TF-IDF nos textos das sessões anteriores deste caso. Não é interpretação psicológica nem inferência diagnóstica.</p>';
+  out+='<div class="actions">'+btn('◎ PROCURAR RECORRÊNCIAS','ecoFind','')+'</div>';
+  if(ecoMatches.length)out+=ecoMatches.map(m=>'<div class="eco-evidence"><strong>'+esc(formatDate(m.date))+'</strong> <span class="eco-pill">'+(100*m.score).toFixed(0)+'% de similaridade textual</span><p>'+esc(m.text.slice(0,500))+'</p><small>Palavras em comum: '+esc(m.shared.join(', '))+' · Fonte: '+esc(m.origin)+'</small></div>').join('');
+  else out+='<p class="muted small">Execute a busca para comparar o registro atual às sessões anteriores. Sem resultados, não significa ausência de relações.</p>';
+  out+='</div>';
+ }
+ out+='<div class="eco-bottomsave">'+btn('Voltar ao caso','ecoBackCase','ghost')+btn(isEditing?'Salvar retificação':'Salvar sessão','ecoSave','')+'</div>';
+ return out;
+}
+function ecoAtlasScreen(){
+ const count=state.cases.reduce((s,c)=>s+(c.sessoes||[]).length,0);
+ let out=head("ECO / atlas","Memória das sessões","Recorrências documentadas — cada marcação remete a uma sessão, sem interpretação automatizada.");
+ out+='<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+count+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+state.cases.reduce((n,c)=>n+ecoSummary(c).mentions,0)+'</strong><span>Marcações</span></div></div>';
+ if(!state.cases.length)return out+'<div class="card empty">Crie um caso fictício para começar.</div>';
+ out+='<div class="field"><label for="ecoAtlasCase">Escolher caso</label><select id="ecoAtlasCase" data-eco-atlas-case>'+state.cases.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===(ecoOverviewCase||state.cases[0].id)?'selected':'')+'>'+caseName(c)+'</option>').join('')+'</select></div>';
+ const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=c.sessoes||[];
+ const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
+ const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
+ out+='<div class="eco-outline"><h2>Temas registrados</h2>'+ (frequent.length?frequent.map(([k,n])=>'<span class="chip">'+esc(k)+' · '+n+'</span>').join(''):'<p class="muted">Ainda não existem marcações.</p>')+'<p class="eco-caption">Contagens de marcações manuais, não de sintomas confirmados.</p></div>';
+ out+='<div class="eco-outline"><h2>Histórico das sessões</h2>'+ (ss.length?[...ss].sort((a,b)=>(b.data||'').localeCompare(a.data||'')).map(s=>'<div class="eco-evidence"><strong>'+esc(formatDate(s.data))+'</strong> <span class="eco-pill">'+(s.mlSegments?.length||0)+' trechos de áudio transcritos</span><p>'+esc((s.mlRevisada||s.texto||s.mlTranscricao||"Sem resumo").slice(0,270))+'</p><small>'+esc((s.mlTags||[]).slice(0,9).join(' · '))+'</small></div>').join(''):'<p class="muted">Nenhuma sessão registrada.</p>')+'</div>';
+ return out;
+}
+const ecoRenderBase=render;
+homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
+const ecoActBase=act;
+act=function(name,id){
+ if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
+ if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
+ if(name==="ecoSave"){if(ecoIsCapturing()){notify("Encerre a captação antes de salvar.",'red');return;}return ecoActBase("saveSession")}
+ if(name==="ecoBackCase"){if(ecoIsCapturing()){notify("Encerre a captação antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
+ const previous=screen;
+ const result=ecoActBase(name,id);
+ if(name==="ecoOpen"||name==="newSession"||name==="editSession"){ecoWorkspaceTab="captura";render()}
+ if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
+ return result;
+};
+document.addEventListener("change",e=>{
+ if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
+});
+const ecoPriorDisplay=ecoDisplay;
+ecoDisplay=function(){
+ ecoPriorDisplay();
+ const banner=document.querySelector("#ecoStatusBanner");
+ if(banner&&banner.classList){banner.classList.toggle("capturing",ecoIsCapturing())}
+};
+
 </script></body></html>
