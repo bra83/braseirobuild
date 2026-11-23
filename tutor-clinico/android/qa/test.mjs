@@ -350,7 +350,8 @@ test('ECO G3 captura: AudioRecord em uma thread, grava WAV, encerra e depois tra
  assert.match(engine,/resumeTranscription\(\)/);
  assert.match(engine,/discardRemainingAudio\(\)/);
  assert.match(main,/ml\.onHostPause\(\)/);
- assert.doesNotMatch(main,/onPause\(\).*ml\.stop\(\)/s);
+ const pausedLifecycle=main.slice(main.indexOf("onPause()"),main.indexOf("onResume()",main.indexOf("onPause()")));
+ assert.doesNotMatch(pausedLifecycle,/ml\.stop\(\)/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
  const view=js("sessionScreen()");
  assert.match(view,/INICIAR GRAVAÇÃO LOCAL/);
@@ -432,6 +433,19 @@ test('ECO captação e importação bloqueiam ações enquanto motores realmente
 });
 
 
+test('ECO não permite mudar de caso/importar outro arquivo durante áudio pausado',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ js('ecoConsent=true;ecoStatus="PAUSADO · 25s PROCESSADOS"');
+ const before=js('screen');
+ js('act("nav","atlas")');
+ assert.equal(js('screen'),before);
+ context.filePickerCalled=false;
+ context.window.NativeVault.selectAudioFileWithModel=()=>{context.filePickerCalled=true};
+ js('act("ecoImportFile")');
+ assert.equal(context.filePickerCalled,false);
+ js('window.nativeMlState("GRAVAÇÃO FINALIZADA · INICIANDO WHISPER")');
+ assert.equal(js('ecoIsCapturing()'),true);
+});
 test('ECO gravação e transcrição têm pausas e conclusão parcial distintas',()=>{
  const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
  const whisper=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');

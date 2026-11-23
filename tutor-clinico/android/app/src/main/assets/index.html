@@ -870,7 +870,7 @@ function ecoSegmentReview(){
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
-const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO|PAUSANDO|CANCELANDO|INICIANDO TRANSCRIÇÃO|RETOMANDO TRANSCRIÇÃO)/.test(ecoStatus);
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO|GRAVAÇÃO FINALIZADA|APP EM SEGUNDO PLANO|ENCERRANDO|PAUSANDO|CANCELANDO|INICIANDO TRANSCRIÇÃO|RETOMANDO TRANSCRIÇÃO)/.test(ecoStatus);
 const ecoIsRecording=()=>/^GRAVANDO|^FINALIZANDO GRAVAÇÃO|^APP EM SEGUNDO PLANO/.test(ecoStatus);
 const ecoIsPaused=()=>/^PAUSADO|^FALHA NA TRANSCRIÇÃO/.test(ecoStatus);
 const ecoIsTranscribing=()=>ecoIsCapturing()&&!ecoIsRecording();
@@ -1081,10 +1081,11 @@ act=function(name,id){
   if(!ok)return;
   draft=null;ecoActBase("ecoOpen",c.id);ecoWorkspaceTab="captura";render();return;
  }
- if(ecoIsCapturing() && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
+ if((ecoIsCapturing()||ecoIsPaused()) && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
   notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
  }
  if(name==="ecoImportFile"){
+  if(ecoIsPaused()){notify("Conclua ou descarte o áudio pausado antes de importar outro.",'red');return}
   if(!ecoConsent){notify("Confirme a declaração antes da importação.",'red');return}
   if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
   if(!window.NativeVault.selectAudioFile && !window.NativeVault.selectAudioFileWithModel){notify("Importação disponível apenas no APK Android.",'red');return}
