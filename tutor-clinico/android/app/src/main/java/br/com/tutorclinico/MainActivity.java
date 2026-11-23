@@ -51,6 +51,8 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         store = new SecureStore(this);
+        // Remove ephemeral audio if Android previously terminated the process.
+        WhisperFileEngine.cleanupAbandonedAudio(this);
         ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
