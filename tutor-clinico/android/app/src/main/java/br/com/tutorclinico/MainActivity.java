@@ -56,6 +56,7 @@ public final class MainActivity extends Activity {
         // Remove ephemeral audio if Android previously terminated the process.
         WhisperFileEngine.cleanupAbandonedAudio(this);
         WhisperLiveEngine.clearStaleFiles(this);
+        SessionRecorder.cleanAbandoned(this);
         ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
@@ -153,7 +154,13 @@ public final class MainActivity extends Activity {
         }));
         dialog.show();
     }
-    @Override protected void onPause() { if(ml!=null)ml.stop(); backgroundAt = System.currentTimeMillis(); super.onPause(); }
+    @Override protected void onPause() {
+        // A system file picker, permissions dialog or app switch invokes onPause.
+        // Do not cancel a Whisper decoder or release a microphone from the UI thread.
+        if(ml!=null)ml.onHostPause();
+        backgroundAt = System.currentTimeMillis();
+        super.onPause();
+    }
     @Override protected void onResume() {
         super.onResume();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
@@ -227,6 +234,9 @@ public final class MainActivity extends Activity {
             main.post(()->beginCapture());
         }
         @JavascriptInterface public void stopMlCapture(){main.post(()->ml.stop());}
+        @JavascriptInterface public void pauseMlTranscription(){main.post(()->ml.pauseTranscription());}
+        @JavascriptInterface public void resumeMlTranscription(){main.post(()->ml.resumeTranscription());}
+        @JavascriptInterface public void discardMlAudio(){main.post(()->ml.discardRemainingAudio());}
 
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
