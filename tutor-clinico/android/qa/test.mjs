@@ -498,4 +498,17 @@ test('ECO NLP factual eventos extrai verbo, referencia temporal, familia e negac
  assert.ok(js('ecoEventCurrent({...structured,mlEvents:[]},{status:"confirmado",quote:"Ontem sonhei com minha mãe."})'));
 });
 
+
+test('ECO Android background não grava escondido e preserva áudio para retomada',()=>{
+ const java=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(java,/deferRecognitionUntilResume=true/);
+ assert.match(java,/onHostPause\(\)/);
+ assert.match(java,/else if\(importing && !pauseRequested\)/);
+ assert.match(java,/PAUSADO · GRAVAÇÃO LOCAL FINALIZADA/);
+ assert.match(java,/deferRecognitionUntilResume=false/);
+ assert.match(main,/audioCleanedThisProcess\.compareAndSet\(false,true\)/);
+ assert.match(main,/ml\.onHostPause\(\)/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
