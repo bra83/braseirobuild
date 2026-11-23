@@ -134,7 +134,7 @@ test('ECO v0.5 arquivo SAF stream / decodificação local / sem upload',()=>{
  const decoding=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/AudioFileTranscriber.java',import.meta.url),'utf8');
  assert.match(native,/Intent\.ACTION_OPEN_DOCUMENT/);
  assert.match(native,/intent\.setType\("audio\/\*"\)/);
- assert.match(native,/ml\.importFile\(uri\)/);
+ assert.match(native,/ml\.importFile\(uri,selectedAsrModel\)/);
  assert.match(native,/AUDIO_FILE_CODE/);
  assert.match(ml,/WhisperFileEngine\.transcribe/);
  assert.match(decoding,/MediaExtractor/);
@@ -188,7 +188,7 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(app,/whisper-android:1.0.0/);
  assert.match(wf,/ggml-base.bin/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/Whisper Base offline/);
+ assert.match(js("sessionScreen()"),/Whisper offline/);
 });
 
 test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
