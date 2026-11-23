@@ -145,4 +145,29 @@ test('ECO v0.5 arquivo SAF stream / decodificação local / sem upload',()=>{
  assert.doesNotMatch(decoding,/new FileOutputStream|createTempFile|File\.createTempFile|upload|HttpURLConnection/);
 });
 
+
+test('Fluxo ECO permite começar sem sintomas, idade, intensidade ou tempo da queixa',()=>{
+ const count=js('state.cases.length');
+ js("act('nav','eco');act('ecoQuickTest')");
+ assert.equal(js('state.cases.length'),count+1);
+ assert.equal(js('screen'),'session');
+ assert.equal(js('sessionDraft.data!==""'),true);
+ assert.equal(js('currentCase().queixas.length'),0);
+ assert.equal(js('currentCase().intensidade'),'');
+ assert.equal(js('currentCase().desde'),'');
+ assert.match(js('sessionScreen()'),/INICIAR CAPTAÇÃO/);
+});
+test('Cadastro de caso não exige seleção prévia de temas',()=>{
+ js("act('newCase');draft.nome='ECO-CASE-TEST';act('wizardNext')");
+ assert.equal(js('wizardStep'),1);
+ assert.equal(js('validateWizard()'),true);
+ assert.equal(js('draft.queixas.length'),0);
+});
+test('Cadastro rápido abre sessão após apenas um código',()=>{
+ js("act('newCase');draft.nome='PAC-004';act('ecoSaveCaseStart')");
+ assert.equal(js('screen'),'session');
+ assert.equal(js('currentCase().nome'),'PAC-004');
+ assert.equal(js('currentCase().queixas.length'),0);
+ assert.equal(js('ecoWorkspaceTab'),'captura');
+});
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

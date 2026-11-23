@@ -197,7 +197,7 @@ function notify(text,kind='blue'){
  target.prepend(box);setTimeout(()=>box.remove(),5500);
 }
 function currentCase(){return state.cases.find(c=>c.id===openedId);}
-function makeCase(){return {id:uid(),criado:Date.now(),nome:'',idade:'',data:datestr(),modalidade:'Presencial',queixas:[],queixaTexto:'',intensidade:5,desde:'',gatilhos:'',familia:'',relacoes:'',recursos:'',sonhos:'',obs:'',alertas:[],sessoes:[],status:'Em andamento',atualizadoEm:new Date().toISOString()};}
+function makeCase(){return {id:uid(),criado:Date.now(),nome:'',idade:'',data:datestr(),modalidade:'Presencial',queixas:[],queixaTexto:'',intensidade:'',desde:'',gatilhos:'',familia:'',relacoes:'',recursos:'',sonhos:'',obs:'',alertas:[],sessoes:[],status:'Em andamento',atualizadoEm:new Date().toISOString()};}
 function render(){
  if(!state||errorLocked) return;
  const app=$('#app');
@@ -255,10 +255,10 @@ function field(k,label,type='text',opts={}){
 }
 function wizardScreen(){if(!draft)draft=makeCase();let content='';
  if(wizardStep===0)content=`${field('nome','Apelido ou iniciais *','text',{required:true,placeholder:'Ex.: M. R.'})}<div class="split">${field('idade','Idade','number',{min:0,max:120})}${field('data','Data do primeiro atendimento','date')}</div>${field('modalidade','Modalidade','select',{values:['Presencial','Online','Estudo de caso']})}<p class="notice">Evite nomes completos e dados identificáveis que não sejam necessários.</p>`;
- if(wizardStep===1)content=`<h3>Temas da queixa *</h3><div class="checklist">${topics.map((name,i)=>`<label class="choice"><input type="checkbox" data-choice="queixas" value="${topicCodes[i]}" ${draft.queixas.includes(topicCodes[i])?'checked':''}>${name}</label>`).join('')}</div>${field('queixaTexto','Queixa nas palavras da pessoa','textarea')}${field('intensidade','Intensidade percebida (1–10)','number',{min:1,max:10})}${field('desde','Desde quando?','select',{values:['','Há poucas semanas','Há alguns meses','Há mais de um ano','Desde a infância']})}`;
+ if(wizardStep===1)content=`<h3>Temas da queixa (opcional)</h3><p class="muted small">Não antecipe sintomas: preencha somente depois que surgirem na escuta.</p><div class="checklist">${topics.map((name,i)=>`<label class="choice"><input type="checkbox" data-choice="queixas" value="${topicCodes[i]}" ${draft.queixas.includes(topicCodes[i])?'checked':''}>${name}</label>`).join('')}</div>${field('queixaTexto','Queixa nas palavras da pessoa','textarea')}${field('intensidade','Intensidade mencionada (opcional, 1–10)','number',{min:1,max:10})}${field('desde','Desde quando? (opcional)','select',{values:['','Há poucas semanas','Há alguns meses','Há mais de um ano','Desde a infância']})}`;
  if(wizardStep===2)content=`${field('gatilhos','Situações que intensificam a queixa','textarea')}${field('familia','Família e história de vida','textarea')}${field('relacoes','Relacionamentos atuais','textarea')}${field('recursos','Rede de apoio e recursos','textarea')}${field('sonhos','Sonhos, lapsos e repetições','textarea')}${field('obs','Observações profissionais','textarea')}`;
  if(wizardStep===3)content=`<p class="lead">Marque apenas quando relevante. O aplicativo não faz avaliação de risco.</p><div class="stack">${alerts.map(([code,label])=>`<label class="choice"><input type="checkbox" data-choice="alertas" value="${code}" ${draft.alertas.includes(code)?'checked':''}>${esc(label)}</label>`).join('')}</div><div class="alert">Diante de situações urgentes, siga protocolos e encaminhamentos apropriados. O aplicativo não substitui avaliação clínica.</div>`;
- return `${head(draft._isEditing?'Editar caso':'Novo caso',draft._isEditing?draft.nome:'Cadastrar caso','Etapa '+(wizardStep+1)+' de 4 · Informações sob seu controle.')}<div class="steps">${[0,1,2,3].map(x=>`<i class="${x<=wizardStep?'done':''}"></i>`).join('')}</div><div class="card">${content}</div><div class="actions">${btn('Cancelar','cancelWizard','ghost')}${wizardStep>0?btn('Voltar','wizardBack','secondary'):''}${btn(wizardStep===3?'Salvar caso':'Continuar',wizardStep===3?'saveCase':'wizardNext','')}</div>`;
+ return `${head(draft._isEditing?'Editar caso':'Novo caso',draft._isEditing?draft.nome:'Cadastrar caso','Etapa '+(wizardStep+1)+' de 4 · Informações sob seu controle.')}<div class="steps">${[0,1,2,3].map(x=>`<i class="${x<=wizardStep?'done':''}"></i>`).join('')}</div><div class="card">${content}</div><div class="actions">${btn('Cancelar','cancelWizard','ghost')}${wizardStep===0&&!draft._isEditing?btn('Salvar e abrir sessão','ecoSaveCaseStart',''):''}${wizardStep>0?btn('Voltar','wizardBack','secondary'):''}${btn(wizardStep===3?'Salvar caso':'Continuar',wizardStep===3?'saveCase':'wizardNext','')}</div>`;
 }
 function sessionScreen(){const c=currentCase();if(!c)return 'Caso não encontrado';const s=sessionDraft||{};
  return `${head('Prontuário',editSessionId?'Retificar sessão':'Registrar sessão',c.nome)}${editSessionId?'<div class="alert">A correção preservará a versão anterior, a data da alteração e o conteúdo original.</div>':''}<div class="card">${field('data','Data clínica *','date',{source:s,required:true})}${field('texto','Relato da sessão *','textarea',{source:s,required:true,placeholder:'Descrição objetiva e pertinente'})}${field('intervencoes','Intervenções / observações profissionais','textarea',{source:s})}${field('plano','Pontos a acompanhar','textarea',{source:s})}</div>${editSessionId?renderRevisions(c.sessoes.find(x=>x.id===editSessionId)):''}<div class="actions">${btn('Cancelar','openCase','ghost',`data-id="${esc(c.id)}"`)}${btn(editSessionId?'Registrar retificação':'Salvar sessão','saveSession','')}</div>`;
@@ -287,8 +287,11 @@ function validateWizard(){
  if(wizardStep===0){if(!draft.nome.trim()){notify('Informe um apelido.','red');return false;}
   if(draft.idade!==''&&(!/^\d+$/.test(String(draft.idade))||Number(draft.idade)>120)){notify('Idade: valor inválido.','red');return false;}
   if(!validDate(draft.data)){notify('Data do primeiro atendimento inválida.','red');return false;}}
- if(wizardStep===1){if(!draft.queixas.length){notify('Marque pelo menos um tema.','red');return false;}
-  if(Number(draft.intensidade)<1||Number(draft.intensidade)>10){notify('Intensidade deve estar entre 1 e 10.','red');return false;}}
+ if(wizardStep===1&&String(draft.intensidade).trim()!==''){
+  if(!Number.isFinite(Number(draft.intensidade))||Number(draft.intensidade)<1||Number(draft.intensidade)>10){
+   notify('Intensidade informada: use um valor de 1 a 10.','red');return false;
+  }
+ }
  return true;
 }
 function newSessionDraft(){return {id:uid(),data:datestr(),texto:'',intervencoes:'',plano:'',criadoEm:new Date().toISOString(),revisoes:[]};}
@@ -594,9 +597,9 @@ function ecoLanding(){
 }
 function ecoSessionEntry(){
  const intro=head("Sessões / ECO","Iniciar escuta","Escolha um caso de teste. O ECO processa áudio temporariamente e salva apenas o texto revisável.");
- if(!state.cases.length)return intro+'<div class="eco-welcome"><h2>Comece com um caso fictício</h2><p>Após o cadastro, você poderá acessar a gravação e as marcações em um toque.</p>'+btn("＋ CRIAR CASO FICTÍCIO","newCase","")+'</div>';
+ if(!state.cases.length)return intro+'<div class="eco-welcome"><h2>Comece a testar sem preencher fichas</h2><p>O ECO gera um código fictício e abre a captação. Sintomas, tempo de queixa e história de vida ficam para depois.</p>'+btn("● CRIAR TESTE E ABRIR CAPTAÇÃO","ecoQuickTest","")+'</div><div class="actions">'+btn("Criar caso por código ou apelido","newCase","secondary")+'</div>';
  return intro+'<div class="eco-welcome"><div class="eyebrow">● RECONHECIMENTO DE VOZ OFFLINE</div><h2>Uma sessão. Quatro etapas.</h2><p>01 Captar · 02 Marcar · 03 Revisar · 04 Encontrar ecos</p></div>'+
- '<div class="eco-headrow"><h2>Selecionar caso</h2>'+btn('＋ Novo caso','newCase','secondary')+'</div><div class="eco-quickcases">'+state.cases.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+ecoSummary(c).sessions+' sessões · '+esc(c.status||'Em andamento')+'</span></div>'+btn("● Começar","ecoOpen","","data-id='"+esc(c.id)+"'")+'</div>').join('')+'</div>'+
+ '<div class="eco-headrow"><h2>Selecionar caso</h2>'+btn('＋ Novo caso','newCase','secondary')+'</div><div class="actions">'+btn("● Teste rápido sem preencher ficha","ecoQuickTest","secondary")+'</div><div class="eco-quickcases">'+state.cases.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+ecoSummary(c).sessions+' sessões · '+esc(c.status||'Em andamento')+'</span></div>'+btn("● Começar","ecoOpen","","data-id='"+esc(c.id)+"'")+'</div>').join('')+'</div>'+
  '<p class="eco-caption">Ao iniciar, confirme a simulação. Permissão de microfone é solicitada somente quando a captação começar.</p>';
 }
 function ecoWorkspace(){
@@ -658,6 +661,25 @@ const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
 const ecoActBase=act;
 act=function(name,id){
+ if(name==="ecoQuickTest"){
+  if(ecoIsCapturing()){notify("Encerre a captação antes de iniciar outra.",'red');return;}
+  const c=makeCase();
+  c.nome="ECO-TESTE-"+Math.random().toString(36).slice(2,8).toUpperCase();
+  c.modalidade="Estudo de caso";
+  c.queixas=[];c.intensidade="";c.desde="";
+  const ok=change(()=>state.cases.push(c));
+  if(!ok)return;
+  ecoActBase("ecoOpen",c.id);
+  ecoWorkspaceTab="captura";render();return;
+ }
+ if(name==="ecoSaveCaseStart"){
+  if(!draft||!draft.nome?.trim()){notify("Informe apenas o código ou apelido.",'red');return;}
+  if(wizardStep!==0||!validateWizard())return;
+  const c=JSON.parse(JSON.stringify(draft));delete c._isEditing;
+  const ok=change(()=>{c.atualizadoEm=new Date().toISOString();state.cases.push(c)});
+  if(!ok)return;
+  draft=null;ecoActBase("ecoOpen",c.id);ecoWorkspaceTab="captura";render();return;
+ }
  if(ecoIsCapturing() && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
   notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
  }
