@@ -399,4 +399,19 @@ test('ECO G4 Atlas identifica recorrência confirmada sem inferir causalidade',(
  assert.equal(rec[0].label,'mãe');
 });
 
+
+test('ECO G2 taxa WER calcula exato, omissao, insercao, negacao e acentos',()=>{
+ const t=js('ecoCalculateWer("Minha mãe estava em casa.","Minha mãe estava em casa.")');
+ assert.equal(t.distance,0);assert.equal(t.wer,0);
+ const neg=js('ecoCalculateWer("Eu não tenho medo","Eu tenho medo")');
+ assert.equal(neg.distance,1);assert.equal(neg.referenceWords,4);
+ assert.equal(neg.wer,.25);
+ const ins=js('ecoCalculateWer("Eu sonhei", "Eu sonhei de novo")');
+ assert.equal(ins.distance,2);assert.equal(ins.wer,1);
+ assert.throws(()=>js('ecoCalculateWer("","teste")'),/referência verificada/);
+ js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','revisar')");
+ assert.match(js('sessionScreen()'),/Teste objetivo da precisão/);
+ assert.match(js('sessionScreen()'),/ecoBenchmark/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

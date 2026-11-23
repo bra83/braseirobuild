@@ -678,6 +678,34 @@ function ecoExtractEvidence(text,sessionId="rascunho"){
  }
  return out.slice(0,250);
 }
+
+/**
+ * Deterministic WER (word error rate). No external model or network.
+ * Compare only with a human-verified reference; never use a hypothesis as its own target.
+ * Complexity O(referenceWords*hypothesisWords), O(hypothesisWords) memory.
+ */
+function ecoWordTokens(source){
+ return String(source||"").toLocaleLowerCase("pt-BR").normalize("NFC")
+   .replace(/[^\p{L}\p{N}]+/gu," ").trim().split(/\s+/u).filter(Boolean);
+}
+function ecoCalculateWer(reference,hypothesis){
+ const expected=ecoWordTokens(reference),actual=ecoWordTokens(hypothesis);
+ if(!expected.length)throw Error("Cole uma transcrição de referência verificada.");
+ if(expected.length>5000||actual.length>5000)
+   throw Error("Teste WER limitado a cinco mil palavras por texto para evitar travamentos.");
+ let prev=Array.from({length:actual.length+1},(_,i)=>i);
+ for(let i=1;i<=expected.length;i++){
+  const row=new Array(actual.length+1);row[0]=i;
+  for(let j=1;j<=actual.length;j++){
+   const sub=prev[j-1]+(expected[i-1]===actual[j-1]?0:1);
+   row[j]=Math.min(prev[j]+1,row[j-1]+1,sub);
+  }
+  prev=row;
+ }
+ return {distance:prev[actual.length],referenceWords:expected.length,
+  recognizedWords:actual.length,wer:prev[actual.length]/expected.length};
+}
+
 function ecoEvidenceCurrent(session,evidence){
  if(!session || !evidence || evidence.status!=="confirmado")return false;
  const source=String(session.mlRevisada?.trim()||session.mlTranscricao||"");
@@ -757,6 +785,7 @@ const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
 const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO|WHISPER|MICROFONE|FINALIZANDO)/.test(ecoStatus);
 let ecoAudioSource="microfone",ecoChosenAsr="small",ecoChosenMic="whisper-base";
+let ecoReferenceText="",ecoBenchmarkResult=null;
 let ecoConsentKind="simulacao",ecoConsentReference="";
 function ecoDocumentConsent(){
  if(!sessionDraft)return false;
@@ -839,6 +868,13 @@ function ecoWorkspace(){
   out+=field('plano','Pontos para acompanhar','textarea',{source:sessionDraft});
   out+='<p class="eco-caption">Marcações registradas: '+esc(sessionDraft.mlTags.join(' · ')||'Nenhuma')+'</p></div>';
   out+=ecoSegmentReview();out+=ecoEvidencePanel();
+  out+='<section class="eco-outline"><h3>Teste objetivo da precisão — somente material fictício</h3>'+
+    '<p class="eco-caption">Compare o resultado automático com uma transcrição humana de referência do MESMO áudio. O WER mede substituições, omissões e inserções por palavra; não mede segurança ou qualidade clínica. O texto de referência fica apenas na tela e não é salvo.</p>'+
+    '<textarea rows="5" data-eco-reference placeholder="Cole aqui a transcrição CORRETA do áudio de teste...">'+esc(ecoReferenceText)+'</textarea>'+
+    '<div class="actions">'+btn("Medir erros da transcrição (WER)","ecoBenchmark","secondary")+'</div>'+
+    (ecoBenchmarkResult?'<p class="eco-evidence"><strong>WER: '+ecoBenchmarkResult.wer.toFixed(1)+'%</strong> · '+ecoBenchmarkResult.distance+
+      ' operações em '+ecoBenchmarkResult.referenceWords+' palavras de referência. Resultado automático: '+ecoBenchmarkResult.recognizedWords+' palavras.</p>':'')+
+    '</section>';
  }else if(ecoWorkspaceTab==="ecos"){
   out+='<div class="eco-outline"><h2>Ecos documentados</h2><p class="eco-caption">Busca estatística TF-IDF nos textos das sessões anteriores deste caso. Não é interpretação psicológica nem inferência diagnóstica.</p>';
   out+='<div class="actions">'+btn('◎ PROCURAR RECORRÊNCIAS','ecoFind','')+'</div>';
@@ -916,6 +952,15 @@ act=function(name,id){
  }
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
+ if(name==="ecoBenchmark"){
+   try{
+     if(!sessionDraft?.mlTranscricao?.trim())throw Error("Ainda não existe transcrição automática.");
+     const val=ecoCalculateWer(ecoReferenceText,sessionDraft.mlTranscricao);
+     ecoBenchmarkResult={...val,wer:Math.round(val.wer*1000)/10};
+     render();
+   }catch(e){ecoBenchmarkResult=null;notify("Não foi possível medir: "+e.message,'red')}
+   return;
+ }
  if(name==="ecoRemoveEvidence"){
    ecoEnsure();
    const before=JSON.stringify(sessionDraft.mlEvidence);
@@ -945,12 +990,15 @@ act=function(name,id){
  }
  const previous=screen;
  const result=ecoActBase(name,id);
- if(name==="ecoOpen"||name==="newSession"||name==="editSession"){ecoWorkspaceTab="captura";render()}
+ if(name==="ecoOpen"||name==="newSession"||name==="editSession"){
+   ecoWorkspaceTab="captura";ecoReferenceText="";ecoBenchmarkResult=null;render();
+ }
  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
  return result;
 };
 document.addEventListener("input",e=>{
  if(e.target?.dataset?.ecoConsentReference!==undefined)ecoConsentReference=e.target.value||"";
+ if(e.target?.dataset?.ecoReference!==undefined){ecoReferenceText=e.target.value||"";ecoBenchmarkResult=null;}
 });
 document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=e.target.value==="base"?"base":"small"}
