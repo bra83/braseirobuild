@@ -92,6 +92,52 @@ final class SecureStore {
         }
     }
 
+    /**
+     * Small independently encrypted autosave journal. Saves do NOT rewrite vault.aes.
+     * JSON contains {caseId,session}; the Android Keystore key never leaves device.
+     */
+    synchronized void saveDraft(String json) throws Exception {
+        JSONObject obj = new JSONObject(json);
+        if (obj.optString("caseId").trim().isEmpty() || !(obj.opt("session") instanceof JSONObject))
+            throw new IllegalArgumentException("Rascunho inválido");
+        if (json.length() > 1_000_000) throw new IllegalArgumentException("Rascunho acima do limite");
+        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, deviceKey());
+        byte[] iv=cipher.getIV();
+        byte[] encoded=cipher.doFinal(json.getBytes(StandardCharsets.UTF_8));
+        AtomicFile file=new AtomicFile(new File(context.getFilesDir(),"draft.aes"));
+        FileOutputStream out=null;
+        try {
+            out=file.startWrite();
+            out.write(iv);out.write(encoded);
+            file.finishWrite(out);
+        }catch(Exception e){if(out!=null)file.failWrite(out);throw e;}
+    }
+
+    synchronized String readDraft() throws Exception {
+        AtomicFile file=new AtomicFile(new File(context.getFilesDir(),"draft.aes"));
+        if(!file.getBaseFile().exists()&&!new File(context.getFilesDir(),"draft.aes.bak").exists())return "";
+        try(FileInputStream in=file.openRead()){
+            ByteArrayOutputStream buf=new ByteArrayOutputStream();
+            byte[] bytes=new byte[8192];int n;
+            while((n=in.read(bytes))!=-1){
+                if(buf.size()+n>2_000_000)throw new IllegalArgumentException("Rascunho muito grande");
+                buf.write(bytes,0,n);
+            }
+            byte[] enc=buf.toByteArray();
+            if(enc.length<30)throw new SecurityException("Rascunho cifrado inválido");
+            Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE,deviceKey(),new GCMParameterSpec(128,Arrays.copyOfRange(enc,0,12)));
+            return new String(cipher.doFinal(Arrays.copyOfRange(enc,12,enc.length)),StandardCharsets.UTF_8);
+        }
+    }
+
+    synchronized void clearDraft() {
+        new File(context.getFilesDir(),"draft.aes").delete();
+        new File(context.getFilesDir(),"draft.aes.bak").delete();
+        new File(context.getFilesDir(),"draft.aes.new").delete();
+    }
+
     static String hashPin(String pin, String saltBase64) throws Exception {
         byte[] salt = Base64.decode(saltBase64, Base64.NO_WRAP);
         PBEKeySpec spec = new PBEKeySpec(pin.toCharArray(), salt, 180000, 256);

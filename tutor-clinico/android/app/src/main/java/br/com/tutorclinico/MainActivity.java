@@ -213,9 +213,32 @@ public final class MainActivity extends Activity {
             try { store.save(json); return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
+        @JavascriptInterface public String saveDraft(String json) {
+            if(!unlocked)return "Bloqueado";
+            try{store.saveDraft(json);return "OK";}
+            catch(Exception e){return "ERRO: "+e.getMessage();}
+        }
+        @JavascriptInterface public String loadDraft() {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.readDraft();}
+            catch(Exception e){return "{\"__loadError\":\"Rascunho cifrado não pode ser lido. Não desinstale o ECO.\"}";}
+        }
+        @JavascriptInterface public void clearDraft() {
+            if(!unlocked)return;
+            store.clearDraft();
+        }
+
         @JavascriptInterface public void exportBackup(String password) {
             if (!unlocked) return;
-            try { pendingExport = SecureStore.encryptBackup(store.read(), password); }
+            try {
+                JSONObject export=new JSONObject(store.read());
+                String draft=store.readDraft();
+                if(!draft.isEmpty()){
+                    JSONObject journal=new JSONObject(draft);
+                    if(!journal.has("__loadError"))export.put("mlDraft",journal);
+                }
+                pendingExport = SecureStore.encryptBackup(export.toString(), password);
+            }
             catch (Exception e) { showToast("Erro no backup: " + e.getMessage()); return; }
             main.post(() -> {
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);

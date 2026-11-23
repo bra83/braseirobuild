@@ -180,6 +180,14 @@ function appUnlock(){
  try {
    const raw=window.NativeVault.loadState(); const data=JSON.parse(raw);
    if(data.__loadError) throw new Error(data.__loadError);
+   if(window.NativeVault.loadDraft){
+     const draftText=window.NativeVault.loadDraft();
+     if(draftText){
+       const journal=JSON.parse(draftText);
+       if(journal.__loadError)throw Error(journal.__loadError);
+       if(journal.caseId&&journal.session)data.mlDraft=journal;
+     }
+   }
    if(data.version!==1||!Array.isArray(data.cases)||!Array.isArray(data.appointments)) throw new Error('Esquema não reconhecido');
    state=data;errorLocked=false;render();
  } catch(e){errorLocked=true;$('#app').innerHTML='<div class="alert red"><strong>Dados não abertos</strong><p>'+esc(e.message)+'</p><p>Não crie registros novos nem reinstale o app antes de avaliar a recuperação.</p></div>';$('#bottom').innerHTML='';}
