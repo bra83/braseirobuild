@@ -180,7 +180,7 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(kt,/Whisper.transcribe/);
  assert.match(kt,/AudioFileTranscriber.streamPcm/);
  assert.match(kt,/SEGMENT_SECONDS = 25/);
- assert.match(kt,/transcribeChunk\(\)/);
+ assert.ok(kt.includes('transcribeChunk(false)'));
  assert.match(kt,/WhisperConfig\(language = "pt"/);
  assert.match(kt,/File.createTempFile/);
  assert.match(kt,/finally/);
@@ -305,6 +305,32 @@ test('ECO G5 PDF inclui transcricao integral, segmentos e marcacoes',()=>{
  assert.match(pdf,/Anexo técnico: transcrição, trechos e evidências/);
  assert.match(pdf,/Transcrição automática sem correção/);
  assert.match(pdf,/não é criptografado/);
+});
+
+
+test('ECO G2 modelo de qualidade Small Q5 e fallback Base em importacao',()=>{
+ const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.ok(kt.includes('ggml-small-q5_1.bin'));
+ assert.ok(kt.includes('ggml-base.bin'));
+ assert.ok(kt.includes('cutAtPause('));
+ assert.ok(kt.includes('containsSpeechLikeSignal('));
+ assert.ok(ml.includes('fileModelName'));
+ assert.ok(main.includes('selectAudioFileWithModel'));
+ js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
+ assert.match(js("sessionScreen()"),/Whisper Small Q5/);
+ assert.match(js("sessionScreen()"),/Whisper Base/);
+});
+test('ECO G9 exige referencia documental para audio autorizado',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ js('ecoConsent=true;ecoConsentKind="autorizado";ecoConsentReference=""');
+ assert.equal(js('ecoDocumentConsent()'),false);
+ js('ecoConsentReference="TERMO-FICTICIO-002"');
+ context.window.NativeVault.saveDraft=()=> 'OK';
+ assert.equal(js('ecoDocumentConsent()'),true);
+ assert.equal(js('sessionDraft.mlConsent.kind'),'autorizado');
+ assert.equal(js('sessionDraft.mlConsent.documentReference'),'TERMO-FICTICIO-002');
 });
 
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
