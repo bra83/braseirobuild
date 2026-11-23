@@ -109,7 +109,7 @@ test('ECO v0.4 não inventa ecos quando não há evidência',()=>{
 test('ECO v0.5 mostra importação de áudio no fluxo da sessão',()=>{
  js("act('ecoOpen',state.cases[0].id)");
  js("act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/IMPORTAR ÁUDIO/);
+ assert.match(js("sessionScreen()"),/IMPORTAR E TRANSCREVER ÁUDIO/);
  assert.match(js("sessionScreen()"),/MP3, WAV, M4A ou FLAC/);
 });
 test('ECO v0.5 requer confirmação antes de selecionar arquivo',()=>{
