@@ -39,6 +39,16 @@ jobs:
           node-version: '22'
       - name: Executar testes de logica
         run: node qa/test.mjs
+      - name: Instalar modelo de voz Vosk PT-BR offline (Apache-2.0)
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 240 https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip --output /tmp/model-pt.zip
+          mkdir -p app/src/main/assets
+          unzip -q /tmp/model-pt.zip -d app/src/main/assets
+          mv app/src/main/assets/vosk-model-small-pt-0.3 app/src/main/assets/model-pt
+          echo 'vosk-pt-0.3-model-v1' > app/src/main/assets/model-pt/uuid
+          test -s app/src/main/assets/model-pt/am/final.mdl
+          du -sh app/src/main/assets/model-pt
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
@@ -60,7 +70,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: TutorClinico-v0.1.1-debug
+          name: ECO-TutorClinico-v0.2.0-ML-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

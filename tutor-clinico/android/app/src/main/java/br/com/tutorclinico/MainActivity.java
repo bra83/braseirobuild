@@ -1,6 +1,8 @@
 package br.com.tutorclinico;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.app.AlertDialog;
 import android.print.PrintManager;
 import android.content.Context;
@@ -28,6 +30,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public final class MainActivity extends Activity {
+    private static final int MIC_PERMISSION = 903;
+    private MlSessionEngine ml;
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
     private WebView web;
@@ -44,6 +48,11 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         store = new SecureStore(this);
+        ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
+            @Override public void state(String s){jsCallback("nativeMlState",s);}
+            @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
+            @Override public void partial(String s){jsCallback("nativeMlPartial",s);}
+        });
         pref = getSharedPreferences("tutor-lock", MODE_PRIVATE);
         web = new WebView(this);
         web.setBackgroundColor(Color.rgb(246,248,246));
@@ -125,16 +134,37 @@ public final class MainActivity extends Activity {
         }));
         dialog.show();
     }
-    @Override protected void onPause() { backgroundAt = System.currentTimeMillis(); super.onPause(); }
+    @Override protected void onPause() { if(ml!=null)ml.stop(); backgroundAt = System.currentTimeMillis(); super.onPause(); }
     @Override protected void onResume() {
         super.onResume();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
     }
-    @Override protected void onDestroy() { if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing()) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
+    @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] grants){
+        super.onRequestPermissionsResult(code,permissions,grants);
+        if(code==MIC_PERMISSION){
+            if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked)ml.start();
+            else jsCallback("nativeMlState","MICROFONE NEGADO");
+        }
+    }
+    private void beginCapture(){
+        if(!unlocked)return;
+        if(checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},MIC_PERMISSION);
+            return;
+        }
+        ml.start();
+    }
     private final class Bridge {
+        @JavascriptInterface public void startMlCapture(boolean confirmed){
+            if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
+            main.post(()->beginCapture());
+        }
+        @JavascriptInterface public void stopMlCapture(){main.post(()->ml.stop());}
+
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
             try { return store.read(); }
