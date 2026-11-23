@@ -651,8 +651,11 @@ function ecoExtractEvidence(text,sessionId="rascunho"){
   const quote=match[0].trim();if(!quote)continue;
   const offset=(match.index||0)+match[0].indexOf(quote);
   for(const [category,label,rx] of ecoLexicon){
-   rx.lastIndex=0;
-   for(const term of quote.matchAll(rx)){
+   // JavaScript \b does not treat accented letters as word characters.
+   // Unicode lookarounds keep mãe, irmão, infância etc. matched reliably.
+   const pattern=rx.source.replace(/^\\b/,"").replace(/\\b$/,"");
+   const unicodeRx=new RegExp("(?<![\\p{L}\\p{N}])(?:"+pattern+")(?![\\p{L}\\p{N}])","giu");
+   for(const term of quote.matchAll(unicodeRx)){
     const at=term.index||0,begin=Math.max(0,at-45),prior=quote.slice(begin,at);
     const neg=/\b(não|nunca|jamais|sem)\s+(?:(?:tenho|tinha|sinto|sentia|estou|estava|me|eu|havia|tive|é)\s+)?(?:\w+\s+){0,2}$/iu.test(prior);
     const key=[category,label,offset+at].join(":");
@@ -670,9 +673,24 @@ function ecoExtractEvidence(text,sessionId="rascunho"){
 function ecoEvidenceForDraft(){
  if(!sessionDraft)return [];
  ecoEnsure();
- const source=sessionDraft.mlRevisada?.trim()||sessionDraft.mlTranscricao||"";
+ const reviewed=!!sessionDraft.mlRevisada?.trim();
+ const source=reviewed?sessionDraft.mlRevisada:sessionDraft.mlTranscricao||"";
  const existing=new Set((sessionDraft.mlEvidence||[]).map(x=>x.id));
- return ecoExtractEvidence(source,sessionDraft.id).filter(x=>!existing.has(x.id));
+ const evidences=ecoExtractEvidence(source,sessionDraft.id).filter(x=>!existing.has(x.id));
+ // Speaker and source time are groundable only against unchanged raw ASR text.
+ if(!reviewed){
+  const ranges=[];let cursor=0;
+  for(const segment of sessionDraft.mlSegments){
+   const text=String(segment.text||"").trim();
+   const at=source.indexOf(text,cursor);
+   if(at>=0){ranges.push({from:at,to:at+text.length,segment});cursor=at+text.length}
+  }
+  for(const e of evidences){
+   const r=ranges.find(r=>e.start>=r.from&&e.start<r.to);
+   if(r){e.speaker=r.segment.speaker||"desconhecido";e.timeMs=r.segment.startMs??null}
+  }
+ }
+ return evidences;
 }
 function ecoEvidencePanel(){
  const proposals=ecoEvidenceForDraft().slice(0,45),accepted=sessionDraft.mlEvidence||[];
@@ -853,6 +871,32 @@ ecoDisplay=function(){
  ecoPriorDisplay();
  const banner=document.querySelector("#ecoStatusBanner");
  if(banner&&banner.classList){banner.classList.toggle("capturing",ecoIsCapturing())}
+};
+
+
+const ecoOldPdfForCase=pdfForCase;
+pdfForCase=function(c){
+ const base=ecoOldPdfForCase(c);
+ const section=(c.sessoes||[]).map(s=>{
+   const title='<h3>Registro íntegro da sessão '+esc(formatDate(s.data))+'</h3>';
+   const record='<p><strong>Transcrição automática sem correção:</strong> '+esc(s.mlTranscricao||"Não registrada")+'</p>'+
+   '<p><strong>Versão corrigida pelo profissional:</strong> '+esc(s.mlRevisada||"Não revisada")+'</p>'+
+   '<p><strong>Marcações manuais:</strong> '+esc((s.mlTags||[]).join(" · ")||"Nenhuma")+'</p>';
+   const clips='<h4>Trechos e proveniência</h4>'+(s.mlSegments||[]).map((e,i)=>
+     '<p><small>'+esc(String(i+1))+' · '+esc(e.origem||"Motor não identificado")+
+     ' · falante '+esc(e.speaker||"desconhecido")+
+     ' · '+esc(e.startMs==null?"sem posição no áudio":Math.round(e.startMs/1000)+"s")+
+     '</small> '+esc(e.text||"")+'</p>').join('');
+   const evidence='<h4>Menções confirmadas</h4>'+(s.mlEvidence||[]).filter(e=>e.status==="confirmado").map(e=>
+     '<p><strong>'+esc(e.category||"Tema")+" · "+esc(e.label||"")+'</strong> — “'+esc(e.quote||"")+
+     '” <small>'+esc(e.polarity||"menção")+" · "+esc(e.speaker||"desconhecido")+'</small></p>').join('');
+   const history='<p><small>Versões anteriores preservadas: '+(s.revisoes||[]).length+'</small></p>';
+   return '<section style="break-before:page">'+title+record+clips+evidence+history+'</section>';
+ }).join('');
+ return base.replace('</body></html>',
+  '<h2>Anexo técnico: transcrição, trechos e evidências</h2>'+
+  '<p><strong>Atenção:</strong> este documento não é criptografado ao ser impresso ou exportado em PDF; controle o destino. Rótulos de falantes dependem de revisão humana. Sugestões de NLP não validadas nunca equivalem a diagnóstico.</p>'+
+  section+'</body></html>');
 };
 
 </script></body></html>
