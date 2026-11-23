@@ -2,6 +2,7 @@ package br.com.tutorclinico;
 
 import android.app.Activity;
 import android.net.Uri;
+import java.io.File;
 import android.view.WindowManager;
 import org.json.JSONObject;
 import org.vosk.Model;
@@ -24,7 +25,14 @@ final class MlSessionEngine implements RecognitionListener {
     private Model model;
     private SpeechService speech;
     private Recognizer rec;
+    // The old simultaneous Whisper mic path is intentionally retired.
     private WhisperLiveEngine live;
+    private SessionRecorder recorder;
+    private File recordedFile;
+    private Uri retainedUri;
+    private volatile boolean pauseRequested, paused, discarding;
+    private volatile long resumeFromMs;
+    private volatile boolean recordingRequested;
     private Uri pendingFile;
     private String fileModelName="small";
     private Thread fileWorker;
@@ -40,10 +48,30 @@ final class MlSessionEngine implements RecognitionListener {
     synchronized void start(String engine) {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         wanted=true;
-        if ("vosk".equals(engine)) {
-            if (model != null) beginMicrophone();
-            else prepareModel();
-        } else beginWhisperMicrophone("whisper-small".equals(engine)?"small":"base");
+        recordingRequested=true;
+        pauseRequested=false;paused=false;discarding=false;resumeFromMs=0L;
+        fileModelName="whisper-base".equals(engine)?"base":"small";
+        recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
+            @Override public void status(String s){if(!destroyed)events.state(s);}
+            @Override public void error(String s){
+                synchronized(MlSessionEngine.this){wanted=false;recordingRequested=false;recorder=null;}
+                if(!destroyed)events.state(s);
+            }
+            @Override public void ready(File file,long durationMs){
+                synchronized(MlSessionEngine.this){
+                    recordingRequested=false;recorder=null;
+                    if(destroyed||discarding){file.delete();return;}
+                    recordedFile=file;
+                    retainedUri=Uri.fromFile(file);
+                    pendingFile=retainedUri;
+                    events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · INICIANDO WHISPER");
+                    beginFile();
+                }
+            }
+        });
+        activity.runOnUiThread(()->
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        recorder.start();
     }
 
     private synchronized void beginWhisperMicrophone(String modelName) {
@@ -77,11 +105,13 @@ final class MlSessionEngine implements RecognitionListener {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
         fileModelName = "base".equals(modelName)?"base":"small";
-        wanted=true;pendingFile=uri;
+        wanted=true;retainedUri=uri;pendingFile=uri;
+        resumeFromMs=0L;pauseRequested=false;paused=false;discarding=false;
         beginFile();
     }
 
-    private boolean busy() { return wanted || preparing || importing || speech != null || (live!=null&&live.isBusy()); }
+    private boolean busy() { return wanted || preparing || importing || paused || recordingRequested ||
+           speech != null || (live!=null&&live.isBusy()) || retainedUri!=null; }
 
     private synchronized void prepareModel() {
         preparing=true;
@@ -118,62 +148,130 @@ final class MlSessionEngine implements RecognitionListener {
     }
 
     private synchronized void beginFile() {
-        if (!wanted || pendingFile == null || destroyed) return;
-        final Uri selected=pendingFile;
+        if (!wanted || retainedUri == null || destroyed || importing) return;
+        final Uri selected=retainedUri;
         final String selectedModel=fileModelName;
+        final long fromMs=resumeFromMs;
         pendingFile=null;
+        paused=false;pauseRequested=false;
         final int mine=++generation;
         importing=true;
-        events.state("IMPORTANDO ÁUDIO · TRANSCRIÇÃO AUTOMÁTICA");
+        events.state(fromMs>0
+                ? "RETOMANDO TRANSCRIÇÃO · A PARTIR DE "+(fromMs/1000)+"s"
+                : "INICIANDO TRANSCRIÇÃO OFFLINE · AGUARDE O PRIMEIRO TRECHO");
         activity.runOnUiThread(() ->
-            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         fileWorker=new Thread(() -> {
+            boolean success=false;
             try {
-                // MediaCodec decodes MP3, WAV, FLAC and M4A/AAC into 16kHz mono
-                // PCM chunks before Whisper. No whole-session native decode.
-                WhisperFileEngine.transcribe(activity.getApplicationContext(), selected,
+                success=WhisperFileEngine.transcribe(activity.getApplicationContext(),selected,
                         new WhisperFileEngine.Listener() {
                             @Override public boolean isActive() {
-                                synchronized (MlSessionEngine.this) {
-                                    return wanted && !destroyed && mine == generation;
+                                synchronized(MlSessionEngine.this) {
+                                    return wanted && !pauseRequested && !discarding && !destroyed && mine==generation;
                                 }
                             }
                             @Override public void state(String text) {
-                                if (isActive()) events.state(text);
+                                synchronized(MlSessionEngine.this) {
+                                    if(!destroyed && mine==generation && !discarding)
+                                        events.state(text);
+                                }
                             }
                             @Override public void segment(String text,long startMs,long endMs) {
-                                if (isActive()) events.segmentDetailed(text,startMs,endMs);
+                                if(isActive())events.segmentDetailed(text,startMs,endMs);
                             }
-                        }, selectedModel);
-            } catch (Exception e) {
-                synchronized (MlSessionEngine.this) {
-                    if (mine == generation && wanted && !destroyed)
-                        events.state("ERRO ARQUIVO: " + (e.getMessage() == null ? "falha ao decodificar" : e.getMessage()));
+                            @Override public void progress(long processedMs) {
+                                synchronized(MlSessionEngine.this){
+                                    if(mine==generation && processedMs>resumeFromMs)
+                                        resumeFromMs=processedMs;
+                                }
+                            }
+                        },selectedModel,fromMs);
+            } catch(Throwable e) {
+                synchronized(MlSessionEngine.this){
+                    if(!destroyed && mine==generation && !pauseRequested && !discarding)
+                        events.state("ERRO TRANSCRIÇÃO: "+(e.getMessage()==null?"falha interna":e.getMessage()));
                 }
             } finally {
-                synchronized (MlSessionEngine.this) {
-                    if (mine == generation) wanted=false;
-                    importing=false;fileWorker=null;
-                    if (destroyed && model != null) {
-                        try { model.close(); } catch (Exception ignored) {}
-                        model=null;
+                synchronized(MlSessionEngine.this) {
+                    if(mine==generation){
+                        importing=false;fileWorker=null;
+                        if(pauseRequested && wanted && !discarding && !destroyed) {
+                            paused=true;pauseRequested=false;
+                            events.state("PAUSADO · "+(resumeFromMs/1000)+"s PROCESSADOS · REVISE OU RETOME");
+                        } else if (success && !discarding && !destroyed) {
+                            wanted=false;paused=false;retainedUri=null;resumeFromMs=0;
+                            deleteOwnedRecording();
+                            events.state("CONCLUÍDO · TRANSCRIÇÃO DISPONÍVEL NA LINHA DO TEMPO");
+                        } else if(discarding || destroyed) {
+                            wanted=false;paused=false;retainedUri=null;resumeFromMs=0L;
+                            deleteOwnedRecording();
+                            if(!destroyed)events.state("PARADO · TEXTO PARCIAL PRESERVADO");
+                        } else {
+                            // A failure must not automatically erase recoverable audio.
+                            wanted=false;paused=true;
+                            events.state("FALHA NA TRANSCRIÇÃO · ÁUDIO TEMPORÁRIO RETIDO PARA RETOMADA OU DESCARTE");
+                        }
                     }
                 }
                 activity.runOnUiThread(() ->
                     activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
             }
-        }, "eco-audio-file-import");
+        },"eco-whisper-transcription");
         fileWorker.start();
     }
 
+    private void deleteOwnedRecording(){
+        if(recordedFile!=null){
+            File file=recordedFile;recordedFile=null;
+            if(file.exists()&&!file.delete()&&!destroyed)
+                events.state("AVISO · NÃO FOI POSSÍVEL ELIMINAR O ÁUDIO TEMPORÁRIO");
+        }
+    }
+
+    synchronized void pauseTranscription(){
+        if(importing && wanted && !pauseRequested){
+            pauseRequested=true;
+            events.state("PAUSANDO · FINALIZANDO TRECHO EM PROCESSAMENTO");
+        }else if(paused)events.state("PAUSADO · REVISE OS TRECHOS E TOQUE EM RETOMAR");
+    }
+    synchronized void resumeTranscription(){
+        if(destroyed || importing || recordingRequested){
+            events.state("OPERAÇÃO EM ANDAMENTO");return;
+        }
+        if(!paused||retainedUri==null){events.state("NÃO EXISTE TRANSCRIÇÃO PAUSADA");return;}
+        wanted=true;pauseRequested=false;discarding=false;
+        beginFile();
+    }
+    synchronized void discardRemainingAudio(){
+        if(recordingRequested&&recorder!=null){
+            discarding=true;recorder.finish();events.state("ENCERRANDO GRAVAÇÃO · DESCARTANDO ÁUDIO");return;
+        }
+        if(importing){
+            discarding=true;wanted=false;pauseRequested=true;
+            events.state("CANCELANDO PROCESSAMENTO · PRESERVANDO TEXTO RECONHECIDO");
+            return; // Never delete an open audio file under a native decoder.
+        }
+        wanted=false;paused=false;pauseRequested=false;discarding=false;retainedUri=null;
+        resumeFromMs=0L;deleteOwnedRecording();
+        events.state("PARADO · TEXTO PARCIAL PRESERVADO");
+    }
+    synchronized void onHostPause(){
+        if(recordingRequested&&recorder!=null){
+            // A background recording without a foreground service is unsafe.
+            recorder.finish();
+            events.state("APP EM SEGUNDO PLANO · FINALIZANDO GRAVAÇÃO");
+        }
+    }
+
     synchronized void stop() {
-        // Preserve pending Whisper speech while a live recording is finalized.
-        if(live!=null&&live.isBusy()){
-            live.finishRecording();
-            events.state("FINALIZANDO MICROFONE · TRANSCRIÇÃO DE TRECHOS PENDENTES");
+        if(recordingRequested && recorder!=null){
+            recorder.finish(); // asynchronous finalize; starts Whisper when WAV is closed
             return;
         }
-        boolean wasActive = wanted || importing || preparing || speech != null;
+        if(importing){pauseTranscription();return;}
+        if(paused){events.state("PAUSADO · RETOMAR OU DESCARTAR ÁUDIO RESTANTE");return;}
+        boolean wasActive = wanted || preparing || speech != null;
         wanted=false;pendingFile=null;generation++;
         if (fileWorker != null) fileWorker.interrupt();
         if (speech != null) {
@@ -192,7 +290,10 @@ final class MlSessionEngine implements RecognitionListener {
 
     synchronized void destroy() {
         destroyed=true;
+        discarding=true;wanted=false;pauseRequested=true;
+        if(recorder!=null)recorder.finish();
         if(live!=null){live.destroy();live=null;}
+        if(!importing)deleteOwnedRecording();
         stop();
         if (!importing && model != null) {
             try { model.close(); } catch (Exception ignored) {}
