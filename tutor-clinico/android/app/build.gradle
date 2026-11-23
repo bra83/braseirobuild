@@ -1,4 +1,4 @@
-plugins { id 'com.android.application' }
+plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }
 
 android {
     namespace 'br.com.tutorclinico'
@@ -8,10 +8,13 @@ android {
         applicationId 'br.com.tutorclinico.offline'
         minSdk 28
         targetSdk 35
-        versionCode 7
-        versionName '0.5.1'
+        versionCode 8
+        versionName '0.6.0'
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 
-dependencies { implementation 'com.alphacephei:vosk-android:0.3.47' }
+dependencies {
+    implementation 'com.alphacephei:vosk-android:0.3.47' // Legacy live microphone
+    implementation 'dev.ffmpegkit-maintained:whisper-android:1.0.0' // Offline file transcription
+}

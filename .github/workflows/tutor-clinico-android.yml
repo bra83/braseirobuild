@@ -52,6 +52,15 @@ jobs:
           test -s app/src/main/assets/model-pt/mfcc.conf
           test -s app/src/main/assets/model-pt/uuid
           du -sh app/src/main/assets/model-pt
+      - name: Baixar modelo Whisper Base multilíngue (fonte oficial)
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/assets/whisper
+          curl --fail --location --retry 3 --max-time 900 \
+            'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin?download=true' \
+            -o app/src/main/assets/whisper/ggml-base.bin
+          test "$(stat -c%s app/src/main/assets/whisper/ggml-base.bin)" -gt 100000000
+          sha256sum app/src/main/assets/whisper/ggml-base.bin
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
@@ -73,7 +82,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.5.1-escuta-direta-debug
+          name: ECO-v0.6.0-whisper-base-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

@@ -42,8 +42,7 @@ final class MlSessionEngine implements RecognitionListener {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
         wanted=true;pendingFile=uri;
-        if (model != null) { beginFile(); return; }
-        prepareModel();
+        beginFile();
     }
 
     private boolean busy() { return wanted || preparing || importing || speech != null; }
@@ -83,7 +82,7 @@ final class MlSessionEngine implements RecognitionListener {
     }
 
     private synchronized void beginFile() {
-        if (!wanted || model == null || pendingFile == null || destroyed) return;
+        if (!wanted || pendingFile == null || destroyed) return;
         final Uri selected=pendingFile;
         pendingFile=null;
         final int mine=++generation;
@@ -93,20 +92,26 @@ final class MlSessionEngine implements RecognitionListener {
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         fileWorker=new Thread(() -> {
             try {
-                AudioFileTranscriber.transcribe(activity.getApplicationContext(), selected, model,
-                    new AudioFileTranscriber.Listener() {
-                        @Override public boolean isActive() {
-                            synchronized (MlSessionEngine.this) {
-                                return wanted && !destroyed && mine == generation;
-                            }
-                        }
-                        @Override public void status(String text) {
-                            if (isActive()) events.state(text);
-                        }
-                        @Override public void segment(String text) {
-                            if (isActive()) events.segment(text);
-                        }
-                    });
+                String mime=activity.getContentResolver().getType(selected);
+                if (mime!=null && (mime.equals("audio/mp4")||mime.contains("m4a")||mime.contains("aac"))) {
+                    // The free Whisper decoder cannot open M4A/AAC. State this, do not pretend it used Whisper.
+                    events.state("ERRO ARQUIVO: para Whisper escolha MP3, WAV ou FLAC. M4A/AAC ainda não suportado.");
+                } else {
+                    WhisperFileEngine.transcribe(activity.getApplicationContext(), selected,
+                            new WhisperFileEngine.Listener() {
+                                @Override public boolean isActive() {
+                                    synchronized (MlSessionEngine.this) {
+                                        return wanted && !destroyed && mine == generation;
+                                    }
+                                }
+                                @Override public void state(String text) {
+                                    if (isActive()) events.state(text);
+                                }
+                                @Override public void segment(String text) {
+                                    if (isActive()) events.segment(text);
+                                }
+                            });
+                }
             } catch (Exception e) {
                 synchronized (MlSessionEngine.this) {
                     if (mine == generation && wanted && !destroyed)

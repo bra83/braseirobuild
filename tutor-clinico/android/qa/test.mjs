@@ -110,7 +110,7 @@ test('ECO v0.5 mostra importação de áudio no fluxo da sessão',()=>{
  js("act('ecoOpen',state.cases[0].id)");
  js("act('ecoWorkspaceTab','captura')");
  assert.match(js("sessionScreen()"),/IMPORTAR ÁUDIO/);
- assert.match(js("sessionScreen()"),/MP3 \/ WAV \/ M4A \/ FLAC/);
+ assert.match(js("sessionScreen()"),/MP3 \/ WAV \/ FLAC/);
 });
 test('ECO v0.5 requer confirmação antes de selecionar arquivo',()=>{
  context.window.NativeVault.selectAudioFile=()=>{context.filePickerCalled=true};
@@ -136,7 +136,7 @@ test('ECO v0.5 arquivo SAF stream / decodificação local / sem upload',()=>{
  assert.match(native,/intent\.setType\("audio\/\*"\)/);
  assert.match(native,/ml\.importFile\(uri\)/);
  assert.match(native,/AUDIO_FILE_CODE/);
- assert.match(ml,/AudioFileTranscriber\.transcribe/);
+ assert.match(ml,/WhisperFileEngine\.transcribe/);
  assert.match(decoding,/MediaExtractor/);
  assert.match(decoding,/MediaCodec/);
  assert.match(decoding,/new Recognizer\(model, TARGET_RATE\)/);
@@ -169,5 +169,22 @@ test('Cadastro rápido abre sessão após apenas um código',()=>{
  assert.equal(js('currentCase().nome'),'PAC-004');
  assert.equal(js('currentCase().queixas.length'),0);
  assert.equal(js('ecoWorkspaceTab'),'captura');
+});
+
+test('ECO Whisper Base para arquivos sem API externa',()=>{
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
+ const app=fs.readFileSync(new URL('../app/build.gradle',import.meta.url),'utf8');
+ const wf=fs.readFileSync(new URL('../../../.github/workflows/tutor-clinico-android.yml',import.meta.url),'utf8');
+ assert.match(ml,/WhisperFileEngine.transcribe/);
+ assert.match(kt,/Whisper.transcribe/);
+ assert.match(kt,/WhisperConfig\(language = "pt"/);
+ assert.match(kt,/File.createTempFile/);
+ assert.match(kt,/finally/);
+ assert.match(kt,/it.delete\(\)/);
+ assert.match(app,/whisper-android:1.0.0/);
+ assert.match(wf,/ggml-base.bin/);
+ js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
+ assert.match(js("sessionScreen()"),/Whisper Base PT/);
 });
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
