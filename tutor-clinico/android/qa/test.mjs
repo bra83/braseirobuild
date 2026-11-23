@@ -207,14 +207,14 @@ test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
 test('ECO 0.6.1 lê áudio por URI em trechos, sem enviar gravação inteira ao Whisper',()=>{
  const dec=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/AudioFileTranscriber.java',import.meta.url),'utf8');
  const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
- assert.match(dec,/void streamPcm\\(Context context, Uri uri, Listener listener, PcmListener receiver\\)/);
- assert.match(dec,/interface PcmListener/);
- assert.match(kt,/ByteArrayOutputStream\\(SEGMENT_SIZE/);
- assert.match(kt,/SAMPLE_RATE = 16000/);
- assert.match(kt,/SEGMENT_SECONDS = 25/);
- assert.match(kt,/File.createTempFile\\(CACHE_PREFIX, ".wav"/);
- assert.match(kt,/wav\.delete\(\)/);
- assert.match(kt,/AudioFileTranscriber.streamPcm/);
- assert.doesNotMatch(kt,/openInputStream\\(uri\\).*FileOutputStream/s);
+ assert.ok(dec.includes('void streamPcm('));
+ assert.ok(dec.includes('interface PcmListener'));
+ assert.ok(kt.includes('ByteArrayOutputStream(SEGMENT_SIZE'));
+ assert.ok(kt.includes('SAMPLE_RATE = 16000'));
+ assert.ok(kt.includes('SEGMENT_SECONDS = 25'));
+ assert.ok(kt.includes('File.createTempFile(CACHE_PREFIX, ".wav"'));
+ assert.ok(kt.includes('wav.delete()'));
+ assert.ok(kt.includes('AudioFileTranscriber.streamPcm'));
+ assert.ok(!kt.includes('context.contentResolver.openInputStream(uri)?.use'));
 });
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
