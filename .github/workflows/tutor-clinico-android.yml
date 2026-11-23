@@ -48,7 +48,8 @@ jobs:
           mv app/src/main/assets/vosk-model-small-pt-0.3 app/src/main/assets/model-pt
           echo 'vosk-pt-0.3-model-v1' > app/src/main/assets/model-pt/uuid
           find app/src/main/assets/model-pt -maxdepth 3 -type f | head -45
-          test -d app/src/main/assets/model-pt/am
+          test -s app/src/main/assets/model-pt/final.mdl
+          test -s app/src/main/assets/model-pt/mfcc.conf
           test -s app/src/main/assets/model-pt/uuid
           du -sh app/src/main/assets/model-pt
       - name: Configurar Android SDK existente do runner
