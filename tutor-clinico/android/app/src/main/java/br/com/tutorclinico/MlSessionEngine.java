@@ -87,31 +87,27 @@ final class MlSessionEngine implements RecognitionListener {
         pendingFile=null;
         final int mine=++generation;
         importing=true;
-        events.state("IMPORTANDO ÁUDIO · SEM CÓPIA LOCAL");
+        events.state("IMPORTANDO ÁUDIO · TRANSCRIÇÃO AUTOMÁTICA");
         activity.runOnUiThread(() ->
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
         fileWorker=new Thread(() -> {
             try {
-                String mime=activity.getContentResolver().getType(selected);
-                if (mime!=null && (mime.equals("audio/mp4")||mime.contains("m4a")||mime.contains("aac"))) {
-                    // The free Whisper decoder cannot open M4A/AAC. State this, do not pretend it used Whisper.
-                    events.state("ERRO ARQUIVO: para Whisper escolha MP3, WAV ou FLAC. M4A/AAC ainda não suportado.");
-                } else {
-                    WhisperFileEngine.transcribe(activity.getApplicationContext(), selected,
-                            new WhisperFileEngine.Listener() {
-                                @Override public boolean isActive() {
-                                    synchronized (MlSessionEngine.this) {
-                                        return wanted && !destroyed && mine == generation;
-                                    }
+                // MediaCodec decodes MP3, WAV, FLAC and M4A/AAC into 16kHz mono
+                // PCM chunks before Whisper. No whole-session native decode.
+                WhisperFileEngine.transcribe(activity.getApplicationContext(), selected,
+                        new WhisperFileEngine.Listener() {
+                            @Override public boolean isActive() {
+                                synchronized (MlSessionEngine.this) {
+                                    return wanted && !destroyed && mine == generation;
                                 }
-                                @Override public void state(String text) {
-                                    if (isActive()) events.state(text);
-                                }
-                                @Override public void segment(String text) {
-                                    if (isActive()) events.segment(text);
-                                }
-                            });
-                }
+                            }
+                            @Override public void state(String text) {
+                                if (isActive()) events.state(text);
+                            }
+                            @Override public void segment(String text) {
+                                if (isActive()) events.segment(text);
+                            }
+                        });
             } catch (Exception e) {
                 synchronized (MlSessionEngine.this) {
                     if (mine == generation && wanted && !destroyed)
