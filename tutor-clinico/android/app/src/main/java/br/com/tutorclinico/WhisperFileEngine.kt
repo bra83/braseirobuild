@@ -40,6 +40,7 @@ object WhisperFileEngine {
         fun isActive(): Boolean
         fun state(value: String)
         fun segment(value: String, startMs: Long, endMs: Long)
+        fun progress(processedMs: Long)
     }
 
     @JvmStatic
@@ -50,8 +51,13 @@ object WhisperFileEngine {
     }
 
     @JvmStatic
-    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String) {
-        if (!listener.isActive()) return
+    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String): Boolean =
+        transcribe(context, uri, listener, requestedModel, 0L)
+
+    @JvmStatic
+    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
+                   resumeFromMs: Long): Boolean {
+        if (!listener.isActive()) return false
         var model: WhisperModel? = null
         val mode = if(requestedModel=="base")"base" else "small"
         val modelName = if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
@@ -59,10 +65,14 @@ object WhisperFileEngine {
         try {
             listener.state(modelName+" · PREPARANDO MODELO OFFLINE")
             model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
-            if (!listener.isActive()) return
+            if (!listener.isActive()) return false
 
-            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName)
-            listener.state(modelName+" · LENDO ÁUDIO DIRETAMENTE DO ARQUIVO")
+            // Skip already-committed PCM during resume. No duplicate segments are emitted.
+            // The file is decoded again from the beginning, but Whisper starts at this offset.
+            val skipFromMs = resumeFromMs.coerceAtLeast(0L)
+            var toSkipBytes = skipFromMs * PCM_BYTES_PER_SECOND / 1000L
+            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs)
+            listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
             AudioFileTranscriber.streamPcm(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
                 override fun status(message: String) {
@@ -70,20 +80,29 @@ object WhisperFileEngine {
                 }
                 override fun segment(text: String) { /* no Vosk used on this path */ }
             }, AudioFileTranscriber.PcmListener { pcm, size ->
-                chunks.accept(pcm, size)
+                if (toSkipBytes >= size) {
+                    toSkipBytes -= size
+                } else {
+                    val offset = toSkipBytes.toInt()
+                    toSkipBytes = 0L
+                    val remaining = size - offset
+                    if (remaining > 0) chunks.accept(pcm.copyOfRange(offset, size), remaining)
+                }
             })
-            if (!listener.isActive()) return
+            if (!listener.isActive()) return false
             chunks.finish()
             if (listener.isActive()) {
                 listener.state(if (chunks.recognizedCount > 0)
                     "CONCLUÍDO · "+modelName+" · REVISE A TRANSCRIÇÃO"
                     else "CONCLUÍDO · NENHUMA FALA IDENTIFICADA")
             }
+            return listener.isActive()
         } catch (e: Throwable) {
             if (listener.isActive()) {
                 val detail = e.message ?: e.javaClass.simpleName
                 listener.state("ERRO WHISPER: " + detail)
             }
+            return false
         } finally {
             model?.let { try { Whisper.releaseModel(it) } catch (_: Throwable) { } }
         }
@@ -93,11 +112,12 @@ object WhisperFileEngine {
         private val context: Context,
         private val listener: Listener,
         private val model: WhisperModel,
-        private val modelName: String
+        private val modelName: String,
+        resumeFromMs: Long
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private var chunkIndex = 0
-        private var processedFrames = 0L
+        private var processedFrames = resumeFromMs.coerceAtLeast(0L) * SAMPLE_RATE / 1000L
         var recognizedCount = 0
             private set
 
@@ -165,7 +185,10 @@ object WhisperFileEngine {
             processedFrames += cut / 2L
             chunkIndex++
             if(!containsSpeechLikeSignal(bytes)){
-                if(listener.isActive())listener.state(modelName+" · SILÊNCIO IGNORADO NO TRECHO "+chunkIndex)
+                if(listener.isActive()){
+                    listener.state(modelName+" · SILÊNCIO IGNORADO NO TRECHO "+chunkIndex)
+                    listener.progress(processedFrames * 1000L / SAMPLE_RATE)
+                }
                 return
             }
             val wav = File.createTempFile(CACHE_PREFIX, ".wav", context.cacheDir)
@@ -194,8 +217,10 @@ object WhisperFileEngine {
                     recognizedCount++
                     listener.segment(result.text.trim(),baseMs,baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND)
                 }
-                if (listener.isActive())
+                if (listener.isActive()) {
+                    listener.progress(processedFrames * 1000L / SAMPLE_RATE)
                     listener.state("WHISPER · TRECHO " + chunkIndex + " CONCLUÍDO · CONTINUANDO")
+                }
             } finally {
                 if (wav.exists() && !wav.delete())
                     listener.state("AVISO: limpeza de trecho temporário pendente")
