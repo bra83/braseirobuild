@@ -479,7 +479,7 @@ function ecoAddSegment(value,meta={}){
   text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
   endMs:Number.isFinite(meta.endMs)?meta.endMs:null,
   speaker:"desconhecido",
-  origem:ecoAudioSource==="arquivo"?"Whisper Base PT · arquivo importado":"Vosk PT-BR · microfone"
+  origem:ecoAudioSource==="arquivo"?(ecoChosenAsr==="small"?"Whisper Small Q5 PT · arquivo importado":"Whisper Base PT · arquivo importado"):"Vosk PT-BR · microfone"
  };
  sessionDraft.mlSegments.push(segment);
  sessionDraft.mlTranscricao=(sessionDraft.mlTranscricao+" "+text).trim();ecoPartial="";
@@ -715,7 +715,7 @@ let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
 const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|PREPARANDO MODELO|WHISPER)/.test(ecoStatus);
-let ecoAudioSource="microfone";
+let ecoAudioSource="microfone",ecoChosenAsr="small";
 function ecoSummary(c){
  const ss=Array.isArray(c.sessoes)?c.sessoes:[];
  let mentions=0,dreams=0;
@@ -751,8 +751,9 @@ function ecoWorkspace(){
   ["captura","01","Captar"],["marcar","02","Marcar"],["revisar","03","Revisar"],["ecos","04","Ecos"]
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
-  out+='<section class="eco-recorder"><h2>● Transcrição de áudio</h2><p class="eco-caption">São dois modos independentes. Para um arquivo MP3, WAV, M4A ou FLAC, toque apenas em <strong>Importar e transcrever</strong>: o processo começa automaticamente. O botão de microfone serve exclusivamente para fala ao vivo (Vosk, menos preciso). O arquivo importado usa Whisper Base offline em trechos curtos.</p>';
+  out+='<section class="eco-recorder"><h2>● Transcrição de áudio</h2><p class="eco-caption">São dois modos independentes. Para um arquivo MP3, WAV, M4A ou FLAC, toque apenas em <strong>Importar e transcrever</strong>: o processo começa automaticamente. O botão de microfone serve exclusivamente para fala ao vivo (Vosk, menos preciso). O arquivo importado usa Whisper offline em trechos curtos, com modelos Base e Small quantizado à escolha.</p>';
   out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Confirmo teste com falas fictícias ou autorização documentada.</label>';
+  out+='<label class="field">Qualidade de transcrição de arquivos <select data-eco-asr-model><option value="small" '+(ecoChosenAsr==="small"?"selected":"")+'>Whisper Small Q5 · maior qualidade esperada (mais lento)</option><option value="base" '+(ecoChosenAsr==="base"?"selected":"")+'>Whisper Base · mais rápido (menos preciso)</option></select></label>';
   out+='<div class="stack">'+btn('🎙 GRAVAR AO VIVO · MICROFONE','ecoStart','','aria-label="Iniciar captação ao vivo pelo microfone"')+btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar áudio e iniciar transcrição automaticamente"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
   out+='<p class="eco-caption">A importação inicia automaticamente ao escolher um arquivo, sem tocar em Gravar. São processados trechos de até 25 segundos, um de cada vez, mostrando o andamento. Apenas o trecho atual vira WAV temporário privado, apagado após o processamento. O arquivo original permanece intocado. Áudio M4A depende do decodificador do Android.</p>';
   out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
@@ -830,7 +831,9 @@ act=function(name,id){
   if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
   if(!window.NativeVault.selectAudioFile){notify("Importação disponível apenas no APK Android.",'red');return}
   ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
-  window.NativeVault.selectAudioFile(true);return;
+  if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
+  else window.NativeVault.selectAudioFile(true);
+  return;
  }
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
@@ -855,6 +858,7 @@ act=function(name,id){
  return result;
 };
 document.addEventListener("change",e=>{
+ if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=e.target.value==="base"?"base":"small"}
  if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
  if(e.target?.dataset?.ecoSpeaker!==undefined&&sessionDraft){
   const ix=Number(e.target.dataset.ecoSpeaker),value=e.target.value;

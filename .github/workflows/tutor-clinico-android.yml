@@ -61,6 +61,14 @@ jobs:
             -o app/src/main/assets/whisper/ggml-base.bin
           test "$(stat -c%s app/src/main/assets/whisper/ggml-base.bin)" -gt 100000000
           sha256sum app/src/main/assets/whisper/ggml-base.bin
+      - name: Baixar Whisper Small q5_1 multilíngue (qualidade superior)
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 900 \
+            'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin?download=true' \
+            -o app/src/main/assets/whisper/ggml-small-q5_1.bin
+          test "$(stat -c%s app/src/main/assets/whisper/ggml-small-q5_1.bin)" -gt 170000000
+          sha256sum app/src/main/assets/whisper/ggml-small-q5_1.bin
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
@@ -82,7 +90,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.6.1-whisper-chunked-debug
+          name: ECO-v0.7.0-revisao-integral-beta
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

@@ -27,7 +27,8 @@ import java.nio.ByteOrder
  * No network or cloud. No copy of the full source recording.
  */
 object WhisperFileEngine {
-    private const val MODEL_ASSET = "whisper/ggml-base.bin"
+    private const val MODEL_BASE = "whisper/ggml-base.bin"
+    private const val MODEL_SMALL = "whisper/ggml-small-q5_1.bin"
     private const val SAMPLE_RATE = 16000
     private const val PCM_BYTES_PER_SECOND = SAMPLE_RATE * 2
     private const val SEGMENT_SECONDS = 25
@@ -49,20 +50,23 @@ object WhisperFileEngine {
     }
 
     @JvmStatic
-    fun transcribe(context: Context, uri: Uri, listener: Listener) {
+    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String) {
         if (!listener.isActive()) return
         var model: WhisperModel? = null
+        val mode = if(requestedModel=="base")"base" else "small"
+        val modelName = if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
+        val asset = if(mode=="base") MODEL_BASE else MODEL_SMALL
         try {
-            listener.state("WHISPER · PREPARANDO MODELO OFFLINE")
-            model = runBlocking { Whisper.loadModelFromAsset(context, MODEL_ASSET) }
+            listener.state(modelName+" · PREPARANDO MODELO OFFLINE")
+            model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
             if (!listener.isActive()) return
 
-            val chunks = ChunkedPcmTranscriber(context, listener, model)
-            listener.state("WHISPER · LENDO ÁUDIO DIRETAMENTE DO ARQUIVO")
+            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName)
+            listener.state(modelName+" · LENDO ÁUDIO DIRETAMENTE DO ARQUIVO")
             AudioFileTranscriber.streamPcm(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
                 override fun status(message: String) {
-                    if (listener.isActive()) listener.state("WHISPER · DECODIFICANDO ÁUDIO")
+                    if (listener.isActive()) listener.state(modelName+" · DECODIFICANDO ÁUDIO")
                 }
                 override fun segment(text: String) { /* no Vosk used on this path */ }
             }, AudioFileTranscriber.PcmListener { pcm, size ->
@@ -72,7 +76,7 @@ object WhisperFileEngine {
             chunks.finish()
             if (listener.isActive()) {
                 listener.state(if (chunks.recognizedCount > 0)
-                    "CONCLUÍDO · WHISPER BASE · REVISE A TRANSCRIÇÃO"
+                    "CONCLUÍDO · "+modelName+" · REVISE A TRANSCRIÇÃO"
                     else "CONCLUÍDO · NENHUMA FALA IDENTIFICADA")
             }
         } catch (e: Throwable) {
@@ -88,7 +92,8 @@ object WhisperFileEngine {
     private class ChunkedPcmTranscriber(
         private val context: Context,
         private val listener: Listener,
-        private val model: WhisperModel
+        private val model: WhisperModel,
+        private val modelName: String
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private var chunkIndex = 0
@@ -124,7 +129,7 @@ object WhisperFileEngine {
                 val offsetSec = (chunkIndex - 1) * SEGMENT_SECONDS
                 val clock = (offsetSec / 60).toString() + "m" +
                     (offsetSec % 60).toString().padStart(2, '0') + "s"
-                listener.state("WHISPER BASE · TRANSCRIBINDO " + clock + " · TRECHO " + chunkIndex)
+                listener.state(modelName+" · TRANSCRIBINDO " + clock + " · TRECHO " + chunkIndex)
                 val result = runBlocking {
                     Whisper.transcribe(model, wav.absolutePath,
                         WhisperConfig(language = "pt", translate = false, threads = 4))

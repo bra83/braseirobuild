@@ -25,6 +25,7 @@ final class MlSessionEngine implements RecognitionListener {
     private SpeechService speech;
     private Recognizer rec;
     private Uri pendingFile;
+    private String fileModelName="small";
     private Thread fileWorker;
     private boolean wanted, preparing, importing, destroyed;
     private int generation;
@@ -41,9 +42,11 @@ final class MlSessionEngine implements RecognitionListener {
         prepareModel();
     }
 
-    synchronized void importFile(Uri uri) {
+    synchronized void importFile(Uri uri) { importFile(uri,"small"); }
+    synchronized void importFile(Uri uri,String modelName) {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
+        fileModelName = "base".equals(modelName)?"base":"small";
         wanted=true;pendingFile=uri;
         beginFile();
     }
@@ -87,6 +90,7 @@ final class MlSessionEngine implements RecognitionListener {
     private synchronized void beginFile() {
         if (!wanted || pendingFile == null || destroyed) return;
         final Uri selected=pendingFile;
+        final String selectedModel=fileModelName;
         pendingFile=null;
         final int mine=++generation;
         importing=true;
@@ -110,7 +114,7 @@ final class MlSessionEngine implements RecognitionListener {
                             @Override public void segment(String text,long startMs,long endMs) {
                                 if (isActive()) events.segmentDetailed(text,startMs,endMs);
                             }
-                        });
+                        }, selectedModel);
             } catch (Exception e) {
                 synchronized (MlSessionEngine.this) {
                     if (mine == generation && wanted && !destroyed)

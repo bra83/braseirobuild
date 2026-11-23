@@ -35,6 +35,7 @@ public final class MainActivity extends Activity {
     private static final int MIC_PERMISSION = 903;
     private static final int AUDIO_FILE_CODE = 904;
     private MlSessionEngine ml;
+    private String selectedAsrModel="small";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
     private WebView web;
@@ -197,9 +198,16 @@ public final class MainActivity extends Activity {
                 }
             }
         }catch(Exception ignored){ /* Some providers do not expose length; decoder enforces duration. */ }
-        ml.importFile(uri);
+        ml.importFile(uri,selectedAsrModel);
     }
     private final class Bridge {
+        @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){
+            if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
+            main.post(()->{
+                selectedAsrModel="base".equals(model)?"base":"small";
+                chooseAudioFile();
+            });
+        }
         @JavascriptInterface public void selectAudioFile(boolean confirmed){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->chooseAudioFile());
