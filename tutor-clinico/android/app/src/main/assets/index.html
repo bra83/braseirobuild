@@ -469,7 +469,13 @@ function ecoDisplay(){
  const b=$('#ecoPartial');if(b)b.textContent=ecoPartial;
  const c=$('#ecoTranscript');if(c&&sessionDraft)c.textContent=sessionDraft.mlTranscricao||"Nenhum trecho reconhecido ainda.";
 }
-window.nativeMlState=function(s){ecoStatus=String(s);ecoDisplay();if(ecoStatus.startsWith("ERRO")||ecoStatus==="MICROFONE NEGADO")notify(ecoStatus,'red')};
+window.nativeMlState=function(s){
+ ecoStatus=String(s);ecoDisplay();
+ if(ecoStatus.startsWith("ERRO")||ecoStatus==="MICROFONE NEGADO"||ecoStatus.startsWith("FALHA"))
+    notify(ecoStatus,'red');
+ if(/^(PAUSADO|CONCLUÍDO|PARADO|FALHA|GRAVAÇÃO FINALIZADA)/.test(ecoStatus) && screen==="session")
+    render();
+};
 window.nativeMlPartial=function(s){ecoPartial=String(s||"");ecoDisplay()};
 function ecoAddSegment(value,meta={}){
  const text=String(value||"").trim();if(!text||screen!=="session"||!sessionDraft)return;
@@ -546,6 +552,7 @@ sessionScreen=function(){const page=ecoOldSessionScreen();const i=page.indexOf('
 const ecoOldAct=act;
 act=function(name,id){
  if(name==="ecoStart"){
+  if(ecoIsPaused()){notify("Retome ou descarte o áudio anterior antes de iniciar uma nova gravação.",'red');return}
   if(!ecoConsent){notify("Confirme a autorização ou simulação antes da captura.",'red');return}
   if(ecoIsCapturing()){notify("O arquivo já está sendo transcrito. Não precisa iniciar captação; acompanhe o progresso.",'red');return}
   if(!window.NativeVault.startMlCapture && !window.NativeVault.startMlCaptureWithEngine){notify("Recurso exige APK Android.",'red');return}
@@ -555,6 +562,9 @@ act=function(name,id){
   return;
  }
  if(name==="ecoStop"){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();return}
+ if(name==="ecoPause"){if(window.NativeVault.pauseMlTranscription)window.NativeVault.pauseMlTranscription();return}
+ if(name==="ecoResume"){if(window.NativeVault.resumeMlTranscription)window.NativeVault.resumeMlTranscription();return}
+ if(name==="ecoDiscard"){if(window.NativeVault.discardMlAudio)window.NativeVault.discardMlAudio();return}
  if(name==="ecoCategory"){ecoCategory=id;render();return}
  if(name==="ecoCopy"){ecoEnsure();sessionDraft.mlRevisada=sessionDraft.mlTranscricao;render();return}
  if(name==="ecoFind"){ecoMatches=ecoFind();render();if(!ecoMatches.length)notify("Sem similaridades documentadas acima do limiar.");return}
@@ -775,7 +785,7 @@ function ecoSegmentReview(){
  ecoEnsure();const ss=sessionDraft.mlSegments||[];
  return '<section class="eco-outline"><h3>Trechos e falantes ('+ss.length+')</h3>'+
  '<p class="eco-caption">O ECO não identifica falantes automaticamente. O rótulo inicial é desconhecido; altere somente após confirmar quem falou. Horários indicam posição estimada no áudio quando disponível.</p>'+
- ss.slice(0,250).map((s,i)=>'<div class="eco-evidence"><small>'+esc(s.startMs==null?'Sem horário de áudio':Math.round(s.startMs/1000)+'s — '+Math.round((s.endMs||s.startMs)/1000)+'s')+' · '+esc(s.origem||"motor desconhecido")+'</small><p>'+esc(s.text||"")+'</p><label class="eco-caption">Falante <select data-eco-speaker="'+i+'"><option value="desconhecido" '+(!s.speaker||s.speaker==="desconhecido"?'selected':'')+'>Desconhecido</option><option value="paciente" '+(s.speaker==="paciente"?'selected':'')+'>Paciente (confirmado)</option><option value="terapeuta" '+(s.speaker==="terapeuta"?'selected':'')+'>Terapeuta (confirmado)</option></select></label></div>').join('')+
+ ss.slice(0,250).map((s,i)=>'<div class="eco-evidence" id="ecoSegment-'+i+'"><small>'+esc(s.startMs==null?'Sem horário de áudio':ecoTimecode(s.startMs)+' — '+ecoTimecode(s.endMs??s.startMs))+' · '+esc(s.origem||"motor desconhecido")+'</small><p>'+esc(s.text||"")+'</p><label class="eco-caption">Falante <select data-eco-speaker="'+i+'"><option value="desconhecido" '+(!s.speaker||s.speaker==="desconhecido"?'selected':'')+'>Desconhecido</option><option value="paciente" '+(s.speaker==="paciente"?'selected':'')+'>Paciente (confirmado)</option><option value="terapeuta" '+(s.speaker==="terapeuta"?'selected':'')+'>Terapeuta (confirmado)</option></select></label></div>').join('')+
  (ss.length>250?'<p class="muted">Exibindo os 250 primeiros trechos; o restante permanece salvo.</p>':'')+'</section>';
 }
 
@@ -783,8 +793,43 @@ function ecoSegmentReview(){
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
 // Processing states include the model's own WHISPER progress messages.
-const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO)/.test(ecoStatus);
-let ecoAudioSource="microfone",ecoChosenAsr="small",ecoChosenMic="whisper-base";
+const ecoIsCapturing=()=>ecoStatuses.has(ecoStatus)||/^(CAPTURANDO|GRAVANDO|PREPARANDO|IMPORTANDO|LENDO ARQUIVO|PROCESSANDO ÁUDIO|WHISPER|MICROFONE|FINALIZANDO|PAUSANDO|CANCELANDO|INICIANDO TRANSCRIÇÃO|RETOMANDO TRANSCRIÇÃO)/.test(ecoStatus);
+const ecoIsRecording=()=>/^GRAVANDO|^FINALIZANDO GRAVAÇÃO|^APP EM SEGUNDO PLANO/.test(ecoStatus);
+const ecoIsPaused=()=>/^PAUSADO|^FALHA NA TRANSCRIÇÃO/.test(ecoStatus);
+const ecoIsTranscribing=()=>ecoIsCapturing()&&!ecoIsRecording();
+let ecoTimelineQuery="",ecoTimelineFocused=-1;
+function ecoTimecode(ms){
+ if(!Number.isFinite(ms)||ms<0)return "sem horário";
+ const sec=Math.floor(ms/1000),minutes=Math.floor(sec/60),seconds=sec%60;
+ return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0");
+}
+function ecoTimelineRows(session,query="",limit=600){
+ const norm=x=>String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const search=norm(query).trim();
+ return (session?.mlSegments||[]).map((part,i)=>({...part,index:i}))
+  .filter(p=>!search||norm(p.text).includes(search)||norm(p.speaker).includes(search))
+  .sort((a,b)=>(a.startMs??Number.MAX_SAFE_INTEGER)-(b.startMs??Number.MAX_SAFE_INTEGER))
+  .slice(0,limit);
+}
+function ecoTimeline(session){
+ const rows=ecoTimelineRows(session,ecoTimelineQuery);
+ let out='<section class="eco-outline"><h3>◎ Linha do tempo — o que foi dito e quando</h3>'+
+  '<p class="eco-caption">Horários desde o início da gravação, não horário do relógio. Toque no minuto para localizar o trecho. O áudio temporário é apagado após concluir ou descartar a transcrição, portanto não há reprodução posterior.</p>'+
+  '<label class="field">Buscar falas ou tema <input data-eco-timeline-search placeholder="Ex.: mãe, sonho, trabalho" value="'+esc(ecoTimelineQuery)+'"></label>';
+ if(!rows.length)return out+'<p class="muted small">Ainda não existem trechos com o termo informado.</p></section>';
+ const max=Math.max(1,...rows.map(e=>Number(e.endMs)||Number(e.startMs)||0));
+ out+='<div class="eco-timeline-list">';
+ out+=rows.map(e=>{
+  const at=Number.isFinite(e.startMs)?e.startMs:null,position=at==null?0:Math.max(0,Math.min(100,at/max*100));
+  return '<div class="eco-evidence" id="ecoTimeline-'+e.index+'"><div class="eco-timeline-head">'+
+   btn(ecoTimecode(at),'ecoFocusSegment','secondary','data-id="'+e.index+'"')+
+   '<span class="eco-caption">'+esc(e.speaker||"desconhecido")+' · '+esc(e.origem||"origem desconhecida")+'</span></div>'+
+   '<div class="eco-timeline-meter" aria-hidden="true"><span style="width:'+position.toFixed(1)+'%"></span></div>'+
+   '<p>'+esc(e.text||"")+'</p></div>';
+ }).join('');
+ return out+'</div></section>';
+}
+let ecoAudioSource="microfone",ecoChosenAsr="small",ecoChosenMic="whisper-small";
 let ecoReferenceText="",ecoBenchmarkResult=null;
 let ecoConsentKind="simulacao",ecoConsentReference="";
 function ecoDocumentConsent(){
@@ -837,21 +882,28 @@ function ecoWorkspace(){
  ecoEnsure();
  const isEditing=!!editSessionId;
  let out=head("ECO / sessão",isEditing?"Revisar sessão":"Escuta e registro",c.nome||"Caso sem apelido");
- out+='<div id="ecoStatusBanner" class="eco-status'+(ecoIsCapturing()?' capturing':'')+'"><div><span class="eco-dot"></span><strong id="ecoState">'+esc(ecoStatus)+'</strong></div><span class="muted">Apenas WAV temporário durante o reconhecimento</span></div>';
+ out+='<div id="ecoStatusBanner" class="eco-status'+(ecoIsCapturing()?' capturing':'')+'"><div><span class="eco-dot"></span><strong id="ecoState">'+esc(ecoStatus)+'</strong></div><span class="muted">Grava → transcreve → apaga WAV ao concluir; pausa mantém WAV até retomar ou descartar</span></div>';
  out+='<nav class="eco-workbar" aria-label="Etapas da sessão">'+[
   ["captura","01","Captar"],["marcar","02","Marcar"],["revisar","03","Revisar"],["ecos","04","Ecos"]
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
-  out+='<section class="eco-recorder"><h2>● Transcrição de áudio</h2><p class="eco-caption">São dois modos independentes. Para MP3, WAV, M4A ou FLAC, toque apenas em <strong>Importar e transcrever</strong>: o processo começa automaticamente. Para escutar ao vivo, o Whisper usa trechos curtos e uma fila limitada. Em aparelhos lentos pode atrasar; ele avisará se não conseguir acompanhar. Vosk permanece disponível como alternativa rápida de menor precisão.</p>';
+  out+='<section class="eco-recorder"><h2>● Gravar primeiro, transcrever depois</h2><p class="eco-caption">O microfone grava localmente sem reconhecer a fala ao mesmo tempo. Ao parar, o ECO fecha o arquivo e inicia Whisper offline. Você também pode importar MP3, WAV, M4A ou FLAC. Durante a transcrição, pode pausar para revisar o que já foi reconhecido e depois retomar.</p>';
   out+='<label class="field">Condição da gravação <select data-eco-consent-kind><option value="simulacao" '+(ecoConsentKind==="simulacao"?"selected":"")+'>Simulação com falas fictícias</option><option value="autorizado" '+(ecoConsentKind==="autorizado"?"selected":"")+'>Áudio de atendimento — autorização documentada</option></select></label>';
   if(ecoConsentKind==="autorizado")out+='<label class="field">Referência do documento de autorização (sem nome completo)<input data-eco-consent-reference value="'+esc(ecoConsentReference)+'" placeholder="Ex.: TERMO-2026-002"></label>';
   out+='<label class="choice"><input type="checkbox" data-eco-consent="1" '+(ecoConsent?'checked':'')+'> Declaro que estou autorizado a processar este áudio para a finalidade informada.</label><p class="eco-caption">Registro de declaração do operador: não substitui o termo, a base legal aplicável nem a avaliação da LGPD. Não use pacientes reais neste protótipo.</p>';
-  out+='<label class="field">Motor para o microfone <select data-eco-mic-engine><option value="whisper-base" '+(ecoChosenMic==="whisper-base"?"selected":"")+'>Whisper Base offline · experimental</option><option value="whisper-small" '+(ecoChosenMic==="whisper-small"?"selected":"")+'>Whisper Small Q5 · mais preciso, pode ficar lento</option><option value="vosk" '+(ecoChosenMic==="vosk"?"selected":"")+'>Vosk · rápido, precisão inferior</option></select></label>';
+  out+='<label class="field">Qualidade de reconhecimento após gravar <select data-eco-mic-engine><option value="whisper-small" '+(ecoChosenMic==="whisper-small"?"selected":"")+'>Whisper Small Q5 · melhor precisão esperada</option><option value="whisper-base" '+(ecoChosenMic==="whisper-base"?"selected":"")+'>Whisper Base · mais rápido</option></select></label>';
   out+='<label class="field">Qualidade de transcrição de arquivos <select data-eco-asr-model><option value="small" '+(ecoChosenAsr==="small"?"selected":"")+'>Whisper Small Q5 · maior qualidade esperada (mais lento)</option><option value="base" '+(ecoChosenAsr==="base"?"selected":"")+'>Whisper Base · mais rápido (menos preciso)</option></select></label>';
-  out+='<div class="stack">'+btn('🎙 GRAVAR AO VIVO · '+(ecoChosenMic==="vosk"?"VOSK":"WHISPER"),'ecoStart','','aria-label="Iniciar captação ao vivo pelo microfone"')+btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar áudio e iniciar transcrição automaticamente"')+btn('■ PARAR / CANCELAR','ecoStop','danger')+'</div>';
-  out+='<p class="eco-caption">A importação inicia automaticamente ao escolher um arquivo, sem tocar em Gravar. São processados trechos de até 25 segundos, um de cada vez, mostrando o andamento. Apenas o trecho atual vira WAV temporário privado, apagado após o processamento. O arquivo original permanece intocado. Áudio M4A depende do decodificador do Android.</p>';
+  out+='<div class="stack">'+btn('🎙 INICIAR GRAVAÇÃO LOCAL','ecoStart','','aria-label="Gravar agora e transcrever somente depois de parar"')+
+ btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar arquivo e transcrever"')+
+ (ecoIsRecording()?btn('■ PARAR GRAVAÇÃO E TRANSCREVER','ecoStop','danger'):
+  ecoIsTranscribing()?btn('Ⅱ PAUSAR TRANSCRIÇÃO E REVISAR','ecoPause','secondary'):
+  ecoIsPaused()?btn('▶ RETOMAR DO MINUTO INTERROMPIDO','ecoResume',''):
+  '')+
+ (ecoIsPaused()||ecoIsTranscribing()?btn('■ ENCERRAR PARCIAL E DESCARTAR ÁUDIO RESTANTE','ecoDiscard','danger'):'')+'</div>';
+  out+='<p class="eco-caption">Se pausar, o texto obtido continua disponível para análise e o áudio gravado permanece temporariamente até você retomar ou descartar. Depois da conclusão, o WAV gravado é apagado; arquivos que você importou nunca são apagados pelo ECO. Em caso de falha, mantenha o áudio temporário apenas até decidir retomar ou descartá-lo. Para preservar a privacidade, use somente testes fictícios nesta versão.</p>';
   out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
-  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto é salvo em rascunho criptografado. O ECO lê o áudio do arquivo original e cria somente um trecho WAV privado temporário de até 25 segundos, removido após cada trecho.</p></section>';
+  out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto de cada trecho é salvo em rascunho criptografado, junto aos minutos e à origem do reconhecimento.</p></section>';
+ out+=ecoTimeline(sessionDraft);
  }else if(ecoWorkspaceTab==="marcar"){
   const items=ecoGroups.find(g=>g[0]===ecoCategory)?.slice(1)||[];
   out+='<section class="eco-outline"><h2>Marcações da sessão</h2><p class="eco-caption">Escolha os temas citados, sem supor que outros temas estejam ausentes. Você também pode marcar durante a captação.</p>';
@@ -867,7 +919,7 @@ function ecoWorkspace(){
   out+=field('intervencoes','Intervenções / observações','textarea',{source:sessionDraft});
   out+=field('plano','Pontos para acompanhar','textarea',{source:sessionDraft});
   out+='<p class="eco-caption">Marcações registradas: '+esc(sessionDraft.mlTags.join(' · ')||'Nenhuma')+'</p></div>';
-  out+=ecoSegmentReview();out+=ecoEvidencePanel();
+  out+=ecoTimeline(sessionDraft);out+=ecoSegmentReview();out+=ecoEvidencePanel();
   out+='<section class="eco-outline"><h3>Teste objetivo da precisão — somente material fictício</h3>'+
     '<p class="eco-caption">Compare o resultado automático com uma transcrição humana de referência do MESMO áudio. O WER mede substituições, omissões e inserções por palavra; não mede segurança ou qualidade clínica. O texto de referência fica apenas na tela e não é salvo.</p>'+
     '<textarea rows="5" data-eco-reference placeholder="Cole aqui a transcrição CORRETA do áudio de teste...">'+esc(ecoReferenceText)+'</textarea>'+
@@ -950,6 +1002,12 @@ act=function(name,id){
   else window.NativeVault.selectAudioFile(true);
   return;
  }
+ if(name==="ecoFocusSegment"){
+   ecoWorkspaceTab="revisar";const index=Number(id);ecoTimelineFocused=index;render();
+   const target=document.getElementById("ecoSegment-"+index)||document.getElementById("ecoTimeline-"+index);
+   if(target&&target.scrollIntoView)target.scrollIntoView({behavior:"smooth",block:"center"});
+   return;
+ }
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
  if(name==="ecoBenchmark"){
@@ -983,26 +1041,30 @@ act=function(name,id){
    if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Não foi possível confirmar sem salvar: "+result,'red');return}
    render();return;
  }
- if(name==="ecoSave"){if(ecoIsCapturing()){notify("Encerre o processamento antes de salvar.",'red');return;}return ecoActBase("saveSession")}
- if(name==="ecoBackCase"){if(ecoIsCapturing()){notify("Encerre o processamento antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
+ if(name==="ecoSave"){
+   if(ecoIsCapturing()||ecoIsPaused()){notify("Pause para revisar, mas antes de salvar conclua ou descarte o áudio restante.",'red');return;}
+   return ecoActBase("saveSession");
+ }
+ if(name==="ecoBackCase"){if(ecoIsCapturing()||ecoIsPaused()){notify("Conclua ou descarte o áudio temporário antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
  if(name==="ecoStart" && !ecoIsCapturing() && ecoConsent){
   if(!ecoDocumentConsent())return;
  }
  const previous=screen;
  const result=ecoActBase(name,id);
  if(name==="ecoOpen"||name==="newSession"||name==="editSession"){
-   ecoWorkspaceTab="captura";ecoReferenceText="";ecoBenchmarkResult=null;render();
+   ecoWorkspaceTab="captura";ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";render();
  }
  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
  return result;
 };
 document.addEventListener("input",e=>{
  if(e.target?.dataset?.ecoConsentReference!==undefined)ecoConsentReference=e.target.value||"";
+ if(e.target?.dataset?.ecoTimelineSearch!==undefined){ecoTimelineQuery=e.target.value||"";render()}
  if(e.target?.dataset?.ecoReference!==undefined){ecoReferenceText=e.target.value||"";ecoBenchmarkResult=null;}
 });
 document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=e.target.value==="base"?"base":"small"}
- if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","vosk"].includes(e.target.value)?e.target.value:"whisper-base"}
+ if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
  if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
  if(e.target?.dataset?.ecoSpeaker!==undefined&&sessionDraft){
