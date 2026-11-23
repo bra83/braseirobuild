@@ -1032,10 +1032,10 @@ function ecoAtlasScreen(){
  const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=c.sessoes||[];
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
- const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data}))).slice(-150);
+ const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionId:s.id,sessionDate:s.data}))).slice(-150);
  const repeated=ecoLongitudinalEvidence(ss);
  const stale=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionDate:s.data})));
- const recordedEvents=ss.flatMap(s=>(s.mlEvents||[]).filter(e=>ecoEventCurrent(s,e)).map(e=>({...e,sessionDate:s.data})));
+ const recordedEvents=ss.flatMap(s=>(s.mlEvents||[]).filter(e=>ecoEventCurrent(s,e)).map(e=>({...e,sessionId:s.id,sessionDate:s.data})));
  const eventCounts=new Map();
  for(const e of recordedEvents){
     const key=e.kind;
@@ -1056,10 +1056,11 @@ function ecoAtlasScreen(){
  ([...eventCounts].length?[...eventCounts].map(([name,row])=>
  '<div class="eco-evidence"><strong>'+esc(name)+'</strong> · '+row.sessions.size+' sessão(ões)'+
  row.items.slice(0,10).map(e=>'<p><small>'+esc(formatDate(e.sessionDate))+' · '+esc(ecoTimecode(e.atMs))+
- '</small> “'+esc(e.quote)+'”</p>').join('')+'</div>').join(''):'<p class="muted">Não há eventos confirmados.</p>')+'</div>';
+ '</small> “'+esc(e.quote)+'”'+(Number.isFinite(e.atMs)?btn('Ver no minuto','ecoJumpToSession','secondary','data-id="'+esc(c.id+'|'+e.sessionId+'|'+e.atMs)+'"'):'')+'</p>').join('')+'</div>').join(''):'<p class="muted">Não há eventos confirmados.</p>')+'</div>';
  out+='<div class="eco-outline"><h2>Evidências confirmadas</h2><p class="eco-caption">Somente confirmações humanas com citações ainda presentes no texto vigente.</p>'+
 
- (verified.length?verified.map(e=>'<div class="eco-evidence"><strong>'+esc(e.label)+' · '+esc(formatDate(e.sessionDate))+'</strong><p>“'+esc(e.quote)+'”</p><small>'+esc(e.category)+' · '+esc(e.polarity||"menção")+' · falante '+esc(e.speaker||"desconhecido")+'</small></div>').join(''):'<p class="muted">Ainda não há evidências confirmadas.</p>')+'</div>';
+ (verified.length?verified.map(e=>'<div class="eco-evidence"><strong>'+esc(e.label)+' · '+esc(formatDate(e.sessionDate))+'</strong><p>“'+esc(e.quote)+'”</p><small>'+esc(e.category)+' · '+esc(e.polarity||"menção")+' · falante '+esc(e.speaker||"desconhecido")+' · minuto '+esc(ecoTimecode(e.timeMs))+'</small>'+
+  (Number.isFinite(e.timeMs)?btn('Abrir sessão neste minuto','ecoJumpToSession','secondary','data-id="'+esc(c.id+'|'+e.sessionId+'|'+e.timeMs)+'"'):'')+'</div>').join(''):'<p class="muted">Ainda não há evidências confirmadas.</p>')+'</div>';
  if(stale.length)out+='<div class="eco-outline"><h2>Referências desatualizadas ('+stale.length+')</h2>'+
  '<p class="eco-caption">Menções anteriormente confirmadas cujo trecho não corresponde mais ao texto revisado. Não são tratadas como evidência válida.</p>'+
  stale.slice(0,25).map(e=>'<div class="eco-evidence">'+esc(formatDate(e.sessionDate))+' · '+esc(e.label)+' — “'+esc(e.quote)+'”</div>').join('')+'</div>';
@@ -1102,6 +1103,28 @@ act=function(name,id){
   if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
   else window.NativeVault.selectAudioFile(true);
   return;
+ }
+ if(name==="ecoJumpToSession"){
+   if(ecoIsCapturing()||ecoIsPaused()){notify("Finalize o áudio temporário antes de abrir outra sessão.",'red');return;}
+   const [caseId,sessionId,atText]=String(id||"").split("|");
+   const selected=state?.cases?.find(c=>c.id===caseId);
+   if(!selected||!selected.sessoes?.some(s=>s.id===sessionId)){notify("Sessão não encontrada.",'red');return;}
+   openedId=caseId;
+   ecoActBase("editSession",sessionId);
+   if(screen!=="session")return;
+   ecoWorkspaceTab="revisar";ecoTimelineQuery="";
+   const time=Number(atText)||0;
+   const all=sessionDraft.mlSegments||[];
+   let nearest=-1,dist=Infinity;
+   for(let i=0;i<all.length;i++){
+     if(!Number.isFinite(all[i].startMs))continue;
+     const error=Math.abs(all[i].startMs-time);
+     if(error<dist){nearest=i;dist=error}
+   }
+   ecoTimelineFocused=nearest;render();
+   const element=document.getElementById("ecoSegment-"+nearest);
+   if(element&&element.scrollIntoView)element.scrollIntoView({behavior:"smooth",block:"center"});
+   return;
  }
  if(name==="ecoFilterTimeline"){render();return;}
  if(name==="ecoFocusSegment"){
@@ -1215,7 +1238,8 @@ pdfForCase=function(c){
      '</small> '+esc(e.text||"")+'</p>').join('');
    const evidence='<h4>Menções confirmadas e válidas</h4>'+(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>
      '<p><strong>'+esc(e.category||"Tema")+" · "+esc(e.label||"")+'</strong> — “'+esc(e.quote||"")+
-     '” <small>'+esc(e.polarity||"menção")+" · "+esc(e.speaker||"desconhecido")+'</small></p>').join('');
+     '” <small>'+esc(e.polarity||"menção")+" · "+esc(e.speaker||"desconhecido")+
+  " · minuto "+esc(ecoTimecode(e.timeMs))+'</small></p>').join('');
    const staleEvidence=(s.mlEvidence||[]).filter(e=>e.status==="confirmado"&&!ecoEvidenceCurrent(s,e));
    const outdated='<h4>Referências desatualizadas</h4>'+staleEvidence.map(e=>'<p>“'+esc(e.quote||"")+
    '” — alterada ou ausente na transcrição revisada, não considerada evidência atual</p>').join('');
