@@ -61,7 +61,7 @@ test('ECO: fluxo direto para gravação e marcações',()=>{
  context.cid=cid;
  js("act('ecoOpen',cid)");
  assert.equal(js("screen"),"session");
- assert.match(js("sessionScreen()"),/GRAVAR AO VIVO/);
+ assert.match(js("sessionScreen()"),/INICIAR GRAVAÇÃO LOCAL/);
  js("act('ecoWorkspaceTab','marcar')");
  assert.match(js("sessionScreen()"),/data-eco-tag/);
 });
@@ -90,7 +90,7 @@ test('ECO v0.4 usa dashboard de escuta e atalhos reais',()=>{
 });
 test('ECO v0.4 marcação, revisão e atlas sem áudio',()=>{
  js("act('ecoOpen',state.cases[0].id)");
- assert.match(js("sessionScreen()"),/Transcrição de áudio/);
+ assert.match(js("sessionScreen()"),/Gravar primeiro, transcrever depois/);
  js("act('ecoWorkspaceTab','marcar')");
  assert.match(js("sessionScreen()"),/data-eco-tag/);
  js("act('ecoWorkspaceTab','revisar')");
@@ -155,7 +155,7 @@ test('Fluxo ECO permite começar sem sintomas, idade, intensidade ou tempo da qu
  assert.equal(js('currentCase().queixas.length'),0);
  assert.equal(js('currentCase().intensidade'),'');
  assert.equal(js('currentCase().desde'),'');
- assert.match(js('sessionScreen()'),/GRAVAR AO VIVO/);
+ assert.match(js('sessionScreen()'),/INICIAR GRAVAÇÃO LOCAL/);
 });
 test('Cadastro de caso não exige seleção prévia de temas',()=>{
  js("act('newCase');draft.nome='ECO-CASE-TEST';act('wizardNext')");
@@ -188,7 +188,7 @@ test('ECO Whisper Base para arquivos sem API externa',()=>{
  assert.match(app,/whisper-android:1.0.0/);
  assert.match(wf,/ggml-base.bin/);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/Whisper Base offline/);
+ assert.match(js("sessionScreen()"),/Whisper Base · mais rápido/);
 });
 
 test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
@@ -334,26 +334,27 @@ test('ECO G9 exige referencia documental para audio autorizado',()=>{
 });
 
 
-test('ECO G3 Whisper microphone uses bounded queue and audio-only ephemeral chunks',()=>{
- const kt=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperLiveEngine.kt',import.meta.url),'utf8');
- const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+test('ECO G3 captura: AudioRecord em uma thread, grava WAV, encerra e depois transcreve',()=>{
+ const rec=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SessionRecorder.java',import.meta.url),'utf8');
+ const engine=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
  const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
- assert.match(kt,/ArrayBlockingQueue<Chunk>\(2\)/);
- assert.match(kt,/AudioRecord.Builder/);
- assert.match(kt,/queue\.offer\(Chunk/);
- assert.match(kt,/File\.createTempFile\(CACHE_PREFIX, ".wav"/);
- assert.match(kt,/if \(!file\.delete\(\)\)/);
- assert.match(kt,/Whisper\.transcribe/);
- assert.match(kt,/listener\.segment/);
- assert.match(kt,/processamento mais lento que a gravação/);
- assert.match(ml,/beginWhisperMicrophone/);
- assert.match(ml,/live\.finishRecording/);
- assert.match(main,/startMlCaptureWithEngine/);
- assert.match(main,/WhisperLiveEngine\.clearStaleFiles/);
+ assert.match(rec,/AudioRecord\.READ_NON_BLOCKING/);
+ assert.match(rec,/new Thread\(this::capture/);
+ assert.match(rec,/recording\.set\(false\)/);
+ assert.match(rec,/writeHeader\(wav,bytes\)/);
+ assert.match(rec,/events\.ready\(file,bytes/);
+ assert.match(rec,/File\.createTempFile\(PREFIX, "\.wav"/);
+ assert.match(engine,/new SessionRecorder/);
+ assert.match(engine,/beginFile\(\)/);
+ assert.match(engine,/pauseTranscription\(\)/);
+ assert.match(engine,/resumeTranscription\(\)/);
+ assert.match(engine,/discardRemainingAudio\(\)/);
+ assert.match(main,/ml\.onHostPause\(\)/);
+ assert.doesNotMatch(main,/onPause\(\).*ml\.stop\(\)/s);
  js("act('ecoOpen',state.cases[0].id);act('ecoWorkspaceTab','captura')");
- assert.match(js("sessionScreen()"),/Motor para o microfone/);
- assert.match(js("sessionScreen()"),/Whisper Base offline/);
- assert.match(js("sessionScreen()"),/Vosk · rápido/);
+ const view=js("sessionScreen()");
+ assert.match(view,/INICIAR GRAVAÇÃO LOCAL/);
+ assert.match(view,/Gravar primeiro, transcrever depois/);
 });
 test('ECO G3 live mic engine selection passes to Android bridge and blocks parallel imports',()=>{
  const cid=js('state.cases[0].id');
@@ -428,6 +429,59 @@ test('ECO captação e importação bloqueiam ações enquanto motores realmente
  }
  js('window.nativeMlState("CONCLUÍDO · MICROFONE WHISPER BASE · REVISE O TEXTO")');
  assert.equal(js('ecoIsCapturing()'),false);
+});
+
+
+test('ECO gravação e transcrição têm pausas e conclusão parcial distintas',()=>{
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const whisper=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(ml,/pauseRequested=true/);
+ assert.match(ml,/resumeFromMs=processedMs/);
+ assert.match(ml,/if\(pauseRequested && wanted/);
+ assert.match(ml,/if\(recordingRequested && recorder!=null\)/);
+ assert.match(ml,/file\.delete\(\)/);
+ assert.match(whisper,/resumeFromMs: Long/);
+ assert.match(whisper,/fun progress\(processedMs: Long\)/);
+ assert.match(main,/pauseMlTranscription/);
+ assert.match(main,/resumeMlTranscription/);
+ assert.match(main,/discardMlAudio/);
+ js('act("ecoOpen",state.cases[0].id)');
+ context.window.NativeVault.pauseMlTranscription=()=>{context.pauseCount=(context.pauseCount||0)+1;};
+ context.window.NativeVault.resumeMlTranscription=()=>{context.resumeCount=(context.resumeCount||0)+1;};
+ context.window.NativeVault.discardMlAudio=()=>{context.discardCount=(context.discardCount||0)+1;};
+ js('window.nativeMlState("WHISPER SMALL Q5 · TRANSCRIBINDO 0m25s · TRECHO 1")');
+ assert.match(js('sessionScreen()'),/PAUSAR TRANSCRIÇÃO E REVISAR/);
+ js('act("ecoPause")');assert.equal(context.pauseCount,1);
+ js('window.nativeMlState("PAUSADO · 25s PROCESSADOS · REVISE OU RETOME")');
+ assert.match(js('sessionScreen()'),/RETOMAR DO MINUTO INTERROMPIDO/);
+ js('act("ecoResume")');assert.equal(context.resumeCount,1);
+ js('act("ecoDiscard")');assert.equal(context.discardCount,1);
+});
+test('ECO linha do tempo 00:00 e navegação por minuto',()=>{
+ js('act("ecoOpen",state.cases[0].id);act("ecoWorkspaceTab","revisar")');
+ js('sessionDraft.mlSegments=[{text:"Eu sonhei com minha mãe.",startMs:7000,endMs:10000,speaker:"paciente",origem:"Whisper"},{text:"Falei com meu chefe.",startMs:93000,endMs:96000,speaker:"paciente",origem:"Whisper"}]');
+ assert.equal(js('ecoTimecode(93000)'),'01:33');
+ assert.equal(js('ecoTimecode(null)'),'sem horário');
+ assert.equal(js('ecoTimelineRows(sessionDraft,"chefe").length'),1);
+ assert.match(js('ecoTimeline(sessionDraft)'),/01:33/);
+ assert.match(js('ecoTimeline(sessionDraft)'),/ecoFocusSegment/);
+});
+test('ECO NLP factual eventos extrai verbo, referencia temporal, familia e negacao, sem diagnostico',()=>{
+ context.structured={
+  id:"s-audit",mlTranscricao:"Ontem sonhei com minha mãe. Eu não falei com meu pai. Meu chefe disse que esperava.",
+  mlSegments:[{text:"Ontem sonhei com minha mãe.",startMs:18000,speaker:"paciente"},
+              {text:"Eu não falei com meu pai.",startMs:24000,speaker:"paciente"},
+              {text:"Meu chefe disse que esperava.",startMs:41000,speaker:"paciente"}]
+ };
+ const events=js('ecoStructuredEvents(structured)');
+ assert.ok(events.some(x=>x.kind==='Sonho relatado'&&x.atMs===18000));
+ assert.ok(events.some(x=>x.kind==='Comunicação relatada'&&x.quote.includes('meu pai')));
+ assert.ok(events.some(x=>x.kind==='Espera relatada'&&x.quote.includes('Meu chefe')));
+ assert.equal(events.every(x=>x.status==='sugerido'),true);
+ assert.equal(events.every(x=>!!x.quote),true);
+ assert.equal(events.every(x=>!('diagnosis' in x)),true);
+ assert.ok(js('ecoEventCurrent({...structured,mlEvents:[]},{status:"confirmado",quote:"Ontem sonhei com minha mãe."})'));
 });
 
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');

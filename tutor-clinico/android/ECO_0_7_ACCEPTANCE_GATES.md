@@ -1,4 +1,4 @@
-# ECO 0.8.0-beta — gates de aceite e limitações
+# ECO 0.9.0-beta — gates de aceite e limitações
 
 Estado: beta de desenvolvimento com microfone Whisper experimental e comparação WER local. A compilação e testes de lógica não certificam uso clínico.
 Não use dados reais de pacientes antes de validações independentes de segurança e base legal.
@@ -46,3 +46,13 @@ Não use dados reais de pacientes antes de validações independentes de seguran
 - O Atlas só considera citações confirmadas ainda presentes na transcrição vigente; marcações desatualizadas aparecem em separado.
 - A revisão oferece cálculo WER local usando transcrição de referência humana de gravação fictícia, sem persistir o texto de referência.
 - Ainda não existe diarização automática nem banco SQLite criptografado; nenhuma destas funcionalidades deve ser presumida pronta.
+
+## 0.9.0-beta: mudança de arquitetura e critérios de aceite
+
+- Captura agora grava primeiro e transcreve somente após finalizar e fechar o WAV. O AudioRecord pertence apenas à thread de captura: o botão Parar não chama stop/release diretamente.
+- WAV temporário do microfone fica no cache privado, sem criptografia própria, enquanto a transcrição é processada ou está pausada. Após sucesso, descarte explícito ou inicialização posterior por limpeza, é removido. Em caso de erro, pode ser retido até decisão de retomar ou descartar. Por privacidade, ainda apenas simulações.
+- Importação e gravação podem ser pausadas após o trecho Whisper corrente, retomando por deslocamento PCM com progresso confirmado; as palavras reconhecidas anteriormente ficam no rascunho criptografado.
+- Encerramento parcial preserva texto e descarta somente gravação temporária criada pelo ECO, nunca arquivos importados.
+- Linha do tempo textual mostra minuto:segundo por segmento, pesquisa e navegação por trecho; sem áudio guardado, não há reprodução posterior.
+- NLP factual v2 sugere ações, referências temporais, possível negação, pessoas e contexto. Não há modelo neural clínico nem inferência de diagnóstico.
+- GATES AINDA ABERTOS: teste físico Android de parar/pausar/retomar, qualidade PT-BR WER, retenção segura, acessibilidade e proteção para uso real.
