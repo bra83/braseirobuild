@@ -197,7 +197,20 @@ function appUnlock(){
      }
    }
    if(data.version!==1||!Array.isArray(data.cases)||!Array.isArray(data.appointments)) throw new Error('Esquema não reconhecido');
-   state=data;errorLocked=false;render();
+   state=data;errorLocked=false;
+   // Recover the encrypted autosave even after OS process death. This cannot
+   // restore a deleted temporary WAV, but preserves already transcribed text.
+   const recovered=state.mlDraft;
+   const caseExists=recovered&&state.cases.some(c=>c.id===recovered.caseId);
+   if(caseExists && recovered.session && typeof recovered.session==="object"){
+      openedId=recovered.caseId;
+      sessionDraft=JSON.parse(JSON.stringify(recovered.session));
+      editSessionId=state.cases.find(c=>c.id===openedId)?.sessoes?.some(s=>s.id===sessionDraft.id)?sessionDraft.id:null;
+      screen="session";
+      ecoWorkspaceTab="revisar";
+      ecoStatus="RASCUNHO RESTAURADO · TRANSCRIÇÃO ANTERIOR INTERROMPIDA · CONFIRA O TEXTO";
+   }
+   render();
  } catch(e){errorLocked=true;$('#app').innerHTML='<div class="alert red"><strong>Dados não abertos</strong><p>'+esc(e.message)+'</p><p>Não crie registros novos nem reinstale o app antes de avaliar a recuperação.</p></div>';$('#bottom').innerHTML='';}
 }
 window.appUnlock=appUnlock;

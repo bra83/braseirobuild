@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.database.Cursor;
 import android.provider.OpenableColumns;
 import android.os.Bundle;
+import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
@@ -161,6 +162,14 @@ public final class MainActivity extends Activity {
         }));
         dialog.show();
     }
+    // Rotation must NOT destroy the WebView, recorder, or transcription worker.
+    // The manifest opts into these configuration changes; onCreate is not called
+    // and the existing unlocked session remains in memory.
+    @Override public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(web!=null)web.requestLayout();
+    }
+
     @Override protected void onPause() {
         // A system file picker, permissions dialog or app switch invokes onPause.
         // Do not cancel a Whisper decoder or release a microphone from the UI thread.
