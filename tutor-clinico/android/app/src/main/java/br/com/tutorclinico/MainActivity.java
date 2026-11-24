@@ -76,6 +76,7 @@ public final class MainActivity extends Activity {
                 }catch(Exception e){jsCallback("nativeMlState","ERRO METADADOS DO TRECHO");}
             }
             @Override public void partial(String s){jsCallback("nativeMlPartial",s);}
+            @Override public void acoustic(String json){jsCallback("nativeMlAcoustic",json);}
         });
         pref = getSharedPreferences("tutor-lock", MODE_PRIVATE);
         web = new WebView(this);

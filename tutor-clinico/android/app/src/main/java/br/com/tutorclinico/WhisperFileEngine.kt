@@ -41,6 +41,7 @@ object WhisperFileEngine {
         fun state(value: String)
         fun segment(value: String, startMs: Long, endMs: Long)
         fun progress(processedMs: Long)
+        fun acoustic(measurementJson: String)
     }
 
     @JvmStatic
@@ -116,6 +117,7 @@ object WhisperFileEngine {
         resumeFromMs: Long
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
+        private val acoustic = AcousticMeter(resumeFromMs)
         private var chunkIndex = 0
         private var processedFrames = resumeFromMs.coerceAtLeast(0L) * SAMPLE_RATE / 1000L
         var recognizedCount = 0
@@ -124,6 +126,10 @@ object WhisperFileEngine {
         fun accept(data: ByteArray, size: Int) {
             if (size < 0 || size > data.size)
                 throw IllegalArgumentException("Bloco de áudio inválido")
+            acoustic.accept(data,size)
+            for (feature in acoustic.drain()) {
+                if(listener.isActive())listener.acoustic(feature)
+            }
             var offset = 0
             while (offset < size && listener.isActive()) {
                 val take = minOf(size - offset, SEGMENT_SIZE - pcm.size())
@@ -135,6 +141,10 @@ object WhisperFileEngine {
 
         fun finish() {
             if (listener.isActive() && pcm.size() > 0) transcribeChunk(true)
+            if(listener.isActive()){
+                acoustic.finish()
+                for(feature in acoustic.drain())listener.acoustic(feature)
+            }
         }
 
         // Energy-based pause detection (a conservative filter, NOT a neural VAD).

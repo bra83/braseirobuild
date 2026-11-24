@@ -23,6 +23,7 @@ final class SessionRecorder {
         void status(String value);
         void ready(File temporaryWav, long durationMs);
         void error(String value);
+        void acoustic(String measurementJson);
     }
     private static final int RATE = 16000;
     private static final long MAX_BYTES = 120L * 60L * RATE * 2L;
@@ -55,6 +56,7 @@ final class SessionRecorder {
         File file=null;
         long bytes=0;
         boolean good=false;
+        AcousticMeter meter=new AcousticMeter();
         try{
             int min=AudioRecord.getMinBufferSize(RATE, AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT);
@@ -80,6 +82,8 @@ final class SessionRecorder {
                     n-=n%2;
                     if(bytes+n>MAX_BYTES)throw new IllegalStateException("Limite de 120 minutos");
                     wav.write(buffer,0,n);bytes+=n;
+                    meter.accept(buffer,n);
+                    for(String feature:meter.drain())events.acoustic(feature);
                 } else {
                     try{Thread.sleep(20);}catch(InterruptedException ignored){Thread.currentThread().interrupt();}
                 }
@@ -90,6 +94,8 @@ final class SessionRecorder {
             }
             if(bytes==0)throw new IllegalStateException("Nenhum áudio capturado");
             writeHeader(wav,bytes);
+            meter.finish();
+            for(String feature:meter.drain())events.acoustic(feature);
             wav.getFD().sync();
             good=true;
         }catch(Throwable e){

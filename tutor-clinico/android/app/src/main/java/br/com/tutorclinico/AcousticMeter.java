@@ -18,6 +18,8 @@ final class AcousticMeter {
     private final short[] recent=new short[RING];
     private int ringPos=0,ringCount=0;
     private long frames=0;
+    AcousticMeter(){}
+    AcousticMeter(long offsetMs){frames=Math.max(0,offsetMs)*SAMPLE_RATE/1000L;}
     private int inWindow=0;
     private double squared=0;
     private int quiet=0;

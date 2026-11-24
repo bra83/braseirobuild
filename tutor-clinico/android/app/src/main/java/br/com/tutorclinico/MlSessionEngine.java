@@ -19,6 +19,7 @@ final class MlSessionEngine implements RecognitionListener {
     interface Events {
        void state(String s); void segment(String s); void partial(String s);
        void segmentDetailed(String text,long startMs,long endMs);
+       void acoustic(String measurementJson);
     }
     private final Activity activity;
     private final Events events;
@@ -55,6 +56,9 @@ final class MlSessionEngine implements RecognitionListener {
         fileModelName="whisper-base".equals(engine)?"base":"small";
         recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
+            @Override public void acoustic(String json){
+                if(!destroyed)events.acoustic(json);
+            }
             @Override public void error(String s){
                 synchronized(MlSessionEngine.this){wanted=false;recordingRequested=false;recorder=null;}
                 if(!destroyed)events.state(s);
@@ -186,6 +190,9 @@ final class MlSessionEngine implements RecognitionListener {
                             }
                             @Override public void segment(String text,long startMs,long endMs) {
                                 if(isActive())events.segmentDetailed(text,startMs,endMs);
+                            }
+                            @Override public void acoustic(String json){
+                                if(isActive())events.acoustic(json);
                             }
                             @Override public void progress(long processedMs) {
                                 synchronized(MlSessionEngine.this){
