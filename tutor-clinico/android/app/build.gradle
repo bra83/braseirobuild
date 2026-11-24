@@ -8,14 +8,15 @@ android {
         applicationId 'br.com.tutorclinico.offline'
         minSdk 28
         targetSdk 35
-        versionCode 16
-        versionName '0.12.0-speakers-beta'
+        versionCode 17
+        versionName '0.13.0-tagarela-beta'
     }
-    androidResources { noCompress += ['onnx'] }
+    androidResources { noCompress += ['onnx','txt'] }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 
 dependencies {
+    implementation files('libs/sherpa-onnx-static-link-onnxruntime-1.13.3.aar')
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.22.0'
     implementation 'com.alphacephei:vosk-android:0.3.47' // Legacy live microphone
     implementation 'dev.ffmpegkit-maintained:whisper-android:1.0.0' // Offline file transcription

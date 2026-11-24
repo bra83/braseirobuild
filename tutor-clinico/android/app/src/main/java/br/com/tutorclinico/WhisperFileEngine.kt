@@ -65,13 +65,14 @@ object WhisperFileEngine {
                    resumeFromMs: Long, clusters: SpeakerClusters?): Boolean {
         if (!listener.isActive()) return false
         var model: WhisperModel? = null
+        var tagarela: TagarelaEngine? = null
         var diarizer: SegmentDiarizer? = null
-        val mode = if(requestedModel=="base")"base" else "small"
-        val modelName = if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
+        val mode = if(requestedModel=="tagarela")"tagarela" else if(requestedModel=="base")"base" else "small"
+        val modelName = if(mode=="tagarela") "TAGARELA" else if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
         val asset = if(mode=="base") MODEL_BASE else MODEL_SMALL
         try {
             listener.state(modelName+" · PREPARANDO MODELO OFFLINE")
-            model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
+            if(mode=="tagarela")tagarela=TagarelaEngine(context) else model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
             if (!listener.isActive()) return false
 
             // Skip already-committed PCM during resume. No duplicate segments are emitted.
@@ -79,7 +80,7 @@ object WhisperFileEngine {
             val skipFromMs = resumeFromMs.coerceAtLeast(0L)
             var toSkipBytes = skipFromMs * PCM_BYTES_PER_SECOND / 1000L
             if(clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
-            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer)
+            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela)
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
             AudioFileTranscriber.streamPcm(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
@@ -108,11 +109,12 @@ object WhisperFileEngine {
         } catch (e: Throwable) {
             if (listener.isActive()) {
                 val detail = e.message ?: e.javaClass.simpleName
-                listener.state("ERRO WHISPER: " + detail)
+                listener.state("ERRO "+modelName+": " + detail)
             }
             return false
         } finally {
             try {diarizer?.close()}catch(_:Throwable){}
+            try {tagarela?.close()}catch(_:Throwable){}
             model?.let { try { Whisper.releaseModel(it) } catch (_: Throwable) { } }
         }
     }
@@ -120,10 +122,11 @@ object WhisperFileEngine {
     private class ChunkedPcmTranscriber(
         private val context: Context,
         private val listener: Listener,
-        private val model: WhisperModel,
+        private val model: WhisperModel?,
         private val modelName: String,
         resumeFromMs: Long,
-        private val diarizer: SegmentDiarizer?
+        private val diarizer: SegmentDiarizer?,
+        private val tagarela: TagarelaEngine?
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private val acoustic = AcousticMeter(resumeFromMs)
@@ -212,6 +215,22 @@ object WhisperFileEngine {
                 }
                 return
             }
+            if(tagarela!=null){
+                listener.state("TAGARELA · TRANSCRIBINDO "+(baseMs/1000)+"s")
+                val voice=diarizer?.analyze(bytes,java.util.function.BooleanSupplier { listener.isActive() })
+                if(!listener.isActive())return
+                val spans=tagarela.decode(bytes)
+                if(!listener.isActive())return
+                for(s in spans){
+                    recognizedCount++
+                    listener.segmentWithSpeaker(s.text,baseMs+s.start,baseMs+s.end,voice?.label(s.start,s.end)?:"")
+                }
+                listener.progress(processedFrames*1000L/SAMPLE_RATE)
+                val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
+                val speed=(processedFrames*1000L/SAMPLE_RATE-initialMs).toDouble()/elapsed
+                listener.state("TAGARELA · TRECHO "+chunkIndex+" CONCLUÍDO · "+String.format(java.util.Locale.US,"%.2fx",speed)+" TEMPO REAL")
+                return
+            }
             val wav = File.createTempFile(CACHE_PREFIX, ".wav", context.cacheDir)
             try {
                 writeWav(wav, bytes)
@@ -221,7 +240,7 @@ object WhisperFileEngine {
                     (offsetSec % 60L).toString().padStart(2, '0') + "s"
                 listener.state(modelName+" · TRANSCRIBINDO " + clock + " · TRECHO " + chunkIndex)
                 val result = runBlocking {
-                    Whisper.transcribe(model, wav.absolutePath,
+                    Whisper.transcribe(requireNotNull(model), wav.absolutePath,
                         WhisperConfig(language = "pt", translate = false, threads = 4))
                 }
                 if (!listener.isActive()) return

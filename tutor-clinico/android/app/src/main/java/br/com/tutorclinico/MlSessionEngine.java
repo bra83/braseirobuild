@@ -59,7 +59,7 @@ final class MlSessionEngine implements RecognitionListener {
         recordingRequested=true;
         pauseRequested=false;paused=false;discarding=false;resumeFromMs=0L;
         deferRecognitionUntilResume=false;
-        fileModelName="whisper-base".equals(engine)?"base":"small";
+        fileModelName="tagarela".equals(engine)?"tagarela":"whisper-base".equals(engine)?"base":"small";
         recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
             @Override public void acoustic(String json){
@@ -80,7 +80,7 @@ final class MlSessionEngine implements RecognitionListener {
                         paused=true;
                         events.state("PAUSADO · GRAVAÇÃO LOCAL FINALIZADA · RETOME PARA TRANSCREVER");
                     }else{
-                        events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · INICIANDO WHISPER");
+                        events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · INICIANDO MOTOR OFFLINE");
                         beginFile();
                     }
                 }
@@ -121,7 +121,7 @@ final class MlSessionEngine implements RecognitionListener {
     synchronized void importFile(Uri uri,String modelName) {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
-        fileModelName = "base".equals(modelName)?"base":"small";
+        fileModelName = "tagarela".equals(modelName)?"tagarela":"base".equals(modelName)?"base":"small";
         speakerClusters.clear();
         wanted=true;retainedUri=uri;pendingFile=uri;
         resumeFromMs=0L;pauseRequested=false;paused=false;discarding=false;

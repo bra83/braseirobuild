@@ -650,3 +650,6 @@ test('ECO 0.12 falha de persistência restaura papéis individuais e coletivos',
  assert.equal(js('sessionDraft.mlSegments[0].speaker'),'desconhecido');
  js('delete window.NativeVault.saveDraft');
 });
+
+test('ECO 0.13 seleção TAGARELA nas duas entradas',()=>{js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id)');const h=js('sessionScreen()');assert.match(h,/data-eco-mic-engine><option value="tagarela"/);assert.match(h,/data-eco-asr-model><option value="tagarela"/);});
+test('ECO 0.13 correção individual preserva posição e falante',()=>{js('sessionDraft.mlSegments=[{text:"fala",speaker:"desconhecido"}]');assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),true);assert.equal(js('sessionDraft.mlSegments[0].speaker'),'paciente');assert.equal(js('state.mlDraft.session.mlSegments[0].speaker'),'paciente');});

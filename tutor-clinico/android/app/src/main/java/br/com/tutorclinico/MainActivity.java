@@ -258,7 +258,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->{
-                selectedAsrModel="base".equals(model)?"base":"small";
+                selectedAsrModel="tagarela".equals(model)?"tagarela":"base".equals(model)?"base":"small";
                 chooseAudioFile();
             });
         }
@@ -269,7 +269,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void startMlCaptureWithEngine(boolean confirmed,String engine){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->{
-                selectedMicEngine="vosk".equals(engine)?"vosk":
+                selectedMicEngine="tagarela".equals(engine)?"tagarela":"vosk".equals(engine)?"vosk":
                         "whisper-small".equals(engine)?"whisper-small":"whisper-base";
                 beginCapture();
             });

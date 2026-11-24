@@ -89,6 +89,16 @@ jobs:
           python --version
           python -m pip install --only-binary=:all: --disable-pip-version-check numpy==1.26.4 onnxruntime==1.22.0 onnx==1.17.0 safetensors==0.5.3 tokenizers==0.21.1
           python qa/provision_semantic.py
+      - name: Baixar runtime Android TAGARELA e validar inferência
+        run: |
+          set -euo pipefail
+          mkdir -p app/libs
+          curl --fail --location --retry 3 --max-time 600 https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.3/sherpa-onnx-static-link-onnxruntime-1.13.3.aar -o app/libs/sherpa-onnx-static-link-onnxruntime-1.13.3.aar
+          echo '9f065fe6f2cab09fd48eaa580097293e077637ad53a5e89c5c58a36509386ac7  app/libs/sherpa-onnx-static-link-onnxruntime-1.13.3.aar' | sha256sum -c -
+          sudo apt-get update -qq
+          sudo apt-get install -y espeak-ng
+          python -m pip install --only-binary=:all: sherpa-onnx==1.13.3
+          python qa/provision_tagarela.py
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
@@ -107,10 +117,40 @@ jobs:
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Verificar saida
         run: test -s app/build/outputs/apk/debug/app-debug.apk && sha256sum app/build/outputs/apk/debug/app-debug.apk
-      - name: Publicar APK de teste
+      - name: Assinar APK com chave permanente se configurada
+        id: signing
+        env:
+          ECO_KEYSTORE_B64: ${{ secrets.ECO_KEYSTORE_B64 }}
+          ECO_KEYSTORE_PASSWORD: ${{ secrets.ECO_KEYSTORE_PASSWORD }}
+          ECO_KEY_PASSWORD: ${{ secrets.ECO_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ECO_KEYSTORE_B64" ]; then
+            echo "stable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Sem chave permanente: APK de teste pode exigir reinstalação."
+            exit 0
+          fi
+          test -n "$ECO_KEYSTORE_PASSWORD" && test -n "$ECO_KEY_PASSWORD"
+          ks=$(mktemp)
+          trap 'rm -f "$ks"' EXIT
+          chmod 600 "$ks"
+          printf '%s' "$ECO_KEYSTORE_B64" | base64 --decode > "$ks"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$ks" --ks-key-alias eco --ks-pass env:ECO_KEYSTORE_PASSWORD --key-pass env:ECO_KEY_PASSWORD --out app/build/outputs/apk/debug/eco-stable.apk app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/eco-stable.apk
+          echo "stable=true" >> "$GITHUB_OUTPUT"
+      - name: Publicar APK atualizável
+        if: steps.signing.outputs.stable == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.12.0-speakers-beta
+          name: ECO-v0.13.0-tagarela-stable
+          path: tutor-clinico/android/app/build/outputs/apk/debug/eco-stable.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publicar APK de teste
+        if: steps.signing.outputs.stable == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECO-v0.13.0-tagarela-beta-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
