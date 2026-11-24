@@ -659,7 +659,7 @@ act=function(name,id){
  if(name==="ecoCategory"){ecoCategory=id;render();return}
  if(name==="ecoCopy"){ecoEnsure();sessionDraft.mlRevisada=sessionDraft.mlTranscricao;render();return}
  if(name==="ecoFind"){ecoMatches=ecoFind();render();if(!ecoMatches.length)notify("Sem similaridades documentadas acima do limiar.");return}
- if(name==="saveSession"&&sessionDraft){ecoEnsure();if(!sessionDraft.texto?.trim())sessionDraft.texto=(sessionDraft.mlRevisada||sessionDraft.mlTranscricao||("Marcações: "+sessionDraft.mlTags.join(", "))).trim()}
+ if(name==="saveSession"&&sessionDraft){ecoEnsure();/* não atribuir transcrição bruta a relato clínico profissional */}
  if(/CAPTURANDO|PREPARANDO/.test(ecoStatus)&&!["ecoStop","ecoCategory","ecoFind","ecoCopy"].includes(name)){notify("Encerre a captação antes de mudar ou salvar a sessão.",'red');return}
  const sid=name==="saveSession"?sessionDraft?.id:null;
  const result=ecoOldAct(name,id);

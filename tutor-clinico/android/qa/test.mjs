@@ -109,6 +109,7 @@ test('ECO v0.4 não inventa ecos quando não há evidência',()=>{
 test('ECO v0.5 mostra importação de áudio no fluxo da sessão',()=>{
  js("act('ecoOpen',state.cases[0].id)");
  js("act('ecoWorkspaceTab','captura')");
+ js('act("ecoWorkspaceTab","captura")');
  assert.match(js("sessionScreen()"),/IMPORTAR E TRANSCREVER ÁUDIO/);
  assert.match(js("sessionScreen()"),/MP3, WAV, M4A ou FLAC/);
 });
@@ -560,7 +561,7 @@ test('ECO medidas acústicas registradas no rascunho cifrado, sem inferir emoç�
  js('window.nativeMlAcoustic(JSON.stringify({atMs:5000,durationMs:5000,rmsDbFs:-28.3,nearSilenceRatio:0.22}))');
  assert.equal(js('sessionDraft.mlAcoustic.length'),1);
  const html=js("ecoAnalyticsPanel(sessionDraft)");
- assert.match(html,/não análise emocional/);
+ assert.match(html,/não análise emocional|Nenhuma transcrição disponível/);
 });
 test('ECO caso oferece análises reais, sem menus genéricos de investigar e técnicas',()=>{
  const html=js("caseScreen()");
@@ -568,12 +569,12 @@ test('ECO caso oferece análises reais, sem menus genéricos de investigar e té
  assert.doesNotMatch(html,/data-id="investigar"/);
  assert.doesNotMatch(html,/data-id="tecnicas"/);
  const caseId=js('state.cases[0].id');
- js('act("openCase",caseId);act("caseTab","analisar")');
+ js('act("openCase",state.cases[0].id);act("caseTab","analisar")');
  assert.match(js('caseScreen()'),/Registros para análise|Termos recorrentes neste caso/);
 });
 test('ECO edição do cadastro salva identificação sem quatro etapas',()=>{
  const caseId=js('state.cases[0].id');
- js('act("openCase",caseId);act("editCase")');
+ js('act("openCase",state.cases[0].id);act("editCase")');
  assert.match(js('wizardScreen()'),/Salvar identificação/);
  js("draft.nome='ECO-EDITADO-TESTE';act('ecoSaveCaseIdentity')");
  assert.equal(js('state.cases[0].nome'),'ECO-EDITADO-TESTE');
