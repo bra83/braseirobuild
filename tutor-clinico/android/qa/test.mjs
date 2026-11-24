@@ -507,7 +507,8 @@ test('ECO Android background não grava escondido e preserva áudio para retomad
  const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
  assert.match(java,/deferRecognitionUntilResume=true/);
  assert.match(java,/onHostPause\(\)/);
- assert.match(java,/else if\(importing && !pauseRequested\)/);
+ assert.match(java,/else if\(importing && !pauseRequested && !backgroundAllowed\)/);
+ assert.match(java,/TranscriptionService\.begin/);
  assert.match(java,/PAUSADO · GRAVAÇÃO LOCAL FINALIZADA/);
  assert.match(java,/deferRecognitionUntilResume=false/);
  assert.match(main,/audioCleanedThisProcess\.compareAndSet\(false,true\)/);
@@ -612,3 +613,6 @@ test('ECO rotação mantém atividade e recuperação do último rascunho',()=>{
 });
 
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
+
+test('ECO 0.11 marca repetições sem reescrever transcrição',()=>{assert.equal(js('ecoReviewFlags("as pagas que pagas em contraditórias")'),true);assert.equal(js('ecoReviewFlags("quero falar sobre meu trabalho")'),false);});
+test('ECO 0.11 falantes anônimos não viram papéis sem confirmação',()=>{assert.equal(js('ecoSpeakerLabel({speaker:"desconhecido",cluster:"falante1"})'),'Falante 1 (sugerido)');assert.equal(js('ecoSpeakerLabel({speaker:"paciente",cluster:"falante1"})'),'paciente');});

@@ -55,6 +55,8 @@ public final class MainActivity extends Activity {
     private volatile boolean unlocked = false;
     private boolean showingLock = false;
     private long backgroundAt = 0;
+    private boolean initialUnlockDone=false;
+    private volatile boolean journalWhileLocked=false;
     private final Handler main = new Handler(Looper.getMainLooper());
 
     @Override public void onCreate(Bundle state) {
@@ -71,10 +73,11 @@ public final class MainActivity extends Activity {
         ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
-            @Override public void segmentDetailed(String s,long startMs,long endMs){
+            @Override public void segmentDetailed(String s,long startMs,long endMs){segmentWithSpeaker(s,startMs,endMs,"");}
+            @Override public void segmentWithSpeaker(String s,long startMs,long endMs,String cluster){
                 try {
                     JSONObject v=new JSONObject();
-                    v.put("text",s);v.put("startMs",startMs);v.put("endMs",endMs);
+                    v.put("text",s);v.put("startMs",startMs);v.put("endMs",endMs);v.put("cluster",cluster);
                     jsCallback("nativeMlSegmentDetailed",v.toString());
                 }catch(Exception e){jsCallback("nativeMlState","ERRO METADADOS DO TRECHO");}
             }
@@ -129,7 +132,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; unlocked = false; semanticEpoch++; web.setVisibility(View.INVISIBLE);
+        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; semanticEpoch++; web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -159,9 +162,9 @@ public final class MainActivity extends Activity {
                     }
                 }
                 pref.edit().putInt("failed",0).putLong("blocked_until",0).apply();
-                unlocked = true; showingLock = false; backgroundAt=0;
+                unlocked = true; journalWhileLocked=false; showingLock = false; backgroundAt=0;
                 web.setVisibility(View.VISIBLE); dialog.dismiss();
-                web.evaluateJavascript("window.appUnlock && window.appUnlock()", null);
+                if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()", null);}
             } catch (Exception e) { showToast("Falha ao verificar PIN"); }
         }));
         dialog.show();
@@ -230,6 +233,7 @@ public final class MainActivity extends Activity {
         ml.importFile(uri,selectedAsrModel);
     }
     private final class Bridge {
+        @JavascriptInterface public void setDiarization(boolean enabled){if(unlocked)ml.setDiarization(enabled);}
         @JavascriptInterface public void analyzeSemantic(String json){
             if(!unlocked||json==null||json.length()>500000)return;
             final JSONObject req;
@@ -290,7 +294,7 @@ public final class MainActivity extends Activity {
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
         @JavascriptInterface public String saveDraft(String json) {
-            if(!unlocked)return "Bloqueado";
+            if(!unlocked&&!journalWhileLocked)return "Bloqueado";
             try{store.saveDraft(json);return "OK";}
             catch(Exception e){return "ERRO: "+e.getMessage();}
         }

@@ -40,6 +40,7 @@ object WhisperFileEngine {
         fun isActive(): Boolean
         fun state(value: String)
         fun segment(value: String, startMs: Long, endMs: Long)
+        fun segmentWithSpeaker(value: String, startMs: Long, endMs: Long, cluster: String)
         fun progress(processedMs: Long)
         fun acoustic(measurementJson: String)
     }
@@ -53,13 +54,18 @@ object WhisperFileEngine {
 
     @JvmStatic
     fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String): Boolean =
-        transcribe(context, uri, listener, requestedModel, 0L)
+        transcribe(context, uri, listener, requestedModel, 0L, null)
 
     @JvmStatic
     fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
-                   resumeFromMs: Long): Boolean {
+                   resumeFromMs: Long): Boolean = transcribe(context,uri,listener,requestedModel,resumeFromMs,null)
+
+    @JvmStatic
+    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
+                   resumeFromMs: Long, clusters: SpeakerClusters?): Boolean {
         if (!listener.isActive()) return false
         var model: WhisperModel? = null
+        var diarizer: SegmentDiarizer? = null
         val mode = if(requestedModel=="base")"base" else "small"
         val modelName = if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
         val asset = if(mode=="base") MODEL_BASE else MODEL_SMALL
@@ -72,7 +78,8 @@ object WhisperFileEngine {
             // The file is decoded again from the beginning, but Whisper starts at this offset.
             val skipFromMs = resumeFromMs.coerceAtLeast(0L)
             var toSkipBytes = skipFromMs * PCM_BYTES_PER_SECOND / 1000L
-            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs)
+            if(clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
+            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer)
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
             AudioFileTranscriber.streamPcm(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
@@ -105,6 +112,7 @@ object WhisperFileEngine {
             }
             return false
         } finally {
+            try {diarizer?.close()}catch(_:Throwable){}
             model?.let { try { Whisper.releaseModel(it) } catch (_: Throwable) { } }
         }
     }
@@ -114,11 +122,14 @@ object WhisperFileEngine {
         private val listener: Listener,
         private val model: WhisperModel,
         private val modelName: String,
-        resumeFromMs: Long
+        resumeFromMs: Long,
+        private val diarizer: SegmentDiarizer?
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private val acoustic = AcousticMeter(resumeFromMs)
         private var chunkIndex = 0
+        private val wallStart=android.os.SystemClock.elapsedRealtime()
+        private val initialMs=resumeFromMs
         private var processedFrames = resumeFromMs.coerceAtLeast(0L) * SAMPLE_RATE / 1000L
         var recognizedCount = 0
             private set
@@ -219,8 +230,10 @@ object WhisperFileEngine {
                         if (listener.isActive() && seg.text.isNotBlank()) {
                             recognizedCount++
                             val maxMs = baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
-                            listener.segment(seg.text.trim(), (baseMs+seg.startMs).coerceIn(baseMs,maxMs),
-                              (baseMs+seg.endMs).coerceIn(baseMs,maxMs))
+                            val start=(baseMs+seg.startMs).coerceIn(baseMs,maxMs)
+                            val end=(baseMs+seg.endMs).coerceIn(start,maxMs)
+                            val cluster=diarizer?.classify(bytes,start-baseMs,end-baseMs)?:""
+                            listener.segmentWithSpeaker(seg.text.trim(),start,end,cluster)
                         }
                     }
                 } else if (result.text.isNotBlank()) {
@@ -229,7 +242,9 @@ object WhisperFileEngine {
                 }
                 if (listener.isActive()) {
                     listener.progress(processedFrames * 1000L / SAMPLE_RATE)
-                    listener.state("WHISPER · TRECHO " + chunkIndex + " CONCLUÍDO · CONTINUANDO")
+                    val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
+                    val speed=(processedFrames*1000L/SAMPLE_RATE-initialMs).toDouble()/elapsed
+                    listener.state("WHISPER · TRECHO " + chunkIndex + " CONCLUÍDO · "+String.format(java.util.Locale.US,"%.2fx",speed)+" TEMPO REAL")
                 }
             } finally {
                 if (wav.exists() && !wav.delete())

@@ -52,6 +52,13 @@ jobs:
           test -s app/src/main/assets/model-pt/mfcc.conf
           test -s app/src/main/assets/model-pt/uuid
           du -sh app/src/main/assets/model-pt
+      - name: Baixar modelo neural de falantes Vosk
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 240 https://alphacephei.com/vosk/models/vosk-model-spk-0.4.zip -o /tmp/model-spk.zip
+          unzip -q /tmp/model-spk.zip -d app/src/main/assets
+          mv app/src/main/assets/vosk-model-spk-0.4 app/src/main/assets/model-spk
+          test -s app/src/main/assets/model-spk/final.ext.raw
       - name: Baixar modelo Whisper Base multilíngue (fonte oficial)
         run: |
           set -euo pipefail
@@ -99,7 +106,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.10.0-neural-beta
+          name: ECO-v0.11.0-listening-beta
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

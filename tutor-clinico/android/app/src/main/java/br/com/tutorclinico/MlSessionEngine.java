@@ -19,6 +19,7 @@ final class MlSessionEngine implements RecognitionListener {
     interface Events {
        void state(String s); void segment(String s); void partial(String s);
        void segmentDetailed(String text,long startMs,long endMs);
+       default void segmentWithSpeaker(String text,long startMs,long endMs,String cluster){segmentDetailed(text,startMs,endMs);}
        void acoustic(String measurementJson);
     }
     private final Activity activity;
@@ -39,6 +40,10 @@ final class MlSessionEngine implements RecognitionListener {
     private String fileModelName="small";
     private Thread fileWorker;
     private boolean wanted, preparing, importing, destroyed;
+    private boolean backgroundAllowed;
+    private boolean diarizationEnabled=true;
+    private final SpeakerClusters speakerClusters=new SpeakerClusters();
+    synchronized void setDiarization(boolean enabled){if(!busy())diarizationEnabled=enabled;}
     private int generation;
     private long lastPartialAt;
 
@@ -49,6 +54,7 @@ final class MlSessionEngine implements RecognitionListener {
     synchronized void start() { start("whisper-base"); }
     synchronized void start(String engine) {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
+        speakerClusters.clear();
         wanted=true;
         recordingRequested=true;
         pauseRequested=false;paused=false;discarding=false;resumeFromMs=0L;
@@ -116,6 +122,7 @@ final class MlSessionEngine implements RecognitionListener {
         if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
         fileModelName = "base".equals(modelName)?"base":"small";
+        speakerClusters.clear();
         wanted=true;retainedUri=uri;pendingFile=uri;
         resumeFromMs=0L;pauseRequested=false;paused=false;discarding=false;
         beginFile();
@@ -167,6 +174,8 @@ final class MlSessionEngine implements RecognitionListener {
         paused=false;pauseRequested=false;
         final int mine=++generation;
         importing=true;
+        backgroundAllowed=TranscriptionService.begin(activity.getApplicationContext(),this::pauseTranscription);
+        final SpeakerClusters clusters=diarizationEnabled?speakerClusters:null;
         events.state(fromMs>0
                 ? "RETOMANDO TRANSCRIÇÃO · A PARTIR DE "+(fromMs/1000)+"s"
                 : "INICIANDO TRANSCRIÇÃO OFFLINE · AGUARDE O PRIMEIRO TRECHO");
@@ -191,6 +200,9 @@ final class MlSessionEngine implements RecognitionListener {
                             @Override public void segment(String text,long startMs,long endMs) {
                                 if(isActive())events.segmentDetailed(text,startMs,endMs);
                             }
+                            @Override public void segmentWithSpeaker(String text,long startMs,long endMs,String cluster){
+                                if(isActive())events.segmentWithSpeaker(text,startMs,endMs,cluster);
+                            }
                             @Override public void acoustic(String json){
                                 if(isActive())events.acoustic(json);
                             }
@@ -200,7 +212,7 @@ final class MlSessionEngine implements RecognitionListener {
                                         resumeFromMs=processedMs;
                                 }
                             }
-                        },selectedModel,fromMs);
+                        },selectedModel,fromMs,clusters);
             } catch(Throwable e) {
                 synchronized(MlSessionEngine.this){
                     if(!destroyed && mine==generation && !pauseRequested && !discarding)
@@ -210,12 +222,14 @@ final class MlSessionEngine implements RecognitionListener {
                 synchronized(MlSessionEngine.this) {
                     if(mine==generation){
                         importing=false;fileWorker=null;
+                        if(backgroundAllowed)TranscriptionService.end(activity.getApplicationContext());
+                        backgroundAllowed=false;
                         if(pauseRequested && wanted && !discarding && !destroyed) {
                             paused=true;pauseRequested=false;
                             events.state("PAUSADO · "+(resumeFromMs/1000)+"s PROCESSADOS · REVISE OU RETOME");
                         } else if (success && !discarding && !destroyed) {
                             wanted=false;paused=false;retainedUri=null;resumeFromMs=0;
-                            deleteOwnedRecording();
+                            deleteOwnedRecording();speakerClusters.clear();
                             events.state("CONCLUÍDO · TRANSCRIÇÃO DISPONÍVEL NA LINHA DO TEMPO");
                         } else if(discarding || destroyed) {
                             wanted=false;paused=false;retainedUri=null;resumeFromMs=0L;
@@ -267,9 +281,10 @@ final class MlSessionEngine implements RecognitionListener {
             return; // Never delete an open audio file under a native decoder.
         }
         wanted=false;paused=false;pauseRequested=false;discarding=false;retainedUri=null;
-        resumeFromMs=0L;deleteOwnedRecording();
+        resumeFromMs=0L;deleteOwnedRecording();speakerClusters.clear();
         events.state("PARADO · TEXTO PARCIAL PRESERVADO");
     }
+    synchronized boolean isTranscribing(){return importing;}
     synchronized void onHostPause(){
         if(recordingRequested&&recorder!=null){
             // No foreground service: never keep an undisclosed recording running
@@ -277,8 +292,8 @@ final class MlSessionEngine implements RecognitionListener {
             deferRecognitionUntilResume=true;
             recorder.finish();
             events.state("APP EM SEGUNDO PLANO · FINALIZANDO GRAVAÇÃO");
-        }else if(importing && !pauseRequested){
-            // Do not write new transcript segments after Android has hidden/locked UI.
+        }else if(importing && !pauseRequested && !backgroundAllowed){
+            // If Android refused foreground processing, preserve the existing pause fallback.
             pauseTranscription();
         }
     }
@@ -309,6 +324,8 @@ final class MlSessionEngine implements RecognitionListener {
 
     synchronized void destroy() {
         destroyed=true;
+        if(backgroundAllowed)TranscriptionService.end(activity.getApplicationContext());
+        backgroundAllowed=false;
         discarding=true;wanted=false;pauseRequested=true;
         if(recorder!=null)recorder.finish();
         if(live!=null){live.destroy();live=null;}
