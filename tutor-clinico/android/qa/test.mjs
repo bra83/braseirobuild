@@ -528,6 +528,16 @@ test('ECO pós-transcrição abre análise e expõe revisão e marcação claram
  assert.match(screenContent,/Confirmar marcações/);
  assert.match(screenContent,/Histórico/);
 });
+test('ECO nuvem de palavras elimina preposições, pronomes e conectivos',()=>{
+ assert.equal(js('ecoNlpStop.has("minha")'),true);
+ assert.equal(js('ecoNlpStop.has("porque")'),true);
+ assert.equal(js('ecoNlpStop.has("sonho")'),false);
+ context.stopwordsSample={mlTranscricao:"Eu e minha mãe na casa. Minha mãe no sonho.",
+ mlSegments:[{text:"Eu e minha mãe na casa. Minha mãe no sonho.",startMs:0,endMs:8000}]};
+ const rows=js('ecoWordRows(stopwordsSample)');
+ assert.ok(!rows.some(r=>["minha","com","para","que","porque"].includes(r.word)));
+ assert.equal(rows.find(r=>r.word==="mae").count,2);
+});
 test('ECO relatório lexical conta mãe e sonho com minuto rastreável',()=>{
  context.caseAnalysisFixture={
   mlTranscricao:'Eu sonhei com minha mãe. Minha mãe contou outro sonho.',
