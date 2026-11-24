@@ -616,3 +616,5 @@ console.log('Teste de comportamento executado sem Android SDK; requer ainda comp
 
 test('ECO 0.11 marca repetições sem reescrever transcrição',()=>{assert.equal(js('ecoReviewFlags("as pagas que pagas em contraditórias")'),true);assert.equal(js('ecoReviewFlags("quero falar sobre meu trabalho")'),false);});
 test('ECO 0.11 falantes anônimos não viram papéis sem confirmação',()=>{assert.equal(js('ecoSpeakerLabel({speaker:"desconhecido",cluster:"falante1"})'),'Falante 1 (sugerido)');assert.equal(js('ecoSpeakerLabel({speaker:"paciente",cluster:"falante1"})'),'paciente');});
+
+test('ECO 0.11 análise mostra nuvem antes do motor semântico, falantes e linha do tempo',()=>{js("act('ecoOpen',state.cases[0].id)");js('sessionDraft.mlTranscricao="Sonhei com minha mãe."');js('window.nativeMlState("CONCLUÍDO · TESTE")');const h=js('sessionScreen()');assert.match(h,/id="ecoCloudPanel"/);assert.ok(h.indexOf('id="ecoCloudPanel"')<h.indexOf('Semântica neural'));assert.match(h,/Identificação dos falantes/);assert.match(h,/Transcrição reconhecida/);});

@@ -287,7 +287,7 @@ function ecoCaseAnalysis(c){
  const top=[...compiled.values()].sort((a,b)=>b.count-a.count).slice(0,25);
  let out='<section class="eco-outline"><h2>Termos recorrentes neste caso</h2>'+
   '<p class="eco-caption">Contagem lexical das transcrições arquivadas. Não representa sintoma, diagnóstico ou relação psicológica.</p>'+
-  '<div class="eco-wordcloud">'+top.slice(0,20).map(r=>'<span class="eco-cloud-token" style="font-size:'+
+  '<h3>Nuvem de palavras do caso</h3><div class="eco-wordcloud">'+top.slice(0,20).map(r=>'<span class="eco-cloud-token" style="font-size:'+
     (14+Math.round(13*Math.sqrt(r.count/Math.max(1,top[0]?.count||1))))+'px">'+esc(r.word)+' <small>'+r.count+'</small></span>').join('')+'</div>'+
   '<h3>Ocorrências no histórico</h3>';
  out+=top.slice(0,12).map(row=>'<div class="eco-evidence"><strong>'+esc(row.word)+' · '+row.count+
@@ -1005,7 +1005,7 @@ function ecoWordKey(value){
 function ecoWordRows(session){
  const raw=session?.mlSegments||[];
  const rows=raw.length?raw.map((e,i)=>({...e,index:i})):
-  [{text:session?.mlTranscricao||"",startMs:null,endMs:null,index:0,speaker:"desconhecido"}];
+  [{text:session?.mlTranscricao||session?.mlRevisada||"",startMs:null,endMs:null,index:0,speaker:"desconhecido"}];
  const counts=new Map(),locations=new Map(),total=new Set();
  for(const item of rows){
   for(const token of String(item.text||"").matchAll(/[\p{L}]{2,}/gu)){
@@ -1043,16 +1043,20 @@ function ecoAnalyticsPanel(session){
  const counts=rows.reduce((n,r)=>n+r.count,0),max=Math.max(1,top[0]?.count||0);
  const total=ecoWordTokens(session?.mlTranscricao||"").length;
  const metrics=(session?.mlAcoustic||[]).filter(v=>v&&Number.isFinite(v.rmsDbFs)).slice(0,500);
- let out='<section class="eco-outline" id="ecoNlpDashboard"><h2>◎ Análise da sessão</h2>'+
+ const cloud='<section class="eco-outline" id="ecoCloudPanel"><h2>Nuvem de palavras</h2>'+
+ '<p class="eco-caption">Termos relevantes da transcrição; toque para ver as falas de origem.</p>'+
+ (top.length?'<div class="eco-wordcloud">'+top.slice(0,26).map(r=>
+   '<button type="button" data-act="ecoKeywordDetails" data-id="'+esc(r.word)+
+   '" class="eco-cloud-token" style="font-size:'+(16+Math.round(23*Math.sqrt(r.count/max)))+'px">'+
+   esc(r.word)+' <small>'+r.count+'</small></button>').join(" ")+'</div>':
+   '<p class="muted">Nenhum termo relevante disponível. Grave, importe ou revise uma transcrição.</p>')+'</section>';
+ let out=cloud+'<section class="eco-outline" id="ecoNlpDashboard"><h2>◎ Análise da sessão</h2>'+
  '<p class="eco-caption">Exploração lexical e acústica local, baseada na transcrição automática. Palavras corrigidas no campo Revisar não são reposicionadas automaticamente nos minutos do áudio. Confirme as ocorrências antes de usá-las como evidência.</p>'+
  '<div class="main-stats"><div class="main-stat"><strong>'+total+'</strong><span>Palavras reconhecidas</span></div>'+
  '<div class="main-stat"><strong>'+rows.length+'</strong><span>Termos relevantes</span></div>'+
  '<div class="main-stat"><strong>'+(session?.mlSegments?.length||0)+'</strong><span>Trechos com origem</span></div></div>';
  if(!top.length)return out+'<p class="muted">Nenhuma transcrição disponível. Importe ou grave áudio e conclua a transcrição.</p></section>';
- out+='<h3>Nuvem de palavras</h3><div class="eco-wordcloud">'+top.slice(0,26).map((r,i)=>
-   '<button type="button" data-act="ecoKeywordDetails" data-id="'+esc(r.word)+
-   '" class="eco-cloud-token" style="font-size:'+(13+Math.round(16*Math.sqrt(r.count/max)))+'px">'+
-   esc(r.word)+' <small>'+r.count+'</small></button>').join(" ")+'</div>';
+
  out+='<h3>Contagem e ocorrências por minuto</h3>'+
  '<p class="eco-caption">Selecione uma palavra para expandir todas as menções e encontrar os trechos correspondentes.</p>';
  const focused=rows.find(r=>r.word===ecoSelectedWord);
@@ -1146,7 +1150,7 @@ function ecoFoldPanels(){
   const details=document.createElement("details"),summary=document.createElement("summary");
   details.className="eco-fold";summary.className="eco-fold-summary";
   summary.textContent=heading.textContent;heading.remove();
-  details.open=ecoFoldState.get(key)??true;details.appendChild(summary);
+  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras/.test(key));details.appendChild(summary);
   while(parent.firstChild)details.appendChild(parent.firstChild);
   parent.appendChild(details);
   details.addEventListener("toggle",()=>ecoFoldState.set(key,details.open));
@@ -1280,7 +1284,7 @@ function ecoWorkspace(){
  let out=head("ECO / sessão",isEditing?"Revisar sessão":"Escuta e registro",c.nome||"Caso sem apelido");
  out+='<div id="ecoStatusBanner" class="eco-status'+(ecoIsCapturing()?' capturing':'')+'"><div><span class="eco-dot"></span><strong id="ecoState">'+esc(ecoStatus)+'</strong></div><span class="muted">Grava → transcreve → apaga WAV ao concluir; pausa mantém WAV até retomar ou descartar</span></div>';
  out+='<nav class="eco-workbar" aria-label="Etapas da sessão">'+[
-  ["captura","01","Gravar"],["analise","02","Analisar"],["revisar","03","Revisar"],["marcar","04","Marcar"],["ecos","05","Histórico"]
+  ["captura","01","Gravar"],["analise","02","Análises"],["revisar","03","Revisar"],["marcar","04","Marcar"],["ecos","05","Histórico"]
  ].map(([id,n,l])=>'<button type="button" data-act="ecoWorkspaceTab" data-id="'+id+'" class="'+(ecoWorkspaceTab===id?'active':'')+'"><span>'+n+'</span><br>'+l+'</button>').join("")+'</nav>';
  if(ecoWorkspaceTab==="captura"){
   out+='<section class="eco-recorder"><h2>● Gravar primeiro, transcrever depois</h2><p class="eco-caption">O microfone grava localmente sem reconhecer a fala ao mesmo tempo. Ao parar, o ECO fecha o arquivo e inicia Whisper offline. Você também pode importar MP3, WAV, M4A ou FLAC. Durante a transcrição, pode pausar para revisar o que já foi reconhecido e depois retomar.</p>';
@@ -1302,8 +1306,13 @@ function ecoWorkspace(){
   out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto de cada trecho é salvo em rascunho criptografado, junto aos minutos e à origem do reconhecimento.</p></section>';
  out+=ecoTimeline(sessionDraft);
  }else if(ecoWorkspaceTab==="analise"){
-  out+=ecoNeuralPanel();
+  out+='<section class="eco-outline" id="ecoAnalysisTranscript"><h2>Transcrição reconhecida</h2><div class="eco-live">'+esc(sessionDraft.mlTranscricao||sessionDraft.mlRevisada||"Ainda não há transcrição.")+'</div>'+btn("Corrigir transcrição","ecoWorkspaceTab","secondary",'data-id="revisar"')+'</section>';
   out+=ecoAnalyticsPanel(sessionDraft);
+  out+='<section class="eco-outline" id="ecoSpeakerPanel"><h2>Identificação dos falantes</h2>'+ecoSpeakerGroups(sessionDraft.mlSegments||[])+
+    '<p class="eco-caption">Agrupamentos automáticos somente quando disponíveis; falas ambíguas continuam sem atribuição.</p>'+btn("Revisar falantes por trecho","ecoWorkspaceTab","secondary",'data-id="revisar"')+'</section>';
+  out+=ecoNeuralPanel();
+  out+=ecoReviewQuality(sessionDraft);
+  out+=ecoTimeline(sessionDraft);
   out+='<div class="actions">'+btn("Corrigir transcrição","ecoWorkspaceTab","secondary",'data-id="revisar"')+
     btn("Confirmar marcações","ecoWorkspaceTab","secondary",'data-id="marcar"')+'</div>';
  }else if(ecoWorkspaceTab==="marcar"){
@@ -1452,7 +1461,7 @@ act=function(name,id){
    if(element&&element.scrollIntoView)element.scrollIntoView({behavior:"smooth",block:"center"});
    return;
  }
- if(name==="ecoKeywordDetails"){ecoSelectedWord=String(id||"");ecoWorkspaceTab="analise";render();return;}
+ if(name==="ecoKeywordDetails"){ecoSelectedWord=String(id||"");ecoWorkspaceTab="analise";ecoFoldState.clear();render();const d=document.querySelector("#ecoNlpDashboard");if(d?.querySelectorAll){d.querySelectorAll("details").forEach(x=>{if(x.querySelector("summary")?.textContent.includes("Contagem e ocorrências")||x.parentElement===d)x.open=true});d.scrollIntoView?.({behavior:"smooth",block:"start"});}return;}
  if(name==="ecoFilterTimeline"){render();return;}
  if(name==="ecoFocusSegment"){
    ecoWorkspaceTab="revisar";const index=Number(id);ecoTimelineFocused=index;render();
