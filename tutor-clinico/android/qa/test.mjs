@@ -511,4 +511,91 @@ test('ECO Android background não grava escondido e preserva áudio para retomad
  assert.match(main,/ml\.onHostPause\(\)/);
 });
 
+
+test('ECO pós-transcrição abre análise e expõe revisão e marcação claramente',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ js('sessionDraft.mlTranscricao="Sonhei com minha mãe e meu irmão."');
+ js('sessionDraft.mlSegments=[{text:"Sonhei com minha mãe e meu irmão.",startMs:55000,endMs:60000,speaker:"paciente"}]');
+ js('window.nativeMlState("CONCLUÍDO · TRANSCRIÇÃO DISPONÍVEL NA LINHA DO TEMPO")');
+ assert.equal(js("ecoWorkspaceTab"),"analise");
+ const screenContent=js("sessionScreen()");
+ assert.match(screenContent,/Análise da sessão/);
+ assert.match(screenContent,/Nuvem de palavras/);
+ assert.match(screenContent,/Corrigir transcrição/);
+ assert.match(screenContent,/Confirmar marcações/);
+ assert.match(screenContent,/Histórico/);
+});
+test('ECO relatório lexical conta mãe e sonho com minuto rastreável',()=>{
+ context.caseAnalysisFixture={
+  mlTranscricao:'Eu sonhei com minha mãe. Minha mãe contou outro sonho.',
+  mlSegments:[{text:'Eu sonhei com minha mãe.',startMs:12000,endMs:15000,speaker:'paciente'},
+              {text:'Minha mãe contou outro sonho.',startMs:93000,endMs:97000,speaker:'paciente'}]
+ };
+ const terms=js("ecoWordRows(caseAnalysisFixture)");
+ assert.equal(terms.find(x=>x.word==="mae").count,2);
+ assert.equal(terms.find(x=>x.word==="sonho").count,2);
+ assert.equal(terms.find(x=>x.word==="mae").locations[1].atMs,93000);
+ assert.equal(js("ecoTimecode(93000)"),"01:33");
+ const html=js("ecoAnalyticsPanel(caseAnalysisFixture)");
+ assert.match(html,/Nuvem de palavras/);
+ assert.match(html,/Contagem e ocorrências por minuto/);
+ assert.match(html,/Negações explícitas/);
+ assert.match(html,/Sinal acústico/);
+});
+test('ECO identifica negações literais sem alegar negação psicológica',()=>{
+ context.signalSample={mlSegments:[{text:'Eu não sentia medo. Nunca disse isso...',startMs:31000,speaker:'paciente'}]};
+ const signals=js('ecoNlpSignals(signalSample)');
+ assert.equal(signals.negations.length,2);
+ assert.ok(signals.negations.some(x=>x.word.toLowerCase()==="nunca"));
+ assert.equal(signals.negations[0].atMs,31000);
+ assert.equal(signals.interruptions.length,1);
+ assert.match(js('ecoAnalyticsPanel(signalSample)'),/Não significa negação psicológica/);
+});
+test('ECO medidas acústicas registradas no rascunho cifrado, sem inferir emoção',()=>{
+ js("act('ecoOpen',state.cases[0].id)");
+ context.window.NativeVault.saveDraft=()=> "OK";
+ js('window.nativeMlAcoustic(JSON.stringify({atMs:5000,durationMs:5000,rmsDbFs:-30.1,nearSilenceRatio:0.42,f0EstimateHz:150}))');
+ assert.equal(js('sessionDraft.mlAcoustic.length'),1);
+ assert.equal(js('sessionDraft.mlAcoustic[0].atMs'),5000);
+ js('window.nativeMlAcoustic(JSON.stringify({atMs:5000,durationMs:5000,rmsDbFs:-28.3,nearSilenceRatio:0.22}))');
+ assert.equal(js('sessionDraft.mlAcoustic.length'),1);
+ const html=js("ecoAnalyticsPanel(sessionDraft)");
+ assert.match(html,/não análise emocional/);
+});
+test('ECO caso oferece análises reais, sem menus genéricos de investigar e técnicas',()=>{
+ const html=js("caseScreen()");
+ assert.match(html,/Análises/);
+ assert.doesNotMatch(html,/data-id="investigar"/);
+ assert.doesNotMatch(html,/data-id="tecnicas"/);
+ const caseId=js('state.cases[0].id');
+ js('act("openCase",caseId);act("caseTab","analisar")');
+ assert.match(js('caseScreen()'),/Registros para análise|Termos recorrentes neste caso/);
+});
+test('ECO edição do cadastro salva identificação sem quatro etapas',()=>{
+ const caseId=js('state.cases[0].id');
+ js('act("openCase",caseId);act("editCase")');
+ assert.match(js('wizardScreen()'),/Salvar identificação/);
+ js("draft.nome='ECO-EDITADO-TESTE';act('ecoSaveCaseIdentity')");
+ assert.equal(js('state.cases[0].nome'),'ECO-EDITADO-TESTE');
+ assert.equal(js('screen'),'case');
+});
+test('ECO registra transcrição sem exigir nota clínica inventada',()=>{
+ js('window.nativeMlState("PARADO · TEXTO PARCIAL PRESERVADO")');
+ js('act("ecoOpen",state.cases[0].id)');
+ js("sessionDraft.mlTranscricao='Eu estava na escada com meu irmão.';sessionDraft.texto=''");
+ const count=js('state.cases[0].sessoes.length');
+ js('act("ecoSave")');
+ assert.equal(js('state.cases[0].sessoes.length'),count+1);
+ assert.match(js('state.cases[0].sessoes[state.cases[0].sessoes.length-1].texto'),/sem síntese profissional/);
+});
+test('ECO rotação mantém atividade e recuperação do último rascunho',()=>{
+ const manifest=fs.readFileSync(new URL('../app/src/main/AndroidManifest.xml',import.meta.url),'utf8');
+ const main=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ const html=fs.readFileSync(new URL('../app/src/main/assets/index.html',import.meta.url),'utf8');
+ assert.match(manifest,/configChanges="orientation\|screenSize/);
+ assert.match(main,/onConfigurationChanged\(Configuration newConfig\)/);
+ assert.match(html,/RASCUNHO RESTAURADO/);
+ assert.match(main,/audioCleanedThisProcess\.compareAndSet\(false,true\)/);
+});
+
 console.log('Teste de comportamento executado sem Android SDK; requer ainda compilação/teste no aparelho.');
