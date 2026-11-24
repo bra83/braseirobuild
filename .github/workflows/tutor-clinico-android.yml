@@ -69,10 +69,15 @@ jobs:
             -o app/src/main/assets/whisper/ggml-small-q5_1.bin
           test "$(stat -c%s app/src/main/assets/whisper/ggml-small-q5_1.bin)" -gt 170000000
           sha256sum app/src/main/assets/whisper/ggml-small-q5_1.bin
+      - name: Configurar Python 3.11 para inferência ONNX
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Preparar e testar modelo semântico neural
         run: |
-          python3 -m pip install --disable-pip-version-check numpy==1.26.4 onnxruntime==1.22.0 safetensors==0.5.3 tokenizers==0.21.1
-          python3 qa/provision_semantic.py
+          python --version
+          python -m pip install --only-binary=:all: --disable-pip-version-check numpy==1.26.4 onnxruntime==1.22.0 safetensors==0.5.3 tokenizers==0.21.1
+          python qa/provision_semantic.py
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
