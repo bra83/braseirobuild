@@ -203,6 +203,8 @@ test('ECO 0.6.1 não trata Whisper em andamento como microfone parado',()=>{
  assert.equal(context.microphoneStarted,false);
  js('window.nativeMlState("CONCLUÍDO · WHISPER BASE · REVISE A TRANSCRIÇÃO")');
  assert.equal(js("ecoIsCapturing()"),false);
+ assert.equal(js("ecoWorkspaceTab"),"analise");
+ js('act("ecoWorkspaceTab","captura")');
  assert.match(js("sessionScreen()"),/IMPORTAR E TRANSCREVER ÁUDIO/);
 });
 test('ECO 0.6.1 lê áudio por URI em trechos, sem enviar gravação inteira ao Whisper',()=>{
