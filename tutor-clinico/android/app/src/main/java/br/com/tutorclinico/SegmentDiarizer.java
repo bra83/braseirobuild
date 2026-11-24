@@ -38,28 +38,32 @@ final class SegmentDiarizer implements AutoCloseable {
             }
         }
     }
-    String classify(byte[] pcm,long startMs,long endMs){
-        long duration=endMs-startMs;
-        if(duration<2500||duration>15000)return "";
-        int start=(int)Math.max(0,Math.min(pcm.length,startMs*32L)),end=(int)Math.max(0,Math.min(pcm.length,endMs*32L));
-        if(end-start<80000)return "";
+    /** One Vosk x-vector pass per chunk, using Vosk utterance timestamps, not its transcript. */
+    SpeakerTimeline analyze(byte[] pcm,java.util.function.BooleanSupplier active){
+        SpeakerTimeline result=new SpeakerTimeline();
         try(Recognizer rec=new Recognizer(asr,16000f,speaker)){
-            JSONObject best=null;
-            for(int i=start;i<end;i+=8000){
-                byte[] block=Arrays.copyOfRange(pcm,i,Math.min(i+8000,end));
-                if(rec.acceptWaveForm(block,block.length)){
-                    JSONObject v=new JSONObject(rec.getResult());
-                    if(v.has("spk")&&(best==null||v.optInt("spk_frames")>best.optInt("spk_frames")))best=v;
-                }
+            rec.setWords(true);
+            for(int i=0;i<pcm.length&&active.getAsBoolean();i+=8000){
+                byte[] block=Arrays.copyOfRange(pcm,i,Math.min(i+8000,pcm.length));
+                if(rec.acceptWaveForm(block,block.length))append(result,new JSONObject(rec.getResult()),pcm.length/32L);
             }
-            JSONObject v=new JSONObject(rec.getFinalResult());
-            if(v.has("spk")&&(best==null||v.optInt("spk_frames")>best.optInt("spk_frames")))best=v;
-            if(best==null||best.optInt("spk_frames")<180)return "";
-            JSONArray spk=best.getJSONArray("spk");
-            if(spk.length()<64||spk.length()>1024)return "";
+            if(active.getAsBoolean())append(result,new JSONObject(rec.getFinalResult()),pcm.length/32L);
+        }catch(Exception|LinkageError e){return new SpeakerTimeline();}
+        return result;
+    }
+    private void append(SpeakerTimeline result,JSONObject v,long maxMs)throws JSONException{
+        JSONArray words=v.optJSONArray("result");
+        if(words==null||words.length()==0)return;
+        long start=Math.max(0,Math.round(words.getJSONObject(0).getDouble("start")*1000));
+        long end=Math.min(maxMs,Math.round(words.getJSONObject(words.length()-1).getDouble("end")*1000));
+        if(end<=start)return;
+        String label="";
+        JSONArray spk=v.optJSONArray("spk");
+        if(spk!=null&&spk.length()>=64&&spk.length()<=1024&&v.optInt("spk_frames")>=100&&end-start<=15000){
             double[] vector=new double[spk.length()];for(int i=0;i<vector.length;i++)vector[i]=spk.getDouble(i);
-            return clusters.assign(vector);
-        }catch(Exception|LinkageError e){return "";}
+            label=clusters.assign(vector);
+        }
+        result.add(start,end,label);
     }
     @Override public void close(){if(speaker!=null){speaker.close();speaker=null;}if(asr!=null){asr.close();asr=null;}}
 }

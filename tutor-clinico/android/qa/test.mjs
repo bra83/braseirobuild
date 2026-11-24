@@ -618,3 +618,35 @@ test('ECO 0.11 marca repetições sem reescrever transcrição',()=>{assert.equa
 test('ECO 0.11 falantes anônimos não viram papéis sem confirmação',()=>{assert.equal(js('ecoSpeakerLabel({speaker:"desconhecido",cluster:"falante1"})'),'Falante 1 (sugerido)');assert.equal(js('ecoSpeakerLabel({speaker:"paciente",cluster:"falante1"})'),'paciente');});
 
 test('ECO 0.11 análise mostra nuvem antes do motor semântico, falantes e linha do tempo',()=>{js("act('ecoOpen',state.cases[0].id)");js('sessionDraft.mlTranscricao="Sonhei com minha mãe."');js('window.nativeMlState("CONCLUÍDO · TESTE")');const h=js('sessionScreen()');assert.match(h,/id="ecoCloudPanel"/);assert.ok(h.indexOf('id="ecoCloudPanel"')<h.indexOf('Semântica neural'));assert.match(h,/Identificação dos falantes/);assert.match(h,/Transcrição reconhecida/);});
+
+test('ECO 0.12 atribui dois grupos em lote e preserva correções',()=>{
+ js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id)');
+ js('sessionDraft.mlSegments=[{text:"a",cluster:"falante1",speaker:"desconhecido"},{text:"b",cluster:"falante2",speaker:"desconhecido"},{text:"c",cluster:"falante1",speaker:"terapeuta",speakerManual:true},{text:"d",speaker:"desconhecido"}]');
+ assert.equal(js('ecoAssignBoth("paciente")'),true);
+ assert.equal(js('sessionDraft.mlSegments.map(s=>s.speaker).join(",")'),'paciente,terapeuta,terapeuta,desconhecido');
+ assert.equal(js('ecoAssignBoth("terapeuta")'),true);
+ assert.equal(js('sessionDraft.mlSegments.map(s=>s.speaker).join(",")'),'terapeuta,paciente,terapeuta,desconhecido');
+ assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),true);
+ assert.equal(js('ecoAssignBoth("terapeuta")'),true);
+ assert.equal(js('sessionDraft.mlSegments[0].speaker'),'paciente');
+ assert.equal(js('ecoCorrectSpeaker(0,"grupo")'),true);
+ assert.equal(js('sessionDraft.mlSegments[0].speaker'),'terapeuta');
+ assert.equal(js('ecoSpeakerRows(sessionDraft.mlSegments,"pendentes").length'),1);
+ assert.equal(js('state.mlDraft.session.mlSpeakerRoles.falante2'),'paciente');
+});
+test('ECO 0.12 revisão acessa trecho 801 e filtra por falante',()=>{
+ js('sessionDraft.mlSegments=Array.from({length:850},(_,i)=>({text:"fala "+i,speaker:i%2?"paciente":"terapeuta",cluster:i%2?"falante1":"falante2",startMs:i*1000}))');
+ js('ecoSpeakerContext=openedId+"|"+sessionDraft.id;ecoSpeakerPage=22;ecoSpeakerFilter="todos";ecoSpeakerSearch=""');
+ assert.match(js('ecoSegmentReview()'),/ecoSegment-800/);
+ assert.equal(js('ecoSpeakerRows(sessionDraft.mlSegments,"paciente").length'),425);
+ assert.equal(js('ecoSpeakerRows(sessionDraft.mlSegments,"todos","fala 849").length'),1);
+});
+test('ECO 0.12 falha de persistência restaura papéis individuais e coletivos',()=>{
+ js('sessionDraft.mlSegments=[{text:"a",cluster:"falante1",speaker:"desconhecido"},{text:"b",cluster:"falante2",speaker:"desconhecido"}];sessionDraft.mlSpeakerRoles={};window.NativeVault.saveDraft=()=>"ERRO"');
+ assert.equal(js('ecoAssignBoth("paciente")'),false);
+ assert.equal(js('sessionDraft.mlSegments[0].speaker'),'desconhecido');
+ assert.equal(js('Object.keys(sessionDraft.mlSpeakerRoles).length'),0);
+ assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),false);
+ assert.equal(js('sessionDraft.mlSegments[0].speaker'),'desconhecido');
+ js('delete window.NativeVault.saveDraft');
+});

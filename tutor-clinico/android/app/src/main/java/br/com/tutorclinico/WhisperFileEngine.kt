@@ -225,6 +225,8 @@ object WhisperFileEngine {
                         WhisperConfig(language = "pt", translate = false, threads = 4))
                 }
                 if (!listener.isActive()) return
+                val voiceTimeline=diarizer?.analyze(bytes,java.util.function.BooleanSupplier { listener.isActive() })
+                if (!listener.isActive()) return
                 if (result.segments.isNotEmpty()) {
                     for (seg in result.segments) {
                         if (listener.isActive() && seg.text.isNotBlank()) {
@@ -232,13 +234,14 @@ object WhisperFileEngine {
                             val maxMs = baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
                             val start=(baseMs+seg.startMs).coerceIn(baseMs,maxMs)
                             val end=(baseMs+seg.endMs).coerceIn(start,maxMs)
-                            val cluster=diarizer?.classify(bytes,start-baseMs,end-baseMs)?:""
+                            val cluster=voiceTimeline?.label(start-baseMs,end-baseMs)?:""
                             listener.segmentWithSpeaker(seg.text.trim(),start,end,cluster)
                         }
                     }
                 } else if (result.text.isNotBlank()) {
                     recognizedCount++
-                    listener.segment(result.text.trim(),baseMs,baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND)
+                    val end=baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
+                    listener.segmentWithSpeaker(result.text.trim(),baseMs,end,voiceTimeline?.label(0L,end-baseMs)?:"")
                 }
                 if (listener.isActive()) {
                     listener.progress(processedFrames * 1000L / SAMPLE_RATE)

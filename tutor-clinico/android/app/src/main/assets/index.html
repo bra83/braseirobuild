@@ -440,7 +440,7 @@ function act(name,id){
   let saved=false;
   if(editSessionId){const prior=c.sessoes.find(v=>v.id===editSessionId);if(!prior)return;
    if(['data','texto','intervencoes','plano','mlTranscricao','mlRevisada'].every(k=>String(s[k]||'')===String(prior[k]||'')) &&
-    ['mlTags','mlSegments','mlEvidence','mlEvents','mlAcoustic'].every(k=>JSON.stringify(s[k]||[])===JSON.stringify(prior[k]||[]))){notify('Nenhuma alteração para registrar.');return;}
+    ['mlTags','mlSegments','mlEvidence','mlEvents','mlAcoustic','mlSpeakerRoles'].every(k=>JSON.stringify(s[k]||[])===JSON.stringify(prior[k]||[]))){notify('Nenhuma alteração para registrar.');return;}
    saved=change(()=>{const index=c.sessoes.findIndex(v=>v.id===editSessionId);
     const old=c.sessoes[index];const revisoes=Array.isArray(old.revisoes)?old.revisoes:[];
     const revision={...JSON.parse(JSON.stringify(old)),revisoes:undefined,registradoEm:new Date().toISOString()};
@@ -561,7 +561,7 @@ function ecoAddSegment(value,meta={}){
  const segment={
   text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
   endMs:Number.isFinite(meta.endMs)?meta.endMs:null,
-  speaker:"desconhecido",
+  speaker:sessionDraft.mlSpeakerRoles?.[meta.cluster]||"desconhecido",
   cluster:["falante1","falante2"].includes(meta.cluster)?meta.cluster:"",
   origem:ecoAudioSource==="arquivo"?(ecoChosenAsr==="small"?"Whisper Small Q5 PT · arquivo importado":"Whisper Base PT · arquivo importado"):(ecoChosenMic==="vosk"?"Vosk PT-BR · microfone":ecoChosenMic==="whisper-small"?"Whisper Small Q5 PT · microfone":"Whisper Base PT · microfone")
  };
@@ -651,7 +651,7 @@ act=function(name,id){
   if(ecoIsCapturing()){notify("O arquivo já está sendo transcrito. Não precisa iniciar captação; acompanhe o progresso.",'red');return}
   if(!window.NativeVault.startMlCapture && !window.NativeVault.startMlCaptureWithEngine){notify("Recurso exige APK Android.",'red');return}
   ecoAudioSource="microfone";ecoEnsure();ecoStatus="MICROFONE · PREPARANDO";ecoDisplay();
-  if(window.NativeVault.setDiarization)window.NativeVault.setDiarization(ecoDiarization&&!sessionDraft.mlSegments.some(s=>s.cluster));
+  if(window.NativeVault.setDiarization){const prior=sessionDraft.mlSegments.some(s=>s.cluster);window.NativeVault.setDiarization(ecoDiarization&&!prior);if(ecoDiarization&&prior)notify("Grupos anteriores não serão reutilizados. Para nova diarização, inicie uma nova sessão.");}
   if(window.NativeVault.startMlCaptureWithEngine)window.NativeVault.startMlCaptureWithEngine(true,ecoChosenMic);
   else window.NativeVault.startMlCapture(true);
   return;
@@ -1112,22 +1112,61 @@ function ecoEvidencePanel(){
  return out+'</section>';
 }
 
-function ecoSpeakerLabel(s){return s.speaker&&s.speaker!=="desconhecido"?s.speaker:(s.cluster==="falante1"?"Falante 1 (sugerido)":s.cluster==="falante2"?"Falante 2 (sugerido)":"Falante não determinado");}
-function ecoSpeakerGroups(ss){
- return ["falante1","falante2"].map((key,i)=>{
-  const rows=ss.filter(s=>s.cluster===key);
-  if(!rows.length)return "";
-  return '<div class="eco-evidence"><strong>Falante '+(i+1)+' · '+rows.length+' trechos sugeridos</strong><p>'+esc(rows[0].text.slice(0,250))+'</p><label>Confirmar papel do grupo <select data-eco-role="'+key+'"><option value="">Escolher</option><option value="paciente">Paciente</option><option value="terapeuta">Terapeuta</option><option value="desconhecido">Desconhecido</option></select></label></div>';
- }).join("");
+function ecoSpeakerLabel(s){
+ return s.speaker&&s.speaker!=="desconhecido"?s.speaker:(s.speakerManual?"Falante não determinado":s.cluster==="falante1"?"Falante 1 (sugerido)":s.cluster==="falante2"?"Falante 2 (sugerido)":"Falante não determinado");
 }
-function ecoApplySpeakerGroup(key,value){
- if(!sessionDraft||!["falante1","falante2"].includes(key)||!["paciente","terapeuta","desconhecido"].includes(value))return false;
- const rows=sessionDraft.mlSegments||[],old=rows.map(s=>s.speaker);
- // Confirmed per-segment corrections are never overwritten in bulk.
- rows.forEach(s=>{if(s.cluster===key&&!s.speakerManual)s.speaker=value;});
- const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
- const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"Falha");
- if(status!=="OK"){rows.forEach((s,i)=>s.speaker=old[i]);notify("Falha ao salvar os falantes.","red");return false;}
+function ecoSpeakerGroups(ss){
+ const roles=sessionDraft?.mlSpeakerRoles||{},a=ss.filter(s=>s.cluster==="falante1"),b=ss.filter(s=>s.cluster==="falante2"),pending=ss.filter(s=>!s.speaker||s.speaker==="desconhecido").length;
+ if(!ss.length)return '<p class="muted">Aguardando a transcrição.</p>';
+ let out='<div class="main-stats"><div class="main-stat"><strong>'+a.length+'</strong><span>Falante 1</span></div><div class="main-stat"><strong>'+b.length+'</strong><span>Falante 2</span></div><div class="main-stat"><strong>'+pending+'</strong><span>Sem papel confirmado</span></div></div>';
+ if(!a.length&&!b.length)return out+'<p class="alert">Não foram obtidos grupos de voz suficientes. Nenhum rótulo foi inventado. Uma nova transcrição pode ser necessária.</p>';
+ for(const [rows,key,i] of [[a,"falante1",1],[b,"falante2",2]]){
+  if(!rows.length)continue;
+  const samples=[rows[0],rows[Math.floor(rows.length/2)],rows[rows.length-1]].filter((v,j,all)=>all.indexOf(v)===j);
+  out+='<div class="eco-evidence"><strong>Falante '+i+' · '+rows.length+' trechos</strong><p class="eco-caption">'+esc(roles[key]?('Papel confirmado: '+roles[key]):'Papel ainda não confirmado')+'</p>'+
+   samples.map(s=>'<p><small>'+esc(ecoTimecode(s.startMs))+'</small> · '+esc(s.text.slice(0,220))+'</p>').join("")+'</div>';
+ }
+ if(a.length&&b.length){
+  out+='<p>Reconheça os interlocutores pelas amostras e escolha uma opção. Os dois grupos serão atualizados de uma vez, preservando as correções individuais.</p><div class="stack">'+
+   btn("Falante 1 = paciente · Falante 2 = terapeuta","ecoAssignBoth","primary",'data-id="paciente"')+
+   btn("Falante 1 = terapeuta · Falante 2 = paciente","ecoAssignBoth","secondary",'data-id="terapeuta"')+'</div>';
+ }else{
+  const key=a.length?"falante1":"falante2",n=a.length?1:2;
+  out+='<p>Somente um grupo foi encontrado. A segunda voz ainda não foi determinada.</p><div class="stack">'+
+   btn("Falante "+n+" = paciente","ecoAssignOne","secondary",'data-id="'+key+'|paciente"')+
+   btn("Falante "+n+" = terapeuta","ecoAssignOne","secondary",'data-id="'+key+'|terapeuta"')+'</div>';
+ }
+ return out+'<p class="eco-caption">Sem agrupamento: '+(ss.length-a.length-b.length)+' · Correções individuais: '+ss.filter(s=>s.speakerManual).length+'. Grupos experimentais, não identificação de pessoas.</p>';
+}
+function ecoPersistSpeakerChange(){
+ const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))},before=state.mlDraft;
+ state.mlDraft=payload;
+ const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(persist()?"OK":"Falha");
+ if(status!=="OK"){state.mlDraft=before;notify("Falha ao salvar os falantes.","red");return false;}
+ return true;
+}
+function ecoAssignRoles(mapping){
+ if(!sessionDraft||!mapping||ecoIsCapturing())return false;
+ const rows=sessionDraft.mlSegments||[],keys=Object.keys(mapping);
+ if(!keys.length||keys.some(k=>!["falante1","falante2"].includes(k)||!["paciente","terapeuta"].includes(mapping[k])||!rows.some(s=>s.cluster===k)))return false;
+ const old=rows.map(s=>s.speaker),oldRoles=sessionDraft.mlSpeakerRoles,next={...(oldRoles||{}),...mapping};
+ if(next.falante1&&next.falante1===next.falante2){notify("Os dois grupos não podem ter o mesmo papel.","red");return false;}
+ sessionDraft.mlSpeakerRoles=next;
+ rows.forEach(s=>{if(mapping[s.cluster]&&!s.speakerManual)s.speaker=mapping[s.cluster];});
+ if(!ecoPersistSpeakerChange()){rows.forEach((s,i)=>s.speaker=old[i]);sessionDraft.mlSpeakerRoles=oldRoles;return false;}
+ return true;
+}
+function ecoAssignBoth(role){
+ if(!["paciente","terapeuta"].includes(role))return false;
+ return ecoAssignRoles({falante1:role,falante2:role==="paciente"?"terapeuta":"paciente"});
+}
+function ecoCorrectSpeaker(ix,value){
+ const s=sessionDraft?.mlSegments?.[ix];
+ if(!s||!["paciente","terapeuta","desconhecido","grupo"].includes(value)||ecoIsCapturing())return false;
+ const old=s.speaker,manual=s.speakerManual;
+ s.speaker=value==="grupo"?(sessionDraft.mlSpeakerRoles?.[s.cluster]||"desconhecido"):value;
+ s.speakerManual=value!=="grupo";
+ if(!ecoPersistSpeakerChange()){s.speaker=old;s.speakerManual=manual;return false;}
  return true;
 }
 function ecoReviewFlags(text){
@@ -1150,7 +1189,7 @@ function ecoFoldPanels(){
   const details=document.createElement("details"),summary=document.createElement("summary");
   details.className="eco-fold";summary.className="eco-fold-summary";
   summary.textContent=heading.textContent;heading.remove();
-  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras/.test(key));details.appendChild(summary);
+  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras|Identificação dos falantes|Trechos e falantes/.test(key));details.appendChild(summary);
   while(parent.firstChild)details.appendChild(parent.firstChild);
   parent.appendChild(details);
   details.addEventListener("toggle",()=>ecoFoldState.set(key,details.open));
@@ -1175,17 +1214,46 @@ function ecoFoldPanels(){
 }
 document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoDiarization)ecoDiarization=e.target.checked;
- if(e.target?.dataset?.ecoRole&&ecoApplySpeakerGroup(e.target.dataset.ecoRole,e.target.value))render();
+ if(e.target?.dataset?.ecoSpeakerFilter!==undefined){ecoSpeakerFilter=e.target.value;ecoSpeakerPage=0;render();}
+ if(e.target?.dataset?.ecoSpeakerSearch!==undefined){ecoSpeakerSearch=e.target.value;ecoSpeakerPage=0;render();}
 });
 
-function ecoSegmentReview(){
- ecoEnsure();const ss=sessionDraft.mlSegments||[];
- return '<section class="eco-outline"><h3>Trechos e falantes ('+ss.length+')</h3>'+
- '<p class="eco-caption">Falantes 1 e 2 são agrupamentos acústicos experimentais, não identidades. Confirme o papel de cada grupo e corrija trechos ambíguos.</p>'+ecoSpeakerGroups(ss)+''+
- ss.slice(0,250).map((s,i)=>'<div class="eco-evidence" id="ecoSegment-'+i+'"><small>'+esc(s.startMs==null?'Sem horário de áudio':ecoTimecode(s.startMs)+' — '+ecoTimecode(s.endMs??s.startMs))+' · '+esc(s.origem||"motor desconhecido")+'</small><p><strong>'+esc(ecoSpeakerLabel(s))+'</strong> · '+esc(s.text||"")+'</p><label class="eco-caption">Falante <select data-eco-speaker="'+i+'"><option value="desconhecido" '+(!s.speaker||s.speaker==="desconhecido"?'selected':'')+'>Desconhecido</option><option value="paciente" '+(s.speaker==="paciente"?'selected':'')+'>Paciente (confirmado)</option><option value="terapeuta" '+(s.speaker==="terapeuta"?'selected':'')+'>Terapeuta (confirmado)</option></select></label></div>').join('')+
- (ss.length>250?'<p class="muted">Exibindo os 250 primeiros trechos; o restante permanece salvo.</p>':'')+'</section>';
+let ecoSpeakerFilter="todos",ecoSpeakerSearch="",ecoSpeakerPage=0,ecoSpeakerContext="";
+const ECO_SPEAKER_PAGE_SIZE=35;
+function ecoSpeakerRows(ss,filter="todos",query=""){
+ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ return ss.map((s,index)=>({s,index})).filter(({s})=>{
+  if(filter==="pendentes"&&s.speaker&&s.speaker!=="desconhecido")return false;
+  if(filter==="manuais"&&!s.speakerManual)return false;
+  if(["falante1","falante2"].includes(filter)&&s.cluster!==filter)return false;
+  if(["paciente","terapeuta"].includes(filter)&&s.speaker!==filter)return false;
+  return !query||norm(s.text).includes(norm(query))||ecoTimecode(s.startMs).includes(query);
+ });
 }
-
+function ecoSegmentReview(){
+ ecoEnsure();const ss=sessionDraft.mlSegments||[],ctx=openedId+"|"+sessionDraft.id;
+ if(ecoSpeakerContext!==ctx){ecoSpeakerContext=ctx;ecoSpeakerFilter="todos";ecoSpeakerSearch="";ecoSpeakerPage=0;}
+ const rows=ecoSpeakerRows(ss,ecoSpeakerFilter,ecoSpeakerSearch),pages=Math.max(1,Math.ceil(rows.length/ECO_SPEAKER_PAGE_SIZE));
+ ecoSpeakerPage=Math.max(0,Math.min(pages-1,ecoSpeakerPage));
+ const page=rows.slice(ecoSpeakerPage*ECO_SPEAKER_PAGE_SIZE,(ecoSpeakerPage+1)*ECO_SPEAKER_PAGE_SIZE);
+ const nav='<div class="actions">'+(ecoSpeakerPage>0?btn("← Anterior","ecoSpeakerPage","secondary",'data-id="-1"'):"")+(ecoSpeakerPage+1<pages?btn("Próxima →","ecoSpeakerPage","secondary",'data-id="1"'):"")+'</div>';
+ return '<section class="eco-outline" id="ecoSegmentReviewPanel"><h3>Trechos e falantes ('+ss.length+')</h3>'+
+ '<p class="eco-caption">Atribua os grupos em lote primeiro. Corrija apenas as exceções ou falas não determinadas.</p>'+ecoSpeakerGroups(ss)+
+ '<label class="field">Exibir <select data-eco-speaker-filter>'+
+ [["todos","Todos os trechos"],["pendentes","Sem papel confirmado"],["falante1","Falante 1"],["falante2","Falante 2"],["paciente","Paciente"],["terapeuta","Terapeuta"],["manuais","Corrigidos manualmente"]].map(([v,l])=>'<option value="'+v+'" '+(ecoSpeakerFilter===v?"selected":"")+'>'+l+'</option>').join("")+'</select></label>'+
+ '<label class="field">Localizar fala ou minuto <input data-eco-speaker-search value="'+esc(ecoSpeakerSearch)+'" placeholder="Ex.: pai ou 12:30"></label>'+
+ '<p class="eco-caption">'+rows.length+' trechos correspondentes · página '+(ecoSpeakerPage+1)+' de '+pages+'</p>'+nav+
+ page.map(({s,index})=>'<div class="eco-evidence" id="ecoSegment-'+index+'"><small>'+esc(s.startMs==null?'Sem horário de áudio':ecoTimecode(s.startMs)+' — '+ecoTimecode(s.endMs??s.startMs))+' · '+esc(s.origem||"motor desconhecido")+'</small><p><strong>'+esc(ecoSpeakerLabel(s))+'</strong> · '+esc(s.text||"")+'</p><label class="eco-caption">Corrigir falante <select data-eco-speaker="'+index+'">'+
+ [["grupo","Seguir grupo automático"],["desconhecido","Indefinido"],["paciente","Paciente"],["terapeuta","Terapeuta"]].map(([v,l])=>'<option value="'+v+'" '+((s.speakerManual?(s.speaker||"desconhecido"):"grupo")===v?"selected":"")+'>'+l+'</option>').join("")+
+ '</select></label></div>').join("")+(!page.length?'<p class="muted">Nenhum trecho neste filtro.</p>':'')+nav+'</section>';
+}
+function ecoOpenSpeakerAt(index){
+ ecoSpeakerContext=openedId+"|"+sessionDraft.id;ecoSpeakerFilter="todos";ecoSpeakerSearch="";
+ ecoSpeakerPage=Math.floor(Math.max(0,index)/ECO_SPEAKER_PAGE_SIZE);
+ ecoWorkspaceTab="revisar";ecoTimelineFocused=index;render();
+ const target=document.getElementById?.("ecoSegment-"+index);
+ if(target){for(let p=target.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true;target.scrollIntoView?.({behavior:"smooth",block:"center"});}
+}
 // ECO 0.4 — aplicação reestruturada em torno da sessão, mantendo os dados existentes.
 let ecoWorkspaceTab="captura",ecoOverviewCase=null;
 const ecoStatuses=new Set(["CAPTURANDO","PREPARANDO","GRAVANDO"]);
@@ -1221,7 +1289,7 @@ function ecoTimeline(session){
   const at=Number.isFinite(e.startMs)?e.startMs:null,position=at==null?0:Math.max(0,Math.min(100,at/max*100));
   return '<div class="eco-evidence" id="ecoTimeline-'+e.index+'"><div class="eco-timeline-head">'+
    btn(ecoTimecode(at),'ecoFocusSegment','secondary','data-id="'+e.index+'"')+
-   '<span class="eco-caption">'+esc(e.speaker||"desconhecido")+' · '+esc(e.origem||"origem desconhecida")+'</span></div>'+
+   '<span class="eco-caption">'+esc(ecoSpeakerLabel(e))+' · '+esc(e.origem||"origem desconhecida")+'</span></div>'+
    '<div class="eco-timeline-meter" aria-hidden="true"><span style="width:'+position.toFixed(1)+'%"></span></div>'+
    '<p>'+esc(e.text||"")+'</p></div>';
  }).join('');
@@ -1307,9 +1375,9 @@ function ecoWorkspace(){
  out+=ecoTimeline(sessionDraft);
  }else if(ecoWorkspaceTab==="analise"){
   out+='<section class="eco-outline" id="ecoAnalysisTranscript"><h2>Transcrição reconhecida</h2><div class="eco-live">'+esc(sessionDraft.mlTranscricao||sessionDraft.mlRevisada||"Ainda não há transcrição.")+'</div>'+btn("Corrigir transcrição","ecoWorkspaceTab","secondary",'data-id="revisar"')+'</section>';
-  out+=ecoAnalyticsPanel(sessionDraft);
   out+='<section class="eco-outline" id="ecoSpeakerPanel"><h2>Identificação dos falantes</h2>'+ecoSpeakerGroups(sessionDraft.mlSegments||[])+
     '<p class="eco-caption">Agrupamentos automáticos somente quando disponíveis; falas ambíguas continuam sem atribuição.</p>'+btn("Revisar falantes por trecho","ecoWorkspaceTab","secondary",'data-id="revisar"')+'</section>';
+  out+=ecoAnalyticsPanel(sessionDraft);
   out+=ecoNeuralPanel();
   out+=ecoReviewQuality(sessionDraft);
   out+=ecoTimeline(sessionDraft);
@@ -1434,7 +1502,7 @@ act=function(name,id){
   if(!window.NativeVault.selectAudioFile && !window.NativeVault.selectAudioFileWithModel){notify("Importação disponível apenas no APK Android.",'red');return}
   if(!ecoDocumentConsent())return;
   ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
-  if(window.NativeVault.setDiarization)window.NativeVault.setDiarization(ecoDiarization&&!sessionDraft.mlSegments.some(s=>s.cluster));
+  if(window.NativeVault.setDiarization){const prior=sessionDraft.mlSegments.some(s=>s.cluster);window.NativeVault.setDiarization(ecoDiarization&&!prior);if(ecoDiarization&&prior)notify("Grupos anteriores não serão reutilizados. Para nova diarização, inicie uma nova sessão.");}
   if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
   else window.NativeVault.selectAudioFile(true);
   return;
@@ -1456,20 +1524,20 @@ act=function(name,id){
      const error=Math.abs(all[i].startMs-time);
      if(error<dist){nearest=i;dist=error}
    }
-   ecoTimelineFocused=nearest;render();
-   const element=document.getElementById("ecoSegment-"+nearest);
-   if(element&&element.scrollIntoView)element.scrollIntoView({behavior:"smooth",block:"center"});
+   ecoOpenSpeakerAt(nearest);
    return;
  }
  if(name==="ecoKeywordDetails"){ecoSelectedWord=String(id||"");ecoWorkspaceTab="analise";ecoFoldState.clear();render();const d=document.querySelector("#ecoNlpDashboard");if(d?.querySelectorAll){d.querySelectorAll("details").forEach(x=>{if(x.querySelector("summary")?.textContent.includes("Contagem e ocorrências")||x.parentElement===d)x.open=true});d.scrollIntoView?.({behavior:"smooth",block:"start"});}return;}
  if(name==="ecoFilterTimeline"){render();return;}
- if(name==="ecoFocusSegment"){
-   ecoWorkspaceTab="revisar";const index=Number(id);ecoTimelineFocused=index;render();
-   const target=document.getElementById("ecoSegment-"+index)||document.getElementById("ecoTimeline-"+index);
-   if(target){for(let p=target.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true;}
-   if(target&&target.scrollIntoView)target.scrollIntoView({behavior:"smooth",block:"center"});
+ if(name==="ecoFocusSegment"){ecoOpenSpeakerAt(Number(id));return;}
+ if(name==="ecoAssignBoth"||name==="ecoAssignOne"){
+   if(ecoIsCapturing()){notify("Aguarde o término da transcrição para confirmar os grupos.","red");return;}
+   const [key,role]=String(id||"").split("|");
+   const ok=name==="ecoAssignBoth"?ecoAssignBoth(key):ecoAssignRoles({[key]:role});
+   if(ok){ecoSpeakerContext=openedId+"|"+sessionDraft.id;ecoSpeakerFilter="pendentes";ecoSpeakerSearch="";ecoSpeakerPage=0;render();notify("Papéis aplicados em lote. Revise apenas as exceções.");}
    return;
  }
+ if(name==="ecoSpeakerPage"){ecoSpeakerPage+=Number(id)||0;render();return;}
  if(name==="ecoNeuralStart"){ecoNeuralStart();return;}
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
@@ -1542,13 +1610,8 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
  if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
  if(e.target?.dataset?.ecoSpeaker!==undefined&&sessionDraft){
-  const ix=Number(e.target.dataset.ecoSpeaker),value=e.target.value;
-  if(!["paciente","terapeuta","desconhecido"].includes(value)||!sessionDraft.mlSegments?.[ix])return;
-  const old=sessionDraft.mlSegments[ix].speaker,oldManual=sessionDraft.mlSegments[ix].speakerManual;
-  sessionDraft.mlSegments[ix].speaker=value;sessionDraft.mlSegments[ix].speakerManual=true;
-  const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
-  const result=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"Falha");
-  if(result!=="OK"){sessionDraft.mlSegments[ix].speaker=old;sessionDraft.mlSegments[ix].speakerManual=oldManual;notify("Não foi possível salvar alteração de falante.",'red')}
+  if(ecoCorrectSpeaker(Number(e.target.dataset.ecoSpeaker),e.target.value))render();
+  else if(ecoIsCapturing())notify("Aguarde o término da transcrição.","red");
  }
 });
 const ecoPriorDisplay=ecoDisplay;

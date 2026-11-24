@@ -1,0 +1,3 @@
+# ECO 0.12 — speakers beta
+
+One Vosk x-vector pass per Whisper chunk, timestamp overlap mapping, unknown for insufficient/conflicting spans, paired role assignment, individual override/reset, counts, samples and paginated/filterable review. Voice vectors in memory only. Experimental utterance-level grouping, not certified diarization or separation of simultaneous voices. Synthetic-vector and UI logic tests do not validate acoustic accuracy, real-time factor or A57. No second group invented. Existing transcripts without audio cannot be rediarized. No clinical use until validated. Checklist diarization/review requirements partially addressed, P0 security findings remain open.
