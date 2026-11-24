@@ -40,6 +40,9 @@ public final class MainActivity extends Activity {
     private static final int MIC_PERMISSION = 903;
     private static final int AUDIO_FILE_CODE = 904;
     private MlSessionEngine ml;
+    private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
+    private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
+    private volatile long semanticEpoch=0;
     private String selectedAsrModel="small";
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
@@ -126,7 +129,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; unlocked = false; web.setVisibility(View.INVISIBLE);
+        showingLock = true; unlocked = false; semanticEpoch++; web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -182,7 +185,7 @@ public final class MainActivity extends Activity {
         super.onResume();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
     }
-    @Override protected void onDestroy() { if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { semanticEpoch++; semanticWorker.shutdownNow(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing()) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -227,6 +230,27 @@ public final class MainActivity extends Activity {
         ml.importFile(uri,selectedAsrModel);
     }
     private final class Bridge {
+        @JavascriptInterface public void analyzeSemantic(String json){
+            if(!unlocked||json==null||json.length()>500000)return;
+            final JSONObject req;
+            try{req=new JSONObject(json);}catch(Exception e){return;}
+            final String id=req.optString("id");
+            if(!semanticBusy.compareAndSet(false,true)){
+                jsCallback("nativeSemanticResult", "{\"id\":"+JSONObject.quote(id)+",\"error\":\"Motor ocupado\"}");return;
+            }
+            final long epoch=semanticEpoch;
+            try{semanticWorker.execute(()->{
+                JSONObject result=new JSONObject();
+                try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
+                    result=engine.analyze(req,()->unlocked&&semanticEpoch==epoch&&!Thread.currentThread().isInterrupted());
+                }catch(Exception|LinkageError e){
+                    try{result=new JSONObject().put("error","Modelo indisponível ou análise interrompida; nenhuma inferência simulada.");}catch(Exception ignored){}
+                }finally{semanticBusy.set(false);}
+                try{result.put("id",id);}catch(Exception ignored){}
+                if(unlocked&&semanticEpoch==epoch&&!isDestroyed())jsCallback("nativeSemanticResult",result.toString());
+            });}catch(java.util.concurrent.RejectedExecutionException e){semanticBusy.set(false);}
+        }
+
         @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->{

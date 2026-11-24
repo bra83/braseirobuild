@@ -69,6 +69,10 @@ jobs:
             -o app/src/main/assets/whisper/ggml-small-q5_1.bin
           test "$(stat -c%s app/src/main/assets/whisper/ggml-small-q5_1.bin)" -gt 170000000
           sha256sum app/src/main/assets/whisper/ggml-small-q5_1.bin
+      - name: Preparar e testar modelo semântico neural
+        run: |
+          python3 -m pip install --disable-pip-version-check numpy==1.26.4 onnxruntime==1.22.0 safetensors==0.5.3 tokenizers==0.21.1
+          python3 qa/provision_semantic.py
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
@@ -90,7 +94,7 @@ jobs:
       - name: Publicar APK de teste
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.9.1-analysis-workspace-beta
+          name: ECO-v0.10.0-neural-beta
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

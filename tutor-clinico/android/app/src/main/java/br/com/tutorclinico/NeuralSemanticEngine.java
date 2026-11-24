@@ -1,0 +1,138 @@
+package br.com.tutorclinico;
+
+import android.content.Context;
+import ai.onnxruntime.*;
+import org.json.*;
+import java.io.*;
+import java.nio.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.function.BooleanSupplier;
+
+/** Local sentence embeddings. No transcript or embeddings written to disk. */
+final class NeuralSemanticEngine implements AutoCloseable {
+    static final String MODEL="distiluse-base-multilingual-cased-v2@bfe45d0-int8";
+    static final int MAX_ROWS=1200, MAX_TOKENS=128, DIM=512;
+    private final Map<String,Integer> vocab=new HashMap<>();
+    private final float[] weights=new float[512*768], bias=new float[512];
+    private final OrtEnvironment env=OrtEnvironment.getEnvironment();
+    private OrtSession session;
+    NeuralSemanticEngine(Context context) throws Exception {
+        try(BufferedReader in=new BufferedReader(new InputStreamReader(context.getAssets().open("semantic/vocab.txt"),StandardCharsets.UTF_8))){
+            String line;int i=0;while((line=in.readLine())!=null)vocab.put(line,i++);
+        }
+        for(String s:new String[]{"[UNK]","[CLS]","[SEP]","[PAD]"})if(!vocab.containsKey(s))throw new IOException("Vocabulário inválido");
+        try(DataInputStream in=new DataInputStream(new BufferedInputStream(context.getAssets().open("semantic/dense.bin")))){
+            for(int i=0;i<weights.length;i++)weights[i]=Float.intBitsToFloat(Integer.reverseBytes(in.readInt()));
+            for(int i=0;i<bias.length;i++)bias[i]=Float.intBitsToFloat(Integer.reverseBytes(in.readInt()));
+            if(in.read()!=-1)throw new IOException("Dimensão inválida");
+        }
+        File file=new File(context.getFilesDir(),"eco-semantic-bfe45d0.onnx");
+        long expected;try(android.content.res.AssetFileDescriptor fd=context.getAssets().openFd("semantic/model.onnx")){expected=fd.getLength();}
+        if(!file.isFile()||file.length()!=expected){
+            File tmp=new File(file.getPath()+".tmp");
+            try(InputStream in=context.getAssets().open("semantic/model.onnx");OutputStream out=new FileOutputStream(tmp)){
+                byte[] b=new byte[65536];int n;while((n=in.read(b))!=-1)out.write(b,0,n);
+            }
+            if(!tmp.renameTo(file)){tmp.delete();throw new IOException("Modelo não instalado");}
+        }
+        try(OrtSession.SessionOptions opts=new OrtSession.SessionOptions()){
+            opts.setIntraOpNumThreads(2);opts.setInterOpNumThreads(1);
+            session=env.createSession(file.getAbsolutePath(),opts);
+        }
+    }
+    private static boolean punctuation(int cp){
+        int t=Character.getType(cp);
+        return (cp>=33&&cp<=47)||(cp>=58&&cp<=64)||(cp>=91&&cp<=96)||(cp>=123&&cp<=126)||
+            t==Character.CONNECTOR_PUNCTUATION||t==Character.DASH_PUNCTUATION||t==Character.START_PUNCTUATION||
+            t==Character.END_PUNCTUATION||t==Character.INITIAL_QUOTE_PUNCTUATION||t==Character.FINAL_QUOTE_PUNCTUATION||t==Character.OTHER_PUNCTUATION;
+    }
+    private List<Integer> tokens(String text){
+        StringBuilder clean=new StringBuilder();
+        text.codePoints().forEach(cp->{
+            if(cp==0||cp==0xfffd)return;
+            if(Character.isWhitespace(cp)||Character.isSpaceChar(cp)){clean.append(' ');return;}
+            int type=Character.getType(cp);
+            if(type==Character.CONTROL||type==Character.FORMAT)return;
+            if(punctuation(cp)||Character.UnicodeScript.of(cp)==Character.UnicodeScript.HAN)
+                clean.append(' ').appendCodePoint(cp).append(' ');
+            else clean.appendCodePoint(cp);
+        });
+        List<Integer> out=new ArrayList<>();
+        for(String word:java.text.Normalizer.normalize(clean.toString(),java.text.Normalizer.Form.NFC).trim().split("\\s+")){
+            if(word.isEmpty())continue;
+            if(word.codePointCount(0,word.length())>100){out.add(vocab.get("[UNK]"));continue;}
+            ArrayList<Integer> part=new ArrayList<>();
+            int start=0;
+            while(start<word.length()){
+                int end=word.length();Integer found=null;
+                while(end>start){
+                    found=vocab.get((start==0?"":"##")+word.substring(start,end));
+                    if(found!=null)break;
+                    end=word.offsetByCodePoints(end,-1);
+                }
+                if(found==null){part.clear();part.add(vocab.get("[UNK]"));break;}
+                part.add(found);start=end;
+            }
+            out.addAll(part);
+        }
+        return out;
+    }
+    private float[] embed(List<Integer> ids,int start,int end) throws Exception{
+        int n=end-start+2;long[] input=new long[n],mask=new long[n];
+        input[0]=vocab.get("[CLS]");input[n-1]=vocab.get("[SEP]");
+        for(int i=start;i<end;i++)input[i-start+1]=ids.get(i);
+        Arrays.fill(mask,1);
+        try(OnnxTensor a=OnnxTensor.createTensor(env,LongBuffer.wrap(input),new long[]{1,n});
+            OnnxTensor b=OnnxTensor.createTensor(env,LongBuffer.wrap(mask),new long[]{1,n});
+            OrtSession.Result result=session.run(Map.of("input_ids",a,"attention_mask",b))){
+            float[][][] tensor=(float[][][])result.get(0).getValue();
+            if(tensor.length!=1||tensor[0].length!=n||tensor[0][0].length!=768)throw new IOException("Saída incompatível");
+            float[] mean=new float[768];
+            for(float[] row:tensor[0])for(int j=0;j<768;j++)mean[j]+=row[j]/n;
+            float[] v=new float[DIM];
+            for(int i=0;i<DIM;i++){double sum=bias[i];for(int j=0;j<768;j++)sum+=weights[i*768+j]*mean[j];v[i]=(float)Math.tanh(sum);}
+            normalize(v);return v;
+        }
+    }
+    private static void normalize(float[] v) throws IOException{
+        double norm=0;for(float f:v)norm+=f*f;
+        if(!Double.isFinite(norm)||norm<1e-12)throw new IOException("Vetor inválido");
+        norm=Math.sqrt(norm);for(int i=0;i<v.length;i++)v[i]/=norm;
+    }
+    private float[] vector(String text,BooleanSupplier active) throws Exception{
+        List<Integer> ids=tokens(text);if(ids.isEmpty())throw new IOException("Texto vazio");
+        float[] v=new float[DIM];
+        for(int i=0;i<ids.size();i+=MAX_TOKENS-2){
+            if(!active.getAsBoolean())throw new CancellationException();
+            int end=Math.min(ids.size(),i+MAX_TOKENS-2);float[] part=embed(ids,i,end);
+            for(int j=0;j<DIM;j++)v[j]+=part[j]*(end-i);
+        }
+        normalize(v);return v;
+    }
+    private static double cosine(float[] a,float[] b){double s=0;for(int i=0;i<DIM;i++)s+=a[i]*b[i];return Math.max(-1,Math.min(1,s));}
+    JSONObject analyze(JSONObject request,BooleanSupplier active) throws Exception{
+        JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
+        if(rows.length()==0||rows.length()>MAX_ROWS||query.length()>500)throw new IOException("Limite de análise: 1–1200 trechos e consulta de até 500 caracteres");
+        float[] q=query.isEmpty()?null:vector(query,active);
+        List<float[]> vs=new ArrayList<>();List<JSONObject> hits=new ArrayList<>();List<JSONObject> pairs=new ArrayList<>();
+        for(int i=0;i<rows.length();i++){
+            if(!active.getAsBoolean())throw new CancellationException();
+            String text=rows.getJSONObject(i).getString("text");
+            if(text.length()>12000)throw new IOException("Trecho muito longo: divida antes de analisar");
+            float[] v=vector(text,active);
+            if(q!=null)hits.add(new JSONObject().put("i",i).put("score",cosine(q,v)));
+            double best=-2;int match=-1;
+            for(int j=0;j<vs.size();j++){double score=cosine(v,vs.get(j));if(score>best){best=score;match=j;}}
+            if(match>=0)pairs.add(new JSONObject().put("i",i).put("j",match).put("score",best));
+            vs.add(v);
+        }
+        Comparator<JSONObject> desc=Comparator.comparingDouble((JSONObject o)->o.optDouble("score")).reversed();
+        hits.sort(desc);pairs.sort(desc);
+        return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)
+          .put("hits",new JSONArray(hits.subList(0,Math.min(20,hits.size()))))
+          .put("pairs",new JSONArray(pairs.subList(0,Math.min(20,pairs.size()))));
+    }
+    @Override public void close() throws OrtException {if(session!=null)session.close();}
+}

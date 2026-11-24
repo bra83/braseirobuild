@@ -932,6 +932,53 @@ function ecoEventPanel(){
 }
 
 
+
+let ecoNeuralRun=null,ecoNeuralSerial=0;
+function ecoNeuralRows(){
+ return ecoSourceUnits(sessionDraft).filter(r=>String(r.text||"").trim()).map(r=>({text:r.text,atMs:r.atMs,speaker:r.speaker,source:r.source}));
+}
+function ecoNeuralKey(rows){return JSON.stringify([openedId,editSessionId,rows]);}
+function ecoNeuralPanel(){
+ const rows=ecoNeuralRows(),key=ecoNeuralKey(rows),r=ecoNeuralRun?.key===key?ecoNeuralRun:null;
+ let out='<section class="eco-outline"><h2>◈ Semântica neural · offline</h2><p class="eco-caption">DistilUSE multilíngue INT8. Similaridade entre sentidos, não afirmação de fatos, emoções, contradições ou diagnóstico. Revise a fonte.</p>'+
+ '<label>Pesquisar por significado <input id="ecoNeuralQuery" maxlength="500" placeholder="Ex.: conflitos no ambiente de trabalho" value="'+esc(r?.query||"")+'"></label>'+
+ btn("Executar análise neural","ecoNeuralStart","primary")+
+ '<p class="eco-caption">'+rows.length+' trechos disponíveis · consulta opcional · texto revisado tem prioridade.</p>';
+ if(!r)return out+'</section>';
+ if(r.pending)return out+'<p>Processando modelo neural localmente…</p></section>';
+ if(r.error)return out+'<p class="alert red">'+esc(r.error)+'</p></section>';
+ const quote=i=>{const row=rows[i];return row?'<p>'+esc(row.text)+'</p><small>'+esc(row.atMs==null?"Sem minuto associado":ecoTimecode(row.atMs))+' · '+esc(row.speaker||"desconhecido")+' · '+esc(row.source)+'</small>':"";};
+ const score=x=>Number(x).toFixed(3);
+ out+='<p class="eco-caption">Modelo executado: '+esc(r.result.model)+' · '+r.result.count+' trechos · '+r.result.dimensions+' dimensões. Cosseno de −1 a 1; não é probabilidade clínica.</p>';
+ if(r.query)out+='<h3>Trechos por proximidade semântica</h3>'+r.result.hits.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.i)+'</div>').join("");
+ out+='<h3>Possíveis recorrências de assunto</h3><p class="eco-caption">Pares mais próximos, inclusive quando divergentes. Nenhum limiar clínico validado.</p>'+
+ (r.result.pairs.length?r.result.pairs.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.j)+'<div class="divider"></div>'+quote(h.i)+'</div>').join(""):'<p>É preciso mais de um trecho.</p>');
+ return out+'</section>';
+}
+function ecoNeuralStart(){
+ const rows=ecoNeuralRows(),query=document.getElementById("ecoNeuralQuery")?.value?.trim()||"";
+ const id=String(++ecoNeuralSerial),key=ecoNeuralKey(rows);
+ if(ecoNeuralRun?.pending){notify("Análise neural em andamento");return;}
+ ecoNeuralRun={id,key,query,pending:true};
+ const payload=JSON.stringify({id,query,rows});
+ if(!rows.length||rows.length>1200||payload.length>500000||rows.some(r=>r.text.length>12000)){
+   ecoNeuralRun={id,key,query,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};render();return;
+ }
+ if(typeof window.NativeVault?.analyzeSemantic!=="function"){
+   ecoNeuralRun={id,key,query,error:"Modelo neural nativo indisponível nesta versão."};render();return;
+ }
+ try{window.NativeVault.analyzeSemantic(payload);}catch(e){ecoNeuralRun={id,key,query,error:"Falha ao iniciar o modelo neural."};}
+ render();
+}
+window.nativeSemanticResult=function(raw){
+ let result;try{result=JSON.parse(raw);}catch(e){return;}
+ if(!ecoNeuralRun||result.id!==ecoNeuralRun.id)return;
+ ecoNeuralRun.pending=false;
+ if(screen!=="session"||ecoNeuralRun.key!==ecoNeuralKey(ecoNeuralRows())){ecoNeuralRun=null;return;}
+ if(result.error)ecoNeuralRun.error=result.error;else ecoNeuralRun.result=result;
+ if(ecoWorkspaceTab==="analise")render();
+};
+
 // POST-SESSION ANALYSIS: local deterministic NLP and descriptive acoustics.
 // No probabilistic psychological diagnosis or invented transcription corrections.
 const ecoNlpStop = new Set((
@@ -1182,6 +1229,7 @@ function ecoWorkspace(){
   out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto de cada trecho é salvo em rascunho criptografado, junto aos minutos e à origem do reconhecimento.</p></section>';
  out+=ecoTimeline(sessionDraft);
  }else if(ecoWorkspaceTab==="analise"){
+  out+=ecoNeuralPanel();
   out+=ecoAnalyticsPanel(sessionDraft);
   out+='<div class="actions">'+btn("Corrigir transcrição","ecoWorkspaceTab","secondary",'data-id="revisar"')+
     btn("Confirmar marcações","ecoWorkspaceTab","secondary",'data-id="marcar"')+'</div>';
@@ -1338,6 +1386,7 @@ act=function(name,id){
    if(target&&target.scrollIntoView)target.scrollIntoView({behavior:"smooth",block:"center"});
    return;
  }
+ if(name==="ecoNeuralStart"){ecoNeuralStart();return;}
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
  if(name==="ecoBenchmark"){
