@@ -12,7 +12,7 @@ import java.util.function.BooleanSupplier;
 
 /** Local sentence embeddings. No transcript or embeddings written to disk. */
 final class NeuralSemanticEngine implements AutoCloseable {
-    static final String MODEL="distiluse-base-multilingual-cased-v2@bfe45d0-int8";
+    static final String MODEL="distiluse-base-multilingual-cased-v2@bfe45d0-u8u8-v2";
     static final int MAX_ROWS=1200, MAX_TOKENS=128, DIM=512;
     private final Map<String,Integer> vocab=new HashMap<>();
     private final float[] weights=new float[512*768], bias=new float[512];
@@ -28,7 +28,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
             for(int i=0;i<bias.length;i++)bias[i]=Float.intBitsToFloat(Integer.reverseBytes(in.readInt()));
             if(in.read()!=-1)throw new IOException("Dimensão inválida");
         }
-        File file=new File(context.getFilesDir(),"eco-semantic-bfe45d0.onnx");
+        File file=new File(context.getFilesDir(),"eco-semantic-bfe45d0-u8u8-v2.onnx");
         long expected;try(android.content.res.AssetFileDescriptor fd=context.getAssets().openFd("semantic/model.onnx")){expected=fd.getLength();}
         if(!file.isFile()||file.length()!=expected){
             File tmp=new File(file.getPath()+".tmp");
