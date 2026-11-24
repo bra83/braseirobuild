@@ -934,13 +934,13 @@ function ecoEventPanel(){
 
 // POST-SESSION ANALYSIS: local deterministic NLP and descriptive acoustics.
 // No probabilistic psychological diagnosis or invented transcription corrections.
-const ecoNlpStop = new Set(
+const ecoNlpStop = new Set((
  "a o as os um uma uns umas de do da dos das e em no na nos nas pra pro para por com ao aos pela pelo " +
  "que quem qual quais como quando onde porque pois mas ou se eu me voce você ele ela eles elas meu minha " +
  "seu sua seus suas nosso nossa nos nós ser estar ter tinha tenho tem foi era estava estavam são sou " +
  "muito mais menos mesmo ainda então assim também depois antes desde aqui ali la lá isso isso aquele aquela " +
  "ainda só sim não nao nem cada todos todas outra outro vezes vez hoje ontem já ate até um dois " +
- "dizer falar falei disse falou pra acho achava coisa coisas realmente realmente passou passar".split(/\s+/u)
+ "dizer falar falei disse falou pra acho achava coisa coisas realmente realmente passou passar").split(/\s+/u)
   .map(x=>x.normalize("NFD").replace(/[\u0300-\u036f]/gu,"").toLowerCase())
 );
 function ecoWordKey(value){
