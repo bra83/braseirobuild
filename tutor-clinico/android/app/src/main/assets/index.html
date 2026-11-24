@@ -1118,8 +1118,8 @@ function ecoAnalyticsPanel(session){
  '<div class="main-stats"><div class="main-stat"><strong>'+total+'</strong><span>Palavras reconhecidas</span></div>'+
  '<div class="main-stat"><strong>'+rows.length+'</strong><span>Termos relevantes</span></div>'+
  '<div class="main-stat"><strong>'+(session?.mlSegments?.length||0)+'</strong><span>Trechos com origem</span></div></div>';
- if(!top.length)return out+'<p class="muted">Nenhum termo disponível neste filtro. Confirme os falantes ou selecione outro discurso.</p></section>';
-
+ if(!top.length)out+='<p class="muted">Nenhum termo disponível neste filtro. Confirme os falantes ou selecione outro discurso.</p>';
+ else {
  out+='<h3>Contagem e ocorrências por minuto</h3>'+
  '<p class="eco-caption">Selecione uma palavra para expandir todas as menções e encontrar os trechos correspondentes.</p>';
  const focused=rows.find(r=>r.word===ecoSelectedWord);
@@ -1142,6 +1142,8 @@ function ecoAnalyticsPanel(session){
  out+='<h3>Possíveis frases interrompidas ('+signals.interruptions.length+')</h3>'+
  '<p class="eco-caption">Somente reticências e travessões finais na transcrição; reconhecimento automático não permite confirmar uma interrupção real sem ouvir o áudio.</p>'+
  (signals.interruptions.length?signals.interruptions.slice(0,20).map(x=>'<div class="eco-kwic"><small>'+esc(ecoTimecode(x.atMs))+'</small> '+esc(x.quote)+'</div>').join(''):'<p class="muted small">Nenhuma candidata.</p>');
+ }
+ // Acoustic measurements belong to the entire recording and remain available independently of the text filter.
  out+='<h3>Sinal acústico (não análise emocional)</h3>'+
  '<p class="eco-caption">Energia do sinal, proporção de quase silêncio e frequência fundamental aproximada são métricas acústicas descritivas, não determinam tristeza, ansiedade, mentira ou estado clínico. Um áudio de duas pessoas não permite atribuir essas medidas a alguém sem separação de falantes.</p>';
  if(metrics.length){

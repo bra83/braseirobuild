@@ -574,7 +574,10 @@ test('ECO medidas acústicas registradas no rascunho cifrado, sem inferir emoç�
  js('window.nativeMlAcoustic(JSON.stringify({atMs:5000,durationMs:5000,rmsDbFs:-28.3,nearSilenceRatio:0.22}))');
  assert.equal(js('sessionDraft.mlAcoustic.length'),1);
  const html=js("ecoAnalyticsPanel(sessionDraft)");
- assert.match(html,/não análise emocional|Nenhuma transcrição disponível/);
+ assert.match(html,/não análise emocional/);
+ assert.match(html,/dBFS médio/);
+ assert.match(html,/-28\.3/);
+ assert.match(html,/gravação inteira/);
 });
 test('ECO caso oferece análises reais, sem menus genéricos de investigar e técnicas',()=>{
  const html=js("caseScreen()");
@@ -691,3 +694,5 @@ test('ECO 0.14 paciente exclui terapeuta e indefinido mesmo quando existe revis�
  assert.equal(js('ecoNeuralRows().length'),1);
  assert.equal(js('ecoNeuralRows()[0].speaker'),'paciente');
 });
+
+test('ECO acústica independe de falas do paciente sem misturar o discurso do terapeuta',()=>{context.acousticFilterFixture={mlSegments:[{text:"Pergunta sobre trabalho",speaker:"terapeuta"}],mlAcoustic:[{atMs:0,rmsDbFs:-21,nearSilenceRatio:0.2}]};js('ecoAnalysisScope="paciente"');const h=js('ecoAnalyticsPanel(acousticFilterFixture)');assert.match(h,/Nenhum termo disponível neste filtro/);assert.match(h,/dBFS médio/);assert.match(h,/-21\.0/);assert.doesNotMatch(h,/Pergunta sobre trabalho/);assert.doesNotMatch(h,/data-id="trabalho"/);});
