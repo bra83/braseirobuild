@@ -8,8 +8,8 @@ android {
         applicationId 'br.com.tutorclinico.offline'
         minSdk 28
         targetSdk 35
-        versionCode 17
-        versionName '0.13.0-tagarela-beta'
+        versionCode 18
+        versionName '0.14.0-patient-focus-beta'
     }
     androidResources { noCompress += ['onnx','txt'] }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }

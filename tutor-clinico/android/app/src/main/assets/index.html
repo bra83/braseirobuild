@@ -278,7 +278,7 @@ function ecoCaseAnalysis(c){
  if(!ss.length)return '<section class="eco-outline"><h2>Registros para análise</h2><p>Este caso ainda não possui transcrição arquivada. Grave uma sessão ou importe um arquivo e salve a transcrição.</p>'+
  btn("Gravar ou importar","ecoOpen","",'data-id="'+esc(c.id)+'"')+'</section>';
  const compiled=new Map();
- for(const session of ss)for(const row of ecoWordRows(session).slice(0,150)){
+ for(const session of ss)for(const row of ecoWordRows(session,"paciente").slice(0,150)){
    if(!compiled.has(row.word))compiled.set(row.word,{word:row.word,count:0,mentions:[]});
    const current=compiled.get(row.word);
    current.count+=row.count;
@@ -286,7 +286,7 @@ function ecoCaseAnalysis(c){
  }
  const top=[...compiled.values()].sort((a,b)=>b.count-a.count).slice(0,25);
  let out='<section class="eco-outline"><h2>Termos recorrentes neste caso</h2>'+
-  '<p class="eco-caption">Contagem lexical das transcrições arquivadas. Não representa sintoma, diagnóstico ou relação psicológica.</p>'+
+  '<p class="eco-caption">Contagem lexical das falas identificadas como paciente nas sessões arquivadas. Não representa sintoma, diagnóstico ou relação psicológica.</p>'+
   '<h3>Nuvem de palavras do caso</h3><div class="eco-wordcloud">'+top.slice(0,20).map(r=>'<span class="eco-cloud-token" style="font-size:'+
     (14+Math.round(13*Math.sqrt(r.count/Math.max(1,top[0]?.count||1))))+'px">'+esc(r.word)+' <small>'+r.count+'</small></span>').join('')+'</div>'+
   '<h3>Ocorrências no histórico</h3>';
@@ -938,25 +938,44 @@ function ecoEventPanel(){
 
 
 let ecoNeuralRun=null,ecoNeuralSerial=0;
-function ecoNeuralRows(){
- return ecoSourceUnits(sessionDraft).filter(r=>String(r.text||"").trim()).map(r=>({text:r.text,atMs:r.atMs,speaker:r.speaker,source:r.source}));
+let ecoAnalysisScope="paciente";
+function ecoAnalysisRows(session,scope=ecoAnalysisScope){
+ const ss=session?.mlSegments||[];
+ if(scope==="revisado")return String(session?.mlRevisada||"").split(/\n+|(?<=[.!?…])\s+/u).filter(t=>t.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:"revisada sem falante",index:null}));
+ if(ss.length)return ss.flatMap((s,index)=>{
+  const speaker=["paciente","terapeuta"].includes(s.speaker)?s.speaker:"desconhecido";
+  if(scope!=="todos"&&scope!==speaker)return [];
+  const text=String(s.text||"").trim();if(!text)return [];
+  // Keep the original ASR turn intact, rather than breaking every sentence into tiny fragments.
+  return [{text,atMs:s.startMs??null,speaker,source:"transcrição automática",index}];
+ });
+ if(!["todos","desconhecido"].includes(scope))return [];
+ return String(session?.mlTranscricao||"").split(/\n+|(?<=[.!?…])\s+/u).filter(t=>t.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:"transcrição automática sem falante",index:null}));
 }
-function ecoNeuralKey(rows){return JSON.stringify([openedId,sessionDraft?.id||editSessionId,rows]);}
+function ecoScopeName(scope){return ({paciente:"Somente paciente",terapeuta:"Somente terapeuta",desconhecido:"Sem identificação",todos:"Todos os falantes (exploratório)",revisado:"Texto revisado sem identificação"})[scope]||"Somente paciente";}
+function ecoScopeControls(session){
+ const ss=session?.mlSegments||[],p=ss.filter(s=>s.speaker==="paciente").length,t=ss.filter(s=>s.speaker==="terapeuta").length,u=ss.length-p-t;
+ return '<label class="field">Discurso a analisar <select data-eco-analysis-scope>'+["paciente","terapeuta","desconhecido","todos","revisado"].map(s=>'<option value="'+s+'" '+(s===ecoAnalysisScope?"selected":"")+'>'+esc(ecoScopeName(s))+'</option>').join("")+'</select></label><p class="eco-caption">Paciente: '+p+' · Terapeuta: '+t+' · Sem identificação: '+u+' trechos. O padrão exclui intervenções do terapeuta e falas indefinidas.</p>'+(ecoAnalysisScope==="paciente"&&!p?'<p class="alert">Confirme os falantes para analisar o paciente. Nenhuma fala indefinida será atribuída automaticamente a ele.</p>':"")+(session?.mlRevisada&&ecoAnalysisScope!=="revisado"?'<p class="eco-caption">O texto revisado integral não tem alinhamento por falante. Neste filtro, usamos os trechos originais com identificação; selecione o texto revisado separadamente se desejar.</p>':"");
+}
+function ecoNeuralRows(){
+ return ecoAnalysisRows(sessionDraft);
+}
+function ecoNeuralKey(rows){return JSON.stringify([openedId,sessionDraft?.id||editSessionId,ecoAnalysisScope,rows]);}
 function ecoNeuralPanel(){
  const rows=ecoNeuralRows(),key=ecoNeuralKey(rows),r=ecoNeuralRun?.key===key?ecoNeuralRun:null;
- let out='<section class="eco-outline" id="ecoNeuralPanel"><h2>◈ Semântica neural · offline</h2><p class="eco-caption">DistilUSE multilíngue INT8. Similaridade entre sentidos, não afirmação de fatos, emoções, contradições ou diagnóstico. Revise a fonte.</p>'+
+ let out='<section class="eco-outline" id="ecoNeuralPanel"><h2>◈ Semântica neural · offline</h2><p class="eco-caption">DistilUSE multilíngue INT8. Busca por sentido e recorrências candidatas, não diagnóstico ou interpretação. Revise as fontes.</p>'+ecoScopeControls(sessionDraft)+
  '<label>Pesquisar por significado <input id="ecoNeuralQuery" maxlength="500" placeholder="Ex.: conflitos no ambiente de trabalho" value="'+esc(r?.query||"")+'"></label>'+
  btn("Executar análise neural","ecoNeuralStart","primary")+
- '<p class="eco-caption">'+rows.length+' trechos disponíveis · consulta opcional · texto revisado tem prioridade.</p>';
+ '<p class="eco-caption">'+rows.length+' trechos no filtro · consulta opcional · resultados podem ficar vazios se não houver candidatos relevantes.</p>';
  if(!r)return out+'</section>';
  if(r.pending)return out+'<div id="ecoNeuralProgress"><p>Processando modelo neural localmente…</p><p id="ecoNeuralStage">'+esc(r.stage||"Carregando modelo ONNX")+'</p><progress id="ecoNeuralBar" max="'+Math.max(1,r.total||rows.length)+'" value="'+(r.done||0)+'" style="width:100%"></progress><p id="ecoNeuralCount">'+(r.done||0)+' de '+(r.total||rows.length)+' trechos</p></div>'+btn("Cancelar análise","ecoNeuralCancel","secondary")+'</section>';
  if(r.error)return out+'<p class="alert red">'+esc(r.error)+'</p></section>';
- const quote=i=>{const row=rows[i];return row?'<p>'+esc(row.text)+'</p><small>'+esc(row.atMs==null?"Sem minuto associado":ecoTimecode(row.atMs))+' · '+esc(row.speaker||"desconhecido")+' · '+esc(row.source)+'</small>':"";};
+ const quote=i=>{const row=rows[i];return row?'<p>'+esc(row.text)+'</p><small>'+esc(row.atMs==null?"Sem minuto associado":ecoTimecode(row.atMs))+' · '+esc(row.speaker||"desconhecido")+' · '+esc(row.source)+'</small>'+(Number.isInteger(row.index)?btn("Ver trecho","ecoFocusSegment","secondary",'data-id="'+row.index+'"'):""):"";};
  const score=x=>Number(x).toFixed(3);
  out+='<p class="eco-caption">Modelo executado: '+esc(r.result.model)+' · '+r.result.count+' trechos · '+r.result.dimensions+' dimensões. Cosseno de −1 a 1; não é probabilidade clínica.</p>';
- if(r.query)out+='<h3>Trechos por proximidade semântica</h3>'+r.result.hits.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.i)+'</div>').join("");
- out+='<h3>Possíveis recorrências de assunto</h3><p class="eco-caption">Pares mais próximos, inclusive quando divergentes. Nenhum limiar clínico validado.</p>'+
- (r.result.pairs.length?r.result.pairs.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.j)+'<div class="divider"></div>'+quote(h.i)+'</div>').join(""):'<p>É preciso mais de um trecho.</p>');
+ if(r.query)out+='<h3>Trechos por proximidade semântica</h3>'+(r.result.hits.length?r.result.hits.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.i)+'</div>').join(""):'<p>Nenhum trecho atingiu o filtro de relevância experimental.</p>');
+ out+='<h3>Possíveis recorrências de assunto</h3><p class="eco-caption">Pares de falas do mesmo interlocutor, separados no tempo quando disponível. Filtro de similaridade experimental; sem valor diagnóstico. Trechos vizinhos e resultados redundantes são reduzidos.</p>'+
+ (r.result.pairs.length?r.result.pairs.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.j)+'<div class="divider"></div>'+quote(h.i)+'</div>').join(""):'<p>Nenhuma recorrência suficientemente sustentada pelo filtro atual. Isso não significa ausência de temas recorrentes.</p>');
  return out+'</section>';
 }
 function ecoNeuralRefresh(){
@@ -981,12 +1000,14 @@ function ecoNeuralWatch(id){
  setTimeout(()=>ecoNeuralWatch(id),5000);
 }
 function ecoNeuralStart(){
+ if(ecoIsCapturing()){notify("Conclua ou pause a transcrição antes de executar a análise neural. Evita disputar memória e processador com o motor de voz.","red");return;}
  const rows=ecoNeuralRows(),query=document.getElementById?.("ecoNeuralQuery")?.value?.trim()||"";
  const id=String(++ecoNeuralSerial),key=ecoNeuralKey(rows);
  if(ecoNeuralRun?.pending&&ecoNeuralRun.key!==key)ecoNeuralCancel("Sessão alterada.");
  if(ecoNeuralRun?.pending){notify("Análise neural em andamento");return;}
  ecoNeuralRun={id,key,query,pending:true,total:rows.length,done:0,stage:"Carregando modelo ONNX",lastProgress:Date.now()};
- const payload=JSON.stringify({id,query,rows});
+ if(!rows.length){ecoNeuralRun={id,key,query,error:"Não há falas neste filtro. Confirme os interlocutores ou selecione explicitamente outro discurso."};ecoNeuralRefresh();return;}
+ const payload=JSON.stringify({id,query,rows,scope:ecoAnalysisScope});
  if(!rows.length||rows.length>1200||payload.length>500000||rows.some(r=>r.text.length>12000)){
    ecoNeuralRun={id,key,query,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};ecoNeuralRefresh();return;
  }
@@ -1044,9 +1065,9 @@ function ecoWordKey(value){
  esperava:"esperar",esperando:"esperar",esperei:"esperar",medos:"medo",crises:"crise"};
  return aliases[w]||w;
 }
-function ecoWordRows(session){
+function ecoWordRows(session,scope=null){
  const raw=session?.mlSegments||[];
- const rows=raw.length?raw.map((e,i)=>({...e,index:i})):
+ const rows=scope?ecoAnalysisRows(session,scope).map(r=>({...r,startMs:r.atMs})):raw.length?raw.map((e,i)=>({...e,index:i})):
   [{text:session?.mlTranscricao||session?.mlRevisada||"",startMs:null,endMs:null,index:0,speaker:"desconhecido"}];
  const counts=new Map(),locations=new Map(),total=new Set();
  for(const item of rows){
@@ -1065,8 +1086,8 @@ function ecoWordRows(session){
    locations:locations.get(word)||[]}))
   .sort((a,b)=>b.count-a.count||a.word.localeCompare(b.word,"pt-BR"));
 }
-function ecoNlpSignals(session){
- const segments=ecoSourceUnits(session),negations=[],interruptions=[];
+function ecoNlpSignals(session,scope=null){
+ const segments=scope?ecoAnalysisRows(session,scope):ecoSourceUnits(session),negations=[],interruptions=[];
  for(const item of segments){
   const quote=String(item.text||"").trim();if(!quote)continue;
   const neg=[...quote.matchAll(/(?<![\p{L}])(?:não|nunca|jamais|nem|sem)(?![\p{L}])/giu)];
@@ -1081,23 +1102,23 @@ function ecoNlpSignals(session){
  return {negations:negations.slice(0,150),interruptions:interruptions.slice(0,80)};
 }
 function ecoAnalyticsPanel(session){
- const rows=ecoWordRows(session),top=rows.slice(0,32),signals=ecoNlpSignals(session);
+ const rows=ecoWordRows(session,ecoAnalysisScope),top=rows.slice(0,32),signals=ecoNlpSignals(session,ecoAnalysisScope);
  const counts=rows.reduce((n,r)=>n+r.count,0),max=Math.max(1,top[0]?.count||0);
- const total=ecoWordTokens(session?.mlTranscricao||"").length;
+ const total=ecoWordTokens(ecoAnalysisRows(session).map(r=>r.text).join(" ")).length;
  const metrics=(session?.mlAcoustic||[]).filter(v=>v&&Number.isFinite(v.rmsDbFs)).slice(0,500);
- const cloud='<section class="eco-outline" id="ecoCloudPanel"><h2>Nuvem de palavras</h2>'+
- '<p class="eco-caption">Termos relevantes da transcrição; toque para ver as falas de origem.</p>'+
+ const cloud='<section class="eco-outline" id="ecoCloudPanel"><h2>Nuvem de palavras</h2>'+ecoScopeControls(session)+
+ '<p class="eco-caption">Termos do filtro escolhido; toque para ver as falas de origem.</p>'+
  (top.length?'<div class="eco-wordcloud">'+top.slice(0,26).map(r=>
    '<button type="button" data-act="ecoKeywordDetails" data-id="'+esc(r.word)+
    '" class="eco-cloud-token" style="font-size:'+(16+Math.round(23*Math.sqrt(r.count/max)))+'px">'+
    esc(r.word)+' <small>'+r.count+'</small></button>').join(" ")+'</div>':
    '<p class="muted">Nenhum termo relevante disponível. Grave, importe ou revise uma transcrição.</p>')+'</section>';
  let out=cloud+'<section class="eco-outline" id="ecoNlpDashboard"><h2>◎ Análise da sessão</h2>'+
- '<p class="eco-caption">Exploração lexical e acústica local, baseada na transcrição automática. Palavras corrigidas no campo Revisar não são reposicionadas automaticamente nos minutos do áudio. Confirme as ocorrências antes de usá-las como evidência.</p>'+
+ '<p class="eco-caption">Análise textual: '+esc(ecoScopeName(ecoAnalysisScope))+'. Métricas acústicas são da gravação inteira, não do falante selecionado. Exploração lexical local. Palavras corrigidas no campo Revisar não são reposicionadas automaticamente nos minutos do áudio. Confirme as ocorrências antes de usá-las como evidência.</p>'+
  '<div class="main-stats"><div class="main-stat"><strong>'+total+'</strong><span>Palavras reconhecidas</span></div>'+
  '<div class="main-stat"><strong>'+rows.length+'</strong><span>Termos relevantes</span></div>'+
  '<div class="main-stat"><strong>'+(session?.mlSegments?.length||0)+'</strong><span>Trechos com origem</span></div></div>';
- if(!top.length)return out+'<p class="muted">Nenhuma transcrição disponível. Importe ou grave áudio e conclua a transcrição.</p></section>';
+ if(!top.length)return out+'<p class="muted">Nenhum termo disponível neste filtro. Confirme os falantes ou selecione outro discurso.</p></section>';
 
  out+='<h3>Contagem e ocorrências por minuto</h3>'+
  '<p class="eco-caption">Selecione uma palavra para expandir todas as menções e encontrar os trechos correspondentes.</p>';
@@ -1109,7 +1130,7 @@ function ecoAnalyticsPanel(session){
  if(focused){
    out+='<section class="eco-evidence"><h3>'+esc(focused.word)+' — '+focused.count+' ocorrência(s)</h3>'+
     focused.locations.slice(0,80).map(e=>'<div class="eco-kwic">'+
-      (e.atMs!=null?btn(ecoTimecode(e.atMs),'ecoFocusSegment','secondary','data-id="'+e.index+'"'):
+      (e.atMs!=null&&Number.isInteger(e.index)?btn(ecoTimecode(e.atMs),'ecoFocusSegment','secondary','data-id="'+e.index+'"'):
         '<span class="eco-caption">Minuto não disponível</span>')+
       '<p>“'+esc(e.quote)+'”</p></div>').join('')+
     (focused.locations.length>80?'<p>Exibidas as 80 primeiras ocorrências.</p>':'')+'</section>';
@@ -1661,7 +1682,7 @@ act=function(name,id){
  const result=ecoActBase(name,id);
  if(name==="ecoOpen"||name==="newSession"||name==="editSession"){
    ecoWorkspaceTab=(name==="editSession"?"analise":"captura");
-   ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";ecoSelectedWord="";render();
+   ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";ecoSelectedWord="";ecoAnalysisScope="paciente";render();
  }
  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
  return result;
@@ -1672,6 +1693,7 @@ document.addEventListener("input",e=>{
  if(e.target?.dataset?.ecoReference!==undefined){ecoReferenceText=e.target.value||"";ecoBenchmarkResult=null;}
 });
 document.addEventListener("change",e=>{
+ if(e.target?.dataset?.ecoAnalysisScope!==undefined){const scope=e.target.value;if(["paciente","terapeuta","desconhecido","todos","revisado"].includes(scope)){ecoNeuralCancel("Filtro alterado.");ecoNeuralRun=null;ecoAnalysisScope=scope;ecoSelectedWord="";ecoNeuralRefresh();}return;}
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=["base","small","tagarela"].includes(e.target.value)?e.target.value:"small"}
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}

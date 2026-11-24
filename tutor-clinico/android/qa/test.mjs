@@ -657,7 +657,7 @@ test('ECO 0.13 correção individual preserva posição e falante',()=>{js('sess
 test('ECO 0.13 retificação arquivada salva em definitivo e não replica transcrição por clique',()=>{js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id);sessionDraft.mlTranscricao="Fala fictícia.";sessionDraft.mlSegments=[{text:"Fala fictícia.",startMs:1000,endMs:2000,speaker:"desconhecido"}];sessionDraft.texto="Teste de retificação";act("ecoSave");');js('var archivedTestId=state.cases[0].sessoes.at(-1).id;act("editSession",archivedTestId);');assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),true);assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).mlSegments[0].speaker'),'paciente');assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).revisoes.at(-1).tipo'),'falantes');assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).revisoes.at(-1).mlTranscricao'),undefined);js('act("ecoBackCase");act("editSession",archivedTestId)');assert.equal(js('sessionDraft.mlSegments[0].speaker'),'paciente');});
 
 test('ECO neural: progresso, cancelamento e resultado tardio não travam interface',()=>{
- js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id);sessionDraft.mlTranscricao="Fala fictícia. Outra fala.";ecoWorkspaceTab="analise";window.NativeVault.analyzeSemantic=()=>"OK";window.NativeVault.cancelSemantic=()=>"OK";ecoNeuralStart()');
+ js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id);sessionDraft.mlTranscricao="Fala fictícia. Outra fala.";ecoWorkspaceTab="analise";ecoAnalysisScope="todos";window.NativeVault.analyzeSemantic=()=>"OK";window.NativeVault.cancelSemantic=()=>"OK";ecoNeuralStart()');
  assert.equal(js('ecoNeuralRun.pending'),true);
  js('window.nativeSemanticProgress(JSON.stringify({id:ecoNeuralRun.id,done:1,total:2,stage:"Analisando trechos",elapsedMs:500}))');
  assert.equal(js('ecoNeuralRun.done'),1);
@@ -675,4 +675,19 @@ test('ECO neural: progresso, cancelamento e resultado tardio não travam interfa
  js('ecoNeuralStart();window.nativeSemanticResult(JSON.stringify({id:ecoNeuralRun.id,model:"test",count:2,dimensions:512,hits:[],pairs:[]}))');
  assert.equal(js('ecoNeuralRun.pending'),false);assert.equal(js('ecoNeuralRun.result.count'),2);
  js('delete window.NativeVault.analyzeSemantic;delete window.NativeVault.cancelSemantic;ecoNeuralRun=null');
+});
+
+test('ECO 0.14 paciente exclui terapeuta e indefinido mesmo quando existe revisão global',()=>{
+ context.scopeFixture={mlSegments:[{text:"Tenho medo de perder meu trabalho.",speaker:"paciente",startMs:0},{text:"Conte sobre sua família.",speaker:"terapeuta",startMs:2000},{text:"Família e trabalho.",speaker:"desconhecido",startMs:3000}],mlRevisada:"Texto revisado de ambos."};
+ assert.equal(js('ecoAnalysisRows(scopeFixture,"paciente").length'),1);
+ assert.equal(js('ecoAnalysisRows(scopeFixture,"paciente")[0].index'),0);
+ assert.equal(js('ecoAnalysisRows(scopeFixture,"terapeuta")[0].index'),1);
+ assert.equal(js('ecoAnalysisRows(scopeFixture,"desconhecido")[0].index'),2);
+ assert.equal(js('ecoAnalysisRows(scopeFixture,"revisado")[0].speaker'),'desconhecido');
+ assert.equal(js('ecoAnalysisRows({mlTranscricao:"Texto sem falante."},"paciente").length'),0);
+ assert.ok(!js('ecoWordRows(scopeFixture,"paciente")').some(x=>x.word==="familia"));
+ assert.ok(js('ecoWordRows(scopeFixture,"terapeuta")').some(x=>x.word==="familia"));
+ js('ecoAnalysisScope="paciente";sessionDraft.mlSegments=scopeFixture.mlSegments;sessionDraft.mlRevisada=scopeFixture.mlRevisada');
+ assert.equal(js('ecoNeuralRows().length'),1);
+ assert.equal(js('ecoNeuralRows()[0].speaker'),'paciente');
 });

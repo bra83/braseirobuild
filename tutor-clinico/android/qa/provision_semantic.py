@@ -40,6 +40,16 @@ fixtures += [
  ("Tenho medo de perder meu trabalho.", "Receio ser despedido da empresa.", "A camisa é de algodão."),
  ("Sinto falta do meu pai.", "Tenho saudade do meu pai.", "O livro está na estante.")
 ]
+hard_fixtures=[
+ ("Tenho receio de ser demitido.","A possibilidade de perder meu emprego me preocupa.","Meu trabalho fica perto da minha casa."),
+ ("Evito visitar minha família porque sempre brigamos.","Fico longe dos parentes para não entrar em discussões.","Visitei minha família no domingo e almoçamos juntos."),
+ ("Sinto saudade do meu pai que morreu.","A falta que meu pai faz é muito grande.","Meu pai comprou um carro novo."),
+ ("Não consigo dormir quando estou preocupado.","A preocupação me deixa acordado à noite.","Gosto de ler antes de dormir."),
+ ("Tenho medo de ser rejeitado pelos amigos.","Receio que meus colegas não me aceitem.","Meus amigos foram ao cinema."),
+ ("Fico irritado quando minha mãe tenta controlar minhas decisões.","Me incomoda quando minha mãe quer decidir tudo por mim.","Minha mãe decidiu viajar para o interior."),
+ ("Eu me cobro para não cometer erros.","Tenho dificuldade de aceitar minhas próprias falhas.","Corrigi um erro no endereço do cadastro."),
+ ("Sinto que preciso agradar a todos.","Faço de tudo para que as pessoas gostem de mim.","A festa agradou a todos os convidados.")
+]
 def evaluate(path,label):
     opts=ort.SessionOptions()
     opts.intra_op_num_threads=2
@@ -51,6 +61,11 @@ def evaluate(path,label):
         pos=float(v@encode(session,p));neg=float(v@encode(session,n))
         scores.append((pos,neg))
         print(f"{label} Portuguese retrieval: positive={pos:.3f}, unrelated={neg:.3f}, margin={pos-neg:.3f}",flush=True)
+    hard=[]
+    for a,p,n in hard_fixtures:
+        v=encode(session,a);pos=float(v@encode(session,p));neg=float(v@encode(session,n))
+        hard.append((pos,neg));print(f"{label} hard negative: positive={pos:.3f}, negative={neg:.3f}, margin={pos-neg:.3f}",flush=True)
+    print(f"{label} hard ranking correct: {sum(p>n for p,n in hard)}/{len(hard)}; recurrence threshold positive coverage: {sum(p>=0.45 for p,n in hard)}/{len(hard)}; hard negatives above threshold: {sum(n>=0.45 for p,n in hard)}/{len(hard)} (exploratory, not clinical validation)",flush=True)
     del session
     gc.collect()
     return np.array(scores)

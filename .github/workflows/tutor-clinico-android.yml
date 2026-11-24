@@ -43,6 +43,8 @@ jobs:
           mkdir -p /tmp/eco-speaker-tests
           javac -d /tmp/eco-speaker-tests app/src/main/java/br/com/tutorclinico/SpeakerTimeline.java app/src/main/java/br/com/tutorclinico/SpeakerClusters.java qa/SpeakerTimelineTest.java
           java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SpeakerTimelineTest
+          javac -d /tmp/eco-speaker-tests app/src/main/java/br/com/tutorclinico/SemanticRanking.java qa/SemanticRankingTest.java
+          java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SemanticRankingTest
       - name: Instalar modelo de voz Vosk PT-BR offline (Apache-2.0)
         run: |
           set -euo pipefail
@@ -142,7 +144,7 @@ jobs:
         if: steps.signing.outputs.stable == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.13.0-tagarela-stable
+          name: ECO-v0.14.0-patient-focus-stable
           path: tutor-clinico/android/app/build/outputs/apk/debug/eco-stable.apk
           if-no-files-found: error
           retention-days: 30
@@ -150,7 +152,7 @@ jobs:
         if: steps.signing.outputs.stable == 'false'
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.13.0-tagarela-beta-debug
+          name: ECO-v0.14.0-patient-focus-beta-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

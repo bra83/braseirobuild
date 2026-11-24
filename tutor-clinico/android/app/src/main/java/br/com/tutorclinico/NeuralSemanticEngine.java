@@ -115,6 +115,12 @@ final class NeuralSemanticEngine implements AutoCloseable {
     interface Progress {void report(int done,int total,String stage);}
     JSONObject analyze(JSONObject request,BooleanSupplier active,Progress progress) throws Exception{
         JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
+        String scope=request.optString("scope","paciente");
+        if(!Set.of("paciente","terapeuta","desconhecido","todos","revisado").contains(scope))throw new IOException("Filtro inválido");
+        for(int i=0;i<rows.length();i++){
+            String role=rows.getJSONObject(i).optString("speaker","desconhecido");
+            if(!Set.of("paciente","terapeuta","desconhecido").contains(role)||(!scope.equals("todos")&&!role.equals(scope.equals("revisado")?"desconhecido":scope)))throw new IOException("Trecho fora do filtro de falantes");
+        }
         if(rows.length()==0||rows.length()>MAX_ROWS||query.length()>500)throw new IOException("Limite de análise: 1–1200 trechos e consulta de até 500 caracteres");
         progress.report(0,rows.length(),"Preparando consulta");
         float[] q=query.isEmpty()?null:vector(query,active);
@@ -127,19 +133,27 @@ final class NeuralSemanticEngine implements AutoCloseable {
             if(text.length()>12000)throw new IOException("Trecho muito longo: divida antes de analisar");
             float[] v=memo.get(text);
             if(v==null){v=vector(text,active);memo.put(text,v);}
-            if(q!=null)hits.add(new JSONObject().put("i",i).put("score",cosine(q,v)));
+            if(q!=null){double score=cosine(q,v);if(SemanticRanking.relevant(score,true))hits.add(new JSONObject().put("i",i).put("score",score));}
             double best=-2;int match=-1;
-            for(int j=0;j<vs.size();j++){double score=cosine(v,vs.get(j));if(score>best){best=score;match=j;}}
-            if(match>=0)pairs.add(new JSONObject().put("i",i).put("j",match).put("score",best));
+            JSONObject row=rows.getJSONObject(i);
+            if(SemanticRanking.eligible(text))for(int j=0;j<vs.size();j++){
+                JSONObject prior=rows.getJSONObject(j);
+                if(!SemanticRanking.eligible(prior.getString("text"))||!SemanticRanking.canCompare(row.optString("speaker","desconhecido"),prior.optString("speaker","desconhecido"),row.isNull("atMs")?null:row.optLong("atMs"),prior.isNull("atMs")?null:prior.optLong("atMs"),i,j))continue;
+                double score=cosine(v,vs.get(j));if(score>best){best=score;match=j;}
+            }
+            if(match>=0&&SemanticRanking.relevant(best,false))pairs.add(new JSONObject().put("i",i).put("j",match).put("score",best));
             vs.add(v);
             progress.report(i+1,rows.length(),"Analisando trechos");
         }
         progress.report(rows.length(),rows.length(),"Organizando resultados");
         Comparator<JSONObject> desc=Comparator.comparingDouble((JSONObject o)->o.optDouble("score")).reversed();
         hits.sort(desc);pairs.sort(desc);
+        List<JSONObject> diverse=new ArrayList<>();int[] usage=new int[rows.length()];
+        for(JSONObject pair:pairs){if(diverse.size()>=20)break;if(SemanticRanking.acceptPair(pair.getInt("i"),pair.getInt("j"),usage))diverse.add(pair);}
         return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)
           .put("hits",new JSONArray(hits.subList(0,Math.min(20,hits.size()))))
-          .put("pairs",new JSONArray(pairs.subList(0,Math.min(20,pairs.size()))));
+          .put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("recurrenceMin",SemanticRanking.RECURRENCE_MIN)
+          .put("pairs",new JSONArray(diverse));
     }
     @Override public void close() throws OrtException {if(session!=null)session.close();}
 }
