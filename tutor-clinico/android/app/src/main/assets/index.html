@@ -941,15 +941,15 @@ let ecoNeuralRun=null,ecoNeuralSerial=0;
 function ecoNeuralRows(){
  return ecoSourceUnits(sessionDraft).filter(r=>String(r.text||"").trim()).map(r=>({text:r.text,atMs:r.atMs,speaker:r.speaker,source:r.source}));
 }
-function ecoNeuralKey(rows){return JSON.stringify([openedId,editSessionId,rows]);}
+function ecoNeuralKey(rows){return JSON.stringify([openedId,sessionDraft?.id||editSessionId,rows]);}
 function ecoNeuralPanel(){
  const rows=ecoNeuralRows(),key=ecoNeuralKey(rows),r=ecoNeuralRun?.key===key?ecoNeuralRun:null;
- let out='<section class="eco-outline"><h2>◈ Semântica neural · offline</h2><p class="eco-caption">DistilUSE multilíngue INT8. Similaridade entre sentidos, não afirmação de fatos, emoções, contradições ou diagnóstico. Revise a fonte.</p>'+
+ let out='<section class="eco-outline" id="ecoNeuralPanel"><h2>◈ Semântica neural · offline</h2><p class="eco-caption">DistilUSE multilíngue INT8. Similaridade entre sentidos, não afirmação de fatos, emoções, contradições ou diagnóstico. Revise a fonte.</p>'+
  '<label>Pesquisar por significado <input id="ecoNeuralQuery" maxlength="500" placeholder="Ex.: conflitos no ambiente de trabalho" value="'+esc(r?.query||"")+'"></label>'+
  btn("Executar análise neural","ecoNeuralStart","primary")+
  '<p class="eco-caption">'+rows.length+' trechos disponíveis · consulta opcional · texto revisado tem prioridade.</p>';
  if(!r)return out+'</section>';
- if(r.pending)return out+'<p>Processando modelo neural localmente…</p></section>';
+ if(r.pending)return out+'<div id="ecoNeuralProgress"><p>Processando modelo neural localmente…</p><p id="ecoNeuralStage">'+esc(r.stage||"Carregando modelo ONNX")+'</p><progress id="ecoNeuralBar" max="'+Math.max(1,r.total||rows.length)+'" value="'+(r.done||0)+'" style="width:100%"></progress><p id="ecoNeuralCount">'+(r.done||0)+' de '+(r.total||rows.length)+' trechos</p></div>'+btn("Cancelar análise","ecoNeuralCancel","secondary")+'</section>';
  if(r.error)return out+'<p class="alert red">'+esc(r.error)+'</p></section>';
  const quote=i=>{const row=rows[i];return row?'<p>'+esc(row.text)+'</p><small>'+esc(row.atMs==null?"Sem minuto associado":ecoTimecode(row.atMs))+' · '+esc(row.speaker||"desconhecido")+' · '+esc(row.source)+'</small>':"";};
  const score=x=>Number(x).toFixed(3);
@@ -959,28 +959,70 @@ function ecoNeuralPanel(){
  (r.result.pairs.length?r.result.pairs.map(h=>'<div class="eco-evidence"><strong>Cosseno '+score(h.score)+'</strong>'+quote(h.j)+'<div class="divider"></div>'+quote(h.i)+'</div>').join(""):'<p>É preciso mais de um trecho.</p>');
  return out+'</section>';
 }
+function ecoNeuralRefresh(){
+ if(screen==="session"&&ecoWorkspaceTab==="analise"){
+  const y=window.scrollY||0;render();
+  const panel=document.getElementById?.("ecoNeuralPanel");
+  if(panel){for(const d of panel.querySelectorAll("details"))d.open=true;}
+  window.scrollTo(0,y);
+ }
+}
+function ecoNeuralCancel(reason="Análise cancelada. Você pode tentar novamente."){
+ if(!ecoNeuralRun?.pending)return;
+ const id=ecoNeuralRun.id;
+ ecoNeuralRun.pending=false;ecoNeuralRun.error=reason;
+ try{window.NativeVault.cancelSemantic?.(id);}catch(e){}
+ ecoNeuralRefresh();
+}
+function ecoNeuralWatch(id){
+ if(!ecoNeuralRun?.pending||ecoNeuralRun.id!==id)return;
+ // Watchdog for silent native failure; actual inference may take longer provided it reports progress.
+ if(Date.now()-ecoNeuralRun.lastProgress>180000){ecoNeuralCancel("Motor sem progresso por 3 minutos. Tente novamente ou divida a sessão.");return;}
+ setTimeout(()=>ecoNeuralWatch(id),5000);
+}
 function ecoNeuralStart(){
- const rows=ecoNeuralRows(),query=document.getElementById("ecoNeuralQuery")?.value?.trim()||"";
+ const rows=ecoNeuralRows(),query=document.getElementById?.("ecoNeuralQuery")?.value?.trim()||"";
  const id=String(++ecoNeuralSerial),key=ecoNeuralKey(rows);
+ if(ecoNeuralRun?.pending&&ecoNeuralRun.key!==key)ecoNeuralCancel("Sessão alterada.");
  if(ecoNeuralRun?.pending){notify("Análise neural em andamento");return;}
- ecoNeuralRun={id,key,query,pending:true};
+ ecoNeuralRun={id,key,query,pending:true,total:rows.length,done:0,stage:"Carregando modelo ONNX",lastProgress:Date.now()};
  const payload=JSON.stringify({id,query,rows});
  if(!rows.length||rows.length>1200||payload.length>500000||rows.some(r=>r.text.length>12000)){
-   ecoNeuralRun={id,key,query,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};render();return;
+   ecoNeuralRun={id,key,query,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};ecoNeuralRefresh();return;
  }
  if(typeof window.NativeVault?.analyzeSemantic!=="function"){
-   ecoNeuralRun={id,key,query,error:"Modelo neural nativo indisponível nesta versão."};render();return;
+   ecoNeuralRun={id,key,query,error:"Modelo neural nativo indisponível nesta versão."};ecoNeuralRefresh();return;
  }
- try{window.NativeVault.analyzeSemantic(payload);}catch(e){ecoNeuralRun={id,key,query,error:"Falha ao iniciar o modelo neural."};}
- render();
+ try{
+   const status=window.NativeVault.analyzeSemantic(payload);
+   if(typeof status==="string"&&status!=="OK"){ecoNeuralRun.pending=false;ecoNeuralRun.error=status;}
+ }catch(e){ecoNeuralRun.pending=false;ecoNeuralRun.error="Falha ao iniciar o modelo neural.";}
+ ecoNeuralRefresh();
+ if(ecoNeuralRun.pending)setTimeout(()=>ecoNeuralWatch(id),5000);
 }
+window.nativeSemanticProgress=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}
+ const r=ecoNeuralRun;
+ if(!r?.pending||v.id!==r.id)return;
+ if(screen!=="session"||r.key!==ecoNeuralKey(ecoNeuralRows())){ecoNeuralCancel("Sessão alterada.");return;}
+ r.stage=String(v.stage||"Analisando trechos");r.done=Number(v.done)||0;r.total=Number(v.total)||r.total;r.lastProgress=Date.now();
+ const stage=document.getElementById?.("ecoNeuralStage"),bar=document.getElementById?.("ecoNeuralBar"),count=document.getElementById?.("ecoNeuralCount");
+ if(stage)stage.textContent=r.stage;
+ if(bar){bar.max=Math.max(1,r.total);bar.value=r.done;}
+ if(count)count.textContent=r.done+" de "+r.total+" trechos · "+Math.floor((Number(v.elapsedMs)||0)/1000)+"s";
+};
+window.nativeSemanticUnlocked=function(){
+ if(ecoNeuralRun?.pending)ecoNeuralCancel("Análise interrompida pelo bloqueio do ECO. Execute novamente.");
+};
 window.nativeSemanticResult=function(raw){
- let result;try{result=JSON.parse(raw);}catch(e){return;}
- if(!ecoNeuralRun||result.id!==ecoNeuralRun.id)return;
+ let result;try{result=JSON.parse(raw);}catch(e){ecoNeuralCancel("Resposta inválida do motor neural.");return;}
+ if(!ecoNeuralRun?.pending||result.id!==ecoNeuralRun.id)return;
  ecoNeuralRun.pending=false;
  if(screen!=="session"||ecoNeuralRun.key!==ecoNeuralKey(ecoNeuralRows())){ecoNeuralRun=null;return;}
- if(result.error)ecoNeuralRun.error=result.error;else ecoNeuralRun.result=result;
- if(ecoWorkspaceTab==="analise")render();
+ if(result.error)ecoNeuralRun.error=result.error;
+ else if(!Array.isArray(result.hits)||!Array.isArray(result.pairs))ecoNeuralRun.error="Resultado incompleto do motor neural.";
+ else ecoNeuralRun.result=result;
+ ecoNeuralRefresh();
 };
 
 // POST-SESSION ANALYSIS: local deterministic NLP and descriptive acoustics.
@@ -1213,7 +1255,7 @@ function ecoFoldPanels(){
   const details=document.createElement("details"),summary=document.createElement("summary");
   details.className="eco-fold";summary.className="eco-fold-summary";
   summary.textContent=heading.textContent;heading.remove();
-  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras|Identificação dos falantes|Trechos e falantes/.test(key));details.appendChild(summary);
+  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras|Identificação dos falantes|Trechos e falantes/.test(key)||(/Semântica neural/.test(key)&&!!ecoNeuralRun));details.appendChild(summary);
   while(parent.firstChild)details.appendChild(parent.firstChild);
   parent.appendChild(details);
   details.addEventListener("toggle",()=>ecoFoldState.set(key,details.open));
@@ -1563,6 +1605,7 @@ act=function(name,id){
  }
  if(name==="ecoSpeakerPage"){ecoSpeakerPage+=Number(id)||0;ecoRenderKeepPosition(-1);return;}
  if(name==="ecoNeuralStart"){ecoNeuralStart();return;}
+ if(name==="ecoNeuralCancel"){ecoNeuralCancel();return;}
  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
  if(name==="ecoBenchmark"){

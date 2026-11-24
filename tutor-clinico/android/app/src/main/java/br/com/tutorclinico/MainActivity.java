@@ -43,6 +43,7 @@ public final class MainActivity extends Activity {
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile long semanticEpoch=0;
+    private volatile String semanticJobId="";
     private String selectedAsrModel="small";
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
@@ -165,6 +166,7 @@ public final class MainActivity extends Activity {
                 unlocked = true; journalWhileLocked=false; showingLock = false; backgroundAt=0;
                 web.setVisibility(View.VISIBLE); dialog.dismiss();
                 if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()", null);}
+                else web.evaluateJavascript("window.nativeSemanticUnlocked && window.nativeSemanticUnlocked()",null);
             } catch (Exception e) { showToast("Falha ao verificar PIN"); }
         }));
         dialog.show();
@@ -234,25 +236,52 @@ public final class MainActivity extends Activity {
     }
     private final class Bridge {
         @JavascriptInterface public void setDiarization(boolean enabled){if(unlocked)ml.setDiarization(enabled);}
-        @JavascriptInterface public void analyzeSemantic(String json){
-            if(!unlocked||json==null||json.length()>500000)return;
+        @JavascriptInterface public String cancelSemantic(String id){
+            if(id!=null&&id.equals(semanticJobId)){semanticEpoch++;return "OK";}
+            return "INATIVO";
+        }
+        @JavascriptInterface public String analyzeSemantic(String json){
+            if(!unlocked)return "ECO bloqueado";
+            if(json==null||json.length()>500000)return "Solicitação acima do limite";
             final JSONObject req;
-            try{req=new JSONObject(json);}catch(Exception e){return;}
+            try{req=new JSONObject(json);}catch(Exception e){return "Solicitação inválida";}
             final String id=req.optString("id");
-            if(!semanticBusy.compareAndSet(false,true)){
-                jsCallback("nativeSemanticResult", "{\"id\":"+JSONObject.quote(id)+",\"error\":\"Motor ocupado\"}");return;
-            }
+            if(id.isEmpty())return "Identificador inválido";
+            if(!semanticBusy.compareAndSet(false,true))return "Motor ocupado; aguarde o encerramento da execução anterior.";
+            semanticJobId=id;
             final long epoch=semanticEpoch;
             try{semanticWorker.execute(()->{
                 JSONObject result=new JSONObject();
-                try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
-                    result=engine.analyze(req,()->unlocked&&semanticEpoch==epoch&&!Thread.currentThread().isInterrupted());
-                }catch(Exception|LinkageError e){
-                    try{result=new JSONObject().put("error","Modelo indisponível ou análise interrompida; nenhuma inferência simulada.");}catch(Exception ignored){}
-                }finally{semanticBusy.set(false);}
+                java.util.function.BooleanSupplier active=()->unlocked&&semanticEpoch==epoch&&!Thread.currentThread().isInterrupted();
+                final long started=android.os.SystemClock.elapsedRealtime();
+                final long[] last={0};
+                NeuralSemanticEngine.Progress progress=(done,total,stage)->{
+                    if(!active.getAsBoolean())return;
+                    long now=android.os.SystemClock.elapsedRealtime();
+                    if(done>0&&done<total&&now-last[0]<500)return;
+                    last[0]=now;
+                    try{
+                        String data=new JSONObject().put("id",id).put("done",done).put("total",total).put("stage",stage).put("elapsedMs",now-started).toString();
+                        main.post(()->{if(unlocked&&semanticEpoch==epoch&&!isDestroyed()&&!isFinishing())web.evaluateJavascript("window.nativeSemanticProgress("+JSONObject.quote(data)+")",null);});
+                    }catch(Exception ignored){}
+                };
+                try{
+                    int count=req.getJSONArray("rows").length();
+                    progress.report(0,count,"Carregando modelo ONNX");
+                    try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
+                        if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                        result=engine.analyze(req,active,progress);
+                    }
+                }catch(Throwable e){
+                    // Only a safe category, never patient text or a stack trace in JS/logs.
+                    String detail=e instanceof java.util.concurrent.CancellationException?"Análise cancelada":e instanceof OutOfMemoryError?"Memória insuficiente":e instanceof LinkageError?"Runtime neural incompatível":e instanceof ai.onnxruntime.OrtException?"Falha de inferência ONNX":e instanceof java.io.IOException?"Falha de leitura ou entrada do modelo":"Falha interna do motor";
+                    try{result=new JSONObject().put("error",detail+"; nenhuma inferência simulada.");}catch(Exception ignored){}
+                }finally{semanticJobId="";semanticBusy.set(false);}
                 try{result.put("id",id);}catch(Exception ignored){}
-                if(unlocked&&semanticEpoch==epoch&&!isDestroyed())jsCallback("nativeSemanticResult",result.toString());
-            });}catch(java.util.concurrent.RejectedExecutionException e){semanticBusy.set(false);}
+                final String response=result.toString();
+                main.post(()->{if(unlocked&&semanticEpoch==epoch&&!isDestroyed()&&!isFinishing())web.evaluateJavascript("window.nativeSemanticResult("+JSONObject.quote(response)+")",null);});
+            });}catch(java.util.concurrent.RejectedExecutionException e){semanticJobId="";semanticBusy.set(false);return "Motor encerrado";}
+            return "OK";
         }
 
         @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){

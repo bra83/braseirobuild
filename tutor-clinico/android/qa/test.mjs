@@ -655,3 +655,24 @@ test('ECO 0.13 seleção TAGARELA nas duas entradas',()=>{js('window.nativeMlSta
 test('ECO 0.13 correção individual preserva posição e falante',()=>{js('sessionDraft.mlSegments=[{text:"fala",speaker:"desconhecido"}]');assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),true);assert.equal(js('sessionDraft.mlSegments[0].speaker'),'paciente');assert.equal(js('state.mlDraft.session.mlSegments[0].speaker'),'paciente');});
 
 test('ECO 0.13 retificação arquivada salva em definitivo e não replica transcrição por clique',()=>{js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id);sessionDraft.mlTranscricao="Fala fictícia.";sessionDraft.mlSegments=[{text:"Fala fictícia.",startMs:1000,endMs:2000,speaker:"desconhecido"}];sessionDraft.texto="Teste de retificação";act("ecoSave");');js('var archivedTestId=state.cases[0].sessoes.at(-1).id;act("editSession",archivedTestId);');assert.equal(js('ecoCorrectSpeaker(0,"paciente")'),true);assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).mlSegments[0].speaker'),'paciente');assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).revisoes.at(-1).tipo'),'falantes');assert.equal(js('currentCase().sessoes.find(s=>s.id===archivedTestId).revisoes.at(-1).mlTranscricao'),undefined);js('act("ecoBackCase");act("editSession",archivedTestId)');assert.equal(js('sessionDraft.mlSegments[0].speaker'),'paciente');});
+
+test('ECO neural: progresso, cancelamento e resultado tardio não travam interface',()=>{
+ js('window.nativeMlState("PARADO");act("ecoOpen",state.cases[0].id);sessionDraft.mlTranscricao="Fala fictícia. Outra fala.";ecoWorkspaceTab="analise";window.NativeVault.analyzeSemantic=()=>"OK";window.NativeVault.cancelSemantic=()=>"OK";ecoNeuralStart()');
+ assert.equal(js('ecoNeuralRun.pending'),true);
+ js('window.nativeSemanticProgress(JSON.stringify({id:ecoNeuralRun.id,done:1,total:2,stage:"Analisando trechos",elapsedMs:500}))');
+ assert.equal(js('ecoNeuralRun.done'),1);
+ assert.match(js('ecoNeuralPanel()'),/1 de 2 trechos/);
+ js('ecoNeuralCancel();window.nativeSemanticResult(JSON.stringify({id:ecoNeuralRun.id,hits:[],pairs:[]}))');
+ assert.equal(js('ecoNeuralRun.pending'),false);
+ assert.match(js('ecoNeuralRun.error'),/cancelada/);
+ js('ecoNeuralStart();window.nativeSemanticUnlocked()');
+ assert.equal(js('ecoNeuralRun.pending'),false);
+ assert.match(js('ecoNeuralRun.error'),/bloqueio/);
+ js('window.NativeVault.analyzeSemantic=()=>"Motor ocupado";ecoNeuralStart()');
+ assert.equal(js('ecoNeuralRun.pending'),false);assert.equal(js('ecoNeuralRun.error'),'Motor ocupado');
+ js('window.NativeVault.analyzeSemantic=()=>"OK";ecoNeuralStart();ecoNeuralRun.lastProgress=Date.now()-181000;ecoNeuralWatch(ecoNeuralRun.id)');
+ assert.match(js('ecoNeuralRun.error'),/sem progresso/);
+ js('ecoNeuralStart();window.nativeSemanticResult(JSON.stringify({id:ecoNeuralRun.id,model:"test",count:2,dimensions:512,hits:[],pairs:[]}))');
+ assert.equal(js('ecoNeuralRun.pending'),false);assert.equal(js('ecoNeuralRun.result.count'),2);
+ js('delete window.NativeVault.analyzeSemantic;delete window.NativeVault.cancelSemantic;ecoNeuralRun=null');
+});

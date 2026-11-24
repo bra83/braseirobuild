@@ -38,7 +38,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
             if(!tmp.renameTo(file)){tmp.delete();throw new IOException("Modelo não instalado");}
         }
         try(OrtSession.SessionOptions opts=new OrtSession.SessionOptions()){
-            opts.setIntraOpNumThreads(2);opts.setInterOpNumThreads(1);
+            opts.setIntraOpNumThreads(Math.max(1,Math.min(4,Runtime.getRuntime().availableProcessors())));opts.setInterOpNumThreads(1);
             session=env.createSession(file.getAbsolutePath(),opts);
         }
     }
@@ -112,22 +112,29 @@ final class NeuralSemanticEngine implements AutoCloseable {
         normalize(v);return v;
     }
     private static double cosine(float[] a,float[] b){double s=0;for(int i=0;i<DIM;i++)s+=a[i]*b[i];return Math.max(-1,Math.min(1,s));}
-    JSONObject analyze(JSONObject request,BooleanSupplier active) throws Exception{
+    interface Progress {void report(int done,int total,String stage);}
+    JSONObject analyze(JSONObject request,BooleanSupplier active,Progress progress) throws Exception{
         JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
         if(rows.length()==0||rows.length()>MAX_ROWS||query.length()>500)throw new IOException("Limite de análise: 1–1200 trechos e consulta de até 500 caracteres");
+        progress.report(0,rows.length(),"Preparando consulta");
         float[] q=query.isEmpty()?null:vector(query,active);
+        Map<String,float[]> memo=new HashMap<>();
+        progress.report(0,rows.length(),"Analisando trechos");
         List<float[]> vs=new ArrayList<>();List<JSONObject> hits=new ArrayList<>();List<JSONObject> pairs=new ArrayList<>();
         for(int i=0;i<rows.length();i++){
             if(!active.getAsBoolean())throw new CancellationException();
             String text=rows.getJSONObject(i).getString("text");
             if(text.length()>12000)throw new IOException("Trecho muito longo: divida antes de analisar");
-            float[] v=vector(text,active);
+            float[] v=memo.get(text);
+            if(v==null){v=vector(text,active);memo.put(text,v);}
             if(q!=null)hits.add(new JSONObject().put("i",i).put("score",cosine(q,v)));
             double best=-2;int match=-1;
             for(int j=0;j<vs.size();j++){double score=cosine(v,vs.get(j));if(score>best){best=score;match=j;}}
             if(match>=0)pairs.add(new JSONObject().put("i",i).put("j",match).put("score",best));
             vs.add(v);
+            progress.report(i+1,rows.length(),"Analisando trechos");
         }
+        progress.report(rows.length(),rows.length(),"Organizando resultados");
         Comparator<JSONObject> desc=Comparator.comparingDouble((JSONObject o)->o.optDouble("score")).reversed();
         hits.sort(desc);pairs.sort(desc);
         return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)

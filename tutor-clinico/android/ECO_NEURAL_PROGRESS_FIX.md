@@ -1,0 +1,3 @@
+# ECO — correção do processamento neural
+
+Causa estática: ausência de progresso, retorno silencioso em rejeição da ponte, callback suprimido ao bloquear, análise sequencial por trecho. Agora há retorno de aceitação, progresso real, cancelamento por ID/epoch, watchdog de 3 min sem progresso, reinício após desbloqueio, deduplicação exata de embeddings em memória e até 4 threads. Nenhum vetor persistido. Timeout não interrompe instantaneamente uma chamada nativa em andamento; nova execução só após liberação do worker. Testes VM, CI e validação física distintos. Não há medição de aceleração no A57 ainda.
