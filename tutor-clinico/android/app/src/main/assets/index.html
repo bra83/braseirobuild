@@ -465,9 +465,9 @@ function caseScreen(){
         `<div class="actions">${btn('Salvar Enquadre Terapêutico','ecoSaveEnquadre','',`data-case="${esc(c.id)}" data-id="${esc(c.id)}" data-enq="1"`)}</div>`+
         `</div></div>`;
     } else if(tab==='analisar'){
-      content += ecoCaseAnalysis(c);
+      content += ecoEvolutionPanel(c)+ecoCaseAnalysis(c);
     } else if(tab==='investigar'){
-      content += ecoRenderInvestigation(c);
+      content += ecoQuestionsPanel(c)+ecoRenderInvestigation(c);
     } else if(tab==='tecnicas'){
       content += ecoRenderTechniques(c);
     } else if(tab==='sonhos'){
@@ -2521,6 +2521,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
       '<p><strong>Queixa nas palavras do sujeito:</strong> '+esc(deidentify(c.queixaTexto||c.anamnese?.queixaDetalhada||'Não detalhada'))+'</p>';
     if(c.anamnese){
       const ana = c.anamnese;
+      for(const cat of ecoAnamneseCategories){const fields=cat.campos.filter(f=>['nomeSocial','generoPronomes','profissaoOcupacao','escolaridade','estadoCivil','dificuldadesIntimidade','ambienteTrabalho','rotinaPressao','saudeFisica'].includes(f.k)&&ana[f.k]);if(fields.length)body+='<h3>'+esc(cat.nome)+'</h3>'+fields.map(f=>'<p><strong>'+esc(f.label)+':</strong> '+esc(deidentify(ana[f.k]))+'</p>').join('');}
       if(ana.queixaDetalhada) body += '<p><strong>Queixa detalhada e expectativas:</strong> '+esc(deidentify(ana.queixaDetalhada))+'</p>';
       if(ana.queixa_inicial) body += '<p><strong>Queixa inicial:</strong> '+esc(deidentify(ana.queixa_inicial))+'</p>';
       if(ana.expectativas) body += '<p><strong>Expectativas com o processo:</strong> '+esc(deidentify(ana.expectativas))+'</p>';
@@ -2580,6 +2581,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
     for(const s of ss)for(const t of new Set(s.mlTags||[]))counts.set(t,(counts.get(t)||0)+1);
     body+='<h2>Indicadores longitudinais</h2><p>Contagem de sessões com cada marcação; não indica gravidade, diagnóstico ou melhora clínica.</p>'+[...counts].sort((a,b)=>b[1]-a[1]).map(([t,n])=>'<div class="doc-bar"><strong>'+esc(deidentify(t))+' · '+n+'</strong><div style="background:#185b50;width:'+Math.round(100*n/Math.max(1,ss.length))+'%;height:8px"></div></div>').join('');
   }
+  if(sections.investigacao&&['ficha','evolucao'].includes(type)&&(c.ecoQuestions||[]).length){body+='<h2>Perguntas de acompanhamento</h2>'+(c.ecoQuestions||[]).map(q=>'<p><strong>'+esc(q.text)+'</strong> · '+esc(ecoQuestionStatus.find(v=>v[0]===q.status)?.[1]||q.status)+'</p>'+(q.note?'<p>'+esc(q.note)+'</p>':'')).join('');}
   if(sections.investigacao && c.investigacaoAxes){
     body += '<h2>5. Eixos de Investigação</h2>';
     const active = Object.entries(c.investigacaoAxes).filter(([k,v])=>v.nota);
@@ -3597,19 +3599,67 @@ function ecoReviewPanel(c){
  if(r?.pending)out+='<div class="card"><p id="ecoReviewStage">'+esc(r.stage)+'</p><progress id="ecoReviewProgress" max="'+Math.max(1,r.total)+'" value="'+r.done+'"></progress><p id="ecoReviewCount">'+r.done+' / '+r.total+'</p>'+btn('Cancelar','ecoReviewCancel','secondary')+'</div>';
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
  else if(r?.groups){out+='<div class="card"><h3>Resultados · '+esc(r.model)+'</h3><p>'+r.rows.length+' trechos · '+r.queries.length+' consultas. Pontuação de cosseno experimental, não probabilidade.</p></div>';for(const q of r.queries){const hits=r.groups.find(g=>g.key===q.key)?.hits||[];out+='<details class="card" '+(hits.length?'open':'')+'><summary>'+esc(q.section+' — '+q.text)+' ('+hits.length+')</summary>'+hits.map((hit,i)=>{const u=r.rows[hit.i];if(!u)return '';return '<div class="eco-evidence"><p>'+esc(u.text)+'</p><small>'+esc(formatDate(u.sessionDate))+' · '+esc(u.source)+' · cosseno '+Number(hit.score).toFixed(3)+'</small>'+btn('Confirmar fonte','ecoReviewAccept','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(q.key+'|'+i)+'"')+'</div>';}).join('')+(hits.length?'':'<p>Nenhum candidato acima do limiar.</p>')+'</details>';}}
- return out+'<div class="card"><h2>Fontes confirmadas</h2>'+ecoReviewRecords(c,ecoReviewType)+'</div>';
+ return out+'<div class="card"><h2>Fontes confirmadas</h2>'+ecoReviewRecords(c,ecoReviewType)+'</div>'+(ecoReviewType==='evolucao'?ecoEvolutionPanel(c):'');
 }
 function ecoReviewRelated(c,type,key){
  const rows=(c.ecoReviewRecords||[]).filter(x=>x.type===type&&x.key===key);
- return rows.length?'<details class="card"><summary>Fontes confirmadas ('+rows.length+')</summary>'+rows.map(x=>'<p>'+esc(x.quote)+'<br><small>'+esc(formatDate(x.sessionDate))+' · '+esc(x.source)+' · '+(ecoReviewValid(c,x)?'Fonte atual':'Fonte alterada')+'</small></p>').join('')+'</details>':'';
+ return rows.length?'<details class="card"><summary>Fontes confirmadas ('+rows.length+')</summary>'+rows.map(x=>'<p>'+esc(x.quote)+'<br><small>'+esc(formatDate(x.sessionDate))+' · '+esc(x.source)+' · '+(ecoReviewValid(c,x)?'Fonte atual':'Fonte alterada')+'</small></p>'+(type==='anamnese'&&ecoReviewValid(c,x)?btn('Acrescentar ao campo','ecoReviewApply','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(x.id)+'"'):'')).join('')+'</details>':'';
 }
 const ecoReviewPreviousProgress=window.nativeSemanticProgress,ecoReviewPreviousResult=window.nativeSemanticResult,ecoReviewPreviousUnlock=window.nativeSemanticUnlocked;
 window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousProgress(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewCancel('');return;}r.stage=String(v.stage||'Analisando');r.done=Number(v.done)||0;r.total=Number(v.total)||r.total;r.last=Date.now();const a=document.getElementById('ecoReviewStage'),b=document.getElementById('ecoReviewProgress'),c=document.getElementById('ecoReviewCount');if(a)a.textContent=r.stage;if(b){b.max=Math.max(1,r.total);b.value=r.done;}if(c)c.textContent=r.done+' / '+r.total;};
 window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousResult(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewRun=null;return;}r.pending=false;if(v.error)r.error=String(v.error);else if(v.count!==r.rows.length||!Array.isArray(v.groups)||v.groups.length!==r.queries.length||v.scope!==(r.scope==='manual'?'desconhecido':'paciente')||!r.queries.every(q=>v.groups.filter(g=>g.key===q.key).length===1)||!v.groups.every(g=>Array.isArray(g.hits)&&g.hits.length<=5&&g.hits.every(h=>Number.isInteger(h.i)&&h.i>=0&&h.i<r.rows.length&&Number.isFinite(h.score)&&h.score>=-1.001&&h.score<=1.001)))r.error='Resposta neural inválida; nenhum resultado aceito.';else{r.groups=v.groups;r.model=String(v.model||'DistilUSE');}render();};
 window.nativeSemanticUnlocked=function(){ecoReviewCancel('');return ecoReviewPreviousUnlock();};
+
+function ecoReviewApply(c,id){
+ const x=(c.ecoReviewRecords||[]).find(v=>v.id===id&&v.type==='anamnese');
+ if(!x||!ecoReviewValid(c,x)||!ecoAnamneseCategories.some(cat=>cat.campos.some(f=>f.k===x.key))){notify('Fonte ausente ou alterada.','red');return;}
+ const old=String(c.anamnese?.[x.key]||'');
+ const line='['+formatDate(x.sessionDate)+' · '+x.source+'] '+x.quote;
+ if(old.split('\n').includes(line)){notify('Esta fonte já consta do campo.');return;}
+ const input=document.getElementById('ana_'+x.key);
+ if(input&&String(input.value||'')!==old){notify('Salve suas alterações na anamnese antes de incorporar esta fonte.','red');return;}
+ if(change(()=>{c.anamnese={...(c.anamnese||{}),[x.key]:[old,line].filter(Boolean).join('\n')};x.appliedAt=new Date().toISOString();c.atualizadoEm=x.appliedAt;}))notify('Trecho acrescentado à anamnese sem apagar conteúdo anterior.');
+}
+const ecoQuestionStatus=[['aberta','Aberta'],['em_curso','Em curso'],['respondida','Respondida'],['adiada','Adiada'],['descartada','Descartada']];
+function ecoQuestionSources(c){
+ return (c.ecoReviewRecords||[]).filter(x=>ecoReviewValid(c,x));
+}
+function ecoQuestionsPanel(c){
+ const questions=c.ecoQuestions||[],sources=ecoQuestionSources(c);
+ const statuses=ecoQuestionStatus.map(([k,l])=>'<option value="'+k+'">'+l+'</option>').join('');
+ const axes='<option value="">Sem eixo</option>'+ecoInvestigationAxes.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.nome)+'</option>').join('');
+ const refs='<option value="">Sem fonte vinculada</option>'+sources.map(x=>'<option value="'+esc(x.id)+'">'+esc(formatDate(x.sessionDate)+' · '+x.quote.slice(0,100))+'</option>').join('');
+ return '<section class="card"><h2>Perguntas para acompanhamento</h2><p class="small muted">Questões abertas, revisáveis e vinculadas a fontes quando disponíveis. Não pressupõem respostas, diagnósticos ou lembranças.</p><div class="field"><label>Pergunta clínica</label><textarea id="ecoQuestionText"></textarea></div><div class="field"><label>Eixo</label><select id="ecoQuestionAxis">'+axes+'</select></div><div class="field"><label>Fonte opcional</label><select id="ecoQuestionSource">'+refs+'</select></div>'+btn('Adicionar pergunta','ecoQuestionAdd','','data-case="'+esc(c.id)+'"')+'<h3>Questões registradas ('+questions.length+')</h3>'+questions.map(q=>{
+ const source=(c.ecoReviewRecords||[]).find(x=>x.id===q.sourceId);
+ return '<details class="card" '+(['aberta','em_curso'].includes(q.status)?'open':'')+'><summary>'+esc(q.text)+' · '+esc(ecoQuestionStatus.find(v=>v[0]===q.status)?.[1]||'Aberta')+'</summary><p class="small">'+esc(ecoInvestigationAxes.find(a=>a.id===q.axis)?.nome||'Sem eixo')+' · '+esc(formatDate((q.createdAt||'').slice(0,10)))+'</p>'+(q.sourceId?'<p class="small">'+(source&&ecoReviewValid(c,source)?esc(source.quote)+' · '+esc(formatDate(source.sessionDate)):'Fonte removida ou alterada')+'</p>':'')+'<div class="field"><label>Estado</label><select id="eqstatus_'+esc(q.id)+'">'+ecoQuestionStatus.map(([k,l])=>'<option value="'+k+'" '+(q.status===k?'selected':'')+'>'+l+'</option>').join('')+'</select></div><div class="field"><label>Resposta, motivo de adiamento ou observações</label><textarea id="eqnote_'+esc(q.id)+'">'+esc(q.note||'')+'</textarea></div><div class="actions">'+btn('Salvar atualização','ecoQuestionUpdate','secondary','data-id="'+esc(q.id)+'" data-case="'+esc(c.id)+'"')+btn('Excluir','ecoQuestionDelete','ghost','data-id="'+esc(q.id)+'" data-case="'+esc(c.id)+'"')+'</div></details>';
+ }).join('')+'</section>';
+}
+function ecoQuestionAction(name,c,id){
+ if(name==='ecoQuestionAdd'){
+  const text=String(document.getElementById('ecoQuestionText')?.value||'').trim(),axis=document.getElementById('ecoQuestionAxis')?.value||'',sourceId=document.getElementById('ecoQuestionSource')?.value||'';
+  if(!text||text.length>2000||axis&&!ecoInvestigationAxes.some(a=>a.id===axis)||sourceId&&!ecoQuestionSources(c).some(x=>x.id===sourceId)){notify('Pergunta ou fonte inválida.','red');return;}
+  if((c.ecoQuestions||[]).some(x=>x.text===text&&x.axis===axis&&x.status!=='descartada')){notify('Pergunta já cadastrada.');return;}
+  change(()=>{c.ecoQuestions=[...(c.ecoQuestions||[]),{id:uid(),text,axis,sourceId,status:'aberta',note:'',createdAt:new Date().toISOString(),history:[]}];});return;
+ }
+ const q=(c.ecoQuestions||[]).find(x=>x.id===id);if(!q)return;
+ if(name==='ecoQuestionDelete'){if(!window.confirm?.('Excluir esta pergunta e seu histórico?'))return;change(()=>{c.ecoQuestions=c.ecoQuestions.filter(x=>x.id!==id);});return;}
+ const status=document.getElementById('eqstatus_'+id)?.value||'',note=String(document.getElementById('eqnote_'+id)?.value||'').trim();
+ if(!ecoQuestionStatus.some(x=>x[0]===status)||note.length>8000||(['respondida','descartada','adiada'].includes(status)&&!note)){notify('Informe a resposta ou o motivo antes de concluir a atualização.','red');return;}
+ change(()=>{const at=new Date().toISOString();q.history=[...(q.history||[]),{status:q.status,note:q.note||'',at:q.updatedAt||q.createdAt}];q.status=status;q.note=note;q.updatedAt=at;});
+}
+function ecoEvolutionPanel(c){
+ const ss=[...(c.sessoes||[])].sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))),qs=c.ecoQuestions||[],records=(c.ecoReviewRecords||[]).filter(x=>ecoReviewValid(c,x)),stale=(c.ecoReviewRecords||[]).length-records.length;
+ const groups=new Map();for(const s of ss){const month=(s.data||'Sem data').slice(0,7);const m=groups.get(month)||{total:0,manual:0,audio:0};m.total++;if(s.origem==='manual')m.manual++;else m.audio++;groups.set(month,m);}
+ const max=Math.max(1,...[...groups.values()].map(v=>v.total));
+ return '<section class="card"><h2>Painel de acompanhamento</h2><p class="small muted">Indicadores documentais, não escores de saúde mental. Frequência de registros não significa melhora ou piora.</p><div class="split">'+[['Sessões',ss.length],['Fontes válidas',records.length],['Questões abertas',qs.filter(q=>['aberta','em_curso'].includes(q.status)).length],['Fontes a revisar',stale]].map(([l,v])=>'<div class="eco-evidence"><strong>'+v+'</strong><p>'+l+'</p></div>').join('')+'</div><h3>Sessões por mês</h3>'+[...groups].map(([month,m])=>'<div class="eco-evidence"><strong>'+esc(month)+' · '+m.total+'</strong><div style="height:12px;display:flex;overflow:hidden;border-radius:6px;background:var(--border)"><span style="width:'+100*m.manual/max+'%;background:#499a85"></span><span style="width:'+100*m.audio/max+'%;background:#3677a8"></span></div><small>Manuais: '+m.manual+' · Áudio/outros: '+m.audio+'</small></div>').join('')+'<h3>Fontes de evolução por tema</h3>'+ecoReviewQueries('evolucao').map(q=>'<div class="eco-evidence"><strong>'+esc(q.section)+'</strong><p>'+records.filter(x=>x.type==='evolucao'&&x.key===q.key).length+' fonte(s) confirmada(s)</p></div>').join('')+btn('Buscar fontes de evolução','ecoReviewOpenEvolution','secondary','data-case="'+esc(c.id)+'"')+'</section>';
+}
+
 const ecoReviewPrevAct=act;
 act=function(name,id,button){
- const c=currentCase();
+ const c=state?.cases?currentCase():null;
+ if(name==='ecoReviewApply'){if(c&&button?.dataset?.case===c.id)ecoReviewApply(c,id);return;}
+ if(['ecoQuestionAdd','ecoQuestionUpdate','ecoQuestionDelete'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoQuestionAction(name,c,id);return;}
+ if(name==='ecoReviewOpenEvolution'){ecoReviewCancel('');ecoReviewType='evolucao';tab='revisaoInteligente';render();return;}
  if(name==='ecoReviewType'||name==='ecoReviewScope'){ecoReviewCancel('');if(name==='ecoReviewType'&&['anamnese','investigacao','evolucao'].includes(id))ecoReviewType=id;if(name==='ecoReviewScope'&&['paciente','manual'].includes(id))ecoReviewScope=id;render();return;}
  if(name==='ecoReviewStart'){ecoReviewStart(c);return;}
  if(name==='ecoReviewCancel'){ecoReviewCancel();return;}
