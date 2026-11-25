@@ -551,7 +551,7 @@ window.nativeTranscriptImport=function(raw){
  const input=document.getElementById('manualSessTranscript');
  if(screen!=='manualSession'||!manualSessionDraft||v.token!==openedId+'|'+manualSessionDraft.id||!input||typeof v.text!=='string'||v.text.length>1000000)return;
  if(input.value.trim()&&!window.confirm('Substituir o texto que está no formulário?'))return;
- input.value=v.text;const roles=document.getElementById('manualSessRoles');if(roles)roles.checked=false;
+ input.value=v.text;const roles=document.getElementById('manualSessRoles');if(roles)roles.checked=false;ecoManualDraftFlush();
  notify('Texto importado. Revise e salve para registrar a sessão.');
 };
 function manualSessionScreen(){
@@ -573,8 +573,8 @@ function manualSessionScreen(){
     `<div class="field"><label>Encaminhamentos e pontos a acompanhar</label><textarea id="manualSessPlano" rows="3" placeholder="Próximos passos combinados para o encontro seguinte...">${esc(s.plano||'')}</textarea></div>`+
     `</div>`+
     `<div class="actions">`+
-    btn('Cancelar','openCase','ghost',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`) +
-    btn('Salvar atendimento manual','saveManualSession','',`data-case="${esc(c.id)}"`) +
+    btn('Guardar rascunho e voltar','openCase','ghost',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`) +
+    btn('Salvar atendimento manual','saveManualSession','',`data-case="${esc(c.id)}"`) +'<p id="ecoManualDraftStatus" class="small muted">Rascunho local cifrado; salve para incluir no prontuário.</p>'+
     `</div>`;
 }
 
@@ -2919,6 +2919,12 @@ act=function(name,id,button){
     const caseId=button?.dataset?.case||id||openedId;
     openedId=caseId;
     manualSessionDraft={id:uid(),data:datestr(),hora:nowHHMM(),texto:'',intervencoes:'',plano:''};
+    if(window.NativeVault?.loadFormDraft){
+     try{const raw=window.NativeVault.loadFormDraft(caseId),d=raw?JSON.parse(raw):null;
+      if(d?.__loadError){notify('Rascunho indisponível; não será sobrescrito.','red');return;}
+      if(d?.caseId===caseId&&d.session?.id&&!state.cases.find(x=>x.id===caseId)?.sessoes?.some(x=>x.id===d.session.id))manualSessionDraft=d.session;
+     }catch(e){notify('Não foi possível recuperar o formulário; não será sobrescrito.','red');return;}
+    }
     screen="manualSession";render();return;
   }
   if(name==="saveManualSession"){
@@ -2952,6 +2958,7 @@ act=function(name,id,button){
       targetCase.atualizadoEm=new Date().toISOString();
     });
     if(!ok){notify("Falha ao salvar atendimento manual. Dados mantidos.",'red');return;}
+    if(window.NativeVault?.clearFormDraft)window.NativeVault.clearFormDraft(caseId,session.id);
     manualSessionDraft=null;openedId=targetCase.id;screen="case";tab="sessoes";
     notify("Atendimento manual registrado com sucesso no prontuário.");render();return;
   }
@@ -4341,5 +4348,26 @@ act=function(name,id,button){
   window.NativeVault.selectTranscriptFile(openedId+'|'+manualSessionDraft.id);return;
  }
  return ecoImportTranscriptPriorAct(name,id,button);
+};
+
+let ecoManualDraftTimer=null;
+function ecoManualDraftFlush(){
+ if(ecoManualDraftTimer){clearTimeout(ecoManualDraftTimer);ecoManualDraftTimer=null;}
+ if(screen!=='manualSession'||!manualSessionDraft||!openedId)return true;
+ const fields={data:'manualSessData',hora:'manualSessHora',texto:'manualSessTexto',mlTranscricao:'manualSessTranscript',intervencoes:'manualSessInterv',plano:'manualSessPlano'};
+ for(const [k,id] of Object.entries(fields)){const el=document.getElementById(id);if(el)manualSessionDraft[k]=el.value;}
+ manualSessionDraft.importRolesConfirmed=!!document.getElementById('manualSessRoles')?.checked;
+ if(!window.NativeVault?.saveFormDraft)return true;
+ const result=window.NativeVault.saveFormDraft(openedId,JSON.stringify({caseId:openedId,session:manualSessionDraft,updatedAt:new Date().toISOString()}));
+ const label=document.getElementById('ecoManualDraftStatus');if(label)label.textContent=result==='OK'?'Rascunho protegido salvo.':'Rascunho não gravado; permaneça nesta tela e tente novamente.';
+ return result==='OK';
+}
+document.addEventListener('input',e=>{if(screen==='manualSession'&&String(e.target?.id||'').startsWith('manualSess')){if(ecoManualDraftTimer)clearTimeout(ecoManualDraftTimer);ecoManualDraftTimer=setTimeout(ecoManualDraftFlush,400);}});
+document.addEventListener('change',e=>{if(screen==='manualSession'&&String(e.target?.id||'').startsWith('manualSess'))ecoManualDraftFlush();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ecoManualDraftFlush();});
+const ecoDraftPriorAct=act;
+act=function(name,id,button){
+ if(screen==='manualSession'&&['nav','openCase','newCase','newManualSession','saveManualSession','ecoHomeLaunch'].includes(name)&&!ecoManualDraftFlush()){notify('Rascunho não gravado. Não saia antes de salvar ou copiar o texto.','red');return;}
+ return ecoDraftPriorAct(name,id,button);
 };
 </script></body></html>
