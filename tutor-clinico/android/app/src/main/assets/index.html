@@ -4945,6 +4945,7 @@ function ecoPerspectivePanel(c){
  if(result.error)out+='<p class="alert">'+esc(result.error)+'</p>';
  else{out+='<p class="small muted">Minuta gerada · conceito, hipótese, justificativa, intervenção, próximos pontos e cautelas · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>';
  if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
+ if(!result.formatValid)out+='<p class="alert">A IA não entregou todos os seis campos esperados. Minuta incompleta; revise antes de utilizar.</p>';
  out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref)+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
  out+='</article>';}
  if(!r.pending)out+='<p class="small muted">As leituras são possibilidades teóricas, não interpretações confirmadas, ranking de autores ou recomendação automática de tratamento. Não incorporadas ao prontuário.</p>';}
@@ -5002,7 +5003,7 @@ window.nativeSemanticResult=function(raw){
   }
  }else if(r.mode==='generate'){
   if(v.sourceCount!==r.sources.length+1||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.results.push({author,error:'Minuta local inválida.'});
-  else{const refs=[...v.draft.matchAll(/\[S(\d+)\]/g)].map(x=>Number(x[1]));r.results.push({author,draft:v.draft,sources:r.sources,refsValid:refs.includes(1)&&refs.some(n=>n>=2)&&refs.every(n=>n>=1&&n<=r.sources.length+1)});}
+  else{const refs=[...v.draft.matchAll(/\[S(\d+)\]/g)].map(x=>Number(x[1]));r.results.push({author,draft:v.draft,sources:r.sources,formatValid:['conceito','hipotese','justificativa','exemplo','investigar','evitar'].every(label=>ecoFoldText(v.draft).split(/\n/).some(line=>line.replace(/^[\s*#\d.)-]+/,'').startsWith(label))),refsValid:refs.includes(1)&&refs.some(n=>n>=2)&&refs.every(n=>n>=1&&n<=r.sources.length+1)});}
  }
  r.index++;ecoPerspectiveNext(r);
 };
