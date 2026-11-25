@@ -605,6 +605,10 @@ public class EcoIntegratedPersistenceTest {
         c.getJSONArray("sessoes").getJSONObject(0).put("texto","DEPOIS");store.save(root.toString());
         try{store.fullCheckpoint(true,()->false);fail("cancelled checkpoint");}catch(java.io.IOException expected){}
         assertEquals(1,store.fullCheckpointList().length());
+        java.util.concurrent.atomic.AtomicInteger checks=new java.util.concurrent.atomic.AtomicInteger();
+        try{store.fullCheckpoint(true,()->checks.incrementAndGet()<4);fail("mid-write cancellation accepted");}catch(java.io.IOException expected){}
+        assertTrue(checks.get()>=4);assertEquals(1,store.fullCheckpointList().length());
+        assertTrue(store.fullCheckpoint(true,()->true));assertEquals(2,store.fullCheckpointList().length());
         char[] password="eco-checkpoint-fixture".toCharArray();
         java.io.ByteArrayOutputStream portable=new java.io.ByteArrayOutputStream();store.exportFullCheckpoint(slot,portable,password,()->true);
         store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
@@ -615,7 +619,7 @@ public class EcoIntegratedPersistenceTest {
         assertArrayEquals(pdf,store.attachmentBytes("local-full",meta.getString("id")));
         assertEquals("[]",store.readPrivateDiary("local-full"));
         store.getDbHelper().close();java.util.Arrays.fill(password,(char)0);
-        new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+slot+".aes").delete();
+        for(int localSlot=2;localSlot<=3;localSlot++)new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+localSlot+".aes").delete();
     }
 
 }
