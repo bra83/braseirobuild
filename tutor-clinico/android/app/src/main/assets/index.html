@@ -4496,4 +4496,34 @@ act=function(name,id,button){
  if(name==='nav'||name==='openCase'){ecoHealth=null;ecoHealthError='';}
  return ecoHealthPriorAct(name,id,button);
 };
+
+const ecoLabFixtures=[
+ {label:'DistilUSE · recuperação',mode:'semantic',payload:{scope:'desconhecido',query:'Dificuldade para dormir',retrievalOnly:true,rows:[{text:'Demoro a adormecer e acordo várias vezes.',speaker:'desconhecido'},{text:'Comprei uma bicicleta azul.',speaker:'desconhecido'},{text:'A oficina fica no térreo.',speaker:'desconhecido'}]}},
+ {label:'mMARCO · relevância',mode:'rerank',payload:{mode:'rerank',query:'Dificuldade para dormir',rows:[{text:'Demoro a adormecer e acordo várias vezes.'},{text:'Comprei uma bicicleta azul.'},{text:'A oficina fica no térreo.'}]}},
+ {label:'BERTimbau · relações textuais',mode:'nli',payload:{mode:'nli',pairs:[{a:'A personagem fictícia viajou em março.',b:'A personagem viajou em março.'},{a:'A personagem fictícia não viajou em março.',b:'A personagem viajou em março.'},{a:'A personagem comprou um livro.',b:'A personagem viajou em março.'}]}},
+ {label:'Qwen · síntese com fontes',mode:'generate',payload:{mode:'generate',query:'Resuma apenas o fato descrito nas fontes fictícias e cite [S1].',sources:[{text:'No exemplo fictício, a pessoa decidiu estudar música aos sábados.'}]}}
+];
+let ecoLabRun=null,ecoLabSerial=0;
+function ecoLabCancel(){if(ecoLabRun?.pending)window.NativeVault?.cancelSemantic?.(ecoLabRun.id);ecoLabRun=null;}
+function ecoLabPanel(){
+ const r=ecoLabRun;
+ return '<section class="card"><h2>Laboratório local de IA</h2><p class="small muted">Amostras fixas, inteiramente fictícias. O laboratório não consulta prontuários nem permite inserir texto clínico. Mede o tempo real da execução no dispositivo; um exemplo não certifica precisão.</p>'+ecoLabFixtures.map((f,i)=>btn(f.label,'ecoLabStart','secondary','data-id="'+i+'"')).join('')+(r?'<div class="eco-evidence"><strong>'+esc(ecoLabFixtures[r.index].label)+'</strong><p>'+esc(r.stage||'')+'</p>'+(r.pending?btn('Cancelar','ecoLabCancel','ghost'):r.error?'<p class="alert red">'+esc(r.error)+'</p>':'<p>Tempo observado: '+(r.elapsed/1000).toFixed(2)+' s</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(r.result,null,2))+'</pre>')+'</div>':'')+'</section>';
+}
+const ecoLabPriorSettings=settingsScreen;settingsScreen=function(){return ecoLabPriorSettings()+ecoLabPanel();};
+const ecoLabPriorProgress=window.nativeSemanticProgress,ecoLabPriorResult=window.nativeSemanticResult,ecoLabPriorUnlocked=window.nativeSemanticUnlocked;
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('lab-'))return ecoLabPriorProgress(raw);const r=ecoLabRun;if(!r?.pending||v.id!==r.id||screen!=='settings')return;r.stage=String(v.stage||'Executando');};
+window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('lab-'))return ecoLabPriorResult(raw);const r=ecoLabRun;if(!r?.pending||v.id!==r.id||screen!=='settings')return;r.pending=false;r.elapsed=Date.now()-r.started;if(v.error)r.error=String(v.error);else{delete v.id;r.result=v;r.stage='Inferência concluída';}render();};
+window.nativeSemanticUnlocked=function(){ecoLabCancel();return ecoLabPriorUnlocked();};
+const ecoLabPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoLabStart'&&screen==='settings'){
+  const f=ecoLabFixtures[Number(id)];if(!f||ecoLabRun?.pending||ecoIsCapturing()||ecoIsPaused())return;
+  const r=ecoLabRun={index:Number(id),id:'lab-'+(++ecoLabSerial)+'-'+Date.now(),pending:true,started:Date.now(),stage:'Executando modelo local'};
+  try{const result=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...f.payload,id:r.id,cacheScope:'lab:synthetic-only'}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Falha ao iniciar o motor.';}
+  render();return;
+ }
+ if(name==='ecoLabCancel'){ecoLabCancel();render();return;}
+ if(name==='nav'||name==='openCase')ecoLabCancel();
+ return ecoLabPriorAct(name,id,button);
+};
 </script></body></html>
