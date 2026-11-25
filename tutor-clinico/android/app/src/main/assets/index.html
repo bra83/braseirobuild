@@ -4401,4 +4401,62 @@ function ecoRecurringAppointments(a,count,interval){
  if(!Number.isInteger(count)||count<1||count>52||![7,14,28].includes(interval))throw Error('Recorrência inválida');
  const out=[];for(let i=0;i<count;i++){const d=new Date(a.data+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i*interval);out.push({...a,id:i?uid():a.id,data:d.toISOString().slice(0,10),duracao:Number(a.duracao)});}return out;
 }
+
+function ecoFinanceRows(){return state.ecoFinance||[];}
+function ecoFinanceTotal(rows,status){return rows.reduce((n,r)=>n+(r.status===status?r.cents:0),0);}
+function ecoFinancePanel(){
+ const rows=ecoFinanceRows(),money=n=>(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ return '<section class="card"><h2>Financeiro · administrativo</h2><p class="small muted">Valores administrativos não entram em documentos clínicos. Pagamentos são registrados manualmente.</p><div class="split"><div class="eco-evidence"><strong>'+money(ecoFinanceTotal(rows,'pago'))+'</strong><p>Recebido</p></div><div class="eco-evidence"><strong>'+money(ecoFinanceTotal(rows,'pendente'))+'</strong><p>Pendente</p></div></div><div class="field"><label>Caso</label><select id="ecoFinCase"><option value="">Selecione</option>'+state.cases.map(c=>'<option value="'+esc(c.id)+'">'+caseName(c)+'</option>').join('')+'</select></div><div class="split"><div class="field"><label>Data</label><input id="ecoFinDate" type="date" value="'+datestr()+'"></div><div class="field"><label>Valor (R$)</label><input id="ecoFinValue" inputmode="decimal" placeholder="0,00"></div></div><div class="field"><label>Referência administrativa</label><input id="ecoFinRef" maxlength="200"></div>'+btn('Registrar cobrança','ecoFinAdd','secondary')+rows.slice().reverse().map(r=>'<div class="eco-evidence"><strong>'+esc(formatDate(r.date))+' · '+money(r.cents)+'</strong><p>'+caseName(state.cases.find(c=>c.id===r.caseId)||{})+' · '+esc(r.ref||'')+' · '+esc(r.status)+'</p>'+(r.status==='pendente'?btn('Registrar pagamento','ecoFinPaid','secondary','data-id="'+esc(r.id)+'"')+btn('Cancelar cobrança','ecoFinCancel','ghost','data-id="'+esc(r.id)+'"'):'')+'</div>').join('')+'</section>';
+}
+const ecoAdminAgenda=agendaScreen;agendaScreen=function(){return ecoAdminAgenda()+ecoFinancePanel();};
+function ecoFinanceAction(name,id){
+ if(screen!=='agenda')return;
+ if(name==='ecoFinAdd'){
+  const caseId=document.getElementById('ecoFinCase')?.value||'',date=document.getElementById('ecoFinDate')?.value||'',v=String(document.getElementById('ecoFinValue')?.value||'').trim().replace(',','.'),ref=String(document.getElementById('ecoFinRef')?.value||'').trim();
+  if(!state.cases.some(c=>c.id===caseId)||!validDate(date)||!/^\d{1,7}(?:\.\d{1,2})?$/.test(v)||Number(v)<=0){notify('Confira caso, data e valor.','red');return;}
+  change(()=>{state.ecoFinance=[...ecoFinanceRows(),{id:uid(),caseId,date,cents:Math.round(Number(v)*100),ref,status:'pendente',history:[{status:'pendente',at:new Date().toISOString()}]}];});return;
+ }
+ const row=ecoFinanceRows().find(x=>x.id===id);if(!row||row.status!=='pendente')return;
+ change(()=>{row.status=name==='ecoFinPaid'?'pago':'cancelado';row.history=[...(row.history||[]),{status:row.status,at:new Date().toISOString()}];});
+}
+function ecoCustomForms(c){
+ const templates=state.ecoQuestionTemplates||[],answers=c.ecoCustomAnswers||[];
+ return '<section class="card"><h2>Questionários personalizados</h2><p class="small muted">Perguntas do profissional. Não são testes psicológicos validados nem geram pontuação automática.</p>'+templates.filter(t=>!t.archived).map(t=>'<details class="card"><summary>'+esc(t.title)+'</summary>'+t.questions.map((q,i)=>'<div class="field"><label>'+esc(q)+'</label><textarea id="ecoCustomAnswer_'+esc(t.id)+'_'+i+'" rows="2"></textarea></div>').join('')+btn('Salvar respostas','ecoCustomSave','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(t.id)+'"')+'</details>').join('')+(templates.length?'':'<p>Crie modelos em Configurações.</p>')+'<h3>Respostas arquivadas</h3>'+answers.slice().reverse().map(a=>'<div class="eco-evidence"><strong>'+esc(a.title)+' · '+esc(formatDate(a.date))+'</strong>'+a.items.map(x=>'<p><strong>'+esc(x.question)+'</strong><br>'+esc(x.answer)+'</p>').join('')+'</div>').join('')+'</section>';
+}
+function ecoTemplatePanel(){
+ return '<section class="card"><h2>Modelos personalizados</h2><div class="field"><label>Nome do questionário</label><input id="ecoTemplateTitle" maxlength="120"></div><div class="field"><label>Uma pergunta por linha</label><textarea id="ecoTemplateQuestions" rows="5"></textarea></div>'+btn('Criar questionário','ecoTemplateAdd','secondary')+(state.ecoQuestionTemplates||[]).map(t=>'<div class="eco-evidence"><strong>'+esc(t.title)+'</strong><p>'+t.questions.length+' perguntas · '+(t.archived?'Arquivado':'Ativo')+'</p>'+btn(t.archived?'Reativar':'Arquivar','ecoTemplateToggle','secondary','data-id="'+esc(t.id)+'"')+'</div>').join('')+'</section>';
+}
+const ecoCustomCase=caseScreen;caseScreen=function(){const html=ecoCustomCase(),c=currentCase();return c&&tab==='anamnese'?html+ecoCustomForms(c):html;};
+const ecoAdminSettings=settingsScreen;settingsScreen=function(){return ecoAdminSettings()+ecoTemplatePanel();};
+function ecoPersonalLibraryPanel(){
+ const rows=(state.ecoPersonalLibrary||[]).filter(x=>!x.archived),query=ecoPersonalQuery.toLowerCase();
+ return '<section class="card"><h2>Biblioteca pessoal</h2><p class="small muted">Somente material teórico próprio, licenciado ou de domínio público. Não inclua dados de pacientes. Referências inseridas não foram verificadas pelo ECO.</p><div class="field"><label>Título</label><input id="ecoPersonalTitle" maxlength="200"></div><div class="field"><label>Autor, edição, páginas</label><input id="ecoPersonalRef" maxlength="400"></div><div class="field"><label>Notas ou texto autorizado</label><textarea id="ecoPersonalBody" rows="6" maxlength="100000"></textarea></div><label class="choice"><input type="checkbox" id="ecoPersonalConfirm">Confirmo o direito de armazenar o conteúdo e ausência de dados clínicos.</label>'+btn('Adicionar referência','ecoPersonalAdd','secondary')+'<div class="field"><label>Pesquisar biblioteca pessoal</label><input id="ecoPersonalSearch" value="'+esc(ecoPersonalQuery)+'"></div>'+btn('Pesquisar','ecoPersonalSearch','secondary')+rows.filter(r=>[r.title,r.ref,r.body].join(' ').toLowerCase().includes(query)).map(r=>'<details class="card"><summary>'+esc(r.title)+'</summary><p>'+esc(r.ref)+'</p><p style="white-space:pre-wrap">'+esc(r.body)+'</p>'+btn('Arquivar referência','ecoPersonalArchive','ghost','data-id="'+esc(r.id)+'"')+'</details>').join('')+'</section>';
+}
+let ecoPersonalQuery='';
+const ecoPersonalStudy=studyScreen;studyScreen=function(){return ecoPersonalStudy()+ecoPersonalLibraryPanel();};
+const ecoAdminPriorAct=act;
+act=function(name,id,button){
+ if(['ecoFinAdd','ecoFinPaid','ecoFinCancel'].includes(name)){ecoFinanceAction(name,id);return;}
+ if(name==='ecoTemplateAdd'&&screen==='settings'){
+  const title=String(document.getElementById('ecoTemplateTitle')?.value||'').trim(),questions=String(document.getElementById('ecoTemplateQuestions')?.value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!title||!questions.length||questions.length>100||questions.some(q=>q.length>1000)){notify('Informe título e de 1 a 100 perguntas.','red');return;}
+  change(()=>{state.ecoQuestionTemplates=[...(state.ecoQuestionTemplates||[]),{id:uid(),title,questions,createdAt:new Date().toISOString(),archived:false}];});return;
+ }
+ if(name==='ecoTemplateToggle'&&screen==='settings'){const t=(state.ecoQuestionTemplates||[]).find(x=>x.id===id);if(t)change(()=>{t.archived=!t.archived;});return;}
+ if(name==='ecoCustomSave'&&screen==='case'&&tab==='anamnese'){
+  const c=currentCase(),t=(state.ecoQuestionTemplates||[]).find(x=>x.id===id&&!x.archived);
+  if(!c||!t||button?.dataset?.case!==c.id)return;
+  const items=t.questions.map((q,i)=>({question:q,answer:String(document.getElementById('ecoCustomAnswer_'+t.id+'_'+i)?.value||'').trim()}));
+  if(!items.some(x=>x.answer)){notify('Registre ao menos uma resposta.','red');return;}
+  change(()=>{c.ecoCustomAnswers=[...(c.ecoCustomAnswers||[]),{id:uid(),templateId:t.id,title:t.title,date:datestr(),items}];});return;
+ }
+ if(name==='ecoPersonalSearch'&&screen==='study'){ecoPersonalQuery=String(document.getElementById('ecoPersonalSearch')?.value||'').trim();render();return;}
+ if(name==='ecoPersonalAdd'&&screen==='study'){
+  const title=String(document.getElementById('ecoPersonalTitle')?.value||'').trim(),ref=String(document.getElementById('ecoPersonalRef')?.value||'').trim(),body=String(document.getElementById('ecoPersonalBody')?.value||'').trim();
+  if(!title||!ref||!body||body.length>100000||!document.getElementById('ecoPersonalConfirm')?.checked){notify('Informe título, referência, texto e confirmação de uso.','red');return;}
+  change(()=>{state.ecoPersonalLibrary=[...(state.ecoPersonalLibrary||[]),{id:uid(),title,ref,body,createdAt:new Date().toISOString()}];});return;
+ }
+ if(name==='ecoPersonalArchive'&&screen==='study'){const r=(state.ecoPersonalLibrary||[]).find(x=>x.id===id);if(r)change(()=>{r.archived=true;});return;}
+ return ecoAdminPriorAct(name,id,button);
+};
 </script></body></html>
