@@ -13,7 +13,8 @@ android {
         versionCode 29
         versionName '0.24.0-arm64-beta'
     }
-    androidResources { noCompress += ['onnx','txt'] }
+    androidResources { noCompress += ['onnx','txt','gguf'] }
+    packaging { jniLibs { useLegacyPackaging = true; keepDebugSymbols += ['**/libeco_generate.so'] } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = '17' }
     testOptions {
