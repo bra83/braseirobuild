@@ -68,7 +68,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ECO-ui-fixtures
-          path: tutor-clinico/android/build/eco-ui/*.png
+          path: |
+            tutor-clinico/android/build/eco-ui/*.png
+            tutor-clinico/android/build/eco-ui/*.pdf
           if-no-files-found: ignore
           retention-days: 14
       - name: Validar runtime ARM64 TAGARELA
