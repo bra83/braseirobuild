@@ -171,6 +171,28 @@ html[data-theme="dark"] .eco-caption{color:#c6d0ca}
 .eco-cloud-token:nth-child(6n+1){color:#196c59}.eco-cloud-token:nth-child(6n+2){color:#275ca8}.eco-cloud-token:nth-child(6n+3){color:#a24725}.eco-cloud-token:nth-child(6n+4){color:#8655b4}.eco-cloud-token:nth-child(6n+5){color:#a12c62}.eco-cloud-token:nth-child(6n+6){color:#596c17}
 html[data-theme="dark"] .eco-cloud-token:nth-child(6n+1){color:#baff4a}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+2){color:#69c7ff}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+3){color:#ffb366}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+4){color:#d5a5ff}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+5){color:#ff93bd}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+6){color:#70e0c4}
 .eco-wordcloud .eco-cloud-token small{font-size:9px;opacity:.8;vertical-align:baseline}.eco-cloud-token:focus-visible{outline:2px solid var(--teal)}
+
+/* ECO home: square launch tiles, not a textual dashboard. */
+.eco-home-head{display:flex;align-items:end;justify-content:space-between;gap:8px;margin:0 0 14px}
+.eco-home-head h1{font-size:24px;margin:0;line-height:1.2}.eco-home-head .muted{font-size:12px}
+.eco-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.eco-home-tile{width:100%;aspect-ratio:1;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:7px;padding:12px 8px;border-radius:22px;background:var(--paper);border:1px solid var(--border);color:var(--ink);box-shadow:0 2px 8px #163f3109;white-space:normal;overflow-wrap:break-word}
+.eco-home-tile.primary{background:#baff4a;color:#142015;border-color:#a3e23e}
+.eco-home-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:var(--light);color:#146b64;flex-shrink:0}
+.eco-home-icon svg{width:27px;height:27px;display:block}
+.eco-home-tile.primary .eco-home-icon{background:#17271b;color:#baff4a}
+.eco-home-title{font-size:15px;font-weight:760;line-height:1.2}
+.eco-home-sub{font-size:11px;line-height:1.3;color:var(--muted);font-weight:500}
+.eco-home-tile.primary .eco-home-sub{color:#32452b}
+html[data-theme="dark"] .eco-home-tile:not(.primary){background:#242729;border-color:#404547;box-shadow:none}
+html[data-theme="dark"] .eco-home-tile:not(.primary) .eco-home-icon{background:#303b2c;color:#baff4a}
+.eco-home-tile:active{transform:scale(.98)}.eco-home-tile:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.eco-home-footer{margin:10px 0 0}.eco-home-footer summary{cursor:pointer;font-weight:700;padding:5px 0}
+.eco-home-pick{display:grid;gap:8px}.eco-home-pick button{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;width:100%;min-height:60px;padding:14px;background:var(--paper);border:1px solid var(--border);color:var(--ink);border-radius:14px;overflow-wrap:anywhere}
+@media(min-width:650px){.eco-home-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:355px){.eco-home-grid{gap:8px}.eco-home-tile{border-radius:17px;padding:8px 5px;gap:4px}.eco-home-icon{width:38px;height:38px}.eco-home-icon svg{width:23px;height:23px}.eco-home-title{font-size:13px}.eco-home-sub{font-size:10px}}
+@media print{.eco-home-grid,.eco-home-pick{display:none}}
+
 </style></head><body><div class="top"><div class="brand"><img class="eco-brand-image" src="{{ECO_APP_ICON}}" alt=""/> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
@@ -3996,5 +4018,85 @@ function ecoAiEngineStatus(){
  const list=[['DistilUSE U8U8','semanticAvailable','Busca semântica'],['mMARCO MiniLM INT8','rerankerAvailable','Reranking contextual'],['BERTimbau InferBR INT8','nliAvailable','Comparação textual'],['Qwen2.5 0.5B Q4_K_M','llmAvailable','Geração local']];
  return list.map(([name,key,desc])=>'<div class="kv"><strong>'+esc(name)+'</strong><span>'+esc(desc)+' · '+(info[key]===true?'Arquivos/runtime detectados':info[key]===false?'Indisponível':'Não verificado')+'</span></div>').join('')+'<p class="small muted">Disponibilidade não equivale à homologação de desempenho ou qualidade clínica. Motores são carregados sequencialmente.</p>';
 }
+
+
+let ecoHomeTarget='';
+const ecoHomeModules=[
+ ['atendimento','Novo atendimento','Preparar e iniciar','calendarPlus','case'],
+ ['cases','Casos','Pacientes e histórico','users','nav'],
+ ['eco','Gravar sessão','Áudio offline','mic','nav'],
+ ['manual','Atendimento manual','Sem gravação','pen','manual'],
+ ['analisar','Análise','Palavras e recorrências','chart','case'],
+ ['assistenteIA','Assistente IA','Síntese e fontes','brain','case'],
+ ['sonhos','Sonhos','Atlas e símbolos','moon','case'],
+ ['genograma','Genograma','Família e gerações','tree','case'],
+ ['rede','Rede de vínculos','Mapa social','network','case'],
+ ['documentos','Documentos','Impressão e PDF','printer','case'],
+ ['study','Conhecimentos','Capítulos e verbetes','book','nav'],
+ ['agenda','Agenda','Consultas e horários','calendar','nav'],
+ ['investigar','Investigação','Questões e hipóteses','compass','case'],
+ ['search','Pesquisar','Encontrar registros','search','nav'],
+ ['newCase','Novo caso','Cadastrar paciente','userPlus','new'],
+ ['settings','Configurações','Motores e segurança','settings','nav']
+];
+const ecoHomeIcons={
+ calendarPlus:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v6m-3-3h6"/>',
+ users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 4v2"/>',
+ mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1M12 19v3m-4 0h8"/>',
+ pen:'<path d="m14 6 4 4M4 20l4-1 12-12a2 2 0 0 0-3-3L5 16l-1 4ZM4 22h16"/>',
+ chart:'<path d="M3 3v18h18M7 17v-5m5 5V7m5 10v-8"/>',
+ brain:'<path d="M12 5a3 3 0 0 0-6-1 4 4 0 0 0-3 6 4 4 0 0 0 1 7 4 4 0 0 0 8 1V5Zm0 0a3 3 0 0 1 6-1 4 4 0 0 1 3 6 4 4 0 0 1-1 7 4 4 0 0 1-8 1M5 10h3m8 0h3M8 16h4m0 0h4"/>',
+ moon:'<path d="M20 15.5A9 9 0 0 1 8.5 4 9 9 0 1 0 20 15.5Z"/><path d="M17 3v4m-2-2h4"/>',
+ tree:'<rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-5h14v5"/>',
+ network:'<circle cx="12" cy="12" r="3"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><path d="m6 6 4 4m4 4 4 4m0-12-4 4m-4 4-4 4"/>',
+ printer:'<path d="M7 8V3h10v5M7 17H4a2 2 0 0 1-2-2v-3a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v3a2 2 0 0 1-2 2h-3"/><rect x="7" y="14" width="10" height="7" rx="1"/><path d="M18 12h1"/>',
+ book:'<path d="M12 6c-3-3-7-3-10-2v15c4-1 7 0 10 2 3-2 6-3 10-2V4c-3-1-7-1-10 2v15"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18m-13 4h2m4 0h2m-8 3h2"/>',
+ compass:'<circle cx="12" cy="12" r="9"/><path d="m15 9-2 5-4 1 2-5 4-1Z"/>',
+ search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+ userPlus:'<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M19 8v6m-3-3h6"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="m10 2 4 0 1 3 3 1 3 0 1 4-2 2 0 2 2 2-1 4-3 0-3 1-1 2h-4l-1-2-3-1-3 0-1-4 2-2v-2l-2-2 1-4 3 0 3-1 1-3Z" transform="translate(0 -0.5) scale(1 .95)"/>'
+};
+function ecoHomeIcon(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ecoHomeIcons[k]||'')+'</svg>';}
+function ecoHomePicker(){
+ const module=ecoHomeModules.find(m=>m[0]===ecoHomeTarget);if(!module)return '';
+ const cases=[...state.cases].sort((a,b)=>String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'));
+ return '<div class="actions">'+btn('← Tela inicial','ecoHomeBack','ghost')+'</div><h1>'+esc(module[1])+'</h1><p class="lead">Escolha o prontuário para continuar. Nenhum paciente será selecionado automaticamente.</p><div class="eco-home-pick">'+cases.map(c=>'<button type="button" data-act="ecoHomeCase" data-id="'+esc(c.id)+'"><span><strong>'+caseName(c)+'</strong><br><small class="muted">'+esc(c.status||'Em andamento')+' · '+(c.sessoes||[]).length+' sessões</small></span><span aria-hidden="true">›</span></button>').join('')+'</div>'+(cases.length?'':'<div class="card empty">Nenhum caso cadastrado.</div>')+'<div class="actions">'+btn('Novo caso','newCase','secondary')+'</div>';
+}
+function ecoSquareHome(){
+ if(ecoHomeTarget)return ecoHomePicker();
+ const today=datestr(),clock=nowHHMM(),future=getAppointments().filter(a=>a.status==='Agendado'&&(a.data>today||(a.data===today&&(a.hora||'00:00')>=clock))),next=future[0];
+ const sessions=state.cases.reduce((n,c)=>n+(c.sessoes||[]).length,0);
+ let out='<div class="eco-home-head"><div><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Acesso rápido</h1></div><span class="muted">'+esc(formatDate(today))+'</span></div>';
+ if(state.mlDraft?.session&&state.cases.some(c=>c.id===state.mlDraft.caseId))out+='<div class="alert"><strong>Rascunho de sessão pendente</strong><p>Retome antes de iniciar outra gravação.</p>'+btn('Continuar rascunho','ecoHomeResume','secondary')+'</div>';
+ out+='<section class="eco-home-grid" aria-label="Módulos do ECO">'+ecoHomeModules.map(([id,title,sub,icon,route],i)=>'<button type="button" class="eco-home-tile'+(i===0?' primary':'')+'" data-act="ecoHomeLaunch" data-id="'+id+'"'+(id==='eco'?' aria-label="Gravar sessão · INICIAR SESSÃO"':'')+'><span class="eco-home-icon">'+ecoHomeIcon(icon)+'</span><span class="eco-home-title">'+esc(title)+'</span><span class="eco-home-sub">'+esc(sub)+'</span></button>').join('')+'</section>';
+ out+='<details class="card eco-home-footer"><summary>Hoje · Agenda & Próximo Atendimento</summary>'+(next?'<p><strong>'+esc(formatDate(next.data))+' às '+esc(next.hora)+'</strong> · '+caseName(state.cases.find(c=>c.id===next.caseId)||{})+'</p>':'<p class="muted">Nenhuma consulta futura agendada.</p>')+btn('Abrir agenda','nav','secondary','data-id="agenda"')+'</details>';
+ out+='<details class="card eco-home-footer"><summary>Memória · Últimos registros</summary><p>'+state.cases.length+' casos · '+sessions+' sessões</p>'+btn('Abrir casos','nav','secondary','data-id="cases"')+btn('Abrir atlas','nav','secondary','data-id="atlas"')+'</details>';
+ out+='<details class="card eco-home-footer"><summary>Motores de voz offline disponíveis</summary>'+ecoAiEngineStatus()+btn('Ajustes','nav','secondary','data-id="settings"')+'</details><p class="eco-caption">Protótipo experimental. Utilize dados fictícios até a validação de segurança e adequação legal.</p>';
+ return out;
+}
+homeScreen=ecoSquareHome;
+const ecoHomePriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoHomeBack'){ecoHomeTarget='';render();window.scrollTo(0,0);return;}
+ if(name==='ecoHomeResume'){
+  const d=state.mlDraft;if(!d?.session||!state.cases.some(c=>c.id===d.caseId)||ecoIsCapturing()||ecoIsPaused()){notify('Não foi possível retomar o rascunho.','red');return;}
+  openedId=d.caseId;sessionDraft=JSON.parse(JSON.stringify(d.session));editSessionId=state.cases.find(c=>c.id===d.caseId).sessoes?.some(s=>s.id===sessionDraft.id)?sessionDraft.id:null;screen='session';ecoWorkspaceTab='revisar';render();return;
+ }
+ if(name==='ecoHomeLaunch'){
+  const m=ecoHomeModules.find(x=>x[0]===id);if(!m||screen!=='home')return;
+  if(m[4]==='nav'){ecoHomeTarget='';return ecoHomePriorAct('nav',id,button);}
+  if(m[4]==='new'){ecoHomeTarget='';return ecoHomePriorAct('newCase',null,button);}
+  ecoHomeTarget=id;render();window.scrollTo(0,0);return;
+ }
+ if(name==='ecoHomeCase'){
+  const m=ecoHomeModules.find(x=>x[0]===ecoHomeTarget);if(screen!=='home'||!m||!['case','manual'].includes(m[4])||!state.cases.some(c=>c.id===id)){notify('Selecione um caso válido.','red');return;}
+  ecoHomeTarget='';
+  if(m[4]==='manual')return ecoHomePriorAct('newManualSession',id,{dataset:{case:id}});
+  ecoHomePriorAct('openCase',id,button);return ecoHomePriorAct('caseTab',m[0],button);
+ }
+ if(['nav','openCase','newCase'].includes(name))ecoHomeTarget='';
+ return ecoHomePriorAct(name,id,button);
+};
 
 </script></body></html>
