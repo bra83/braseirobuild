@@ -18,6 +18,18 @@ final class NeuralSemanticEngine implements AutoCloseable {
     private final float[] weights=new float[512*768], bias=new float[512];
     private final OrtEnvironment env=OrtEnvironment.getEnvironment();
     private OrtSession session;
+    private EcoEmbeddingCache sharedCache;
+    private long cacheGeneration;
+    private int reused,computed;
+    void setCache(EcoEmbeddingCache cache,long generation){sharedCache=cache;cacheGeneration=generation;}
+    private float[] cachedVector(String text,BooleanSupplier active)throws Exception{
+        if(!active.getAsBoolean())throw new CancellationException();
+        float[] v=sharedCache==null?null:sharedCache.get(cacheGeneration,text);
+        if(v!=null){reused++;return v;}
+        v=vector(text,active);computed++;
+        if(active.getAsBoolean()&&sharedCache!=null)sharedCache.put(cacheGeneration,text,v);
+        return v;
+    }
     NeuralSemanticEngine(Context context) throws Exception {
         try(BufferedReader in=new BufferedReader(new InputStreamReader(context.getAssets().open("semantic/vocab.txt"),StandardCharsets.UTF_8))){
             String line;int i=0;while((line=in.readLine())!=null)vocab.put(line,i++);
@@ -138,7 +150,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
                 JSONObject item=queries.getJSONObject(k);
                 String key=item.getString("key"),text=item.getString("text").trim();
                 if(key.isEmpty()||key.length()>80||!ids.add(key)||text.isEmpty()||text.length()>500)throw new IOException("Consulta inválida");
-                keys.add(key);qv.add(vector(text,active));results.add(new ArrayList<>());
+                keys.add(key);qv.add(cachedVector(text,active));results.add(new ArrayList<>());
                 progress.report(0,rows.length(),"Preparando consultas "+(k+1)+"/"+queries.length());
             }
             Map<String,float[]> cache=new HashMap<>();
@@ -147,7 +159,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
                 String text=rows.getJSONObject(i).getString("text");
                 if(text.length()>12000)throw new IOException("Trecho muito longo");
                 float[] v=cache.get(text);
-                if(v==null){v=vector(text,active);cache.put(text,v);}
+                if(v==null){v=cachedVector(text,active);cache.put(text,v);}
                 for(int k=0;k<qv.size();k++){
                     double score=cosine(qv.get(k),v);
                     if(!SemanticRanking.relevant(score,true))continue;
@@ -161,10 +173,10 @@ final class NeuralSemanticEngine implements AutoCloseable {
             JSONArray grouped=new JSONArray();
             for(int k=0;k<keys.size();k++)grouped.put(new JSONObject().put("key",keys.get(k)).put("hits",new JSONArray(results.get(k))));
             return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)
-                .put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("groups",grouped);
+                .put("cacheReused",reused).put("cacheComputed",computed).put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("groups",grouped);
         }
         progress.report(0,rows.length(),"Preparando consulta");
-        float[] q=query.isEmpty()?null:vector(query,active);
+        float[] q=query.isEmpty()?null:cachedVector(query,active);
         Map<String,float[]> memo=new HashMap<>();
         progress.report(0,rows.length(),"Analisando trechos");
         List<float[]> vs=new ArrayList<>();List<JSONObject> hits=new ArrayList<>();List<JSONObject> pairs=new ArrayList<>();
@@ -173,7 +185,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
             String text=rows.getJSONObject(i).getString("text");
             if(text.length()>12000)throw new IOException("Trecho muito longo: divida antes de analisar");
             float[] v=memo.get(text);
-            if(v==null){v=vector(text,active);memo.put(text,v);}
+            if(v==null){v=cachedVector(text,active);memo.put(text,v);}
             if(q!=null){double score=cosine(q,v);if(SemanticRanking.relevant(score,true))hits.add(new JSONObject().put("i",i).put("score",score));}
             double best=-2;int match=-1;
             JSONObject row=rows.getJSONObject(i);
@@ -194,7 +206,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
         for(JSONObject pair:pairs){if(diverse.size()>=20)break;if(SemanticRanking.acceptPair(pair.getInt("i"),pair.getInt("j"),usage))diverse.add(pair);}
         return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)
           .put("hits",new JSONArray(hits.subList(0,Math.min(20,hits.size()))))
-          .put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("recurrenceMin",SemanticRanking.RECURRENCE_MIN)
+          .put("cacheReused",reused).put("cacheComputed",computed).put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("recurrenceMin",SemanticRanking.RECURRENCE_MIN)
           .put("pairs",new JSONArray(diverse));
     }
     @Override public void close() throws OrtException {if(session!=null)session.close();}
