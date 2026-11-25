@@ -27,7 +27,8 @@ final class LocalLlmEngine {
   File model=EcoModelAssets.materialize(c,"llm/model.gguf","eco-qwen-6dd44a1.gguf",SHA,active);
   if(!active.getAsBoolean())throw new CancellationException();
   File exe=new File(c.getApplicationInfo().nativeLibraryDir,"libeco_generate.so");
-  Process p=new ProcessBuilder(exe.getAbsolutePath(),model.getAbsolutePath()).redirectError(ProcessBuilder.Redirect.to(new File("/dev/null"))).start();
+  ProcessBuilder builder=perspective?new ProcessBuilder(exe.getAbsolutePath(),model.getAbsolutePath(),"384"):new ProcessBuilder(exe.getAbsolutePath(),model.getAbsolutePath());
+  Process p=builder.redirectError(ProcessBuilder.Redirect.to(new File("/dev/null"))).start();
   try{
    try(OutputStream out=p.getOutputStream()){out.write(prompt.getBytes(StandardCharsets.UTF_8));}
    ByteArrayOutputStream out=new ByteArrayOutputStream();InputStream in=p.getInputStream();byte[] buffer=new byte[4096];long start=android.os.SystemClock.elapsedRealtime(),last=0;
