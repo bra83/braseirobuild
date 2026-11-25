@@ -1684,3 +1684,12 @@ test('ECO synthetic laboratory: request never includes patient record',()=>{
   js("act('ecoEditorResume','wizard')");assert.equal(js('wizardStep'),1);assert.equal(js('draft.nome'),'RASCUNHO FICTICIO');
   js("act('cancelWizard');act('ecoEditorDiscard','wizard')");assert.equal(js("ecoEditorRead('wizard')"),null);
  });
+
+test('ECO native job reattach preserves raw segments missing from WebView and preserves reviewed text',()=>{
+ const result=js("ecoMergeNativeAudio({id:'native-s',mlSegments:[{id:'job_0_1000',startMs:0,endMs:1000,text:'primeiro'},{id:'job_1000_2000',startMs:1000,endMs:2000,text:'segundo'}]},{id:'native-s',mlRevisada:'revisão profissional',mlSegments:[{id:'job_0_1000',startMs:0,endMs:1000,text:'primeiro',speaker:'paciente'}]})");
+ assert.equal(result.mlSegments.length,2);assert.equal(result.mlTranscricao,'primeiro segundo');assert.equal(result.mlRevisada,'revisão profissional');assert.equal(result.mlSegments[0].speaker,'paciente');
+ const engine=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const service=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/TranscriptionService.java',import.meta.url),'utf8');
+ const activity=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(service,/static MlSessionEngine engine/);assert.match(engine,/WeakReference<Activity>/);assert.match(activity,/TranscriptionService\.detach\(this\)/);assert.doesNotMatch(activity,/ml\.destroy\(\)/);
+});
