@@ -271,7 +271,8 @@ final class MlSessionEngine implements RecognitionListener {
                             }
                             @Override public void progress(long processedMs) {
                                 synchronized(MlSessionEngine.this){
-                                    if(mine==generation && processedMs>resumeFromMs)
+                                    // Advance only after a complete chunk and successful segment commits.
+                                    if(mine==generation && wanted && !pauseRequested && !discarding && !destroyed && processedMs>resumeFromMs)
                                         resumeFromMs=processedMs;
                                 }
                             }
@@ -479,7 +480,12 @@ final class MlSessionEngine implements RecognitionListener {
         }
         if(!paused||retainedUri==null){events.state("NÃO EXISTE TRANSCRIÇÃO PAUSADA");return;}
         wanted=true;pauseRequested=false;discarding=false;userExplicitDiscard=false;deferRecognitionUntilResume=false;
-        resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;lastChunksProcessed=0;
+        // Only an owned, authenticated spool in this live engine may skip its completed prefix.
+        // External URIs may change, and process-death recovery still requires a verified replay.
+        boolean trustedPrefix=recordedFile!=null && recordedEphemeralKey!=null
+                && retainedUri.equals(Uri.fromFile(recordedFile)) && resumeFromMs>0;
+        if(!trustedPrefix){resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;}
+        lastChunksProcessed=0;
         beginFile();
     }
     synchronized void discardRemainingAudio(){
