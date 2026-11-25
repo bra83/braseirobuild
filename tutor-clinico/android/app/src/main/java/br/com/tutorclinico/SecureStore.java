@@ -587,6 +587,69 @@ final class SecureStore {
             }else if(any(db,t.table,null))throw new SecurityException("Restauração integral exige um cofre vazio");
         }
     }
+    private static void validatePortableRow(SQLiteDatabase db,VaultTable t,ContentValues v,String clear,boolean diary)throws Exception{
+        for(String key:t.keys)if(v.getAsString(key)==null||v.getAsString(key).isEmpty())
+            throw new SecurityException("Identificador ausente");
+        String caseId=v.getAsString("case_id");
+        if(caseId!=null&&!caseId.isEmpty()&&!caseExists(db,caseId))throw new SecurityException("Caso não localizado");
+        switch(t.table){
+            case "_pacientes":case "sessoes":case "agenda":case "eco_attachments":{
+                JSONObject data=new JSONObject(clear);
+                if(!v.getAsString("id").equals(data.optString("id")))throw new SecurityException("Identificador de conteúdo divergente");
+                if(data.has("caseId")&&caseId!=null&&!caseId.equals(data.optString("caseId")))throw new SecurityException("Propriedade de registro divergente");
+                if(t.table.equals("_pacientes")&&data.has("diarioNotas"))throw new SecurityException("Diário fora do cofre segregado");
+                break;
+            }
+            case "segmentos":{
+                Long a=v.getAsLong("start_ms"),b=v.getAsLong("end_ms");
+                if(a==null||b==null||a<0||b<a||!EcoDatabaseHelper.computeChecksum(clear).equals(v.getAsString("checksum")))
+                    throw new SecurityException("Trecho inconsistente");
+                break;
+            }
+            case "rascunhos":{
+                JSONObject data=new JSONObject(clear);
+                if(data.has("caseId")&&!caseId.equals(data.optString("caseId")))throw new SecurityException("Rascunho de outro caso");
+                break;
+            }
+            case "diario_privado":
+                if(!diary)throw new SecurityException("Diário sem autorização");
+                new JSONObject(clear);break;
+            case "eco_revisions":{
+                JSONObject data=new JSONObject(clear);String kind=v.getAsString("kind"),id=v.getAsString("entity_id");
+                if(!("session".equals(kind)||"agenda".equals(kind))||id==null||!id.equals(data.optString("id")))
+                    throw new SecurityException("Histórico incompatível");
+                if("agenda".equals(kind)&&!caseId.equals(data.optString("caseId")))throw new SecurityException("Histórico de outro caso");
+                if("session".equals(kind))try(Cursor c=db.query("sessoes",new String[]{"case_id"},"id=?",new String[]{id},null,null,null)){
+                    if(c.moveToFirst()&&!caseId.equals(c.getString(0)))throw new SecurityException("Histórico de outro caso");
+                }
+                break;
+            }
+            case "configuracoes":{
+                String key=v.getAsString("chave");
+                if(!portableConfig(key,diary))throw new SecurityException("Configuração não portátil");
+                if(key.equals("app_state_meta")){
+                    JSONObject data=new JSONObject(clear);
+                    if(data.has("cases")||data.has("appointments")||data.has("attachmentBundle")||data.has("nativeRecoveryBundle"))
+                        throw new SecurityException("Metadados de raiz inválidos");
+                }else if(key.startsWith("form_draft:")){
+                    JSONObject data=new JSONObject(clear);String id=data.getString("caseId");
+                    if(!key.equals("form_draft:"+id)||!caseExists(db,id)||!(data.opt("session") instanceof JSONObject))
+                        throw new SecurityException("Rascunho inválido");
+                }else if(key.startsWith("editor_draft:")){
+                    String slot=key.substring("editor_draft:".length());JSONObject data=validateEditor(slot,clear);
+                    if("appointment".equals(slot)&&!caseExists(db,data.getJSONObject("value").getString("caseId")))
+                        throw new SecurityException("Consulta sem caso");
+                }else if(key.startsWith("clinical_draft:")){
+                    JSONObject data=new JSONObject(clear);String id=data.getString("caseId"),kind=data.getString("kind");
+                    if(!key.equals(clinicalDraftKey(id,kind))||(!"__eco_admin__".equals(id)&&!caseExists(db,id))||
+                        data.optString("id").isEmpty()||!(data.opt("fields") instanceof JSONObject)||!(data.opt("base") instanceof JSONObject))
+                        throw new SecurityException("Rascunho clínico inválido");
+                }
+                break;
+            }
+            default:break;
+        }
+    }
     synchronized int restoreFullVault(java.io.InputStream source,char[] password,java.util.function.BooleanSupplier active)throws Exception{
         SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);ensureRevisionTable(db);
         db.beginTransaction();
@@ -602,12 +665,12 @@ final class SecureStore {
                 while(true){
                     checkArchiveActive(active);int marker=in.readUnsignedByte();if(marker==0)break;
                     if(marker!=1||(!diary&&t.table.equals("diario_privado")))throw new SecurityException("Registro inválido");
-                    ContentValues values=new ContentValues();
+                    ContentValues values=new ContentValues();String clear=null;
                     for(String col:t.cols){
                         int type=in.readUnsignedByte();
                         if(col.equals(t.encrypted)){
                             if(type!=3)throw new SecurityException("Campo cifrado inválido");
-                            values.put(col,encryptRecord(readVaultText(in)));
+                            clear=readVaultText(in);values.put(col,encryptRecord(clear));
                         }else if(type==0)values.putNull(col);
                         else if(type==1)values.put(col,in.readLong());
                         else if(type==2)values.put(col,readVaultText(in));
@@ -618,6 +681,7 @@ final class SecureStore {
                         if(k==null||!portableConfig(k,diary))throw new SecurityException("Configuração não portátil");
                     }
                     if(t.table.equals("processamento_jobs")&&!"".equals(values.getAsString("audio_path")))throw new SecurityException("Caminho de áudio não portátil");
+                    validatePortableRow(db,t,values,clear,diary);
                     db.insertOrThrow(t.table,null,values);
                     count=Math.addExact(count,1);
                 }
