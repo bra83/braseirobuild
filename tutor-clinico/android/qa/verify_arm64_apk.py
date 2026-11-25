@@ -45,6 +45,10 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     osd_gate=json.loads(z.read("assets/overlap/gate.txt"))
     assert osd_gate["sha256"]=="220ad67ca923bef2fa91f2390c786097bf305bceb5e261d4af67b38e938e1079" and osd_gate["clinical_validation"] is False
     assert osd_gate["contract"]=="1x1x160000 -> 1x589x7"
+    assert osd_gate["synthetic_detection_gate"] is True
+    assert osd_gate["fixtures"]["mixed"]["frames_at_065"]>=100
+    assert osd_gate["fixtures"]["single"]["frames_at_065"]<=5
+    assert osd_gate["fixtures"]["silence"]["frames_at_065"]==0
     assert b"MIT License" in z.read("assets/overlap/license.txt")
     assert z.getinfo("assets/overlap/attribution.txt").file_size>0
     exe="lib/arm64-v8a/libeco_generate.so"
