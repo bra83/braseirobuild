@@ -74,14 +74,36 @@ final class SecureStore {
         }
     }
 
+    // Keep large ciphertexts outside Android CursorWindow's per-row size limit.
+    private static final int INLINE_BLOB=262144, MAX_RECORD_BLOB=100_000_000;
+    private static String smallBlob(String column){return "CASE WHEN length("+column+")<="+INLINE_BLOB+" THEN "+column+" ELSE NULL END AS "+column;}
+    private static byte[] readLargeBlob(SQLiteDatabase db,String table,String column,String where,String[] args) throws Exception {
+        int length;
+        try(Cursor c=db.query(table,new String[]{"length("+column+")"},where,args,null,null,null)){
+            if(!c.moveToFirst())return null;length=c.getInt(0);
+        }
+        if(length<0||length>MAX_RECORD_BLOB)throw new java.io.IOException("Registro acima do limite de recuperação");
+        ByteArrayOutputStream out=new ByteArrayOutputStream(length);
+        for(int offset=0;offset<length;offset+=INLINE_BLOB){
+            int count=Math.min(INLINE_BLOB,length-offset);
+            try(Cursor c=db.query(table,new String[]{"substr("+column+","+(offset+1)+","+count+")"},where,args,null,null,null)){
+                if(!c.moveToFirst())throw new java.io.IOException("Registro removido durante leitura");
+                byte[] part=c.getBlob(0);if(part==null||part.length!=count)throw new SecurityException("Registro cifrado incompleto");out.write(part);
+            }
+        }
+        return out.toByteArray();
+    }
+    private static byte[] readBoundedBlob(SQLiteDatabase db,Cursor cursor,String table,String column,String where,String[] args) throws Exception {
+        byte[] inline=cursor.getBlob(cursor.getColumnIndexOrThrow(column));return inline!=null?inline:readLargeBlob(db,table,column,where,args);
+    }
     synchronized String read() throws Exception {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         JSONArray casesArray = new JSONArray();
 
-        try (Cursor c = db.query("_pacientes", null, null, null, null, null, "created_at ASC")) {
+        try (Cursor c = db.query("_pacientes", new String[]{"id",smallBlob("payload_enc")}, null, null, null, null, "created_at ASC")) {
             while (c.moveToNext()) {
                 String caseId = c.getString(c.getColumnIndexOrThrow("id"));
-                byte[] blob = c.getBlob(c.getColumnIndexOrThrow("payload_enc"));
+                byte[] blob = readBoundedBlob(db,c,"_pacientes","payload_enc","id=?",new String[]{caseId});
                 JSONObject caseObj = (blob != null && blob.length > 0)
                         ? new JSONObject(dbHelper.decrypt(blob))
                         : new JSONObject();
@@ -114,11 +136,11 @@ final class SecureStore {
 
                 // Load sessions for this patient
                 JSONArray sessoes = new JSONArray();
-                try (Cursor sc = db.query("sessoes", null, "case_id = ?",
+                try (Cursor sc = db.query("sessoes", new String[]{"id","data","hora","origem",smallBlob("payload_enc")}, "case_id = ?",
                         new String[]{caseId}, null, null, "created_at ASC")) {
                     while (sc.moveToNext()) {
                         String sId = sc.getString(sc.getColumnIndexOrThrow("id"));
-                        byte[] sBlob = sc.getBlob(sc.getColumnIndexOrThrow("payload_enc"));
+                        byte[] sBlob = readBoundedBlob(db,sc,"sessoes","payload_enc","case_id=? AND id=?",new String[]{caseId,sId});
                         JSONObject sObj = (sBlob != null && sBlob.length > 0)
                                  ? new JSONObject(dbHelper.decrypt(sBlob))
                                 : new JSONObject();
@@ -158,9 +180,9 @@ final class SecureStore {
         }
 
         JSONArray apptsArray = new JSONArray();
-        try (Cursor c = db.query("agenda", null, null, null, null, null, "data ASC, hora ASC")) {
+        try (Cursor c = db.query("agenda", new String[]{"id",smallBlob("payload_enc")}, null, null, null, null, "data ASC, hora ASC")) {
             while (c.moveToNext()) {
-                byte[] blob = c.getBlob(c.getColumnIndexOrThrow("payload_enc"));
+                byte[] blob = readBoundedBlob(db,c,"agenda","payload_enc","id=?",new String[]{c.getString(0)});
                 if (blob != null && blob.length > 0) {
                     apptsArray.put(new JSONObject(dbHelper.decrypt(blob)));
                 }
@@ -169,9 +191,9 @@ final class SecureStore {
 
         JSONObject root = new JSONObject();
         // Reconstruct root metadata (theme, activeEngine, settings, etc.) from configuracoes unconditionally
-        try (Cursor cfgCursor = db.query("configuracoes", new String[]{"valor_enc"}, "chave = ?", new String[]{"app_state_meta"}, null, null, null)) {
+        try (Cursor cfgCursor = db.query("configuracoes", new String[]{smallBlob("valor_enc")}, "chave = ?", new String[]{"app_state_meta"}, null, null, null)) {
             if (cfgCursor.moveToFirst()) {
-                byte[] blob = cfgCursor.getBlob(0);
+                byte[] blob = readBoundedBlob(db,cfgCursor,"configuracoes","valor_enc","chave=?",new String[]{"app_state_meta"});
                 if (blob != null && blob.length > 0) {
                     JSONObject meta = new JSONObject(dbHelper.decrypt(blob));
                     java.util.Iterator<String> keys = meta.keys();
@@ -260,8 +282,8 @@ final class SecureStore {
         }finally{db.endTransaction();}
     }
     synchronized String readFormDraft(String caseId) throws Exception {
-        try(Cursor c=dbHelper.getReadableDatabase().query("configuracoes",new String[]{"valor_enc"},"chave=?",new String[]{"form_draft:"+caseId},null,null,null)){
-            return c.moveToFirst()?dbHelper.decrypt(c.getBlob(0)):"";
+        SQLiteDatabase db=dbHelper.getReadableDatabase();try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{"form_draft:"+caseId},null,null,null)){
+            return c.moveToFirst()?dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{"form_draft:"+caseId})):"";
         }
     }
     synchronized void clearFormDraft(String caseId,String sessionId) throws Exception {
@@ -281,16 +303,16 @@ final class SecureStore {
     synchronized String sessionVersions(String caseId,String sessionId) throws Exception {
         SQLiteDatabase db=dbHelper.getWritableDatabase();ensureRevisionTable(db);
         JSONArray versions=new JSONArray();
-        try(Cursor c=db.query("eco_revisions",new String[]{"seq","captured_at","payload_enc"},"kind=? AND case_id=? AND entity_id=?",new String[]{"session",caseId,sessionId},null,null,"seq DESC")){
+        try(Cursor c=db.query("eco_revisions",new String[]{"seq","captured_at"},"kind=? AND case_id=? AND entity_id=?",new String[]{"session",caseId,sessionId},null,null,"seq DESC")){
             while(c.moveToNext())versions.put(new JSONObject().put("id",c.getLong(0)).put("date",c.getLong(1)));
         }
         return versions.toString();
     }
     synchronized String sessionVersion(String caseId,String sessionId,long seq) throws Exception {
         SQLiteDatabase db=dbHelper.getWritableDatabase();ensureRevisionTable(db);
-        try(Cursor c=db.query("eco_revisions",new String[]{"payload_enc"},"kind=? AND case_id=? AND entity_id=? AND seq=?",new String[]{"session",caseId,sessionId,Long.toString(seq)},null,null,null)){
+        try(Cursor c=db.query("eco_revisions",new String[]{smallBlob("payload_enc")},"kind=? AND case_id=? AND entity_id=? AND seq=?",new String[]{"session",caseId,sessionId,Long.toString(seq)},null,null,null)){
             if(!c.moveToFirst())throw new IllegalArgumentException("Versão indisponível");
-            return dbHelper.decrypt(c.getBlob(0));
+            return dbHelper.decrypt(readBoundedBlob(db,c,"eco_revisions","payload_enc","kind=? AND case_id=? AND entity_id=? AND seq=?",new String[]{"session",caseId,sessionId,Long.toString(seq)}));
         }
     }
 
@@ -492,7 +514,7 @@ final class SecureStore {
                     // Unchanged sessions retain their ciphertext and timestamps, avoiding
                     // WAL amplification when only a patient field or another session changes.
                     java.util.Map<String, byte[]> existingSessions = new java.util.HashMap<>();
-                    try (Cursor existing = db.query("sessoes", new String[]{"id", "payload_enc"},
+                    try (Cursor existing = db.query("sessoes", new String[]{"id", smallBlob("payload_enc")},
                             "case_id = ?", new String[]{caseId}, null, null, null)) {
                         while (existing.moveToNext()) {
                             existingSessions.put(existing.getString(0), existing.getBlob(1));
@@ -506,6 +528,7 @@ final class SecureStore {
 
                         String sessionPayload = sObj.toString();
                         byte[] existingPayload = existingSessions.get(sId);
+                        if(existingPayload==null&&existingSessions.containsKey(sId))existingPayload=readLargeBlob(db,"sessoes","payload_enc","case_id=? AND id=?",new String[]{caseId,sId});
                         if (existingPayload != null && sessionPayload.equals(dbHelper.decrypt(existingPayload))) {
                             continue;
                         }
@@ -533,8 +556,8 @@ final class SecureStore {
             // Preserve prior appointments transactionally when their payload is modified or removed.
             java.util.Map<String,byte[]> oldAgenda=new java.util.HashMap<>();
             java.util.Map<String,String> oldAgendaCase=new java.util.HashMap<>();
-            try(Cursor c=db.query("agenda",new String[]{"id","case_id","payload_enc"},null,null,null,null,null)){
-                while(c.moveToNext()){oldAgenda.put(c.getString(0),c.getBlob(2));oldAgendaCase.put(c.getString(0),c.getString(1));}
+            try(Cursor c=db.query("agenda",new String[]{"id","case_id",smallBlob("payload_enc")},null,null,null,null,null)){
+                while(c.moveToNext()){oldAgenda.put(c.getString(0),readBoundedBlob(db,c,"agenda","payload_enc","id=?",new String[]{c.getString(0)}));oldAgendaCase.put(c.getString(0),c.getString(1));}
             }
             java.util.Set<String> nextAgenda=new java.util.HashSet<>();
             for(int i=0;i<appts.length();i++){
