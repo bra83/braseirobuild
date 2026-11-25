@@ -884,6 +884,54 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+    // A completed decoder chunk is distinct from the timestamp of the last recognized word.
+    // Only the authenticated temporary recording can resume from this checkpoint.
+    synchronized java.util.Set<String> verifiedPrefixIds(String jobId,long offsetMs) {
+        java.util.Set<String> ids=new java.util.HashSet<>();
+        try(Cursor c=getReadableDatabase().rawQuery("SELECT id FROM segmentos WHERE job_id=? AND end_ms<=?",new String[]{jobId,Long.toString(offsetMs)})){
+            while(c.moveToNext())ids.add(c.getString(0));
+        }
+        return ids;
+    }
+    synchronized void saveDecoderCheckpoint(String jobId,String model,long offsetMs,java.util.Set<String> emitted,String speakers,boolean diarization) throws Exception {
+        if(offsetMs<=0||offsetMs%50!=0) return; // precise PCM boundary, never round an incomplete final frame
+        SQLiteDatabase db=getWritableDatabase();db.beginTransaction();
+        byte[] key=null;
+        try{
+            JSONObject job=getJob(jobId);
+            if(job==null||!"PROCESSING".equals(job.optString("state")))throw new SecurityException("Job indisponível");
+            key=getJobKey(jobId);
+            if(key==null||key.length!=32)throw new SecurityException("Chave temporária indisponível");
+            java.util.Set<String> prefix=verifiedPrefixIds(jobId,offsetMs);
+            if(!prefix.equals(emitted)||prefix.size()!=getCommittedSegmentCount(jobId))throw new SecurityException("Prefixo não confirmado");
+            JSONObject state=new JSONObject().put("job",jobId).put("model",model).put("offset",offsetMs)
+                .put("count",prefix.size()).put("speakers",speakers).put("diarization",diarization);
+            Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE,new javax.crypto.spec.SecretKeySpec(key,"AES"));
+            cipher.updateAAD(jobId.getBytes(StandardCharsets.UTF_8));
+            byte[] encrypted=cipher.doFinal(state.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] iv=cipher.getIV(),envelope=new byte[iv.length+encrypted.length];
+            System.arraycopy(iv,0,envelope,0,iv.length);System.arraycopy(encrypted,0,envelope,iv.length,encrypted.length);
+            saveAppConfig("asr_checkpoint:"+jobId,android.util.Base64.encodeToString(envelope,android.util.Base64.NO_WRAP));
+            db.setTransactionSuccessful();
+        }finally{if(key!=null)Arrays.fill(key,(byte)0);db.endTransaction();}
+    }
+    synchronized JSONObject readDecoderCheckpoint(String jobId,String model,byte[] key) throws Exception {
+        String raw=getAppConfig("asr_checkpoint:"+jobId);
+        if(raw==null||raw.isEmpty())return null;
+        if(key==null||key.length!=32||raw.length()>500000)throw new SecurityException("Checkpoint inválido");
+        byte[] envelope=android.util.Base64.decode(raw,android.util.Base64.NO_WRAP);
+        if(envelope.length<29)throw new SecurityException("Checkpoint incompleto");
+        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE,new javax.crypto.spec.SecretKeySpec(key,"AES"),new GCMParameterSpec(128,Arrays.copyOfRange(envelope,0,12)));
+        cipher.updateAAD(jobId.getBytes(StandardCharsets.UTF_8));
+        JSONObject state=new JSONObject(new String(cipher.doFinal(Arrays.copyOfRange(envelope,12,envelope.length)),StandardCharsets.UTF_8));
+        long offset=state.getLong("offset");
+        if(!jobId.equals(state.getString("job"))||!model.equals(state.getString("model"))||offset<=0||offset%50!=0
+                ||state.getInt("count")!=verifiedPrefixIds(jobId,offset).size())throw new SecurityException("Checkpoint incompatível");
+        return state;
+    }
+
     synchronized boolean markJobDecoded(String jobId, int finalTotalSegments, int chunksProcessed) {
         if (jobId == null || jobId.trim().isEmpty()) return false;
         if (finalTotalSegments < 0 || chunksProcessed <= 0) return false;
@@ -936,10 +984,14 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
             cv.putNull("audio_key_enc");
             cv.put("audio_path", "");
             cv.put("updated_at", System.currentTimeMillis());
-            int rows = db.update("processamento_jobs", cv,
-                    "job_id = ? AND state IN ('COMMITTED','COMPLETED','DISCARDED','FAILED_EMPTY')",
-                    new String[]{jobId.trim()});
-            return rows == 1;
+            db.beginTransaction();
+            try{
+                int rows = db.update("processamento_jobs", cv,
+                        "job_id = ? AND state IN ('COMMITTED','COMPLETED','DISCARDED','FAILED_EMPTY')",
+                        new String[]{jobId.trim()});
+                if(rows==1){db.delete("configuracoes","chave=?",new String[]{"asr_checkpoint:"+jobId.trim()});db.setTransactionSuccessful();}
+                return rows==1;
+            }finally{db.endTransaction();}
         } catch (Exception e) {
             android.util.Log.e("EcoDatabaseHelper", "Falha ao limpar chave do job: " + jobId, e);
             return false;
