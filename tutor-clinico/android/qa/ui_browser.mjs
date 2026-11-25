@@ -150,6 +150,16 @@ try{
  });
  assert.deepEqual(batchResult.sizes,[1200,1200,200,173]);assert.equal(batchResult.unique,2773);assert.equal(batchResult.covered,2773);
  assert.equal(batchResult.clinical,10);assert.equal(batchResult.theory,10);assert.equal(batchResult.byteBound.length,3);
+ // NLI selectors can reach a passage beyond the old 1200-row limit without dropping A.
+ const nli=await page.evaluate(()=>{
+  const c={id:'nli-large',sessoes:[{id:'long',data:'2026-11-25',origem:'manual',texto:Array.from({length:1305},(_,i)=>'Nota fictícia '+i+'.').join('\n')}]};
+  const old=[ecoNliScope,ecoNliFrom,ecoNliTo,ecoNliA,ecoNliB,ecoNliPage];
+  try{ecoNliScope='manual';ecoNliFrom='';ecoNliTo='';ecoNliA='0';ecoNliB='';ecoNliPage=13;
+   const html=ecoNliPanel(c),doc=new DOMParser().parseFromString(html,'text/html');
+   return {a:doc.querySelector('#ecoNliA').value,last:!!doc.querySelector('#ecoNliB option[value="1304"]'),count:doc.querySelector('#ecoNliB').options.length,page:doc.body.textContent.includes('Página 14 de 14')};
+  }finally{[ecoNliScope,ecoNliFrom,ecoNliTo,ecoNliA,ecoNliB,ecoNliPage]=old;}
+ });
+ assert.deepEqual(nli,{a:'0',last:true,count:6,page:true});
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
