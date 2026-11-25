@@ -1409,3 +1409,42 @@ test('ECO visit: preparation, explicit revision, history, selective internal pri
   js("act('pdfCase')");assert.equal(printed,0);assert.equal(js('tab'),'documentos');assert.equal(js('ecoDocConfirmed'),false);
  }finally{context.window.NativeVault.printReport=oldPrint;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoVisitSelected="";ecoVisitCase=""');}
 });
+
+
+test('ECO NLI: same-case pair, speaker isolation, exact scores and stale callback discarded',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK'};
+  js("state.cases=[{id:'nli-a',nome:'Fictício',sessoes:[{id:'a1',data:'2026-11-25',mlSegments:[{text:'Eu trabalho em uma farmácia.',speaker:'paciente',startMs:0},{text:'FALA_TERAPEUTA',speaker:'terapeuta',startMs:1},{text:'Eu não trabalho em uma farmácia.',speaker:'paciente',startMs:2}]}]},{id:'nli-b',nome:'Outro',sessoes:[{id:'b1',data:'2026-11-25',mlSegments:[{text:'OUTRO_CASO',speaker:'paciente'}]}]}];openedId='nli-a';screen='case';tab='compararRelatos';ecoNliScope='paciente';ecoNliFrom='';ecoNliTo='';");
+  el('#ecoNliA').value='0';el('#ecoNliB').value='1';
+  js("act('ecoNliStart','',{dataset:{case:'nli-a'}})");
+  assert.equal(payload.mode,'nli');assert.equal(payload.pairs.length,1);
+  assert.equal(payload.pairs[0].a,'Eu trabalho em uma farmácia.');assert.equal(payload.pairs[0].b,'Eu não trabalho em uma farmácia.');
+  assert.doesNotMatch(JSON.stringify(payload),/FALA_TERAPEUTA|OUTRO_CASO/);
+  const response={id:payload.id,model:'test-native',labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.8,.1,.1],ba:[.7,.2,.1]}]};
+  context.window.nativeSemanticResult(JSON.stringify(response));
+  assert.match(js('caseScreen()'),/80.0%/);assert.match(js('caseScreen()'),/não a veracidade/);
+  js("state.cases[0].sessoes[0].mlSegments[0].text='Corrigido'");
+  assert.doesNotMatch(js('caseScreen()'),/80.0%/);
+  js("act('ecoNliStart','',{dataset:{case:'nli-a'}})");
+  const id=payload.id;js("act('openCase','nli-b')");
+  context.window.nativeSemanticResult(JSON.stringify({...response,id}));
+  assert.equal(js('ecoNliRun'),null);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoNliReset()');}
+});
+test('ECO library semantic retrieval: only public didactic corpus, exact source and valid result',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK'};
+  js("state.cases=[{id:'private',nome:'NOME_PRIVADO_FIXTURE',sessoes:[{id:'s',texto:'TEXTO_PRIVADO_FIXTURE'}]}];act('nav','study')");
+  el('#ecoLibraryQuery').value='repetição e vínculos';
+  js("act('ecoLibraryStart')");
+  assert.equal(payload.scope,'desconhecido');assert.equal(payload.queries[0].key,'library');assert.ok(payload.rows.length>30);
+  assert.doesNotMatch(JSON.stringify(payload),/NOME_PRIVADO_FIXTURE|TEXTO_PRIVADO_FIXTURE/);
+  const i=payload.rows.findIndex(x=>x.text.includes('Transferência, repetição e elaboração'));
+  assert.ok(i>=0);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,scope:'desconhecido',count:payload.rows.length,groups:[{key:'library',hits:[{i,score:.75}]}]}));
+  assert.match(js('studyScreen()'),/Trechos recuperados/);assert.match(js('studyScreen()'),/Ler capítulo completo/);
+  js("act('nav','home')");assert.equal(js('ecoLibraryRun'),null);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoLibraryCancel()');}
+});
