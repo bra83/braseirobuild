@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.app.AlertDialog;
 import android.print.PrintManager;
+import android.print.PrintAttributes;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -523,7 +524,12 @@ public final class MainActivity extends Activity {
                 printView.setWebViewClient(new WebViewClient() {
                     @Override public void onPageFinished(WebView view, String url) {
                         PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
-                        manager.print("Relatório clínico", view.createPrintDocumentAdapter("relatorio"), null);
+                        if (!unlocked || manager == null) { view.destroy(); return; }
+                        PrintAttributes attrs = new PrintAttributes.Builder()
+                            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                            .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+                            .build();
+                        manager.print("Documento ECO", view.createPrintDocumentAdapter("Documento ECO"), attrs);
                     }
                 });
                 printView.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
