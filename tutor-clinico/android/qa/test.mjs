@@ -1469,3 +1469,29 @@ test('ECO claim review: retrieval then explicit selected NLI pairs, no global ve
   assert.doesNotMatch(js('caseScreen()'),/Implicação: 80.0%/);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoClaimCancel()');}
 });
+
+
+test('ECO complete RAG flow: retrieval, dedicated reranking, explicit generation, source order and invalidation',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK'};
+  js("state.cases=[{id:'rag-a',nome:'Fictício',sessoes:[{id:'s1',data:'2026-11-25',mlSegments:[{text:'Tenho dificuldade para dormir.',speaker:'paciente',startMs:0},{text:'Gosto de tocar violão.',speaker:'paciente',startMs:1000},{text:'FALA_TERAPEUTA',speaker:'terapeuta',startMs:2000}]}]},{id:'rag-b',nome:'Outro',sessoes:[{id:'s2',data:'2026-11-25',mlSegments:[{text:'OUTRO_CASO',speaker:'paciente'}]}]}];openedId='rag-a';screen='case';tab='assistenteIA';ecoAiScope='paciente';");
+  el('#ecoAiQuery').value='O que foi relatado sobre sono?';js("act('ecoAiStart','',{dataset:{case:'rag-a'}})");
+  assert.equal(payload.rows.length,2);assert.doesNotMatch(JSON.stringify(payload),/FALA_TERAPEUTA|OUTRO_CASO/);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:2,scope:'paciente',hits:[{i:1,score:.8},{i:0,score:.7}]}));
+  assert.equal(payload.mode,'rerank');assert.equal(payload.rows[0].text,'Gosto de tocar violão.');
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:2,hits:[{i:1,score:.9},{i:0,score:.1}],skipped:[]}));
+  assert.equal(js('ecoAiRun.phase'),'ready');assert.equal(js('ecoAiRun.ranked[0].i'),0);
+  el('#ecoAiPick_0').checked=true;el('#ecoAiPick_1').checked=false;
+  js("act('ecoAiGenerate','',{dataset:{case:'rag-a'}})");
+  assert.equal(payload.mode,'generate');assert.equal(payload.sources.length,1);assert.equal(payload.sources[0].text,'Tenho dificuldade para dormir.');
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,sourceCount:1,clinicalValidation:false,model:'fixture',draft:'Dificuldade para dormir [S1].'}));
+  assert.match(js('caseScreen()'),/Minuta não revisada/);assert.match(js('caseScreen()'),/Dificuldade para dormir \[S1\]/);
+  assert.doesNotMatch(js('JSON.stringify(state.cases)'),/Dificuldade para dormir \[S1\]/);
+  js("state.cases[0].sessoes[0].mlSegments[0].text='Corrigido'");assert.doesNotMatch(js('caseScreen()'),/Minuta não revisada/);
+  js("act('ecoAiScope','teoria')");el('#ecoAiQuery').value='repetição';js("act('ecoAiStart','',{dataset:{case:'rag-a'}})");
+  assert.equal(payload.scope,'desconhecido');assert.doesNotMatch(JSON.stringify(payload),/OUTRO_CASO|FALA_TERAPEUTA|Corrigido|Gosto de tocar violão/);
+  const id=payload.id;js("act('openCase','rag-b')");context.window.nativeSemanticResult(JSON.stringify({id,count:1,hits:[]}));
+  assert.equal(js('ecoAiRun'),null);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoAiCancel()');}
+});
