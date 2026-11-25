@@ -1723,3 +1723,34 @@ test('ECO bibliographic inventory: each author entry has an actual catalogue loc
  assert.equal(js("ecoBibliographicStatus('referência desconhecida').url"),'');
  assert.equal(js("ecoPerspectiveCatalogRows('Lingiardi').every(x=>x.ref.includes('2026')&&x.ref.includes('40948049'))"),true);
 });
+
+
+test('ECO large attachment archive controls require password and use separate bridge',()=>{
+ assert.match(js('settingsScreen()'),/Exportar backup clínico sem anexos/);
+ assert.match(js('settingsScreen()'),/Exportar anexos em grande volume/);
+ let calls=[];
+ context.window.NativeVault.attachmentArchive=(pass,ex)=>{calls.push([pass,ex]);};
+ context.window.NativeVault.exportClinicalBackupOnly=(pass,diary)=>{calls.push([pass,diary]);};
+ elems['#backupPass']={value:'curta'};
+ js("act('ecoArchiveExport')");
+ assert.equal(calls.length,0);
+ elems['#backupPass'].value='eco-fixture-password';
+ js("act('ecoArchiveExport')");
+ assert.deepEqual(calls[0],['eco-fixture-password',true]);
+ assert.equal(elems['#backupPass'].value,'');
+ elems['#backupPass'].value='eco-fixture-password';
+ js("act('ecoArchiveImport')");
+ assert.deepEqual(calls[1],['eco-fixture-password',false]);
+ elems['#backupPass'].value='eco-fixture-password';
+ js("act('ecoClinicalBackupOnly')");
+ assert.deepEqual(calls[2],['eco-fixture-password',false]);
+});
+test('ECO neural overlap filter preserves anonymous status and explicit uncertainty',()=>{
+ context.osdFixture=[{text:'fala fictícia simultânea',speaker:'desconhecido',cluster:'sobreposicao',startMs:1000,endMs:2000},{text:'uma voz',speaker:'desconhecido',cluster:'falante3',startMs:2000,endMs:3000}];
+ assert.match(js('ecoSpeakerLabel(osdFixture[0])'),/Possível sobreposição de vozes/);
+ assert.equal(js("ecoSpeakerRows(osdFixture,'sobreposicao').length"),1);
+ assert.equal(js("ecoSpeakerRows(osdFixture,'paciente').length"),0);
+ assert.equal(js("ecoSpeakerRows(osdFixture,'falante3').length"),1);
+ const native=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
+ assert.match(native,/SpeakerTimeline\.OVERLAP\.equals\(role\)/);
+});
