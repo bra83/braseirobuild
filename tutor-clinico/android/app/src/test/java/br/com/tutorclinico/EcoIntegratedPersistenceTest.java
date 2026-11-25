@@ -191,4 +191,34 @@ public class EcoIntegratedPersistenceTest {
         assertEquals("segunda nota",byId(restored,"incremental-b").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
         store.getDbHelper().close();
     }
+
+    @Test public void duplicateIdsRejectedAndImportedTextSurvivesReopen() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        String transcript="Paciente: Texto fictício com acentos.\\nTerapeuta: Pergunta fictícia.";
+        JSONObject a=caseWith("import-a","nota original"),b=caseWith("import-b","outro caso");
+        JSONObject session=a.getJSONArray("sessoes").getJSONObject(0);
+        session.put("origem","texto").put("mlTranscricao",transcript).put("importRolesConfirmed",true)
+            .put("mlSegments",new JSONArray().put(new JSONObject().put("text","Texto fictício com acentos.").put("speaker","paciente").put("startMs",JSONObject.NULL)));
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject bad=new JSONObject(root.toString());
+        bad.getJSONArray("cases").getJSONObject(0).put("nome","NÃO GRAVAR");
+        bad.getJSONArray("cases").getJSONObject(1).getJSONArray("sessoes").getJSONObject(0).put("id","import-a-s");
+        try { store.save(bad.toString()); fail("duplicate session ID accepted"); } catch(IllegalArgumentException expected) {}
+        store.getDbHelper().close();store=new SecureStore(context,key);
+        JSONObject read=new JSONObject(store.read());
+        assertEquals(a.getString("nome"),byId(read,"import-a").getString("nome"));
+        JSONObject restored=byId(read,"import-a").getJSONArray("sessoes").getJSONObject(0);
+        assertEquals(transcript,restored.getString("mlTranscricao"));
+        assertEquals("texto",restored.getString("origem"));
+        assertTrue(restored.getJSONArray("mlSegments").getJSONObject(0).isNull("startMs"));
+        assertEquals("paciente",restored.getJSONArray("mlSegments").getJSONObject(0).getString("speaker"));
+        assertEquals("outro caso",byId(read,"import-b").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        byte[] backup=SecureStore.encryptBackup(read.toString(),"eco-fixture-2026");
+        assertEquals(read.toString(),SecureStore.decryptBackup(backup,"eco-fixture-2026"));
+        try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("PRAGMA integrity_check",null)){assertTrue(c.moveToFirst());assertEquals("ok",c.getString(0));}
+        store.getDbHelper().close();
+    }
 }
