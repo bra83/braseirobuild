@@ -30,6 +30,13 @@ final class AuthenticatedSpoolReader {
     }
     static int read(InputStream source, byte[] key, BooleanSupplier active,
                     boolean allowInterrupted, Consumer receiver) throws Exception {
+        return readInternal(source,key,active,allowInterrupted,receiver,null);
+    }
+    static int readLive(LiveSpoolInput source,byte[] key,BooleanSupplier active,Consumer receiver) throws Exception{
+        return readInternal(new java.io.BufferedInputStream(source),key,active,true,receiver,source);
+    }
+    private static int readInternal(InputStream source,byte[] key,BooleanSupplier active,
+                    boolean allowInterrupted,Consumer receiver,LiveSpoolInput live) throws Exception{
         if(key==null||key.length!=32) throw new SecurityException("Chave de áudio inválida");
         DataInputStream in=new DataInputStream(source);
         byte[] magic=new byte[4];in.readFully(magic);
@@ -57,7 +64,7 @@ final class AuthenticatedSpoolReader {
             byte[] plain=cipher.doFinal(ciphertext); // bad authentication is never salvageable as an EOF
             try {
                 if(index==0xffffffffL){
-                    if(!Arrays.equals(plain,EOF_TOKEN)||bytes!=expected||chunks==0||in.read()!=-1)
+                    if(!Arrays.equals(plain,EOF_TOKEN)||bytes!=(live==null?expected:live.finalHeaderLength())||chunks==0||in.read()!=-1)
                         throw new SecurityException("Final ECO2 adulterado");
                     return active.getAsBoolean()?chunks:0;
                 }
