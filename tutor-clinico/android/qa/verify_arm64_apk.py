@@ -39,6 +39,14 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert z.getinfo("assets/rerank/vocab.txt").file_size>0
     for name in ["assets/rerank/attribution.txt","assets/llm/attribution.txt","assets/llm/llama-license.txt"]:
         assert z.getinfo(name).file_size>0
+    osd=z.getinfo("assets/overlap/model.onnx")
+    assert osd.compress_type==zipfile.ZIP_STORED
+    assert hashlib.sha256(z.read(osd)).hexdigest()=="220ad67ca923bef2fa91f2390c786097bf305bceb5e261d4af67b38e938e1079"
+    osd_gate=json.loads(z.read("assets/overlap/gate.txt"))
+    assert osd_gate["sha256"]=="220ad67ca923bef2fa91f2390c786097bf305bceb5e261d4af67b38e938e1079" and osd_gate["clinical_validation"] is False
+    assert osd_gate["contract"]=="1x1x160000 -> 1x589x7"
+    assert b"MIT License" in z.read("assets/overlap/license.txt")
+    assert z.getinfo("assets/overlap/attribution.txt").file_size>0
     exe="lib/arm64-v8a/libeco_generate.so"
     assert exe in libs
     with z.open(exe) as f: elf=f.read(64)
