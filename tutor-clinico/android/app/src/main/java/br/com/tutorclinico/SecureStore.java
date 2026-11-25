@@ -470,6 +470,74 @@ final class SecureStore {
         }
     }
 
+    // Companion archive for large attachment collections. Case records must
+    // already exist on restore; no existing attachment is overwritten.
+    private static final int ATTACHMENT_ARCHIVE_MAGIC=0x45415431, ARCHIVE_META_MAX=65536;
+    private static final long ATTACHMENT_ARCHIVE_MAX=8L*1024*1024*1024;
+    private static void checkArchiveActive(java.util.function.BooleanSupplier active)throws java.io.IOException{
+        if(!active.getAsBoolean())throw new java.io.IOException("Operação cancelada");
+    }
+    synchronized int exportAttachmentArchive(java.io.OutputStream target,char[] password,java.util.function.BooleanSupplier active)throws Exception{
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);db.beginTransaction();
+        try(EcoBackupStream.Writer writer=new EcoBackupStream.Writer(target,password)){
+            java.io.DataOutputStream out=new java.io.DataOutputStream(writer);
+            out.writeInt(ATTACHMENT_ARCHIVE_MAGIC);long total=8;int count=0;
+            try(Cursor c=db.query("eco_attachments",new String[]{"id","case_id","meta_enc"},null,null,null,null,"id ASC")){
+                while(c.moveToNext()){
+                    checkArchiveActive(active);
+                    byte[] meta=dbHelper.decrypt(c.getBlob(2)).getBytes(StandardCharsets.UTF_8);
+                    byte[] data=null;
+                    try{
+                        if(meta.length<1||meta.length>ARCHIVE_META_MAX)throw new java.io.IOException("Metadados acima do limite");
+                        data=attachmentBytes(c.getString(1),c.getString(0));
+                        total+=8L+meta.length+data.length;
+                        if(total>ATTACHMENT_ARCHIVE_MAX)throw new java.io.IOException("Arquivo acima de 8 GiB");
+                        out.writeInt(meta.length);out.write(meta);out.writeInt(data.length);out.write(data);count++;
+                    }finally{Arrays.fill(meta,(byte)0);if(data!=null)Arrays.fill(data,(byte)0);}
+                }
+            }
+            checkArchiveActive(active);out.writeInt(0);writer.finish();db.setTransactionSuccessful();return count;
+        }finally{db.endTransaction();}
+    }
+    synchronized int restoreAttachmentArchive(java.io.InputStream source,char[] password,java.util.function.BooleanSupplier active)throws Exception{
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);db.beginTransaction();
+        try(EcoBackupStream.Reader reader=new EcoBackupStream.Reader(source,password,ATTACHMENT_ARCHIVE_MAX)){
+            java.io.DataInputStream in=new java.io.DataInputStream(reader);
+            if(in.readInt()!=ATTACHMENT_ARCHIVE_MAGIC)throw new SecurityException("Arquivo não é backup de anexos ECO");
+            int count=0;String previous=null;
+            while(true){
+                checkArchiveActive(active);int n=in.readInt();
+                if(n==0)break;
+                if(n<0||n>ARCHIVE_META_MAX)throw new SecurityException("Metadados inválidos");
+                byte[] metaBytes=new byte[n],data=null;
+                try{
+                    in.readFully(metaBytes);
+                    JSONObject meta=new JSONObject(new String(metaBytes,StandardCharsets.UTF_8));
+                    String id=meta.getString("id"),caseId=meta.getString("caseId");
+                    if(id.isEmpty()||id.length()>200||caseId.isEmpty()||caseId.length()>200||
+                       (previous!=null&&previous.compareTo(id)>=0))throw new SecurityException("ID de anexo inválido ou duplicado");
+                    previous=id;
+                    if(!caseExists(db,caseId))throw new SecurityException("Caso ausente: restaure primeiro o backup clínico");
+                    int size=in.readInt();
+                    if(size<8||size>ATTACHMENT_LIMIT||size!=meta.getInt("bytes"))throw new SecurityException("Tamanho inválido");
+                    data=new byte[size];in.readFully(data);
+                    if(!attachmentMime(data).equals(meta.getString("mime"))||!sha256(data).equals(meta.getString("sha256")))throw new SecurityException("Anexo corrompido");
+                    boolean exists=false;
+                    try(Cursor c=db.query("eco_attachments",new String[]{"case_id","meta_enc"},"id=?",new String[]{id},null,null,null)){
+                        if(c.moveToFirst()){
+                            if(!caseId.equals(c.getString(0))||!meta.getString("sha256").equals(new JSONObject(dbHelper.decrypt(c.getBlob(1))).getString("sha256")))throw new SecurityException("Conflito de anexo");
+                            exists=true;
+                        }
+                    }
+                    if(exists){byte[] local=attachmentBytes(caseId,id);Arrays.fill(local,(byte)0);}
+                    else {insertAttachment(db,meta,data);count++;}
+                }finally{Arrays.fill(metaBytes,(byte)0);if(data!=null)Arrays.fill(data,(byte)0);}
+            }
+            if(in.read()!=-1)throw new SecurityException("Dados após o final do arquivo");
+            checkArchiveActive(active);db.setTransactionSuccessful();return count;
+        }finally{db.endTransaction();}
+    }
+
     // Capture all portable SQLite data at the same transaction boundary.
     // Private diary remains opt-in and is not copied into recovery metadata.
     synchronized JSONObject exportPortableSnapshot(boolean includePrivateDiary) throws Exception {
