@@ -87,6 +87,31 @@ final class SecureStore {
                         : new JSONObject();
                 caseObj.put("id", caseId);
 
+                // Scope the segment lookup to this patient, including the session
+                // identifier in the grouping so no other patient can contribute text.
+                java.util.Map<String, JSONArray> segmentsBySession = new java.util.HashMap<>();
+                try (Cursor segCursor = db.query("segmentos", null, "case_id = ?",
+                        new String[]{caseId}, null, null, "session_id ASC, start_ms ASC, id ASC")) {
+                    while (segCursor.moveToNext()) {
+                        String sessionId = segCursor.getString(segCursor.getColumnIndexOrThrow("session_id"));
+                        JSONObject seg = new JSONObject();
+                        seg.put("id", segCursor.getString(segCursor.getColumnIndexOrThrow("id")));
+                        seg.put("startMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("start_ms")));
+                        seg.put("endMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("end_ms")));
+                        String role = segCursor.getString(segCursor.getColumnIndexOrThrow("speaker"));
+                        seg.put("cluster", role.startsWith("falante") ? role : "");
+                        seg.put("speaker", role.startsWith("falante") ? "desconhecido" : role);
+                        seg.put("manualSpeaker", segCursor.getInt(segCursor.getColumnIndexOrThrow("speaker_confirmed")) == 1);
+                        seg.put("text", dbHelper.decrypt(segCursor.getBlob(segCursor.getColumnIndexOrThrow("text_enc"))));
+                        JSONArray sessionSegments = segmentsBySession.get(sessionId);
+                        if (sessionSegments == null) {
+                            sessionSegments = new JSONArray();
+                            segmentsBySession.put(sessionId, sessionSegments);
+                        }
+                        sessionSegments.put(seg);
+                    }
+                }
+
                 // Load sessions for this patient
                 JSONArray sessoes = new JSONArray();
                 try (Cursor sc = db.query("sessoes", null, "case_id = ?",
@@ -103,26 +128,14 @@ final class SecureStore {
                         if (!sObj.has("hora") && !sc.isNull(hourCol)) sObj.put("hora", sc.getString(hourCol));
                         sObj.put("origem", sc.getString(sc.getColumnIndexOrThrow("origem")));
 
-                        // Read committed segments from relational table segmentos
-                        JSONArray segs = new JSONArray();
+                        // A single ordered segment query per patient avoids one SQLite
+                        // cursor per session (10,000 cursors in a large manual history).
+                        JSONArray segs = segmentsBySession.get(sId);
+                        if (segs == null) segs = new JSONArray();
                         StringBuilder fullText = new StringBuilder();
-                        try (Cursor segCursor = db.query("segmentos", null, "session_id = ? AND case_id = ?",
-                                new String[]{sId, caseId}, null, null, "start_ms ASC")) {
-                            while (segCursor.moveToNext()) {
-                                JSONObject seg = new JSONObject();
-                                seg.put("id", segCursor.getString(segCursor.getColumnIndexOrThrow("id")));
-                                seg.put("startMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("start_ms")));
-                                seg.put("endMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("end_ms")));
-                                String role = segCursor.getString(segCursor.getColumnIndexOrThrow("speaker"));
-                                seg.put("cluster", role.startsWith("falante") ? role : "");
-                                seg.put("speaker", role.startsWith("falante") ? "desconhecido" : role);
-                                seg.put("manualSpeaker", segCursor.getInt(segCursor.getColumnIndexOrThrow("speaker_confirmed")) == 1);
-                                String segText = dbHelper.decrypt(segCursor.getBlob(segCursor.getColumnIndexOrThrow("text_enc")));
-                                seg.put("text", segText);
-                                segs.put(seg);
-                                if (fullText.length() > 0) fullText.append(" ");
-                                fullText.append(segText);
-                            }
+                        for (int j = 0; j < segs.length(); j++) {
+                            if (fullText.length() > 0) fullText.append(" ");
+                            fullText.append(segs.getJSONObject(j).getString("text"));
                         }
                         if (segs.length() > 0) {
                             sObj.put("segmentos", segs);
