@@ -458,6 +458,31 @@ final class SecureStore {
         }
     }
 
+    // Capture all portable SQLite data at the same transaction boundary.
+    // Private diary remains opt-in and is not copied into recovery metadata.
+    synchronized JSONObject exportPortableSnapshot(boolean includePrivateDiary) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try{
+            JSONObject export=new JSONObject(readSnapshot(db));
+            JSONArray cases=export.getJSONArray("cases");
+            for(int i=0;i<cases.length();i++){
+                JSONObject single=cases.getJSONObject(i);single.remove("diarioNotas");
+                if(includePrivateDiary)single.put("diarioNotas",new JSONArray(readPrivateDiary(single.getString("id"))));
+            }
+            String draft=readDraft();
+            if(!draft.isEmpty()){
+                JSONObject journal=new JSONObject(draft);
+                if(journal.has("__loadError"))throw new java.io.IOException("Rascunho de áudio indisponível; backup não criado");
+                export.put("mlDraft",journal);
+            }
+            export.put("attachmentBundle",exportAttachments());
+            export.put("nativeRecoveryBundle",exportNativeRecovery());
+            db.setTransactionSuccessful();
+            return export;
+        }finally{db.endTransaction();}
+    }
+
     // Portable backup stores decrypted journal data only inside the password-encrypted envelope.
     // Device-bound ciphertext must never be exported as a portable record.
     synchronized JSONObject exportNativeRecovery() throws Exception {
@@ -471,13 +496,13 @@ final class SecureStore {
                     "chave LIKE ?",new String[]{"form_draft:%"},null,null,"chave ASC")){
                 while(c.moveToNext()){
                     String key=c.getString(0),caseId=key.substring("form_draft:".length());
-                    String payload=dbHelper.decrypt(readLargeBlob(db,"configuracoes","valor_enc","chave=?",new String[]{key}));
+                    String payload=dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{key}));
                     drafts.put(new JSONObject().put("caseId",caseId).put("payload",new JSONObject(payload)));
                 }
             }
             try(Cursor c=db.query("eco_revisions",new String[]{"seq","kind","case_id","entity_id","captured_at",smallBlob("payload_enc")},null,null,null,null,"seq ASC")){
                 while(c.moveToNext()){
-                    String payload=dbHelper.decrypt(readLargeBlob(db,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
+                    String payload=dbHelper.decrypt(readBoundedBlob(db,c,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
                     revisions.put(new JSONObject().put("kind",c.getString(1)).put("caseId",c.getString(2))
                         .put("entityId",c.getString(3)).put("capturedAt",c.getLong(4)).put("payload",new JSONObject(payload)));
                 }
@@ -534,7 +559,7 @@ final class SecureStore {
             try(Cursor c=db.query("eco_revisions",new String[]{"seq",smallBlob("payload_enc")},
                     "kind=? AND case_id=? AND entity_id=? AND captured_at=?",new String[]{kind,caseId,entityId,Long.toString(captured)},null,null,null)){
                 while(c.moveToNext()){
-                    String old=dbHelper.decrypt(readLargeBlob(db,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
+                    String old=dbHelper.decrypt(readBoundedBlob(db,c,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
                     if(old.equals(data)){exists=true;break;}
                 }
             }
