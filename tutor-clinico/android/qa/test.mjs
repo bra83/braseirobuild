@@ -5,11 +5,11 @@ const html=fs.readFileSync(new URL('../app/src/main/assets/index.html',import.me
 const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(script);
 const elems={};
-function el(sel){return elems[sel] ||= {innerHTML:'',value:'',children:[],remove(){},prepend(){},querySelector(s){return elems[s]||null;},querySelectorAll(){return [];}};}
-let saved='', messages=[];
+function el(sel){return elems[sel] ||= {innerHTML:'',value:'',children:[],remove(){},prepend(){},insertAdjacentHTML(_where,html){this.innerHTML+=html;},querySelector(s){return elems[s]||null;},querySelectorAll(){return [];}};}
+let saved='', messages=[], editorDrafts={};
 const context=vm.createContext({
  document:{querySelector:el,getElementById(id){return el('#'+id);},querySelectorAll(){return [];},addEventListener(){},body:{appendChild(){}},createElement(){return {className:'',textContent:'',remove(){}}}},
- window:{scrollTo(){},NativeVault:{loadState(){return saved || JSON.stringify({version:1,cases:[],appointments:[]})},saveState(json){saved=json;return 'OK'},exportBackup(){},importBackup(){},printReport(){}}},
+ window:{scrollTo(){},NativeVault:{loadEditorDraft(slot){return editorDrafts[slot]||''},saveEditorDraft(slot,json){editorDrafts[slot]=json;return 'OK'},clearEditorDraft(slot,id){if(JSON.parse(editorDrafts[slot]||'{}').value?.id===id)delete editorDrafts[slot];return 'OK'},loadState(){return saved || JSON.stringify({version:1,cases:[],appointments:[]})},saveState(json){saved=json;return 'OK'},exportBackup(){},importBackup(){},printReport(){}}},
  setTimeout(fn){}, console,Date,Math,JSON,Number,String,Object,Array,Set,Error
 });
 vm.runInContext(script,context);
@@ -165,7 +165,7 @@ test('Cadastro de caso não exige seleção prévia de temas',()=>{
  assert.equal(js('draft.queixas.length'),0);
 });
 test('Cadastro rápido abre sessão após apenas um código',()=>{
- js("act('newCase');draft.nome='PAC-004';act('ecoSaveCaseStart')");
+ js("act('cancelWizard');act('ecoEditorDiscard','wizard');act('newCase');draft.nome='PAC-004';act('ecoSaveCaseStart')");
  assert.equal(js('screen'),'session');
  assert.equal(js('currentCase().nome'),'PAC-004');
  assert.equal(js('currentCase().queixas.length'),0);
