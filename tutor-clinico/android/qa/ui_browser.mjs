@@ -280,6 +280,7 @@ try{
  assert.ok(personal.rows>1);assert.equal(personal.exact,true);assert.equal(personal.excluded,true);assert.equal(personal.klein,true);assert.equal(personal.freud,false);
  // Residual editor tests use the persistent bridge contract with synthetic content.
  await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','seguranca');});
+ await page.locator('#safePlano').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
  await page.locator('#safePlano').fill('Plano fictício ainda não salvo.');
  await page.evaluate(()=>{act('openCase','browser-b');act('caseTab','seguranca');});
  assert.notEqual(await page.locator('#safePlano').inputValue(),'Plano fictício ainda não salvo.');
@@ -291,6 +292,7 @@ try{
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').seguranca.plano),'Plano fictício ainda não salvo.');
  assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('browser-a','res_safety')),'');
  await page.evaluate(()=>{act('caseTab','atendimento');});
+ await page.locator('#ecoPrepGoals').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
  await page.locator('#ecoPrepGoals').fill('Objetivo sintético recuperável.');
  await page.evaluate(()=>{act('caseTab','sintese');act('caseTab','atendimento');});
  await page.locator('[data-act="ecoResidualResume"][data-id="browser-a|res_prep"]').click();
@@ -299,6 +301,7 @@ try{
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoPreparation.goals),'Objetivo sintético recuperável.');
  assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('browser-a','res_prep')),'');
  await page.evaluate(()=>act('nav','settings'));
+ await page.locator('#ecoTemplateTitle').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
  await page.locator('#ecoTemplateTitle').fill('Questionário fictício recuperável');
  await page.locator('#ecoTemplateQuestions').fill('Pergunta sintética?');
  await page.evaluate(()=>{act('nav','home');act('nav','settings');});
