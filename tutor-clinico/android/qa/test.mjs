@@ -1336,3 +1336,21 @@ test('ECO investigation: question lifecycle, provenance, history and restricted 
   assert.match(js('ecoQuestionsPanel(state.cases[0])'),/Fonte removida ou alterada/);
  }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist()');}
 });
+
+
+test('ECO word cloud: frequency determines font size and case word opens exact concordance',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'cloud-case',nome:'Fictício',sessoes:[{id:'s1',data:'2026-11-25',mlSegments:[{text:'casa casa casa casa casa casa trabalho trabalho jardim',speaker:'paciente',startMs:1000},{text:'segredo segredo segredo',speaker:'terapeuta',startMs:2000}]}]}];openedId='cloud-case';screen='case';tab='analisar';ecoCaseWordSelection='';");
+  const rows=js("ecoWordRows(state.cases[0].sessoes[0],'paciente')");
+  assert.equal(rows[0].count,6);
+  const html=js('ecoCaseAnalysis(state.cases[0])');
+  assert.match(html,/font-size:44px">casa <small>6/);
+  assert.match(html,/font-size:13px">jardim <small>1/);
+  assert.doesNotMatch(html,/segredo/);
+  assert.equal(js("ecoCloudSize(3,[{count:3},{count:3}])"),22);
+  js("act('ecoCaseWord','jardim')");
+  assert.match(js('ecoCaseAnalysis(state.cases[0])'),/jardim · 1 menção/);
+  assert.doesNotMatch(js('ecoCaseAnalysis(state.cases[0])'),/casa · 6 menção/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoCaseWordSelection=""');}
+});
