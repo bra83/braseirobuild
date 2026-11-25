@@ -305,8 +305,10 @@ test('ECO G6 arquivos incrementais AES-GCM e backup inclui rascunho',()=>{
  assert.match(store,/AES\/GCM\/NoPadding/);
  assert.match(store,/draft\.aes/);
  assert.match(store,/synchronized String readDraft/);
- assert.match(main,/JSONObject journal=new JSONObject\(draft\)/);
- assert.match(main,/export\.put\("mlDraft",journal\)/);
+ assert.match(main,/store\.exportPortableSnapshot\(includePrivateDiary\)/);
+ assert.match(store,/JSONObject journal=new JSONObject\(draft\)/);
+ assert.match(store,/export\.put\("mlDraft",journal\)/);
+ assert.match(store,/export\.put\("nativeRecoveryBundle",exportNativeRecovery\(\)\)/);
  assert.match(main,/store\.saveDraft/);
 });
 test('ECO G5 PDF inclui transcricao integral, segmentos e marcacoes',()=>{
@@ -1674,3 +1676,11 @@ test('ECO synthetic laboratory: request never includes patient record',()=>{
   js("act('nav','home')");assert.equal(js('ecoLabRun'),null);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoLabCancel()');}
 });
+
+ test('ECO editor recovery keeps incomplete registration outside clinical records',()=>{
+  js("act('nav','home');act('newCase');draft.nome='RASCUNHO FICTICIO';act('wizardNext');act('cancelWizard')");
+  assert.equal(js("state.cases.some(c=>c.nome==='RASCUNHO FICTICIO')"),false);
+  assert.equal(js("ecoEditorRead('wizard').value.nome"),'RASCUNHO FICTICIO');
+  js("act('ecoEditorResume','wizard')");assert.equal(js('wizardStep'),1);assert.equal(js('draft.nome'),'RASCUNHO FICTICIO');
+  js("act('cancelWizard');act('ecoEditorDiscard','wizard')");assert.equal(js("ecoEditorRead('wizard')"),null);
+ });
