@@ -1,0 +1,68 @@
+{
+  "project": "ECO",
+  "version": "0.18.0-arm64-beta",
+  "versionCode": 23,
+  "commit": "antigravity/eco-corretivo-20261124",
+  "targetDevice": "Samsung Galaxy A57 (SM-A576B), ARM64 (arm64-v8a), Android 15 (API 35)",
+  "hardwareExecutionStatus": "BLOQUEADO (Requer conexão física via ADB ao aparelho Samsung Galaxy A57)",
+  "vmExecutionStatus": "APROVADO (Ubuntu Linux x86_64 / arm64-v8a gate ELF + Android SDK)",
+  "models": {
+    "tagarela": {
+      "model": "Parakeet TDT 0.6B PT-BR fine-tune (INT8)",
+      "hfRevision": "bf31b612b9ea9602c21b9faf0dec038ff2c9a3fc",
+      "runtime": "sherpa-onnx 1.13.3 (static-link libsherpa-onnx-jni.so, ARM64 ELF)",
+      "exportFormat": "INT8 ONNX (encoder, decoder, joiner, tokens.txt)",
+      "license": "CC-BY-4.0 / Apache-2.0",
+      "targetRTF": 0.10,
+      "estimated50MinProcessingTimeSec": 300,
+      "maxAcceptanceTimeSec": 600
+    },
+    "whisperSmall": {
+      "model": "Whisper Small Q5_1 Multilingual",
+      "runtime": "dev.ffmpegkit-maintained:whisper-android:1.0.0",
+      "sizeBytes": 182000000,
+      "targetRTF": 0.15,
+      "estimated50MinProcessingTimeSec": 450,
+      "maxAcceptanceTimeSec": 600
+    },
+    "whisperBase": {
+      "model": "Whisper Base Multilingual",
+      "runtime": "dev.ffmpegkit-maintained:whisper-android:1.0.0",
+      "sizeBytes": 142000000,
+      "targetRTF": 0.08,
+      "estimated50MinProcessingTimeSec": 240,
+      "maxAcceptanceTimeSec": 300
+    },
+    "voskDiarizer": {
+      "model": "Vosk PT-BR Small + x-vector speaker embedding",
+      "runtime": "com.alphacephei:vosk-android:0.3.47",
+      "sizeBytes": 42000000,
+      "clustering": "SpeakerClusters centroid clustering (k=2 anônimo, desvio 0.42)"
+    },
+    "neuralLayers": {
+      "embeddings": "DistilUSE-base-multilingual-cased-v2-U8U8 (512-dim, ONNX Runtime real embarcado)",
+      "reranker": "SemanticRanking com política de escuta clínica (foco no paciente, sem vazamento de rótulos)",
+      "nli": "PENDENTE / NÃO HABILITADO (Orçamento de RAM no A57 priorizado para Whisper/Tagarela e ASR)",
+      "synthesis": "Síntese com política estrita de abstenção humana, sem diagnósticos automatizados alucinados",
+      "rag": "RAG longitudinal cifrado no SQLite com isolamento estrito por case_id e referências bibliográficas verificadas"
+    }
+  },
+  "metricsTarget": {
+    "werMaxPercent": 12.5,
+    "cerMaxPercent": 4.8,
+    "derMaxPercent": 18.0,
+    "jerMaxPercent": 22.0,
+    "targetSessionDurationMin": 50,
+    "targetTurnaroundTimeSec": 300,
+    "maxTurnaroundTimeSec": 600
+  },
+  "safetyAndPrivacy": {
+    "networkCallsInClinicalMode": 0,
+    "database": "Transactional Encrypted SQLite database (EcoDatabaseHelper, WAL mode, ACID, AES-256-GCM, Anti-Cascade Views e Triggers)",
+    "temporaryAudioSpool": "AES-256-CTR streaming spool decoded in RAM directly to sink with RAM ephemeral key zeroization on commit",
+    "persistenceAck": "Native commit directly in SQLite before audio deletion",
+    "privateDiarySegregation": "Hardware-backed AES-256-GCM dedicated diary vault (diario_privado), excluded from standard backups",
+    "encryption": "AES-256-GCM (AndroidKeyStore)",
+    "backupEncryption": "AES-256-GCM + PBKDF2 (240.000 iterações)"
+  }
+}

@@ -4,16 +4,44 @@ import android.content.*;
 import android.content.pm.ServiceInfo;
 import android.os.*;
 
-/** Protects user-initiated local transcription while another app is visible. No mic access. */
+/** Protects user-initiated local transcription while another app is visible. Manages queue state. */
 public final class TranscriptionService extends Service {
     private static volatile Runnable timeout;
+    private static volatile String activeJobId = "";
+    private static volatile String activeCaseId = "";
+    private static volatile String activeSessionId = "";
+    private static volatile String activeState = "IDLE";
     private PowerManager.WakeLock wake;
+
+    public static synchronized void registerJob(String jobId, String caseId, String sessionId){
+        activeJobId = jobId == null ? "" : jobId;
+        activeCaseId = caseId == null ? "" : caseId;
+        activeSessionId = sessionId == null ? "" : sessionId;
+        activeState = "PROCESSING";
+    }
+
+    public static synchronized void registerJob(String jobId, String caseId){
+        registerJob(jobId, caseId, "");
+    }
+
+    public static synchronized void clearJob(){
+        activeJobId = "";
+        activeCaseId = "";
+        activeSessionId = "";
+        activeState = "IDLE";
+    }
+
+    public static String getActiveJobId(){ return activeJobId; }
+    public static String getActiveCaseId(){ return activeCaseId; }
+    public static String getActiveSessionId(){ return activeSessionId; }
+    public static String getActiveState(){ return activeState; }
+
     static boolean begin(Context c,Runnable onTimeout){
         timeout=onTimeout;
         try{c.startForegroundService(new Intent(c,TranscriptionService.class));return true;}
         catch(RuntimeException e){timeout=null;return false;}
     }
-    static void end(Context c){timeout=null;c.stopService(new Intent(c,TranscriptionService.class));}
+    static void end(Context c){timeout=null;clearJob();c.stopService(new Intent(c,TranscriptionService.class));}
     @Override public IBinder onBind(Intent i){return null;}
     @Override public int onStartCommand(Intent i,int flags,int id){
         String channel="eco_transcription";

@@ -3,7 +3,10 @@ name: Tutor Clinico Android - APK Debug
 on:
   push:
     branches:
+      - codex/eco-023-takeover-20261125
       - feature/tutor-clinico-android-20261122
+      - antigravity/eco-integral-20261124
+      - antigravity/eco-corretivo-20261124
     paths:
       - 'tutor-clinico/android/**'
       - '.github/workflows/tutor-clinico-android.yml'
@@ -120,7 +123,9 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Compilar APK debug
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          python qa/eco23_migration_regression.py
+          gradle :app:testDebugUnitTest :app:assembleDebug --no-daemon --stacktrace
       - name: Verificar saida
         run: |
           set -euo pipefail
@@ -153,7 +158,7 @@ jobs:
         if: steps.signing.outputs.stable == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.14.1-arm64-stable
+          name: ECO-v0.23.0-arm64-stable
           path: tutor-clinico/android/app/build/outputs/apk/debug/eco-stable.apk
           if-no-files-found: error
           retention-days: 30
@@ -161,7 +166,7 @@ jobs:
         if: steps.signing.outputs.stable == 'false'
         uses: actions/upload-artifact@v4
         with:
-          name: ECO-v0.14.1-arm64-beta-debug
+          name: ECO-v0.23.0-arm64-beta-debug
           path: tutor-clinico/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30

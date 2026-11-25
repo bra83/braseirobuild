@@ -108,6 +108,12 @@ html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::pla
 .eco-caption{font-size:12px;color:var(--muted);line-height:1.55}
 .eco-steps{font-size:12px;margin:8px 0;color:var(--muted)}
 .eco-pill{display:inline-flex;padding:5px 9px;border-radius:99px;background:#dffbcd;color:#264421;font-size:11px;font-weight:750}
+.eco-module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:16px 0}
+.eco-module-card{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:15px 10px;border-radius:16px;background:var(--paper);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;text-decoration:none;color:var(--ink);min-height:115px}
+.eco-module-card:hover,.eco-module-card:focus{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.eco-module-icon{font-size:28px;margin-bottom:6px;line-height:1}
+.eco-module-title{font-size:12px;font-weight:700;line-height:1.2}
+.eco-module-sub{font-size:10px;color:var(--muted);margin-top:3px}
 .eco-evidence{padding:13px 14px;margin-top:10px;border:1px solid var(--border);background:var(--bg);border-radius:12px}
 .eco-evidence p{overflow-wrap:anywhere;white-space:pre-wrap}
 .eco-evidence small{color:var(--muted)}
@@ -156,6 +162,7 @@ html[data-theme="dark"] .eco-caption{color:#c6d0ca}
 const $ = s => document.querySelector(s);
 const esc = v => String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const datestr = () => { const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
+const nowHHMM = () => { const d=new Date();return [String(d.getHours()).padStart(2,'0'),String(d.getMinutes()).padStart(2,'0')].join(':');};
 const uid = () => 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,10);
 const formatDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s||'') ? s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4) : 'Sem data';
 const topics = ['Ansiedade e angústia','Tristeza e desânimo','Luto e perdas','Relacionamentos amorosos','Conflitos familiares','Autoestima e insegurança','Trabalho, esgotamento e cobrança','Raiva e irritação','Sono e insônia','Compulsões','Medos e fobias','Sintomas no corpo','Trauma e experiências difíceis','Culpa e autocobrança'];
@@ -240,13 +247,18 @@ function notify(text,kind='blue'){
 }
 function currentCase(){return state.cases.find(c=>c.id===openedId);}
 function makeCase(){return {id:uid(),criado:Date.now(),nome:'',idade:'',data:datestr(),modalidade:'Presencial',queixas:[],queixaTexto:'',intensidade:'',desde:'',gatilhos:'',familia:'',relacoes:'',recursos:'',sonhos:'',obs:'',alertas:[],sessoes:[],status:'Em andamento',atualizadoEm:new Date().toISOString()};}
+let ecoLastScreen="";
 function render(){
  if(!state||errorLocked) return;
  const app=$('#app');
- const screens={home:homeScreen,eco:ecoHubScreen,atlas:ecoAtlasScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
+ const screens={home:homeScreen,eco:ecoHubScreen,atlas:ecoAtlasScreen,cases:casesScreen,case:caseScreen,wizard:wizardScreen,session:sessionScreen,manualSession:manualSessionScreen,agenda:agendaScreen,appointment:appointmentScreen,study:studyScreen,search:searchScreen,settings:settingsScreen};
  app.innerHTML=(screens[screen]||homeScreen)();renderNav();
+ if(screen==="home") ecoRecoveryPanel(app);
  ecoFoldPanels();
- window.scrollTo(0,0);
+ if(screen!==ecoLastScreen){
+  ecoLastScreen=screen;
+  window.scrollTo(0,0);
+ }
 }
 function renderNav(){
  const tabs=[['home','⌂','ECO'],['eco','●','Sessão'],['cases','▤','Casos'],['atlas','◎','Atlas'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
@@ -260,7 +272,7 @@ const caseName=c=>esc(c.nome||'Sem apelido');
 const activeCases=()=>state.cases.filter(c=>c.status!=='Concluído');
 function getAppointments(){return [...state.appointments].sort((a,b)=>(a.data+'T'+a.hora).localeCompare(b.data+'T'+b.hora));}
 function homeScreen(){
- const today=datestr(),future=getAppointments().filter(a=>a.data>=today&&a.status==='Agendado'),latest=[...state.cases].sort((a,b)=>(b.criado||0)-(a.criado||0)).slice(0,4);
+ const today=datestr(),currentClock=nowHHMM(),future=getAppointments().filter(a=>a.status==='Agendado'&&(a.data>today||(a.data===today&&(a.hora||'00:00')>=currentClock))),latest=[...state.cases].sort((a,b)=>(b.criado||0)-(a.criado||0)).slice(0,4);
  return head('Visão geral','Seu consultório, organizado','Registros locais e protegidos neste dispositivo.')+
  `<div class="stats"><div class="stat"><strong>${state.cases.length}</strong><span>Casos</span></div><div class="stat"><strong>${activeCases().length}</strong><span>Em andamento</span></div><div class="stat"><strong>${future.length}</strong><span>Consultas futuras</span></div></div>`+
  `<div class="actions">${btn('＋ Novo caso','newCase','')}${btn('Ver agenda','nav','secondary','data-id="agenda"')}${btn('Pesquisar','nav','ghost','data-id="search"')}</div>`+
@@ -303,20 +315,99 @@ function ecoCaseAnalysis(c){
  return out;
 }
 
-function caseScreen(){const c=currentCase();if(!c)return '<div class="alert red">Caso não encontrado.</div>';
- const names=[['sintese','Resumo'],['analisar','Análises'],['sessoes','Sessões'],['anamnese','Cadastro']];
- let content='';const currentTopics=(c.queixas||[]).map(q=>topics[topicCodes.indexOf(q)]||q);
- if(tab==='sintese')content=`<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
- `<div class="card subtle"><h2>Orientação didática</h2><p>As perguntas e leituras a seguir são sugestões gerais baseadas nos temas assinalados. Não há inferência diagnóstica automatizada.</p>${btn('Abrir análise das sessões','caseTab','secondary','data-id="analisar"')}</div>`;
- if(tab==='analisar')content=ecoCaseAnalysis(c);
- if(tab==='investigar')content=`<div class="card"><h2>Pontos para explorar</h2>${suggestions(c).map((s,i)=>`<div class="kv"><strong>${i+1}.</strong><span>${esc(s)}</span></div>`).join('')}<p class="notice">As questões não devem ser aplicadas mecanicamente.</p></div>`;
- if(tab==='tecnicas')content=`<div class="card"><h2>Técnicas para estudo</h2>${techniques.filter((t,i)=>i<6||i===8).map(t=>`<div class="divider"></div><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p>`).join('')}</div>`;
- if(tab==='perguntas')content=`<div class="card"><h2>Para refletir antes do encontro</h2>${suggestions(c).slice(0,8).map((x,i)=>`<p><strong>${i+1}.</strong> ${esc(x)}</p>`).join('')}<p class="notice">Não é um agendamento. Use a aba Agenda para marcar a próxima consulta.</p>${btn('Agendar consulta','newAppointment','secondary',`data-id="${esc(c.id)}"`)}</div>`;
- if(tab==='plano')content=`<div class="card"><h2>Plano orientativo de quatro semanas</h2>${[['Semana 1','Acolhimento, enquadre e esclarecimento da queixa.'],['Semana 2','Exploração da história e das relações significativas.'],['Semana 3','Retomada de temas recorrentes e hipóteses de trabalho.'],['Semana 4','Revisão conjunta do processo e reflexão em supervisão.']].map(w=>`<div class="divider"></div><h3>${w[0]}</h3><p>${w[1]}</p>`).join('')}<p class="notice">Plano didático sem calendário nem intervenção automática.</p></div>`;
- if(tab==='estudos')content=`<div class="card"><h2>Temas relacionados</h2>${currentTopics.map((x,i)=>{const ix=topics.indexOf(x);return `<p><strong>${esc(x)}</strong> — módulos de referência ${esc((modules[ix]||['01','09']).join(' e '))}</p>`;}).join('')||'<p>Selecione temas no cadastro.</p>'}${btn('Abrir biblioteca','nav','secondary','data-id="study"')}</div>`;
- if(tab==='sessoes'){const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));content=`<div class="actions">${btn('🎙 Gravar ou importar nova sessão','ecoOpen','',`data-id="${esc(c.id)}"`)}</div>${sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)}</h3><span class="chip gray">${(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada.</div>'}`;}
- if(tab==='anamnese')content=`<div class="card"><h2>Identificação e história</h2>${[['Idade',c.idade],['Primeiro atendimento',formatDate(c.data)],['Modalidade',c.modalidade],['Queixa nas palavras da pessoa',c.queixaTexto],['Intensidade',c.intensidade+'/10'],['Desde quando',c.desde],['Gatilhos',c.gatilhos],['Família e história',c.familia],['Relações',c.relacoes],['Apoios',c.recursos],['Sonhos e repetições',c.sonhos],['Observações',c.obs]].map(x=>keyval(...x)).join('')}${btn('Editar anamnese','editCase','secondary')}</div>`;
- return `${head('Caso clínico',c.nome,c.modalidade+' · '+formatDate(c.data))}<div class="actions">${btn('Voltar a casos','nav','ghost','data-id="cases"')}${btn('Editar dados do caso','editCase','secondary')}${btn('PDF','pdfCase','secondary')}${btn(c.status==='Concluído'?'Reabrir caso':'Concluir caso','toggleStatus','ghost')}</div>${c.alertas?.length?`<div class="alert red"><strong>Sinais de atenção assinalados</strong><p>${esc(c.alertas.map(a=>alerts.find(v=>v[0]===a)?.[1]||a).join('; '))}</p><p>Requer avaliação e conduta de profissional qualificado. Este app não realiza triagem nem emite protocolo de emergência.</p></div>`:''}<div class="tabs">${names.map(([id,n])=>`<button data-act="caseTab" data-id="${id}" class="${tab===id?'active':''}">${n}</button>`).join('')}</div>${content}`;
+function caseScreen(){
+  const c=currentCase();
+  if(!c)return '<div class="alert red">Caso não encontrado.</div>';
+  const enq = c.enquadre || {};
+  const ana = c.anamnese || {};
+  const currentTopics=(c.queixas||[]).map(q=>topics[topicCodes.indexOf(q)]||q);
+
+  let content = '';
+
+  if(tab==='sintese'){
+    content = `<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'Não informada')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
+    `<div class="card"><h2>Enquadre Terapêutico e Contrato (ECO-105)</h2>`+
+    keyval('Frequência acordada', enq.frequencia || 'Semanal (50 min)')+
+    keyval('Modalidade pactuada', enq.modalidade || c.modalidade || 'Presencial')+
+    keyval('Estado do acompanhamento', c.status || 'Em andamento')+
+    keyval('Limites de contato', enq.limites || 'Definidos no enquadre inicial')+
+    keyval('Expectativas acordadas', enq.expectativas || 'Definidas com o paciente')+
+    `<div class="actions" style="margin-top:10px">${btn('Editar enquadre completo','caseTab','secondary','data-id="enquadre"')}</div>`+
+    `</div>`+
+    `<div class="eco-outline"><h2>Grade de Módulos Clínicos (12 Módulos Estruturados)</h2>`+
+    `<p class="eco-caption">Acesso direto a todas as dimensões do prontuário confidencial e ferramentas de escuta.</p>`+
+    `<div class="eco-module-grid">`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></div>`+
+    `<div class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="analisar"><div class="eco-module-icon">📊</div><div class="eco-module-title">Análise & Ecos</div><div class="eco-module-sub">NLP e recorrências</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="anamnese"><div class="eco-module-icon">📋</div><div class="eco-module-title">Anamnese</div><div class="eco-module-sub">10 categorias</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="enquadre"><div class="eco-module-icon">📜</div><div class="eco-module-title">Enquadre</div><div class="eco-module-sub">Contrato clínico</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="investigar"><div class="eco-module-icon">🧭</div><div class="eco-module-title">Investigação</div><div class="eco-module-sub">8 eixos analíticos</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="tecnicas"><div class="eco-module-icon">💡</div><div class="eco-module-title">Técnicas</div><div class="eco-module-sub">Manejo clínico</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="sonhos"><div class="eco-module-icon">🌙</div><div class="eco-module-title">Sonhos</div><div class="eco-module-sub">${(c.sonhosList||[]).length} relato(s)</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="genograma"><div class="eco-module-icon">🌳</div><div class="eco-module-title">Genograma</div><div class="eco-module-sub">${(c.genograma?.membros||[]).length} membro(s)</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="cronologia"><div class="eco-module-icon">⏳</div><div class="eco-module-title">Cronologia</div><div class="eco-module-sub">${(c.cronologia||[]).length} marco(s)</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="documentos"><div class="eco-module-icon">🖨</div><div class="eco-module-title">Documentos</div><div class="eco-module-sub">A4 / PDF / Sigilo</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="diario"><div class="eco-module-icon">🔒</div><div class="eco-module-title">Diário Privado</div><div class="eco-module-sub">Segregado</div></div>`+
+    `<div class="eco-module-card" data-act="caseTab" data-id="seguranca"><div class="eco-module-icon">🛡</div><div class="eco-module-title">Segurança</div><div class="eco-module-sub">Julgamento ético</div></div>`+
+    `</div></div>`;
+  } else {
+    content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
+    if(tab==='sessoes'){
+      const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
+      content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)}</div>`+
+        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
+    } else if(tab==='anamnese'){
+      content += `<div class="eco-outline"><h2>Anamnese Clínica em 10 Categorias Estruturadas (ECO-014)</h2>`+
+        `<p class="eco-caption">Registro abrangente da história de vida e da dinâmica subjetiva. Preenchimento gradual ao longo dos atendimentos, sem antecipar conclusões.</p>`+
+        `<div class="card" style="margin-bottom:14px"><h3>Identificação e Queixa Resumida</h3>${[['Idade',c.idade],['Primeiro atendimento',formatDate(c.data)],['Modalidade',c.modalidade],['Queixa nas palavras da pessoa',c.queixaTexto],['Intensidade',c.intensidade+'/10'],['Desde quando',c.desde],['Gatilhos',c.gatilhos]].map(x=>keyval(...x)).join('')}${btn('Editar identificação e queixa básica','editCase','secondary')}</div>`+
+        ecoAnamneseCategories.map(cat=>`<div class="card" style="margin:10px 0"><h3>${esc(cat.nome)}</h3>`+
+          cat.campos.map(fld=>`<div class="field"><label>${esc(fld.label)}</label><textarea id="ana_${esc(fld.k)}" rows="2" placeholder="Não informado (preenchimento gradual)...">${esc(ana[fld.k]||c[fld.k]||'')}</textarea></div>`).join('')+
+        `</div>`).join('')+
+        `<div class="actions">${btn('Salvar Anamnese Estruturada','ecoSaveAnamnese','',`data-case="${esc(c.id)}" data-id="${esc(c.id)}" data-ana="1"`)}</div></div>`;
+    } else if(tab==='enquadre'){
+      content += `<div class="eco-outline"><h2>Enquadre Terapêutico e Contrato de Atendimento (ECO-105)</h2>`+
+        `<p class="eco-caption">Pactuação explícita de horários, periodicidade, honorários, limites de comunicação e políticas éticas.</p>`+
+        `<div class="card">`+
+        `<div class="split">`+
+        `<div class="field"><label>Frequência acordada</label><input type="text" id="enq_frequencia" value="${esc(enq.frequencia||'Semanal (50 min)')}" placeholder="Ex.: Semanal (50 min), Bisemanal"></div>`+
+        `<div class="field"><label>Duração da sessão</label><input type="text" id="enq_duracao" value="${esc(enq.duracao||'50 minutos')}" placeholder="Ex.: 50 minutos"></div>`+
+        `</div>`+
+        `<div class="split">`+
+        `<div class="field"><label>Modalidade acordada</label><select id="enq_modalidade"><option value="Presencial" ${enq.modalidade==='Presencial'?'selected':''}>Presencial</option><option value="Online" ${enq.modalidade==='Online'?'selected':''}>Online</option><option value="Híbrido" ${enq.modalidade==='Híbrido'?'selected':''}>Híbrido</option></select></div>`+
+        `<div class="field"><label>Honorários e forma de pagamento</label><input type="text" id="enq_honorarios" value="${esc(enq.honorarios||'')}" placeholder="Ex.: Conforme pactuado / recibo"></div>`+
+        `</div>`+
+        `<div class="field"><label>Limites de contato e mensagens fora da sessão</label><textarea id="enq_limites" rows="2" placeholder="Ex.: Mensagens restritas a agendamento e desmarcação com 24h de antecedência...">${esc(enq.limites||'Mensagens apenas para agendamento e urgências objetivas')}</textarea></div>`+
+        `<div class="field"><label>Férias, recessos e faltas</label><textarea id="enq_ferias" rows="2" placeholder="Ex.: Aviso mútuo prévio de 30 dias para férias...">${esc(enq.ferias||'')}</textarea></div>`+
+        `<div class="field"><label>Expectativas e objetivos pactuados com o sujeito</label><textarea id="enq_expectativas" rows="3" placeholder="Ex.: Espaço de escuta e elaboração subjetiva...">${esc(enq.expectativas||'')}</textarea></div>`+
+        `<div class="actions">${btn('Salvar Enquadre Terapêutico','ecoSaveEnquadre','',`data-case="${esc(c.id)}" data-id="${esc(c.id)}" data-enq="1"`)}</div>`+
+        `</div></div>`;
+    } else if(tab==='analisar'){
+      content += ecoCaseAnalysis(c);
+    } else if(tab==='investigar'){
+      content += ecoRenderInvestigation(c);
+    } else if(tab==='tecnicas'){
+      content += ecoRenderTechniques(c);
+    } else if(tab==='sonhos'){
+      content += ecoRenderDreamAtlas(c);
+    } else if(tab==='genograma'||tab==='cronologia'){
+      content += ecoRenderGenogram(c);
+    } else if(tab==='documentos'){
+      content += ecoRenderDocuments(c);
+    } else if(tab==='diario'){
+      content += ecoRenderTherapistDiary(c);
+    } else if(tab==='seguranca'){
+      content += ecoRenderClinicalSafety(c);
+    }
+  }
+
+  const navTabs=[['sintese','Grade Geral'],['sessoes','Sessões'],['analisar','Análises'],['anamnese','Anamnese'],['enquadre','Enquadre'],['documentos','Documentos']];
+
+  return `${head('Caso clínico',c.nome,(enq.modalidade||c.modalidade)+' · '+formatDate(c.data))}`+
+    `<div class="actions">${btn('Voltar a casos','nav','ghost','data-id="cases"')}${btn('🎙 Gravar sessão','ecoOpen','',`data-id="${esc(c.id)}"`)}${btn('✍️ Atend. manual','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)}${btn('Editar caso','editCase','secondary')}${btn('PDF','pdfCase','secondary')}${btn(c.status==='Concluído'?'Reabrir caso':'Concluir caso','toggleStatus','ghost')}</div>`+
+    (c.alertas?.length?`<div class="alert red"><strong>Sinais de atenção assinalados</strong><p>${esc(c.alertas.map(a=>alerts.find(v=>v[0]===a)?.[1]||a).join('; '))}</p><p>Requer avaliação e conduta de profissional qualificado. Este app não realiza triagem nem emite protocolo de emergência.</p></div>`:'')+
+    `<div class="tabs">${navTabs.map(([id,n])=>`<button data-act="caseTab" data-id="${id}" class="${tab===id?'active':''}">${n}</button>`).join('')}</div>`+
+    content;
 }
 function suggestions(c){const qs=[...new Set((c.queixas||[]).flatMap(code=>guidance[code]||[]))];return [...qs,'Como a pessoa descreve a própria experiência?','Que mudanças ela identifica desde o início do acompanhamento?','Quais aspectos merecem cuidado na próxima escuta?'].slice(0,10);}
 function field(k,label,type='text',opts={}){
@@ -335,6 +426,28 @@ function wizardScreen(){if(!draft)draft=makeCase();let content='';
  if(wizardStep===3)content=`<p class="lead">Marque apenas quando relevante. O aplicativo não faz avaliação de risco.</p><div class="stack">${alerts.map(([code,label])=>`<label class="choice"><input type="checkbox" data-choice="alertas" value="${code}" ${draft.alertas.includes(code)?'checked':''}>${esc(label)}</label>`).join('')}</div><div class="alert">Diante de situações urgentes, siga protocolos e encaminhamentos apropriados. O aplicativo não substitui avaliação clínica.</div>`;
  return `${head(draft._isEditing?'Editar caso':'Novo caso',draft._isEditing?draft.nome:'Cadastrar caso','Etapa '+(wizardStep+1)+' de 4 · Informações sob seu controle.')}<div class="steps">${[0,1,2,3].map(x=>`<i class="${x<=wizardStep?'done':''}"></i>`).join('')}</div><div class="card">${content}</div><div class="actions">${btn('Cancelar','cancelWizard','ghost')}${wizardStep===0&&!draft._isEditing?btn('Salvar e abrir sessão','ecoSaveCaseStart',''):''}${wizardStep>0?btn('Voltar','wizardBack','secondary'):''}${draft._isEditing&&wizardStep===0?btn('Salvar identificação','ecoSaveCaseIdentity',''):''}${btn(wizardStep===3?'Salvar caso':'Continuar',wizardStep===3?'saveCase':'wizardNext','secondary')}</div>`;
 }
+
+function manualSessionScreen(){
+  const c = currentCase();
+  if(!c) return '<div class="alert red">Caso não encontrado.</div>';
+  const s = manualSessionDraft || { id: uid(), data: datestr(), hora: nowHHMM(), texto: '', intervencoes: '', plano: '' };
+  return `${head('Prontuário', 'Atendimento Manual — Sem Gravação', c.nome)}`+
+    `<div class="alert good"><strong>Modo Clínico Sem Áudio</strong>: Nenhum microfone é ativado e nenhum arquivo de gravação é gerado. Registre suas anotações, síntese e intervenções diretamente com integridade de prontuário.</div>`+
+    `<div class="card">`+
+    `<div class="split">`+
+    `<div class="field"><label>Data do atendimento *</label><input type="date" id="manualSessData" value="${esc(s.data)}"></div>`+
+    `<div class="field"><label>Horário</label><input type="time" id="manualSessHora" value="${esc(s.hora)}"></div>`+
+    `</div>`+
+    `<div class="field"><label>Síntese e relato clínico da sessão *</label><textarea id="manualSessTexto" rows="6" placeholder="Anotações do atendimento, falas marcantes do paciente, relato do processo...">${esc(s.texto||'')}</textarea></div>`+
+    `<div class="field"><label>Intervenções e observações técnicas</label><textarea id="manualSessInterv" rows="3" placeholder="Interpretações pontuadas, manejo de resistência, clarificações...">${esc(s.intervencoes||'')}</textarea></div>`+
+    `<div class="field"><label>Encaminhamentos e pontos a acompanhar</label><textarea id="manualSessPlano" rows="3" placeholder="Próximos passos combinados para o encontro seguinte...">${esc(s.plano||'')}</textarea></div>`+
+    `</div>`+
+    `<div class="actions">`+
+    btn('Cancelar','openCase','ghost',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`) +
+    btn('Salvar atendimento manual','saveManualSession','',`data-case="${esc(c.id)}"`) +
+    `</div>`;
+}
+
 function sessionScreen(){const c=currentCase();if(!c)return 'Caso não encontrado';const s=sessionDraft||{};
  return `${head('Prontuário',editSessionId?'Retificar sessão':'Registrar sessão',c.nome)}${editSessionId?'<div class="alert">A correção preservará a versão anterior, a data da alteração e o conteúdo original.</div>':''}<div class="card">${field('data','Data clínica *','date',{source:s,required:true})}${field('texto','Relato da sessão *','textarea',{source:s,required:true,placeholder:'Descrição objetiva e pertinente'})}${field('intervencoes','Intervenções / observações profissionais','textarea',{source:s})}${field('plano','Pontos a acompanhar','textarea',{source:s})}</div>${editSessionId?renderRevisions(c.sessoes.find(x=>x.id===editSessionId)):''}<div class="actions">${btn('Cancelar','openCase','ghost',`data-id="${esc(c.id)}"`)}${btn(editSessionId?'Registrar retificação':'Salvar sessão','saveSession','')}</div>`;
 }
@@ -353,10 +466,41 @@ function studyScreen(){return `${head('Biblioteca','Estudos e ferramentas','Mate
 function searchScreen(){const q=searchTerm.trim().toLocaleLowerCase('pt-BR');const found=!q?[]:state.cases.filter(c=>[c.nome,c.queixaTexto,c.familia,c.sonhos,...(c.sessoes||[]).map(s=>s.texto)].join(' ').toLocaleLowerCase('pt-BR').includes(q));
  const tt=!q?[]:techniques.filter(t=>t.join(' ').toLocaleLowerCase('pt-BR').includes(q));
  return `${head('Pesquisa','Buscar','A busca funciona no próprio aparelho, sem enviar texto a um servidor.')}<div class="field"><label for="search">Termo</label><input id="search" class="search" type="search" data-search="1" value="${esc(searchTerm)}" placeholder="Apelido, texto da sessão, técnica..."></div>${q?`<h2>Casos (${found.length})</h2>${found.map(caseCard).join('')||'<p class="muted">Nenhum caso encontrado.</p>'}<h2>Técnicas (${tt.length})</h2>${tt.map(t=>`<div class="card"><strong>${esc(t[0])}</strong><p>${esc(t[1])}</p></div>`).join('')||'<p class="muted">Nenhuma técnica encontrada.</p>'}`:'<div class="card empty">Digite algo para buscar casos e temas.</div>'}`;}
-function settingsScreen(){return `${head('Proteção','Configurações e backup','Este aparelho guarda seus dados localmente em arquivo criptografado.')}<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha do backup — 10 caracteres ou mais</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
- `<div class="card"><h2>Privacidade</h2><p>● Não há permissão de internet no aplicativo.</p><p>● O arquivo interno é criptografado com chave do Android Keystore.</p><p>● O aplicativo exige PIN e tenta ocultar capturas de tela.</p><p>● O backup externo usa AES-256-GCM e senha derivada com PBKDF2.</p><p class="muted small">O PIN controla o acesso à interface; a criptografia interna utiliza uma chave do dispositivo. Esta versão ainda não passou por pentest nem validação LGPD.</p></div>`+
- `<div class="card"><h2>Compatibilidade</h2><p>Permite importar o backup JSON simples do Tutor Clínico original. Como ele não possui criptografia, trate esse arquivo com cuidado. O aplicativo converte registros de sessão para um formato com identificadores.</p></div>`+
- `<p class="notice">Versão demonstrativa 0.1.0. Não utilize dados reais de pacientes antes de testes de segurança, revisão profissional e análise de conformidade.</p>`;}
+function settingsScreen(){
+ const micEng=state.settings?.micEngine||ecoChosenMic||"tagarela";
+ const asrMod=state.settings?.asrModel||ecoChosenAsr||"tagarela";
+ return `${head('ECO / Configurações','Ajustes e Diagnóstico','Sistema local autônomo com IA neural sem dependência de nuvem.')}`+
+ `<div class="card"><h2>Identidade e Versão do Sistema</h2>`+
+ `<div class="kv"><strong>Versão instalada</strong><span>0.23.0-arm64-beta (build 28)</span></div>`+
+ `<div class="kv"><strong>Arquitetura nativa</strong><span>ARM64 (arm64-v8a) · Samsung Galaxy A57</span></div>`+
+ `<div class="kv"><strong>Commit de compilação</strong><span>antigravity/eco-corretivo-20261124</span></div>`+
+ `<div class="kv"><strong>Identificador Android</strong><span>br.com.tutorclinico.offline</span></div>`+
+ `<div class="kv"><strong>Namespace</strong><span>br.com.tutorclinico</span></div>`+
+ `</div>`+
+ `<div class="card"><h2>Motores de Voz e IA Offline</h2>`+
+ `<p>Processamento 100% no aparelho, sem tráfego de rede ou gravação oculta.</p>`+
+ `<div class="kv"><strong>TAGARELA PT-BR INT8</strong><span>Ativo e Visível (Parakeet TDT 0.6B INT8 Sherpa-ONNX)</span></div>`+
+ `<div class="kv"><strong>Whisper Small Q5 multilíngue</strong><span>Disponível para importação detalhada</span></div>`+
+ `<div class="kv"><strong>Whisper Base multilíngue</strong><span>Disponível para importação rápida</span></div>`+
+ `<div class="kv"><strong>Vosk PT-BR</strong><span>Disponível para alinhamento e medidas físicas</span></div>`+
+ `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Ativo para indexação semântica e embeddings locais (NLI via avaliador linguístico contextual)</span></div>`+
+ `<div class="field"><label for="setMicEngine">Motor padrão para gravação de microfone</label>`+
+ `<select id="setMicEngine" data-eco-setting="micEngine">`+
+ `<option value="tagarela" ${micEng==="tagarela"?"selected":""}>TAGARELA PT-BR INT8 · fine-tune brasileiro (Padrão)</option>`+
+ `<option value="whisper-small" ${micEng==="whisper-small"?"selected":""}>Whisper Small Q5 · multilíngue</option>`+
+ `<option value="whisper-base" ${micEng==="whisper-base"?"selected":""}>Whisper Base · rápido</option>`+
+ `</select></div>`+
+ `<div class="field"><label for="setAsrModel">Motor padrão para importação de áudios</label>`+
+ `<select id="setAsrModel" data-eco-setting="asrModel">`+
+ `<option value="tagarela" ${asrMod==="tagarela"?"selected":""}>TAGARELA PT-BR INT8 · nativo português (Padrão)</option>`+
+ `<option value="small" ${asrMod==="small"?"selected":""}>Whisper Small Q5 · maior qualidade</option>`+
+ `<option value="base" ${asrMod==="base"?"selected":""}>Whisper Base · mais rápido</option>`+
+ `</select></div>`+
+ `</div>`+
+ `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha do backup — 10 caracteres ou mais</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
+ `<div class="card"><h2>Privacidade e Segurança Operacional</h2><p>● Não há permissão de internet no aplicativo (android.permission.INTERNET ausente).</p><p>● O arquivo interno é criptografado com AES-256-GCM com chave do Android Keystore.</p><p>● O aplicativo exige PIN local e bloqueia capturas de tela via FLAG_SECURE.</p><p>● O backup externo usa AES-256-GCM e chave derivada com PBKDF2 (240.000 iterações).</p><p class="muted small">O PIN controla o acesso à interface; a criptografia interna utiliza uma chave protegida por hardware do dispositivo.</p></div>`+
+ `<div class="card"><h2>Compatibilidade</h2><p>Permite importar o backup JSON simples do Tutor Clínico original. Como ele não possui criptografia, trate esse arquivo com cuidado. O aplicativo converte registros de sessão para o formato ECO com identificadores imutáveis.</p></div>`+
+ `<p class="notice">Ambiente de homologação e certificação ECO v0.22.0-arm64-beta. Utilize somente dados simulados/fictícios até aprovação da auditoria de conformidade.</p>`;}
 function validDate(value){return /^\d{4}-\d{2}-\d{2}$/.test(value||'')&&(() => {const d=new Date(value+'T12:00:00');return d.getFullYear()===Number(value.slice(0,4))&&d.getMonth()+1===Number(value.slice(5,7))&&d.getDate()===Number(value.slice(8,10));})();}
 function validateWizard(){
  if(wizardStep===0){if(!draft.nome.trim()){notify('Informe um apelido.','red');return false;}
@@ -379,8 +523,8 @@ function normalizeImported(raw){
  if(!Array.isArray(sourceCases)||sourceCases.length>5000||!Array.isArray(sourceAppointments)||sourceAppointments.length>20000)throw Error('Quantidade de registros inválida');
  const cases=sourceCases.map(c=>{
   if(!c||typeof c!=='object'||!c.id||!c.nome)throw Error('Caso sem ID ou apelido');
-  const obj=makeCase();const fields=['id','criado','nome','idade','data','modalidade','queixas','queixaTexto','intensidade','desde','gatilhos','familia','relacoes','recursos','sonhos','obs','alertas','status','atualizadoEm'];
-  fields.forEach(k=>{if(Object.prototype.hasOwnProperty.call(c,k))obj[k]=c[k];});
+  const obj=makeCase();
+  Object.keys(c).forEach(k=>{obj[k]=c[k];});
   obj.queixas=Array.isArray(obj.queixas)?obj.queixas:[];obj.alertas=Array.isArray(obj.alertas)?obj.alertas:[];
   if(!Array.isArray(c.sessoes)||c.sessoes.length>10000)throw Error('Sessões inválidas');
   obj.sessoes=c.sessoes.map(s=>{
@@ -504,7 +648,7 @@ window.nativeImportResult = function(content){
   openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>Registros com o mesmo identificador serão mantidos como estão. Nenhum registro local será apagado ou substituído.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
  }catch(e){pendingImport=null;notify('Não foi possível interpretar o arquivo: '+e.message,'red');}
 };
-document.addEventListener('click',e=>{const button=e.target.closest('[data-act]');if(button){e.preventDefault();act(button.dataset.act,button.dataset.id);}});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-act]');if(button){e.preventDefault();act(button.dataset.act,button.dataset.id,button);}});
 document.addEventListener('input',e=>{
  const el=e.target,k=el.dataset.field;
  if(k){const target=screen==='wizard'?draft:screen==='session'?sessionDraft:screen==='appointment'?apptDraft:null;if(target)target[k]=el.value;}
@@ -518,7 +662,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.search){e.preventDefault();render();}});
 
 // ECO 0.2: Vosk processes audio on Android; TF-IDF learns from prior case records.
-let ecoConsent=false,ecoStatus="PARADO",ecoPartial="",ecoCategory="Entrada",ecoMatches=[];
+let ecoConsent=false,ecoStatus="PARADO",ecoPartial="",ecoCategory="Entrada",ecoMatches=[],ecoActiveJobId="";
 const ecoGroups=[
  ["Entrada","Queixa","Retomada","Crise","Fato recente","Mudança","Silêncio"],
  ["Afetos","Angústia","Ansiedade","Medo","Culpa","Raiva","Tristeza","Vergonha","Desamparo","Ciúme","Alegria","Vazio","Ambivalência"],
@@ -559,12 +703,13 @@ function ecoAddSegment(value,meta={}){
  ecoEnsure();
  if(sessionDraft.mlTranscricao.length>450000){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();notify("Limite de transcrição atingido",'red');return}
  const segment={
-  text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
+  id:meta.id||uid(),text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
   endMs:Number.isFinite(meta.endMs)?meta.endMs:null,
   speaker:sessionDraft.mlSpeakerRoles?.[meta.cluster]||"desconhecido",
   cluster:["falante1","falante2"].includes(meta.cluster)?meta.cluster:"",
   origem:(ecoAudioSource==="arquivo"?ecoChosenAsr:ecoChosenMic)==="tagarela"?"TAGARELA PT-BR INT8 · "+(ecoAudioSource==="arquivo"?"arquivo importado":"microfone"):ecoAudioSource==="arquivo"?(ecoChosenAsr==="small"?"Whisper Small Q5 PT · arquivo importado":"Whisper Base PT · arquivo importado"):(ecoChosenMic==="vosk"?"Vosk PT-BR · microfone":ecoChosenMic==="whisper-small"?"Whisper Small Q5 PT · microfone":"Whisper Base PT · microfone")
  };
+ if(meta.id&&sessionDraft.mlSegments.some(x=>x.id===meta.id))return;
  sessionDraft.mlSegments.push(segment);
  sessionDraft.mlTranscricao=(sessionDraft.mlTranscricao+" "+text).trim();ecoPartial="";
  if(state){
@@ -595,9 +740,46 @@ window.nativeMlAcoustic=function(raw){
  }catch(e){notify("Medição acústica inválida","red")}
 };
 window.nativeMlSegmentDetailed=(raw)=>{
- try{const v=JSON.parse(raw);ecoAddSegment(v.text,{startMs:v.startMs,endMs:v.endMs,cluster:v.cluster})}
+ try{const v=JSON.parse(raw);
+ if(!v.jobId||v.jobId!==ecoActiveJobId||v.caseId!==openedId||v.sessionId!==sessionDraft?.id)return;
+ ecoAddSegment(v.text,{id:v.id,startMs:v.startMs,endMs:v.endMs,cluster:v.cluster})}
  catch(e){notify("Trecho não reconhecido corretamente",'red')}
 };
+function ecoRecoveryPanel(app){
+ if(!window.NativeVault?.listRecoverableJobs)return;
+ let jobs;
+ try{jobs=JSON.parse(window.NativeVault.listRecoverableJobs());if(!Array.isArray(jobs))throw Error("Lista indisponível");}
+ catch(e){app.insertAdjacentHTML("afterbegin",'<div class="alert red">Não foi possível consultar gravações pendentes.</div>');return;}
+ if(!jobs.length)return;
+ const panel=document.createElement("section");panel.className="card";
+ panel.innerHTML='<h2>Gravações pendentes</h2><p>Retome somente gravações autorizadas. Arquivos interrompidos sem final autenticado não serão tratados como completos.</p>';
+ for(const job of jobs){
+   const c=state.cases.find(x=>x.id===job.case_id);
+   if(!c)continue;
+   const row=document.createElement("div");row.className="eco-evidence";
+   const label=document.createElement("p");label.textContent=c.nome+" · "+job.state+" · "+job.committed_segments+" trechos salvos";
+   const action=document.createElement("button");action.type="button";action.textContent="Retomar gravação";
+   action.addEventListener("click",()=>ecoRecoverJob(job));row.append(label,action);panel.append(row);
+ }
+ app.prepend(panel);
+}
+function ecoRecoverJob(job){
+ if(ecoIsCapturing()||ecoIsPaused())return notify("Encerre o processamento atual.",'red');
+ const c=state.cases.find(x=>x.id===job.case_id);
+ const saved=c?.sessoes?.find(x=>x.id===job.session_id);
+ if(!c||!saved)return notify("Sessão de recuperação não localizada.",'red');
+ if(!window.confirm("Retomar esta gravação previamente autorizada?"))return;
+ const previous={openedId,screen,sessionDraft,editSessionId,ecoActiveJobId};
+ openedId=c.id;sessionDraft=JSON.parse(JSON.stringify(saved));editSessionId=saved.id;
+ const draftRaw=window.NativeVault.loadCaseDraft?.(c.id);
+ try{const journal=JSON.parse(draftRaw||"null");if(journal?.session?.id===saved.id&&journal.caseId===c.id){
+   sessionDraft={...sessionDraft,...journal.session,mlSegments:sessionDraft.mlSegments||journal.session.mlSegments||[]};
+ }}catch(e){}
+ ecoEnsure();ecoActiveJobId=job.job_id;ecoStatus="PREPARANDO RECUPERAÇÃO";screen="session";ecoWorkspaceTab="captura";
+ render();
+ try{if(window.NativeVault.resumeJob(job.job_id))return;}catch(e){}
+ ({openedId,screen,sessionDraft,editSessionId,ecoActiveJobId}=previous);ecoStatus="PARADO";render();notify("Recuperação indisponível. Áudio não descartado.",'red');
+}
 const ecoStopwords=new Set("a o as os de do da dos das em na no nas nos por para com e ou que um uma uns umas se me te eu ele ela eles elas isso isto aquele aquela ser estar ter foi era ha ja muito mais menos depois antes quando como nao sim tambem apenas sobre entre ate seu sua meu minha seus suas aos ao pelo pela todos todas esse essa aqueles aqui hoje ontem entao mesmo onde quem qual quais mas nem enquanto sem pra pro porque ainda cada outra outro alguns algumas".split(" "));
 function ecoTokens(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().match(/[a-z]{3,}/g)?.filter(w=>!ecoStopwords.has(w))||[]}
 function ecoFeatures(s){const ts=ecoTokens(s),out=[];for(let i=0;i<ts.length;i++){out.push(ts[i]);if(i+1<ts.length)out.push(ts[i]+"_"+ts[i+1])}return out}
@@ -651,6 +833,17 @@ act=function(name,id){
   if(ecoIsCapturing()){notify("O arquivo já está sendo transcrito. Não precisa iniciar captação; acompanhe o progresso.",'red');return}
   if(!window.NativeVault.startMlCapture && !window.NativeVault.startMlCaptureWithEngine){notify("Recurso exige APK Android.",'red');return}
   ecoAudioSource="microfone";ecoEnsure();ecoStatus="MICROFONE · PREPARANDO";ecoDisplay();
+  const activeC=typeof currentCase==="function"?currentCase():null;
+  const cId=activeC?activeC.id:(openedId||"");
+  const sId=sessionDraft?sessionDraft.id:("sess_"+Date.now());
+  if(!cId||!sId){notify("Contexto inválido: paciente e sessão são obrigatórios.",'red');return;}
+  ecoActiveJobId="job_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+  if(window.NativeVault.setJobContext){
+    try{
+      const ctxOk=window.NativeVault.setJobContext(ecoActiveJobId,cId,sId);
+      if(ctxOk===false){notify("Falha ao inicializar contexto nativo do job.",'red');return;}
+    }catch(e){notify("Erro ao inicializar contexto: "+e.message,'red');return;}
+  }
   if(window.NativeVault.setDiarization){const prior=sessionDraft.mlSegments.some(s=>s.cluster);window.NativeVault.setDiarization(ecoDiarization&&!prior);if(ecoDiarization&&prior)notify("Grupos anteriores não serão reutilizados. Para nova diarização, inicie uma nova sessão.");}
   if(window.NativeVault.startMlCaptureWithEngine)window.NativeVault.startMlCaptureWithEngine(true,ecoChosenMic);
   else window.NativeVault.startMlCapture(true);
@@ -667,11 +860,31 @@ act=function(name,id){
  if(/CAPTURANDO|PREPARANDO/.test(ecoStatus)&&!["ecoStop","ecoCategory","ecoFind","ecoCopy"].includes(name)){notify("Encerre a captação antes de mudar ou salvar a sessão.",'red');return}
  const sid=name==="saveSession"?sessionDraft?.id:null;
  const result=ecoOldAct(name,id);
- if(name==="saveSession"&&sid&&screen==="case"&&state?.mlDraft?.session?.id===sid){state.mlDraft=null;persist()}
+ if(name==="saveSession"&&sid&&screen==="case"&&state?.mlDraft?.session?.id===sid){
+   state.mlDraft=null;
+   const persisted=persist();
+   if(persisted!==false&&ecoActiveJobId&&window.NativeVault.acknowledgePersistence){
+     try{
+       const ackOk=window.NativeVault.acknowledgePersistence(ecoActiveJobId);
+       if(ackOk){ecoActiveJobId="";}
+       else{notify("Aviso: persistência do job não pôde ser confirmada integralmente pelo núcleo nativo.",'orange');}
+     }catch(e){notify("Erro ao confirmar persistência: "+e.message,'orange');}
+   }
+ }
  if(name==="newSession"){ecoMatches=[];ecoConsent=false}
  return result;
 };
 document.addEventListener("change",e=>{
+  if(e.target?.dataset?.ecoDocDate){
+    const f=e.target.dataset.ecoDocDate;
+    if(f==="from") ecoDocDateFrom=e.target.value||"";
+    if(f==="to") ecoDocDateTo=e.target.value||"";
+    render();return;
+  }
+  if(e.target?.dataset?.ecoDocConfirmed!==undefined){
+    ecoDocConfirmed=e.target.checked;
+    render();return;
+  }
  const x=e.target;
  if(x.dataset.ecoConsent)ecoConsent=x.checked;
  if(x.dataset.ecoTag&&sessionDraft){ecoEnsure();const tag=x.dataset.ecoTag;
@@ -697,12 +910,8 @@ caseCard=function(c){
  const original=ecoOriginalCaseCard(c);
  return original.replace('<div class="actions">','<div class="actions">'+btn("🎙 ECO · nova sessão","ecoOpen","","data-id=\""+esc(c.id)+"\""));
 };
-const ecoOriginalCaseScreen=caseScreen;
-caseScreen=function(){
- const c=currentCase();
- if(!c)return ecoOriginalCaseScreen();
- return '<div class="actions">'+btn("🎙 Gravar e marcar sessão","ecoOpen","","data-id=\""+esc(c.id)+"\"")+'</div>'+ecoOriginalCaseScreen();
-};
+const ecoOriginalCaseScreen=caseScreen; // Preserved direct
+
 const ecoOriginalRender=render;
 render=function(){
  if(document.documentElement){
@@ -1208,6 +1417,14 @@ function ecoPersistSpeakerChange(){
  state.mlDraft=payload;
  const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(persist()?"OK":"Falha");
  if(status!=="OK"){state.mlDraft=before;notify("Falha ao salvar os falantes: "+status,"red");return false;}
+ if(window.NativeVault?.confirmSpeaker&&sessionDraft?.mlSegments){
+  const cId=openedId||"", sId=sessionDraft.id||"";
+  sessionDraft.mlSegments.forEach(s=>{
+   if(s.speakerManual&&s.id){
+    try{window.NativeVault.confirmSpeaker(s.id,cId,sId,s.speaker);}catch(e){}
+   }
+  });
+ }
  const archived=currentCase()?.sessoes?.find(s=>s.id===sessionDraft.id);
  if(archived){
   const prior=JSON.parse(JSON.stringify(archived));
@@ -1245,9 +1462,16 @@ function ecoRenderKeepPosition(index){
  const oldY=window.scrollY||0;
  const anchor=document.getElementById?.("ecoSegment-"+index),oldTop=anchor?.getBoundingClientRect?.().top;
  render();
- const next=document.getElementById?.("ecoSegment-"+index)||document.getElementById?.("ecoSegment-"+(index+1));
- if(next&&Number.isFinite(oldTop)&&next.getBoundingClientRect){for(let p=next.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true;window.scrollTo(0,(window.scrollY||0)+next.getBoundingClientRect().top-oldTop);}
- else window.scrollTo(0,oldY);
+ const next=document.getElementById?.("ecoSegment-"+index)||document.getElementById?.("ecoSegment-"+(index+1))||document.querySelector?.("#ecoSegmentReviewPanel [id^='ecoSegment-']");
+ if(next&&Number.isFinite(oldTop)&&next.getBoundingClientRect){
+  for(let p=next.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true;
+  window.scrollTo(0,(window.scrollY||0)+next.getBoundingClientRect().top-oldTop);
+ } else if(next){
+  for(let p=next.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true;
+  next.scrollIntoView?.({behavior:"smooth",block:"nearest"});
+ } else {
+  window.scrollTo(0,oldY);
+ }
 }
 function ecoCorrectSpeaker(ix,value){
  const s=sessionDraft?.mlSegments?.[ix];
@@ -1419,12 +1643,39 @@ function ecoLanding(){
  const sessions=state.cases.reduce((n,c)=>n+(c.sessoes||[]).length,0);
  const dreams=state.cases.reduce((n,c)=>n+ecoSummary(c).dreams,0);
  const recent=[...state.cases].filter(c=>(c.sessoes||[]).length).sort((a,b)=>(b.sessoes.at(-1)?.data||"").localeCompare(a.sessoes.at(-1)?.data||"")).slice(0,3);
- return '<section class="eco-welcome"><img class="eco-welcome-image" src="{{ECO_APP_ICON}}" alt="Ícone ECO"/><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Escutar primeiro.<br>Registrar com clareza.</h1><p>Gravação temporária e transcrição local por modelo treinado, com marcações rápidas e comparação de sessões documentadas.</p>'+btn('● INICIAR SESSÃO','nav','','data-id="eco"')+'</section>'+
- '<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+sessions+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+dreams+'</strong><span>Sessões com sonhos marcados</span></div></div>'+
- '<div class="eco-headrow"><h2>Acesso rápido</h2></div>'+
- '<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+'</div>'+
- '<div class="eco-outline"><h3>Últimos registros</h3>'+ (recent.length?recent.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+(c.sessoes||[]).length+' sessões registradas</span></div>'+btn('Abrir','openCase','secondary','data-id="'+esc(c.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma sessão salva. Crie um caso fictício para testar.</p>')+'</div>'+
- '<p class="eco-caption">Protótipo experimental. Não utilize dados de pacientes reais até validação de segurança e adequação legal.</p>';
+ const today=datestr(),currentClock=nowHHMM(),future=getAppointments().filter(a=>a.status==='Agendado'&&(a.data>today||(a.data===today&&(a.hora||'00:00')>=currentClock)));
+ const hasDraft=!!(state.mlDraft&&state.mlDraft.caseId);
+ let out='<section class="eco-welcome"><img class="eco-welcome-image" src="{{ECO_APP_ICON}}" alt="Ícone ECO"/><div class="eyebrow">ECO · ATLAS DA ESCUTA</div><h1>Escutar primeiro.<br>Registrar com clareza.</h1><p>Gravação temporária e transcrição local por modelo treinado, com marcações rápidas e comparação de sessões documentadas.</p>'+btn('● INICIAR SESSÃO','nav','','data-id="eco"')+'</section>';
+ out+='<div class="card" style="border-left:4px solid var(--accent);background:var(--paper);margin:12px 0">'+
+   '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+   '<div style="display:flex;align-items:center;gap:8px">'+
+   '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#baff4a;box-shadow:0 0 6px #baff4a"></span>'+
+   '<strong>Motor Neural Ativo: TAGARELA PT-BR INT8</strong>'+
+   '</div>'+
+   '<div><span class="chip good">0.6B Parakeet TDT</span><span class="chip gray">sherpa-onnx</span><span class="chip">Offline</span></div>'+
+   '</div>'+
+   '<p class="small muted" style="margin:5px 0 0">Processamento neural estritamente no aparelho (ARM64). Sem envio para nuvem. Cofre seguro AES-GCM.</p>'+
+   '</div>';
+ if(hasDraft){
+   const dc=state.cases.find(c=>c.id===state.mlDraft.caseId);
+   out+='<div class="alert" style="background:#fff3d4;color:#704b12;border:1px solid #ffd885;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'+
+     '<div><strong>Rascunho de sessão pendente de confirmação</strong><br><span class="small">Caso: '+(dc?caseName(dc):'Caso em andamento')+' · Gravado localmente</span></div>'+
+     btn('Continuar rascunho','ecoOpen','secondary','data-id="'+esc(state.mlDraft.caseId)+'"')+
+     '</div>';
+ }
+ out+='<section class="card"><div class="titleline"><h2>Hoje · Agenda & Próximo Atendimento</h2><span class="chip">Hoje</span></div>'+
+   (future.length?'<div class="kv"><strong>Data & Hora</strong><span>'+formatDate(future[0].data)+' às '+esc(future[0].hora)+' ('+future[0].duracao+' min)</span></div>'+
+   '<div class="kv"><strong>Paciente</strong><span>'+caseName(state.cases.find(c=>c.id===future[0].caseId)||{})+'</span></div>'+
+   '<div class="actions">'+btn('Abrir caso da consulta','openCase','secondary','data-id="'+esc(future[0].caseId)+'"')+btn('Ver agenda completa','nav','ghost','data-id="agenda"')+'</div>'
+   :'<p class="muted small">Nenhuma consulta agendada para hoje. Mantenha os intervalos recomendados de 5 a 10 min entre atendimentos para processamento.</p>'+
+   '<div class="actions">'+btn('Agendar consulta','nav','secondary','data-id="agenda"')+'</div>')+
+   '</section>';
+ out+='<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+sessions+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+dreams+'</strong><span>Sessões com sonhos marcados</span></div></div>';
+ out+='<div class="eco-headrow"><h2>Acesso rápido</h2></div>';
+ out+='<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+btn('⚙ Ajustes & Diagnóstico','nav','ghost','data-id="settings"')+'</div>';
+ out+='<div class="eco-outline"><h3>Últimos registros</h3>'+ (recent.length?recent.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+(c.sessoes||[]).length+' sessões registradas</span></div>'+btn('Abrir','openCase','secondary','data-id="'+esc(c.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma sessão salva. Crie um caso fictício para testar.</p>')+'</div>';
+ out+='<p class="eco-caption">Protótipo experimental. Não utilize dados de pacientes reais até validação de segurança e adequação legal.</p>';
+ return out;
 }
 function ecoSessionEntry(){
  const intro=head("Sessões / ECO","Iniciar escuta","Escolha um caso de teste. O ECO processa áudio temporariamente e salva apenas o texto revisável.");
@@ -1505,6 +1756,865 @@ function ecoWorkspace(){
  out+='<div class="eco-bottomsave">'+btn('Voltar ao caso','ecoBackCase','ghost')+btn(isEditing?'Salvar retificação':'Salvar sessão','ecoSave','')+'</div>';
  return out;
 }
+
+let ecoAtlasTab="recorrencias";
+let ecoSymbolSearch="";
+let ecoDocType="ficha";
+let ecoDocConfirmed=false;
+let ecoDocProfNome="";
+let ecoDocProfRegistro="";
+let ecoDocProfContato="";
+let ecoDocDateFrom="";
+let ecoDocDateTo="";
+let ecoDocSections={identificacao:true,enquadre:true,anamnese:true,sessoes:true,investigacao:true,hipoteses:true,tecnicas:true,sonhos:true,genograma:true,cronologia:true,seguranca:true,plano:true};
+let manualSessionDraft=null;
+
+
+const ecoAnamneseCategories = [
+ { id: "identificacao", nome: "1. Identificação e Dados Sociodemográficos", campos: [
+   { k: "nomeSocial", label: "Nome / Iniciais de preferência" },
+   { k: "generoPronomes", label: "Gênero e Pronomes" },
+   { k: "profissaoOcupacao", label: "Profissão e Ocupação atual" },
+   { k: "escolaridade", label: "Escolaridade e Formação" },
+   { k: "estadoCivil", label: "Estado civil e Moradia" }
+ ]},
+ { id: "queixa", nome: "2. Queixa Principal e Expectativas", campos: [
+   { k: "queixaDetalhada", label: "Queixa nas palavras do paciente" },
+   { k: "expectativas", label: "Expectativas com o acompanhamento" },
+   { k: "experienciasAnteriores", label: "Terapias anteriores e motivos de interrupção" }
+ ]},
+ { id: "infancia", nome: "3. Infância, Desenvolvimento e Adolescência", campos: [
+   { k: "nascimentoPrimeirosAnos", label: "Nascimento e primeiros anos relatados" },
+   { k: "infanciaEscola", label: "Escolarização e sociabilidade na infância" },
+   { k: "adolescenciaCrises", label: "Adolescência, autonomia e crises" }
+ ]},
+ { id: "familia", nome: "4. Família de Origem e Dinâmica Geracional", campos: [
+   { k: "figuraMaterna", label: "Relação com mãe / figura materna" },
+   { k: "figuraPaterna", label: "Relação com pai / figura paterna" },
+   { k: "irmaosParentes", label: "Irmãos e dinâmica entre familiares" },
+   { k: "mitosSegredos", label: "Segredos de família e lutos transgeracionais" }
+ ]},
+ { id: "relacoes", nome: "5. Relações Interpessoais e Vínculos Significativos", campos: [
+   { k: "parceriasAfetivas", label: "Relacionamentos afetivos e histórico amoroso" },
+   { k: "amizadesConvivio", label: "Amizades, isolamento ou pertencimento social" },
+   { k: "padroesVinculo", label: "Padrões relacionais observados" }
+ ]},
+ { id: "sexualidade", nome: "6. Sexualidade, Afetividade e Intimidade Pertinente", campos: [
+   { k: "sexualidadeRelatada", label: "Vivência afetivo-sexual manifestada pelo paciente" },
+   { k: "dificuldadesIntimidade", label: "Inibições ou conflitos relatados" }
+ ]},
+ { id: "trabalho", nome: "7. Trabalho, Vida Profissional e Rotina", campos: [
+   { k: "ambienteTrabalho", label: "Relação com o trabalho e chefias/colegas" },
+   { k: "rotinaPressao", label: "Rotina, sobrecargas, prazer e realização" }
+ ]},
+ { id: "saude", nome: "8. Saúde Geral e Medicações Relatadas", campos: [
+   { k: "saudeFisica", label: "Condições de saúde física relatadas" },
+   { k: "medicacoesUso", label: "Medicamentos e tratamentos médicos em curso (autorrelato)" },
+   { k: "substanciasUso", label: "Uso de álcool, tabaco ou outras substâncias" }
+ ]},
+ { id: "sono", nome: "9. Sono, Hábitos, Ritmos e Sintomas Corporais", campos: [
+   { k: "padroesSono", label: "Qualidade do sono, insônia ou despertares" },
+   { k: "apetiteRitmos", label: "Alimentação, apetite e ritmo de autocuidado" },
+   { k: "sintomasSomaticos", label: "Manifestações corporais da ansiedade" }
+ ]},
+ { id: "perdas", nome: "10. Perdas, Lutos, Recursos Pessoais e Rede de Apoio", campos: [
+   { k: "lutosSignificativos", label: "Lutos e perdas marcantes na história de vida" },
+   { k: "recursosEnfrentamento", label: "Recursos pessoais, interesses vitais e hobbies" },
+   { k: "redeApoioEfetiva", label: "Rede de apoio efetiva em momentos de crise" }
+ ]}
+];
+
+const ecoSymbolDictionary = [
+ {
+   id: "animais",
+   titulo: "Animais e Forças Instintuais",
+   freud: "A Interpretação dos Sonhos (1900), Cap. VI — A elaboração onírica. Animais condensam impulsos pulsionais em conflito e representações totêmicas de figuras parentais.",
+   jung: "Obras Completas, vol. 8 (§540) e vol. 16 (§310). O animal expressa a psique instintiva, a sabedoria somática e forças arquetípicas da Sombra a integrar.",
+   sentidos: "Instintualidade, ameaça interna desdobrada, vitalidade reprimida ou forças de autoconservação.",
+   perguntas: "Qual a atitude do sonhador diante do animal? Houve fuga, agressão ou aproximação?",
+   limites: "Não universalizar: cada espécie carrega valências culturais e histórias singulares da infância."
+ },
+ {
+   id: "casas",
+   titulo: "Casas, Andares e Cômodos",
+   freud: "Conferências Introdutórias (1916-17), Conf. X. A casa como representação do aparelho psíquico ou do corpo; portas e janelas como aberturas perceptivas.",
+   jung: "Obras Completas, vol. 16 (§312) e Sonho da Casa (1909). Os andares refletem estratos da consciência: sótão (pensamento consciente), porão (inconsciente arcaico/coletivo).",
+   sentidos: "Estruturação egóica, áreas desconhecidas da identidade, recolhimento íntimo ou desabamento psíquico.",
+   perguntas: "Em qual cômodo o sonho transcorria? Havia portas trancadas, quartos secretos ou reformas?",
+   limites: "Diferenciar a casa atual da infância; cômodos habitados expressam posições subjetivas vigentes."
+ },
+ {
+   id: "parentes",
+   titulo: "Parentes e Figuras Familiares",
+   freud: "A Interpretação dos Sonhos, Cap. V. Fontes somáticas e infantis. Pais e irmãos como matrizes do drama edípico, condensando lealdades e rivalidades inconscientes.",
+   jung: "Obras Completas, vol. 8 (§555). No nível subjetivo, parentes simbolizam aspectos personificados do Animus/Anima ou do complexo parental introjetado.",
+   sentidos: "Dívidas simbólicas inconscientes, mandatos transgeracionais, busca de diferenciação ou culpa de separação.",
+   perguntas: "Que afeto predominava no sonho em contraste com o relacionamento na vida de vigília?",
+   limites: "Não confundir a pessoa empírica com o significante psíquico que ela opera no sonho."
+ },
+ {
+   id: "morte",
+   titulo: "Morte e Renascimento",
+   freud: "Além do Princípio do Prazer (1920) e Cap. VI dos Sonhos. Desejo de apaziguamento radical de tensão (princípio de Nirvana) ou ruptura de laços psíquicos.",
+   jung: "Obras Completas, vol. 16 (§320). Mors et regeneratio: dissolução de uma atitude consciente unilateral indispensável para uma nova síntese da personalidade.",
+   sentidos: "Fim de ciclo psíquico, perda de um ideal egóico, luto não elaborado ou transição subjetiva profunda.",
+   perguntas: "Quem ou o que estava morrendo ou sepultado? Havia serenidade, desespero ou indiferença?",
+   limites: "Raramente indica aniquilação física real; trata-se de desvitalização ou transformação de investimentos."
+ },
+ {
+   id: "viagem",
+   titulo: "Viagem, Caminhos e Cruzamentos",
+   freud: "A Interpretação dos Sonhos, Cap. VI. A viagem como afastamento dos objetos primários, partida rumo à autonomia ou transição entre tempos da vida.",
+   jung: "Obras Completas, vol. 8 (§562). A navegação noturna e a jornada heroica como metáfora do processo de individuação e confronto com o inconsciente.",
+   sentidos: "Busca de direção, hesitação em bifurcações vitais, sensação de atraso existencial ou deslocamento de lugar psíquico.",
+   perguntas: "Qual era o destino pretendido? Havia perda de bilhete, trens perdidos ou bagagens esquecidas?",
+   limites: "Atrasos e perdas de transporte frequentemente apontam para conflitos inconscientes de ambivalência."
+ },
+ {
+   id: "queda",
+   titulo: "Queda e Desamparo",
+   freud: "Conferências Introdutórias, Conf. X. Relaxamento do controle motor no adormecer, cedência de defesas morais ou reativação da angústia primordial de desamparo (Hilflosigkeit).",
+   jung: "Obras Completas, vol. 16 (§330). Compensação arquetípica contra inflação egóica: o sonho devolve o sonhador à base corporal e terrestre.",
+   sentidos: "Perda de sustentação imaginária, colapso de defesas obsessivas, temor de sucumbir a impulsos rejeitados.",
+   perguntas: "O que desencadeou o desequilíbrio? Ocorreu aterrissagem, queda infinita ou despertar súbito?",
+   limites: "Diferenciar a mioclonia hipnagógica física do conteúdo dramatizado narrativamente."
+ },
+ {
+   id: "perseguicao",
+   titulo: "Perseguição e Fuga",
+   freud: "O Inconsciente (1915). A figura perseguidora resulta da projeção de uma exigência pulsional recalcada que retorna do exterior sob forma ameaçadora.",
+   jung: "Obras Completas, vol. 8 (§570). O perseguidor personifica a Sombra não reconhecida; quanto mais se foge, mais potente torna-se a figura arquetípica.",
+   sentidos: "Culpa persecutória inconsciente, recusa em admitir desejos conflitantes, esquiva diante de decisões.",
+   perguntas: "O perseguidor possuía rosto distinguível? Era possível enfrentá-lo ou falar com ele?",
+   limites: "Parar de fugir no sonho frequentemente coincide com momentos de integração terapêutica."
+ },
+ {
+   id: "espelhos",
+   titulo: "Espelhos e Reflexos",
+   freud: "O Inquietante (Das Unheimliche, 1919). O duplo especular como garantia narcísica contra a destruição e anunciador do estranhamento radical.",
+   lacan: "O Estádio do Espelho como Formador da Função do Eu (1949), Escritos. A imagem especular antecipa uma unidade corporal imaginária alienante, ocultando a divisão subjetiva (clivagem).",
+   jung: "Obras Completas, vol. 8 (§580) e vol. 9/I. O espelho como superfície de projeção arquetípica onde o sujeito é confrontado com a Sombra e o Si-Mesmo.",
+   sentidos: "Confronto com a própria imagem, sentimento de impostura, divisão entre persona social e verdade íntima.",
+   perguntas: "O reflexo respondia fielmente aos movimentos ou agia de forma autônoma e discrepante?",
+   limites: "Distorções no espelho onírico revelam descompassos entre o eu ideal e a realidade subjetiva."
+ },
+ {
+   id: "dentes",
+   titulo: "Dentes e Vulnerabilidade Corporal",
+   freud: "A Interpretação dos Sonhos, Cap. VI. Sonhos típicos de perda dentária associados a ameaças de castração simbólica e transformações corporais da puberdade.",
+   jung: "Obras Completas, vol. 8 (§588). Dificuldade de morder ou assimilar realidades duras; crise na potência de autoafirmação e envelhecimento.",
+   sentidos: "Perda de força agressiva legítima, angústia de mutilação simbólica ou esgotamento de defesas.",
+   perguntas: "Havia dor, sangue ou vergonha no sonho? Quem testemunhou a queda dos dentes?",
+   limites: "Evitar leituras fatalistas; remeter sempre à potência de sustentação do sujeito."
+ },
+ {
+   id: "numeros",
+   titulo: "Números e Quantidades",
+   freud: "A Interpretação dos Sonhos, Cap. VI. Números cifram cálculos inconscientes, datas de nascimento/luto, idades decisivas ou ordens de fratria condensadas.",
+   jung: "Obras Completas, vol. 8 (§590). O número como princípio ordenador arquetípico da psique (trindade dinâmica, quaternidade integradora).",
+   sentidos: "Exatidão defensiva, criptas mnemônicas de datas recalcadas, contagem de anos restantes.",
+   perguntas: "Esse número remete a alguma idade, endereço, ano ou combinação significativa da história pessoal?",
+   limites: "Decifrar pelas associações livres do paciente, nunca por tabelas cabalísticas arbitrárias."
+ },
+ {
+   id: "cores",
+   titulo: "Cores e Iluminação",
+   freud: "A Interpretação dos Sonhos, Cap. VI. A cor como elemento de intensificação afetiva da representação onírica e ligação libidinal direta.",
+   jung: "Obras Completas, vol. 8 (§595). Alquimia e psicologia: nigredo (depressão), albedo (reflexão), rubedo (integração apaixonada).",
+   sentidos: "Clima afetivo subjacente, temperatura emocional da cena, emergência de tonalidades afetivas dissociadas.",
+   perguntas: "Qual cor atraiu o olhar e que sensação física ela provocou no momento do sonho?",
+   limites: "A ausência de cor (sonho cinza ou preto-e-branco) também é significante de amortecimento afetivo."
+ },
+ {
+   id: "natureza",
+   titulo: "Natureza, Água e Elementos",
+   freud: "Conferências Introdutórias, Conf. X. Água como representação do nascimento, do líquido amniótico e da relação originária materna.",
+   jung: "Obras Completas, vol. 8 (§600). A água profunda é o símbolo primordial do inconsciente; tempestades retratam comoções afetivas avassaladoras.",
+   sentidos: "Mergulho em conteúdos inconscientes, risco de inundação de angústia ou anseio de purificação e renascimento.",
+   perguntas: "O sonhador estava nadando, afogando-se ou contemplando a água da margem segura?",
+   limites: "Águas mansas e revoltas representam dinâmicas afetivas e recursos egoicos radicalmente distintos."
+ }
+];
+
+const ecoInvestigationAxes = [
+ { id: "repeticao", nome: "1. Repetição e Compulsão", descricao: "Padrões relacionais, escolhas objetais e impasses que se reencenam involuntariamente na vida do paciente.", perguntaPadrao: "Que situações na vida recente parecem uma repetição de impasses infantis ou relacionamentos anteriores?" },
+ { id: "ambivalencia", nome: "2. Ambivalência Afetiva", descricao: "Coexistência de sentimentos opostos (amor/ódio, desejo/repulsa) em relação ao mesmo objeto ou decisão.", perguntaPadrao: "Onde o paciente expressa simultaneamente atração e rejeição ou culpa por desejar o que busca?" },
+ { id: "divergencias", nome: "3. Divergências e Deslocamentos", descricao: "Discrepâncias entre diferentes versões do mesmo acontecimento ou incongruências temporais e de afeto.", perguntaPadrao: "Que divergências aparecem entre o relato cronológico inicial e as recordações posteriores?" },
+ { id: "lacunas", nome: "4. Lacunas e Silêncios", descricao: "Omissões significativas no discurso, pausas prolongadas e assuntos sistematicamente desviados.", perguntaPadrao: "Quais períodos biográficos ou figuras significativas são sistematicamente evitados na narrativa?" },
+ { id: "associacao", nome: "5. Associação Livre e Deriva", descricao: "Cadeias significantes espontâneas que escapam ao controle consciente e revelam nexos inconscientes.", perguntaPadrao: "Para onde se deslocou o pensamento do paciente quando permitiu o fluxo sem censura?" },
+ { id: "familia", nome: "6. Família de Origem e Transgeracional", descricao: "Mandatos, lealdades invisíveis, segredos familiares e identificações primárias introjetadas.", perguntaPadrao: "Que mandatos familiares ou papéis atribuídos na infância o paciente continua tentando cumprir?" },
+ { id: "transferencia", nome: "7. Transferência e Suposição de Saber", descricao: "Afetos, expectativas e fantasias endereçadas à figura do terapeuta e ao enquadre clínico.", perguntaPadrao: "Que posição o paciente supõe no terapeuta (juiz acolhedor, autoridade cobradora, objeto desconfiável)?" },
+ { id: "defesas", nome: "8. Defesas e Resistência ao Saber", descricao: "Mecanismos de evitação (racionalização, negação, isolamento do afeto, projeção) acionados na escuta.", perguntaPadrao: "Como o sujeito reage quando se aproxima do núcleo doloroso de sua angústia?" },
+ { id: "discurso", nome: "9. Discurso e Significantes-Mestre", descricao: "Metáforas recorrentes, palavras-chave idiossincráticas e modulações discursivas próprias do paciente.", perguntaPadrao: "Quais termos ou metáforas singulares retornam com frequência como marcos de identidade?" },
+ { id: "sonhos", nome: "10. Sonhos, Fantasias e Imaginário", descricao: "Produções oníricas, devaneios diurnos, mitos individuais e fantasias fundamentais.", perguntaPadrao: "Que imagens e restos diurnos dos sonhos trazem à tona desejos não confessados?" },
+ { id: "desejos", nome: "11. Desejos e Demandas", descricao: "Distinção entre a demanda explícita feita ao tratamento e a emergência do desejo singular do sujeito.", perguntaPadrao: "O que o paciente pede ao tratamento em comparação com o que seu sintoma revela desejar?" },
+ { id: "angustias", nome: "12. Angústias e Afetos Corporais", descricao: "Manifestações somáticas, sensação de desamparo, pânico, inibição e passagens ao ato.", perguntaPadrao: "Em que momentos a angústia ultrapassa a fala e se manifesta como sintoma físico ou paralisia?" }
+];
+
+const ecoSchoolsLibrary = [
+ {
+   escola: "Sigmund Freud (Psicanálise Clássica)",
+   tecnicas: [
+     { nome: "Associação Livre", objetivo: "Regra fundamental: convidar o paciente a relatar tudo o que surge à consciência sem seleção, julgamento ou censura prévia.", indicacao: "Início e condução permanente do tratamento psicanalítico.", limites: "Não forçar em momentos de extrema fragilidade egóica ou agitação aguda." },
+     { nome: "Atenção Flutuante", objetivo: "Atitude de escuta do terapeuta que não privilegia a priori nenhum elemento do discurso sobre outro.", indicacao: "Sustentação da escuta analítica em todas as sessões.", limites: "Exige constante autoanálise e supervisão para não ser contaminada por preconceitos." },
+     { nome: "Clarificação e Confronto", objetivo: "Organizar o material trazido pelo paciente para focar a atenção em incongruências ou contradições manifestas.", indicacao: "Quando defesas de isolamento ou racionalização obscurecem o conflito.", limites: "Deve ser feita com tato e sem tom persecutório ou inquisitório." },
+     { nome: "Interpretação (Deutung)", objetivo: "Tornar consciente o sentido inconsciente latente a partir de manifestações no sintoma, no sonho ou na transferência.", indicacao: "Quando o paciente já forneceu o material associativo prévio necessário.", limites: "Interpretações prematuras geram resistência ou submissão intelectual estéril." },
+     { nome: "Elaboração (Durcharbeiten)", objetivo: "Superação repetida das resistências ao longo do tempo para integrar os insights na vida prática.", indicacao: "Fases médias e avançadas diante da compulsão à repetição.", limites: "Requer tempo e paciência temporal; não há atalhos cognitivos." }
+   ]
+ },
+ {
+   escola: "Jacques Lacan (Retorno a Freud)",
+   tecnicas: [
+     { nome: "Pontuação e Escansão", objetivo: "Marcar com a voz ou com a parada uma frase ou significante decisivo, interrompendo o sentido ordinário.", indicacao: "Para suspender o discurso queixoso imaginário e abrir à dimensão do significante.", limites: "Não utilizar como punição; deve ecoar a fala do próprio sujeito." },
+     { nome: "Corte da Sessão (Sessões Variáveis)", objetivo: "Interromper a sessão no momento exato em que um ato falho ou significante crucial é emitido.", indicacao: "Para fixar o enigma no paciente entre as sessões.", limites: "Requer enquadre rigoroso e sólida sustentação transferencial." },
+     { nome: "Retificação Subjetiva", objetivo: "Conduzir o sujeito a implicar-se naquilo de que se queixa, passando da queixa passiva à responsabilidade pelo seu sintoma.", indicacao: "Entrevistas preliminares e entrada em análise.", limites: "Não culpar moralmente o sujeito; apontar a cumplicidade inconsciente." },
+     { nome: "Localização do Significante-Mestre (S1)", objetivo: "Identificar os significantes primordiais aos quais o sujeito alienou sua existência e seu desejo.", indicacao: "Investigação da história infantil e mandatos simbólicos.", limites: "O analista não define o significante; apenas o pontua quando emerge." }
+   ]
+ },
+ {
+   escola: "Carl G. Jung (Psicologia Analítica)",
+   tecnicas: [
+     { nome: "Imaginação Ativa", objetivo: "Diálogo consciente com imagens espontâneas do inconsciente em estado de vigília receptiva.", indicacao: "Elaboração de sonhos não finalizados, bloqueios criativos e integração da Sombra.", limites: "Contraindicado em psicoses ou fragilidade extrema de limites egóicos." },
+     { nome: "Amplificação Simbólica", objetivo: "Enriquecer imagens oníricas ou sintomas conectando-os a temas míticos, artísticos e culturais universais.", indicacao: "Sonhos arquetípicos com imagens grandiosas ou estranhas.", limites: "Não substituir as associações pessoais particulares do sonhador." },
+     { nome: "Integração da Sombra", objetivo: "Reconhecimento gradual e acolhimento ético de aspectos rejeitados de si mesmo projetados nos outros.", indicacao: "Padrões de hostilidade, julgamento moral severo ou autossabotagem.", limites: "Exige ego com força suficiente para tolerar o confronto sem colapso." }
+   ]
+ },
+ {
+   escola: "Donald W. Winnicott (Relações Objetais)",
+   tecnicas: [
+     { nome: "Sustentação (Holding)", objetivo: "Prover um ambiente terapêutico seguro e previsível que neutralize a ansiedade impensável de desintegração.", indicacao: "Pacientes com falhas ambientais primárias, depressão essencial e trauma precoce.", limites: "Não confundir holding com superproteção infantilizante." },
+     { nome: "Espaço Transicional e Brincar", objetivo: "Criar uma área intermediária de experiência onde imaginação e realidade possam se entrelaçar sem colisão.", indicacao: "Dificuldade de simbolização, rigidez obsessiva e empobrecimento criativo.", limites: "A terapia só ocorre na sobreposição de duas áreas de brincar: a do paciente e a do terapeuta." },
+     { nome: "Uso do Objeto e Sobrevivência do Terapeuta", objetivo: "Permitir que o paciente dirija agressividade sincera ao terapeuta sem que este retalie ou se desintegre.", indicacao: "Fase de diferenciação subjetiva e saída da onipotência imaginária.", limites: "Manter firmeza e afeto sem cair na contratransferência agressiva." }
+   ]
+ },
+ {
+   escola: "Melanie Klein & Wilfred Bion",
+   tecnicas: [
+     { nome: "Interpretação no Aqui-e-Agora da Transferência (Klein)", objetivo: "Interpretar as fantasias inconscientes primitivas projetadas diretamente na relação com o analista.", indicacao: "Ansiedades agudas de perseguição e culpa depressiva intensa.", limites: "Exige clareza de que a fantasia pertence ao paciente e não à pessoa do terapeuta." },
+     { nome: "Função Alfa e Continência (Bion)", objetivo: "O analista acolhe sensações brutas impensáveis (elementos beta) e as devolve metabolizadas em pensamento (elementos alfa).", indicacao: "Estados de desorganização emocional, vazio de palavras e somatizações.", limites: "Exige reverie materna do terapeuta e tolerância à frustração." },
+     { nome: "Capacidade Negativa (Bion)", objetivo: "Capacidade de sustentar incertezas, mistérios e dúvidas sem correr precipitadamente atrás de fatos ou razões.", indicacao: "Diante de momentos obscuros ou estagnações na escuta clínica.", limites: "Não descambar para o descuido ou passividade vazia." }
+   ]
+ }
+];
+
+function ecoRenderDreamAtlas(c){
+ const dreams = Array.isArray(c.sonhosList) ? c.sonhosList : [];
+ const query = ecoSymbolSearch.trim().toLowerCase();
+ const symbols = query ? ecoSymbolDictionary.filter(s=>s.titulo.toLowerCase().includes(query)||s.sentidos.toLowerCase().includes(query)||s.perguntas.toLowerCase().includes(query)) : ecoSymbolDictionary;
+ let out = '<section class="eco-outline"><h2>Atlas de Sonhos do Paciente</h2>'+
+   '<p class="eco-caption">Registros de produções oníricas manifestas, afetos relatados e associações livres. O ECO não realiza interpretação automática; cada sonho preserva o vínculo com as palavras singulares do paciente.</p>';
+ if(dreams.length){
+   out += '<h3>Sonhos documentados ('+dreams.length+')</h3>';
+   out += dreams.map(d=>'<div class="eco-evidence"><strong>'+esc(formatDate(d.data||datestr()))+' · '+(d.recorrente?'<span class="chip warn">Imagem Recorrente</span>':'<span class="chip">Sonho</span>')+'</strong>'+
+     '<p><strong>Conteúdo manifesto:</strong> “'+esc(d.texto||'')+'”</p>'+
+     (d.personagens?'<p class="small"><strong>Personagens/Figuras:</strong> '+esc(d.personagens)+'</p>':'')+
+     (d.afetos?'<p class="small"><strong>Afetos no sonho:</strong> '+esc(d.afetos)+'</p>':'')+
+     (d.associacoes?'<p class="small"><strong>Associações do paciente:</strong> '+esc(d.associacoes)+'</p>':'')+
+     (d.hipotese?'<p class="small"><strong>Hipótese profissional:</strong> '+esc(d.hipotese)+'</p>':'')+
+     '<div class="actions">'+btn('Excluir sonho','ecoDeleteDream','ghost',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`) +'</div>'+
+     '</div>').join('');
+ } else {
+   out += '<p class="muted small">Nenhum sonho registrado neste caso até o momento.</p>';
+ }
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Registrar novo sonho</h3>'+
+   '<div class="field"><label>Data do relato</label><input type="date" id="dreamData" value="'+datestr()+'"></div>'+
+   '<div class="field"><label>Conteúdo manifesto nas palavras da pessoa</label><textarea id="dreamTexto" placeholder="Descreva a narrativa onírica..."></textarea></div>'+
+   '<div class="split">'+
+   '<div class="field"><label>Personagens presentes</label><input type="text" id="dreamPersonagens" placeholder="Ex.: mãe, figura sem rosto"></div>'+
+   '<div class="field"><label>Afetos sentidos (medo, estranheza, alívio)</label><input type="text" id="dreamAfetos" placeholder="Ex.: angústia intensa, paralisia"></div>'+
+   '</div>'+
+   '<div class="field"><label>Associações livres do paciente</label><textarea id="dreamAssociacoes" placeholder="Com o que o paciente associa elementos do sonho?"></textarea></div>'+
+   '<div class="field"><label>Hipótese de trabalho do terapeuta (opcional)</label><textarea id="dreamHipotese" placeholder="Hipótese provisória para escuta..."></textarea></div>'+
+   '<div class="actions">'+btn('Salvar registro de sonho','ecoSaveDream','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+
+ out += '<section class="eco-outline"><h2>Dicionário Teórico de Símbolos Oníricos</h2>'+
+   '<p class="eco-caption">Biblioteca offline com citações acadêmicas e fundamentação em Sigmund Freud (A Interpretação dos Sonhos, 1900; Conferências Introdutórias, 1916-17) e Carl G. Jung (Obras Completas, vols. 8 e 16). O dicionário fornece subsídios conceituais para amplificação e não diagnósticos universais.</p>'+
+   '<div class="field"><input type="search" placeholder="Pesquisar símbolos (animais, casas, parentes, morte, queda...)" value="'+esc(ecoSymbolSearch)+'" data-dream-symbol-search></div>';
+  out += '<div id="ecoSymbolResults">';
+
+ out += symbols.map(s=>'<div class="eco-evidence" style="margin:12px 0">'+
+   '<h3>'+esc(s.titulo)+'</h3>'+
+   '<p class="small"><strong>Freud:</strong> '+esc(s.freud)+'</p>'+
+   '<p class="small"><strong>Jung:</strong> '+esc(s.jung)+'</p>'+
+   '<p class="small"><strong>Sentidos possíveis na clínica:</strong> '+esc(s.sentidos)+'</p>'+
+   '<p class="small"><strong>Perguntas abertas orientadoras:</strong> '+esc(s.perguntas)+'</p>'+
+   '<p class="small muted"><strong>Limites epistemológicos:</strong> '+esc(s.limites)+'</p>'+
+   '</div>').join('');
+   out += '</div>';
+ out += '</section>';
+ return out;
+}
+
+function ecoRenderInvestigation(c){
+ const axesData = c.investigacaoAxes || {};
+ const hypotheses = Array.isArray(c.hipotesesList) ? c.hipotesesList : [];
+ let out = '<section class="eco-outline"><h2>Eixos de Investigação Psicanalítica</h2>'+
+   '<p class="eco-caption">Catálogo de 12 eixos teóricos para orientar a escuta longitudinal. Cada apontamento é preenchido e revisado exclusivamente pelo profissional, sem diagnósticos automáticos.</p>';
+ out += ecoInvestigationAxes.map(axis=>{
+   const item = axesData[axis.id] || {};
+   return '<div class="card" style="margin:12px 0">'+
+     '<div class="titleline"><div><h3>'+esc(axis.nome)+'</h3><div class="muted small">'+esc(axis.descricao)+'</div></div>'+
+     '<span class="chip '+(item.status==='explorado'?'good':item.status==='em curso'?'warn':'gray')+'">'+esc(item.status||'a investigar')+'</span></div>'+
+     '<p class="small"><em>Pergunta orientadora: '+esc(axis.perguntaPadrao)+'</em></p>'+
+     '<div class="field"><label>Apontamentos e observações no caso</label><textarea id="axis_note_'+axis.id+'" placeholder="Registre impressões clínicas sobre este eixo...">'+esc(item.nota||'')+'</textarea></div>'+
+     '<div class="split">'+
+     '<div class="field"><label>Status do eixo</label><select id="axis_status_'+axis.id+'"><option value="a investigar" '+(item.status==='a investigar'?'selected':'')+'>A investigar</option><option value="em curso" '+(item.status==='em curso'?'selected':'')+'>Em curso</option><option value="explorado" '+(item.status==='explorado'?'selected':'')+'>Explorado</option><option value="descartado" '+(item.status==='descartado'?'selected':'')+'>Descartado</option></select></div>'+
+     '<div class="field"><label>Prioridade</label><select id="axis_priority_'+axis.id+'"><option value="normal" '+(item.prioridade==='normal'?'selected':'')+'>Normal</option><option value="alta" '+(item.prioridade==='alta'?'selected':'')+'>Alta</option><option value="baixa" '+(item.prioridade==='baixa'?'selected':'')+'>Baixa</option></select></div>'+
+     '</div>'+
+     '<div class="actions">'+btn('Salvar apontamento','ecoSaveAxis','secondary',`data-case="${esc(c.id)}" data-axis="${esc(axis.id)}"`) +'</div>'+
+     '</div>';
+ }).join('');
+ out += '</section>';
+
+ out += '<section class="eco-outline"><h2>Diário de Hipóteses Clínicas</h2>'+
+   '<p class="eco-caption">Registro de hipóteses provisórias de trabalho com identificação explícita de evidências favoráveis (+) e contrárias (-) para evitar viés de confirmação.</p>';
+ if(hypotheses.length){
+   out += hypotheses.map(h=>'<div class="eco-evidence"><strong>Hipótese: '+esc(h.texto)+'</strong>'+
+     (h.favoraveis?'<p class="small" style="color:#28675b"><strong>[+] Evidências favoráveis:</strong> '+esc(h.favoraveis)+'</p>':'')+
+     (h.contrarias?'<p class="small" style="color:#ad4141"><strong>[-] Evidências contrárias/divergências:</strong> '+esc(h.contrarias)+'</p>':'')+
+     (h.alternativas?'<p class="small muted"><strong>Explicações alternativas:</strong> '+esc(h.alternativas)+'</p>':'')+
+     '<div class="actions">'+btn('Excluir hipótese','ecoDeleteHypothesis','ghost',`data-case="${esc(c.id)}" data-id="${esc(h.id)}"`) +'</div>'+
+     '</div>').join('');
+ } else {
+   out += '<p class="muted small">Nenhuma hipótese registrada até o momento.</p>';
+ }
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Adicionar nova hipótese de trabalho</h3>'+
+   '<div class="field"><label>Formulação da hipótese</label><textarea id="hypoTexto" placeholder="Ex.: A inibição profissional encobre um conflito de rivalidade com a figura paterna..."></textarea></div>'+
+   '<div class="field"><label>Evidências favoráveis (+) no relato do paciente</label><textarea id="hypoFavoraveis" placeholder="Falas, sintomas ou sonhos que sustentam a hipótese..."></textarea></div>'+
+   '<div class="field"><label>Evidências contrárias (-) ou fatos divergentes</label><textarea id="hypoContrarias" placeholder="Elementos que desafiam ou contrariam a hipótese..."></textarea></div>'+
+   '<div class="field"><label>Explicações alternativas possíveis</label><input type="text" id="hypoAlternativas" placeholder="Outras leituras conceituais viáveis..."></div>'+
+   '<div class="actions">'+btn('Salvar hipótese no diário','ecoAddHypothesis','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+ return out;
+}
+
+function ecoRenderTechniques(c){
+ const log = Array.isArray(c.intervencoesList) ? c.intervencoesList : [];
+ let out = '<section class="eco-outline"><h2>Biblioteca de Técnicas por Escola</h2>'+
+   '<p class="eco-caption">Fundamentação conceitual com rigor epistemológico. Não funde abordagens; apresenta distinções claras entre Freud, Lacan, Jung, Winnicott, Klein e Bion.</p>';
+ out += ecoSchoolsLibrary.map(s=>'<div class="card" style="margin:12px 0"><h3>'+esc(s.escola)+'</h3>'+
+   s.tecnicas.map(t=>'<div class="eco-evidence" style="margin:8px 0"><strong>'+esc(t.nome)+'</strong>'+
+     '<p class="small"><strong>Objetivo:</strong> '+esc(t.objetivo)+'</p>'+
+     '<p class="small"><strong>Indicação clínica:</strong> '+esc(t.indicacao)+'</p>'+
+     '<p class="small muted"><strong>Limites:</strong> '+esc(t.limites)+'</p>'+
+     '</div>').join('')+
+   '</div>').join('');
+ out += '</section>';
+
+ out += '<section class="eco-outline"><h2>Registro de Intervenções Clínicas</h2>'+
+   '<p class="eco-caption">Acompanhamento longitudinal de intervenções realizadas, resposta verbal/não verbal do paciente e efeito observado.</p>';
+ if(log.length){
+   out += log.map(i=>'<div class="eco-evidence"><strong>'+esc(formatDate(i.data||datestr()))+' · Técnica: '+esc(i.tecnica)+'</strong>'+
+     (i.contexto?'<p class="small"><strong>Contexto:</strong> '+esc(i.contexto)+'</p>':'')+
+     (i.resposta?'<p class="small"><strong>Resposta do paciente:</strong> '+esc(i.resposta)+'</p>':'')+
+     (i.efeito?'<p class="small"><strong>Efeito observado:</strong> '+esc(i.efeito)+'</p>':'')+
+     '<div class="actions">'+btn('Excluir registro','ecoDeleteIntervention','ghost',`data-case="${esc(c.id)}" data-id="${esc(i.id)}"`) +'</div>'+
+     '</div>').join('');
+ } else {
+   out += '<p class="muted small">Nenhuma intervenção registrada neste caso.</p>';
+ }
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Registrar intervenção realizada</h3>'+
+   '<div class="split">'+
+   '<div class="field"><label>Data da intervenção</label><input type="date" id="intervData" value="'+datestr()+'"></div>'+
+   '<div class="field"><label>Técnica utilizada</label><input type="text" id="intervTecnica" placeholder="Ex.: Pontuação, Clarificação, Imaginação Ativa"></div>'+
+   '</div>'+
+   '<div class="field"><label>Contexto ou fala do paciente no momento</label><textarea id="intervContexto" placeholder="O que o paciente dizia imediatamente antes?"></textarea></div>'+
+   '<div class="field"><label>Resposta do paciente (verbal e afeto corporal)</label><textarea id="intervResposta" placeholder="Como o paciente reagiu?"></textarea></div>'+
+   '<div class="field"><label>Efeito observado na evolução</label><textarea id="intervEfeito" placeholder="Houve desdobramento associativo, silêncio reflexivo ou resistência?"></textarea></div>'+
+   '<div class="actions">'+btn('Salvar registro de intervenção','ecoAddIntervention','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+ return out;
+}
+
+function ecoRenderGenogram(c){
+ const gen = c.genograma || { membros: [], relacoes: [] };
+ const members = Array.isArray(gen.membros) ? gen.membros : [];
+ const rels = Array.isArray(gen.relacoes) ? gen.relacoes : [];
+ const timeline = Array.isArray(c.cronologia) ? c.cronologia : [];
+
+ const g1 = members.filter(m => (m.geracao||'').startsWith('G1'));
+ const g2 = members.filter(m => (m.geracao||'').startsWith('G2'));
+ const g3 = members.filter(m => (m.geracao||'').startsWith('G3') || !m.geracao);
+ const g4 = members.filter(m => (m.geracao||'').startsWith('G4'));
+
+ const nodeCoords = new Map();
+ const width = 800;
+ const placeRow = (rowList, y) => {
+   const n = rowList.length;
+   rowList.forEach((m, idx) => {
+     const x = Math.round((idx + 1) * (width / (n + 1)));
+     nodeCoords.set(m.id, { x, y, m });
+   });
+ };
+ placeRow(g1, 65);
+ placeRow(g2, 160);
+ placeRow(g3, 260);
+ placeRow(g4, 370);
+
+ let edgesSvg = '';
+ rels.forEach(r => {
+   const from = nodeCoords.get(r.deId);
+   const to = nodeCoords.get(r.paraId);
+   if(from && to){
+     let stroke = '#10b981';
+     let dash = '';
+     let strokeWidth = '2';
+     if(r.tipo === 'conflito'){ stroke = '#ef4444'; dash = 'stroke-dasharray="6,4"'; strokeWidth = '3'; }
+     else if(r.tipo === 'divorcio'){ stroke = '#ef4444'; dash = 'stroke-dasharray="3,3"'; }
+     else if(r.tipo === 'distante'){ stroke = '#64748b'; dash = 'stroke-dasharray="4,4"'; }
+     else if(r.tipo === 'alianca'){ stroke = '#06b6d4'; strokeWidth = '3'; }
+     else if(r.tipo === 'casamento'){ stroke = '#38bdf8'; }
+     else { stroke = '#94a3b8'; }
+     edgesSvg += `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="${stroke}" stroke-width="${strokeWidth}" ${dash} />`;
+   }
+ });
+
+ let nodesSvg = '';
+ nodeCoords.forEach((coord, id) => {
+   const { x, y, m } = coord;
+   const isPatient = m.id === c.id || (m.parentesco && /paciente|sujeito|titular/i.test(m.parentesco)) || (m.geracao && m.geracao.includes('Paciente'));
+   const isDeceased = m.vivo === 'não';
+   const isMale = m.sexo === 'M' || (m.parentesco && /pai|avô|irmão|filho|tio|homem/i.test(m.parentesco));
+   const isFemale = m.sexo === 'F' || (m.parentesco && /mãe|avó|irmã|filha|tia|mulher/i.test(m.parentesco));
+   const strokeColor = isPatient ? '#10b981' : isDeceased ? '#64748b' : '#38bdf8';
+   const strokeWidth = isPatient ? '3.5' : '2';
+
+   let shape = '';
+   if(isMale){
+     shape = `<rect x="${x-22}" y="${y-22}" width="44" height="44" rx="4" fill="#1e293b" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+   } else if(isFemale){
+     shape = `<circle cx="${x}" cy="${y}" r="22" fill="#1e293b" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+   } else {
+     shape = `<rect x="${x-22}" y="${y-22}" width="44" height="44" rx="12" fill="#1e293b" stroke="${strokeColor}" stroke-width="${strokeWidth}" />`;
+   }
+
+   let deceasedSlash = isDeceased ? `<line x1="${x-16}" y1="${y+16}" x2="${x+16}" y2="${y-16}" stroke="#ef4444" stroke-width="2.5" />` : '';
+   let label = `<text x="${x}" y="${y+4}" fill="#f8fafc" font-size="11" font-weight="bold" text-anchor="middle">${esc(m.nome.slice(0,9))}</text>`;
+   let sublabel = `<text x="${x}" y="${y+34}" fill="#94a3b8" font-size="9" text-anchor="middle">${esc(m.parentesco||'')}</text>`;
+
+   nodesSvg += `<g class="gen-node" data-id="${esc(m.id)}">${shape}${deceasedSlash}${label}${sublabel}</g>`;
+ });
+
+ let svgContent = `<svg class="eco-genogram-svg" viewBox="0 0 800 430" width="100%" height="400">
+   <!-- Generation Guides -->
+   <line x1="15" y1="65" x2="785" y2="65" stroke="#1e293b" stroke-dasharray="4,4" />
+   <text x="20" y="60" fill="#475569" font-size="10">G1: Avós</text>
+   <line x1="15" y1="160" x2="785" y2="160" stroke="#1e293b" stroke-dasharray="4,4" />
+   <text x="20" y="155" fill="#475569" font-size="10">G2: Pais e Tios</text>
+   <line x1="15" y1="260" x2="785" y2="260" stroke="#1e293b" stroke-dasharray="4,4" />
+   <text x="20" y="255" fill="#475569" font-size="10">G3: Sujeito / Parceiros / Irmãos</text>
+   <line x1="15" y1="370" x2="785" y2="370" stroke="#1e293b" stroke-dasharray="4,4" />
+   <text x="20" y="365" fill="#475569" font-size="10">G4: Filhos e Descendentes</text>
+
+   ${edgesSvg}
+   ${nodesSvg || '<text x="400" y="220" fill="#64748b" font-size="13" text-anchor="middle">Nenhum familiar cadastrado. Adicione familiares abaixo para desenhar o grafo interativo.</text>'}
+ </svg>`;
+
+ let out = '<section class="eco-outline"><h2>Genograma Familiar Interativo</h2>'+
+   '<p class="eco-caption">Mapeamento visual da dinâmica transgeracional e laços afetivos em grafo real. Nós representam os sujeitos (homem: quadrado; mulher: círculo; sujeito: verde neon) e arestas conectam as relações e vínculos relatados pelo paciente.</p>'+
+   svgContent;
+
+ if(members.length){
+   out += '<h3>Membros cadastrados ('+members.length+')</h3><div class="checklist">';
+   out += members.map(m=>'<div class="choice" style="display:block"><strong>'+esc(m.nome)+'</strong> <span class="small muted">('+esc(m.parentesco)+')</span>'+
+     '<div><span class="chip '+(m.vivo==='não'?'gray':'good')+'">'+(m.vivo==='não'?'Falecido':'Vivo')+'</span><span class="chip">'+esc(m.geracao||'G3')+'</span></div>'+
+     (m.vinculo?'<div class="small">Vínculo: <strong>'+esc(m.vinculo)+'</strong></div>':'')+
+     (m.notas?'<div class="small muted">'+esc(m.notas)+'</div>':'')+
+     '<div class="actions" style="margin-top:6px">'+btn('Excluir','ecoDeleteFamilyMember','ghost',`data-case="${esc(c.id)}" data-id="${esc(m.id)}"`) +'</div>'+
+     '</div>').join('');
+   out += '</div>';
+
+   // Form to link two members (Vínculo relacional)
+   out += '<div class="card" style="margin-top:16px"><h3>＋ Adicionar vínculo / relação entre dois familiares</h3>'+
+     '<div class="split">'+
+     '<div class="field"><label>Membro A</label><select id="relDeId">'+members.map(m=>`<option value="${esc(m.id)}">${esc(m.nome)} (${esc(m.parentesco)})</option>`).join('')+'</select></div>'+
+     '<div class="field"><label>Membro B</label><select id="relParaId">'+members.map((m,idx)=>`<option value="${esc(m.id)}" ${idx===1?'selected':''}>${esc(m.nome)} (${esc(m.parentesco)})</option>`).join('')+'</select></div>'+
+     '</div>'+
+     '<div class="field"><label>Tipo de relação / vínculo</label><select id="relTipo">'+
+     '<option value="pais_filho">Filiação (Pais → Filho)</option>'+
+     '<option value="casamento">Casamento / União estável</option>'+
+     '<option value="alianca">Aliança afetiva forte / Proximidade</option>'+
+     '<option value="conflito">Conflito intenso / Hostilidade</option>'+
+     '<option value="distante">Distanciamento / Frieza</option>'+
+     '<option value="divorcio">Separação / Divórcio</option>'+
+     '</select></div>'+
+     '<div class="actions">'+btn('Adicionar vínculo entre familiares','ecoAddFamilyRelation','',`data-case="${esc(c.id)}"`) +'</div>'+
+     '</div>';
+
+   if(rels.length){
+     out += '<h3>Vínculos cadastrados ('+rels.length+')</h3><div class="checklist">';
+     out += rels.map(r=>{
+       const de = members.find(m=>m.id===r.deId)?.nome||'Membro';
+       const para = members.find(m=>m.id===r.paraId)?.nome||'Membro';
+       return '<div class="choice" style="display:block"><strong>'+esc(de)+' ↔ '+esc(para)+'</strong>: <span class="chip">'+esc(r.tipo)+'</span>'+
+         '<div class="actions" style="margin-top:4px">'+btn('Excluir vínculo','ecoDeleteFamilyRelation','ghost',`data-case="${esc(c.id)}" data-id="${esc(r.id)}"`) +'</div></div>';
+     }).join('');
+     out += '</div>';
+   }
+ }
+
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Adicionar novo familiar ao genograma</h3>'+
+   '<div class="split">'+
+   '<div class="field"><label>Nome / Iniciais</label><input type="text" id="genNome" placeholder="Ex.: M. (mãe)"></div>'+
+   '<div class="field"><label>Parentesco</label><input type="text" id="genParentesco" placeholder="Ex.: Mãe, Pai, Irmão mais velho, Avó materna"></div>'+
+   '</div>'+
+   '<div class="split">'+
+   '<div class="field"><label>Geração</label><select id="genGeracao"><option value="G1 (Avós)">G1 (Avós)</option><option value="G2 (Pais/Tios)">G2 (Pais/Tios)</option><option value="G3 (Paciente/Irmãos)" selected>G3 (Paciente/Irmãos/Parceiros)</option><option value="G4 (Filhos)">G4 (Filhos)</option></select></div>'+
+   '<div class="field"><label>Status vital</label><select id="genVivo"><option value="sim">Vivo(a)</option><option value="não">Falecido(a)</option></select></div>'+
+   '</div>'+
+   '<div class="split">'+
+   '<div class="field"><label>Gênero / Símbolo</label><select id="genSexo"><option value="indefinido">Indefinido / Sujeito</option><option value="F">Feminino (Círculo)</option><option value="M">Masculino (Quadrado)</option></select></div>'+
+   '<div class="field"><label>Tipo de vínculo relatado</label><select id="genVinculo"><option value="Próximo e acolhedor">Próximo e acolhedor</option><option value="Muito Próximo / Simbiótico">Muito Próximo / Simbiótico</option><option value="Conflituoso / Hostil">Conflituoso / Hostil</option><option value="Distante / Frio">Distante / Frio</option><option value="Rompido / Sem contato">Rompido / Sem contato</option><option value="Dependente / Inversão de papéis">Dependente / Inversão de papéis</option><option value="Cuidador / Protetor">Cuidador / Protetor</option></select></div>'+
+   '</div>'+
+   '<div class="field"><label>Notas e observações</label><input type="text" id="genNotas" placeholder="Notas sobre histórico de perdas, migração, etc."></div>'+
+   '<div class="actions">'+btn('Adicionar ao genograma','ecoAddFamilyMember','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+
+ out += '<section class="eco-outline"><h2>Linha do Tempo Biográfica</h2>'+
+   '<p class="eco-caption">Marcos e acontecimentos na história do sujeito com datas aproximadas e fontes do relato.</p>';
+ if(timeline.length){
+   out += '<div class="timeline">'+[...timeline].sort((a,b)=>(a.ano||'').localeCompare(b.ano||'')).map(e=>'<div class="card entry">'+
+     '<div class="titleline"><h3>'+esc(e.ano||'Data incerta')+' · '+esc(e.titulo||'Acontecimento')+'</h3></div>'+
+     (e.descricao?'<p>'+esc(e.descricao)+'</p>':'')+
+     (e.envolvidos?'<p class="small"><strong>Pessoas envolvidas:</strong> '+esc(e.envolvidos)+'</p>':'')+
+     (e.impacto?'<p class="small muted"><strong>Impacto relatado:</strong> '+esc(e.impacto)+'</p>':'')+
+     '<div class="actions">'+btn('Excluir marco','ecoDeleteBioEvent','ghost',`data-case="${esc(c.id)}" data-id="${esc(e.id)}"`) +'</div>'+
+     '</div>').join('')+'</div>';
+ } else {
+   out += '<p class="muted small">Nenhum evento registrado na cronologia biográfica.</p>';
+ }
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Registrar marco biográfico</h3>'+
+   '<div class="split">'+
+   '<div class="field"><label>Ano / Época aproximada</label><input type="text" id="bioAno" placeholder="Ex.: 2012, Aos 7 anos, Infância"></div>'+
+   '<div class="field"><label>Título do evento</label><input type="text" id="bioTitulo" placeholder="Ex.: Mudança de cidade, Nascimento do irmão"></div>'+
+   '</div>'+
+   '<div class="field"><label>Descrição do acontecimento</label><textarea id="bioDescricao" placeholder="Como o fato foi narrado pelo sujeito?"></textarea></div>'+
+   '<div class="field"><label>Pessoas envolvidas</label><input type="text" id="bioEnvolvidos" placeholder="Ex.: mãe e padrasto"></div>'+
+   '<div class="field"><label>Impacto subjetivo relatado</label><input type="text" id="bioImpacto" placeholder="Ex.: sentimento de abandono, sensação de amadurecimento precoce"></div>'+
+   '<div class="actions">'+btn('Salvar marco biográfico','ecoAddBioEvent','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+ return out;
+}
+
+function ecoRenderTherapistDiary(c){
+ let notes = [];
+ if(window.__ecoPrivateDiaries && Array.isArray(window.__ecoPrivateDiaries[c.id])){
+   notes = window.__ecoPrivateDiaries[c.id];
+ }
+ const vault = window.NativeVault;
+ const readFn = vault?.readPrivateDiary || vault?.loadPrivateDiary;
+ if(readFn){
+   try{
+     const raw = readFn.call(vault, c.id);
+     if(raw && raw.trim().startsWith("[")){
+       notes = JSON.parse(raw);
+     }
+   }catch(err){}
+ }
+ let out = '<section class="eco-outline"><h2>Diário Privado do Terapeuta</h2>'+
+   '<div class="alert" style="background:#f0f4f2;color:#28574d;border:1px solid #c8ddd4">'+
+   '<strong>Espaço estritamente confidencial do profissional</strong><br>'+
+   'Destinado a anotações sobre contratransferência, impasses da escuta, sentimentos despertados e dúvidas para supervisão. '+
+   '<strong>Este diário é segregado do prontuário do paciente e nunca é incluído em relatórios ou exportações de documentos.</strong>'+
+   '</div>';
+ if(notes.length){
+   out += notes.map(n=>'<div class="eco-evidence"><strong>'+esc(formatDate(n.data||datestr()))+' · <span class="chip warn">'+esc(n.categoria||'Reflexão')+'</span></strong>'+
+     '<p style="white-space:pre-wrap">'+esc(n.texto||'')+'</p>'+
+     '<div class="actions">'+btn('Excluir reflexão','ecoDeleteDiaryNote','ghost',`data-case="${esc(c.id)}" data-id="${esc(n.id)}"`) +'</div>'+
+     '</div>').join('');
+ } else {
+   out += '<p class="muted small">Nenhuma nota privada registrada para este caso.</p>';
+ }
+ out += '<div class="card" style="margin-top:16px"><h3>＋ Registrar reflexão privada</h3>'+
+   '<div class="split">'+
+   '<div class="field"><label>Data</label><input type="date" id="diaryData" value="'+datestr()+'"></div>'+
+   '<div class="field"><label>Categoria</label><select id="diaryCategoria"><option value="Contratransferência / Afeto suscitado">Contratransferência / Afeto suscitado</option><option value="Impasse na escuta">Impasse na escuta</option><option value="Questão para supervisão clínica">Questão para supervisão clínica</option><option value="Hipótese teórica pessoal">Hipótese teórica pessoal</option></select></div>'+
+   '</div>'+
+   '<div class="field"><label>Conteúdo da reflexão</label><textarea id="diaryTexto" rows="5" placeholder="Registre suas impressões francas sobre o andamento e o impacto pessoal da escuta..."></textarea></div>'+
+   '<div class="actions">'+btn('Salvar reflexão protegida','ecoAddDiaryNote','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>';
+ out += '</section>';
+ return out;
+}
+
+function ecoRenderClinicalSafety(c){
+ const s = c.seguranca || {};
+ return '<section class="eco-outline"><h2>Área de Segurança Clínica Manual</h2>'+
+   '<div class="alert" style="background:#fff6e9;color:#7e4c12;border:1px solid #f6d19c">'+
+   '<strong>Protocolo conduzido exclusivamente por julgamento humano</strong><br>'+
+   'O ECO não realiza triagem algorítmica nem calcula escore automático de risco de suicídio ou vulnerabilidade. '+
+   'A avaliação e as medidas de proteção cabem inteiramente ao profissional habilitado, respeitando as diretrizes éticas e de urgência.'+
+   '</div>'+
+   '<div class="card">'+
+   '<div class="field"><label>Preocupações trazidas pelo paciente ou observadas</label><textarea id="safePreocupacoes" placeholder="Relatos de sofrimento intenso, ideações, desesperança ou fatores de risco...">'+esc(s.preocupacoes||'')+'</textarea></div>'+
+   '<div class="field"><label>Avaliação clínica do profissional</label><textarea id="safeAvaliacao" placeholder="Impressão do terapeuta sobre a gravidade e os recursos subjetivos vigentes...">'+esc(s.avaliacao||'')+'</textarea></div>'+
+   '<div class="field"><label>Plano de segurança pactuado com o paciente</label><textarea id="safePlano" placeholder="Estratégias de enfrentamento acordadas, passos a seguir em momentos de crise...">'+esc(s.plano||'')+'</textarea></div>'+
+   '<div class="field"><label>Rede de apoio e contatos autorizados para emergência</label><textarea id="safeContatos" placeholder="Pessoas de confiança autorizadas pelo paciente com telefones...">'+esc(s.contatos||'')+'</textarea></div>'+
+   '<div class="field"><label>Encaminhamentos e ações protetivas realizadas</label><textarea id="safeEncaminhamentos" placeholder="Interconsulta psiquiátrica, encaminhamento para CAPS ou rede de saúde...">'+esc(s.encaminhamentos||'')+'</textarea></div>'+
+   '<div class="actions">'+btn('Salvar plano de segurança','ecoSaveSafety','',`data-case="${esc(c.id)}"`) +'</div>'+
+   '</div>'+
+   '</section>';
+}
+
+function ecoFormatClinicalDoc(c, type, sections, options){
+  const opts = options || { confirmed: ecoDocConfirmed, profNome: ecoDocProfNome, profRegistro: ecoDocProfRegistro, profContato: ecoDocProfContato, docDateFrom: ecoDocDateFrom, docDateTo: ecoDocDateTo };
+  const title = type==='resumo' ? 'Resumo de Acompanhamento Multidisciplinar' :
+    type==='encaminhamento' ? 'Encaminhamento Clínico' :
+    type==='supervisao' ? 'Síntese para Supervisão Clínica (Pseudonimizada)' :
+    'Ficha de Acompanhamento Clínico';
+
+  function deidentify(txt){
+    if(!txt) return '';
+    let s = String(txt);
+    if(type === 'supervisao'){
+      // Pseudonymize CPF
+      s = s.replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, '[CPF REMOVIDO]');
+      // Pseudonymize phone numbers
+      s = s.replace(/(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9\d{4}|\d{4})[-.\s]?\d{4}\b/g, '[TELEFONE REMOVIDO]');
+      // Pseudonymize addresses
+      s = s.replace(/\b(?:Rua|Avenida|Av\.|Travessa|Alameda|Praça|Pr\.)\s+[^,\n]+,\s*\d+(?:\s*-[^,\n]+)?/gi, '[ENDEREÇO REMOVIDO]');
+      // Replace patient name
+      if(c.nome && c.nome.trim().length > 1){
+        const escN = c.nome.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        s = s.replace(new RegExp(escN, 'gi'), '[PACIENTE]');
+      }
+      // Replace relatives from genogram escaping regex characters
+      if(c.genograma?.membros){
+        c.genograma.membros.forEach(m => {
+          if(m.nome && m.nome.trim().length > 1){
+            const escM = m.nome.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const role = m.parentesco ? m.parentesco.replace(/[.*+?^${}()|[\]\\]/g, '') : 'FAMILIAR';
+            s = s.replace(new RegExp(escM, 'gi'), '[' + role + ']');
+          }
+        });
+      }
+    }
+    return s;
+  }
+
+  let body = '';
+  if(sections.identificacao){
+    body += '<h2>1. Identificação</h2>'+
+      '<div class="kv"><strong>Paciente / Código:</strong> '+(type==='supervisao' ? '[PACIENTE] ('+esc(c.id.slice(0,8))+')' : esc(c.nome))+'</div>'+
+      (type!=='supervisao'
+        ? '<div class="kv"><strong>Idade:</strong> '+(c.idade?esc(c.idade)+' anos':'Não informada')+'</div>'
+        : '<div class="kv"><strong>Faixa etária:</strong> '+((c.idade && Number(c.idade) < 18) ? 'Faixa infantojuvenil (Pseudonimizada)' : 'Faixa adulta (Pseudonimizada)')+'</div>')+
+      '<div class="kv"><strong>Modalidade:</strong> '+esc(c.modalidade||'Presencial')+'</div>'+
+      '<div class="kv"><strong>Início do acompanhamento:</strong> '+formatDate(c.data)+'</div>'+
+      '<div class="kv"><strong>Status atual:</strong> '+esc(c.status||'Em andamento')+'</div>';
+  }
+
+  if(sections.enquadre && c.enquadre){
+    const enq = c.enquadre;
+    body += '<h2>2. Enquadre Terapêutico Acordado</h2>'+
+      '<div class="kv"><strong>Frequência:</strong> '+esc(deidentify(enq.frequencia||'Não informado'))+'</div>'+
+      '<div class="kv"><strong>Duração da sessão:</strong> '+esc(deidentify(enq.duracao||'Não informado'))+'</div>'+
+      '<div class="kv"><strong>Modalidade acordada:</strong> '+esc(deidentify(enq.modalidade||c.modalidade||'Não informado'))+'</div>'+
+      (enq.honorarios ? '<div class="kv"><strong>Honorários acordados:</strong> '+(type==='supervisao'?'[VALOR OMITIDO]':esc(enq.honorarios))+'</div>' : '')+
+      '<div class="kv"><strong>Limites de contato:</strong> '+esc(deidentify(enq.limites||'Não informado'))+'</div>'+
+      (enq.expectativas ? '<div class="kv"><strong>Pactuações:</strong> '+esc(deidentify(enq.expectativas))+'</div>' : '');
+  }
+
+  if(sections.anamnese){
+    body += '<h2>3. Anamnese e Queixa Clínica</h2>'+
+      '<p><strong>Queixa nas palavras do sujeito:</strong> '+esc(deidentify(c.queixaTexto||c.anamnese?.queixaDetalhada||'Não detalhada'))+'</p>';
+    if(c.anamnese){
+      const ana = c.anamnese;
+      if(ana.queixaDetalhada) body += '<p><strong>Queixa detalhada e expectativas:</strong> '+esc(deidentify(ana.queixaDetalhada))+'</p>';
+      if(ana.queixa_inicial) body += '<p><strong>Queixa inicial:</strong> '+esc(deidentify(ana.queixa_inicial))+'</p>';
+      if(ana.expectativas) body += '<p><strong>Expectativas com o processo:</strong> '+esc(deidentify(ana.expectativas))+'</p>';
+      if(ana.experienciasAnteriores) body += '<p><strong>Terapias e intervenções anteriores:</strong> '+esc(deidentify(ana.experienciasAnteriores))+'</p>';
+      if(ana.sintomatologia) body += '<p><strong>Sintomatologia e sofrimento:</strong> '+esc(deidentify(ana.sintomatologia))+'</p>';
+      if(ana.historia_queixa) body += '<p><strong>História da queixa:</strong> '+esc(deidentify(ana.historia_queixa))+'</p>';
+      if(ana.nascimentoPrimeirosAnos) body += '<p><strong>Nascimento e primeiros anos:</strong> '+esc(deidentify(ana.nascimentoPrimeirosAnos))+'</p>';
+      if(ana.infanciaEscola) body += '<p><strong>Infância e escolarização:</strong> '+esc(deidentify(ana.infanciaEscola))+'</p>';
+      if(ana.adolescenciaCrises) body += '<p><strong>Adolescência e crises:</strong> '+esc(deidentify(ana.adolescenciaCrises))+'</p>';
+      if(ana.figuraMaterna) body += '<p><strong>Relação materna:</strong> '+esc(deidentify(ana.figuraMaterna))+'</p>';
+      if(ana.figuraPaterna) body += '<p><strong>Relação paterna:</strong> '+esc(deidentify(ana.figuraPaterna))+'</p>';
+      if(ana.irmaosParentes) body += '<p><strong>Irmãos e dinâmica familiar:</strong> '+esc(deidentify(ana.irmaosParentes))+'</p>';
+      if(ana.mitosSegredos) body += '<p><strong>Segredos familiares e lutos transgeracionais:</strong> '+esc(deidentify(ana.mitosSegredos))+'</p>';
+      if(ana.parceriasAfetivas) body += '<p><strong>Relações afetivas e amorosas:</strong> '+esc(deidentify(ana.parceriasAfetivas))+'</p>';
+      if(ana.amizadesConvivio) body += '<p><strong>Amizades e sociabilidade:</strong> '+esc(deidentify(ana.amizadesConvivio))+'</p>';
+      if(ana.padroesVinculo) body += '<p><strong>Padrões de vinculação:</strong> '+esc(deidentify(ana.padroesVinculo))+'</p>';
+      if(ana.sexualidadeRelatada) body += '<p><strong>Vivência afetivo-sexual:</strong> '+esc(deidentify(ana.sexualidadeRelatada))+'</p>';
+      if(ana.vidaProfissional) body += '<p><strong>Trabalho e vida profissional:</strong> '+esc(deidentify(ana.vidaProfissional))+'</p>';
+      if(ana.medicacoesUso) body += '<p><strong>Medicamentos e tratamentos médicos:</strong> '+esc(deidentify(ana.medicacoesUso))+'</p>';
+      if(ana.substanciasUso) body += '<p><strong>Uso de substâncias:</strong> '+esc(deidentify(ana.substanciasUso))+'</p>';
+      if(ana.padroesSono) body += '<p><strong>Padrões de sono e descanso:</strong> '+esc(deidentify(ana.padroesSono))+'</p>';
+      if(ana.apetiteRitmos) body += '<p><strong>Alimentação e rotinas vitais:</strong> '+esc(deidentify(ana.apetiteRitmos))+'</p>';
+      if(ana.sintomasSomaticos) body += '<p><strong>Manifestações somáticas:</strong> '+esc(deidentify(ana.sintomasSomaticos))+'</p>';
+      if(ana.lutosSignificativos) body += '<p><strong>Lutos marcantes:</strong> '+esc(deidentify(ana.lutosSignificativos))+'</p>';
+      if(ana.recursosEnfrentamento) body += '<p><strong>Recursos pessoais e interesses:</strong> '+esc(deidentify(ana.recursosEnfrentamento))+'</p>';
+      if(ana.redeApoioEfetiva) body += '<p><strong>Rede de apoio efetiva:</strong> '+esc(deidentify(ana.redeApoioEfetiva))+'</p>';
+    }
+    if(c.familia) body += '<p><strong>Histórico familiar:</strong> '+esc(deidentify(c.familia))+'</p>';
+    if(c.relacoes) body += '<p><strong>Relações significativas:</strong> '+esc(deidentify(c.relacoes))+'</p>';
+    if(c.recursos) body += '<p><strong>Recursos e rede de apoio:</strong> '+esc(deidentify(c.recursos))+'</p>';
+  }
+
+  if(sections.sessoes){
+    let ss = (c.sessoes||[]).slice().reverse();
+    if(opts.docDateFrom){ ss = ss.filter(s => (s.data||'') >= opts.docDateFrom); }
+    if(opts.docDateTo){ ss = ss.filter(s => (s.data||'') <= opts.docDateTo); }
+    body += '<h2>4. Registros das Sessões Selecionadas ('+ss.length+')</h2>';
+    if(ss.length){
+      body += ss.map(s=>'<div style="margin:10px 0;padding-bottom:10px;border-bottom:1px solid #ddd">'+
+        '<strong>Sessão de '+formatDate(s.data)+'</strong>'+
+        '<p>'+esc(deidentify(s.texto||'')).replace(/\n/g,'<br>')+'</p>'+
+        (s.intervencoes?'<p class="small"><strong>Intervenções:</strong> '+esc(deidentify(s.intervencoes))+'</p>':'')+
+        (s.plano?'<p class="small"><strong>Próximos passos:</strong> '+esc(deidentify(s.plano))+'</p>':'')+
+        '</div>').join('');
+    } else { body += '<p class="muted">Nenhuma sessão encontrada para o período selecionado.</p>'; }
+  }
+
+  if(sections.investigacao && c.investigacaoAxes){
+    body += '<h2>5. Eixos de Investigação</h2>';
+    const active = Object.entries(c.investigacaoAxes).filter(([k,v])=>v.nota);
+    if(active.length){
+      body += active.map(([k,v])=>{
+        const axis = ecoInvestigationAxes.find(a=>a.id===k);
+        return '<p><strong>'+esc(axis?axis.nome:k)+':</strong> '+esc(deidentify(v.nota))+' ('+esc(v.status||'em curso')+')</p>';
+      }).join('');
+    } else { body += '<p class="muted">Sem apontamentos registrados nos eixos.</p>'; }
+  }
+
+  if(sections.hipoteses && c.hipotesesList?.length){
+    body += '<h2>6. Hipóteses Clínicas Formuladas</h2>'+
+      c.hipotesesList.map(h=>'<div style="margin:6px 0"><strong>'+esc(deidentify(h.texto))+'</strong>'+
+        (h.favoraveis?'<p class="small"><em>Evidências a favor:</em> '+esc(deidentify(h.favoraveis))+'</p>':'')+
+        (h.contrarias?'<p class="small"><em>Evidências contrárias:</em> '+esc(deidentify(h.contrarias))+'</p>':'')+
+        '</div>').join('');
+  }
+
+  if(sections.tecnicas && c.intervencoesList?.length){
+    body += '<h2>7. Técnicas e Intervenções</h2>'+
+      c.intervencoesList.map(i=>'<p>'+formatDate(i.data||datestr())+' — <strong>'+esc(i.tecnica)+':</strong> '+esc(deidentify(i.efeito||i.resposta||''))+'</p>').join('');
+  }
+
+  if(sections.sonhos && c.sonhosList?.length){
+    body += '<h2>8. Produções Oníricas Registradas</h2>'+
+      c.sonhosList.map(d=>'<div style="margin:6px 0"><strong>Sonho em '+formatDate(d.data)+':</strong> “'+esc(deidentify(d.texto))+'”'+
+        (d.associacoes?'<p class="small"><em>Associações:</em> '+esc(deidentify(d.associacoes))+'</p>':'')+
+        '</div>').join('');
+  }
+
+  if(sections.genograma && c.genograma?.membros?.length){
+    body += '<h2>9. Dinâmica Familiar e Transgeracional</h2>'+
+      '<p>Membros catalogados no genograma: '+c.genograma.membros.map(m=>esc(deidentify(m.nome))+' ('+esc(m.parentesco||'')+')').join(', ')+'</p>';
+  }
+
+  if(sections.cronologia && c.cronologia?.length){
+    body += '<h2>10. Cronologia Biográfica</h2>'+
+      [...c.cronologia].sort((a,b)=>(a.ano||'').localeCompare(b.ano||'')).map(e=>'<p><strong>'+esc(e.ano||'Data incerta')+' · '+esc(deidentify(e.titulo))+':</strong> '+esc(deidentify(e.descricao||''))+'</p>').join('');
+  }
+
+  if(sections.seguranca && c.seguranca?.plano){
+    body += '<h2>11. Plano de Segurança Clínica</h2>'+
+      '<p><strong>Estratégias acordadas:</strong> '+esc(deidentify(c.seguranca.plano))+'</p>';
+  }
+
+  if(sections.plano){
+    body += '<h2>12. Observações e Plano de Continuidade</h2>';
+    if(c.obs && c.obs.trim().length > 0){
+      body += '<p>'+esc(deidentify(c.obs))+'</p>';
+    } else {
+      body += '<p class="muted">Sem observações complementares registradas.</p>';
+    }
+  }
+
+  const profHeader = (opts.profNome || opts.profRegistro)
+    ? `<div style="margin-bottom:12px;font-size:12px;color:#334155;border-bottom:1px dashed #cbd5e1;padding-bottom:6px">
+         <strong>Profissional Responsável:</strong> ${esc(opts.profNome||'')} · <strong>Registro:</strong> ${esc(opts.profRegistro||'')} · ${esc(opts.profContato||'')}
+       </div>`
+    : '';
+
+  const footerText = opts.confirmed
+    ? `Documento revisado e liberado pelo profissional responsável em ${esc(formatDate(datestr()))}; a geração técnica auxilia o registro e não substitui a assinatura física manual ou o julgamento clínico.`
+    : `MINUTA NÃO CONFIRMADA · Exige revisão humana e confirmação explícita antes do uso oficial ou compartilhamento.`;
+
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${title}</title><style>
+    body{font:13px/1.5 Arial,sans-serif;color:#182b27;margin:35px}
+    h1{font-size:20px;color:#125950;margin-bottom:4px}
+    .doc-sub{font-size:11px;color:#666;margin-bottom:15px;border-bottom:2px solid #125950;padding-bottom:8px}
+    h2{font-size:14px;color:#125950;border-bottom:1px solid #c2d6cd;margin-top:20px;padding-bottom:3px}
+    p{margin:6px 0}
+    .kv{margin:4px 0}
+    .footer{margin-top:35px;border-top:1px solid #ccc;padding-top:10px;font-size:10px;color:#666}
+    .alert-draft{background:#fff1f2;color:#991b1b;border:1px solid #fecdd3;padding:8px;border-radius:4px}
+    @media print { body{margin:20px} }
+  </style></head><body>
+    <h1>${title}</h1>
+    <div class="doc-sub">ECO · SISTEMA DE REGISTRO CLÍNICO CONFIDENCIAL · Gerado em ${esc(formatDate(datestr()))} · Documento local</div>
+    ${profHeader}
+    ${body}
+    <div class="footer ${opts.confirmed ? '' : 'alert-draft'}">
+      <strong>Aviso ético e de privacidade:</strong> Documento de uso estritamente profissional, protegido por sigilo profissional e pela Lei Geral de Proteção de Dados (Lei 13.709/2018).
+      <br>${footerText}
+    </div>
+  </body></html>`;
+}
+function ecoRenderDocuments(c){
+ const docHtml = ecoFormatClinicalDoc(c, ecoDocType, ecoDocSections, {
+   confirmed: ecoDocConfirmed,
+   profNome: ecoDocProfNome,
+   profRegistro: ecoDocProfRegistro,
+   profContato: ecoDocProfContato,
+   docDateFrom: ecoDocDateFrom,
+   docDateTo: ecoDocDateTo
+ });
+ return '<section class="eco-outline"><h2>Emissão e Impressão de Documentos Clínicos A4</h2>'+
+   '<p class="eco-caption">Gera documentos estruturados formatados para impressão ou exportação PDF via Android Print Manager, com cabeçalho profissional e salvaguardas de sigilo (LGPD).</p>'+
+   '<div class="card">'+
+   '<div class="field"><label>Modelo do documento</label><select id="docTypeSelect" data-eco-doc-type>'+
+   '<option value="ficha" '+(ecoDocType==='ficha'?'selected':'')+'>Ficha de Acompanhamento Completa (Prontuário pessoal)</option>'+
+   '<option value="resumo" '+(ecoDocType==='resumo'?'selected':'')+'>Resumo de Acompanhamento (Multidisciplinar)</option>'+
+   '<option value="encaminhamento" '+(ecoDocType==='encaminhamento'?'selected':'')+'>Encaminhamento Clínico</option>'+
+   '<option value="supervisao" '+(ecoDocType==='supervisao'?'selected':'')+'>Síntese para Supervisão (Pseudonimizada)</option>'+
+   '</select></div>'+
+   '<div class="split">'+
+   '<div class="field"><label>Profissional responsável (nome)</label><input type="text" data-eco-doc-prof="nome" value="'+esc(ecoDocProfNome)+'" placeholder="Ex.: Dra. Ana Silva"></div>'+
+   '<div class="field"><label>Registro profissional (CRP/CRM)</label><input type="text" data-eco-doc-prof="registro" value="'+esc(ecoDocProfRegistro)+'" placeholder="Ex.: CRP 06/123456"></div>'+
+   '</div>'+
+   '<div class="field"><label>Contato / Instituição</label><input type="text" data-eco-doc-prof="contato" value="'+esc(ecoDocProfContato)+'" placeholder="Ex.: consultorio@exemplo.com.br · (11) 98765-4321"></div>'+
+   '<div class="split">'+
+   '<div class="field"><label>Filtrar sessões a partir de</label><input type="date" data-eco-doc-date="from" value="'+esc(ecoDocDateFrom)+'"></div>'+
+   '<div class="field"><label>Até</label><input type="date" data-eco-doc-date="to" value="'+esc(ecoDocDateTo)+'"></div>'+
+   '</div>'+
+   '<h3>Seções a incluir (12 seções clínicas)</h3>'+
+   '<div class="checklist">'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="identificacao" '+(ecoDocSections.identificacao?'checked':'')+'> 1. Identificação / Dados do caso</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="enquadre" '+(ecoDocSections.enquadre?'checked':'')+'> 2. Enquadre terapêutico acordado</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="anamnese" '+(ecoDocSections.anamnese?'checked':'')+'> 3. Anamnese e queixa (10 categorias)</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="sessoes" '+(ecoDocSections.sessoes?'checked':'')+'> 4. Registros das sessões</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="investigacao" '+(ecoDocSections.investigacao?'checked':'')+'> 5. Eixos de investigação</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="hipoteses" '+(ecoDocSections.hipoteses?'checked':'')+'> 6. Hipóteses clínicas formuladas</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="tecnicas" '+(ecoDocSections.tecnicas?'checked':'')+'> 7. Técnicas e intervenções</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="sonhos" '+(ecoDocSections.sonhos?'checked':'')+'> 8. Produções oníricas e símbolos</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="genograma" '+(ecoDocSections.genograma?'checked':'')+'> 9. Dinâmica familiar e genograma</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="cronologia" '+(ecoDocSections.cronologia?'checked':'')+'> 10. Cronologia biográfica</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="seguranca" '+(ecoDocSections.seguranca?'checked':'')+'> 11. Plano de segurança clínica</label>'+
+   '<label class="choice"><input type="checkbox" data-eco-doc-sec="plano" '+(ecoDocSections.plano?'checked':'')+'> 12. Observações e continuidade</label>'+
+   '</div>'+
+   '<div class="choice" style="margin-top:14px;background:#fefce8;border:1px solid #fef08a">'+
+   '<input type="checkbox" data-eco-doc-confirmed '+(ecoDocConfirmed?'checked':'')+'>'+
+   '<span><strong>Confirmação explícita do profissional</strong>: Declaro que revisei o conteúdo deste documento e autorizo sua geração/impressão formal.</span>'+
+   '</div>'+
+   '<div class="actions" style="margin-top:16px">'+
+   btn('🖨 Imprimir / Salvar PDF','ecoPrintDoc','',`data-case="${esc(c.id)}"`) +
+   '</div>'+
+   '</div>'+
+   '<h3>Prévia do documento formatado</h3>'+
+   '<div class="card" style="border:1px dashed var(--teal);max-height:400px;overflow-y:auto;background:white;color:#182b27;padding:20px">'+
+   '<iframe id="docPreviewFrame" style="width:100%;height:350px;border:none" srcdoc="'+esc(docHtml)+'"></iframe>'+
+   '</div>'+
+   '</section>';
+}
 function ecoAtlasScreen(){
  const count=state.cases.reduce((s,c)=>s+(c.sessoes||[]).length,0);
  let out=head("ECO / atlas","Memória das sessões","Recorrências documentadas — cada marcação remete a uma sessão, sem interpretação automatizada.");
@@ -1512,6 +2622,24 @@ function ecoAtlasScreen(){
  if(!state.cases.length)return out+'<div class="card empty">Crie um caso fictício para começar.</div>';
  out+='<div class="field"><label for="ecoAtlasCase">Escolher caso</label><select id="ecoAtlasCase" data-eco-atlas-case>'+state.cases.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===(ecoOverviewCase||state.cases[0].id)?'selected':'')+'>'+caseName(c)+'</option>').join('')+'</select></div>';
  const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=c.sessoes||[];
+ const atlasTabs=[
+  ['recorrencias','Recorrências & Histórico'],
+  ['sonhos','Sonhos & Símbolos'],
+  ['investigar','Eixos de Investigação'],
+  ['tecnicas','Técnicas Clínicas'],
+  ['genograma','Genograma & Cronologia'],
+  ['diario','Diário do Terapeuta'],
+  ['seguranca','Segurança Clínica'],
+  ['documentos','Emissão de Documentos']
+ ];
+ out+='<div class="tabs">'+atlasTabs.map(([id,n])=>'<button type="button" data-act="ecoAtlasTab" data-id="'+id+'" class="'+(ecoAtlasTab===id?'active':'')+'">'+n+'</button>').join('')+'</div>';
+ if(ecoAtlasTab==="sonhos")return out+ecoRenderDreamAtlas(c);
+ if(ecoAtlasTab==="investigar")return out+ecoRenderInvestigation(c);
+ if(ecoAtlasTab==="tecnicas")return out+ecoRenderTechniques(c);
+ if(ecoAtlasTab==="genograma")return out+ecoRenderGenogram(c);
+ if(ecoAtlasTab==="diario")return out+ecoRenderTherapistDiary(c);
+ if(ecoAtlasTab==="seguranca")return out+ecoRenderClinicalSafety(c);
+ if(ecoAtlasTab==="documentos")return out+ecoRenderDocuments(c);
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
  const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionId:s.id,sessionDate:s.data}))).slice(-150);
@@ -1552,144 +2680,539 @@ function ecoAtlasScreen(){
 const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
 const ecoActBase=act;
-act=function(name,id){
- if(name==="ecoSaveCaseIdentity"){
-  if(!draft?._isEditing||!draft.nome?.trim()){notify("Informe um apelido ou código de caso.",'red');return;}
-  const copy=JSON.parse(JSON.stringify(draft));delete copy._isEditing;
-  const index=state.cases.findIndex(c=>c.id===copy.id);
-  if(index<0){notify("Caso não encontrado.",'red');return;}
-  const ok=change(()=>{copy.atualizadoEm=new Date().toISOString();state.cases[index]=copy;});
-  if(ok){openedId=copy.id;draft=null;screen="case";tab="sintese";render();}
-  return;
- }
- if(name==="ecoQuickTest"){
-  if(ecoIsCapturing()){notify("Encerre a captação antes de iniciar outra.",'red');return;}
-  const c=makeCase();
-  c.nome="ECO-TESTE-"+Math.random().toString(36).slice(2,8).toUpperCase();
-  c.modalidade="Estudo de caso";
-  c.queixas=[];c.intensidade="";c.desde="";
-  const ok=change(()=>state.cases.push(c));
-  if(!ok)return;
-  ecoActBase("ecoOpen",c.id);
-  ecoWorkspaceTab="captura";render();return;
- }
- if(name==="ecoSaveCaseStart"){
-  if(!draft||!draft.nome?.trim()){notify("Informe apenas o código ou apelido.",'red');return;}
-  if(wizardStep!==0||!validateWizard())return;
-  const c=JSON.parse(JSON.stringify(draft));delete c._isEditing;
-  const ok=change(()=>{c.atualizadoEm=new Date().toISOString();state.cases.push(c)});
-  if(!ok)return;
-  draft=null;ecoActBase("ecoOpen",c.id);ecoWorkspaceTab="captura";render();return;
- }
- if((ecoIsCapturing()||ecoIsPaused()) && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
-  notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
- }
- if(name==="ecoImportFile"){
-  if(ecoIsPaused()){notify("Conclua ou descarte o áudio pausado antes de importar outro.",'red');return}
-  if(!ecoConsent){notify("Confirme a declaração antes da importação.",'red');return}
-  if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
-  if(!window.NativeVault.selectAudioFile && !window.NativeVault.selectAudioFileWithModel){notify("Importação disponível apenas no APK Android.",'red');return}
-  if(!ecoDocumentConsent())return;
-  ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
-  if(window.NativeVault.setDiarization){const prior=sessionDraft.mlSegments.some(s=>s.cluster);window.NativeVault.setDiarization(ecoDiarization&&!prior);if(ecoDiarization&&prior)notify("Grupos anteriores não serão reutilizados. Para nova diarização, inicie uma nova sessão.");}
-  if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
-  else window.NativeVault.selectAudioFile(true);
-  return;
- }
- if(name==="ecoJumpToSession"){
-   if(ecoIsCapturing()||ecoIsPaused()){notify("Finalize o áudio temporário antes de abrir outra sessão.",'red');return;}
-   const [caseId,sessionId,atText]=String(id||"").split("|");
-   const selected=state?.cases?.find(c=>c.id===caseId);
-   if(!selected||!selected.sessoes?.some(s=>s.id===sessionId)){notify("Sessão não encontrada.",'red');return;}
-   openedId=caseId;
-   ecoActBase("editSession",sessionId);
-   if(screen!=="session")return;
-   ecoWorkspaceTab="revisar";ecoTimelineQuery="";
-   const time=Number(atText)||0;
-   const all=sessionDraft.mlSegments||[];
-   let nearest=-1,dist=Infinity;
-   for(let i=0;i<all.length;i++){
-     if(!Number.isFinite(all[i].startMs))continue;
-     const error=Math.abs(all[i].startMs-time);
-     if(error<dist){nearest=i;dist=error}
+act=function(name,id,button){
+  if(name==="ecoAtlasTab"){ecoAtlasTab=id;render();return;}
+  if(name==="newManualSession"){
+    const caseId=button?.dataset?.case||id||openedId;
+    openedId=caseId;
+    manualSessionDraft={id:uid(),data:datestr(),hora:nowHHMM(),texto:'',intervencoes:'',plano:''};
+    screen="manualSession";render();return;
+  }
+  if(name==="saveManualSession"){
+    const caseId=button?.dataset?.case||openedId;
+    const targetCase=state.cases.find(x=>x.id===caseId);
+    if(!targetCase){notify("Caso não encontrado.",'red');return;}
+    const data=document.getElementById("manualSessData")?.value||datestr();
+    const hora=document.getElementById("manualSessHora")?.value||nowHHMM();
+    const texto=document.getElementById("manualSessTexto")?.value||"";
+    const interv=document.getElementById("manualSessInterv")?.value||"";
+    const plano=document.getElementById("manualSessPlano")?.value||"";
+    if(!texto.trim()){notify("Informe o relato ou síntese clínica da sessão.",'red');return;}
+    const session={
+      id:manualSessionDraft?.id||uid(),
+      data:data,hora:hora,
+      texto:texto.trim(),
+      intervencoes:interv.trim(),
+      plano:plano.trim(),
+      origem:'manual',
+      criadoEm:new Date().toISOString(),
+      revisoes:[]
+    };
+    const ok=change(()=>{
+      if(!Array.isArray(targetCase.sessoes))targetCase.sessoes=[];
+      targetCase.sessoes.push(session);
+      targetCase.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao salvar atendimento manual. Dados mantidos.",'red');return;}
+    manualSessionDraft=null;openedId=targetCase.id;screen="case";tab="sessoes";
+    notify("Atendimento manual registrado com sucesso no prontuário.");render();return;
+  }
+  if(name==="ecoSaveAnamnese"){
+    const caseId=button?.dataset?.case||id||openedId;
+    const targetCase=state.cases.find(x=>x.id===caseId);
+    if(!targetCase){notify("Caso não encontrado.",'red');return;}
+    const newAna={...(targetCase.anamnese||{})};
+    ecoAnamneseCategories.forEach(cat=>{
+      cat.campos.forEach(fld=>{
+        const el=document.getElementById("ana_"+fld.k);
+        if(el) newAna[fld.k]=el.value;
+      });
+    });
+    const ok=change(()=>{
+      targetCase.anamnese=newAna;
+      targetCase.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao salvar anamnese. Dados mantidos no formulário.",'red');return;}
+    notify("Anamnese clínica estruturada salva com sucesso.");render();return;
+  }
+  if(name==="ecoSaveEnquadre"){
+    const caseId=button?.dataset?.case||id||openedId;
+    const targetCase=state.cases.find(x=>x.id===caseId);
+    if(!targetCase){notify("Caso não encontrado.",'red');return;}
+    const enq={
+      frequencia:document.getElementById("enq_frequencia")?.value||"Semanal (50 min)",
+      duracao:document.getElementById("enq_duracao")?.value||"50 minutos",
+      modalidade:document.getElementById("enq_modalidade")?.value||"Presencial",
+      honorarios:document.getElementById("enq_honorarios")?.value||"",
+      limites:document.getElementById("enq_limites")?.value||"",
+      ferias:document.getElementById("enq_ferias")?.value||"",
+      expectativas:document.getElementById("enq_expectativas")?.value||"",
+      atualizadoEm:new Date().toISOString()
+    };
+    const ok=change(()=>{
+      targetCase.enquadre=enq;
+      targetCase.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao salvar enquadre terapêutico. Dados mantidos.",'red');return;}
+    notify("Enquadre terapêutico salvo com sucesso.");render();return;
+  }
+  if(name==="ecoPrintDoc"){
+    const caseId=button?.dataset?.case||(button?.dataset?.id)||id;
+    if(!caseId){notify("Nenhum caso especificado para emissão.",'red');return;}
+    const targetCase=state.cases.find(c=>c.id===caseId);
+    if(!targetCase){notify("Caso não encontrado ("+esc(caseId)+").",'red');return;}
+    if(!ecoDocConfirmed){
+      notify("Documento em estado de minuta. Confirme a revisão humana antes de emitir ou imprimir.",'warn');
+      return;
+    }
+    const html=ecoFormatClinicalDoc(targetCase,ecoDocType,ecoDocSections,{
+      confirmed: true,
+      profNome: ecoDocProfNome,
+      profRegistro: ecoDocProfRegistro,
+      profContato: ecoDocProfContato,
+      docDateFrom: ecoDocDateFrom,
+      docDateTo: ecoDocDateTo
+    });
+    if(window.NativeVault?.printReport)window.NativeVault.printReport(html);
+    else{const w=window.open('','_blank');if(w){w.document.write(html);w.document.close();w.print();}else notify("Impressão disponível no APK Android.");}
+    return;
+  }
+  if(name==="ecoSaveDream"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const txt=document.getElementById("dreamTexto")?.value||"";
+    if(!txt.trim()){notify("Informe o conteúdo manifesto do sonho.",'red');return;}
+    const dream={
+      id:uid(),data:document.getElementById("dreamData")?.value||datestr(),
+      texto:txt.trim(),
+      personagens:document.getElementById("dreamPersonagens")?.value||"",
+      afetos:document.getElementById("dreamAfetos")?.value||"",
+      associacoes:document.getElementById("dreamAssociacoes")?.value||"",
+      hipotese:document.getElementById("dreamHipotese")?.value||"",
+      criadoEm:new Date().toISOString()
+    };
+    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao salvar sonho. Dados mantidos no formulário.",'red');return;}
+    notify("Sonho documentado com sucesso.");render();return;
+  }
+  if(name==="ecoDeleteDream"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const dreamId=button?.dataset?.id||id;
+    const ok=change(()=>{c.sonhosList=(c.sonhosList||[]).filter(d=>d.id!==dreamId);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao excluir sonho.",'red');return;}
+    notify("Registro de sonho excluído.");render();return;
+  }
+  if(name==="ecoSaveAxis"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    const axisId=button?.dataset?.axis||id;
+    if(!c||!axisId){notify("Dados insuficientes para salvar.",'red');return;}
+    const note=document.getElementById("axis_note_"+axisId)?.value||"";
+    const status=document.getElementById("axis_status_"+axisId)?.value||"a investigar";
+    const priority=document.getElementById("axis_priority_"+axisId)?.value||"normal";
+    const ok=change(()=>{
+      if(!c.investigacaoAxes)c.investigacaoAxes={};
+      c.investigacaoAxes[axisId]={nota:note,status:status,prioridade:priority,atualizadoEm:new Date().toISOString()};
+      c.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao salvar apontamento no eixo. Dados mantidos no formulário.",'red');return;}
+    notify("Apontamento salvo no eixo.");render();return;
+  }
+  if(name==="ecoAddHypothesis"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const txt=document.getElementById("hypoTexto")?.value||"";
+    if(!txt.trim()){notify("Informe o texto da hipótese.",'red');return;}
+    const hypo={
+      id:uid(),texto:txt.trim(),
+      favoraveis:document.getElementById("hypoFavoraveis")?.value||"",
+      contrarias:document.getElementById("hypoContrarias")?.value||"",
+      alternativas:document.getElementById("hypoAlternativas")?.value||"",
+      criadoEm:new Date().toISOString()
+    };
+    const ok=change(()=>{if(!Array.isArray(c.hipotesesList))c.hipotesesList=[];c.hipotesesList.push(hypo);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao adicionar hipótese. Dados mantidos no formulário.",'red');return;}
+    notify("Hipótese adicionada ao diário.");render();return;
+  }
+  if(name==="ecoDeleteHypothesis"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const hypoId=button?.dataset?.id||id;
+    const ok=change(()=>{c.hipotesesList=(c.hipotesesList||[]).filter(h=>h.id!==hypoId);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao remover hipótese.",'red');return;}
+    notify("Hipótese removida.");render();return;
+  }
+  if(name==="ecoAddIntervention"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const tecnica=document.getElementById("intervTecnica")?.value||"";
+    if(!tecnica.trim()){notify("Informe o nome da técnica utilizada.",'red');return;}
+    const interv={
+      id:uid(),data:document.getElementById("intervData")?.value||datestr(),
+      tecnica:tecnica.trim(),
+      contexto:document.getElementById("intervContexto")?.value||"",
+      resposta:document.getElementById("intervResposta")?.value||"",
+      efeito:document.getElementById("intervEfeito")?.value||"",
+      criadoEm:new Date().toISOString()
+    };
+    const ok=change(()=>{if(!Array.isArray(c.intervencoesList))c.intervencoesList=[];c.intervencoesList.push(interv);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao registrar intervenção. Dados mantidos no formulário.",'red');return;}
+    notify("Intervenção registrada.");render();return;
+  }
+  if(name==="ecoDeleteIntervention"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const intervId=button?.dataset?.id||id;
+    const ok=change(()=>{c.intervencoesList=(c.intervencoesList||[]).filter(i=>i.id!==intervId);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao excluir intervenção.",'red');return;}
+    notify("Registro de intervenção excluído.");render();return;
+  }
+  if(name==="ecoAddFamilyMember"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const nome=document.getElementById("genNome")?.value||"";
+    if(!nome.trim()){notify("Informe o nome ou iniciais do familiar.",'red');return;}
+    const member={
+      id:uid(),nome:nome.trim(),
+      parentesco:document.getElementById("genParentesco")?.value||"",
+      geracao:document.getElementById("genGeracao")?.value||"G3",
+      vivo:document.getElementById("genVivo")?.value||"sim",
+      sexo:document.getElementById("genSexo")?.value||"indefinido",
+      vinculo:document.getElementById("genVinculo")?.value||"",
+      notas:document.getElementById("genNotas")?.value||""
+    };
+    const ok=change(()=>{
+      if(!c.genograma)c.genograma={membros:[],relacoes:[]};
+      if(!Array.isArray(c.genograma.membros))c.genograma.membros=[];
+      c.genograma.membros.push(member);
+      c.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao adicionar familiar ao genograma. Dados mantidos no formulário.",'red');return;}
+    notify("Familiar adicionado ao genograma.");render();return;
+  }
+  if(name==="ecoDeleteFamilyMember"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c||!c.genograma?.membros)return;
+    const memberId=button?.dataset?.id||id;
+    const ok=change(()=>{
+      c.genograma.membros=c.genograma.membros.filter(m=>m.id!==memberId);
+      if(Array.isArray(c.genograma.relacoes)){
+        c.genograma.relacoes=c.genograma.relacoes.filter(r=>r.deId!==memberId&&r.paraId!==memberId);
+      }
+      c.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao remover membro do genograma.",'red');return;}
+    notify("Membro removido do genograma.");render();return;
+  }
+  if(name==="ecoAddFamilyRelation"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const deId=document.getElementById("genRelDe")?.value;
+    const paraId=document.getElementById("genRelPara")?.value;
+    const tipo=document.getElementById("genRelTipo")?.value||"casamento";
+    if(!deId||!paraId||deId===paraId){notify("Selecione dois membros distintos para vincular.",'red');return;}
+    const rel={id:uid(),deId:deId,paraId:paraId,tipo:tipo,criadoEm:new Date().toISOString()};
+    const ok=change(()=>{
+      if(!c.genograma)c.genograma={membros:[],relacoes:[]};
+      if(!Array.isArray(c.genograma.relacoes))c.genograma.relacoes=[];
+      c.genograma.relacoes.push(rel);
+      c.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao vincular membros no genograma.",'red');return;}
+    notify("Vínculo relacional registrado no genograma.");render();return;
+  }
+  if(name==="ecoDeleteFamilyRelation"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c||!c.genograma?.relacoes)return;
+    const relId=button?.dataset?.id||id;
+    const ok=change(()=>{
+      c.genograma.relacoes=c.genograma.relacoes.filter(r=>r.id!==relId);
+      c.atualizadoEm=new Date().toISOString();
+    });
+    if(!ok){notify("Falha ao remover vínculo.",'red');return;}
+    notify("Vínculo relacional excluído.");render();return;
+  }
+  if(name==="ecoAddBioEvent"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const tit=document.getElementById("bioTitulo")?.value||"";
+    if(!tit.trim()){notify("Informe o título do acontecimento biográfico.",'red');return;}
+    const ev={
+      id:uid(),ano:document.getElementById("bioAno")?.value||"",
+      titulo:tit.trim(),
+      descricao:document.getElementById("bioDescricao")?.value||"",
+      envolvidos:document.getElementById("bioEnvolvidos")?.value||"",
+      impacto:document.getElementById("bioImpacto")?.value||""
+    };
+    const ok=change(()=>{if(!Array.isArray(c.cronologia))c.cronologia=[];c.cronologia.push(ev);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao salvar marco biográfico. Dados mantidos no formulário.",'red');return;}
+    notify("Marco biográfico salvo.");render();return;
+  }
+  if(name==="ecoDeleteBioEvent"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c||!c.cronologia)return;
+    const bioId=button?.dataset?.id||id;
+    const ok=change(()=>{c.cronologia=c.cronologia.filter(e=>e.id!==bioId);c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao excluir evento da cronologia.",'red');return;}
+    notify("Evento excluído da cronologia.");render();return;
+  }
+  if(name==="ecoAddDiaryNote"){
+    const caseId=button?.dataset?.case||(button?.dataset?.id)||id||openedId;
+    if(!caseId){notify("Caso não especificado.",'red');return;}
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const txt=document.getElementById("diaryTexto")?.value||"";
+    if(!txt.trim()){notify("Digite o conteúdo da reflexão privada.",'red');return;}
+    const note={
+      id:uid(),data:document.getElementById("diaryData")?.value||datestr(),
+      categoria:document.getElementById("diaryCategoria")?.value||"Reflexão",
+      texto:txt.trim(),
+      criadoEm:new Date().toISOString()
+    };
+    // STRICT SEGREGATION (A25): Never store in main state.cases
+    if(window.NativeVault?.savePrivateDiary){
+      try{
+        const notes=JSON.parse(window.NativeVault.loadPrivateDiary(c.id));
+        if(!Array.isArray(notes))throw Error("Diário não pôde ser lido");
+        const res = window.NativeVault.savePrivateDiary(c.id, JSON.stringify([...notes,note]));
+        if(res !== "OK"){
+          notify("Falha ao salvar no cofre privado segregado: " + (res || "erro"), 'red');
+          return;
+        }
+      }catch(e){
+        notify("Falha ao acessar cofre segregado: " + e.message, 'red');
+        return;
+      }
+    } else {
+      if(!window.__ecoPrivateDiaries) window.__ecoPrivateDiaries = {};
+      if(!Array.isArray(window.__ecoPrivateDiaries[c.id])) window.__ecoPrivateDiaries[c.id] = [];
+      window.__ecoPrivateDiaries[c.id].push(note);
+    }
+    const txtEl=document.getElementById("diaryTexto");
+    if(txtEl) txtEl.value = "";
+    notify("Reflexão confidencial salva com segregação segura.");render();return;
+  }
+  if(name==="ecoDeleteDiaryNote"){
+    const caseId=button?.dataset?.case||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c)return notify("Caso não encontrado.",'red');
+    const noteId=button?.dataset?.id||id;
+    try{
+      if(window.NativeVault?.savePrivateDiary){
+        const notes=JSON.parse(window.NativeVault.loadPrivateDiary(c.id));
+        if(!Array.isArray(notes)||!notes.some(n=>n.id===noteId))throw Error("Nota não encontrada");
+        const result=window.NativeVault.savePrivateDiary(c.id,JSON.stringify(notes.filter(n=>n.id!==noteId)));
+        if(result!=="OK")throw Error(result);
+      }else if(window.__ecoPrivateDiaries?.[c.id]){
+        window.__ecoPrivateDiaries[c.id]=window.__ecoPrivateDiaries[c.id].filter(n=>n.id!==noteId);
+      }else throw Error("Diário indisponível");
+      notify("Nota privada excluída.");render();
+    }catch(e){notify("Falha ao excluir nota: "+e.message,'red');}
+    return;
+  }
+  if(name==="ecoSaveSafety"){
+    const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
+    const c=state.cases.find(x=>x.id===caseId);
+    if(!c){notify("Caso não encontrado.",'red');return;}
+    const plan={
+      preocupacoes:document.getElementById("safePreocupacoes")?.value||"",
+      avaliacao:document.getElementById("safeAvaliacao")?.value||"",
+      plano:document.getElementById("safePlano")?.value||"",
+      contatos:document.getElementById("safeContatos")?.value||"",
+      encaminhamentos:document.getElementById("safeEncaminhamentos")?.value||"",
+      atualizadoEm:new Date().toISOString()
+    };
+    const ok=change(()=>{c.seguranca=plan;c.atualizadoEm=new Date().toISOString();});
+    if(!ok){notify("Falha ao salvar plano de segurança. Dados mantidos.",'red');return;}
+    notify("Plano de segurança salvo.");render();return;
+  }
+  if(name==="ecoSaveCaseIdentity"){
+   if(!draft?._isEditing||!draft.nome?.trim()){notify("Informe um apelido ou código de caso.",'red');return;}
+   const copy=JSON.parse(JSON.stringify(draft));delete copy._isEditing;
+   const index=state.cases.findIndex(c=>c.id===copy.id);
+   if(index<0){notify("Caso não encontrado.",'red');return;}
+   const ok=change(()=>{copy.atualizadoEm=new Date().toISOString();state.cases[index]=copy;});
+   if(ok){openedId=copy.id;draft=null;screen="case";tab="sintese";render();}
+   return;
+  }
+  if(name==="ecoQuickTest"){
+   if(ecoIsCapturing()){notify("Encerre a captação antes de iniciar outra.",'red');return;}
+   const c=makeCase();
+   c.nome="ECO-TESTE-"+Math.random().toString(36).slice(2,8).toUpperCase();
+   c.modalidade="Estudo de caso";
+   c.queixas=[];c.intensidade="";c.desde="";
+   const ok=change(()=>state.cases.push(c));
+   if(!ok)return;
+   ecoActBase("ecoOpen",c.id);
+   ecoWorkspaceTab="captura";render();return;
+  }
+  if(name==="ecoSaveCaseStart"){
+   if(!draft||!draft.nome?.trim()){notify("Informe apenas o código ou apelido.",'red');return;}
+   if(wizardStep!==0||!validateWizard())return;
+   const c=JSON.parse(JSON.stringify(draft));delete c._isEditing;
+   const ok=change(()=>{c.atualizadoEm=new Date().toISOString();state.cases.push(c)});
+   if(!ok)return;
+   draft=null;ecoActBase("ecoOpen",c.id);ecoWorkspaceTab="captura";render();return;
+  }
+  if((ecoIsCapturing()||ecoIsPaused()) && ["nav","openCase","newCase","newSession","editSession","saveSession","ecoOpen"].includes(name)){
+   notify("Encerre o processamento do áudio antes de sair ou salvar.",'red');return;
+  }
+  if(name==="ecoImportFile"){
+   if(ecoIsPaused()){notify("Conclua ou descarte o áudio pausado antes de importar outro.",'red');return}
+   if(!ecoConsent){notify("Confirme a declaração antes da importação.",'red');return}
+   if(ecoIsCapturing()){notify("Encerre o microfone ou importação atual antes de iniciar outra.",'red');return}
+   if(!window.NativeVault.selectAudioFile && !window.NativeVault.selectAudioFileWithModel){notify("Importação disponível apenas no APK Android.",'red');return}
+   if(!ecoDocumentConsent())return;
+   ecoAudioSource="arquivo";ecoEnsure();ecoPartial="";ecoStatus="SELECIONE UM ARQUIVO";ecoDisplay();
+   const activeC=typeof currentCase==="function"?currentCase():null;
+   const cId=activeC?activeC.id:(openedId||"");
+   const sId=sessionDraft?sessionDraft.id:("sess_"+Date.now());
+   if(!cId||!sId){notify("Contexto inválido: paciente e sessão são obrigatórios.",'red');return;}
+   ecoActiveJobId="job_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+   if(window.NativeVault.setJobContext){
+     try{
+       const ctxOk=window.NativeVault.setJobContext(ecoActiveJobId,cId,sId);
+       if(ctxOk===false){notify("Falha ao inicializar contexto nativo do job.",'red');return;}
+     }catch(e){notify("Erro ao inicializar contexto: "+e.message,'red');return;}
    }
-   ecoOpenSpeakerAt(nearest);
+   if(window.NativeVault.setDiarization){const prior=sessionDraft.mlSegments.some(s=>s.cluster);window.NativeVault.setDiarization(ecoDiarization&&!prior);if(ecoDiarization&&prior)notify("Grupos anteriores não serão reutilizados. Para nova diarização, inicie uma nova sessão.");}
+   if(window.NativeVault.selectAudioFileWithModel)window.NativeVault.selectAudioFileWithModel(true,ecoChosenAsr);
+   else window.NativeVault.selectAudioFile(true);
    return;
- }
- if(name==="ecoKeywordDetails"){ecoSelectedWord=String(id||"");ecoWorkspaceTab="analise";ecoFoldState.clear();render();const d=document.querySelector("#ecoNlpDashboard");if(d?.querySelectorAll){d.querySelectorAll("details").forEach(x=>{if(x.querySelector("summary")?.textContent.includes("Contagem e ocorrências")||x.parentElement===d)x.open=true});d.scrollIntoView?.({behavior:"smooth",block:"start"});}return;}
- if(name==="ecoFilterTimeline"){render();return;}
- if(name==="ecoFocusSegment"){ecoOpenSpeakerAt(Number(id));return;}
- if(name==="ecoAssignBoth"||name==="ecoAssignOne"){
-   if(ecoIsCapturing()){notify("Aguarde o término da transcrição para confirmar os grupos.","red");return;}
-   const [key,role]=String(id||"").split("|");
-   const ok=name==="ecoAssignBoth"?ecoAssignBoth(key):ecoAssignRoles({[key]:role});
-   if(ok){ecoSpeakerContext=openedId+"|"+sessionDraft.id;ecoSpeakerFilter="pendentes";ecoSpeakerSearch="";ecoSpeakerPage=0;ecoRenderKeepPosition(-1);notify("Papéis aplicados em lote. Revise apenas as exceções.");}
-   return;
- }
- if(name==="ecoSpeakerPage"){ecoSpeakerPage+=Number(id)||0;ecoRenderKeepPosition(-1);return;}
- if(name==="ecoNeuralStart"){ecoNeuralStart();return;}
- if(name==="ecoNeuralCancel"){ecoNeuralCancel();return;}
- if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
- if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
- if(name==="ecoBenchmark"){
-   try{
-     if(!sessionDraft?.mlTranscricao?.trim())throw Error("Ainda não existe transcrição automática.");
-     const val=ecoCalculateWer(ecoReferenceText,sessionDraft.mlTranscricao);
-     ecoBenchmarkResult={...val,wer:Math.round(val.wer*1000)/10};
-     render();
-   }catch(e){ecoBenchmarkResult=null;notify("Não foi possível medir: "+e.message,'red')}
-   return;
- }
- if(name==="ecoRemoveEvidence"){
-   ecoEnsure();
-   const before=JSON.stringify(sessionDraft.mlEvidence);
-   sessionDraft.mlEvidence=sessionDraft.mlEvidence.filter(e=>e.id!==id);
-   if(before===JSON.stringify(sessionDraft.mlEvidence))return;
-   const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
-   const result=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"ERRO");
-   if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Falha ao remover marcação: "+result,'red');return;}
+  }
+  if(name==="ecoJumpToSession"){
+    if(ecoIsCapturing()||ecoIsPaused()){notify("Finalize o áudio temporário antes de abrir outra sessão.",'red');return;}
+    const [caseId,sessionId,atText]=String(id||"").split("|");
+    const selected=state?.cases?.find(c=>c.id===caseId);
+    if(!selected||!selected.sessoes?.some(s=>s.id===sessionId)){notify("Sessão não encontrada.",'red');return;}
+    openedId=caseId;
+    ecoActBase("editSession",sessionId);
+    if(screen!=="session")return;
+    ecoWorkspaceTab="revisar";ecoTimelineQuery="";
+    const time=Number(atText)||0;
+    const all=sessionDraft.mlSegments||[];
+    let nearest=-1,dist=Infinity;
+    for(let i=0;i<all.length;i++){
+      if(!Number.isFinite(all[i].startMs))continue;
+      const error=Math.abs(all[i].startMs-time);
+      if(error<dist){nearest=i;dist=error}
+    }
+    ecoOpenSpeakerAt(nearest);
+    return;
+  }
+  if(name==="ecoKeywordDetails"){ecoSelectedWord=String(id||"");ecoWorkspaceTab="analise";ecoFoldState.clear();render();const d=document.querySelector("#ecoNlpDashboard");if(d?.querySelectorAll){d.querySelectorAll("details").forEach(x=>{if(x.querySelector("summary")?.textContent.includes("Contagem e ocorrências")||x.parentElement===d)x.open=true});d.scrollIntoView?.({behavior:"smooth",block:"start"});}return;}
+  if(name==="ecoFilterTimeline"){render();return;}
+  if(name==="ecoFocusSegment"){ecoOpenSpeakerAt(Number(id));return;}
+  if(name==="ecoAssignBoth"||name==="ecoAssignOne"){
+    if(ecoIsCapturing()){notify("Aguarde o término da transcrição para confirmar os grupos.","red");return;}
+    const [key,role]=String(id||"").split("|");
+    const ok=name==="ecoAssignBoth"?ecoAssignBoth(key):ecoAssignRoles({[key]:role});
+    if(ok){ecoSpeakerContext=openedId+"|"+sessionDraft.id;ecoSpeakerFilter="pendentes";ecoSpeakerSearch="";ecoSpeakerPage=0;ecoRenderKeepPosition(-1);notify("Papéis aplicados em lote. Revise apenas as exceções.");}
+    return;
+  }
+  if(name==="ecoSpeakerPage"){ecoSpeakerPage+=Number(id)||0;ecoRenderKeepPosition(-1);return;}
+  if(name==="ecoNeuralStart"){ecoNeuralStart();return;}
+  if(name==="ecoNeuralCancel"){ecoNeuralCancel();return;}
+  if(name==="ecoWorkspaceTab"){ecoWorkspaceTab=id;render();return}
+  if(name==="ecoTagsCategory"){ecoCategory=id;render();return}
+  if(name==="ecoBenchmark"){
+    try{
+      if(!sessionDraft?.mlTranscricao?.trim())throw Error("Ainda não existe transcrição automática.");
+      const val=ecoCalculateWer(ecoReferenceText,sessionDraft.mlTranscricao);
+      ecoBenchmarkResult={...val,wer:Math.round(val.wer*1000)/10};
+      render();
+    }catch(e){ecoBenchmarkResult=null;notify("Não foi possível medir: "+e.message,'red')}
+    return;
+  }
+  if(name==="ecoRemoveEvidence"){
+    ecoEnsure();
+    const before=JSON.stringify(sessionDraft.mlEvidence);
+    sessionDraft.mlEvidence=sessionDraft.mlEvidence.filter(e=>e.id!==id);
+    if(before===JSON.stringify(sessionDraft.mlEvidence))return;
+    const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
+    const result=window.NativeVault.saveDraft?window.NativeVault.saveDraft(JSON.stringify(payload)):(state.mlDraft=payload,persist()?"OK":"ERRO");
+    if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Falha ao remover marcação: "+result,'red');return;}
+    render();return;
+  }
+  if(name==="ecoAcceptEvent"){
+   const event=ecoStructuredEvents(sessionDraft).find(x=>x.id===id);
+   if(!event)return;
+   ecoEnsure();const old=JSON.stringify(sessionDraft.mlEvents);
+   sessionDraft.mlEvents.push({...event,status:"confirmado",reviewedAt:new Date().toISOString()});
+   const json=JSON.stringify({caseId:openedId,session:sessionDraft});
+   const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(json):(state.mlDraft={caseId:openedId,session:sessionDraft},persist()?"OK":"ERRO");
+   if(status!=="OK"){sessionDraft.mlEvents=JSON.parse(old);notify("Não foi possível salvar ocorrência: "+status,"red");return;}
    render();return;
- }
- if(name==="ecoAcceptEvent"){
-  const event=ecoStructuredEvents(sessionDraft).find(x=>x.id===id);
-  if(!event)return;
-  ecoEnsure();const old=JSON.stringify(sessionDraft.mlEvents);
-  sessionDraft.mlEvents.push({...event,status:"confirmado",reviewedAt:new Date().toISOString()});
-  const json=JSON.stringify({caseId:openedId,session:sessionDraft});
-  const status=window.NativeVault.saveDraft?window.NativeVault.saveDraft(json):(state.mlDraft={caseId:openedId,session:sessionDraft},persist()?"OK":"ERRO");
-  if(status!=="OK"){sessionDraft.mlEvents=JSON.parse(old);notify("Não foi possível salvar ocorrência: "+status,"red");return;}
-  render();return;
- }
- if(name==="ecoAcceptEvidence"){
-   const item=ecoEvidenceForDraft().find(e=>e.id===id);
-   if(!item)return;
-   ecoEnsure();const before=JSON.stringify(sessionDraft.mlEvidence);
-   sessionDraft.mlEvidence.push({...item,status:"confirmado",reviewedAt:new Date().toISOString(),reviewer:"usuário"});
-   const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
-   let result="OK";
-   if(window.NativeVault.saveDraft)result=window.NativeVault.saveDraft(JSON.stringify(payload));
-   else {state.mlDraft=payload;result=persist()?"OK":"Erro ao salvar"}
-   if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Não foi possível confirmar sem salvar: "+result,'red');return}
-   render();return;
- }
- if(name==="ecoSave"){
-   if(ecoIsCapturing()||ecoIsPaused()){notify("Pause para revisar, mas antes de salvar conclua ou descarte o áudio restante.",'red');return;}
-   return ecoActBase("saveSession");
- }
- if(name==="ecoBackCase"){if(ecoIsCapturing()||ecoIsPaused()){notify("Conclua ou descarte o áudio temporário antes de sair.",'red');return;}return ecoActBase("openCase",openedId)}
- if(name==="ecoStart" && !ecoIsCapturing() && ecoConsent){
-  if(!ecoDocumentConsent())return;
- }
- const previous=screen;
- const result=ecoActBase(name,id);
- if(name==="ecoOpen"||name==="newSession"||name==="editSession"){
-   ecoWorkspaceTab=(name==="editSession"?"analise":"captura");
-   ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";ecoSelectedWord="";ecoAnalysisScope="paciente";render();
- }
- if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
- return result;
+  }
+  if(name==="ecoAcceptEvidence"){
+    const item=ecoEvidenceForDraft().find(e=>e.id===id);
+    if(!item)return;
+    ecoEnsure();const before=JSON.stringify(sessionDraft.mlEvidence);
+    sessionDraft.mlEvidence.push({...item,status:"confirmado",reviewedAt:new Date().toISOString(),reviewer:"usuário"});
+    const payload={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};
+    let result="OK";
+    if(window.NativeVault.saveDraft)result=window.NativeVault.saveDraft(JSON.stringify(payload));
+    else {state.mlDraft=payload;result=persist()?"OK":"Erro ao salvar"}
+    if(result!=="OK"){sessionDraft.mlEvidence=JSON.parse(before);notify("Não foi possível confirmar sem salvar: "+result,'red');return}
+    render();return;
+  }
+  if(name==="ecoSave"){
+    if(ecoIsCapturing()||ecoIsPaused()){notify("Pause para revisar, mas antes de salvar conclua ou descarte o áudio restante.",'red');return;}
+    return ecoActBase("saveSession",id,button);
+  }
+  if(name==="ecoBackCase"){if(ecoIsCapturing()||ecoIsPaused()){notify("Conclua ou descarte o áudio temporário antes de sair.",'red');return;}return ecoActBase("openCase",openedId,button)}
+  if(name==="ecoStart" && !ecoIsCapturing() && ecoConsent){
+   if(!ecoDocumentConsent())return;
+  }
+  const previous=screen;
+  const result=ecoActBase(name,id,button);
+  if(name==="ecoOpen"||name==="newSession"||name==="editSession"){
+    ecoWorkspaceTab=(name==="editSession"?"analise":"captura");
+    ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";ecoSelectedWord="";ecoAnalysisScope="paciente";render();
+  }
+  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
+  return result;
 };
 document.addEventListener("input",e=>{
+  if(e.target?.dataset?.ecoDocProf){
+    const f=e.target.dataset.ecoDocProf;
+    if(f==="nome") ecoDocProfNome=e.target.value||"";
+    if(f==="registro") ecoDocProfRegistro=e.target.value||"";
+    if(f==="contato") ecoDocProfContato=e.target.value||"";
+  }
+ if(e.target?.dataset?.dreamSymbolSearch!==undefined){
+   ecoSymbolSearch=e.target.value||"";
+   const container = document.getElementById("ecoSymbolResults");
+   if(container){
+     const q = ecoSymbolSearch.trim().toLowerCase();
+     const syms = q ? ecoSymbolDictionary.filter(s=>s.titulo.toLowerCase().includes(q)||s.sentidos.toLowerCase().includes(q)||s.perguntas.toLowerCase().includes(q)) : ecoSymbolDictionary;
+     container.innerHTML = syms.map(s=>'<div class="eco-evidence" style="margin:12px 0">'+
+       '<h3>'+esc(s.titulo)+'</h3>'+
+       '<p class="small"><strong>Freud:</strong> '+esc(s.freud)+'</p>'+
+       (s.lacan?'<p class="small"><strong>Lacan:</strong> '+esc(s.lacan)+'</p>':'')+
+       '<p class="small"><strong>Jung:</strong> '+esc(s.jung)+'</p>'+
+       '<p class="small"><strong>Sentidos possíveis na clínica:</strong> '+esc(s.sentidos)+'</p>'+
+       '<p class="small"><strong>Perguntas abertas orientadoras:</strong> '+esc(s.perguntas)+'</p>'+
+       '<p class="small muted"><strong>Limites epistemológicos:</strong> '+esc(s.limites)+'</p>'+
+       '</div>').join('');
+   } else {
+     render();
+   }
+   return;
+ }
  if(e.target?.dataset?.ecoConsentReference!==undefined)ecoConsentReference=e.target.value||"";
  if(e.target?.dataset?.ecoTimelineSearch!==undefined)ecoTimelineQuery=e.target.value||"";
  if(e.target?.dataset?.ecoReference!==undefined){ecoReferenceText=e.target.value||"";ecoBenchmarkResult=null;}
@@ -1700,6 +3223,16 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
  if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
+ if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;render();return;}
+ if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;render();return;}
+ if(e.target?.dataset?.ecoSetting){
+   const k=e.target.dataset.ecoSetting, val=e.target.value;
+   if(!state.settings)state.settings={};
+   state.settings[k]=val;
+   if(k==="micEngine")ecoChosenMic=val;
+   if(k==="asrModel")ecoChosenAsr=val;
+   persist();notify("Preferência de motor salva.");
+ }
  if(e.target?.dataset?.ecoSpeaker!==undefined&&sessionDraft){
   const index=Number(e.target.dataset.ecoSpeaker);
   if(ecoCorrectSpeaker(index,e.target.value))ecoRenderKeepPosition(index);

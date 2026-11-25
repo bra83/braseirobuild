@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import java.io.File;
 import android.view.WindowManager;
+import android.util.Log;
 import org.json.JSONObject;
 import org.vosk.Model;
 import org.vosk.Recognizer;
@@ -24,6 +25,8 @@ final class MlSessionEngine implements RecognitionListener {
     }
     private final Activity activity;
     private final Events events;
+    private final SecureStore store;
+    private final java.util.Set<String> emittedIds = new java.util.HashSet<>();
     private Model model;
     private SpeechService speech;
     private Recognizer rec;
@@ -31,6 +34,7 @@ final class MlSessionEngine implements RecognitionListener {
     private WhisperLiveEngine live;
     private SessionRecorder recorder;
     private File recordedFile;
+    private byte[] recordedEphemeralKey;
     private Uri retainedUri;
     private volatile boolean pauseRequested, paused, discarding;
     private volatile long resumeFromMs;
@@ -48,20 +52,35 @@ final class MlSessionEngine implements RecognitionListener {
     private long lastPartialAt;
 
     MlSessionEngine(Activity activity, Events events) {
-        this.activity=activity;this.events=events;
+        this.activity=activity;this.events=events;this.store=new SecureStore(activity.getApplicationContext());
     }
 
     synchronized void start() { start("whisper-base"); }
     synchronized void start(String engine) {
-        if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
+        if (busy() || destroyed || hasPendingAudio() || currentJobId.isEmpty()) { events.state("ERRO · CONTEXTO INDISPONÍVEL OU OPERAÇÃO EM ANDAMENTO"); return; }
         speakerClusters.clear();
         wanted=true;
         recordingRequested=true;
-        pauseRequested=false;paused=false;discarding=false;resumeFromMs=0L;
+        sessionEmittedSegments=0;
+        lastChunksProcessed=0;
+        pauseRequested=false;paused=false;discarding=false;userExplicitDiscard=false;resumeFromMs=0L;
         deferRecognitionUntilResume=false;
         fileModelName="tagarela".equals(engine)?"tagarela":"whisper-base".equals(engine)?"base":"small";
         recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
+            @Override public void onStarted(File file, byte[] ephemeralKey) throws Exception {
+                synchronized(MlSessionEngine.this) {
+                    if (currentJobId.isEmpty()) throw new IllegalStateException("Job obrigatório antes de gravar");
+                    EcoDatabaseHelper dbHelper = store.getDbHelper();
+                    dbHelper.saveAppConfig("asr:" + currentJobId, fileModelName);
+                    if (!dbHelper.updateJobAudio(currentJobId, file.getAbsolutePath(), ephemeralKey)) {
+                        throw new IllegalStateException("Não foi possível persistir chave e áudio antes de gravar");
+                    }
+                    recordedFile = file;
+                    recordedEphemeralKey = ephemeralKey;
+                    setActiveEphemeralKey(ephemeralKey);
+                }
+            }
             @Override public void acoustic(String json){
                 if(!destroyed)events.acoustic(json);
             }
@@ -69,14 +88,17 @@ final class MlSessionEngine implements RecognitionListener {
                 synchronized(MlSessionEngine.this){wanted=false;recordingRequested=false;recorder=null;}
                 if(!destroyed)events.state(s);
             }
-            @Override public void ready(File file,long durationMs){
+            @Override public void ready(File file,long durationMs,byte[] ephemeralKey){
                 synchronized(MlSessionEngine.this){
                     recordingRequested=false;recorder=null;
-                    if(destroyed||discarding){file.delete();return;}
+                    if(userExplicitDiscard){recordedFile=file;recordedEphemeralKey=ephemeralKey;deleteOwnedRecording();wanted=false;return;}
                     recordedFile=file;
+                    recordedEphemeralKey=ephemeralKey;
+                    setActiveEphemeralKey(ephemeralKey);
+                    // Audio path and key were durably registered before AudioRecord started.
                     retainedUri=Uri.fromFile(file);
                     pendingFile=retainedUri;
-                    if(deferRecognitionUntilResume){
+                    if(deferRecognitionUntilResume || destroyed){
                         paused=true;
                         events.state("PAUSADO · GRAVAÇÃO LOCAL FINALIZADA · RETOME PARA TRANSCREVER");
                     }else{
@@ -119,9 +141,10 @@ final class MlSessionEngine implements RecognitionListener {
 
     synchronized void importFile(Uri uri) { importFile(uri,"small"); }
     synchronized void importFile(Uri uri,String modelName) {
-        if (busy() || destroyed) { events.state("OPERAÇÃO EM ANDAMENTO"); return; }
+        if (busy() || destroyed || hasPendingAudio() || currentJobId.isEmpty()) { events.state("ERRO · CONTEXTO INDISPONÍVEL OU OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
         fileModelName = "tagarela".equals(modelName)?"tagarela":"base".equals(modelName)?"base":"small";
+        setActiveEphemeralKey(null);
         speakerClusters.clear();
         wanted=true;retainedUri=uri;pendingFile=uri;
         resumeFromMs=0L;pauseRequested=false;paused=false;discarding=false;
@@ -198,13 +221,34 @@ final class MlSessionEngine implements RecognitionListener {
                                 }
                             }
                             @Override public void segment(String text,long startMs,long endMs) {
-                                if(isActive())events.segmentDetailed(text,startMs,endMs);
+                                synchronized(MlSessionEngine.this){ if(isActive()){
+                                    boolean committed = commitSegmentToDb(text, startMs, endMs, "desconhecido");
+                                    if (!committed) {
+                                        events.state("ERRO DE PERSISTÊNCIA NATIVA · ÁUDIO RETIDO PARA RECUPERAÇÃO");
+                                        pauseTranscription();
+                                        return;
+                                    }
+                                    events.segmentDetailed(text,startMs,endMs);
+                                }}
                             }
                             @Override public void segmentWithSpeaker(String text,long startMs,long endMs,String cluster){
-                                if(isActive())events.segmentWithSpeaker(text,startMs,endMs,cluster);
+                                synchronized(MlSessionEngine.this){ if(isActive()){
+                                    boolean committed = commitSegmentToDb(text, startMs, endMs, cluster);
+                                    if (!committed) {
+                                        events.state("ERRO DE PERSISTÊNCIA NATIVA · ÁUDIO RETIDO PARA RECUPERAÇÃO");
+                                        pauseTranscription();
+                                        return;
+                                    }
+                                    events.segmentWithSpeaker(text,startMs,endMs,cluster);
+                                }}
                             }
                             @Override public void acoustic(String json){
                                 if(isActive())events.acoustic(json);
+                            }
+                            @Override public void chunksProcessed(int count) {
+                                synchronized(MlSessionEngine.this) {
+                                    lastChunksProcessed = count;
+                                }
                             }
                             @Override public void progress(long processedMs) {
                                 synchronized(MlSessionEngine.this){
@@ -228,13 +272,30 @@ final class MlSessionEngine implements RecognitionListener {
                             paused=true;pauseRequested=false;
                             events.state("PAUSADO · "+(resumeFromMs/1000)+"s PROCESSADOS · REVISE OU RETOME");
                         } else if (success && !discarding && !destroyed) {
-                            wanted=false;paused=false;retainedUri=null;resumeFromMs=0;
-                            deleteOwnedRecording();speakerClusters.clear();
-                            events.state("CONCLUÍDO · TRANSCRIÇÃO DISPONÍVEL NA LINHA DO TEMPO");
-                        } else if(discarding || destroyed) {
+                            // P0-01/P0-02: Mark job as DECODED_VERIFIED in database using verified counts!
+                            boolean markOk = false;
+                            try {
+                                EcoDatabaseHelper dbHelper = store.getDbHelper();
+                                markOk = dbHelper.markJobDecoded(currentJobId, emittedIds.size(), lastChunksProcessed)
+                                        && dbHelper.acknowledgePersistence(currentJobId);
+                            } catch (Exception e) { Log.e("MlSessionEngine", "Falha de persistência final", e); }
+                            if (!markOk) {
+                                wanted=false;paused=true;
+                                events.state("FALHA NA TRANSCRIÇÃO · CONFIRMAÇÃO NATIVA PENDENTE · ÁUDIO RETIDO");
+                            } else {
+                                wanted=false;paused=false;retainedUri=null;resumeFromMs=0;
+                                persistenceAckReceived=true;
+                                deleteOwnedRecording();
+                                events.state("CONCLUÍDO · TRANSCRIÇÃO DISPONÍVEL NA LINHA DO TEMPO");
+                            }
+                            speakerClusters.clear();
+                        } else if(discarding) {
                             wanted=false;paused=false;retainedUri=null;resumeFromMs=0L;
                             deleteOwnedRecording();
                             if(!destroyed)events.state("PARADO · TEXTO PARCIAL PRESERVADO");
+                        } else if(destroyed) {
+                            wanted=false;paused=false;retainedUri=null;
+                            // Activity destroyed: do NOT delete unpersisted recording! Retain for recovery!
                         } else {
                             // A failure must not automatically erase recoverable audio.
                             wanted=false;paused=true;
@@ -249,11 +310,135 @@ final class MlSessionEngine implements RecognitionListener {
         fileWorker.start();
     }
 
+    public static byte[] getActiveEphemeralKey() { return SessionRecorder.getActiveEphemeralKey(); }
+    public static void setActiveEphemeralKey(byte[] key) { SessionRecorder.setActiveEphemeralKey(key); }
+
+    private volatile boolean persistenceAckReceived = false;
+    private volatile boolean userExplicitDiscard = false;
+    private volatile int sessionEmittedSegments = 0;
+    private volatile int lastChunksProcessed = 0;
+    private volatile String currentJobId = "";
+    private volatile String currentCaseId = "";
+    private volatile String currentSessionId = "";
+
+    public synchronized String getCurrentJobId() { return currentJobId; }
+
+    private boolean isJobCommitted(String jobId) {
+        if (jobId == null || jobId.isEmpty()) return false;
+        try {
+            EcoDatabaseHelper dbHelper = store.getDbHelper();
+            return dbHelper.isJobCommitted(jobId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean commitSegmentToDb(String text, long startMs, long endMs, String speaker) {
+        if (currentJobId.isEmpty() || currentCaseId.isEmpty() || currentSessionId.isEmpty()) return false;
+        try {
+            EcoDatabaseHelper dbHelper = store.getDbHelper();
+            String checksum = EcoDatabaseHelper.computeChecksum(text);
+            boolean ok = dbHelper.commitSegment(currentJobId, currentCaseId, currentSessionId, startMs, endMs, speaker, text, checksum);
+            if (ok) {
+                emittedIds.add(currentJobId + "_" + startMs + "_" + endMs);
+                sessionEmittedSegments = emittedIds.size();
+            }
+            return ok;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    synchronized void setJobContext(String jobId, String caseId) {
+        setJobContext(jobId, caseId, "");
+    }
+
+    synchronized void setJobContext(String jobId, String caseId, String sessionId) {
+        this.currentJobId = jobId == null ? "" : jobId;
+        this.currentCaseId = caseId == null ? "" : caseId;
+        this.currentSessionId = sessionId == null ? "" : sessionId;
+        this.sessionEmittedSegments = 0;
+        this.emittedIds.clear();
+        this.userExplicitDiscard = false;
+        this.lastChunksProcessed = 0;
+        this.persistenceAckReceived = false;
+        TranscriptionService.registerJob(jobId, caseId, sessionId);
+    }
+
+    synchronized boolean acknowledgePersistence(String jobId) {
+        if (jobId == null || jobId.trim().isEmpty() || !jobId.equals(currentJobId)) {
+            return false;
+        }
+        EcoDatabaseHelper dbHelper = store.getDbHelper();
+        boolean ok = dbHelper.acknowledgePersistence(jobId);
+        if (ok) {
+            persistenceAckReceived = true;
+            if (!wanted && !paused && retainedUri == null && recordedFile != null) {
+                deleteOwnedRecording();
+            }
+        }
+        return ok;
+    }
+
     private void deleteOwnedRecording(){
+        if(!userExplicitDiscard && !persistenceAckReceived){
+            return;
+        }
+        if(currentJobId != null && !currentJobId.isEmpty() && !userExplicitDiscard){
+            if(!isJobCommitted(currentJobId)){
+                return; // Prohibit audio deletion until durable confirmation of all segments and verified EOF
+            }
+        }
+        if (currentJobId != null && !currentJobId.isEmpty()) {
+            try {
+                EcoDatabaseHelper dbHelper = store.getDbHelper();
+                if (userExplicitDiscard) dbHelper.updateJobState(currentJobId, "DISCARDED", null);
+                if (!dbHelper.clearJobAudioKey(currentJobId)) {
+                    events.state("FALHA · LIMPEZA DE CHAVE PENDENTE"); return;
+                }
+            } catch (Exception e) { events.state("FALHA · LIMPEZA DE CHAVE PENDENTE"); return; }
+        }
         if(recordedFile!=null){
             File file=recordedFile;recordedFile=null;
-            if(file.exists()&&!file.delete()&&!destroyed)
-                events.state("AVISO · NÃO FOI POSSÍVEL ELIMINAR O ÁUDIO TEMPORÁRIO");
+            byte[] key=recordedEphemeralKey;recordedEphemeralKey=null;
+            setActiveEphemeralKey(null);
+            SessionRecorder.wipeAndClean(file, key);
+            file.delete();
+        }
+    }
+
+    synchronized boolean resumeJob(String jobId) {
+        if (busy() || destroyed || jobId == null || jobId.isEmpty()) return false;
+        try {
+            EcoDatabaseHelper dbHelper = store.getDbHelper();
+            JSONObject job = dbHelper.getJob(jobId);
+            if (job == null || !java.util.Arrays.asList("PROCESSING","PAUSED","DECODED_VERIFIED").contains(job.optString("state"))) return false;
+            String path = job.optString("audio_path");
+            if (path == null || path.isEmpty()) return false;
+            File file = new File(path);
+            if (!SessionRecorder.isOwnedSpool(activity, file) || !file.isFile() || file.length() == 0) return false;
+            byte[] key = dbHelper.getJobKey(jobId);
+            if (key == null) return false;
+
+            String savedModel = dbHelper.getAppConfig("asr:" + jobId);
+            if (!java.util.Arrays.asList("tagarela","base","small").contains(savedModel)) savedModel = "tagarela";
+            setJobContext(jobId, job.optString("case_id"), job.optString("session_id"));
+            fileModelName = savedModel;
+            dbHelper.updateJobState(jobId, "PROCESSING", null);
+            recordedFile = file;
+            recordedEphemeralKey = key;
+            setActiveEphemeralKey(key);
+            retainedUri = Uri.fromFile(file);
+            pendingFile = retainedUri;
+            wanted = true;
+            paused = false;
+            // Replay from zero after process death; the last segment end is NOT a safe chunk checkpoint.
+            resumeFromMs = 0L;
+            beginFile();
+            return true;
+        } catch (Exception e) {
+            Log.e("MlSessionEngine", "Erro ao retomar job: " + jobId, e);
+            return false;
         }
     }
 
@@ -268,15 +453,18 @@ final class MlSessionEngine implements RecognitionListener {
             events.state("OPERAÇÃO EM ANDAMENTO");return;
         }
         if(!paused||retainedUri==null){events.state("NÃO EXISTE TRANSCRIÇÃO PAUSADA");return;}
-        wanted=true;pauseRequested=false;discarding=false;deferRecognitionUntilResume=false;
+        wanted=true;pauseRequested=false;discarding=false;userExplicitDiscard=false;deferRecognitionUntilResume=false;
+        resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;lastChunksProcessed=0;
         beginFile();
     }
     synchronized void discardRemainingAudio(){
+        userExplicitDiscard = true;
+        discarding = true;
         if(recordingRequested&&recorder!=null){
-            discarding=true;recorder.finish();events.state("ENCERRANDO GRAVAÇÃO · DESCARTANDO ÁUDIO");return;
+            recorder.finish();events.state("ENCERRANDO GRAVAÇÃO · DESCARTANDO ÁUDIO");return;
         }
         if(importing){
-            discarding=true;wanted=false;pauseRequested=true;
+            wanted=false;pauseRequested=true;
             events.state("CANCELANDO PROCESSAMENTO · PRESERVANDO TEXTO RECONHECIDO");
             return; // Never delete an open audio file under a native decoder.
         }
@@ -284,7 +472,12 @@ final class MlSessionEngine implements RecognitionListener {
         resumeFromMs=0L;deleteOwnedRecording();speakerClusters.clear();
         events.state("PARADO · TEXTO PARCIAL PRESERVADO");
     }
+    synchronized boolean hasPendingAudio(){return recordedFile != null;}
+    synchronized String getCurrentCaseId(){return currentCaseId;}
+    synchronized String getCurrentSessionId(){return currentSessionId;}
     synchronized boolean isTranscribing(){return importing;}
+    synchronized boolean isRecording(){return recordingRequested || (recorder != null);}
+    synchronized boolean isPaused(){return paused;}
     synchronized void onHostPause(){
         if(recordingRequested&&recorder!=null){
             // No foreground service: never keep an undisclosed recording running
@@ -326,10 +519,11 @@ final class MlSessionEngine implements RecognitionListener {
         destroyed=true;
         if(backgroundAllowed)TranscriptionService.end(activity.getApplicationContext());
         backgroundAllowed=false;
-        discarding=true;wanted=false;pauseRequested=true;
+        wanted=false;pauseRequested=true;
         if(recorder!=null)recorder.finish();
         if(live!=null){live.destroy();live=null;}
-        if(!importing)deleteOwnedRecording();
+        // P0-03: Activity destroy must NEVER delete uncommitted recordings!
+        if(!importing && isJobCommitted(currentJobId))deleteOwnedRecording();
         stop();
         if (!importing && model != null) {
             try { model.close(); } catch (Exception ignored) {}

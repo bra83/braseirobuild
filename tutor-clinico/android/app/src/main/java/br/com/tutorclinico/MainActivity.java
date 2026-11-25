@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.provider.OpenableColumns;
 import android.os.Bundle;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
@@ -79,6 +81,9 @@ public final class MainActivity extends Activity {
                 try {
                     JSONObject v=new JSONObject();
                     v.put("text",s);v.put("startMs",startMs);v.put("endMs",endMs);v.put("cluster",cluster);
+                    String jobId = ml.getCurrentJobId();
+                    v.put("jobId", jobId);v.put("caseId", ml.getCurrentCaseId());v.put("sessionId", ml.getCurrentSessionId());
+                    v.put("id", (jobId != null && !jobId.isEmpty()) ? (jobId + "_" + startMs + "_" + endMs) : "");
                     jsCallback("nativeMlSegmentDetailed",v.toString());
                 }catch(Exception e){jsCallback("nativeMlState","ERRO METADADOS DO TRECHO");}
             }
@@ -190,9 +195,15 @@ public final class MainActivity extends Activity {
         super.onResume();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
     }
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_MODERATE) {
+            TagarelaEngine.Companion.releaseCached();
+        }
+    }
     @Override protected void onDestroy() { semanticEpoch++; semanticWorker.shutdownNow(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
-        main.post(() -> { if (!isFinishing()) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
+        main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] grants){
         super.onRequestPermissionsResult(code,permissions,grants);
@@ -266,6 +277,8 @@ public final class MainActivity extends Activity {
                     }catch(Exception ignored){}
                 };
                 try{
+                    TagarelaEngine.Companion.releaseCached();
+                    System.gc();
                     int count=req.getJSONArray("rows").length();
                     progress.report(0,count,"Carregando modelo ONNX");
                     try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
@@ -307,10 +320,125 @@ public final class MainActivity extends Activity {
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->beginCapture());
         }
-        @JavascriptInterface public void stopMlCapture(){main.post(()->ml.stop());}
-        @JavascriptInterface public void pauseMlTranscription(){main.post(()->ml.pauseTranscription());}
-        @JavascriptInterface public void resumeMlTranscription(){main.post(()->ml.resumeTranscription());}
-        @JavascriptInterface public void discardMlAudio(){main.post(()->ml.discardRemainingAudio());}
+        @JavascriptInterface public void stopMlCapture(){if(unlocked)main.post(()->{if(unlocked)ml.stop();});}
+        @JavascriptInterface public void pauseMlTranscription(){if(unlocked)main.post(()->{if(unlocked)ml.pauseTranscription();});}
+        @JavascriptInterface public void resumeMlTranscription(){if(unlocked)main.post(()->{if(unlocked)ml.resumeTranscription();});}
+        @JavascriptInterface public void discardMlAudio(){if(unlocked)main.post(()->{if(unlocked)ml.discardRemainingAudio();});}
+
+        private String activeJobCaseId = "";
+
+        @JavascriptInterface public boolean setJobContext(String jobId, String caseId, String sessionId) {
+            if (!unlocked) {
+                jsCallback("nativeMlState", "ERRO: aplicativo bloqueado");
+                return false;
+            }
+            if (jobId == null || jobId.trim().isEmpty() || caseId == null || caseId.trim().isEmpty() || sessionId == null || sessionId.trim().isEmpty()) {
+                jsCallback("nativeMlState", "ERRO: parâmetros de contexto incompletos");
+                return false;
+            }
+            if (ml.isTranscribing() || ml.isRecording() || ml.isPaused() || ml.hasPendingAudio()) {
+                jsCallback("nativeMlState", "ERRO: operação de áudio ativa ou pausada (gravação/transcrição) com outro contexto");
+                return false;
+            }
+            try {
+                store.getDbHelper().createJob(jobId, caseId, sessionId, "", null);
+                activeJobCaseId = caseId;
+                ml.setJobContext(jobId, caseId, sessionId);
+                return true;
+            } catch (Exception e) {
+                Log.e("MainActivity", "Erro ao inicializar contexto do job: " + e.getMessage(), e);
+                jsCallback("nativeMlState", "ERRO CONTEXTO: " + e.getMessage());
+                return false;
+            }
+        }
+
+        @Deprecated
+        @JavascriptInterface public boolean setJobContext(String jobId, String caseId) {
+            Log.w("MainActivity", "setJobContext chamado sem sessionId obrigatório");
+            return false;
+        }
+
+        @JavascriptInterface public boolean acknowledgePersistence(String jobId) {
+            if (!unlocked) return false;
+            if (jobId == null || jobId.trim().isEmpty()) return false;
+            return ml.acknowledgePersistence(jobId);
+        }
+
+        @JavascriptInterface public boolean confirmSpeaker(String segmentId, String caseId, String sessionId, String newSpeaker) {
+            if (!unlocked) return false;
+            return store.getDbHelper().confirmSpeaker(segmentId, caseId, sessionId, newSpeaker);
+        }
+
+        @JavascriptInterface public boolean confirmSpeaker(String segmentId, String newSpeaker) {
+            if (!unlocked) return false;
+            return false; // require patient and session scope
+        }
+
+        @JavascriptInterface public String getEngineInfo() {
+            try {
+                JSONObject info = new JSONObject();
+                info.put("versionName", "0.23.0-arm64-beta");
+                info.put("versionCode", 28);
+                info.put("abi", "arm64-v8a");
+                info.put("micEngine", selectedMicEngine);
+                info.put("tagarelaAvailable", true);
+                info.put("whisperAvailable", true);
+                info.put("voskAvailable", true);
+                info.put("semanticModel", "DistilUSE-multilingual-cased-v2-U8U8");
+                info.put("semanticAvailable", true);
+                info.put("nliAvailable", false); // Bloqueado por restrição física de hardware/RAM (Galaxy A57)
+                info.put("rerankerAvailable", false); // Reranking neural dedicado bloqueado por hardware
+                info.put("databaseType", "SQLite-Transactional-AES-GCM-v5");
+                return info.toString();
+            } catch (Exception e) {
+                return "{\"versionName\":\"0.23.0-arm64-beta\",\"versionCode\":28}";
+            }
+        }
+
+        @JavascriptInterface public String listRecoverableJobs() {
+            if (!unlocked) return "[]";
+            try {
+                java.util.List<JSONObject> jobs = store.getDbHelper().listRecoverableJobs();
+                JSONArray arr = new JSONArray();
+                for (JSONObject j : jobs) { j.remove("audio_path"); arr.put(j); }
+                return arr.toString();
+            } catch (Exception e) {
+                return "[]";
+            }
+        }
+
+        @JavascriptInterface public boolean resumeJob(String jobId) {
+            if (!unlocked || ml == null) return false;
+            if (ml.isRecording() || ml.isTranscribing() || ml.isPaused()) return false;
+            JSONObject job = store.getDbHelper().getJob(jobId);
+            if (job == null) return false;
+            activeJobCaseId = job.optString("case_id");
+            return ml.resumeJob(jobId);
+        }
+
+        @JavascriptInterface public String savePrivateDiary(String caseId, String json) {
+            if (!unlocked) return "Bloqueado";
+            try { store.savePrivateDiary(caseId, json); return "OK"; }
+            catch (Exception e) { return "ERRO: " + e.getMessage(); }
+        }
+
+        @JavascriptInterface public String loadPrivateDiary(String caseId) {
+            if (!unlocked) return "[]";
+            try { return store.readPrivateDiary(caseId); }
+            catch (Exception e) { return "{\"__loadError\":\"Falha ao ler diário privado\"}"; }
+        }
+
+        @JavascriptInterface public String saveCaseDraft(String caseId, String json) {
+            if (!unlocked && (!journalWhileLocked || activeJobCaseId.isEmpty() || !activeJobCaseId.equals(caseId))) return "Bloqueado";
+            try { store.saveCaseDraft(caseId, json); return "OK"; }
+            catch (Exception e) { return "ERRO: " + e.getMessage(); }
+        }
+
+        @JavascriptInterface public String loadCaseDraft(String caseId) {
+            if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
+            try { return store.readCaseDraft(caseId); }
+            catch (Exception e) { return "{\"__loadError\":\"Falha ao ler rascunho.\"}"; }
+        }
 
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
@@ -323,7 +451,14 @@ public final class MainActivity extends Activity {
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
         @JavascriptInterface public String saveDraft(String json) {
-            if(!unlocked&&!journalWhileLocked)return "Bloqueado";
+            if(!unlocked){
+                if(!journalWhileLocked)return "Bloqueado";
+                try {
+                    JSONObject obj = new JSONObject(json);
+                    String draftCase = obj.optString("caseId");
+                    if(activeJobCaseId.isEmpty() || !activeJobCaseId.equals(draftCase)) return "Bloqueado: caso não autorizado durante bloqueio";
+                } catch(Exception ignored){return "Rascunho inválido";}
+            }
             try{store.saveDraft(json);return "OK";}
             catch(Exception e){return "ERRO: "+e.getMessage();}
         }
@@ -338,9 +473,18 @@ public final class MainActivity extends Activity {
         }
 
         @JavascriptInterface public void exportBackup(String password) {
+            exportBackupWithOptions(password, false);
+        }
+        @JavascriptInterface public void exportBackupWithOptions(String password, boolean includePrivateDiary) {
             if (!unlocked) return;
             try {
                 JSONObject export=new JSONObject(store.read());
+                JSONArray cases = export.optJSONArray("cases");
+                if (cases != null) for (int i=0; i<cases.length(); i++) {
+                    JSONObject singleCase=cases.getJSONObject(i);
+                    singleCase.remove("diarioNotas");
+                    if (includePrivateDiary) singleCase.put("diarioNotas", new JSONArray(store.readPrivateDiary(singleCase.getString("id"))));
+                }
                 String draft=store.readDraft();
                 if(!draft.isEmpty()){
                     JSONObject journal=new JSONObject(draft);
@@ -405,9 +549,9 @@ public final class MainActivity extends Activity {
                 byte[] bytes;
                 try (InputStream in = getContentResolver().openInputStream(uri)) {
                     if (in == null) throw new IllegalStateException("Arquivo inacessível");
-                    bytes = readLimited(in, 12_000_000);
+                    bytes = readLimited(in, 50_000_000);
                 }
-                if (bytes.length > 12_000_000) throw new IllegalArgumentException("Arquivo acima do limite de 12 MB");
+                if (bytes.length > 50_000_000) throw new IllegalArgumentException("Arquivo acima do limite de 50 MB");
                 String content = SecureStore.decryptBackup(bytes, pendingPassword == null ? "" : pendingPassword);
                 jsCallback("nativeImportResult", content);
             }

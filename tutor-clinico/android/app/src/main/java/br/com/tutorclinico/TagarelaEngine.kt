@@ -4,10 +4,30 @@ import android.content.Context
 import com.k2fsa.sherpa.onnx.*
 import java.io.File
 
-/** TAGARELA PT-BR fine-tune, INT8 sherpa-onnx TDT export; no network. */
+/** TAGARELA PT-BR fine-tune, INT8 sherpa-onnx TDT export; no network. Caches recognizer to avoid repeated initialization. */
 internal class TagarelaEngine(context: Context): AutoCloseable {
     data class Span(val text:String,val start:Long,val end:Long)
     private val recognizer: OfflineRecognizer
+
+    companion object {
+        @Volatile private var cachedInstance: TagarelaEngine? = null
+
+        @Synchronized
+        fun getOrCreate(context: Context): TagarelaEngine {
+            val existing = cachedInstance
+            if (existing != null) return existing
+            val created = TagarelaEngine(context.applicationContext)
+            cachedInstance = created
+            return created
+        }
+
+        @Synchronized
+        fun releaseCached() {
+            cachedInstance?.close()
+            cachedInstance = null
+        }
+    }
+
     init {
         val root=File(context.noBackupFilesDir,"tagarela-bf31b61")
         if(!root.exists()&&!root.mkdirs())error("Não foi possível preparar TAGARELA")

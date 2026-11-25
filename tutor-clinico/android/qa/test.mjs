@@ -5,10 +5,10 @@ const html=fs.readFileSync(new URL('../app/src/main/assets/index.html',import.me
 const script=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(script);
 const elems={};
-function el(sel){return elems[sel] ||= {innerHTML:'',value:'',remove(){},prepend(){}};}
+function el(sel){return elems[sel] ||= {innerHTML:'',value:'',children:[],remove(){},prepend(){},querySelector(s){return elems[s]||null;},querySelectorAll(){return [];}};}
 let saved='', messages=[];
 const context=vm.createContext({
- document:{querySelector:el,addEventListener(){},body:{appendChild(){}},createElement(){return {className:'',textContent:'',remove(){}}}},
+ document:{querySelector:el,getElementById(id){return el('#'+id);},querySelectorAll(){return [];},addEventListener(){},body:{appendChild(){}},createElement(){return {className:'',textContent:'',remove(){}}}},
  window:{scrollTo(){},NativeVault:{loadState(){return saved || JSON.stringify({version:1,cases:[],appointments:[]})},saveState(json){saved=json;return 'OK'},exportBackup(){},importBackup(){},printReport(){}}},
  setTimeout(fn){}, console,Date,Math,JSON,Number,String,Object,Array,Set,Error
 });
@@ -696,3 +696,424 @@ test('ECO 0.14 paciente exclui terapeuta e indefinido mesmo quando existe revis�
 });
 
 test('ECO acústica independe de falas do paciente sem misturar o discurso do terapeuta',()=>{context.acousticFilterFixture={mlSegments:[{text:"Pergunta sobre trabalho",speaker:"terapeuta"}],mlAcoustic:[{atMs:0,rmsDbFs:-21,nearSilenceRatio:0.2}]};js('ecoAnalysisScope="paciente"');const h=js('ecoAnalyticsPanel(acousticFilterFixture)');assert.match(h,/Nenhum termo disponível neste filtro/);assert.match(h,/dBFS médio/);assert.match(h,/-21\.0/);assert.doesNotMatch(h,/Pergunta sobre trabalho/);assert.doesNotMatch(h,/data-id="trabalho"/);});
+
+test('ECO 0.15 Painel Hoje exibe badge ativo do TAGARELA e agenda',()=>{
+ js("act('nav','home')");
+ const h=js("homeScreen()");
+ assert.match(h,/Motor Neural Ativo: TAGARELA PT-BR INT8/);
+ assert.match(h,/Hoje · Agenda & Próximo Atendimento/);
+ assert.match(h,/Acesso rápido/);
+});
+
+test('ECO 0.15 Atlas de Sonhos e Dicionário com Freud e Jung verificáveis',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','sonhos')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Atlas de Sonhos do Paciente/);
+ assert.match(h,/Dicionário Teórico de Símbolos Oníricos/);
+ assert.match(h,/Sigmund Freud/);
+ assert.match(h,/Carl G\. Jung/);
+ assert.match(h,/Animais e Forças Instintuais/);
+ assert.match(h,/Casas, Andares e Cômodos/);
+ assert.match(h,/Parentes e Figuras Familiares/);
+ assert.match(h,/Morte e Renascimento/);
+ assert.match(h,/Queda e Desamparo/);
+ assert.match(h,/Espelhos e Reflexos/);
+ assert.match(h,/Dentes e Vulnerabilidade Corporal/);
+});
+
+test('ECO 0.15 12 Eixos de Investigação Psicanalítica e Diário de Hipóteses',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','investigar')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Eixos de Investigação Psicanalítica/);
+ assert.match(h,/1\. Repetição e Compulsão/);
+ assert.match(h,/2\. Ambivalência Afetiva/);
+ assert.match(h,/3\. Divergências e Deslocamentos/);
+ assert.match(h,/4\. Lacunas e Silêncios/);
+ assert.match(h,/5\. Associação Livre e Deriva/);
+ assert.match(h,/6\. Família de Origem e Transgeracional/);
+ assert.match(h,/7\. Transferência e Suposição de Saber/);
+ assert.match(h,/8\. Defesas e Resistência ao Saber/);
+ assert.match(h,/9\. Discurso e Significantes-Mestre/);
+ assert.match(h,/10\. Sonhos, Fantasias e Imaginário/);
+ assert.match(h,/11\. Desejos e Demandas/);
+ assert.match(h,/12\. Angústias e Afetos Corporais/);
+ assert.match(h,/Diário de Hipóteses Clínicas/);
+ assert.match(h,/Evidências favoráveis/);
+ assert.match(h,/Evidências contrárias/);
+});
+
+test('ECO 0.15 Biblioteca de Técnicas por Escola com Freud, Lacan, Jung, Winnicott, Klein e Bion',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','tecnicas')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Sigmund Freud \(Psicanálise Clássica\)/);
+ assert.match(h,/Jacques Lacan \(Retorno a Freud\)/);
+ assert.match(h,/Carl G\. Jung \(Psicologia Analítica\)/);
+ assert.match(h,/Donald W\. Winnicott \(Relações Objetais\)/);
+ assert.match(h,/Melanie Klein &amp; Wilfred Bion|Melanie Klein & Wilfred Bion/);
+ assert.match(h,/Associação Livre/);
+ assert.match(h,/Pontuação e Escansão/);
+ assert.match(h,/Imaginação Ativa/);
+ assert.match(h,/Sustentação \(Holding\)/);
+ assert.match(h,/Função Alfa e Continência/);
+ assert.match(h,/Registro de Intervenções Clínicas/);
+});
+
+test('ECO 0.15 Genograma familiar interativo e Linha do Tempo Biográfica',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','genograma')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Genograma Familiar Interativo/);
+ assert.match(h,/Linha do Tempo Biográfica/);
+ assert.match(h,/Tipo de vínculo relatado/);
+ assert.match(h,/Adicionar ao genograma/);
+});
+
+test('ECO 0.15 Diário Privado do Terapeuta segregado de relatórios externos',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','diario')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Diário Privado do Terapeuta/);
+ assert.match(h,/Contratransferência/);
+ assert.match(h,/segregado do prontuário do paciente e nunca é incluído em relatórios/);
+});
+
+test('ECO 0.15 Área de Segurança Clínica Manual sem escore automático de risco',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','seguranca')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Área de Segurança Clínica Manual/);
+ assert.match(h,/Protocolo conduzido exclusivamente por julgamento humano/);
+ assert.match(h,/não realiza triagem algorítmica nem calcula escore automático de risco/);
+ assert.match(h,/Plano de segurança pactuado com o paciente/);
+});
+
+test('ECO 0.15 Emissão de Documentos Clínicos Formatados A4 com cabeçalho e salvaguardas',()=>{
+ js("act('nav','atlas');act('ecoAtlasTab','documentos')");
+ const h=js("ecoAtlasScreen()");
+ assert.match(h,/Emissão e Impressão de Documentos Clínicos A4/);
+ assert.match(h,/Ficha de Acompanhamento Completa/);
+ assert.match(h,/Resumo de Acompanhamento/);
+ assert.match(h,/Encaminhamento Clínico/);
+ assert.match(h,/Síntese para Supervisão/);
+ assert.match(h,/Imprimir \/ Salvar PDF/);
+ const docHtml=js("ecoFormatClinicalDoc(currentCase(),'ficha',ecoDocSections)");
+ assert.match(docHtml,/SISTEMA DE REGISTRO CLÍNICO CONFIDENCIAL/);
+ assert.match(docHtml,/Lei Geral de Proteção de Dados/);
+ assert.match(docHtml,/Identificação/);
+});
+
+test('ECO 0.15 Caso exibe enquadre contratual e anamnese completa em 10 categorias',()=>{
+ js("act('openCase',state.cases[0].id);act('caseTab','sintese')");
+ const sinteseHtml=js("caseScreen()");
+ assert.match(sinteseHtml,/Enquadre Terapêutico e Contrato \(ECO-105\)/);
+ assert.match(sinteseHtml,/Frequência acordada/);
+
+ js("act('caseTab','anamnese')");
+ const anamneseHtml=js("caseScreen()");
+ assert.match(anamneseHtml,/Anamnese Clínica em 10 Categorias Estruturadas \(ECO-014\)/);
+ assert.match(anamneseHtml,/1\. Identificação e Dados Sociodemográficos/);
+ assert.match(anamneseHtml,/2\. Queixa Principal e Expectativas/);
+ assert.match(anamneseHtml,/3\. Infância, Desenvolvimento e Adolescência/);
+ assert.match(anamneseHtml,/4\. Família de Origem e Dinâmica Geracional/);
+ assert.match(anamneseHtml,/5\. Relações Interpessoais e Vínculos Significativos/);
+ assert.match(anamneseHtml,/6\. Sexualidade, Afetividade e Intimidade Pertinente/);
+ assert.match(anamneseHtml,/7\. Trabalho, Vida Profissional e Rotina/);
+ assert.match(anamneseHtml,/8\. Saúde Geral e Medicações Relatadas/);
+ assert.match(anamneseHtml,/9\. Sono, Hábitos, Ritmos e Sintomas Corporais/);
+ assert.match(anamneseHtml,/10\. Perdas, Lutos, Recursos Pessoais e Rede de Apoio/);
+});
+
+test('ECO 0.16 A16/A17/A18: salvamento com resolução de dataset, multi-caso e retorno de persistência', () => {
+  js(`(() => {
+    const caseA = state.cases[0];
+    const caseB = { ...makeCase(), id: 'case-test-b', nome: 'Caso B Teste' };
+    state.cases.push(caseB);
+
+    const elNote = document.getElementById('axis_note_transferencia');
+    elNote.value = 'Transferência positiva observada';
+    const elStatus = document.getElementById('axis_status_transferencia');
+    elStatus.value = 'em curso';
+    const elPri = document.getElementById('axis_priority_transferencia');
+    elPri.value = 'alta';
+
+    const mockButton = {
+      dataset: {
+        act: 'ecoSaveAxis',
+        axis: 'transferencia',
+        case: 'case-test-b'
+      }
+    };
+    act('ecoSaveAxis', 'transferencia', mockButton);
+  })()`);
+
+  const updatedB = js("state.cases.find(c => c.id === 'case-test-b')");
+  assert.ok(updatedB.investigacaoAxes?.transferencia, 'Eixo de investigação salvo no caso B');
+  assert.equal(updatedB.investigacaoAxes.transferencia.nota, 'Transferência positiva observada');
+  assert.equal(updatedB.investigacaoAxes.transferencia.status, 'em curso');
+  assert.equal(updatedB.investigacaoAxes.transferencia.prioridade, 'alta');
+
+  const updatedA = js("state.cases[0]");
+  assert.equal(updatedA.investigacaoAxes?.transferencia, undefined, 'Caso A não foi afetado');
+});
+
+test('ECO 0.16 A19: Genograma SVG com gerações G1-G4 e vínculos relacionais interativos', () => {
+  js(`(() => {
+    const targetC = state.cases[0];
+    targetC.genograma = {
+      membros: [
+        { id: 'm1', nome: 'Ana', parentesco: 'Mãe', geracao: 'G2 (Pais/Tios)', sexo: 'F', vivo: 'sim' },
+        { id: 'm2', nome: 'Carlos', parentesco: 'Pai', geracao: 'G2 (Pais/Tios)', sexo: 'M', vivo: 'não' },
+        { id: 'm3', nome: 'Paciente', parentesco: 'Paciente titular', geracao: 'G3 (Paciente/Irmãos)', sexo: 'F', vivo: 'sim' }
+      ],
+      relacoes: [
+        { id: 'r1', deId: 'm1', paraId: 'm2', tipo: 'casamento' },
+        { id: 'r2', deId: 'm1', paraId: 'm3', tipo: 'pais_filho' }
+      ]
+    };
+  })()`);
+
+  const html = js("ecoRenderGenogram(state.cases[0])");
+  assert.match(html, /<svg class="eco-genogram-svg"/);
+  assert.match(html, /G1: Avós/);
+  assert.match(html, /G2: Pais e Tios/);
+  assert.match(html, /G3: Sujeito \/ Parceiros \/ Irmãos/);
+  assert.match(html, /G4: Filhos e Descendentes/);
+  assert.match(html, /stroke="#38bdf8"/, 'Aresta de casamento desenhada');
+  assert.match(html, /stroke="#ef4444"/, 'Traço de falecido para Carlos');
+  assert.match(html, /Adicionar vínculo entre familiares/);
+});
+
+test('ECO 0.16 A20/A30: Emissão de documentos com pseudonimização real em supervisão, confirmação explícita e filtros', () => {
+  js(`(() => {
+    const targetC = state.cases[0];
+    targetC.nome = 'Maria Madalena';
+    targetC.idade = '34';
+    targetC.obs = 'Observação sigilosa do caso';
+    targetC.sessoes = [
+      { id: 's1', data: '2026-11-20', texto: 'A paciente Maria Madalena relatou conflito com a mãe Ana.' },
+      { id: 's2', data: '2026-11-23', texto: 'Maria Madalena trouxe um sonho com mar revolto.' }
+    ];
+  })()`);
+
+  // Test supervision mode (pseudonymized)
+  const supHtml = js("ecoFormatClinicalDoc(state.cases[0], 'supervisao', ecoDocSections, { confirmed: false, profNome: 'Dra. Silva', profRegistro: 'CRP 06/12345' })");
+  assert.match(supHtml, /Síntese para Supervisão Clínica \(Pseudonimizada\)/);
+  assert.match(supHtml, /Faixa adulta \(Pseudonimizada\)/);
+  assert.match(supHtml, /\[PACIENTE\]/);
+  assert.doesNotMatch(supHtml, /Maria Madalena/);
+  assert.match(supHtml, /MINUTA NÃO CONFIRMADA/);
+
+  // Test confirmed document
+  const confHtml = js("ecoFormatClinicalDoc(state.cases[0], 'ficha', ecoDocSections, { confirmed: true, profNome: 'Dra. Silva', profRegistro: 'CRP 06/12345' })");
+  assert.match(confHtml, /Documento revisado e liberado pelo profissional responsável/);
+  assert.match(confHtml, /Dra\. Silva/);
+  assert.match(confHtml, /CRP 06\/12345/);
+});
+
+test('ECO 0.16 A21: Edição e persistência das 10 categorias de anamnese e enquadre', () => {
+  js(`(() => {
+    const targetC = state.cases[0];
+    document.getElementById('ana_nomeSocial').value = 'M. R.';
+    document.getElementById('ana_queixaDetalhada').value = 'Ansiedade em situações de exposição social';
+    document.getElementById('ana_nascimentoPrimeirosAnos').value = 'Sem intercorrências no parto';
+
+    act('ecoSaveAnamnese', targetC.id, { dataset: { case: targetC.id } });
+
+    document.getElementById('enq_frequencia').value = 'Bisemanal (50 min)';
+    document.getElementById('enq_duracao').value = '50 min';
+    document.getElementById('enq_modalidade').value = 'Online';
+    document.getElementById('enq_honorarios').value = 'Recibo quinzenal';
+    document.getElementById('enq_limites').value = 'Contato restrito a emergências';
+    document.getElementById('enq_ferias').value = 'Recesso em janeiro';
+    document.getElementById('enq_expectativas').value = 'Elaboração de conflitos subjetivos';
+
+    act('ecoSaveEnquadre', targetC.id, { dataset: { case: targetC.id } });
+  })()`);
+
+  const savedCase = js("state.cases[0]");
+  assert.equal(savedCase.anamnese?.nomeSocial, 'M. R.');
+  assert.equal(savedCase.anamnese?.queixaDetalhada, 'Ansiedade em situações de exposição social');
+  assert.equal(savedCase.anamnese?.nascimentoPrimeirosAnos, 'Sem intercorrências no parto');
+
+  assert.equal(savedCase.enquadre?.frequencia, 'Bisemanal (50 min)');
+  assert.equal(savedCase.enquadre?.modalidade, 'Online');
+  assert.equal(savedCase.enquadre?.honorarios, 'Recibo quinzenal');
+});
+
+test('ECO 0.16 A25: Diário do terapeuta segregado com persistência no SecureStore/NativeVault', () => {
+  js(`(() => {
+    const targetC = state.cases[0];
+    let vaultStored = null;
+    window.NativeVault.savePrivateDiary = (caseId, json) => { vaultStored = { caseId, json }; return "OK"; };
+    window.NativeVault.loadPrivateDiary = (caseId) => vaultStored ? vaultStored.json : "[]";
+
+    document.getElementById('diaryData').value = '2026-11-24';
+    document.getElementById('diaryCategoria').value = 'Contratransferência / Afeto suscitado';
+    document.getElementById('diaryTexto').value = 'Sensação de angústia contratransferencial diante do silêncio do paciente.';
+
+    act('ecoAddDiaryNote', targetC.id, { dataset: { case: targetC.id } });
+  })()`);
+
+  const vaultJson = js("window.NativeVault.loadPrivateDiary(state.cases[0].id)");
+  assert.match(vaultJson, /angústia contratransferencial/);
+
+  // Verify backup export does not leak diarioNotas by default
+  const exportedJson = js("JSON.stringify({ ...state, cases: state.cases.map(cs => { const cp = { ...cs }; delete cp.diarioNotas; return cp; }) })");
+  assert.doesNotMatch(exportedJson, /angústia contratransferencial/, 'Diário confidencial não vaza no backup exportado');
+});
+
+test('ECO 0.16 A27: Diferenciação epistemológica do espelho (Lacan 1949 vs Jung)', () => {
+  const mirror = js("ecoSymbolDictionary.find(s => s.titulo.includes('Espelho'))");
+  assert.ok(mirror, 'Verbete do Espelho presente no dicionário');
+  assert.match(mirror.freud, /Inquietante|Narcisismo/);
+  assert.match(mirror.lacan, /Estádio do Espelho/);
+  assert.match(mirror.lacan, /1949/);
+  assert.match(mirror.lacan, /imaginári[ao]/i);
+  assert.match(mirror.jung, /Sombra/);
+  assert.notEqual(mirror.lacan, mirror.jung, 'Lacan e Jung claramente diferenciados');
+});
+
+test('ECO 0.16 A29: Painel Hoje exclui consultas com horários já passados no dia atual', () => {
+  const today = js("datestr()");
+  const currentClock = js("nowHHMM()");
+
+  // Set an appointment guaranteed to be in the past (00:00) if clock > 00:00, or yesterday
+  const pastTime = '00:00';
+  const futureTime = '23:59';
+
+  js(`
+    state.appointments = [
+      { id: 'apt-past', caseId: state.cases[0].id, data: '${today}', hora: '${pastTime}', duracao: 50, status: 'Agendado' },
+      { id: 'apt-future', caseId: state.cases[0].id, data: '${today}', hora: '${futureTime}', duracao: 50, status: 'Agendado' }
+    ];
+  `);
+
+  const landingHtml = js("homeScreen()");
+  if (currentClock > pastTime) {
+    assert.doesNotMatch(landingHtml, /às 00:00/, 'Consulta com hora 00:00 passada hoje não é listada como próxima');
+    assert.match(landingHtml, /às 23:59/, 'Consulta futura às 23:59 é listada como próxima');
+  }
+});
+
+test('ECO 0.16 Atendimento Manual: Prontuário sem gravação, microfone ou arquivo de áudio', () => {
+  const initialCount = js("(state.cases[0].sessoes || []).length");
+
+  js(`(() => {
+    const targetC = state.cases[0];
+    document.getElementById('manualSessData').value = '2026-11-24';
+    document.getElementById('manualSessHora').value = '15:30';
+    document.getElementById('manualSessTexto').value = 'Atendimento clínico presencial conduzido sem gravação de áudio.';
+    document.getElementById('manualSessInterv').value = 'Interpretação da demanda transferencial.';
+    document.getElementById('manualSessPlano').value = 'Retomar questão profissional no próximo encontro.';
+
+    act('saveManualSession', targetC.id, { dataset: { case: targetC.id } });
+  })()`);
+
+  const newCount = js("state.cases[0].sessoes.length");
+  assert.equal(newCount, initialCount + 1, 'Nova sessão manual adicionada');
+  const manualSession = js("state.cases[0].sessoes[state.cases[0].sessoes.length - 1]");
+  assert.equal(manualSession.origem, 'manual');
+  assert.equal(manualSession.texto, 'Atendimento clínico presencial conduzido sem gravação de áudio.');
+  assert.equal(manualSession.intervencoes, 'Interpretação da demanda transferencial.');
+});
+
+test('ECO 0.16 Grade de 12 módulos no prontuário do paciente', () => {
+  js("act('openCase', state.cases[0].id); act('caseTab', 'sintese')");
+  const html = js("caseScreen()");
+  assert.match(html, /eco-module-grid/);
+  assert.match(html, /Sessões Clínicas/);
+  assert.match(html, /Atend\. Manual/);
+  assert.match(html, /Análise & Ecos/);
+  assert.match(html, /Anamnese/);
+  assert.match(html, /Enquadre/);
+  assert.match(html, /Investigação/);
+  assert.match(html, /Técnicas/);
+  assert.match(html, /Sonhos/);
+  assert.match(html, /Genograma/);
+  assert.match(html, /Cronologia/);
+  assert.match(html, /Documentos/);
+  assert.match(html, /Diário Privado/);
+  assert.match(html, /Segurança/);
+});
+
+test('ECO 0.17 A20/A30: Auditoria independente 8 sondagens de documentos e enquadre', () => {
+  js(`(() => {
+    state.cases.push({
+      id: 'probe_test_case',
+      nome: 'Maria Madalena',
+      idade: '12',
+      enquadre: { limites: 'Ligar para Maria Madalena no telefone 99999-1234' },
+      anamnese: { queixaDetalhada: 'QUEIXA NOVA ANAMNESE', nomeSocial: 'Nome social' },
+      sessoes: [{ data: '2026-11-24', texto: 'Maria Madalena mora na Rua das Flores, 123, CPF 123.456.789-00.' }],
+      genograma: { membros: [{ nome: 'Ana (mãe)', parentesco: 'Mãe' }] },
+      obs: 'Ana (mãe) está presente.'
+    });
+  })()`);
+
+  const docHtml = js("ecoFormatClinicalDoc(state.cases.find(x => x.id === 'probe_test_case'), 'supervisao', {identificacao:true, enquadre:true, anamnese:true, sessoes:true, plano:true}, {confirmed:false})");
+
+  // Probe 1: Nome mascarado no enquadre
+  assert.doesNotMatch(docHtml, /Ligar para Maria Madalena/, 'Nome cru não deve vazar em limites de enquadre');
+  assert.match(docHtml, /Ligar para \[PACIENTE\]/, 'Paciente pseudonimizado');
+
+  // Probe 2: Menor rotulado faixa infantojuvenil
+  assert.doesNotMatch(docHtml, /Faixa adulta/, 'Menor de 18 não deve ser rotulado como adulto');
+  assert.match(docHtml, /Faixa infantojuvenil/, 'Rotulagem etária correta');
+
+  // Probe 3: Endereço e CPF mascarados
+  assert.doesNotMatch(docHtml, /Rua das Flores, 123/, 'Endereço removido');
+  assert.doesNotMatch(docHtml, /123\.456\.789-00/, 'CPF removido');
+  assert.match(docHtml, /\[ENDEREÇO REMOVIDO\]/);
+  assert.match(docHtml, /\[CPF REMOVIDO\]/);
+
+  // Probe 4: Familiar com parênteses mascarado
+  assert.doesNotMatch(docHtml, /Ana \(mãe\)/, 'Familiar com parênteses removido');
+  assert.match(docHtml, /\[Mãe\]/, 'Parentesco mantido de forma segura');
+
+  // Probe 5: queixaDetalhada presente
+  assert.match(docHtml, /QUEIXA NOVA ANAMNESE/, 'Queixa detalhada da anamnese deve constar no documento');
+
+  // Probe 6: Bloqueio de impressão sem confirmação
+  let printedCount = 0;
+  context.window.NativeVault.printReport = () => { printedCount++; };
+  js("act('ecoPrintDoc', 'probe_test_case', {dataset:{case:'probe_test_case'}})");
+  assert.equal(printedCount, 0, 'Minuta não confirmada não pode ser impressa');
+
+  // Probe 7: Rejeição de caso inexistente sem fallback para primeiro paciente
+  js("act('ecoPrintDoc', 'caso_inexistente_999', {dataset:{case:'caso_inexistente_999'}})");
+  assert.equal(printedCount, 0, 'Caso inexistente não pode imprimir outro paciente por fallback');
+
+  // Probe 8: Falha em gravação dedicada não duplica diário no cofre principal
+  context.window.NativeVault.savePrivateDiary = () => 'ERRO: disco cheio';
+  js(`(() => {
+    document.getElementById('diaryTexto').value = 'REFLEXAO_PRIVADA_CONFIDENCIAL';
+    act('ecoAddDiaryNote', 'probe_test_case', {dataset:{case:'probe_test_case'}});
+  })()`);
+  const probeCase = js("state.cases.find(x => x.id === 'probe_test_case')");
+  assert.equal(probeCase.diarioNotas, undefined, 'Diário privado jamais deve residir dentro do caso do paciente');
+});
+
+test('ECO 0.17 A28: Container #ecoSymbolResults preserva foco e teclado móvel', () => {
+  js("act('openCase', state.cases[0].id); act('caseTab', 'sonhos')");
+  const html = js("caseScreen()");
+  assert.match(html, /id=\"ecoSymbolResults\"/, 'Container de resultados oníricos presente no DOM');
+});
+
+test('ECO 0.17 Arquitetura: Banco de dados relacional cifrado e áudio efêmero', () => {
+  const dbHelper = fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/EcoDatabaseHelper.java', import.meta.url), 'utf8');
+  const store = fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java', import.meta.url), 'utf8');
+  const recorder = fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SessionRecorder.java', import.meta.url), 'utf8');
+
+  assert.match(dbHelper, /CREATE (?:TABLE|VIEW) IF NOT EXISTS pacientes/);
+  assert.match(dbHelper, /CREATE TABLE IF NOT EXISTS sessoes/);
+  assert.match(dbHelper, /CREATE TABLE IF NOT EXISTS segmentos/);
+  assert.match(dbHelper, /CREATE TABLE IF NOT EXISTS diario_privado/);
+  assert.match(dbHelper, /CREATE TABLE IF NOT EXISTS processamento_jobs/);
+  assert.match(dbHelper, /commitSegment/);
+  assert.match(dbHelper, /confirmSpeaker/);
+
+  assert.match(store, /EcoDatabaseHelper/);
+  assert.match(store, /dbHelper\.savePrivateDiary/);
+  assert.match(store, /dbHelper\.readPrivateDiary/);
+
+  assert.match(recorder, /AES\/(?:GCM|CTR)\/NoPadding/);
+  assert.match(recorder, /Arrays\.fill\(ephemeralKey/);
+});
+

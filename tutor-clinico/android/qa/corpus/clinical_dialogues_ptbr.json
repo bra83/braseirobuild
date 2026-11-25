@@ -1,0 +1,253 @@
+{
+  "corpus_info": {
+    "title": "Corpus Fictício de Diálogos Clínicos em Português Brasileiro (ECO-PTBR-CLINICAL)",
+    "version": "1.0.0",
+    "description": "Corpus com dados 100% fictícios para treinamento e avaliação de camadas neurais clínicas (ASR, Diarização, Embeddings, Reranker, NLI e RAG)",
+    "language": "pt-BR",
+    "annotations": [
+      "ambivalencia",
+      "metaforas",
+      "associacoes",
+      "repeticoes_tematicas",
+      "mudancas_discurso",
+      "relacoes_familiares",
+      "sonhos",
+      "memorias",
+      "negacoes",
+      "divergencias_temporais",
+      "contexto_intervencoes_terapeuta",
+      "exemplos_negativos_dificeis"
+    ],
+    "split_policy": "Divisão estrita por diálogo e personagem sem vazamento cruzado"
+  },
+  "train": [
+    {
+      "dialogue_id": "D01_CLARICE",
+      "character": "Clarice (Fictícia, 34 anos)",
+      "theme": "Luto, ambivalência afetiva em relação à figura materna e negação",
+      "utterances": [
+        {
+          "turn": 1,
+          "speaker": "terapeuta",
+          "text": "O que você gostaria de trazer hoje para a nossa conversa?",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 2,
+          "speaker": "paciente",
+          "text": "Não vá pensar que eu guardo rancor da minha mãe por causa do que aconteceu no hospital.",
+          "labels": ["negacoes", "ambivalencia", "relacoes_familiares"],
+          "notes": "Negação clássica freudiana (Die Verneinung, 1925): o conteúdo recalcado é enunciado sob o signo da negação."
+        },
+        {
+          "turn": 3,
+          "speaker": "terapeuta",
+          "text": "Você sentiu necessidade de me dizer isso logo de início.",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 4,
+          "speaker": "paciente",
+          "text": "Porque todo mundo acha que eu sou ingrata. Eu cuidava dela todos os dias, mas quando ela me pedia água, às vezes me dava uma raiva que eu tinha que sair do quarto para não explodir.",
+          "labels": ["ambivalencia", "associacoes", "relacoes_familiares"]
+        },
+        {
+          "turn": 5,
+          "speaker": "paciente",
+          "text": "É como carregar um rochedo nos ombros enquanto tento nadar contra uma correnteza escura.",
+          "labels": ["metaforas"],
+          "notes": "Metáfora somática de opressão e esgotamento psíquico."
+        },
+        {
+          "turn": 6,
+          "speaker": "terapeuta",
+          "text": "Essa sensação de carregar um peso excessivo já apareceu antes em outros momentos da sua vida?",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 7,
+          "speaker": "paciente",
+          "text": "Sempre. Quando eu tinha sete anos e meus pais se separaram, senti que a casa inteira ia desabar se eu tirasse notas baixas.",
+          "labels": ["memorias", "divergencias_temporais", "repeticoes_tematicas"]
+        }
+      ],
+      "hard_negatives": [
+        {
+          "query": "Ambivalência em relação ao cuidado materno",
+          "positive": "Eu cuidava dela todos os dias, mas às vezes me dava uma raiva que eu tinha que sair do quarto para não explodir.",
+          "hard_negative": "Comprei os remédios da minha mãe na farmácia que fica na esquina da avenida principal.",
+          "unrelated": "A previsão do tempo indicou chuva para o final de semana."
+        },
+        {
+          "query": "Metáfora de peso e sobrecarga",
+          "positive": "É como carregar um rochedo nos ombros enquanto tento nadar contra uma correnteza escura.",
+          "hard_negative": "Pesei a bagagem no aeroporto e deu vinte quilos exatos.",
+          "unrelated": "O elevador do prédio está em manutenção periódica."
+        }
+      ]
+    },
+    {
+      "dialogue_id": "D02_BERNARDO",
+      "character": "Bernardo (Fictício, 42 anos)",
+      "theme": "Cobrança de perfeição, paralisia profissional e relações paternas",
+      "utterances": [
+        {
+          "turn": 1,
+          "speaker": "terapeuta",
+          "text": "Como você passou a semana desde a nossa última sessão?",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 2,
+          "speaker": "paciente",
+          "text": "Travei completamente diante do relatório novo. Tenho a sensação de que se eu errar uma vírgula, serei desmascarado como uma fraude.",
+          "labels": ["repeticoes_tematicas", "associacoes"]
+        },
+        {
+          "turn": 3,
+          "speaker": "paciente",
+          "text": "Meu pai costumava conferir minhas redações com caneta vermelha. Se houvesse um borrão, rasgava a folha na minha frente.",
+          "labels": ["memorias", "relacoes_familiares", "divergencias_temporais"]
+        },
+        {
+          "turn": 4,
+          "speaker": "terapeuta",
+          "text": "A caneta vermelha continua corrigindo você por dentro?",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 5,
+          "speaker": "paciente",
+          "text": "Sim... mas falando nisso, vi uma notícia sobre mercado imobiliário ontem que me chamou atenção.",
+          "labels": ["mudancas_discurso"],
+          "notes": "Mudança brusca de discurso defensiva diante da aproximação com o afeto paterno."
+        }
+      ],
+      "hard_negatives": [
+        {
+          "query": "Exigência interna e medo de errar",
+          "positive": "Tenho a sensação de que se eu errar uma vírgula, serei desmascarado como uma fraude.",
+          "hard_negative": "Enviei o relatório para a diretoria antes das cinco horas da tarde.",
+          "unrelated": "A mesa do escritório é feita de madeira maciça."
+        }
+      ]
+    }
+  ],
+  "validation": [
+    {
+      "dialogue_id": "D03_HELENA",
+      "character": "Helena (Fictícia, 28 anos)",
+      "theme": "Produção onírica, ansiedade de separação e angústia corporal",
+      "utterances": [
+        {
+          "turn": 1,
+          "speaker": "paciente",
+          "text": "Tive outro sonho com a casa da minha avó. Eu andava pelos cômodos e as portas se fechavam sozinhas.",
+          "labels": ["sonhos", "repeticoes_tematicas"]
+        },
+        {
+          "turn": 2,
+          "speaker": "paciente",
+          "text": "Quando tentava abrir a fechadura, a maçaneta virava água e escorria pelos meus dedos.",
+          "labels": ["sonhos", "metaforas"]
+        },
+        {
+          "turn": 3,
+          "speaker": "terapeuta",
+          "text": "O que você sentiu no momento em que a maçaneta escorria?",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 4,
+          "speaker": "paciente",
+          "text": "Um aperto no peito, uma falta de chão. Acordei com o coração aos pulos.",
+          "labels": ["associacoes", "metaforas"]
+        },
+        {
+          "turn": 5,
+          "speaker": "paciente",
+          "text": "Não é que eu tenha medo de morar sozinha, sabe? Eu até prefiro o silêncio.",
+          "labels": ["negacoes", "ambivalencia"]
+        }
+      ],
+      "hard_negatives": [
+        {
+          "query": "Narrativa onírica de aprisionamento e perda de controle",
+          "positive": "Eu andava pelos cômodos e as portas se fechavam sozinhas; a maçaneta virava água e escorria.",
+          "hard_negative": "Tranquei a porta de casa antes de sair para o trabalho pela manhã.",
+          "unrelated": "O café da manhã tinha torradas e suco de laranja."
+        }
+      ]
+    }
+  ],
+  "test": [
+    {
+      "dialogue_id": "D04_DAVI",
+      "character": "Davi (Fictício, 38 anos)",
+      "theme": "Conflito geracional, transferência e cisão",
+      "utterances": [
+        {
+          "turn": 1,
+          "speaker": "paciente",
+          "text": "Não me entenda mal, meu irmão sempre foi o filho perfeito aos olhos de todos.",
+          "labels": ["negacoes", "relacoes_familiares", "ambivalencia"]
+        },
+        {
+          "turn": 2,
+          "speaker": "paciente",
+          "text": "Ele nunca causou problemas, se formou com honras. Eu era o rebelde que ninguém aguentava.",
+          "labels": ["relacoes_familiares", "divergencias_temporais"]
+        },
+        {
+          "turn": 3,
+          "speaker": "paciente",
+          "text": "Mas quando meu pai adoeceu, adivinha quem teve que largar o emprego para acompanhar as consultas? O 'filho perfeito' nem apareceu.",
+          "labels": ["ambivalencia", "relacoes_familiares"]
+        },
+        {
+          "turn": 4,
+          "speaker": "terapeuta",
+          "text": "Parece que essa comparação ainda dita o seu lugar na família.",
+          "labels": ["contexto_intervencoes_terapeuta"]
+        },
+        {
+          "turn": 5,
+          "speaker": "paciente",
+          "text": "É uma armadura enferrujada. Me protege de um lado, mas não me deixa dar um passo adiante sem ranger.",
+          "labels": ["metaforas", "associacoes"]
+        }
+      ],
+      "hard_negatives": [
+        {
+          "query": "Cisão e rivalidade fraterna disfarçada de conformismo",
+          "positive": "Ele era o filho perfeito aos olhos de todos, mas quando meu pai adoeceu, adivinha quem teve que largar tudo.",
+          "hard_negative": "Meu irmão mora em Curitiba e trabalha no setor de tecnologia.",
+          "unrelated": "O conserto da geladeira custou trezentos reais."
+        },
+        {
+          "query": "Metáfora da armadura como defesa limitante",
+          "positive": "É uma armadura enferrujada. Me protege de um lado, mas não me deixa dar um passo adiante.",
+          "hard_negative": "Visitei o museu histórico e vi armaduras medievais em exposição.",
+          "unrelated": "A estrada estava asfaltada até o município vizinho."
+        }
+      ],
+      "nli_pairs": [
+        {
+          "premise": "Não me entenda mal, meu irmão sempre foi o filho perfeito aos olhos de todos.",
+          "hypothesis": "O paciente nutre sentimentos de comparação e mágoa em relação ao irmão.",
+          "gold_label": "entailment"
+        },
+        {
+          "premise": "Não vá pensar que eu guardo rancor da minha mãe por causa do que aconteceu.",
+          "hypothesis": "A relação com a figura materna está pacificada e isenta de conflitos.",
+          "gold_label": "contradiction"
+        },
+        {
+          "premise": "O conserto da geladeira custou trezentos reais.",
+          "hypothesis": "O paciente relata traumas profundos de sua infância.",
+          "gold_label": "neutral"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Large offline models and native binaries (downloaded/cached via setup)
+app/src/main/assets/model-pt/
+app/src/main/assets/model-spk/
+app/src/main/assets/semantic/
+app/src/main/assets/tagarela/
+app/src/main/assets/whisper/
+app/libs/
+build/
+app/build/
+.gradle/

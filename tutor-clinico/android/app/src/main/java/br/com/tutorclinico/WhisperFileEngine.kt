@@ -43,6 +43,7 @@ object WhisperFileEngine {
         fun segmentWithSpeaker(value: String, startMs: Long, endMs: Long, cluster: String)
         fun progress(processedMs: Long)
         fun acoustic(measurementJson: String)
+        fun chunksProcessed(count: Int) {}
     }
 
     @JvmStatic
@@ -72,7 +73,7 @@ object WhisperFileEngine {
         val asset = if(mode=="base") MODEL_BASE else MODEL_SMALL
         try {
             listener.state(modelName+" · PREPARANDO MODELO OFFLINE")
-            if(mode=="tagarela")tagarela=TagarelaEngine(context) else model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
+            if(mode=="tagarela") tagarela = TagarelaEngine.getOrCreate(context) else model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
             if (!listener.isActive()) return false
 
             // Skip already-committed PCM during resume. No duplicate segments are emitted.
@@ -82,7 +83,7 @@ object WhisperFileEngine {
             if(clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
             val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela)
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
-            AudioFileTranscriber.streamPcm(context, uri, object : AudioFileTranscriber.Listener {
+            val chunksCount = AudioFileTranscriber.streamPcmWithCount(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
                 override fun status(message: String) {
                     if (listener.isActive()) listener.state(modelName+" · DECODIFICANDO ÁUDIO")
@@ -97,14 +98,10 @@ object WhisperFileEngine {
                     val remaining = size - offset
                     if (remaining > 0) chunks.accept(pcm.copyOfRange(offset, size), remaining)
                 }
-            })
+            }, MlSessionEngine.getActiveEphemeralKey())
+            listener.chunksProcessed(chunksCount)
             if (!listener.isActive()) return false
             chunks.finish()
-            if (listener.isActive()) {
-                listener.state(if (chunks.recognizedCount > 0)
-                    "CONCLUÍDO · "+modelName+" · REVISE A TRANSCRIÇÃO"
-                    else "CONCLUÍDO · NENHUMA FALA IDENTIFICADA")
-            }
             return listener.isActive()
         } catch (e: Throwable) {
             if (listener.isActive()) {
@@ -114,7 +111,7 @@ object WhisperFileEngine {
             return false
         } finally {
             try {diarizer?.close()}catch(_:Throwable){}
-            try {tagarela?.close()}catch(_:Throwable){}
+            // Tagarela instance is preserved warm in TagarelaEngine.cachedInstance for instant reuse
             model?.let { try { Whisper.releaseModel(it) } catch (_: Throwable) { } }
         }
     }

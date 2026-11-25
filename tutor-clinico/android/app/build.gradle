@@ -10,11 +10,28 @@ android {
         targetSdk 35
         // Target the user's ARM64 Android phone; do not package x86 Sherpa binaries.
         ndk { abiFilters 'arm64-v8a' }
-        versionCode 19
-        versionName '0.14.1-arm64-beta'
+        versionCode 28
+        versionName '0.23.0-arm64-beta'
     }
     androidResources { noCompress += ['onnx','txt'] }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    kotlinOptions { jvmTarget = '17' }
+    testOptions {
+        unitTests {
+            includeAndroidResources = false
+            returnDefaultValues = false
+            all {
+                // Robolectric executes the real Android framework classes (including the
+                // native Android SQLite build) on the JVM. Its framework jar is resolved
+                // from the same Google-hosted Maven Central mirror used by Gradle.
+                systemProperty 'robolectric.dependency.repo.url', 'https://maven-central.storage-download.googleapis.com/maven2/'
+                systemProperty 'robolectric.dependency.repo.id', 'gcs-central'
+                systemProperty 'robolectric.logging.enabled', 'false'
+                maxHeapSize = '2g'
+                testLogging { events 'passed', 'failed', 'skipped', 'standardOut', 'standardError'; exceptionFormat 'full'; showStandardStreams true }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -23,4 +40,7 @@ dependencies {
     implementation 'com.alphacephei:vosk-android:0.3.47' // Legacy live microphone
     implementation 'dev.ffmpegkit-maintained:whisper-android:1.0.0' // Offline file transcription
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
 }

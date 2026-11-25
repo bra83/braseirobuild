@@ -43,23 +43,198 @@ final class AudioFileTranscriber {
     }
 
     static void streamPcm(Context context, Uri uri, Listener listener, PcmListener receiver) throws Exception {
-        if (!listener.isActive()) return;
+        streamPcmWithCount(context, uri, listener, receiver, null);
+    }
+
+    static void streamPcm(Context context, Uri uri, Listener listener, PcmListener receiver, byte[] ephemeralKey) throws Exception {
+        streamPcmWithCount(context, uri, listener, receiver, ephemeralKey);
+    }
+
+    static int streamPcmWithCount(Context context, Uri uri, Listener listener, PcmListener receiver, byte[] ephemeralKey) throws Exception {
+        if (!listener.isActive()) return 0;
         Sink sink = new Sink(receiver, listener);
-        boolean wav;
+        boolean isSpool = false;
+        boolean wav = false;
         try (InputStream probe = context.getContentResolver().openInputStream(uri)) {
             if (probe == null) throw new IllegalArgumentException("Arquivo inacessível");
-            byte[] hdr = new byte[12];
+            byte[] hdr = new byte[32];
             int n = 0;
             while (n < hdr.length) {
                 int k = probe.read(hdr, n, hdr.length - n);
                 if (k < 0) break;
                 n += k;
             }
-            wav = n == 12 && ascii(hdr, 0, 4).equals("RIFF") && ascii(hdr, 8, 4).equals("WAVE");
+            if (n >= 4 && hdr[0] == 'E' && hdr[1] == 'C' && hdr[2] == 'O' && (hdr[3] == '1' || hdr[3] == '2')) {
+                isSpool = true;
+            } else if (n >= 12 && ascii(hdr, 0, 4).equals("RIFF") && ascii(hdr, 8, 4).equals("WAVE")) {
+                wav = true;
+            }
         }
-        if (wav) decodeWav(context, uri, sink, listener);
-        else decodeCompressed(context, uri, sink, listener);
-        if (listener.isActive()) sink.flush();
+        int chunks = 0;
+        if (isSpool) chunks = decodeSpool(context, uri, sink, listener, ephemeralKey);
+        else if (wav) chunks = decodeWav(context, uri, sink, listener);
+        else chunks = decodeCompressed(context, uri, sink, listener);
+        if (!listener.isActive()) return 0;
+        sink.flush();
+        return chunks;
+    }
+
+    private static int readLE32(DataInputStream dis) throws Exception {
+        byte[] b = new byte[4];
+        dis.readFully(b);
+        return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
+    }
+
+    private static long readLE64(DataInputStream dis) throws Exception {
+        byte[] b = new byte[8];
+        dis.readFully(b);
+        long val = 0;
+        for (int i = 0; i < 8; i++) {
+            val |= ((long) (b[i] & 0xFF)) << (8 * i);
+        }
+        return val;
+    }
+
+    static int decodeSpool(Context ctx, Uri uri, Sink sink, Listener listener, byte[] ephemeralKey) throws Exception {
+        if (ephemeralKey == null) {
+            ephemeralKey = MlSessionEngine.getActiveEphemeralKey();
+        }
+        if (ephemeralKey == null) {
+            throw new IllegalStateException("Chave de decodificação do spool não disponível");
+        }
+        try (InputStream input = new BufferedInputStream(ctx.getContentResolver().openInputStream(uri))) {
+            if (input == null) throw new IllegalArgumentException("Spool de áudio não disponível");
+            DataInputStream dis = new DataInputStream(input);
+            byte[] magic = new byte[4];
+            dis.readFully(magic);
+            boolean isV2 = (magic[0] == 'E' && magic[1] == 'C' && magic[2] == 'O' && magic[3] == '2');
+            boolean isV1 = (magic[0] == 'E' && magic[1] == 'C' && magic[2] == 'O' && magic[3] == '1');
+            if (!isV1 && !isV2) {
+                throw new IllegalArgumentException("Spool inválido: magic mismatch");
+            }
+            int version = readLE32(dis);
+            if (isV2) {
+                if (version != 2) throw new IllegalArgumentException("Spool version mismatch: " + version);
+                int chunkSize = readLE32(dis);
+                if (chunkSize <= 0 || chunkSize > 1024 * 1024) throw new IllegalArgumentException("Tamanho de chunk inválido: " + chunkSize);
+                byte[] reserved = new byte[12];
+                dis.readFully(reserved);
+                long expectedLen = readLE64(dis);
+                if (expectedLen < 0) {
+                    throw new IllegalStateException("Comprimento esperado do spool inválido (negativo): " + expectedLen);
+                }
+
+                int expectedChunkIndex = 0;
+                long totalDecrypted = 0;
+                byte[] decBuf = new byte[Math.max(chunkSize, 65536)];
+                boolean eofVerified = false;
+
+                while (listener.isActive()) {
+                    input.mark(1);
+                    int test = input.read();
+                    if (test == -1) break;
+                    input.reset();
+
+                    int chunkIndex = readLE32(dis);
+                    int payloadLen = readLE32(dis);
+
+                    if (chunkIndex == -1 || chunkIndex == 0xFFFFFFFF) {
+                        // P0-04: Authenticated End-of-Recording (EOF) Trailer Frame
+                        if (payloadLen <= 0 || payloadLen > 1024) {
+                            throw new IllegalStateException("Tamanho do trailer de EOF inválido: " + payloadLen);
+                        }
+                        byte[] nonce = new byte[12];
+                        dis.readFully(nonce);
+
+                        int cipherLen = payloadLen + 16;
+                        byte[] cipherBytes = new byte[cipherLen];
+                        dis.readFully(cipherBytes);
+
+                        javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+                        cipher.init(javax.crypto.Cipher.DECRYPT_MODE, new javax.crypto.spec.SecretKeySpec(ephemeralKey, "AES"), new javax.crypto.spec.GCMParameterSpec(128, nonce));
+                        byte[] aad = ("ECO2:EOF:" + 0xFFFFFFFFL + ":" + expectedChunkIndex + ":" + totalDecrypted).getBytes(StandardCharsets.UTF_8);
+                        cipher.updateAAD(aad);
+
+                        byte[] eofPlain = cipher.doFinal(cipherBytes);
+                        String token = new String(eofPlain, StandardCharsets.UTF_8);
+                        if (!"ECO2_AUTHENTICATED_EOF".equals(token)) {
+                            throw new IllegalStateException("Token de trailer EOF corrompido");
+                        }
+                        eofVerified = true;
+                        break;
+                    }
+
+                    if (chunkIndex != expectedChunkIndex) {
+                        throw new IllegalStateException("Sequência de chunks corrompida: esperado " + expectedChunkIndex + ", obtido " + chunkIndex);
+                    }
+                    if (payloadLen <= 0 || payloadLen > Math.max(chunkSize, 65536)) {
+                        throw new IllegalStateException("Tamanho de payload de chunk inválido: " + payloadLen);
+                    }
+                    byte[] nonce = new byte[12];
+                    dis.readFully(nonce);
+
+                    int cipherLen = payloadLen + 16;
+                    byte[] cipherBytes = new byte[cipherLen];
+                    dis.readFully(cipherBytes);
+
+                    javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+                    cipher.init(javax.crypto.Cipher.DECRYPT_MODE, new javax.crypto.spec.SecretKeySpec(ephemeralKey, "AES"), new javax.crypto.spec.GCMParameterSpec(128, nonce));
+                    byte[] aad = ("ECO2:" + chunkIndex + ":" + payloadLen).getBytes(StandardCharsets.UTF_8);
+                    cipher.updateAAD(aad);
+
+                    int decLen = cipher.doFinal(cipherBytes, 0, cipherLen, decBuf, 0);
+                    if (decLen != payloadLen) {
+                        throw new IllegalStateException("Tamanho decifrado não confere: esperado " + payloadLen + ", obtido " + decLen);
+                    }
+                    sink.feed(decBuf, decLen);
+                    totalDecrypted += decLen;
+                    expectedChunkIndex++;
+                }
+
+                if (listener.isActive()) {
+                    if (!eofVerified) {
+                        throw new IllegalStateException("Spool corrompido ou truncado: trailer criptográfico de fim de gravação (EOF) ausente ou inválido.");
+                    }
+                    if (input.read() != -1) {
+                        throw new IllegalStateException("Spool adulterado: bytes excedentes após o término dos chunks");
+                    }
+                    if (totalDecrypted != expectedLen) {
+                        throw new IllegalStateException("Spool truncado ou corrompido: esperado " + expectedLen + ", decodificado " + totalDecrypted);
+                    }
+                }
+                return expectedChunkIndex;
+            } else {
+                // Backward-compatible ECO1 (AES-CTR)
+                if (version != 1) throw new IllegalArgumentException("Spool version mismatch: " + version);
+                byte[] iv = new byte[16];
+                dis.readFully(iv);
+                long expectedLen = readLE64(dis);
+
+                javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/CTR/NoPadding");
+                cipher.init(javax.crypto.Cipher.DECRYPT_MODE, new javax.crypto.spec.SecretKeySpec(ephemeralKey, "AES"), new javax.crypto.spec.IvParameterSpec(iv));
+
+                byte[] encBuf = new byte[8192];
+                byte[] decBuf = new byte[8192];
+                int n;
+                long totalDecrypted = 0;
+                while (listener.isActive() && (n = input.read(encBuf)) != -1) {
+                    int decLen = cipher.update(encBuf, 0, n, decBuf, 0);
+                    if (decLen > 0) {
+                        sink.feed(decBuf, decLen);
+                        totalDecrypted += decLen;
+                    }
+                }
+                int finalLen = cipher.doFinal(decBuf, 0);
+                if (finalLen > 0) {
+                    sink.feed(decBuf, finalLen);
+                    totalDecrypted += finalLen;
+                }
+                if (expectedLen > 0 && totalDecrypted < expectedLen) {
+                    throw new IllegalStateException("Spool truncado: esperado " + expectedLen + ", decodificado " + totalDecrypted);
+                }
+                return (int) (totalDecrypted / 8192);
+            }
+        }
     }
 
     static void transcribe(Context context, Uri uri, Model model, Listener listener) throws Exception {
@@ -109,7 +284,7 @@ final class AudioFileTranscriber {
         }
     }
 
-    private static void decodeWav(Context ctx, Uri uri, Sink sink, Listener listener) throws Exception {
+    private static int decodeWav(Context ctx, Uri uri, Sink sink, Listener listener) throws Exception {
         try (InputStream input = new BufferedInputStream(ctx.getContentResolver().openInputStream(uri))) {
             if (input == null) throw new IllegalArgumentException("Arquivo WAV não disponível");
             byte[] top = new byte[12];
@@ -177,10 +352,11 @@ final class AudioFileTranscriber {
             }
             if (remaining > 0 && l.isActive()) throw new IllegalArgumentException("Arquivo WAV truncado");
             if (l.isActive()) resample.finish();
+            return (int) Math.max(1, readBytes / 32768);
         }
     }
 
-    private static void decodeCompressed(Context ctx, Uri uri, Sink sink, Listener listener) throws Exception {
+    private static int decodeCompressed(Context ctx, Uri uri, Sink sink, Listener listener) throws Exception {
         MediaExtractor extractor = new MediaExtractor();
         MediaCodec codec = null;
         boolean codecStarted = false;
@@ -269,6 +445,7 @@ final class AudioFileTranscriber {
                 }
             }
             if (listener.isActive()) resample.finish();
+            return 1;
         } finally {
             if (codec != null) {
                 try { if (codecStarted) codec.stop(); } catch (Exception ignored) {}
