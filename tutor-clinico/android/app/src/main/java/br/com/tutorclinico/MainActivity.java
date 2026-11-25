@@ -538,7 +538,12 @@ public final class MainActivity extends Activity {
             }
         }
 
-        @JavascriptInterface public String activeAudioJob(){return unlocked&&ml!=null?ml.activeSnapshot():"{}";}
+        @JavascriptInterface public String activeAudioJob(){
+            if(!unlocked||ml==null)return "{}";
+            String snapshot=ml.activeSnapshot();
+            try{JSONObject data=new JSONObject(snapshot);if(data.has("jobId"))activeJobCaseId=data.getString("caseId");}catch(Exception ignored){}
+            return snapshot;
+        }
 
         @JavascriptInterface public String listRecoverableJobs() {
             if (!unlocked) return "[]";
