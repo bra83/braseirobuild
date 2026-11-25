@@ -308,7 +308,7 @@ test('ECO G6 arquivos incrementais AES-GCM e backup inclui rascunho',()=>{
  assert.match(main,/store\.exportPortableSnapshot\(includePrivateDiary\)/);
  assert.match(store,/JSONObject journal=new JSONObject\(draft\)/);
  assert.match(store,/export\.put\("mlDraft",journal\)/);
- assert.match(store,/export\.put\("nativeRecoveryBundle",exportNativeRecovery\(\)\)/);
+ assert.match(store,/export\.put\("nativeRecoveryBundle",exportNativeRecovery\(includePrivateDiary\)\)/);
  assert.match(main,/store\.saveDraft/);
 });
 test('ECO G5 PDF inclui transcricao integral, segmentos e marcacoes',()=>{
