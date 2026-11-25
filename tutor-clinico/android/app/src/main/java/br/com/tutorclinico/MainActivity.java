@@ -686,6 +686,7 @@ public final class MainActivity extends Activity {
                     if(!journal.has("__loadError"))export.put("mlDraft",journal);
                 }
                 export.put("attachmentBundle",store.exportAttachments());
+                export.put("nativeRecoveryBundle",store.exportNativeRecovery());
                 pendingExport = SecureStore.encryptBackup(export.toString(), password);
                 if(pendingExport.length>50_000_000){pendingExport=null;throw new java.io.IOException("Backup acima de 50 MB; não foi criado arquivo incompleto");}
             }
