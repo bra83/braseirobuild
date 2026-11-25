@@ -5,6 +5,8 @@ import java.time.ZoneId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner.class)
+@org.robolectric.annotation.Config(sdk=34)
 public class AgendaReminderReceiverTest {
     private JSONObject appointment(String date,String time,String status)throws Exception{
         return new JSONObject().put("data",date).put("hora",time).put("status",status);
