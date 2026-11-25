@@ -19,6 +19,12 @@ public final class SpeakerTimelineTest {
   check(c.assign(new double[]{1,0,1,0}),"");
   check(c.assign(new double[]{0,0,0,-1}),"");
   check(c.assign(new double[]{0,0,1,0}),"falante3");
+  String checkpoint=c.checkpoint();SpeakerClusters recovered=new SpeakerClusters();recovered.restore(checkpoint);
+  check(recovered.checkpoint(),checkpoint);
+  check(recovered.assign(new double[]{0,0,0,1}),"falante4");
+  check(recovered.assign(new double[]{0,0,1,0}),"falante3");
+  try{recovered.restore("1,NaN;-;-;-");throw new AssertionError("invalid checkpoint accepted");}catch(IllegalArgumentException expected){}
+  check(recovered.assign(new double[]{1,0,0,0}),"falante1");
   System.out.println("PASS speaker alignment and anonymous cluster logic (synthetic vectors)");
  }
  static void check(String a,String b){if(!b.equals(a))throw new AssertionError(b+" != "+a);}
