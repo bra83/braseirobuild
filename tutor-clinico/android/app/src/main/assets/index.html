@@ -963,7 +963,7 @@ act=function(name,id){
 };
 document.addEventListener("change",e=>{
   if(e.target?.dataset?.ecoDocDate){
-    const f=e.target.dataset.ecoDocDate;
+    const f=e.target.dataset.ecoDocDate;ecoDocConfirmed=false;
     if(f==="from") ecoDocDateFrom=e.target.value||"";
     if(f==="to") ecoDocDateTo=e.target.value||"";
     render();return;
@@ -1853,7 +1853,7 @@ let ecoDocProfRegistro="";
 let ecoDocProfContato="";
 let ecoDocDateFrom="";
 let ecoDocDateTo="";
-let ecoDocSections={identificacao:true,enquadre:true,anamnese:true,sessoes:true,investigacao:true,hipoteses:true,tecnicas:true,sonhos:true,genograma:true,cronologia:true,seguranca:true,plano:true};
+let ecoDocSections={identificacao:true,enquadre:true,anamnese:true,sessoes:true,investigacao:true,hipoteses:true,tecnicas:true,sonhos:true,genograma:true,cronologia:true,seguranca:true,plano:true,bruto:false,revisado:false,falantes:false,graficos:false};
 let manualSessionDraft=null;
 
 
@@ -2563,6 +2563,18 @@ function ecoFormatClinicalDoc(c, type, sections, options){
     } else { body += '<p class="muted">Nenhuma sessão encontrada para o período selecionado.</p>'; }
   }
 
+  if(type==='ficha'&&(sections.bruto||sections.revisado||sections.falantes)){
+    const ss=(c.sessoes||[]).filter(s=>(!opts.docDateFrom||s.data>=opts.docDateFrom)&&(!opts.docDateTo||s.data<=opts.docDateTo));
+    body+='<h2>Anexo de transcrições selecionadas</h2>'+ss.map(s=>'<section class="doc-session"><h3>'+esc(formatDate(s.data))+'</h3>'+
+      (sections.bruto?'<h4>Texto bruto</h4><p class="pre">'+esc(s.mlTranscricao||'Não registrado')+'</p>':'')+
+      (sections.revisado?'<h4>Texto revisado</h4><p class="pre">'+esc(s.mlRevisada||'Não revisado')+'</p>':'')+
+      (sections.falantes?'<h4>Trechos e falantes</h4>'+(s.mlSegments||[]).map(e=>'<p><strong>'+esc(ecoTimecode(e.startMs))+' · '+esc(e.speaker||'desconhecido')+'</strong> '+esc(e.text||'')+'</p>').join(''):'')+'</section>').join('');
+  }
+  if(sections.graficos){
+    const ss=(c.sessoes||[]).filter(s=>(!opts.docDateFrom||s.data>=opts.docDateFrom)&&(!opts.docDateTo||s.data<=opts.docDateTo)),counts=new Map();
+    for(const s of ss)for(const t of new Set(s.mlTags||[]))counts.set(t,(counts.get(t)||0)+1);
+    body+='<h2>Indicadores longitudinais</h2><p>Contagem de sessões com cada marcação; não indica gravidade, diagnóstico ou melhora clínica.</p>'+[...counts].sort((a,b)=>b[1]-a[1]).map(([t,n])=>'<div class="doc-bar"><strong>'+esc(deidentify(t))+' · '+n+'</strong><div style="background:#185b50;width:'+Math.round(100*n/Math.max(1,ss.length))+'%;height:8px"></div></div>').join('');
+  }
   if(sections.investigacao && c.investigacaoAxes){
     body += '<h2>5. Eixos de Investigação</h2>';
     const active = Object.entries(c.investigacaoAxes).filter(([k,v])=>v.nota);
@@ -2596,7 +2608,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
 
   if(sections.genograma && c.genograma?.membros?.length){
     body += '<h2>9. Dinâmica Familiar e Transgeracional</h2>'+
-      '<p>Membros catalogados no genograma: '+c.genograma.membros.map(m=>esc(deidentify(m.nome))+' ('+esc(m.parentesco||'')+')').join(', ')+'</p>';
+      '<p>Membros catalogados no genograma: '+c.genograma.membros.map(m=>esc(deidentify(m.nome))+' ('+esc(m.parentesco||'')+')').join(', ')+'</p>'+(type==='ficha'?(ecoRenderGenogram(c,'genograma').match(/<svg[\s\S]*?<\/svg>/)?.[0]||'').replace(/width="\d+" height="\d+"/,'width="100%" height="auto"'):'');
   }
 
   if(sections.cronologia && c.cronologia?.length){
@@ -2637,12 +2649,13 @@ function ecoFormatClinicalDoc(c, type, sections, options){
     .kv{margin:4px 0}
     .footer{margin-top:35px;border-top:1px solid #ccc;padding-top:10px;font-size:10px;color:#666}
     .alert-draft{background:#fff1f2;color:#991b1b;border:1px solid #fecdd3;padding:8px;border-radius:4px}
-    @media print { body{margin:20px} }
+    @page{size:A4;margin:17mm 16mm 19mm} body{overflow-wrap:anywhere} .pre{white-space:pre-wrap} h1,h2,h3,h4{break-after:avoid} .doc-bar{break-inside:avoid;margin:6px 0} p{orphans:3;widows:3} svg{max-width:100%;height:auto} @media print { body{margin:0} }
   </style></head><body>
     <h1>${title}</h1>
     <div class="doc-sub">ECO · SISTEMA DE REGISTRO CLÍNICO CONFIDENCIAL · Gerado em ${esc(formatDate(datestr()))} · Documento local</div>
     ${profHeader}
     ${body}
+    <div style="margin-top:32px;break-inside:avoid"><p>________________________________________</p><p>Assinatura do profissional (manual) · ${esc(opts.profNome||'')}</p></div>
     <div class="footer ${opts.confirmed ? '' : 'alert-draft'}">
       <strong>Aviso ético e de privacidade:</strong> Documento de uso estritamente profissional, protegido por sigilo profissional e pela Lei Geral de Proteção de Dados (Lei 13.709/2018).
       <br>${footerText}
@@ -2676,7 +2689,7 @@ function ecoRenderDocuments(c){
    '<div class="field"><label>Filtrar sessões a partir de</label><input type="date" data-eco-doc-date="from" value="'+esc(ecoDocDateFrom)+'"></div>'+
    '<div class="field"><label>Até</label><input type="date" data-eco-doc-date="to" value="'+esc(ecoDocDateTo)+'"></div>'+
    '</div>'+
-   '<h3>Seções a incluir (12 seções clínicas)</h3>'+
+   '<h3>Seções a incluir</h3>'+
    '<div class="checklist">'+
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="identificacao" '+(ecoDocSections.identificacao?'checked':'')+'> 1. Identificação / Dados do caso</label>'+
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="enquadre" '+(ecoDocSections.enquadre?'checked':'')+'> 2. Enquadre terapêutico acordado</label>'+
@@ -2689,14 +2702,16 @@ function ecoRenderDocuments(c){
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="genograma" '+(ecoDocSections.genograma?'checked':'')+'> 9. Dinâmica familiar e genograma</label>'+
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="cronologia" '+(ecoDocSections.cronologia?'checked':'')+'> 10. Cronologia biográfica</label>'+
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="seguranca" '+(ecoDocSections.seguranca?'checked':'')+'> 11. Plano de segurança clínica</label>'+
-   '<label class="choice"><input type="checkbox" data-eco-doc-sec="plano" '+(ecoDocSections.plano?'checked':'')+'> 12. Observações e continuidade</label>'+
+   (ecoDocType==='ficha'?['bruto','revisado','falantes'].map((k,i)=>'<label class="choice"><input type="checkbox" data-eco-doc-sec="'+k+'" '+(ecoDocSections[k]?'checked':'')+'> '+['Transcrição bruta (sensível)','Transcrição revisada (sensível)','Trechos e falantes (sensível)'][i]+'</label>').join(''):'')+
+    '<label class="choice"><input type="checkbox" data-eco-doc-sec="graficos" '+(ecoDocSections.graficos?'checked':'')+'> Indicadores e gráficos</label>'+
+    '<label class="choice"><input type="checkbox" data-eco-doc-sec="plano" '+(ecoDocSections.plano?'checked':'')+'> 12. Observações e continuidade</label>'+
    '</div>'+
    '<div class="choice" style="margin-top:14px;background:#fefce8;border:1px solid #fef08a">'+
    '<input type="checkbox" data-eco-doc-confirmed '+(ecoDocConfirmed?'checked':'')+'>'+
    '<span><strong>Confirmação explícita do profissional</strong>: Declaro que revisei o conteúdo deste documento e autorizo sua geração/impressão formal.</span>'+
    '</div>'+
    '<div class="actions" style="margin-top:16px">'+
-   btn('🖨 Imprimir / Salvar PDF','ecoPrintDoc','',`data-case="${esc(c.id)}"`) +
+   btn('Atualizar prévia','ecoDocPreview','secondary')+btn('🖨 Imprimir / Salvar PDF','ecoPrintDoc','',`data-case="${esc(c.id)}"`) +
    '</div>'+
    '</div>'+
    '<h3>Prévia do documento formatado</h3>'+
@@ -2887,6 +2902,7 @@ act=function(name,id,button){
     notify("Enquadre terapêutico salvo com sucesso.");render();return;
   }
   if(name==="ecoPrintDoc"){
+    if(ecoDocDateFrom&&ecoDocDateTo&&ecoDocDateFrom>ecoDocDateTo){notify("Período inválido.","red");return;}
     const caseId=button?.dataset?.case||(button?.dataset?.id)||id;
     if(!caseId){notify("Nenhum caso especificado para emissão.",'red');return;}
     const targetCase=state.cases.find(c=>c.id===caseId);
@@ -3320,7 +3336,7 @@ act=function(name,id,button){
 };
 document.addEventListener("input",e=>{
   if(e.target?.dataset?.ecoDocProf){
-    const f=e.target.dataset.ecoDocProf;
+    const f=e.target.dataset.ecoDocProf;ecoDocConfirmed=false;const confirmEl=document.querySelector("[data-eco-doc-confirmed]");if(confirmEl)confirmEl.checked=false;
     if(f==="nome") ecoDocProfNome=e.target.value||"";
     if(f==="registro") ecoDocProfRegistro=e.target.value||"";
     if(f==="contato") ecoDocProfContato=e.target.value||"";
@@ -3354,9 +3370,9 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=["base","small","tagarela","vosk"].includes(e.target.value)?e.target.value:"small"}
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela","vosk"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
- if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;render()}
- if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;render();return;}
- if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;render();return;}
+ if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoDocConfirmed=false;ecoDreamOrigin=null;render()}
+ if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;ecoDocConfirmed=false;for(const k of Object.keys(ecoDocSections))ecoDocSections[k]=ecoDocType==='ficha'?!['bruto','revisado','falantes','graficos'].includes(k):['identificacao','plano'].includes(k);render();return;}
+ if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;ecoDocConfirmed=false;render();return;}
  if(e.target?.dataset?.ecoSetting){
    const k=e.target.dataset.ecoSetting, val=e.target.value;
    if(!state.settings)state.settings={};
@@ -3474,7 +3490,8 @@ act=function(name,id,button){
  if(name==='ecoKnowledgeTab'){ecoKnowledgeTab=id;render();return;}
  if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?.65:Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
  if(name==='ecoDreamPrefill'&&c){const d=ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamOrigin={originKey:d.originKey,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', '),dreamAssociacoes:'',dreamHipotese:''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
- if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name))ecoDreamOrigin=null;
+ if(name==='ecoDocPreview'){ecoDocConfirmed=false;render();return;}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDocConfirmed=false;}
  return ecoIntegratedAct(name,id,button);
 };
 document.addEventListener('input',e=>{if(e.target?.dataset?.ecoKnowledgeQuery!==undefined){ecoKnowledgeQuery=e.target.value||'';const el=document.getElementById('ecoKnowledgeResults');if(el)el.innerHTML=ecoKnowledgeResults();}});
