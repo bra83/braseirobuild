@@ -887,8 +887,8 @@ function ecoAddSegment(value,meta={}){
  const segment={
   id:meta.id||uid(),text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
   endMs:Number.isFinite(meta.endMs)?meta.endMs:null,
-  speaker:sessionDraft.mlSpeakerRoles?.[meta.cluster]||"desconhecido",
-  cluster:/^falante[1-4]$/.test(String(meta.cluster||""))?meta.cluster:"",
+  speaker:meta.cluster==="sobreposicao"?"desconhecido":sessionDraft.mlSpeakerRoles?.[meta.cluster]||"desconhecido",
+  cluster:/^(falante[1-4]|sobreposicao)$/.test(String(meta.cluster||""))?meta.cluster:"",
   origem:(ecoAudioSource==="arquivo"?ecoChosenAsr:ecoChosenMic)==="vosk"?"Vosk PT-BR · "+(ecoAudioSource==="arquivo"?"arquivo importado":"microfone"):(ecoAudioSource==="arquivo"?ecoChosenAsr:ecoChosenMic)==="tagarela"?"TAGARELA PT-BR INT8 · "+(ecoAudioSource==="arquivo"?"arquivo importado":"microfone"):ecoAudioSource==="arquivo"?(ecoChosenAsr==="small"?"Whisper Small Q5 PT · arquivo importado":"Whisper Base PT · arquivo importado"):(ecoChosenMic==="vosk"?"Vosk PT-BR · microfone":ecoChosenMic==="whisper-small"?"Whisper Small Q5 PT · microfone":"Whisper Base PT · microfone")
  };
  if(meta.id&&sessionDraft.mlSegments.some(x=>x.id===meta.id))return;
@@ -1590,6 +1590,7 @@ function ecoEvidencePanel(){
 }
 
 function ecoSpeakerLabel(s){
+ if(s.cluster==='sobreposicao')return 'Possível sobreposição de vozes (modelo neural)'+(s.speakerManual&&s.speaker!=='desconhecido'?' · revisão: '+s.speaker:'');
  return s.speaker&&s.speaker!=="desconhecido"?s.speaker:(s.speakerManual?"Falante não determinado":/^falante[1-4]$/.test(s.cluster||"")?"Falante "+s.cluster.slice(-1)+" (sugerido)":"Falante não determinado");
 }
 function ecoSpeakerGroups(ss){
@@ -1748,7 +1749,7 @@ function ecoSpeakerRows(ss,filter="todos",query=""){
  return ss.map((s,index)=>({s,index})).filter(({s})=>{
   if(filter==="pendentes"&&s.speaker&&s.speaker!=="desconhecido")return false;
   if(filter==="manuais"&&!s.speakerManual)return false;
-  if(/^falante[1-4]$/.test(filter)&&s.cluster!==filter)return false;
+  if(/^(falante[1-4]|sobreposicao)$/.test(filter)&&s.cluster!==filter)return false;
   if(["paciente","terapeuta"].includes(filter)&&s.speaker!==filter)return false;
   return !query||norm(s.text).includes(norm(query))||ecoTimecode(s.startMs).includes(query);
  });
@@ -1763,7 +1764,7 @@ function ecoSegmentReview(){
  return '<section class="eco-outline" id="ecoSegmentReviewPanel"><h3>Trechos e falantes ('+ss.length+')</h3>'+
  '<p class="eco-caption">Atribua os grupos em lote primeiro. Corrija apenas as exceções ou falas não determinadas.</p>'+ecoSpeakerGroups(ss)+
  '<label class="field">Exibir <select data-eco-speaker-filter>'+
- [["todos","Todos os trechos"],["pendentes","Sem papel confirmado"],["falante1","Falante 1"],["falante2","Falante 2"],["falante3","Falante 3"],["falante4","Falante 4"],["paciente","Paciente"],["terapeuta","Terapeuta"],["manuais","Corrigidos manualmente"]].map(([v,l])=>'<option value="'+v+'" '+(ecoSpeakerFilter===v?"selected":"")+'>'+l+'</option>').join("")+'</select></label>'+
+ [["todos","Todos os trechos"],["pendentes","Sem papel confirmado"],["falante1","Falante 1"],["falante2","Falante 2"],["falante3","Falante 3"],["falante4","Falante 4"],["sobreposicao","Possível fala sobreposta"],["paciente","Paciente"],["terapeuta","Terapeuta"],["manuais","Corrigidos manualmente"]].map(([v,l])=>'<option value="'+v+'" '+(ecoSpeakerFilter===v?"selected":"")+'>'+l+'</option>').join("")+'</select></label>'+
  '<label class="field">Localizar fala ou minuto <input data-eco-speaker-search value="'+esc(ecoSpeakerSearch)+'" placeholder="Ex.: pai ou 12:30"></label>'+
  '<p class="eco-caption">'+rows.length+' trechos correspondentes · página '+(ecoSpeakerPage+1)+' de '+pages+'</p>'+nav+
  page.map(({s,index})=>'<div class="eco-evidence" id="ecoSegment-'+index+'"><small>'+esc(s.startMs==null?'Sem horário de áudio':ecoTimecode(s.startMs)+' — '+ecoTimecode(s.endMs??s.startMs))+' · '+esc(s.origem||"motor desconhecido")+'</small><p><strong>'+esc(ecoSpeakerLabel(s))+'</strong> · '+esc(s.text||"")+'</p>'+(s.speakerManual?'<small class="eco-pill">Correção registrada</small>':"")+'<label class="eco-caption">Corrigir falante <select data-eco-speaker="'+index+'">'+
