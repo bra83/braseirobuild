@@ -1268,3 +1268,32 @@ test('ECO: manual sessions provide factual sources without pretending patient sp
  assert.equal(js('ecoEventCurrent(manualFixture,{status:"confirmado",quote:"Senti medo."})'),true);
  assert.equal(js('ecoEventCurrent(manualFixture,{status:"confirmado",quote:"Não consta"})'),false);
 });
+
+
+test('ECO neural review: one native batch, scope, source confirmation, stale results, isolation',()=>{
+ const before=js('JSON.stringify(state)');const old=context.window.NativeVault.analyzeSemantic;let request=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{request=JSON.parse(raw);return 'OK';};
+  js("state.cases=[{id:'review-a',nome:'Fictício A',sessoes:[{id:'a1',data:'2026-11-25',mlSegments:[{text:'Tenho dificuldade para dormir.',speaker:'paciente',startMs:2000},{text:'Você está tomando remédio?',speaker:'terapeuta',startMs:4000}]},{id:'a2',origem:'manual',data:'2026-11-24',texto:'Nota fictícia sobre sono.'}]},{id:'review-b',nome:'Fictício B',sessoes:[{id:'b1',data:'2026-11-25',mlSegments:[{text:'SEGREDO_OUTRO_CASO',speaker:'paciente'}]}]}];openedId='review-a';screen='case';tab='revisaoInteligente';ecoReviewType='anamnese';ecoReviewScope='paciente';");
+  el('#ecoReviewFrom').value='';el('#ecoReviewTo').value='';
+  js("act('ecoReviewStart')");
+  assert.ok(request.queries.length>=25);assert.equal(request.rows.length,1);assert.equal(request.rows[0].sessionId,'a1');assert.doesNotMatch(JSON.stringify(request),/SEGREDO_OUTRO_CASO|tomando remédio|Nota fictícia/);
+  const response={id:request.id,count:1,scope:'paciente',model:'test-native',groups:request.queries.map(q=>({key:q.key,hits:q.key==='padroesSono'?[{i:0,score:0.7}]:[]}))};
+  context.window.nativeSemanticResult(JSON.stringify(response));
+  assert.match(js('caseScreen()'),/Tenho dificuldade para dormir/);
+  js("act('ecoReviewAccept','padroesSono|0',{dataset:{case:'review-a'}})");
+  assert.equal(js('state.cases[0].ecoReviewRecords.length'),1);
+  assert.equal(js('state.cases[0].ecoReviewRecords[0].sessionId'),'a1');
+  js("act('ecoReviewAccept','padroesSono|0',{dataset:{case:'review-a'}})");
+  assert.equal(js('state.cases[0].ecoReviewRecords.length'),1);
+  assert.match(js("ecoReviewRelated(state.cases[0],'anamnese','padroesSono')"),/Fonte atual/);
+  js("state.cases[0].sessoes[0].mlSegments[0].text='Texto corrigido'");
+  assert.match(js("ecoReviewRelated(state.cases[0],'anamnese','padroesSono')"),/Fonte alterada/);
+  js("act('ecoReviewAccept','padroesSono|0',{dataset:{case:'review-a'}})");
+  assert.equal(js('state.cases[0].ecoReviewRecords.length'),1);
+  js("act('ecoReviewScope','manual');act('ecoReviewStart')");
+  assert.equal(request.scope,'desconhecido');assert.equal(request.rows.length,1);assert.equal(request.rows[0].sessionId,'a2');
+  const oldId=request.id;js("act('openCase','review-b')");context.window.nativeSemanticResult(JSON.stringify({id:oldId,groups:[]}));
+  assert.equal(js('ecoReviewRun'),null);assert.equal(js('state.cases[1].ecoReviewRecords'),undefined);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoReviewRun=null;ecoReviewType="anamnese";ecoReviewScope="paciente"');}
+});
