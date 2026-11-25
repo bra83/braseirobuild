@@ -903,7 +903,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
             key=getJobKey(jobId);
             if(key==null||key.length!=32)throw new SecurityException("Chave temporária indisponível");
             java.util.Set<String> prefix=verifiedPrefixIds(jobId,offsetMs);
-            if(!prefix.equals(emitted)||prefix.size()!=getCommittedSegmentCount(jobId))throw new SecurityException("Prefixo não confirmado");
+            if(!prefix.equals(emitted))throw new SecurityException("Prefixo não confirmado");
             JSONObject state=new JSONObject().put("job",jobId).put("model",model).put("offset",offsetMs)
                 .put("count",prefix.size()).put("speakers",speakers).put("diarization",diarization);
             Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
