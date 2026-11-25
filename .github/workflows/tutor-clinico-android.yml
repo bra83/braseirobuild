@@ -44,7 +44,7 @@ jobs:
         run: |
           node qa/test.mjs
           mkdir -p /tmp/eco-spool-tests
-          javac -d /tmp/eco-spool-tests app/src/main/java/br/com/tutorclinico/AuthenticatedSpoolReader.java qa/AuthenticatedSpoolReaderTest.java
+          javac -d /tmp/eco-spool-tests app/src/main/java/br/com/tutorclinico/LiveSpoolInput.java app/src/main/java/br/com/tutorclinico/AuthenticatedSpoolReader.java qa/AuthenticatedSpoolReaderTest.java
           java -cp /tmp/eco-spool-tests br.com.tutorclinico.AuthenticatedSpoolReaderTest
           node qa/run_audit_probe.js
           mkdir -p /tmp/eco-speaker-tests
