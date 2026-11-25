@@ -12,6 +12,10 @@ on:
       - '.github/workflows/tutor-clinico-android.yml'
   workflow_dispatch:
 
+concurrency:
+  group: eco-android-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -64,7 +68,8 @@ jobs:
           export ECO_UI_DEPS="$RUNNER_TEMP/eco-ui-deps"
           mkdir -p "$ECO_UI_DEPS"
           npm install --prefix "$ECO_UI_DEPS" --no-audit --no-fund playwright-core@1.51.1
-          export ECO_CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          "$ECO_UI_DEPS/node_modules/.bin/playwright-core" install chromium
+          export ECO_CHROME="$(node -e "console.log(require(process.env.ECO_UI_DEPS+'/node_modules/playwright-core').chromium.executablePath())")"
           test -x "$ECO_CHROME"
           node qa/ui_browser.mjs
       - name: Publicar evidências visuais de teste
@@ -141,6 +146,8 @@ jobs:
           sudo apt-get install -y espeak-ng
           python -m pip install --only-binary=:all: sherpa-onnx==1.13.3
           python qa/provision_tagarela.py
+      - name: Validar detector neural de sobreposição de falas
+        run: python qa/provision_overlap.py
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
