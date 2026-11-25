@@ -4025,12 +4025,28 @@ document.addEventListener('change',e=>{if(screen==='case'&&tab==='compararRelato
 
 
 let ecoLibraryRun=null,ecoLibrarySerial=0;
+function ecoPersonalSemanticChunks(){
+ const out=[];
+ for(const r of state?.ecoPersonalLibrary||[]){
+  if(r.archived||r.semanticConfirmed!==true||!r.id||!r.title||!r.ref||typeof r.body!=='string')continue;
+  const source=r.body,author=r.author||'Autor não classificado';
+  // Preserve exact substrings, with offset and original reference, no inferred authorship.
+  for(let start=0;start<source.length;){
+   let end=Math.min(source.length,start+1000);
+   if(end<source.length){const boundary=source.lastIndexOf(' ',end);if(boundary>start+600)end=boundary+1;}
+   const exact=source.slice(start,end);
+   if(exact.trim())out.push({text:r.title+' — '+author+'\n'+exact,speaker:'desconhecido',source:'biblioteca pessoal autorizada',title:r.title,author,ref:r.ref,personalId:r.id,offset:start,end,entry:r.id,part:start});
+   start=end;
+  }
+ }
+ return out;
+}
 function ecoLibraryChunks(){
  const rows=ecoKnowledgeRows();
- return rows.flatMap((r,index)=>{
+ return [...rows.flatMap((r,index)=>{
   const parts=r.type==='capitulos'?(ecoClinicalChapters.find(x=>x[0]===r.id)?.slice(5)||[]):[r.body];
   return parts.map((text,part)=>({text:r.title+' — '+r.author+'\n'+text,speaker:'desconhecido',source:'biblioteca didática local',entry:index,part,title:r.title,author:r.author,ref:r.type==='capitulos'?ecoClinicalChapters.find(x=>x[0]===r.id)?.[3]||'':r.type==='glossario'?ecoGlossary.find(x=>x[0]===r.title)?.[2]||'':'Referência a conferir',chapter:r.id||''}));
- });
+ }),...ecoPersonalSemanticChunks()];
 }
 function ecoLibraryCancel(){if(ecoLibraryRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoLibraryRun.id);}catch(e){}ecoLibraryRun=null;}
 function ecoLibraryStart(){
@@ -4489,7 +4505,7 @@ const ecoCustomCase=caseScreen;caseScreen=function(){const html=ecoCustomCase(),
 const ecoAdminSettings=settingsScreen;settingsScreen=function(){return ecoAdminSettings()+ecoTemplatePanel();};
 function ecoPersonalLibraryPanel(){
  const rows=(state.ecoPersonalLibrary||[]).filter(x=>!x.archived),query=ecoPersonalQuery.toLowerCase();
- return '<section class="card"><h2>Biblioteca pessoal</h2><p class="small muted">Somente material teórico próprio, licenciado ou de domínio público. Não inclua dados de pacientes. Referências inseridas não foram verificadas pelo ECO.</p><div class="field"><label>Título</label><input id="ecoPersonalTitle" maxlength="200"></div><div class="field"><label>Autor, edição, páginas</label><input id="ecoPersonalRef" maxlength="400"></div><div class="field"><label>Notas ou texto autorizado</label><textarea id="ecoPersonalBody" rows="6" maxlength="100000"></textarea></div><label class="choice"><input type="checkbox" id="ecoPersonalConfirm">Confirmo o direito de armazenar o conteúdo e ausência de dados clínicos.</label>'+btn('Adicionar referência','ecoPersonalAdd','secondary')+'<div class="field"><label>Pesquisar biblioteca pessoal</label><input id="ecoPersonalSearch" value="'+esc(ecoPersonalQuery)+'"></div>'+btn('Pesquisar','ecoPersonalSearch','secondary')+rows.filter(r=>[r.title,r.ref,r.body].join(' ').toLowerCase().includes(query)).map(r=>'<details class="card"><summary>'+esc(r.title)+'</summary><p>'+esc(r.ref)+'</p><p style="white-space:pre-wrap">'+esc(r.body)+'</p>'+btn('Arquivar referência','ecoPersonalArchive','ghost','data-id="'+esc(r.id)+'"')+'</details>').join('')+'</section>';
+ return '<section class="card"><h2>Biblioteca pessoal</h2><p class="small muted">Somente material teórico próprio, licenciado ou de domínio público. Não inclua dados de pacientes. Referências inseridas não foram verificadas pelo ECO.</p><div class="field"><label>Título</label><input id="ecoPersonalTitle" maxlength="200"></div><div class="field"><label>Autor para classificação teórica (opcional)</label><select id="ecoPersonalAuthor"><option value="">Não classificado</option>'+ecoPerspectiveCatalog.map(x=>'<option value="'+esc(x[1])+'">'+esc(x[2])+'</option>').join('')+'</select></div><div class="field"><label>Autor, edição, páginas</label><input id="ecoPersonalRef" maxlength="400"></div><div class="field"><label>Notas ou texto autorizado</label><textarea id="ecoPersonalBody" rows="6" maxlength="100000"></textarea></div><label class="choice"><input type="checkbox" id="ecoPersonalConfirm">Confirmo o direito de armazenar o conteúdo e ausência de dados clínicos.</label><label class="choice"><input type="checkbox" id="ecoPersonalSemantic">Permitir uso desta referência na pesquisa neural e no RAG. A autoria e a referência são de minha responsabilidade.</label>'+btn('Adicionar referência','ecoPersonalAdd','secondary')+'<div class="field"><label>Pesquisar biblioteca pessoal</label><input id="ecoPersonalSearch" value="'+esc(ecoPersonalQuery)+'"></div>'+btn('Pesquisar','ecoPersonalSearch','secondary')+rows.filter(r=>[r.title,r.ref,r.body].join(' ').toLowerCase().includes(query)).map(r=>'<details class="card"><summary>'+esc(r.title)+'</summary><p>'+esc(r.ref)+'</p><p style="white-space:pre-wrap">'+esc(r.body)+'</p>'+btn(r.semanticConfirmed?'Retirar da pesquisa neural':'Autorizar pesquisa neural','ecoPersonalToggleSemantic','secondary','data-id="'+esc(r.id)+'"')+btn('Arquivar referência','ecoPersonalArchive','ghost','data-id="'+esc(r.id)+'"')+'</details>').join('')+'</section>';
 }
 let ecoPersonalQuery='';
 const ecoPersonalStudy=studyScreen;studyScreen=function(){return ecoPersonalStudy()+ecoPersonalLibraryPanel();};
@@ -4513,7 +4529,13 @@ act=function(name,id,button){
  if(name==='ecoPersonalAdd'&&screen==='study'){
   const title=String(document.getElementById('ecoPersonalTitle')?.value||'').trim(),ref=String(document.getElementById('ecoPersonalRef')?.value||'').trim(),body=String(document.getElementById('ecoPersonalBody')?.value||'').trim();
   if(!title||!ref||!body||body.length>100000||!document.getElementById('ecoPersonalConfirm')?.checked){notify('Informe título, referência, texto e confirmação de uso.','red');return;}
-  change(()=>{state.ecoPersonalLibrary=[...(state.ecoPersonalLibrary||[]),{id:uid(),title,ref,body,createdAt:new Date().toISOString()}];});return;
+  change(()=>{state.ecoPersonalLibrary=[...(state.ecoPersonalLibrary||[]),{id:uid(),title,ref,body,author:document.getElementById('ecoPersonalAuthor')?.value||'',semanticConfirmed:!!document.getElementById('ecoPersonalSemantic')?.checked,createdAt:new Date().toISOString()}];});return;
+ }
+ if(name==='ecoPersonalToggleSemantic'&&screen==='study'){
+  const r=(state.ecoPersonalLibrary||[]).find(x=>x.id===id&&!x.archived);if(!r)return;
+  if(!r.semanticConfirmed&&!window.confirm('Confirma que possui direito de uso do material, que ele não contém dados clínicos e que pode ser usado pela IA local?'))return;
+  ecoLibraryCancel();ecoAiCancel();ecoPerspectiveCancel();
+  change(()=>{r.semanticConfirmed=!r.semanticConfirmed;});return;
  }
  if(name==='ecoPersonalArchive'&&screen==='study'){const r=(state.ecoPersonalLibrary||[]).find(x=>x.id===id);if(r)change(()=>{r.archived=true;});return;}
  return ecoAdminPriorAct(name,id,button);
@@ -4946,7 +4968,7 @@ function ecoPerspectivePanel(c){
  else{out+='<p class="small muted">Minuta gerada · conceito, hipótese, justificativa, intervenção, próximos pontos e cautelas · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>';
  if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
  if(!result.formatValid)out+='<p class="alert">A IA não entregou todos os seis campos esperados. Minuta incompleta; revise antes de utilizar.</p>';
- out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref)+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
+ out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':''))+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
  out+='</article>';}
  if(!r.pending)out+='<p class="small muted">As leituras são possibilidades teóricas, não interpretações confirmadas, ranking de autores ou recomendação automática de tratamento. Não incorporadas ao prontuário.</p>';}
  return out+'</section>';
