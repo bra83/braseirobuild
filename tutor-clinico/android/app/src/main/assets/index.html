@@ -5164,7 +5164,7 @@ function ecoResidualInput(e){
 document.addEventListener('input',ecoResidualInput);
 document.addEventListener('change',e=>{ecoResidualInput(e);ecoResidualFlush();},true);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ecoResidualFlush();});
-window.addEventListener('pagehide',ecoResidualFlush);
+window.addEventListener?.('pagehide',ecoResidualFlush);
 const ecoResidualPriorRender=render;
 render=function(){if(!ecoResidualFlush())return;ecoResidualPriorRender();ecoResidualSetup();};
 const ecoResidualPriorAct=act;
