@@ -1297,3 +1297,42 @@ test('ECO neural review: one native batch, scope, source confirmation, stale res
   assert.equal(js('ecoReviewRun'),null);assert.equal(js('state.cases[1].ecoReviewRecords'),undefined);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoReviewRun=null;ecoReviewType="anamnese";ecoReviewScope="paciente"');}
 });
+
+
+test('ECO review: assisted anamnesis appends only verified sources, preserves text and marks stale',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'review-case',nome:'Fictício',anamnese:{padroesSono:'Registro anterior'},sessoes:[{id:'a1',data:'2026-11-25',origem:'manual',texto:'Dificuldade para dormir.'}],ecoReviewRecords:[{id:'r1',type:'anamnese',key:'padroesSono',label:'Sono',scope:'manual',quote:'Dificuldade para dormir.',sessionId:'a1',sessionDate:'2026-11-25',source:'nota clínica manual',atMs:null}]}];openedId='review-case';screen='case';tab='anamnese';");
+  el('#ana_padroesSono').value='Alteração ainda não salva';
+  js("act('ecoReviewApply','r1',{dataset:{case:'review-case'}})");
+  assert.equal(js('state.cases[0].anamnese.padroesSono'),'Registro anterior');
+  el('#ana_padroesSono').value='Registro anterior';
+  js("act('ecoReviewApply','r1',{dataset:{case:'review-case'}})");
+  assert.match(js('state.cases[0].anamnese.padroesSono'),/Registro anterior[\s\S]*Dificuldade para dormir/);
+  const value=js('state.cases[0].anamnese.padroesSono');el('#ana_padroesSono').value=value;
+  js("act('ecoReviewApply','r1',{dataset:{case:'review-case'}})");
+  assert.equal(js('state.cases[0].anamnese.padroesSono'),value);
+  js("state.cases[0].sessoes[0].texto='Texto alterado.'");
+  assert.match(js("ecoReviewRelated(state.cases[0],'anamnese','padroesSono')"),/Fonte alterada/);
+  assert.doesNotMatch(js("ecoReviewRelated(state.cases[0],'anamnese','padroesSono')"),/Acrescentar ao campo/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist()');}
+});
+test('ECO investigation: question lifecycle, provenance, history and restricted internal print',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'question-case',nome:'Fictício',data:'2026-11-25',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:'Nota fictícia.'}],ecoReviewRecords:[{id:'r1',type:'investigacao',key:'sonhos',scope:'manual',quote:'Nota fictícia.',sessionId:'s1',sessionDate:'2026-11-25',source:'nota clínica manual',atMs:null}]}];openedId='question-case';screen='case';tab='investigar';");
+  el('#ecoQuestionText').value='Pergunta fictícia de acompanhamento?';el('#ecoQuestionAxis').value='sonhos';el('#ecoQuestionSource').value='r1';
+  js("act('ecoQuestionAdd',null,{dataset:{case:'question-case'}})");
+  assert.equal(js('state.cases[0].ecoQuestions.length'),1);
+  const id=js('state.cases[0].ecoQuestions[0].id');el('#eqstatus_'+id).value='respondida';el('#eqnote_'+id).value='';
+  context.qid=id;js("act('ecoQuestionUpdate',qid,{dataset:{case:'question-case'}})");
+  assert.equal(js('state.cases[0].ecoQuestions[0].status'),'aberta');
+  el('#eqnote_'+id).value='Resposta fictícia registrada';js("act('ecoQuestionUpdate',qid,{dataset:{case:'question-case'}})");
+  assert.equal(js('state.cases[0].ecoQuestions[0].status'),'respondida');assert.equal(js('state.cases[0].ecoQuestions[0].history[0].status'),'aberta');
+  assert.match(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{investigacao:true},{confirmed:true})"),/Resposta fictícia registrada/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'supervisao',{investigacao:true},{confirmed:true})"),/Resposta fictícia registrada/);
+  assert.match(js('ecoEvolutionPanel(state.cases[0])'),/Sessões por mês/);
+  js("state.cases[0].sessoes[0].texto='Corrigido'");
+  assert.match(js('ecoQuestionsPanel(state.cases[0])'),/Fonte removida ou alterada/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist()');}
+});
