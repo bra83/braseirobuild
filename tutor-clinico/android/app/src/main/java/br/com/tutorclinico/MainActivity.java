@@ -491,6 +491,26 @@ public final class MainActivity extends Activity {
             try { store.save(json); return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
+        @JavascriptInterface public String saveFormDraft(String caseId,String json) {
+            if(!unlocked)return "Bloqueado";
+            try{store.saveFormDraft(caseId,json);return "OK";}catch(Exception e){return "Falha ao gravar rascunho";}
+        }
+        @JavascriptInterface public String loadFormDraft(String caseId) {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.readFormDraft(caseId);}catch(Exception e){return "{\"__loadError\":\"Rascunho não pôde ser autenticado\"}";}
+        }
+        @JavascriptInterface public String clearFormDraft(String caseId,String sessionId) {
+            if(!unlocked)return "Bloqueado";
+            try{store.clearFormDraft(caseId,sessionId);return "OK";}catch(Exception e){return "Falha ao limpar rascunho";}
+        }
+        @JavascriptInterface public String listSessionVersions(String caseId,String sessionId) {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.sessionVersions(caseId,sessionId);}catch(Exception e){return "{\"__loadError\":\"Histórico indisponível\"}";}
+        }
+        @JavascriptInterface public String loadSessionVersion(String caseId,String sessionId,String seq) {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.sessionVersion(caseId,sessionId,Long.parseLong(seq));}catch(Exception e){return "{\"__loadError\":\"Versão indisponível\"}";}
+        }
         @JavascriptInterface public String saveDraft(String json) {
             if(!unlocked){
                 if(!journalWhileLocked)return "Bloqueado";
