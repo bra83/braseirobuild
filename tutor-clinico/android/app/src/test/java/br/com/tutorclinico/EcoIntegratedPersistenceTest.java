@@ -502,6 +502,15 @@ public class EcoIntegratedPersistenceTest {
         JSONObject root=new JSONObject().put("version",1).put("uiTheme","dark")
             .put("cases",new JSONArray().put(caseWith("full-a","ORIGINAL"))).put("appointments",new JSONArray());
         store.save(root.toString());
+        JSONObject draft=new JSONObject().put("caseId","full-a").put("session",new JSONObject().put("id","full-draft").put("texto","RASCUNHO FICTICIO"));
+        store.saveFormDraft("full-a",draft.toString());
+        root.getJSONArray("cases").getJSONObject(0).getJSONArray("sessoes").getJSONObject(0).put("texto","REVISADO");
+        store.save(root.toString());
+        EcoDatabaseHelper helper=store.getDbHelper();
+        helper.createJob("full-job","full-a","full-a-s","fixture-audio",new byte[32]);
+        assertTrue(helper.commitSegment("full-job","full-a","full-a-s",0,1000,"sobreposicao","TRECHO FICTICIO",null));
+        assertTrue(helper.markJobDecoded("full-job",1,1));assertTrue(helper.acknowledgePersistence("full-job"));
+        assertTrue(helper.clearJobAudioKey("full-job"));
         store.savePrivateDiary("full-a",new JSONArray().put(new JSONObject().put("id","diary-test").put("data","2026-11-25").put("texto","DIARIO_FICTICIO")).toString());
         byte[] pdf=new byte[6_100_000];System.arraycopy("%PDF-1.7".getBytes(StandardCharsets.US_ASCII),0,pdf,0,8);
         JSONObject attachment=null;
@@ -541,6 +550,14 @@ public class EcoIntegratedPersistenceTest {
             assertEquals(5,store.listAttachments("full-a").length());
             assertArrayEquals(pdf,store.attachmentBytes("full-a",attachmentId));
             assertEquals("[]",store.readPrivateDiary("full-a"));
+            assertEquals(draft.toString(),store.readFormDraft("full-a"));
+            JSONArray versions=new JSONArray(store.sessionVersions("full-a","full-a-s"));
+            assertEquals(1,versions.length());
+            assertEquals("ORIGINAL",new JSONObject(store.sessionVersion("full-a","full-a-s",versions.getJSONObject(0).getLong("id"))).getString("texto"));
+            assertTrue(store.getDbHelper().isJobCommitted("full-job"));
+            try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT speaker,text_enc FROM segmentos WHERE job_id='full-job'",null)){
+                assertTrue(c.moveToFirst());assertEquals("sobreposicao",c.getString(0));assertEquals("TRECHO FICTICIO",store.getDbHelper().decrypt(c.getBlob(1)));
+            }
             try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT count(*) FROM sessoes WHERE case_id='full-a'",null)){assertTrue(c.moveToFirst());assertEquals(25,c.getInt(0));}
             try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT payload_enc FROM sessoes WHERE id='full-large-23'",null)){
                 assertTrue(c.moveToFirst());assertEquals(text,new JSONObject(store.getDbHelper().decrypt(c.getBlob(0))).getString("texto"));
