@@ -12,6 +12,18 @@ public final class TranscriptionService extends Service {
     private static volatile String activeSessionId = "";
     private static volatile String activeState = "IDLE";
     private PowerManager.WakeLock wake;
+    // Process-owned engine; the Activity is only a detachable client. One active
+    // decoder at a time; durable interrupted jobs remain in SQLite.
+    private static MlSessionEngine engine;
+    static synchronized MlSessionEngine engine(Context context){
+        if(engine==null)engine=new MlSessionEngine(context.getApplicationContext());
+        return engine;
+    }
+    static void detach(Activity host){
+        MlSessionEngine e;
+        synchronized(TranscriptionService.class){e=engine;}
+        if(e!=null)e.detach(host);
+    }
 
     public static synchronized void registerJob(String jobId, String caseId, String sessionId){
         activeJobId = jobId == null ? "" : jobId;
