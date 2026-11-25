@@ -835,7 +835,7 @@ public final class MainActivity extends Activity {
         }
     }
     private void runAttachmentArchive(Uri uri,char[] password,boolean export){
-        if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,'\\0');return;}
+        if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,(char)0);return;}
         final java.util.concurrent.atomic.AtomicBoolean cancelled=new java.util.concurrent.atomic.AtomicBoolean(false);
         archiveCancel=cancelled;
         final AlertDialog progress=new AlertDialog.Builder(this)
@@ -867,7 +867,7 @@ public final class MainActivity extends Activity {
             }catch(Exception e){
                 message=export?"Backup não concluído; descarte o arquivo incompleto.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
             }finally{
-                java.util.Arrays.fill(password,'\\0');archiveCancel=null;archiveBusy.set(false);
+                java.util.Arrays.fill(password,(char)0);archiveCancel=null;archiveBusy.set(false);
             }
             final String result=message;
             main.post(()->{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);}});
