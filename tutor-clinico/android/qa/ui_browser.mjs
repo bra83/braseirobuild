@@ -207,6 +207,34 @@ try{
  await page.locator('[data-act="ecoSaveEnquadre"]').click();
  assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').enquadre.frequencia),'Rascunho de frequência fictício');
  assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
+ // Unsaved chronology and dream text must survive leaving and returning to their patient.
+ await page.evaluate(()=>act('caseTab','cronologia'));
+ const bio=page.locator('#bioTitulo');
+ await bio.evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
+ await bio.fill('Evento biográfico fictício ainda não salvo');
+ await home();
+ await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','cronologia');});
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),1);
+ await page.locator('[data-act="ecoClinicalDraftResume"]').click();
+ assert.equal(await bio.inputValue(),'Evento biográfico fictício ainda não salvo');
+ const bioSave=page.locator('[data-act="ecoAddBioEvent"]');
+ await bioSave.evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
+ await bioSave.click();
+ assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').cronologia.some(x=>x.titulo==='Evento biográfico fictício ainda não salvo')),true);
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
+ await page.evaluate(()=>act('caseTab','sonhos'));
+ const dream=page.locator('#dreamTexto');
+ await dream.evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
+ await dream.fill('Sonhei com minha mãe em uma casa.');
+ await home();
+ await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','sonhos');});
+ await page.locator('[data-act="ecoClinicalDraftResume"]').click();
+ assert.equal(await dream.inputValue(),'Sonhei com minha mãe em uma casa.');
+ const dreamSave=page.locator('[data-act="ecoSaveDream"]');
+ await dreamSave.evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
+ await dreamSave.click();
+ assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').sonhosList.some(x=>x.texto==='Sonhei com minha mãe em uma casa.')),true);
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
