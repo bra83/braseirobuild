@@ -5090,7 +5090,7 @@ function ecoResidualSpecs(){
  const c=screen==='case'?currentCase():screen==='atlas'?state?.cases?.find(x=>x.id===ecoOverviewCase):null;
  const out=[], add=(kind,ids,actions,opts={})=>{
   const nodes=ids.map(id=>document.getElementById(id)).filter(e=>e&&e.matches('input,textarea,select')&&!['password','checkbox','file','hidden'].includes(e.type));
-  if(nodes.length)out.push({caseId:opts.admin?'__eco_admin__':c?.id,kind:'res_'+kind,nodes,actions,actionId:opts.actionId,axis:opts.axis});
+  if(nodes.length)out.push({caseId:opts.admin?'__eco_admin__':c?.id,kind:'res_'+kind,nodes,actions,actionId:opts.actionId,axis:opts.axis,proof:opts.proof??null});
  };
  if(c){
   add('ficha'+(ecoFichaEdit?.caseId===c.id?'_'+ecoFichaEdit.id:''),['fichaKind','fichaSession','fichaOrigin','fichaQuote','fichaText'],['ecoFichaSave']);
@@ -5104,6 +5104,11 @@ function ecoResidualSpecs(){
   add('hypo',['hypoTexto','hypoFavoraveis','hypoContrarias','hypoAlternativas'],['ecoAddHypothesis']);
   add('interv',['intervData','intervTecnica','intervContexto','intervResposta','intervEfeito'],['ecoAddIntervention']);
   add('relation',['relDeId','relParaId','relTipo'],['ecoAddFamilyRelation']);
+  if(tab==='assistenteIA'&&ecoAiCurrent(ecoAiRun)&&ecoAiRun.phase==='done'){
+   const r=ecoAiRun,proof={query:r.query,scope:r.scope,sources:r.selected.map(x=>r.rows[x.i])};
+   add('aiarchive',['ecoAiArchiveTitle','ecoAiArchiveText'],['ecoAiArchiveSave'],{proof});
+  }
+  add('attachment',['ecoAttachTitle','ecoAttachClass'],['ecoAttachImport']);
   add('safety',['safePreocupacoes','safeAvaliacao','safePlano','safeContatos','safeEncaminhamentos'],['ecoSaveSafety']);
   add('diary',['diaryData','diaryCategoria','diaryTexto'],['ecoAddDiaryNote']);
   for(const t of state.ecoQuestionTemplates||[])if(!t.archived)add('custom_'+t.id,t.questions.map((_,i)=>'ecoCustomAnswer_'+t.id+'_'+i),['ecoCustomSave'],{actionId:t.id});
@@ -5148,7 +5153,9 @@ function ecoResidualSetup(){
    for(const e of slot.nodes)e.disabled=true;
    const panel=document.createElement('div');panel.className='eco-evidence';
    const conflict=Object.keys(d.base).some(k=>d.base[k]!==slot.base[k]);
+   slot.proofChanged=JSON.stringify(d.context.proof??null)!==JSON.stringify(slot.proof??null);
    panel.innerHTML='<p><strong>Rascunho recuperável</strong> · '+(conflict?'O formulário original mudou; confira antes de recuperar.':'Campos ainda não salvos.')+'</p>'+(conflict?'<details><summary>Conferir diferenças</summary>'+Object.keys(d.fields).map(k=>'<p>Atual: '+esc(slot.base[k]||'')+'<br>Rascunho: '+esc(d.fields[k]||'')+'</p>').join('')+'</details>':'')+btn('Recuperar campos','ecoResidualResume','secondary','data-id="'+esc(ecoResidualIdentity(slot))+'"')+btn('Descartar rascunho','ecoResidualDiscard','ghost','data-id="'+esc(ecoResidualIdentity(slot))+'"');
+   if(slot.proofChanged){panel.innerHTML='<p class="alert">As fontes da síntese mudaram. O texto anterior não pode ser atribuído à nova consulta. Recupere o conteúdo apenas para estudo manual.</p><details><summary>Ver rascunho anterior</summary><p style="white-space:pre-wrap">'+esc(d.fields.f1||'')+'</p></details>'+btn('Descartar rascunho','ecoResidualDiscard','ghost','data-id="'+esc(ecoResidualIdentity(slot))+'"');}
    slot.nodes[0].closest('.field')?.before(panel);slot.panel=panel;
    for(let n=panel.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;
   }catch(e){
@@ -5162,7 +5169,7 @@ function ecoResidualInput(e){
  const slot=ecoResidualSlots.find(s=>s.nodes.includes(e.target));
  if(!slot||slot.pending)return;
  const values=ecoResidualValues(slot);
- if(!slot.draft)slot.draft={id:uid(),caseId:slot.caseId,kind:slot.kind,fields:values,base:{...slot.base},context:{ids:slot.nodes.map(x=>x.id)}};
+ if(!slot.draft)slot.draft={id:uid(),caseId:slot.caseId,kind:slot.kind,fields:values,base:{...slot.base},context:{ids:slot.nodes.map(x=>x.id),proof:slot.proof}};
  else slot.draft.fields=values;
  slot.dirty=true;
  if(!slot.notice){const p=document.createElement('p');p.className='small muted';p.textContent='Guardando rascunho...';slot.nodes[0].closest('.field')?.before(p);slot.notice=p;}
@@ -5175,6 +5182,29 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener?.('pagehide',ecoResidualFlush);
 const ecoResidualPriorRender=render;
 render=function(){if(!ecoResidualFlush())return;ecoResidualPriorRender();ecoResidualSetup();};
+let ecoResidualAttachment=null;
+const ecoResidualAttachmentSaved=window.nativeAttachmentSaved;
+window.nativeAttachmentSaved=function(caseId){
+ const p=ecoResidualAttachment;ecoResidualAttachment=null;
+ if(p?.caseId===caseId)try{
+  const list=JSON.parse(window.NativeVault.listAttachments(caseId));
+  if(Array.isArray(list)&&list.some(x=>!p.previous.includes(x.id)&&x.title===p.title&&x.classification===p.classification))
+   window.NativeVault.clearClinicalDraft(caseId,'res_attachment',p.id);
+ }catch(e){}
+ return ecoResidualAttachmentSaved(caseId);
+};
+const ecoResidualAiPanel=ecoAiPanel;
+ecoAiPanel=function(c){
+ let out=ecoResidualAiPanel(c);
+ if(!ecoAiCurrent(ecoAiRun)||ecoAiRun.phase!=='done'){
+  try{const d=JSON.parse(window.NativeVault?.loadClinicalDraft?.(c.id,'res_aiarchive')||'null');
+   if(d?.caseId===c.id&&d.kind==='res_aiarchive'&&d.fields){
+    out+='<section class="card"><h3>Revisão de síntese ainda não arquivada</h3><p>O rascunho está cifrado. Execute novamente a consulta original com as mesmas fontes para recuperar a edição. A revisão humana e a confirmação serão exigidas novamente.</p><p>'+esc(d.context?.proof?.query||'')+'</p><details><summary>Consultar texto recuperável, sem atribuir a uma nova fonte</summary><p style="white-space:pre-wrap">'+esc(d.fields.f1||'')+'</p></details></section>';
+   }
+  }catch(e){}
+ }
+ return out;
+};
 const ecoResidualPriorAct=act;
 act=function(name,id,button){
  if(!ecoResidualFlush()){notify('Rascunho não guardado.','red');return;}
@@ -5186,6 +5216,7 @@ act=function(name,id,button){
    if(window.NativeVault.clearClinicalDraft(slot.caseId,slot.kind,slot.draft.id)!=='OK'){notify('Não foi possível descartar.','red');return;}
    render();return;
   }
+  if(slot.proofChanged){notify('Fontes divergentes. Refaça a consulta original ou descarte o rascunho.','red');return;}
   for(const [i,el] of slot.nodes.entries()){
    el.disabled=false;el.value=slot.draft.fields['f'+i]??'';
    if(el.tagName==='SELECT'&&el.value!==slot.draft.fields['f'+i])notify('Uma opção antiga não existe mais; selecione novamente.','red');
@@ -5194,6 +5225,13 @@ act=function(name,id,button){
  }
  const relevant=ecoResidualSlots.filter(x=>x.actions.includes(name)&&(x.actionId===undefined||x.actionId===id)&&(x.axis===undefined||x.axis===button?.dataset?.axis));
  if(relevant.some(x=>x.pending)){notify('Recupere ou descarte o rascunho antes de salvar.','red');return;}
+ if(name==='ecoAttachImport'){
+  const slot=relevant.find(x=>x.kind==='res_attachment');
+  if(slot?.draft&&document.getElementById('ecoAttachConfirm')?.checked)try{
+   const list=JSON.parse(window.NativeVault.listAttachments(slot.caseId));
+   if(Array.isArray(list))ecoResidualAttachment={caseId:slot.caseId,id:slot.draft.id,title:String(slot.draft.fields.f0||'').trim(),classification:slot.draft.fields.f1,previous:list.map(x=>x.id)};
+  }catch(e){}
+ }
  const before=relevant.length?JSON.stringify(state):null;
  const diary=relevant.find(x=>x.kind==='res_diary');
  let diaryBefore=null;
