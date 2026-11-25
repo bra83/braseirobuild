@@ -8,6 +8,7 @@ import java.io.File
 internal class TagarelaEngine(context: Context): AutoCloseable {
     data class Span(val text:String,val start:Long,val end:Long)
     private val recognizer: OfflineRecognizer
+    private val whitespace = Regex("\\s+")
 
     companion object {
         @Volatile private var cachedInstance: TagarelaEngine? = null
@@ -47,7 +48,7 @@ internal class TagarelaEngine(context: Context): AutoCloseable {
             if(!file.isFile||file.length()!=size){
                 val tmp=File(root,name+".tmp")
                 try{
-                    context.assets.open(asset).use { input->tmp.outputStream().use { input.copyTo(it) } }
+                    context.assets.open(asset).use { input->tmp.outputStream().use { input.copyTo(it, 256 * 1024) } }
                     check(tmp.length()==size){"Modelo TAGARELA incompleto"}
                     if(file.exists())check(file.delete())
                     check(tmp.renameTo(file))
@@ -75,13 +76,13 @@ internal class TagarelaEngine(context: Context): AutoCloseable {
             val max=pcm.size/32L
             // Use native token timestamps only when token reconstruction matches the actual transcript.
             val tokens=r.tokens;val times=r.timestamps
-            fun clean(s:String)=s.replace('▁',' ').trim().replace(Regex("\\s+")," ")
+            fun clean(s:String)=s.replace('▁',' ').trim().replace(whitespace," ")
             if(tokens.isEmpty()||tokens.size!=times.size||times.any{!it.isFinite()||it<0}||
-                clean(tokens.joinToString(""))!=clean(text)||times.indices.drop(1).any{times[it]<times[it-1]})
+                clean(tokens.joinToString(""))!=clean(text)||(1 until times.size).any{times[it]<times[it-1]})
                 return listOf(Span(text,0,max))
             val out=mutableListOf<Span>();var first=0
             fun emit(last:Int){
-                val s=clean(tokens.slice(first..last).joinToString(""))
+                val s=clean(buildString { for (j in first..last) append(tokens[j]) })
                 val start=(times[first]*1000).toLong().coerceIn(0,max)
                 val next=if(last+1<times.size)(times[last+1]*1000).toLong() else max
                 val end=next.coerceIn(start,max)
