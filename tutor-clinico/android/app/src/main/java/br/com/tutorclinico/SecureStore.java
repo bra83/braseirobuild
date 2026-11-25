@@ -332,6 +332,100 @@ final class SecureStore {
         return result.put("checkpoints",checkpoints).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
     }
 
+
+    private static final int ATTACHMENT_LIMIT=8_000_000, ATTACHMENT_CHUNK=96_000;
+    private static void ensureAttachments(SQLiteDatabase db){
+        db.execSQL("CREATE TABLE IF NOT EXISTS eco_attachments(id TEXT PRIMARY KEY NOT NULL,case_id TEXT NOT NULL REFERENCES _pacientes(id) ON DELETE RESTRICT,meta_enc BLOB NOT NULL,created_at INTEGER NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS eco_attachments_case ON eco_attachments(case_id,created_at)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS eco_attachment_chunks(id TEXT NOT NULL REFERENCES eco_attachments(id) ON DELETE RESTRICT,part INTEGER NOT NULL,data_enc BLOB NOT NULL,PRIMARY KEY(id,part))");
+    }
+    private static String attachmentMime(byte[] data) throws Exception {
+        if(data==null||data.length<8||data.length>ATTACHMENT_LIMIT)throw new java.io.IOException("Tamanho de anexo inválido");
+        if(data[0]=='%'&&data[1]=='P'&&data[2]=='D'&&data[3]=='F'&&data[4]=='-')return "application/pdf";
+        if((data[0]&255)==137&&data[1]=='P'&&data[2]=='N'&&data[3]=='G'&&data[4]==13&&data[5]==10&&data[6]==26&&data[7]==10)return "image/png";
+        if((data[0]&255)==255&&(data[1]&255)==216&&(data[2]&255)==255)return "image/jpeg";
+        throw new java.io.IOException("Somente PDF, PNG ou JPEG são aceitos");
+    }
+    private static String sha256(byte[] data) throws Exception {
+        StringBuilder s=new StringBuilder();
+        for(byte b:MessageDigest.getInstance("SHA-256").digest(data))s.append(String.format(java.util.Locale.ROOT,"%02x",b&255));
+        return s.toString();
+    }
+    synchronized JSONObject addAttachment(String caseId,String title,String classification,byte[] data) throws Exception {
+        if(title==null||title.trim().isEmpty()||title.length()>200||classification==null||classification.length()>100)throw new IllegalArgumentException("Metadados inválidos");
+        JSONObject meta=new JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("caseId",caseId)
+            .put("title",title).put("classification",classification).put("mime",attachmentMime(data)).put("sha256",sha256(data))
+            .put("bytes",data.length).put("createdAt",System.currentTimeMillis()).put("source","Arquivo local autorizado");
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);db.beginTransaction();
+        try{insertAttachment(db,meta,data);db.setTransactionSuccessful();return meta;}finally{db.endTransaction();}
+    }
+    private void insertAttachment(SQLiteDatabase db,JSONObject meta,byte[] data) throws Exception {
+        String id=meta.getString("id"),caseId=meta.getString("caseId");
+        if(id.isEmpty()||!attachmentMime(data).equals(meta.getString("mime"))||data.length!=meta.getInt("bytes")||!sha256(data).equals(meta.getString("sha256")))
+            throw new SecurityException("Integridade do anexo inválida");
+        ContentValues v=new ContentValues();v.put("id",id);v.put("case_id",caseId);v.put("meta_enc",dbHelper.encrypt(meta.toString()));v.put("created_at",meta.getLong("createdAt"));db.insertOrThrow("eco_attachments",null,v);
+        for(int start=0,part=0;start<data.length;start+=ATTACHMENT_CHUNK,part++){
+            byte[] chunk=Arrays.copyOfRange(data,start,Math.min(data.length,start+ATTACHMENT_CHUNK));
+            ContentValues cv=new ContentValues();cv.put("id",id);cv.put("part",part);cv.put("data_enc",dbHelper.encrypt(Base64.encodeToString(chunk,Base64.NO_WRAP)));db.insertOrThrow("eco_attachment_chunks",null,cv);Arrays.fill(chunk,(byte)0);
+        }
+    }
+    synchronized JSONArray listAttachments(String caseId) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);JSONArray result=new JSONArray();
+        try(Cursor c=db.query("eco_attachments",new String[]{"meta_enc"},"case_id=?",new String[]{caseId},null,null,"created_at DESC")){
+            while(c.moveToNext())result.put(new JSONObject(dbHelper.decrypt(c.getBlob(0))));
+        }
+        return result;
+    }
+    synchronized JSONObject attachmentMeta(String caseId,String id) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);
+        try(Cursor c=db.query("eco_attachments",new String[]{"meta_enc"},"case_id=? AND id=?",new String[]{caseId,id},null,null,null)){
+            if(!c.moveToFirst())throw new IllegalArgumentException("Anexo não encontrado");
+            return new JSONObject(dbHelper.decrypt(c.getBlob(0)));
+        }
+    }
+    synchronized byte[] attachmentBytes(String caseId,String id) throws Exception {
+        JSONObject meta=attachmentMeta(caseId,id);SQLiteDatabase db=dbHelper.getReadableDatabase();ByteArrayOutputStream out=new ByteArrayOutputStream();int part=0;
+        try(Cursor c=db.query("eco_attachment_chunks",new String[]{"part","data_enc"},"id=?",new String[]{id},null,null,"part ASC")){
+            while(c.moveToNext()){
+                if(c.getInt(0)!=part++)throw new SecurityException("Bloco de anexo ausente");
+                byte[] decoded=Base64.decode(dbHelper.decrypt(c.getBlob(1)),Base64.NO_WRAP);
+                if(out.size()+decoded.length>ATTACHMENT_LIMIT)throw new SecurityException("Anexo acima do limite");
+                out.write(decoded);Arrays.fill(decoded,(byte)0);
+            }
+        }
+        byte[] data=out.toByteArray();
+        if(data.length!=meta.getInt("bytes")||!sha256(data).equals(meta.getString("sha256")))throw new SecurityException("Anexo não autenticado");
+        return data;
+    }
+    synchronized JSONArray exportAttachments() throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);JSONArray rows=new JSONArray();long total=0;
+        try(Cursor c=db.query("eco_attachments",new String[]{"id","case_id","meta_enc"},null,null,null,null,"created_at ASC")){
+            while(c.moveToNext()){
+                JSONObject meta=new JSONObject(dbHelper.decrypt(c.getBlob(2)));
+                total+=meta.getLong("bytes");if(total>24_000_000)throw new java.io.IOException("Anexos acima do limite de exportação conjunta");
+                byte[] data=attachmentBytes(c.getString(1),c.getString(0));rows.put(new JSONObject().put("meta",meta).put("data",Base64.encodeToString(data,Base64.NO_WRAP)));Arrays.fill(data,(byte)0);
+            }
+        }return rows;
+    }
+    private void restoreAttachments(SQLiteDatabase db,JSONArray rows) throws Exception {
+        if(rows==null)return;ensureAttachments(db);long total=0;java.util.Set<String> seen=new java.util.HashSet<>();
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.getJSONObject(i),meta=row.getJSONObject("meta");String id=meta.getString("id"),caseId=meta.getString("caseId");
+            if(!seen.add(id))throw new IllegalArgumentException("Anexo duplicado");
+            byte[] data=Base64.decode(row.getString("data"),Base64.NO_WRAP);total+=data.length;
+            try{
+                if(total>24_000_000||data.length!=meta.getInt("bytes")||!sha256(data).equals(meta.getString("sha256")))throw new SecurityException("Anexo inválido");
+                try(Cursor c=db.query("eco_attachments",new String[]{"case_id","meta_enc"},"id=?",new String[]{id},null,null,null)){
+                    if(c.moveToFirst()){
+                        if(!caseId.equals(c.getString(0))||!meta.getString("sha256").equals(new JSONObject(dbHelper.decrypt(c.getBlob(1))).getString("sha256")))throw new SecurityException("Conflito de anexo");
+                        continue;
+                    }
+                }
+                insertAttachment(db,meta,data);
+            }finally{Arrays.fill(data,(byte)0);}
+        }
+    }
+
     synchronized void save(String json) throws Exception {
         JSONObject validated = new JSONObject(json);
         if (validated.optInt("version") < 1 || !(validated.opt("cases") instanceof JSONArray)
@@ -350,6 +444,7 @@ final class SecureStore {
             JSONObject rootMeta = new JSONObject(json);
             rootMeta.remove("cases");
             rootMeta.remove("appointments");
+            rootMeta.remove("attachmentBundle");
             ContentValues cfgCv = new ContentValues();
             cfgCv.put("chave", "app_state_meta");
             cfgCv.put("valor_enc", dbHelper.encrypt(rootMeta.toString()));
@@ -454,6 +549,7 @@ final class SecureStore {
                 db.insertOrThrow("agenda", null, acv);
             }
 
+            restoreAttachments(db,validated.optJSONArray("attachmentBundle"));
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
