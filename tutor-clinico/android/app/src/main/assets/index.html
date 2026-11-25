@@ -4779,12 +4779,36 @@ act=function(name,id,button){
 /* Per-patient draft of edited clinical fields, separate from the approved record. */
 let ecoClinicalDraft=null,ecoClinicalDraftTimer=null,ecoClinicalDraftPending=false,ecoClinicalDraftDirty=false,ecoClinicalDraftBase={};
 function ecoClinicalDraftScope(){
- if(screen!=='case'||!['anamnese','enquadre'].includes(tab)||!openedId)return null;
- return {caseId:openedId,kind:tab,prefix:tab==='anamnese'?'ana_':'enq_'};
+ const kind=screen==='case'?tab:screen==='atlas'?ecoAtlasTab:'',caseId=screen==='case'?openedId:screen==='atlas'?ecoOverviewCase:'';
+ const prefixes={anamnese:'ana_',enquadre:'enq_',sonhos:'dream',genograma:'gen',cronologia:'bio'};
+ if(!prefixes[kind]||!caseId)return null;
+ if(screen==='atlas'&&['anamnese','enquadre'].includes(kind))return null;
+ return {caseId,kind,prefix:prefixes[kind]};
 }
-function ecoClinicalDraftNodes(scope){return [...document.querySelectorAll('#app [id^="'+scope.prefix+'"]')].filter(e=>e.matches('input,textarea,select'));}
+const ecoClinicalNewFields={sonhos:['Data','Texto','Lugares','Simbolos','Personagens','Afetos','Associacoes','Hipotese'],genograma:['Nome','Parentesco','Geracao','Vivo','Sexo','Vinculo','Notas'],cronologia:['Ano','Titulo','Descricao','Envolvidos','Impacto']};
+function ecoClinicalDraftNodes(scope){return [...document.querySelectorAll('#app [id^="'+scope.prefix+'"]')].filter(e=>e.matches('input,textarea,select')&&(!ecoClinicalNewFields[scope.kind]||ecoClinicalNewFields[scope.kind].includes(e.id.slice(scope.prefix.length))));}
+function ecoClinicalDraftContext(scope){
+ const c=state.cases.find(c=>c.id===scope.caseId);
+ const editId=scope.kind==='sonhos'?ecoDreamEditId:scope.kind==='genograma'?ecoFamilyEditId:null;
+ const item=editId?(scope.kind==='sonhos'?c?.sonhosList:c?.genograma?.membros)?.find(x=>x.id===editId):null;
+ return {editId:editId||null,original:item?JSON.stringify(item):null,origin:scope.kind==='sonhos'&&ecoDreamOrigin?JSON.parse(JSON.stringify(ecoDreamOrigin)):null};
+}
+function ecoClinicalDraftCollect(scope){
+ if(!scope||!ecoClinicalNewFields[scope.kind]||ecoClinicalDraftPending||!ecoClinicalDraft)return;
+ const d=ecoClinicalDraft;
+ if(d.caseId!==scope.caseId||d.kind!==scope.kind)return;
+ for(const e of ecoClinicalDraftNodes(scope)){
+  const k=e.id.slice(scope.prefix.length);
+  if(!Object.prototype.hasOwnProperty.call(d.base,k))d.base[k]=ecoClinicalDraftBase[k]||'';
+  if(d.fields[k]!==e.value){d.fields[k]=e.value;ecoClinicalDraftDirty=true;}
+ }
+}
+function ecoClinicalDraftMake(scope){
+ return {caseId:scope.caseId,kind:scope.kind,id:uid(),fields:{},base:{},context:ecoClinicalDraftContext(scope)};
+}
 function ecoClinicalDraftFlush(){
  if(ecoClinicalDraftTimer){clearTimeout(ecoClinicalDraftTimer);ecoClinicalDraftTimer=null;}
+ ecoClinicalDraftCollect(ecoClinicalDraftScope());
  if(!ecoClinicalDraftDirty||!ecoClinicalDraft)return true;
  const d=ecoClinicalDraft;
  const result=window.NativeVault?.saveClinicalDraft?.(d.caseId,d.kind,JSON.stringify(d));
@@ -4820,7 +4844,7 @@ function ecoClinicalDraftInput(e){
  if(!scope||!el?.id?.startsWith(scope.prefix)||ecoClinicalDraftPending||!el.matches('input,textarea,select'))return;
  const k=el.id.slice(scope.prefix.length);
  if(!Object.prototype.hasOwnProperty.call(ecoClinicalDraftBase,k))return;
- if(!ecoClinicalDraft)ecoClinicalDraft={caseId:scope.caseId,kind:scope.kind,id:uid(),fields:{},base:{}};
+ if(!ecoClinicalDraft)ecoClinicalDraft=ecoClinicalDraftMake(scope);
  if(!Object.prototype.hasOwnProperty.call(ecoClinicalDraft.base,k))ecoClinicalDraft.base[k]=ecoClinicalDraftBase[k];
  ecoClinicalDraft.fields[k]=el.value;ecoClinicalDraftDirty=true;
  if(ecoClinicalDraftTimer)clearTimeout(ecoClinicalDraftTimer);
@@ -4837,6 +4861,16 @@ act=function(name,id,button){
  if(scope&&['ecoClinicalDraftResume','ecoClinicalDraftDiscardAsk','ecoClinicalDraftDiscard'].includes(name)){
   if(!d)return;
   if(name==='ecoClinicalDraftResume'){
+   if(ecoClinicalNewFields[scope.kind]){
+    const c=state.cases.find(x=>x.id===d.caseId),ctx=d.context||{},editId=ctx.editId;
+    if(editId){
+     const row=(scope.kind==='sonhos'?c?.sonhosList:c?.genograma?.membros)?.find(x=>x.id===editId);
+     if(!row){notify('O registro original não existe mais. Descarte o rascunho ou recupere o texto do backup.','red');return;}
+     if(JSON.stringify(row)!==ctx.original&&!window.confirm('O registro original foi alterado. Recuperar os campos para revisão manual?'))return;
+    }
+    if(scope.kind==='sonhos'){ecoDreamEditId=editId||null;ecoDreamOrigin=ctx.origin||null;}
+    if(scope.kind==='genograma')ecoFamilyEditId=editId||null;
+   }
    for(const [k,v] of Object.entries(d.fields)){const e=document.getElementById(scope.prefix+k);if(e)e.value=v;}
    ecoClinicalDraftPending=false;ecoClinicalDraftBlockFields(scope,false);document.getElementById('ecoClinicalDraftPanel')?.remove();return;
   }
@@ -4844,12 +4878,20 @@ act=function(name,id,button){
   if(window.NativeVault.clearClinicalDraft(d.caseId,d.kind,d.id)!=='OK'){notify('Não foi possível descartar o rascunho.','red');return;}
   closeModal();render();return;
  }
- const saving=scope&&((scope.kind==='anamnese'&&name==='ecoSaveAnamnese')||(scope.kind==='enquadre'&&name==='ecoSaveEnquadre'));
- if(saving&&ecoClinicalDraftPending){notify('Recupere ou descarte o rascunho antes de salvar.','red');return;}
+ const saveNames={anamnese:'ecoSaveAnamnese',enquadre:'ecoSaveEnquadre',sonhos:'ecoSaveDream',genograma:'ecoAddFamilyMember',cronologia:'ecoAddBioEvent'};
+ const saving=scope&&saveNames[scope.kind]===name;
+ const prefilling=scope&&((scope.kind==='sonhos'&&['ecoDreamPrefill','ecoDreamEdit'].includes(name))||(scope.kind==='genograma'&&name==='ecoFamilyEdit'));
+ if((saving||prefilling)&&ecoClinicalDraftPending){notify('Recupere ou descarte o rascunho antes de continuar.','red');return;}
+ if(prefilling&&d){notify('Salve ou descarte o rascunho atual antes de editar outro registro.','red');return;}
+ const collection=c=>scope?.kind==='sonhos'?c?.sonhosList||[]:scope?.kind==='genograma'?c?.genograma?.membros||[]:c?.cronologia||[];
+ const before=saving&&scope&&ecoClinicalNewFields[scope.kind]?JSON.stringify(collection(state.cases.find(c=>c.id===scope.caseId))):null;
  const result=ecoClinicalDraftPriorAct(name,id,button);
+ if(prefilling&&window.NativeVault?.saveClinicalDraft){
+  ecoClinicalDraft=ecoClinicalDraftMake(scope);ecoClinicalDraftCollect(scope);ecoClinicalDraftFlush();
+ }
  if(saving&&d){
-  const stored=state.cases.find(c=>c.id===d.caseId)?.[d.kind]||{};
-  if(Object.entries(d.fields).every(([k,v])=>stored[k]===v)){
+  const c=state.cases.find(c=>c.id===d.caseId),stored=c?.[d.kind]||{};
+  if(before!==null?JSON.stringify(collection(c))!==before:Object.entries(d.fields).every(([k,v])=>stored[k]===v)){
    if(window.NativeVault.clearClinicalDraft(d.caseId,d.kind,d.id)==='OK')render();
    else notify('Registro salvo, mas o rascunho ainda está disponível.','red');
   }
