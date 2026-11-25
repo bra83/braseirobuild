@@ -1403,7 +1403,7 @@ function ecoCloudSize(count,rows){
 function ecoWordRows(session,scope=null){
  const raw=session?.mlSegments||[];
  const rows=scope?ecoAnalysisRows(session,scope).map(r=>({...r,startMs:r.atMs})):raw.length?raw.map((e,i)=>({...e,index:i})):
-  [{text:session?.mlTranscricao||session?.mlRevisada||"",startMs:null,endMs:null,index:0,speaker:"desconhecido"}];
+  [{text:session?.mlRevisada||session?.mlTranscricao||(session?.origem==="manual"?session?.texto:"")||"",startMs:null,endMs:null,index:0,speaker:"desconhecido"}];
  const counts=new Map(),locations=new Map(),total=new Set();
  for(const item of rows){
   for(const token of String(item.text||"").matchAll(/[\p{L}]{2,}/gu)){
@@ -3957,9 +3957,10 @@ function ecoAiCancel(){if(ecoAiRun?.pending)try{window.NativeVault.cancelSemanti
 function ecoAiSend(r,phase,payload,stage){
  r.id='ai-'+(++ecoAiSerial)+'-'+Date.now();r.phase=phase;r.pending=true;r.error='';r.stage=stage;r.last=Date.now();
  try{const result=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...payload,id:r.id,cacheScope:r.scope==='teoria'?'library':'case:'+r.caseId}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Falha ao iniciar a inferência.';}
+ if(phase==='verify'&&!r.pending&&r.error){r.verificationError=r.error;r.error='';r.phase='done';}
  render();if(r.pending)setTimeout(()=>ecoAiWatch(r.id),5000);
 }
-function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
+function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){if(r.phase==='verify'){try{window.NativeVault.cancelSemantic?.(r.id);}catch(e){}r.pending=false;r.phase='done';r.verificationError='Conferência NLI interrompida por falta de progresso.';render();return;}ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
 function ecoAiStart(c){
  if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const from=document.getElementById('ecoAiFrom')?.value||'',to=document.getElementById('ecoAiTo')?.value||'',session=document.getElementById('ecoAiSession')?.value||'';
@@ -3994,7 +3995,7 @@ function ecoAiCheckDraft(c){
  const lines=ecoAiCitations(r),pairs=[];
  for(const line of lines){if(line.unresolved)continue;for(const n of line.valid){const source=r.rows[r.selected[n-1].i].text,claim=line.line.replace(/\[S\d+\]/g,'').trim();if(claim&&claim.length<=500&&source.length<=1800)pairs.push({a:source,b:claim,ref:n});}}
  if(!pairs.length){notify('A minuta não possui referências verificáveis. Revise manualmente.','red');return;} if(pairs.length>12){notify('Mais de 12 pares: conferindo os primeiros 12; os demais exigem revisão manual.');pairs.splice(12);}
- r.verificationPairs=pairs;ecoAiSend(r,'verify',{mode:'nli',pairs:pairs.map(({a,b})=>({a,b}))},'4/4 · Conferindo relações textuais com NLI');
+ r.verificationPairs=pairs;r.verification=null;r.verificationError='';ecoAiSend(r,'verify',{mode:'nli',pairs:pairs.map(({a,b})=>({a,b}))},'4/4 · Conferindo relações textuais com NLI');
 }
 function ecoAiDraftVerification(r){
  const lines=ecoAiCitations(r),missing=lines.filter(x=>x.unresolved).length;
