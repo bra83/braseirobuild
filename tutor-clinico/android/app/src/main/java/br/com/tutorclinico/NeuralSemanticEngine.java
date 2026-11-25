@@ -125,6 +125,44 @@ final class NeuralSemanticEngine implements AutoCloseable {
             if(!Set.of("paciente","terapeuta","desconhecido").contains(role)||(!scope.equals("todos")&&!role.equals(scope.equals("revisado")?"desconhecido":scope)))throw new IOException("Trecho fora do filtro de falantes");
         }
         if(rows.length()==0||rows.length()>MAX_ROWS||query.length()>500)throw new IOException("Limite de análise: 1–1200 trechos e consulta de até 500 caracteres");
+        JSONArray queries=request.optJSONArray("queries");
+        if(queries!=null){
+            if(queries.length()<1||queries.length()>40)throw new IOException("Limite de 40 consultas");
+            // One embedding per distinct text, one model load, bounded top hits per query.
+            Set<String> ids=new HashSet<>();
+            List<String> keys=new ArrayList<>();
+            List<float[]> qv=new ArrayList<>();
+            List<List<JSONObject>> results=new ArrayList<>();
+            for(int k=0;k<queries.length();k++){
+                if(!active.getAsBoolean())throw new CancellationException();
+                JSONObject item=queries.getJSONObject(k);
+                String key=item.getString("key"),text=item.getString("text").trim();
+                if(key.isEmpty()||key.length()>80||!ids.add(key)||text.isEmpty()||text.length()>500)throw new IOException("Consulta inválida");
+                keys.add(key);qv.add(vector(text,active));results.add(new ArrayList<>());
+                progress.report(0,rows.length(),"Preparando consultas "+(k+1)+"/"+queries.length());
+            }
+            Map<String,float[]> cache=new HashMap<>();
+            for(int i=0;i<rows.length();i++){
+                if(!active.getAsBoolean())throw new CancellationException();
+                String text=rows.getJSONObject(i).getString("text");
+                if(text.length()>12000)throw new IOException("Trecho muito longo");
+                float[] v=cache.get(text);
+                if(v==null){v=vector(text,active);cache.put(text,v);}
+                for(int k=0;k<qv.size();k++){
+                    double score=cosine(qv.get(k),v);
+                    if(!SemanticRanking.relevant(score,true))continue;
+                    List<JSONObject> list=results.get(k);
+                    list.add(new JSONObject().put("i",i).put("score",score));
+                    list.sort(Comparator.comparingDouble((JSONObject o)->o.optDouble("score")).reversed());
+                    if(list.size()>5)list.remove(list.size()-1);
+                }
+                progress.report(i+1,rows.length(),"Relacionando trechos aos temas");
+            }
+            JSONArray grouped=new JSONArray();
+            for(int k=0;k<keys.size();k++)grouped.put(new JSONObject().put("key",keys.get(k)).put("hits",new JSONArray(results.get(k))));
+            return new JSONObject().put("model",MODEL).put("count",rows.length()).put("dimensions",DIM)
+                .put("scope",scope).put("queryMin",SemanticRanking.QUERY_MIN).put("groups",grouped);
+        }
         progress.report(0,rows.length(),"Preparando consulta");
         float[] q=query.isEmpty()?null:vector(query,active);
         Map<String,float[]> memo=new HashMap<>();
