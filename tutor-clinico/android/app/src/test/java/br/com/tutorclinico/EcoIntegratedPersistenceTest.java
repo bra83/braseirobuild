@@ -75,4 +75,43 @@ public class EcoIntegratedPersistenceTest {
         try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("PRAGMA foreign_key_check",null)){assertEquals(0,c.getCount());}
         store.getDbHelper().close();
     }
+
+    @Test public void scaleOneHundredCasesTenThousandSessions() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONArray cases=new JSONArray();
+        for(int i=0;i<100;i++){
+            String id="scale-"+i;
+            JSONArray sessions=new JSONArray();
+            for(int j=0;j<100;j++){
+                sessions.put(new JSONObject().put("id",id+"-s"+j).put("data","2026-11-25")
+                    .put("hora","10:00").put("origem","manual").put("texto","Nota fictícia "+id+" / "+j));
+            }
+            cases.put(new JSONObject().put("id",id).put("nome","Fictício "+i).put("sessoes",sessions));
+        }
+        JSONObject root=new JSONObject().put("version",1).put("cases",cases).put("appointments",new JSONArray());
+        long start=System.nanoTime();
+        store.save(root.toString());
+        long saved=System.nanoTime();
+        store.getDbHelper().close();
+        store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject result=new JSONObject(store.read());
+        long read=System.nanoTime();
+        int total=0;
+        for(int i=0;i<100;i++){
+            JSONObject c=byId(result,"scale-"+i);
+            JSONArray sessions=c.getJSONArray("sessoes");assertEquals(100,sessions.length());
+            java.util.HashSet<String> ids=new java.util.HashSet<>();
+            for(int j=0;j<sessions.length();j++){
+                JSONObject s=sessions.getJSONObject(j);
+                assertTrue(s.getString("id").startsWith("scale-"+i+"-s"));
+                assertTrue(s.getString("texto").startsWith("Nota fictícia scale-"+i+" / "));
+                assertTrue(ids.add(s.getString("id")));total++;
+            }
+        }
+        assertEquals(10000,total);
+        try(Cursor cursor=store.getDbHelper().getReadableDatabase().rawQuery("PRAGMA foreign_key_check",null)){assertEquals(0,cursor.getCount());}
+        System.out.println("ECO_SCALE_HOST cases=100 sessions="+total+" save_ms="+(saved-start)/1000000+" reopen_read_ms="+(read-saved)/1000000+" bytes="+result.toString().getBytes(StandardCharsets.UTF_8).length);
+        store.getDbHelper().close();
+    }
 }
