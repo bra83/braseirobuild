@@ -272,8 +272,18 @@ final class MlSessionEngine implements RecognitionListener {
                             @Override public void progress(long processedMs) {
                                 synchronized(MlSessionEngine.this){
                                     // Advance only after a complete chunk and successful segment commits.
-                                    if(mine==generation && wanted && !pauseRequested && !discarding && !destroyed && processedMs>resumeFromMs)
+                                    if(mine==generation && wanted && !pauseRequested && !discarding && !destroyed && processedMs>resumeFromMs){
+                                        if(recordedFile!=null&&recordedEphemeralKey!=null&&selected.equals(Uri.fromFile(recordedFile))){
+                                            if(processedMs%50!=0)return;
+                                            try{
+                                                store.getDbHelper().saveDecoderCheckpoint(currentJobId,selectedModel,processedMs,emittedIds,speakerClusters.checkpoint(),diarizationEnabled);
+                                            }catch(Exception e){
+                                                events.state("FALHA AO CONFIRMAR CHECKPOINT · ÁUDIO RETIDO");
+                                                pauseTranscription();return;
+                                            }
+                                        }
                                         resumeFromMs=processedMs;
+                                    }
                                 }
                             }
                         },selectedModel,fromMs,clusters,key,allowInterrupted);
@@ -458,13 +468,31 @@ final class MlSessionEngine implements RecognitionListener {
             pendingFile = retainedUri;
             wanted = true;
             paused = false;
-            // Replay from zero after process death; the last segment end is NOT a safe chunk checkpoint.
-            resumeFromMs = 0L;
+            // Never use the last word timestamp as a decoder boundary.
+            restoreDecoderPrefix();
             beginFile();
             return true;
         } catch (Exception e) {
             Log.e("MlSessionEngine", "Erro ao retomar job: " + jobId, e);
             return false;
+        }
+    }
+
+    private void restoreDecoderPrefix(){
+        resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;speakerClusters.clear();
+        if(recordedFile==null||recordedEphemeralKey==null||retainedUri==null||!retainedUri.equals(Uri.fromFile(recordedFile)))return;
+        try{
+            EcoDatabaseHelper db=store.getDbHelper();
+            JSONObject cp=db.readDecoderCheckpoint(currentJobId,fileModelName,recordedEphemeralKey);
+            if(cp==null)return;
+            speakerClusters.restore(cp.getString("speakers"));
+            diarizationEnabled=cp.getBoolean("diarization");
+            resumeFromMs=cp.getLong("offset");
+            emittedIds.addAll(db.verifiedPrefixIds(currentJobId,resumeFromMs));
+            sessionEmittedSegments=emittedIds.size();
+        }catch(Exception e){
+            resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;speakerClusters.clear();
+            events.state("CHECKPOINT INDISPONÍVEL · REPLAY SEGURO DO ÁUDIO");
         }
     }
 
@@ -480,11 +508,7 @@ final class MlSessionEngine implements RecognitionListener {
         }
         if(!paused||retainedUri==null){events.state("NÃO EXISTE TRANSCRIÇÃO PAUSADA");return;}
         wanted=true;pauseRequested=false;discarding=false;userExplicitDiscard=false;deferRecognitionUntilResume=false;
-        // Only an owned, authenticated spool in this live engine may skip its completed prefix.
-        // External URIs may change, and process-death recovery still requires a verified replay.
-        boolean trustedPrefix=recordedFile!=null && recordedEphemeralKey!=null
-                && retainedUri.equals(Uri.fromFile(recordedFile)) && resumeFromMs>0;
-        if(!trustedPrefix){resumeFromMs=0L;emittedIds.clear();sessionEmittedSegments=0;}
+        restoreDecoderPrefix();
         lastChunksProcessed=0;
         beginFile();
     }
