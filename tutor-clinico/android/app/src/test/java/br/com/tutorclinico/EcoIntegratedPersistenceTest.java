@@ -414,7 +414,22 @@ public class EcoIntegratedPersistenceTest {
         store.getDbHelper().close();store=new SecureStore(context,new SecretKeySpec(k,"AES"));
         assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
         assertEquals("ORIGINAL A",byId(new JSONObject(store.read()),"clinical-a").getJSONObject("anamnese").getString("padroesSono"));
-        store.clearClinicalDraft("clinical-a","anamnese","wrong");assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
+        // A stale or foreign draft ID must fail closed without deleting the saved draft.
+        try {
+            store.clearClinicalDraft("clinical-a","anamnese","wrong");
+            fail("stale draft ID accepted");
+        } catch (SecurityException expected) {
+            assertEquals("Rascunho divergente",expected.getMessage());
+        }
+        assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
+        JSONObject conflicting=new JSONObject(draft.toString()).put("id","wrong");
+        try {
+            store.saveClinicalDraft("clinical-a","anamnese",conflicting.toString());
+            fail("foreign draft ID overwrote existing draft");
+        } catch (IllegalArgumentException expected) {
+            assertEquals("Rascunho divergente",expected.getMessage());
+        }
+        assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
         JSONObject portable=store.exportPortableSnapshot(false);assertEquals(1,portable.getJSONObject("nativeRecoveryBundle").getJSONArray("clinical").length());
         store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));k[0]=11;
         store=new SecureStore(context,new SecretKeySpec(k,"AES"));store.save(portable.toString());
