@@ -68,7 +68,8 @@ public final class MainActivity extends Activity {
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
-    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909;
+    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911;
+    private boolean pendingVaultDiary=false;
     private final java.util.concurrent.atomic.AtomicBoolean archiveBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile java.util.concurrent.atomic.AtomicBoolean archiveCancel;
     private WebView web;
@@ -79,7 +80,7 @@ public final class MainActivity extends Activity {
     private void clearPendingBackup(){
         if(archiveCancel!=null)archiveCancel.set(true);
         if(pendingExport!=null)java.util.Arrays.fill(pendingExport,(byte)0);
-        pendingExport=null;pendingPassword=null;
+        pendingExport=null;pendingPassword=null;pendingVaultDiary=false;
     }
     private boolean privateOperationAuthorized(){
         if(!unlocked||isFinishing()||isDestroyed())return false;
@@ -639,7 +640,7 @@ public final class MainActivity extends Activity {
             catch (Exception e) { return "{\"__loadError\":\"Falha ao abrir dados criptografados. Não sobrescreva o arquivo.\"}"; }
         }
         @JavascriptInterface public String saveState(String json) {
-            if (!unlocked) return "Bloqueado";
+            if (!unlocked||archiveBusy.get()) return "Cofre bloqueado ou backup em andamento";
             try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
@@ -769,6 +770,24 @@ public final class MainActivity extends Activity {
                 startActivityForResult(intent, EXPORT_CODE);
             });
         }
+        private boolean archiveIdle(){
+            return unlocked&&!archiveBusy.get()&&!semanticBusy.get()&&ml!=null&&!ml.isRecording()&&!ml.isTranscribing()&&!ml.isPaused()&&!ml.hasPendingAudio();
+        }
+        @JavascriptInterface public void fullVaultArchive(String password,boolean export,boolean diary){
+            if(password==null||password.length()<10)return;
+            main.post(()->{
+                if(!archiveIdle()){showToast("Finalize o atendimento ou processamento antes do backup integral.");return;}
+                reauthenticate(export?"Exportar cofre integral":"Restaurar cofre integral",()->{
+                    if(!archiveIdle())return;
+                    clearPendingBackup();pendingPassword=password;pendingVaultDiary=export&&diary;
+                    Intent intent=new Intent(export?Intent.ACTION_CREATE_DOCUMENT:Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);intent.setType(export?"application/octet-stream":"*/*");
+                    if(export)intent.putExtra(Intent.EXTRA_TITLE,"eco-cofre-integral.ecobkp");
+                    try{startActivityForResult(intent,export?VAULT_EXPORT_CODE:VAULT_IMPORT_CODE);}
+                    catch(Exception e){clearPendingBackup();showToast("Seletor de arquivos indisponível.");}
+                });
+            });
+        }
         @JavascriptInterface public void attachmentArchive(String password,boolean export){
             if(!unlocked||password==null||password.length()<10||archiveBusy.get())return;
             main.post(()->reauthenticate(export?"Exportar arquivo de anexos":"Restaurar arquivo de anexos",()->{
@@ -837,12 +856,13 @@ public final class MainActivity extends Activity {
             });
         }
     }
-    private void runAttachmentArchive(Uri uri,char[] password,boolean export){
+    private void runAttachmentArchive(Uri uri,char[] password,boolean export){runArchive(uri,password,export,false,false);}
+    private void runArchive(Uri uri,char[] password,boolean export,boolean full,boolean diary){
         if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,(char)0);return;}
         final java.util.concurrent.atomic.AtomicBoolean cancelled=new java.util.concurrent.atomic.AtomicBoolean(false);
         archiveCancel=cancelled;
         final AlertDialog progress=new AlertDialog.Builder(this)
-            .setTitle(export?"Backup de anexos":"Restauração de anexos")
+            .setTitle(full?(export?"Backup integral do cofre":"Restauração integral do cofre"):(export?"Backup de anexos":"Restauração de anexos"))
             .setMessage("Processamento cifrado em blocos. Não feche o ECO. Cancelar não altera os registros locais.")
             .setCancelable(false).setNegativeButton("Cancelar",(dialog,which)->cancelled.set(true)).create();
         progress.show();
@@ -850,37 +870,50 @@ public final class MainActivity extends Activity {
             cancelled.set(true);progress.setMessage("Cancelando com segurança…");v.setEnabled(false);
         });
         new Thread(()->{
-            String message;
+            String message;boolean restored=false;
             java.util.function.BooleanSupplier active=()->unlocked&&!cancelled.get();
             try{
                 int count;
                 if(export){
                     try(OutputStream out=getContentResolver().openOutputStream(uri,"wt")){
                         if(out==null)throw new java.io.IOException("Destino indisponível");
-                        count=store.exportAttachmentArchive(out,password,active);
+                        count=full?store.exportFullVault(out,password,diary,active):store.exportAttachmentArchive(out,password,active);
                     }
-                    message="Backup de anexos salvo: "+count+" arquivo(s).";
+                    message=full?"Backup integral salvo: "+count+" registros.":"Backup de anexos salvo: "+count+" arquivo(s).";
                 }else{
                     try(InputStream in=getContentResolver().openInputStream(uri)){
                         if(in==null)throw new java.io.IOException("Arquivo indisponível");
-                        count=store.restoreAttachmentArchive(in,password,active);
+                        count=full?store.restoreFullVault(in,password,active):store.restoreAttachmentArchive(in,password,active);
                     }
-                    message="Restauração concluída: "+count+" anexo(s) novo(s).";
+                    restored=full;
+                    message=full?"Cofre restaurado: "+count+" registros. Desbloqueie novamente.":"Restauração concluída: "+count+" anexo(s) novo(s).";
                 }
             }catch(Exception e){
-                message=export?"Backup não concluído; descarte o arquivo incompleto.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
+                message=export?"Backup não concluído; descarte o arquivo incompleto.":full?"Restauração integral recusada: confira senha, integridade e se o cofre está vazio. Nenhum registro foi alterado.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
             }finally{
                 java.util.Arrays.fill(password,(char)0);archiveCancel=null;archiveBusy.set(false);
             }
-            final String result=message;
-            main.post(()->{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);}});
+            final String result=message;final boolean reload=restored;
+            main.post(()->{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);if(reload){initialUnlockDone=false;AgendaReminderReceiver.refresh(this);requestUnlock();}}});
         },"eco-attachment-archive").start();
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
-        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE)&&!privateOperationAuthorized()){
+        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE||code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE)&&!privateOperationAuthorized()){
             clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
             if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;
+            return;
+        }
+        if(code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE){
+            String pass=pendingPassword;boolean diary=pendingVaultDiary;clearPendingBackup();
+            if(!unlocked||archiveBusy.get()||pass==null||pass.length()<10||result!=RESULT_OK||data==null||data.getData()==null)return;
+            if(ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()||semanticBusy.get()){showToast("Finalize o processamento antes de continuar.");return;}
+            final Uri archiveUri=data.getData();
+            if(code==VAULT_EXPORT_CODE)runArchive(archiveUri,pass.toCharArray(),true,true,diary);
+            else new AlertDialog.Builder(this).setTitle("Restaurar cofre integral")
+                .setMessage("Somente um cofre vazio aceita esta restauração. Nenhum registro existente será apagado. O arquivo pode conter diário privado, se autorizado na exportação.")
+                .setNegativeButton("Cancelar",null)
+                .setPositiveButton("Restaurar",(d,w)->{if(privateOperationAuthorized()&&!archiveBusy.get())runArchive(archiveUri,pass.toCharArray(),false,true,false);}).show();
             return;
         }
         if(code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE){
