@@ -43,6 +43,9 @@ jobs:
       - name: Executar testes de logica
         run: |
           python3 qa/eco_security_policy.py
+          mkdir -p /tmp/eco-backup-stream-tests
+          javac -d /tmp/eco-backup-stream-tests app/src/main/java/br/com/tutorclinico/EcoBackupStream.java qa/EcoBackupStreamTest.java
+          java -Xmx32m -cp /tmp/eco-backup-stream-tests br.com.tutorclinico.EcoBackupStreamTest
           node qa/test.mjs
           mkdir -p /tmp/eco-spool-tests
           javac -d /tmp/eco-spool-tests app/src/main/java/br/com/tutorclinico/LiveSpoolInput.java app/src/main/java/br/com/tutorclinico/AuthenticatedSpoolReader.java qa/AuthenticatedSpoolReaderTest.java
