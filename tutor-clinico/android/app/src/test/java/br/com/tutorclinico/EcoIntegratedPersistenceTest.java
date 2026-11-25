@@ -114,4 +114,49 @@ public class EcoIntegratedPersistenceTest {
         System.out.println("ECO_SCALE_HOST cases=100 sessions="+total+" save_ms="+(saved-start)/1000000+" reopen_read_ms="+(read-saved)/1000000+" bytes="+result.toString().getBytes(StandardCharsets.UTF_8).length);
         store.getDbHelper().close();
     }
+
+    @Test public void batchedSegmentsPreserveOrderSpeakerAndPatientIsolation() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        JSONObject a=caseWith("batch-a",""), b=caseWith("batch-b","");
+        a.getJSONArray("sessoes").put(new JSONObject().put("id","batch-a-manual")
+            .put("data","2026-11-25").put("origem","manual").put("texto","Nota independente"));
+        store.save(new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b))
+            .put("appointments",new JSONArray()).toString());
+        EcoDatabaseHelper db=store.getDbHelper();
+        db.createJob("batch-job-a","batch-a","batch-a-s","fixture-a",new byte[32]);
+        db.createJob("batch-job-b","batch-b","batch-b-s","fixture-b",new byte[32]);
+        db.updateJobState("batch-job-a","PROCESSING","");
+        db.updateJobState("batch-job-b","PROCESSING","");
+        assertTrue(db.commitSegment("batch-job-a","batch-a","batch-a-s",200,300,"falante2","segundo",null));
+        assertTrue(db.commitSegment("batch-job-a","batch-a","batch-a-s",0,100,"falante1","primeiro",null));
+        assertTrue(db.commitSegment("batch-job-b","batch-b","batch-b-s",0,100,"falante1","exclusivo B",null));
+        assertFalse(db.commitSegment("batch-job-a","batch-b","batch-b-s",300,400,"falante1","vazamento",null));
+        db.close();
+        store=new SecureStore(context,key);
+        JSONObject restored=new JSONObject(store.read());
+        JSONObject patientA=byId(restored,"batch-a"),patientB=byId(restored,"batch-b");
+        JSONArray sessions=patientA.getJSONArray("sessoes");
+        JSONObject audio=null,manual=null;
+        for(int i=0;i<sessions.length();i++){
+            JSONObject session=sessions.getJSONObject(i);
+            if("batch-a-s".equals(session.getString("id")))audio=session;
+            if("batch-a-manual".equals(session.getString("id")))manual=session;
+        }
+        assertNotNull(audio);assertNotNull(manual);
+        JSONArray segments=audio.getJSONArray("segmentos");
+        assertEquals(2,segments.length());
+        assertEquals("primeiro",segments.getJSONObject(0).getString("text"));
+        assertEquals("segundo",segments.getJSONObject(1).getString("text"));
+        assertEquals("falante1",segments.getJSONObject(0).getString("cluster"));
+        assertEquals("desconhecido",segments.getJSONObject(0).getString("speaker"));
+        assertEquals("primeiro segundo",audio.getString("texto"));
+        assertEquals("Nota independente",manual.getString("texto"));
+        assertFalse(manual.has("segmentos"));
+        assertFalse(patientA.toString().contains("exclusivo B"));
+        assertFalse(patientB.toString().contains("primeiro"));
+        assertEquals("exclusivo B",patientB.getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        store.getDbHelper().close();
+    }
 }
