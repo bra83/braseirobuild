@@ -1883,7 +1883,7 @@ function ecoWorkspace(){
  return out;
 }
 
-let ecoAtlasTab="recorrencias";
+let ecoAtlasTab="recorrencias",ecoAtlasFrom="",ecoAtlasTo="",ecoAtlasMode="todos",ecoAtlasPage=0;
 let ecoSymbolSearch="";
 let ecoDocType="ficha";
 let ecoDocConfirmed=false;
@@ -2768,13 +2768,16 @@ function ecoRenderDocuments(c){
    '</div>'+
    '</section>';
 }
+function ecoAtlasFiltered(c,from,to,mode){
+ return [...(c.sessoes||[])].filter(s=>(!from||s.data>=from)&&(!to||s.data<=to)&&(mode==='todos'||(mode==='manual'?s.origem==='manual':s.origem!=='manual'))).sort((a,b)=>String(b.data||'').localeCompare(String(a.data||''))||String(b.hora||'').localeCompare(String(a.hora||'')));
+}
 function ecoAtlasScreen(){
  const count=state.cases.reduce((s,c)=>s+(c.sessoes||[]).length,0);
  let out=head("ECO / atlas","Memória das sessões","Recorrências documentadas — cada marcação remete a uma sessão, sem interpretação automatizada.");
  out+='<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+count+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+state.cases.reduce((n,c)=>n+ecoSummary(c).mentions,0)+'</strong><span>Marcações</span></div></div>';
  if(!state.cases.length)return out+'<div class="card empty">Crie um caso fictício para começar.</div>';
  out+='<div class="field"><label for="ecoAtlasCase">Escolher caso</label><select id="ecoAtlasCase" data-eco-atlas-case>'+state.cases.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===(ecoOverviewCase||state.cases[0].id)?'selected':'')+'>'+caseName(c)+'</option>').join('')+'</select></div>';
- const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=c.sessoes||[];
+ const c=state.cases.find(c=>c.id===(ecoOverviewCase||state.cases[0].id))||state.cases[0],ss=ecoAtlasFiltered(c,ecoAtlasFrom,ecoAtlasTo,ecoAtlasMode);
  const atlasTabs=[
   ['recorrencias','Recorrências & Histórico'],
   ['sonhos','Sonhos & Símbolos'],
@@ -2793,7 +2796,8 @@ function ecoAtlasScreen(){
  if(ecoAtlasTab==="diario")return out+ecoRenderTherapistDiary(c);
  if(ecoAtlasTab==="seguranca")return out+ecoRenderClinicalSafety(c);
  if(ecoAtlasTab==="documentos")return out+ecoRenderDocuments(c);
- out+=ecoAtlasLongitudinal(c);
+ out+='<section class="card"><h2>Filtrar histórico deste caso</h2><div class="split"><div class="field"><label>De</label><input type="date" id="ecoAtlasFrom" value="'+esc(ecoAtlasFrom)+'"></div><div class="field"><label>Até</label><input type="date" id="ecoAtlasTo" value="'+esc(ecoAtlasTo)+'"></div></div><div class="field"><label>Origem</label><select id="ecoAtlasMode">'+[['todos','Todas'],['manual','Manual'],['audio','Áudio/outros']].map(([k,v])=>'<option value="'+k+'" '+(ecoAtlasMode===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>'+btn('Aplicar filtros','ecoAtlasFilter','secondary')+btn('Limpar filtros','ecoAtlasClear','ghost')+'</section>';
+ out+=ecoAtlasLongitudinal({...c,sessoes:ss,sonhosList:(c.sonhosList||[]).filter(d=>ecoAtlasMode==='todos'||(d.sessionId&&ss.some(s=>s.id===d.sessionId)))},{docDateFrom:ecoAtlasFrom,docDateTo:ecoAtlasTo});
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
  const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionId:s.id,sessionDate:s.data}))).slice(-150);
@@ -2828,8 +2832,8 @@ function ecoAtlasScreen(){
  if(stale.length)out+='<div class="eco-outline"><h2>Referências desatualizadas ('+stale.length+')</h2>'+
  '<p class="eco-caption">Menções anteriormente confirmadas cujo trecho não corresponde mais ao texto revisado. Não são tratadas como evidência válida.</p>'+
  stale.slice(0,25).map(e=>'<div class="eco-evidence">'+esc(formatDate(e.sessionDate))+' · '+esc(e.label)+' — “'+esc(e.quote)+'”</div>').join('')+'</div>';
- out+='<div class="eco-outline"><h2>Histórico das sessões</h2>'+ (ss.length?[...ss].sort((a,b)=>(b.data||'').localeCompare(a.data||'')).map(s=>'<div class="eco-evidence"><strong>'+esc(formatDate(s.data))+'</strong> <span class="eco-pill">'+(s.mlSegments?.length||0)+' trechos de áudio transcritos</span><p>'+esc((s.mlRevisada||s.texto||s.mlTranscricao||"Sem resumo").slice(0,270))+'</p><small>'+esc((s.mlTags||[]).slice(0,9).join(' · '))+'</small></div>').join(''):'<p class="muted">Nenhuma sessão registrada.</p>')+'</div>';
- return out;
+ out+='<div class="eco-outline"><h2>Histórico das sessões</h2>'+ (ss.length?ss.slice(ecoAtlasPage*30,ecoAtlasPage*30+30).map(s=>'<div class="eco-evidence"><strong>'+esc(formatDate(s.data))+'</strong> <span class="eco-pill">'+(s.mlSegments?.length||0)+' trechos de áudio transcritos</span><p>'+esc((s.mlRevisada||s.texto||s.mlTranscricao||"Sem resumo").slice(0,270))+'</p><small>'+esc((s.mlTags||[]).slice(0,9).join(' · '))+'</small>'+btn('Abrir sessão','ecoAtlasOpenSession','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(s.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma sessão registrada.</p>')+'</div>';
+ out+='<div class="actions">'+(ecoAtlasPage>0?btn('Anterior','ecoAtlasPrev','secondary'):'')+(ss.length>(ecoAtlasPage+1)*30?btn('Próximas 30','ecoAtlasNext','secondary'):'')+'</div>';return out;
 }
 const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
@@ -2875,6 +2879,19 @@ act=function(name,id,button){
    }
   }
 
+  if(name==="ecoAtlasFilter"||name==="ecoAtlasClear"){
+   if(screen!=='atlas')return;
+   const from=name==='ecoAtlasClear'?'':document.getElementById('ecoAtlasFrom')?.value||'',to=name==='ecoAtlasClear'?'':document.getElementById('ecoAtlasTo')?.value||'',mode=name==='ecoAtlasClear'?'todos':document.getElementById('ecoAtlasMode')?.value||'todos';
+   if((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)||!['todos','manual','audio'].includes(mode)){notify('Filtro inválido.','red');return;}
+   ecoAtlasFrom=from;ecoAtlasTo=to;ecoAtlasMode=mode;ecoAtlasPage=0;render();return;
+  }
+  if(name==='ecoAtlasPrev'||name==='ecoAtlasNext'){if(screen!=='atlas')return;const c=state.cases.find(x=>x.id===(ecoOverviewCase||state.cases[0]?.id));if(!c)return;const n=ecoAtlasFiltered(c,ecoAtlasFrom,ecoAtlasTo,ecoAtlasMode).length;ecoAtlasPage=Math.min(Math.max(0,Math.ceil(n/30)-1),Math.max(0,ecoAtlasPage+(name==='ecoAtlasPrev'?-1:1)));render();return;}
+  if(name==='ecoAtlasOpenSession'){
+   if(screen!=='atlas'||ecoIsCapturing()||ecoIsPaused())return;
+   const c=state.cases.find(x=>x.id===(ecoOverviewCase||state.cases[0]?.id));
+   if(!c||button?.dataset?.case!==c.id||!c.sessoes?.some(s=>s.id===id))return;
+   openedId=c.id;act('editSession',id,button);return;
+  }
   if(name==="ecoAtlasTab"){ecoAtlasTab=id;render();return;}
   if(name==="newManualSession"){
     const caseId=button?.dataset?.case||id||openedId;
@@ -3380,7 +3397,7 @@ act=function(name,id,button){
     ecoWorkspaceTab=(name==="editSession"?"analise":"captura");
     ecoReferenceText="";ecoBenchmarkResult=null;ecoTimelineQuery="";ecoSelectedWord="";ecoAnalysisScope="paciente";render();
   }
-  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null}
+  if(name==="nav"&&id==="atlas"&&previous!=="atlas"){ecoOverviewCase=openedId||state?.cases?.[0]?.id||null;ecoAtlasPage=0;ecoAtlasFrom='';ecoAtlasTo='';ecoAtlasMode='todos'}
   return result;
 };
 document.addEventListener("input",e=>{
@@ -3419,7 +3436,7 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=["base","small","tagarela","vosk"].includes(e.target.value)?e.target.value:"small"}
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela","vosk"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
- if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoDocSessionId='';ecoDocConfirmed=false;ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;render()}
+ if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoAtlasPage=0;ecoAtlasFrom='';ecoAtlasTo='';ecoAtlasMode='todos';ecoDocSessionId='';ecoDocConfirmed=false;ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;render()}
  if(e.target?.dataset?.ecoDocSession!==undefined){ecoDocSessionId=e.target.value||'';ecoDocConfirmed=false;render();return;}
  if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;ecoDocConfirmed=false;for(const k of Object.keys(ecoDocSections))ecoDocSections[k]=ecoDocPreset(ecoDocType).includes(k);render();return;}
  if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;ecoDocConfirmed=false;render();return;}
