@@ -214,6 +214,7 @@ public final class MainActivity extends Activity {
     }
     private void beginCapture(){
         if(!unlocked)return;
+        if(semanticBusy.get()){jsCallback("nativeMlState","ERRO: análise semântica em andamento");return;}
         if(checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED){
             requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},MIC_PERMISSION);
             return;
@@ -234,6 +235,7 @@ public final class MainActivity extends Activity {
     }
     private void openAudioSaf(Uri uri){
         if(!unlocked){jsCallback("nativeMlState","ERRO ARQUIVO: app bloqueado");return;}
+        if(semanticBusy.get()){jsCallback("nativeMlState","ERRO: análise semântica em andamento");return;}
         try(Cursor cur=getContentResolver().query(uri,new String[]{OpenableColumns.SIZE},null,null,null)){
             if(cur!=null && cur.moveToFirst()){
                 int col=cur.getColumnIndex(OpenableColumns.SIZE);
@@ -253,6 +255,7 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String analyzeSemantic(String json){
             if(!unlocked)return "ECO bloqueado";
+            if(ml.isRecording()||ml.isTranscribing())return "Motor de áudio ocupado";
             if(json==null||json.length()>500000)return "Solicitação acima do limite";
             final JSONObject req;
             try{req=new JSONObject(json);}catch(Exception e){return "Solicitação inválida";}
@@ -403,12 +406,12 @@ public final class MainActivity extends Activity {
                 for (JSONObject j : jobs) { j.remove("audio_path"); arr.put(j); }
                 return arr.toString();
             } catch (Exception e) {
-                return "[]";
+                return "{\"__loadError\":\"Falha ao consultar gravações pendentes\"}";
             }
         }
 
         @JavascriptInterface public boolean resumeJob(String jobId) {
-            if (!unlocked || ml == null) return false;
+            if (!unlocked || ml == null || semanticBusy.get()) return false;
             if (ml.isRecording() || ml.isTranscribing() || ml.isPaused()) return false;
             JSONObject job = store.getDbHelper().getJob(jobId);
             if (job == null) return false;

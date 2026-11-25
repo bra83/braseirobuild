@@ -31,6 +31,7 @@ final class SessionRecorder {
         void ready(File temporarySpool, long durationMs, byte[] ephemeralKey);
         default void ready(File temporarySpool, long durationMs) { ready(temporarySpool, durationMs, null); }
         void error(String value);
+        default void failed(File spool, byte[] key, String message) { error(message); }
         void acoustic(String measurementJson);
     }
 
@@ -78,6 +79,8 @@ final class SessionRecorder {
         File file = null;
         long bytes = 0;
         boolean good = false;
+        boolean linked = false;
+        String failure = "ERRO GRAVAÇÃO";
         AcousticMeter meter = new AcousticMeter();
         byte[] ephemeralKey = new byte[32];
         RNG.nextBytes(ephemeralKey);
@@ -107,6 +110,7 @@ final class SessionRecorder {
             // Persist audio spool path and encrypted key before audio recording begins!
             wav.getFD().sync();
             events.onStarted(file, ephemeralKey);
+            linked = true;
 
             audio.startRecording();
             if (audio.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING)
@@ -150,6 +154,7 @@ final class SessionRecorder {
 
                 if (System.currentTimeMillis() - lastNotice >= 3000) {
                     lastNotice = System.currentTimeMillis();
+                    wav.getFD().sync();
                     events.status("GRAVANDO · " + (bytes / (RATE * 2L)) + " s · PARAR PARA TRANSCREVER");
                 }
             }
@@ -178,7 +183,7 @@ final class SessionRecorder {
             wav.getFD().sync();
             good = true;
         } catch (Throwable e) {
-            events.error("ERRO GRAVAÇÃO: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+            failure = "ERRO GRAVAÇÃO: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
         } finally {
             recording.set(false);
             if (audio != null) {
@@ -189,11 +194,11 @@ final class SessionRecorder {
 
             if (good && file != null) {
                 events.ready(file,bytes * 1000L / (RATE * 2L), ephemeralKey);
-            } else if (file != null && bytes == 0) {
-                wipeAndClean(file, ephemeralKey);
-            } else if (file != null) {
-                // Preserve authenticated prefix; never label an interrupted capture complete.
-                events.status("FALHA · GRAVAÇÃO INCOMPLETA RETIDA PARA RECUPERAÇÃO");
+            } else if (file != null && bytes > 0 && linked) {
+                events.failed(file,ephemeralKey,failure);
+            } else {
+                if(file!=null)wipeAndClean(file,ephemeralKey);
+                events.failed(null,null,failure);
             }
         }
     }

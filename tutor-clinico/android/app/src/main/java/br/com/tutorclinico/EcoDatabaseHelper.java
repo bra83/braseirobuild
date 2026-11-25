@@ -291,6 +291,10 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                         "SELECT id, created_at, updated_at, payload_enc FROM " + pacSrc + ";");
             }
 
+            // Legacy v1 used clear-text demographics. Keep the values inside the
+            // authenticated payload before dropping the source table.
+            if (!hasUnderscorePacientes && tableExists(db, pacSrc)) migrateLegacyPatientMetadata(db, pacSrc);
+
             // 3. Copy other tables with nominal column lists to preserve data across schema variations
             if (tableExists(db, "sessoes")) {
                 boolean hasHora = false;
@@ -469,6 +473,27 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
 
+        }
+    }
+
+    private void migrateLegacyPatientMetadata(SQLiteDatabase db, String source) {
+        String[] fields = {"nome", "idade", "modalidade", "status"};
+        try (Cursor c = db.query(source, null, null, null, null, null, null)) {
+            while (c.moveToNext()) {
+                String id = c.getString(c.getColumnIndexOrThrow("id"));
+                JSONObject payload = new JSONObject(decrypt(c.getBlob(c.getColumnIndexOrThrow("payload_enc"))));
+                for (String field : fields) {
+                    int col = c.getColumnIndex(field);
+                    if (col >= 0 && !c.isNull(col) && (!payload.has(field) || payload.isNull(field) || payload.optString(field).isEmpty()))
+                        payload.put(field, c.getString(col));
+                }
+                ContentValues cv = new ContentValues();
+                cv.put("payload_enc", encrypt(payload.toString()));
+                if (db.update("_pacientes_v3", cv, "id = ?", new String[]{id}) != 1)
+                    throw new IllegalStateException("Paciente legado não preservado");
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Migração de dados legados interrompida; dados originais mantidos", e);
         }
     }
 
@@ -683,7 +708,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                 cv.put("id", obj.optString("id", java.util.UUID.randomUUID().toString()));
                 cv.put("case_id", caseId);
                 cv.put("data", obj.optString("data", ""));
-                cv.put("categoria", obj.optString("categoria", ""));
+                cv.putNull("categoria"); // category is inside entry_enc, never in new clear-text rows
                 cv.put("created_at", System.currentTimeMillis());
                 cv.put("entry_enc", encrypt(obj.toString()));
                 db.insertOrThrow("diario_privado", null, cv);
@@ -912,8 +937,8 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
             cv.put("audio_path", "");
             cv.put("updated_at", System.currentTimeMillis());
             int rows = db.update("processamento_jobs", cv,
-                    "job_id = ? AND state IN ('PROCESSING','PAUSED','DECODED_VERIFIED') AND committed_segments = ? AND (SELECT COUNT(*) FROM segmentos WHERE job_id = ?) = ?",
-                    new String[]{jobId.trim(), String.valueOf(finalTotalSegments), jobId.trim(), String.valueOf(finalTotalSegments)});
+                    "job_id = ? AND state IN ('COMMITTED','COMPLETED','DISCARDED','FAILED_EMPTY')",
+                    new String[]{jobId.trim()});
             return rows == 1;
         } catch (Exception e) {
             android.util.Log.e("EcoDatabaseHelper", "Falha ao limpar chave do job: " + jobId, e);
@@ -937,7 +962,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                 o.put("checkpoint_offset_ms", c.getLong(c.getColumnIndexOrThrow("checkpoint_offset_ms")));
                 list.add(o);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) { throw new IllegalStateException("Falha ao listar trabalhos recuperáveis", e); }
         return list;
     }
 

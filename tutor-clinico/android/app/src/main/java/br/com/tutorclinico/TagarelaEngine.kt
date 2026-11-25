@@ -11,20 +11,29 @@ internal class TagarelaEngine(context: Context): AutoCloseable {
 
     companion object {
         @Volatile private var cachedInstance: TagarelaEngine? = null
+        private var leases = 0
+        private var releasePending = false
 
         @Synchronized
         fun getOrCreate(context: Context): TagarelaEngine {
-            val existing = cachedInstance
-            if (existing != null) return existing
-            val created = TagarelaEngine(context.applicationContext)
-            cachedInstance = created
-            return created
+            val engine = cachedInstance ?: TagarelaEngine(context.applicationContext).also { cachedInstance = it }
+            leases++
+            return engine
+        }
+
+        @Synchronized
+        fun releaseLease(engine: TagarelaEngine) {
+            check(cachedInstance === engine && leases > 0) { "Invalid TAGARELA lease" }
+            leases--
+            if (leases == 0 && releasePending) releaseCached()
         }
 
         @Synchronized
         fun releaseCached() {
+            if (leases > 0) { releasePending = true; return }
             cachedInstance?.close()
             cachedInstance = null
+            releasePending = false
         }
     }
 
@@ -55,6 +64,7 @@ internal class TagarelaEngine(context: Context): AutoCloseable {
                 tokens=File(root,"tokens.txt").absolutePath,modelType="nemo_transducer",numThreads=4,debug=false,provider="cpu"),
             decodingMethod="greedy_search"))
     }
+    @Synchronized
     fun decode(pcm:ByteArray):List<Span>{
         val audio=FloatArray(pcm.size/2){i->((pcm[2*i].toInt() and 255) or (pcm[2*i+1].toInt() shl 8)).toShort()/32768f}
         val stream=recognizer.createStream()

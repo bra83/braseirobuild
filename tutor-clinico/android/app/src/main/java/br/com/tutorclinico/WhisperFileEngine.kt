@@ -63,7 +63,12 @@ object WhisperFileEngine {
 
     @JvmStatic
     fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
-                   resumeFromMs: Long, clusters: SpeakerClusters?): Boolean {
+                   resumeFromMs: Long, clusters: SpeakerClusters?): Boolean =
+        transcribe(context,uri,listener,requestedModel,resumeFromMs,clusters,null,false)
+
+    @JvmStatic
+    fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
+                   resumeFromMs: Long, clusters: SpeakerClusters?, key: ByteArray?, allowInterrupted: Boolean): Boolean {
         if (!listener.isActive()) return false
         var model: WhisperModel? = null
         var tagarela: TagarelaEngine? = null
@@ -98,7 +103,7 @@ object WhisperFileEngine {
                     val remaining = size - offset
                     if (remaining > 0) chunks.accept(pcm.copyOfRange(offset, size), remaining)
                 }
-            }, MlSessionEngine.getActiveEphemeralKey())
+            }, key, allowInterrupted)
             listener.chunksProcessed(chunksCount)
             if (!listener.isActive()) return false
             chunks.finish()
@@ -111,7 +116,8 @@ object WhisperFileEngine {
             return false
         } finally {
             try {diarizer?.close()}catch(_:Throwable){}
-            // Tagarela instance is preserved warm in TagarelaEngine.cachedInstance for instant reuse
+            // Release the lease; a memory-trim request cannot close a live recognizer.
+            tagarela?.let { TagarelaEngine.releaseLease(it) }
             model?.let { try { Whisper.releaseModel(it) } catch (_: Throwable) { } }
         }
     }

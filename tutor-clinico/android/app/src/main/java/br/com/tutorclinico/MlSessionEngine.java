@@ -39,6 +39,7 @@ final class MlSessionEngine implements RecognitionListener {
     private volatile boolean pauseRequested, paused, discarding;
     private volatile long resumeFromMs;
     private volatile boolean recordingRequested;
+    private boolean recoveryMode;
     private volatile boolean deferRecognitionUntilResume;
     private Uri pendingFile;
     private String fileModelName="small";
@@ -61,6 +62,7 @@ final class MlSessionEngine implements RecognitionListener {
         speakerClusters.clear();
         wanted=true;
         recordingRequested=true;
+        recoveryMode=false;
         sessionEmittedSegments=0;
         lastChunksProcessed=0;
         pauseRequested=false;paused=false;discarding=false;userExplicitDiscard=false;resumeFromMs=0L;
@@ -87,6 +89,20 @@ final class MlSessionEngine implements RecognitionListener {
             @Override public void error(String s){
                 synchronized(MlSessionEngine.this){wanted=false;recordingRequested=false;recorder=null;}
                 if(!destroyed)events.state(s);
+            }
+            @Override public void failed(File file, byte[] ephemeralKey, String message){
+                synchronized(MlSessionEngine.this){
+                    recordingRequested=false;recorder=null;wanted=false;
+                    if(file!=null && file.isFile()){
+                        recordedFile=file;recordedEphemeralKey=ephemeralKey;
+                        retainedUri=Uri.fromFile(file);paused=true;recoveryMode=true;
+                        events.state("FALHA NA TRANSCRIÇÃO · CAPTURA INTERROMPIDA · RETOME PARA RECUPERAR TRECHOS");
+                    }else{
+                        recordedFile=null;recordedEphemeralKey=null;setActiveEphemeralKey(null);
+                        try{store.getDbHelper().updateJobState(currentJobId,"FAILED_EMPTY",null);store.getDbHelper().clearJobAudioKey(currentJobId);}catch(Exception e){Log.e("MlSessionEngine","Limpeza pendente",e);}
+                        events.state(message);
+                    }
+                }
             }
             @Override public void ready(File file,long durationMs,byte[] ephemeralKey){
                 synchronized(MlSessionEngine.this){
@@ -143,6 +159,7 @@ final class MlSessionEngine implements RecognitionListener {
     synchronized void importFile(Uri uri,String modelName) {
         if (busy() || destroyed || hasPendingAudio() || currentJobId.isEmpty()) { events.state("ERRO · CONTEXTO INDISPONÍVEL OU OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
+        recoveryMode=false;
         fileModelName = "tagarela".equals(modelName)?"tagarela":"base".equals(modelName)?"base":"small";
         setActiveEphemeralKey(null);
         speakerClusters.clear();
@@ -193,6 +210,8 @@ final class MlSessionEngine implements RecognitionListener {
         final Uri selected=retainedUri;
         final String selectedModel=fileModelName;
         final long fromMs=resumeFromMs;
+        final byte[] key=recordedEphemeralKey==null?null:recordedEphemeralKey.clone();
+        final boolean allowInterrupted=recoveryMode;
         pendingFile=null;
         paused=false;pauseRequested=false;
         final int mine=++generation;
@@ -256,13 +275,14 @@ final class MlSessionEngine implements RecognitionListener {
                                         resumeFromMs=processedMs;
                                 }
                             }
-                        },selectedModel,fromMs,clusters);
+                        },selectedModel,fromMs,clusters,key,allowInterrupted);
             } catch(Throwable e) {
                 synchronized(MlSessionEngine.this){
                     if(!destroyed && mine==generation && !pauseRequested && !discarding)
                         events.state("ERRO TRANSCRIÇÃO: "+(e.getMessage()==null?"falha interna":e.getMessage()));
                 }
             } finally {
+                if(key!=null)java.util.Arrays.fill(key,(byte)0);
                 synchronized(MlSessionEngine.this) {
                     if(mine==generation){
                         importing=false;fileWorker=null;
@@ -271,6 +291,10 @@ final class MlSessionEngine implements RecognitionListener {
                         if(pauseRequested && wanted && !discarding && !destroyed) {
                             paused=true;pauseRequested=false;
                             events.state("PAUSADO · "+(resumeFromMs/1000)+"s PROCESSADOS · REVISE OU RETOME");
+                        } else if (success && lastChunksProcessed < 0 && !discarding && !destroyed) {
+                            wanted=false;paused=true;
+                            // The verified prefix has been durably stored. No complete-EOF ACK.
+                            events.state("FALHA NA TRANSCRIÇÃO · GRAVAÇÃO INCOMPLETA · TRECHOS RECUPERADOS; REVISE E DESCARTE O ÁUDIO RESTANTE");
                         } else if (success && !discarding && !destroyed) {
                             // P0-01/P0-02: Mark job as DECODED_VERIFIED in database using verified counts!
                             boolean markOk = false;
@@ -408,7 +432,7 @@ final class MlSessionEngine implements RecognitionListener {
     }
 
     synchronized boolean resumeJob(String jobId) {
-        if (busy() || destroyed || jobId == null || jobId.isEmpty()) return false;
+        if (busy() || destroyed || jobId == null || jobId.isEmpty() || (recordedFile != null && !jobId.equals(currentJobId))) return false;
         try {
             EcoDatabaseHelper dbHelper = store.getDbHelper();
             JSONObject job = dbHelper.getJob(jobId);
@@ -424,6 +448,7 @@ final class MlSessionEngine implements RecognitionListener {
             if (!java.util.Arrays.asList("tagarela","base","small").contains(savedModel)) savedModel = "tagarela";
             setJobContext(jobId, job.optString("case_id"), job.optString("session_id"));
             fileModelName = savedModel;
+            recoveryMode = true;
             dbHelper.updateJobState(jobId, "PROCESSING", null);
             recordedFile = file;
             recordedEphemeralKey = key;

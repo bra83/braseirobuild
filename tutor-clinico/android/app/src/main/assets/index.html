@@ -768,7 +768,7 @@ function ecoRecoverJob(job){
  const c=state.cases.find(x=>x.id===job.case_id);
  const saved=c?.sessoes?.find(x=>x.id===job.session_id);
  if(!c||!saved)return notify("Sessão de recuperação não localizada.",'red');
- if(!window.confirm("Retomar esta gravação previamente autorizada?"))return;
+ if(!window.confirm("Retomar esta gravação previamente autorizada? Se estiver incompleta, serão recuperados somente os blocos válidos, sem confirmação de sessão completa."))return;
  const previous={openedId,screen,sessionDraft,editSessionId,ecoActiveJobId};
  openedId=c.id;sessionDraft=JSON.parse(JSON.stringify(saved));editSessionId=saved.id;
  const draftRaw=window.NativeVault.loadCaseDraft?.(c.id);

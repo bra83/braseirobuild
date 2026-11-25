@@ -209,7 +209,7 @@ public class RobolectricConsecutiveSessionsTest {
      * Verifies that legacy 0.17 sessoes.hora and diario_privado.categoria are preserved bijectively.
      */
     @Test
-    public void testMigrationFromV17PreservesHoraAndCategoria() {
+    public void testMigrationFromV17PreservesHoraAndCategoria() throws Exception {
         SQLiteDatabase db = SQLiteDatabase.create(null);
         db.execSQL("PRAGMA foreign_keys = ON;");
 
@@ -281,7 +281,7 @@ public class RobolectricConsecutiveSessionsTest {
                 ");");
 
         // Seed legacy data
-        db.execSQL("INSERT INTO pacientes VALUES('P1', 'Paciente V17', 1000, 1000, x'0102')");
+        db.execSQL("INSERT INTO pacientes VALUES('P1', 'Paciente V17', 1000, 1000, ?)", new Object[]{dbHelper.encrypt("{}")});
         db.execSQL("INSERT INTO sessoes VALUES('S1', 'P1', '2026-01-15', '15:30', 'audio', 1000, 1000, x'0304')");
         db.execSQL("INSERT INTO diario_privado VALUES('D1', 'P1', '2026-01-15', 'Reflexão', 1000, x'0506')");
 
@@ -292,6 +292,11 @@ public class RobolectricConsecutiveSessionsTest {
         // Verify foreign key integrity post-migration
         try (Cursor c = db.rawQuery("PRAGMA foreign_key_check", null)) {
             assertEquals("Zero FK errors after migration", 0, c.getCount());
+        }
+
+        try (Cursor c = db.rawQuery("SELECT payload_enc FROM _pacientes WHERE id='P1'", null)) {
+            assertTrue(c.moveToFirst());
+            assertEquals("Paciente V17", new JSONObject(dbHelper.decrypt(c.getBlob(0))).getString("nome"));
         }
 
         // Verify sessoes preserves hora
@@ -312,6 +317,38 @@ public class RobolectricConsecutiveSessionsTest {
             assertEquals("2026-01-15", c.getString(2));
             assertEquals("Reflexão", c.getString(3)); // categoria PRESERVED!
         }
+    }
+
+    @Test
+    public void testVersionFourMigrationThroughSQLiteOpenHelper() throws Exception {
+        dbHelper.close();
+        context.deleteDatabase("eco_vault.db");
+        java.io.File file = context.getDatabasePath("eco_vault.db");
+        file.getParentFile().mkdirs();
+        try (SQLiteDatabase legacy = SQLiteDatabase.openOrCreateDatabase(file, null)) {
+            legacy.execSQL("PRAGMA foreign_keys=ON");
+            legacy.execSQL("CREATE TABLE _pacientes(id TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,payload_enc BLOB NOT NULL)");
+            legacy.execSQL("CREATE VIEW pacientes AS SELECT id,CAST(NULL AS TEXT) AS nome,created_at,updated_at,payload_enc FROM _pacientes");
+            legacy.execSQL("CREATE TABLE sessoes(id TEXT PRIMARY KEY NOT NULL,case_id TEXT NOT NULL REFERENCES _pacientes(id) ON DELETE CASCADE,data TEXT NOT NULL,origem TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,payload_enc BLOB NOT NULL,UNIQUE(id,case_id))");
+            legacy.execSQL("CREATE TABLE processamento_jobs(job_id TEXT PRIMARY KEY NOT NULL,case_id TEXT NOT NULL,session_id TEXT NOT NULL,audio_path TEXT NOT NULL,audio_key_enc BLOB,state TEXT NOT NULL,total_segments INTEGER DEFAULT 0,committed_segments INTEGER DEFAULT 0,checkpoint_offset_ms INTEGER DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,error_message TEXT,eof_verified INTEGER NOT NULL DEFAULT 0,UNIQUE(job_id,case_id,session_id),FOREIGN KEY(session_id,case_id) REFERENCES sessoes(id,case_id) ON DELETE CASCADE)");
+            legacy.execSQL("CREATE TABLE segmentos(id TEXT PRIMARY KEY NOT NULL,job_id TEXT NOT NULL,session_id TEXT NOT NULL,case_id TEXT NOT NULL,speaker TEXT NOT NULL,speaker_confirmed INTEGER DEFAULT 0,start_ms INTEGER NOT NULL,end_ms INTEGER NOT NULL,text_enc BLOB NOT NULL,checksum TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'committed',created_at INTEGER NOT NULL,FOREIGN KEY(job_id,case_id,session_id) REFERENCES processamento_jobs(job_id,case_id,session_id) ON DELETE CASCADE,FOREIGN KEY(session_id,case_id) REFERENCES sessoes(id,case_id) ON DELETE CASCADE)");
+            legacy.execSQL("INSERT INTO _pacientes VALUES('P',1,1,?)",new Object[]{dbHelper.encrypt("{\"nome\":\"Fictício\"}")});
+            legacy.execSQL("INSERT INTO sessoes VALUES('S','P','2026-01-01','audio',1,1,?)",new Object[]{dbHelper.encrypt("{}")});
+            legacy.execSQL("INSERT INTO processamento_jobs(job_id,case_id,session_id,audio_path,state,total_segments,committed_segments,created_at,updated_at,eof_verified) VALUES('J','P','S','','COMMITTED',1,1,1,1,1)");
+            legacy.execSQL("INSERT INTO segmentos(id,job_id,session_id,case_id,speaker,start_ms,end_ms,text_enc,checksum,created_at) VALUES('T','J','S','P','paciente',0,1000,?,'chk',1)",new Object[]{dbHelper.encrypt("trecho fictício")});
+            legacy.setVersion(4);
+        }
+        store = new SecureStore(context, new SecretKeySpec(new byte[32], "AES"));
+        dbHelper=store.getDbHelper();
+        SQLiteDatabase upgraded=dbHelper.getWritableDatabase();
+        assertEquals(5,upgraded.getVersion());
+        assertTrue(upgraded.isDatabaseIntegrityOk());
+        assertTrue(dbHelper.isJobCommitted("J"));
+        try(Cursor c=upgraded.rawQuery("SELECT text_enc FROM segmentos WHERE id='T'",null)){
+            assertTrue(c.moveToFirst());assertEquals("trecho fictício",dbHelper.decrypt(c.getBlob(0)));
+        }
+        try(Cursor c=upgraded.rawQuery("PRAGMA foreign_key_check",null)){assertEquals(0,c.getCount());}
+        try(Cursor c=upgraded.rawQuery("SELECT hora FROM sessoes WHERE id='S'",null)){assertTrue(c.moveToFirst());assertTrue(c.isNull(0));}
     }
 
     /**
