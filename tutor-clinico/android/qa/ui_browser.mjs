@@ -44,6 +44,28 @@ try{
  await page.locator('[data-act="saveManualSession"]').click();
  assert.ok(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-b').sessoes.some(s=>s.texto==='Nota de teste sem áudio.')));
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').sessoes.length),0);
+ // Dream form uses literal suggestions, preserves professional input, and does not auto-save.
+ await home();await tile('sonhos').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+ await page.locator('#dreamTexto').fill('Sonhei com minha mãe na cozinha. Não senti medo. Senti alegria. Vi uma porta.');
+ await page.locator('#dreamPersonagens').fill('Figura já revisada');
+ await page.locator('[data-act="ecoDreamExtractFields"]').click();
+ assert.equal(await page.locator('#dreamPersonagens').inputValue(),'Figura já revisada');
+ assert.match(await page.locator('#dreamLugares').inputValue(),/cozinha/);
+ assert.equal(await page.locator('#dreamAfetos').inputValue(),'alegria');
+ assert.match(await page.locator('#dreamSimbolos').inputValue(),/porta/);
+ assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-b').sonhosList?.length||0),0);
+ const samples=await page.evaluate(()=>{
+  const c={id:'test-dream',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:'Sonhei com uma casa. Senti medo.'}],sonhosList:[]};
+  const d=ecoDreamCandidates(c)[0];c.sonhosList.push({...d,originKey:'old-key',originalQuote:d.texto});
+  return {first:d,duplicates:ecoDreamCandidates(c).length,sizes:[1,3,10,100].map(count=>ecoCloudSize(count,[{count:1},{count:100}]))};
+ });
+ assert.match(samples.first.texto,/Sonhei/);assert.equal(samples.duplicates,0);
+ assert.ok(samples.sizes.every((x,i,a)=>i===0||x>a[i-1]));
+ await home();await tile('genograma').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+ const graph=page.locator('.eco-genogram-svg');assert.equal(await graph.count(),1);
+ assert.equal(await graph.getAttribute('viewBox'),'0 0 360 480');
+ assert.ok(await graph.locator('g.gen-node title').count()>=1);
+ await graph.screenshot({path:path.join(out,'genograma-legivel.png')});
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
