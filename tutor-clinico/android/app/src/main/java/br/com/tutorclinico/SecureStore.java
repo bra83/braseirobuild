@@ -269,11 +269,27 @@ final class SecureStore {
                     dbHelper.savePrivateDiary(caseId, legacyDiary.toString());
                 }
                 if (sessoes != null) {
+                    // Compare authenticated existing payloads in one scoped query.
+                    // Unchanged sessions retain their ciphertext and timestamps, avoiding
+                    // WAL amplification when only a patient field or another session changes.
+                    java.util.Map<String, byte[]> existingSessions = new java.util.HashMap<>();
+                    try (Cursor existing = db.query("sessoes", new String[]{"id", "payload_enc"},
+                            "case_id = ?", new String[]{caseId}, null, null, null)) {
+                        while (existing.moveToNext()) {
+                            existingSessions.put(existing.getString(0), existing.getBlob(1));
+                        }
+                    }
                     for (int s = 0; s < sessoes.length(); s++) {
                         JSONObject sObj = sessoes.getJSONObject(s);
                         String sId = sObj.optString("id", java.util.UUID.randomUUID().toString());
                         String sData = sObj.optString("data", "");
                         String sOrigem = sObj.optString("origem", "audio");
+
+                        String sessionPayload = sObj.toString();
+                        byte[] existingPayload = existingSessions.get(sId);
+                        if (existingPayload != null && sessionPayload.equals(dbHelper.decrypt(existingPayload))) {
+                            continue;
+                        }
 
                         ContentValues scv = new ContentValues();
                         scv.put("id", sId);
@@ -283,7 +299,7 @@ final class SecureStore {
                         scv.put("origem", sOrigem);
                         scv.put("created_at", sObj.optLong("created_at", System.currentTimeMillis()));
                         scv.put("updated_at", System.currentTimeMillis());
-                        scv.put("payload_enc", dbHelper.encrypt(sObj.toString()));
+                        scv.put("payload_enc", dbHelper.encrypt(sessionPayload));
 
                         // Atomic update in place for sessions
                         int sUpdated = db.update("sessoes", scv, "id = ? AND case_id = ?", new String[]{sId, caseId});
