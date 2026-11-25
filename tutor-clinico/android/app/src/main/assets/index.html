@@ -412,6 +412,7 @@ function caseScreen(){
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="fichaEvolutiva"><div class="eco-module-icon">▤</div><div class="eco-module-title">Ficha clínica</div><div class="eco-module-sub">Evolutiva</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></button>`+
     `<button type="button" class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="assistenteIA"><div class="eco-module-icon">✦</div><div class="eco-module-title">Assistente IA</div><div class="eco-module-sub">RAG e geração local</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="compararRelatos"><div class="eco-module-icon">⇄</div><div class="eco-module-title">Comparar relatos</div><div class="eco-module-sub">NLI experimental</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="revisaoInteligente"><div class="eco-module-icon">◈</div><div class="eco-module-title">Revisão neural</div><div class="eco-module-sub">Anamnese e evolução</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="analisar"><div class="eco-module-icon">📊</div><div class="eco-module-title">Análise & Ecos</div><div class="eco-module-sub">NLP e recorrências</div></button>`+
@@ -438,7 +439,7 @@ function caseScreen(){
     `</div>`;
   } else {
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
-    if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
+    if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
         (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
@@ -3913,5 +3914,60 @@ act=function(name,id,button){
  if(name==='ecoNliStart'&&ecoClaimRun?.pending){notify('Aguarde a conferência de fontes.','red');return;}
  return ecoClaimPriorAct(name,id,button);
 };
+
+
+let ecoAiRun=null,ecoAiSerial=0,ecoAiScope='paciente';
+function ecoAiRows(c,scope){return scope==='teoria'?ecoLibraryChunks().map(x=>({...x,text:x.text,speaker:'desconhecido'})):ecoReviewRows(c,scope,'','');}
+function ecoAiKey(c,scope){return JSON.stringify([c?.id,scope,ecoAiRows(c,scope)]);}
+function ecoAiCurrent(r){return !!r&&screen==='case'&&tab==='assistenteIA'&&r.caseId===openedId&&r.key===ecoAiKey(currentCase(),r.scope);}
+function ecoAiCancel(){if(ecoAiRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoAiRun.id);}catch(e){}ecoAiRun=null;}
+function ecoAiSend(r,phase,payload,stage){
+ r.id='ai-'+(++ecoAiSerial)+'-'+Date.now();r.phase=phase;r.pending=true;r.error='';r.stage=stage;r.last=Date.now();
+ try{const result=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...payload,id:r.id}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Falha ao iniciar a inferência.';}
+ render();if(r.pending)setTimeout(()=>ecoAiWatch(r.id),5000);
+}
+function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
+function ecoAiStart(c){
+ if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
+ const query=String(document.getElementById('ecoAiQuery')?.value||'').trim(),rows=ecoAiRows(c,ecoAiScope);
+ const scope=ecoAiScope==='paciente'?'paciente':'desconhecido';
+ const payload={query,scope,rows:rows.map(x=>({text:x.text,speaker:x.speaker,sessionId:x.sessionId||'',atMs:x.atMs??null}))};
+ if(!query||query.length>500||!rows.length||rows.length>1200||JSON.stringify(payload).length>490000||rows.some(x=>x.text.length>12000)){notify('Consulta ou corpus acima do limite. Use uma consulta de até 500 caracteres e até 1200 trechos.','red');return;}
+ const r=ecoAiRun={caseId:c.id,scope:ecoAiScope,nativeScope:scope,key:ecoAiKey(c,ecoAiScope),rows,query};
+ ecoAiSend(r,'retrieve',payload,'1/3 · Recuperando fontes com DistilUSE');
+}
+function ecoAiRerank(r){
+ const rows=r.hits.map(x=>({text:r.rows[x.i].text}));
+ ecoAiSend(r,'rerank',{mode:'rerank',query:r.query,rows},'2/3 · Reordenando fontes com mMARCO');
+}
+function ecoAiGenerate(c){
+ const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='ready')return;
+ const selected=r.ranked.filter((x,i)=>document.getElementById('ecoAiPick_'+i)?.checked);
+ if(!selected.length||selected.length>5||selected.some(x=>r.rows[x.i].text.length>1800)||selected.reduce((n,x)=>n+r.rows[x.i].text.length,0)>4200){notify('Selecione 1 a 5 fontes inteiras, até 4200 caracteres no total.','red');return;}
+ r.selected=selected;ecoAiSend(r,'generate',{mode:'generate',query:r.query,sources:selected.map(x=>({text:r.rows[x.i].text}))},'3/3 · Gerando minuta com Qwen');
+}
+function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(r.scope==='teoria'?(u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
+function ecoAiPanel(c){
+ const r=ecoAiCurrent(ecoAiRun)?ecoAiRun:null;
+ let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||'')+'</textarea></div>'+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
+ if(r?.pending)out+='<p id="ecoAiStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoAiCancel','ghost');
+ else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
+ else if(r?.phase==='ready'){out+='<h3>Fontes reordenadas pelo cross-encoder</h3><p class="small">Selecione as fontes antes de gerar. Passagens longas não são cortadas silenciosamente.</p>'+r.ranked.map((x,i)=>'<div class="eco-evidence"><label class="choice"><input type="checkbox" id="ecoAiPick_'+i+'" '+(r.rows[x.i].text.length>1800?'disabled':'')+'>Selecionar fonte</label>'+ecoAiSource(r,x)+'</div>').join('')+(r.ranked.length?btn('Gerar minuta local','ecoAiGenerate','','data-case="'+esc(c.id)+'"'):'<p>Nenhuma fonte elegível; não gerar resposta.</p>')+(r.skipped?.length?'<p>'+r.skipped.length+' fonte(s) excederam o limite do reranker.</p>':'');}
+ else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
+ return out+'</section>';
+}
+const ecoAiPriorProgress=window.nativeSemanticProgress,ecoAiPriorResult=window.nativeSemanticResult,ecoAiPriorUnlock=window.nativeSemanticUnlocked;
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('ai-'))return ecoAiPriorProgress(raw);const r=ecoAiRun;if(!r?.pending||v.id!==r.id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}r.last=Date.now();r.stage=String(v.stage||r.stage);const el=document.getElementById('ecoAiStage');if(el)el.textContent=r.stage;};
+window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('ai-'))return ecoAiPriorResult(raw);const r=ecoAiRun;if(!r?.pending||v.id!==r.id)return;if(!ecoAiCurrent(r)){ecoAiRun=null;return;}r.pending=false;
+ const hitsValid=(hits,n,lo,hi,max)=>Array.isArray(hits)&&hits.length<=max&&new Set(hits.map(x=>x.i)).size===hits.length&&hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<n&&Number.isFinite(x.score)&&x.score>=lo&&x.score<=hi);
+ if(v.error)r.error=String(v.error);
+ else if(r.phase==='retrieve'){if(v.count!==r.rows.length||v.scope!==r.nativeScope||!hitsValid(v.hits,r.rows.length,-1.001,1.001,20))r.error='Retorno de recuperação inválido.';else if(!v.hits.length){r.ranked=[];r.phase='ready';}else{r.hits=v.hits;ecoAiRerank(r);return;}}
+ else if(r.phase==='rerank'){if(v.count!==r.hits.length||!hitsValid(v.hits,r.hits.length,0,1,20)||!Array.isArray(v.skipped)||v.skipped.some(i=>!Number.isInteger(i)||i<0||i>=r.hits.length)||new Set([...v.hits.map(x=>x.i),...v.skipped]).size!==r.hits.length||v.hits.length+v.skipped.length!==r.hits.length)r.error='Retorno de reranking inválido.';else{r.ranked=v.hits.map(x=>({...r.hits[x.i],rank:x.score}));r.skipped=v.skipped;r.phase='ready';}}
+ else if(r.phase==='generate'){if(v.sourceCount!==r.selected.length||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.error='Minuta inválida.';else{r.draft=v.draft;r.model=String(v.model||'Qwen');r.phase='done';}}
+ render();
+};
+window.nativeSemanticUnlocked=function(){ecoAiCancel();return ecoAiPriorUnlock();};
+const ecoAiPriorAct=act;
+act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'){if(c&&button?.dataset?.case===c.id)ecoAiStart(c);return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
 
 </script></body></html>
