@@ -62,6 +62,13 @@ results["silence"],ys=predict(np.zeros(160000,np.float32))
 results["single"],ya=predict(a)
 results["mixed"],ym=predict(np.clip(0.55*a+0.55*b,-1,1))
 assert not np.allclose(ys,ya) and not np.allclose(ya,ym),"Neural output invariant to input"
-gate={"sha256":SHA,"contract":"1x1x160000 -> 1x589x7","fixtures":results,"clinical_validation":False,"quality_certified":False}
+# Functional gate, not merely a shape check. Conservative synthetic acceptance
+# thresholds are derived from the previously successful pinned-model run.
+assert results["silence"]["frames_at_065"]==0, "False overlap on silence"
+assert results["single"]["frames_at_065"]<=5, "False overlap on one synthetic speaker"
+assert results["mixed"]["frames_at_065"]>=100, "No meaningful overlap detection on two simultaneous synthetic voices"
+assert results["mixed"]["mean"]>results["single"]["mean"]+0.20, "Overlap contrast insufficient"
+
+gate={"sha256":SHA,"contract":"1x1x160000 -> 1x589x7","fixtures":results,"clinical_validation":False,"quality_certified":False,"synthetic_detection_gate":True}
 (ROOT/"gate.txt").write_text(json.dumps(gate,indent=2),encoding="utf-8")
 print("PASS Pyannote model SHA, seven-class shape and actual host inference; synthetic metrics:",json.dumps(results),flush=True)
