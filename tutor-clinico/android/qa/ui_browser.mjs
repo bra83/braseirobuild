@@ -235,6 +235,30 @@ try{
  await dreamSave.click();
  assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').sonhosList.some(x=>x.texto==='Sonhei com minha mãe em uma casa.')),true);
  assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
+ // Perspective comparison: three independently retrieved author corpora, patient-only quote and explicit non-archival.
+ await page.evaluate(()=>{
+  const c=state.cases.find(x=>x.id==='browser-a');c.sessoes.push({id:'perspectivas-fixture',data:'2026-11-25',origem:'texto',mlSegments:[{id:'p1',speaker:'paciente',text:'Quando alguém se aproxima, eu me afasto.',startMs:1000},{id:'t1',speaker:'terapeuta',text:'MARCADOR_TERAPEUTA_EXCLUIR',startMs:2000}]});
+  window.ecoTestRequests=[];window.NativeVault.analyzeSemantic=raw=>{window.ecoTestRequests.push(JSON.parse(raw));return 'OK'};
+  act('openCase','browser-a');act('caseTab','perspectivas');
+ });
+ assert.equal(await page.locator('#ecoPerspectivePassage option').count(),1);
+ assert.equal(await page.locator('#ecoPerspectiveQuote').inputValue(),'Quando alguém se aproxima, eu me afasto.');
+ await page.locator('[data-act="ecoPerspectiveStart"]').click();
+ for(const author of ['Freud','Klein','Winnicott']){
+  const request=await page.evaluate(()=>window.ecoTestRequests.at(-1));
+  assert.equal(request.query,'Quando alguém se aproxima, eu me afasto.');
+  assert.ok(request.rows.length>0&&request.rows.every(x=>x.text.includes(' — '+author+'\n')&&!x.text.includes('MARCADOR_TERAPEUTA_EXCLUIR')));
+  const index=request.rows.findIndex(x=>x.text.length<1000);assert.ok(index>=0);
+  await page.evaluate(i=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i,score:.8}]}));},index);
+  const rerank=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(rerank.mode,'rerank');
+  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9}],skipped:[]}));});
+  const gen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(gen.mode,'generate');assert.ok(gen.query.includes(author));assert.equal(gen.sources.length,2);assert.ok(gen.sources[1].text.startsWith(author+' · '));
+  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Possibilidade didática [S1] [S2]. Exemplo de pergunta aberta.',model:'fixture'}));});
+ }
+ assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),[['Freud',true],['Klein',true],['Winnicott',true]]);
+ assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0),0);
+ await page.screenshot({path:path.join(out,'perspectivas-psicanaliticas.png'),fullPage:true});
+ await home();assert.equal(await page.evaluate(()=>ecoPerspectiveRun),null);
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
