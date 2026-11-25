@@ -126,6 +126,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
     private static double cosine(float[] a,float[] b){double s=0;for(int i=0;i<DIM;i++)s+=a[i]*b[i];return Math.max(-1,Math.min(1,s));}
     interface Progress {void report(int done,int total,String stage);}
     JSONObject analyze(JSONObject request,BooleanSupplier active,Progress progress) throws Exception{
+        reused=0;computed=0;
         JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
         String scope=request.optString("scope","paciente");
         boolean longitudinal=request.optBoolean("longitudinal",false);
