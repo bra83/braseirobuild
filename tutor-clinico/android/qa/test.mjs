@@ -1179,3 +1179,68 @@ test('Vosk rápido é selecionável e não troca silenciosamente para Whisper',(
  assert.match(engine,/if\(voskFast\)/);
  js("ecoChosenMic='tagarela';ecoChosenAsr='tagarela'");
 });
+
+
+// ECO 0.24+: functional checks for integrated modules; no real patient data.
+test('ECO: knowledge module accessible without patient and searchable glossary',()=>{
+ const before=js('JSON.stringify(state.cases)');
+ try{
+  js("state.cases=[];act('nav','study')");
+  assert.match(js("studyScreen()"),/Conhecimentos/);
+  assert.ok(js("ecoGlossary.length")>=26);
+  js("ecoKnowledgeTab='glossario';ecoKnowledgeQuery='transferencia'");
+  assert.match(js("ecoKnowledgeResults()"),/Transferência/);
+ }finally{context.ecoSavedCases=before;js('state.cases=JSON.parse(ecoSavedCases);ecoKnowledgeQuery="";ecoKnowledgeTab="todos"');}
+});
+test('ECO: real form IDs persist family link, block duplicates and permit editing',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'fixture-family',nome:'Paciente fictício',data:datestr(),sessoes:[],genograma:{membros:[{id:'mother',nome:'Mãe Fictícia',parentesco:'Mãe',geracao:'G2',sexo:'F',vivo:'sim'}],relacoes:[]}}];openedId='fixture-family';screen='case';tab='genograma';render()");
+  assert.match(js("ecoRenderGenogram(state.cases[0])"),/Paciente fictício/);
+  el('#relDeId').value='mother';el('#relParaId').value='fixture-family';el('#relTipo').value='pais_filho';
+  js("act('ecoAddFamilyRelation',null,{dataset:{case:'fixture-family'}})");
+  assert.equal(js("state.cases[0].genograma.relacoes.length"),1);
+  assert.equal(js("state.cases[0].genograma.relacoes[0].tipo"),'pais_filho');
+  js("act('ecoAddFamilyRelation',null,{dataset:{case:'fixture-family'}})");
+  assert.equal(js("state.cases[0].genograma.relacoes.length"),1);
+  js("act('ecoFamilyEdit','mother',{dataset:{case:'fixture-family'}})");
+  assert.equal(el('#genNome').value,'Mãe Fictícia');
+  el('#genNome').value='Mãe Editada';
+  js("act('ecoAddFamilyMember',null,{dataset:{case:'fixture-family'}})");
+  assert.equal(js("state.cases[0].genograma.membros.length"),1);
+  assert.equal(js("state.cases[0].genograma.membros[0].nome"),'Mãe Editada');
+  assert.match(js("ecoRenderGenogram(state.cases[0])"),/<path d="M/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoFamilyEditId=null');}
+});
+test('ECO: dream prefill from manual session, source link, duplicate guard and edit',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'fixture-dream',nome:'Paciente fictício',data:datestr(),sessoes:[{id:'session-fixture',data:datestr(),texto:'Sonhei que estava na casa da infância. Minha mãe estava na cozinha. Senti muito medo.'},{id:'negative',data:datestr(),texto:'Nunca sonhei com minha mãe.'},{id:'therapist',data:datestr(),mlSegments:[{text:'Você sonhava com sua mãe?',speaker:'terapeuta',startMs:0}]}]}];openedId='fixture-dream';screen='case';tab='sonhos';render()");
+  assert.equal(js("ecoDreamCandidates(state.cases[0]).length"),1);
+  assert.equal(js("ecoDreamCandidates(state.cases[0])[0].personagens"),'mãe');
+  assert.equal(js("ecoDreamCandidates(state.cases[0])[0].afetos"),'medo');
+  js("act('ecoDreamPrefill','0',{dataset:{case:'fixture-dream'}})");
+  assert.match(el('#dreamLugares').value,/casa.*cozinha/);
+  js("act('ecoSaveDream',null,{dataset:{case:'fixture-dream'}})");
+  assert.equal(js("state.cases[0].sonhosList[0].sessionId"),'session-fixture');
+  assert.equal(js("ecoDreamCandidates(state.cases[0]).length"),0);
+  js("act('ecoDreamEdit',state.cases[0].sonhosList[0].id,{dataset:{case:'fixture-dream'}})");
+  el('#dreamAssociacoes').value='Associação fictícia confirmada';
+  js("act('ecoSaveDream',null,{dataset:{case:'fixture-dream'}})");
+  assert.equal(js("state.cases[0].sonhosList.length"),1);
+  assert.equal(js("state.cases[0].sonhosList[0].associacoes"),'Associação fictícia confirmada');
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoDreamOrigin=null;ecoDreamEditId=null');}
+});
+test('ECO: actual document output A4, session filter, raw opt-in and external exclusion',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'fixture-print',nome:'Paciente fictício',data:datestr(),sessoes:[{id:'a',data:datestr(),texto:'NOTA_A',mlTranscricao:'RAW_A',mlRevisada:'REVISED_A'},{id:'b',data:datestr(),texto:'NOTA_B',mlTranscricao:'RAW_B'}]}];openedId='fixture-print';screen='case';tab='documentos'");
+  const html=js("ecoFormatClinicalDoc(state.cases[0],'transcricao',{bruto:true,revisado:true},{sessionId:'a',confirmed:true})");
+  assert.match(html,/@page\{size:A4/);assert.match(html,/RAW_A/);assert.match(html,/REVISED_A/);assert.doesNotMatch(html,/RAW_B/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'supervisao',{bruto:true},{confirmed:true})"),/RAW_A|RAW_B/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{sessoes:true},{confirmed:true})"),/RAW_A|RAW_B/);
+  let output='';const old=context.window.NativeVault.printReport;context.window.NativeVault.printReport=x=>{output=x;};
+  try{js("ecoDocConfirmed=false;act('ecoPrintDoc','fixture-print',{dataset:{case:'fixture-print'}})");assert.equal(output,'');js("ecoDocConfirmed=true;ecoDocType='transcricao';ecoDocSessionId='a';ecoDocSections={bruto:true};act('ecoPrintDoc','fixture-print',{dataset:{case:'fixture-print'}})");assert.match(output,/RAW_A/);assert.doesNotMatch(output,/RAW_B/);}
+  finally{context.window.NativeVault.printReport=old;}
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoDocConfirmed=false;ecoDocSessionId="";ecoDocType="ficha";ecoDocSections=Object.fromEntries(Object.keys(ecoDocPreset("ficha").reduce((a,k)=>(a[k]=true,a),{})).map(k=>[k,true]))');}
+});
