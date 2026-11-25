@@ -5066,4 +5066,124 @@ act=function(name,id,button){
  if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoPerspectiveCancel();if(name==='openCase'||name==='nav'){ecoPerspectiveSession='';ecoPerspectiveIndex=0;}}
  return ecoPerspectivePriorAct(name,id,button);
 };
+
+/* Residual editors: independently encrypted drafts, no secret/confirmation/filter persistence.
+   One slot per clinical record or form, never mix patients or sessions. */
+let ecoResidualSlots=[],ecoResidualTimer=null;
+function ecoResidualSpecs(){
+ const c=screen==='case'?currentCase():screen==='atlas'?state?.cases?.find(x=>x.id===ecoOverviewCase):null;
+ const out=[], add=(kind,ids,actions,opts={})=>{
+  const nodes=ids.map(id=>document.getElementById(id)).filter(e=>e&&e.matches('input,textarea,select')&&!['password','checkbox','file','hidden'].includes(e.type));
+  if(nodes.length)out.push({caseId:opts.admin?'__eco_admin__':c?.id,kind:'res_'+kind,nodes,actions,actionId:opts.actionId,axis:opts.axis});
+ };
+ if(c){
+  add('ficha'+(ecoFichaEdit?.caseId===c.id?'_'+ecoFichaEdit.id:''),['fichaKind','fichaSession','fichaOrigin','fichaQuote','fichaText'],['ecoFichaSave']);
+  add('rede'+(ecoNetworkEdit?.caseId===c.id?'_'+ecoNetworkEdit.id:''),['ecoNetName','ecoNetKind','ecoNetRelation','ecoNetSource','ecoNetNotes'],['ecoNetworkSave']);
+  add('prep',['ecoPrepGoals','ecoPrepQuestions','ecoPrepLogistics'],['ecoPrepSave']);
+  const postId=document.getElementById('ecoVisitSession')?.value;
+  if(postId)add('post_'+postId,['ecoPostSummary','ecoPostInterventions','ecoPostNext','ecoPostUncertainty'],['ecoVisitSave','ecoVisitConfirm'],{actionId:postId});
+  add('question',['ecoQuestionText','ecoQuestionAxis','ecoQuestionSource'],['ecoQuestionAdd']);
+  for(const q of c.ecoQuestions||[])add('qedit_'+q.id,['eqstatus_'+q.id,'eqnote_'+q.id],['ecoQuestionUpdate'],{actionId:q.id});
+  for(const a of ecoInvestigationAxes)add('axis_'+a.id,['axis_note_'+a.id,'axis_status_'+a.id,'axis_priority_'+a.id],['ecoSaveAxis'],{axis:a.id});
+  add('hypo',['hypoTexto','hypoFavoraveis','hypoContrarias','hypoAlternativas'],['ecoAddHypothesis']);
+  add('interv',['intervData','intervTecnica','intervContexto','intervResposta','intervEfeito'],['ecoAddIntervention']);
+  add('relation',['relDeId','relParaId','relTipo'],['ecoAddFamilyRelation']);
+  add('safety',['safePreocupacoes','safeAvaliacao','safePlano','safeContatos','safeEncaminhamentos'],['ecoSaveSafety']);
+  add('diary',['diaryData','diaryCategoria','diaryTexto'],['ecoAddDiaryNote']);
+  for(const t of state.ecoQuestionTemplates||[])if(!t.archived)add('custom_'+t.id,t.questions.map((_,i)=>'ecoCustomAnswer_'+t.id+'_'+i),['ecoCustomSave'],{actionId:t.id});
+ }
+ if(screen==='agenda')add('finance',['ecoFinCase','ecoFinDate','ecoFinValue','ecoFinRef'],['ecoFinAdd'],{admin:true});
+ if(screen==='settings'){
+  add('template',['ecoTemplateTitle','ecoTemplateQuestions'],['ecoTemplateAdd'],{admin:true});
+  add('doctemplate',['ecoDocTemplateName'],['ecoDocTemplateSave'],{admin:true});
+ }
+ if(screen==='study')add('personal',['ecoPersonalTitle','ecoPersonalAuthor','ecoPersonalRef','ecoPersonalBody'],['ecoPersonalAdd'],{admin:true});
+ return out.filter(x=>x.caseId&&/^res_[A-Za-z0-9_-]{1,125}$/.test(x.kind));
+}
+function ecoResidualValues(slot){return Object.fromEntries(slot.nodes.map((e,i)=>['f'+i,e.value]));}
+function ecoResidualIdentity(slot){return slot.caseId+'|'+slot.kind;}
+function ecoResidualNotice(slot,message){
+ if(slot.notice)slot.notice.textContent=message;
+}
+function ecoResidualFlush(){
+ if(ecoResidualTimer){clearTimeout(ecoResidualTimer);ecoResidualTimer=null;}
+ let ok=true;
+ for(const slot of ecoResidualSlots){
+  if(slot.pending||!slot.dirty||!slot.draft)continue;
+  const d=slot.draft;
+  const result=window.NativeVault?.saveClinicalDraft?.(d.caseId,d.kind,JSON.stringify(d));
+  if(result==='OK'){slot.dirty=false;ecoResidualNotice(slot,'Rascunho cifrado guardado. Ainda não é um registro aprovado.');}
+  else{ok=false;ecoResidualNotice(slot,'Falha ao guardar rascunho. Salve ou copie os campos antes de sair.');}
+ }
+ return ok;
+}
+function ecoResidualSetup(){
+ ecoResidualSlots=[];
+ if(!state||errorLocked||!window.NativeVault?.loadClinicalDraft)return;
+ for(const spec of ecoResidualSpecs()){
+  const slot={...spec,base:ecoResidualValues(spec),draft:null,pending:false,dirty:false};
+  ecoResidualSlots.push(slot);
+  try{
+   const raw=window.NativeVault.loadClinicalDraft(slot.caseId,slot.kind);if(!raw)continue;
+   const d=JSON.parse(raw);
+   if(d.__loadError||d.caseId!==slot.caseId||d.kind!==slot.kind||!d.id||!d.fields||!d.base||!Array.isArray(d.context?.ids)||JSON.stringify(d.context.ids)!==JSON.stringify(slot.nodes.map(e=>e.id)))throw Error('Rascunho incompatível');
+   slot.draft=d;slot.pending=true;
+   for(const e of slot.nodes)e.disabled=true;
+   const panel=document.createElement('div');panel.className='eco-evidence';
+   const conflict=Object.keys(d.base).some(k=>d.base[k]!==slot.base[k]);
+   panel.innerHTML='<p><strong>Rascunho recuperável</strong> · '+(conflict?'O formulário original mudou; confira antes de recuperar.':'Campos ainda não salvos.')+'</p>'+(conflict?'<details><summary>Conferir diferenças</summary>'+Object.keys(d.fields).map(k=>'<p>Atual: '+esc(slot.base[k]||'')+'<br>Rascunho: '+esc(d.fields[k]||'')+'</p>').join('')+'</details>':'')+btn('Recuperar campos','ecoResidualResume','secondary','data-id="'+esc(ecoResidualIdentity(slot))+'"')+btn('Descartar rascunho','ecoResidualDiscard','ghost','data-id="'+esc(ecoResidualIdentity(slot))+'"');
+   slot.nodes[0].closest('.field')?.before(panel);slot.panel=panel;
+  }catch(e){
+   slot.pending=true;for(const el of slot.nodes)el.disabled=true;
+   const panel=document.createElement('p');panel.className='alert red';panel.textContent='Rascunho indisponível ou incompatível. Não sobrescreva o formulário; confira a recuperação.';
+   slot.nodes[0].closest('.field')?.before(panel);
+  }
+ }
+}
+function ecoResidualInput(e){
+ const slot=ecoResidualSlots.find(s=>s.nodes.includes(e.target));
+ if(!slot||slot.pending)return;
+ const values=ecoResidualValues(slot);
+ if(!slot.draft)slot.draft={id:uid(),caseId:slot.caseId,kind:slot.kind,fields:values,base:{...slot.base},context:{ids:slot.nodes.map(x=>x.id)}};
+ else slot.draft.fields=values;
+ slot.dirty=true;
+ if(!slot.notice){const p=document.createElement('p');p.className='small muted';p.textContent='Guardando rascunho...';slot.nodes[0].closest('.field')?.before(p);slot.notice=p;}
+ if(ecoResidualTimer)clearTimeout(ecoResidualTimer);
+ ecoResidualTimer=setTimeout(ecoResidualFlush,300);
+}
+document.addEventListener('input',ecoResidualInput);
+document.addEventListener('change',e=>{ecoResidualInput(e);ecoResidualFlush();},true);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ecoResidualFlush();});
+window.addEventListener('pagehide',ecoResidualFlush);
+const ecoResidualPriorRender=render;
+render=function(){if(!ecoResidualFlush())return;ecoResidualPriorRender();ecoResidualSetup();};
+const ecoResidualPriorAct=act;
+act=function(name,id,button){
+ if(!ecoResidualFlush()){notify('Rascunho não guardado.','red');return;}
+ if(name==='ecoResidualResume'||name==='ecoResidualDiscard'){
+  const slot=ecoResidualSlots.find(x=>ecoResidualIdentity(x)===id);
+  if(!slot?.draft)return;
+  if(name==='ecoResidualDiscard'){
+   if(!window.confirm('Descartar apenas o rascunho, sem alterar o registro salvo?'))return;
+   if(window.NativeVault.clearClinicalDraft(slot.caseId,slot.kind,slot.draft.id)!=='OK'){notify('Não foi possível descartar.','red');return;}
+   render();return;
+  }
+  for(const [i,el] of slot.nodes.entries()){
+   el.disabled=false;el.value=slot.draft.fields['f'+i]??'';
+   if(el.tagName==='SELECT'&&el.value!==slot.draft.fields['f'+i])notify('Uma opção antiga não existe mais; selecione novamente.','red');
+  }
+  slot.pending=false;slot.panel?.remove();return;
+ }
+ const relevant=ecoResidualSlots.filter(x=>x.actions.includes(name)&&(x.actionId===undefined||x.actionId===id)&&(x.axis===undefined||x.axis===button?.dataset?.axis));
+ if(relevant.some(x=>x.pending)){notify('Recupere ou descarte o rascunho antes de salvar.','red');return;}
+ const before=relevant.length?JSON.stringify(state):null;
+ const result=ecoResidualPriorAct(name,id,button);
+ if(before!==null&&JSON.stringify(state)!==before){
+  for(const slot of relevant)if(slot.draft){
+   if(window.NativeVault.clearClinicalDraft(slot.caseId,slot.kind,slot.draft.id)!=='OK'){notify('Registro salvo; rascunho ainda disponível.','red');continue;}
+  }
+  render();
+ }
+ return result;
+};
 </script></body></html>
