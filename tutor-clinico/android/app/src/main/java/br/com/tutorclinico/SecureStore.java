@@ -549,7 +549,7 @@ final class SecureStore {
     }
 
     private static String clinicalDraftKey(String caseId,String kind){
-        if(caseId==null||caseId.isEmpty()||caseId.length()>200||(!"anamnese".equals(kind)&&!"enquadre".equals(kind)))
+        if(caseId==null||caseId.isEmpty()||caseId.length()>200||!java.util.Arrays.asList("anamnese","enquadre","sonhos","genograma","cronologia").contains(kind))
             throw new IllegalArgumentException("Formulário clínico inválido");
         return "clinical_draft:"+kind+":"+caseId;
     }
