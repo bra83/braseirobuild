@@ -1500,3 +1500,38 @@ test('ECO complete RAG flow: retrieval, dedicated reranking, explicit generation
   assert.equal(js('ecoAiRun'),null);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoAiCancel()');}
 });
+
+
+test('ECO square home: all 16 real destinations, explicit patient selection, no hidden auto-selection',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'home-a',nome:'Caso A',sessoes:[]},{id:'home-b',nome:'Caso B',sessoes:[]}];state.mlDraft=null;openedId='home-a';act('nav','home')");
+  const home=js('homeScreen()');
+  assert.equal((home.match(/class="eco-home-tile(?: primary)?"/g)||[]).length,16);
+  assert.equal((home.match(/<svg viewBox="0 0 24 24"/g)||[]).length,16);
+  assert.match(home,/class="eco-home-grid"/);
+  assert.doesNotMatch(home,/eco-welcome/);
+  assert.match(html,/\.eco-home-tile\{[^}]*aspect-ratio:1[^}]*border-radius:22px/);
+  assert.match(html,/\.eco-home-grid\{[^}]*repeat\(2,minmax\(0,1fr\)\)/);
+  for(const [id,,, ,route] of js('ecoHomeModules')){
+   context.homeId=id;js("act('nav','home');act('ecoHomeLaunch',homeId)");
+   if(route==='nav'){assert.equal(js('screen'),id);}
+   else if(route==='new'){assert.equal(js('screen'),'wizard');}
+   else{
+    assert.equal(js('screen'),'home');assert.match(js('homeScreen()'),/Nenhum paciente será selecionado automaticamente/);
+    js("act('ecoHomeCase','missing')");assert.equal(js('screen'),'home');
+    js("act('ecoHomeCase','home-b')");assert.equal(js('openedId'),'home-b');
+    assert.equal(js('screen'),route==='manual'?'manualSession':'case');
+    if(route==='case')assert.equal(js('tab'),id);
+   }
+  }
+  js("act('nav','home');act('ecoHomeLaunch','eco');act('ecoOpen','home-b')");
+  assert.equal(js('screen'),'session');assert.equal(js('openedId'),'home-b');
+  assert.match(js('sessionScreen()'),/INICIAR GRAVAÇÃO LOCAL/);
+  js("act('nav','home');act('ecoHomeLaunch','sonhos');act('ecoHomeBack')");
+  assert.match(js('homeScreen()'),/eco-home-grid/);
+  js("state.cases=[];act('ecoHomeLaunch','assistenteIA')");
+  assert.match(js('homeScreen()'),/Nenhum caso cadastrado/);
+  js("act('ecoHomeBack');act('ecoHomeLaunch','study')");assert.equal(js('screen'),'study');
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoHomeTarget="";act("nav","home")');}
+});
