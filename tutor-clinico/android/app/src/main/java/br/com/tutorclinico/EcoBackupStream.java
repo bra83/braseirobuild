@@ -53,23 +53,27 @@ public final class EcoBackupStream {
         private final DataOutputStream out;
         private final byte[] header=new byte[HEADER_BYTES], buffer=new byte[FRAME_BYTES];
         private final SecretKeySpec key;
+        private final long maxPlaintext;
         private int used=0;
         private long sequence=0,total=0;
         private boolean closed=false,finished=false,failed=false;
-        public Writer(OutputStream target,char[] password)throws Exception{
+        public Writer(OutputStream target,char[] password)throws Exception{this(target,password,Long.MAX_VALUE);}
+        public Writer(OutputStream target,char[] password,long maxPlaintext)throws Exception{
+            if(maxPlaintext<0)throw new IllegalArgumentException("Limite inválido");this.maxPlaintext=maxPlaintext;
             RANDOM.nextBytes(header);System.arraycopy(MAGIC,0,header,0,MAGIC.length);
             key=key(password,header);out=new DataOutputStream(target);out.write(header);
         }
         private void check()throws IOException{if(closed||finished||failed)throw new IOException("Backup encerrado");}
+        private void budget(int size)throws IOException{if(size>maxPlaintext-total-used){failed=true;throw new IOException("Limite de arquivo excedido");}}
         private void frame()throws IOException{
             try{
                 out.writeInt(used);out.write(crypt(Cipher.ENCRYPT_MODE,key,header,sequence++,used,buffer,used));
                 total=Math.addExact(total,used);Arrays.fill(buffer,0,used,(byte)0);used=0;
             }catch(Exception e){failed=true;throw new IOException("Falha ao cifrar bloco",e);}
         }
-        @Override public void write(int b)throws IOException{check();buffer[used++]=(byte)b;if(used==buffer.length)frame();}
+        @Override public void write(int b)throws IOException{check();budget(1);buffer[used++]=(byte)b;if(used==buffer.length)frame();}
         @Override public void write(byte[] b,int off,int len)throws IOException{
-            check();if(off<0||len<0||off>b.length-len)throw new IndexOutOfBoundsException();
+            check();if(off<0||len<0||off>b.length-len)throw new IndexOutOfBoundsException();budget(len);
             while(len>0){int n=Math.min(len,buffer.length-used);System.arraycopy(b,off,buffer,used,n);used+=n;off+=n;len-=n;if(used==buffer.length)frame();}
         }
         public long finish()throws IOException{
