@@ -408,6 +408,7 @@ function caseScreen(){
   if(tab==='sintese'){
     content = `<div class="eco-case-menu"><h2>Módulos do paciente</h2>`+
     `<div class="eco-module-grid">`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="atendimento"><div class="eco-module-icon">▣</div><div class="eco-module-title">Preparar e fechar</div><div class="eco-module-sub">Pré e pós-sessão</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="fichaEvolutiva"><div class="eco-module-icon">▤</div><div class="eco-module-title">Ficha clínica</div><div class="eco-module-sub">Evolutiva</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></button>`+
     `<button type="button" class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></button>`+
@@ -436,7 +437,7 @@ function caseScreen(){
     `</div>`;
   } else {
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
-    if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
+    if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
         (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
@@ -3673,6 +3674,7 @@ act=function(name,id,button){
  if(name==='ecoReviewOpen'&&c&&button?.dataset?.case===c.id&&ecoReviewTypes.includes(id)){ecoReviewCancel('');ecoReviewType=id;screen='case';tab='revisaoInteligente';render();return;}
  if(name==='ecoDreamFromReview'&&c&&button?.dataset?.case===c.id){ecoDreamFromReview(c,id);return;}
  if(['ecoNetworkEdit','ecoNetworkCancel','ecoNetworkDelete','ecoNetworkSave'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoNetworkAction(c,name,id);return;}
+ if(['ecoPrepSave','ecoVisitSave','ecoVisitConfirm'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoVisitAction(c,name,id);return;}
  if(name==='ecoCaseWord'){ecoCaseWordSelection=String(id||'');render();return;}
  if(name==='ecoReviewApply'){if(c&&button?.dataset?.case===c.id)ecoReviewApply(c,id);return;}
  if(['ecoQuestionAdd','ecoQuestionUpdate','ecoQuestionDelete'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoQuestionAction(name,c,id);return;}
@@ -3682,7 +3684,7 @@ act=function(name,id,button){
  if(name==='ecoReviewCancel'){ecoReviewCancel();return;}
  if(name==='ecoReviewAccept'){if(c&&(!button?.dataset?.case||button.dataset.case===c.id)){const [key,i]=String(id||'').split('|');ecoReviewAccept(c,key,Number(i));}return;}
  if(name==='ecoReviewDelete'){if(c&&button?.dataset?.case===c.id)change(()=>{c.ecoReviewRecords=(c.ecoReviewRecords||[]).filter(x=>x.id!==id);});return;}
- if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoCaseWordSelection='';ecoNetworkEdit=null;ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoCaseWordSelection='';ecoNetworkEdit=null;ecoVisitSelected='';ecoVisitCase='';ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
  return ecoReviewPrevAct(name,id,button);
 };
 
@@ -3743,5 +3745,36 @@ function ecoNetworkAction(c,name,id){
  if(ecoNetworkRows(c).some(x=>x.id!==old?.id&&ecoFoldText(x.name)===ecoFoldText(nameValue)&&x.kind===kind)){notify('Vínculo já registrado neste contexto.');return;}
  if(change(()=>{const at=new Date().toISOString(),item={id:old?.id||uid(),name:nameValue,kind,relation,sourceId,notes,createdAt:old?.createdAt||at,updatedAt:at};c.ecoNetwork=old?ecoNetworkRows(c).map(x=>x.id===old.id?item:x):[...ecoNetworkRows(c),item];c.atualizadoEm=at;})){ecoNetworkEdit=null;render();}
 }
+
+
+let ecoVisitSelected='',ecoVisitCase='';
+function ecoVisitSessions(c){return [...(c.sessoes||[])].sort((a,b)=>String(b.data||'').localeCompare(String(a.data||''))||String(b.hora||'').localeCompare(String(a.hora||''))||String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));}
+function ecoVisitSourceIds(c,sessionId){return (c.ecoReviewRecords||[]).filter(x=>x.sessionId===sessionId&&ecoReviewValid(c,x));}
+function ecoVisitPanel(c){
+ if(ecoVisitCase!==c.id){ecoVisitSelected='';ecoVisitCase=c.id;}
+ const ss=ecoVisitSessions(c),selected=ss.find(x=>x.id===ecoVisitSelected)||ss[0],prep=c.ecoPreparation||{},post=selected?(c.ecoVisitClosure||{})[selected.id]||{}:{},qs=(c.ecoQuestions||[]).filter(q=>['aberta','em_curso','adiada'].includes(q.status));
+ const attr='data-case="'+esc(c.id)+'"',sources=selected?ecoVisitSourceIds(c,selected.id):[];
+ const field=(id,label,value)=>'<div class="field"><label>'+esc(label)+'</label><textarea id="'+id+'" maxlength="8000">'+esc(value||'')+'</textarea></div>';
+ return '<section class="card"><h2>Preparação da próxima sessão</h2><p class="small muted">Plano interno do profissional. Prioridades são propostas, não roteiro rígido ou diagnóstico.</p>'+(ss[0]?'<div class="eco-evidence"><strong>Último atendimento · '+esc(formatDate(ss[0].data))+'</strong><p>'+esc((ss[0].texto||'').slice(0,1200))+'</p><p>Continuidade: '+esc(ss[0].plano||'Não registrada')+'</p></div>':'<p>Primeiro atendimento, sem histórico.</p>')+'<h3>Perguntas pendentes</h3>'+(qs.length?qs.map(q=>'<p>• '+esc(q.text)+' · '+esc(ecoQuestionStatus.find(x=>x[0]===q.status)?.[1]||q.status)+'</p>').join(''):'<p>Nenhuma pergunta registrada.</p>')+'<h3>Hipóteses provisórias registradas</h3>'+((c.hipotesesList||[]).length?(c.hipotesesList||[]).map(x=>'<div class="eco-evidence"><strong>'+esc(x.texto)+'</strong><p>Alternativas: '+esc(x.alternativas||'Não registradas')+'</p></div>').join(''):'<p>Nenhuma hipótese registrada.</p>')+field('ecoPrepGoals','Objetivos a retomar',prep.goals)+field('ecoPrepQuestions','Questões e temas para escuta',prep.questions)+field('ecoPrepLogistics','Enquadre, recursos e providências',prep.logistics)+btn('Salvar preparação','ecoPrepSave','',attr)+(prep.updatedAt?'<p class="small">Salva em '+esc(formatDate(prep.updatedAt.slice(0,10)))+'</p>':'')+'<div class="actions">'+btn('Atendimento manual','newManualSession','secondary','data-id="'+esc(c.id)+'" '+attr)+btn('Gravar ou importar sessão','ecoOpen','secondary','data-id="'+esc(c.id)+'" '+attr)+'</div></section>'+
+ '<section class="card"><h2>Fechamento e revisão pós-sessão</h2><p class="small muted">Registre uma síntese própria e valide as fontes disponíveis. O fechamento não modifica a transcrição, não produz diagnóstico e não é requisito para excluir áudio.</p>'+(selected?'<div class="field"><label>Sessão</label><select id="ecoVisitSession" data-eco-visit-session>'+ss.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===selected.id?'selected':'')+'>'+esc(formatDate(s.data)+' · '+(s.hora||'')+' · '+(s.origem==='manual'?'Manual':'Áudio')+' · '+s.id.slice(-6))+'</option>').join('')+'</select></div><div class="eco-evidence"><strong>Registro original</strong><p>'+esc((selected.texto||'').slice(0,1500))+'</p><p>'+esc(selected.plano||'')+'</p></div><h3>Fontes confirmadas desta sessão</h3>'+(sources.length?sources.map(x=>'<div class="eco-evidence"><strong>'+esc(x.label)+'</strong><p>'+esc(x.quote)+'</p><small>'+esc(x.source)+'</small></div>').join(''):'<p>Nenhuma fonte neural confirmada.</p>')+field('ecoPostSummary','Síntese profissional',post.summary)+field('ecoPostInterventions','Intervenções e respostas observadas',post.interventions)+field('ecoPostNext','Plano de continuidade',post.next)+field('ecoPostUncertainty','Incertezas e pontos a esclarecer',post.uncertainty)+'<p><strong>Estado:</strong> '+esc(post.status==='revisado'?'Revisado':post.status==='rascunho'?'Rascunho':'Não registrado')+'</p><label class="choice"><input type="checkbox" id="ecoPostConfirm">Revisei o conteúdo e as fontes deste fechamento.</label><div class="actions">'+btn('Salvar rascunho','ecoVisitSave','secondary',attr+' data-id="'+esc(selected.id)+'"')+btn('Confirmar revisão','ecoVisitConfirm','',attr+' data-id="'+esc(selected.id)+'"')+'</div><p class="small">'+(post.history?.length||0)+' versão(ões) anteriores preservadas.</p>':'<p>Registre uma sessão antes de produzir o fechamento.</p>')+'</section>';
+}
+function ecoVisitAction(c,name,id){
+ const v=k=>String(document.getElementById(k)?.value||'').trim();
+ if(name==='ecoPrepSave'){
+  const goals=v('ecoPrepGoals'),questions=v('ecoPrepQuestions'),logistics=v('ecoPrepLogistics');
+  if([goals,questions,logistics].some(x=>x.length>8000)){notify('Limite de 8 mil caracteres por campo.','red');return;}
+  if(!goals&&!questions&&!logistics){notify('Registre ao menos um objetivo, questão ou providência.','red');return;}
+  change(()=>{c.ecoPreparation={goals,questions,logistics,updatedAt:new Date().toISOString()};});return;
+ }
+ const s=(c.sessoes||[]).find(s=>s.id===id);if(!s||document.getElementById('ecoVisitSession')?.value!==id){notify('Sessão inválida.','red');return;}
+ const summary=v('ecoPostSummary'),interventions=v('ecoPostInterventions'),next=v('ecoPostNext'),uncertainty=v('ecoPostUncertainty'),confirmed=name==='ecoVisitConfirm';
+ if([summary,interventions,next,uncertainty].some(x=>x.length>8000)||(!summary&&!interventions&&!next&&!uncertainty)){notify('Informe conteúdo válido antes de salvar.','red');return;}
+ if(confirmed&&(!summary||!document.getElementById('ecoPostConfirm')?.checked)){notify('Informe a síntese e confirme a revisão.','red');return;}
+ const old=(c.ecoVisitClosure||{})[id],now=new Date().toISOString();
+ const prior=old?{summary:old.summary,interventions:old.interventions,next:old.next,uncertainty:old.uncertainty,status:old.status,updatedAt:old.updatedAt,sourceIds:old.sourceIds||[]}:null;
+ const nextRecord={summary,interventions,next,uncertainty,status:confirmed?'revisado':'rascunho',updatedAt:now,sourceIds:ecoVisitSourceIds(c,id).map(x=>x.id),history:[...(old?.history||[]),...(prior?[prior]:[])]};
+ if(change(()=>{c.ecoVisitClosure={...(c.ecoVisitClosure||{}),[id]:nextRecord};c.atualizadoEm=now;}))notify(confirmed?'Fechamento revisado.':'Rascunho salvo.');
+}
+document.addEventListener('change',e=>{if(e.target?.dataset?.ecoVisitSession!==undefined&&screen==='case'&&tab==='atendimento'){ecoVisitSelected=e.target.value;render();}});
 
 </script></body></html>
