@@ -532,7 +532,7 @@ final class SecureStore {
     synchronized int exportFullVault(java.io.OutputStream target,char[] password,boolean diary,java.util.function.BooleanSupplier active)throws Exception{
         SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);ensureRevisionTable(db);
         db.beginTransaction();
-        try(EcoBackupStream.Writer writer=new EcoBackupStream.Writer(target,password)){
+        try(EcoBackupStream.Writer writer=new EcoBackupStream.Writer(target,password,VAULT_MAX)){
             requireNoPendingAudio(db);
             java.io.DataOutputStream out=new java.io.DataOutputStream(writer);
             out.writeInt(VAULT_MAGIC);out.writeBoolean(diary);
@@ -595,6 +595,7 @@ final class SecureStore {
             java.io.DataInputStream in=new java.io.DataInputStream(reader);
             if(in.readInt()!=VAULT_MAGIC)throw new SecurityException("Arquivo não é backup integral ECO");
             boolean diary=in.readBoolean();int count=0;
+            db.delete("configuracoes","chave=?",new String[]{"app_state_meta"});
             for(int index=0;index<VAULT_TABLES.length;index++){
                 VaultTable t=VAULT_TABLES[index];
                 if(in.readInt()!=index)throw new SecurityException("Ordem de tabelas inválida");
@@ -615,7 +616,6 @@ final class SecureStore {
                     if(t.table.equals("configuracoes")){
                         String k=values.getAsString("chave");
                         if(k==null||!portableConfig(k,diary))throw new SecurityException("Configuração não portátil");
-                        if(k.equals("app_state_meta"))db.delete(t.table,"chave=?",new String[]{k});
                     }
                     if(t.table.equals("processamento_jobs")&&!"".equals(values.getAsString("audio_path")))throw new SecurityException("Caminho de áudio não portátil");
                     db.insertOrThrow(t.table,null,values);
