@@ -66,6 +66,35 @@ try{
  assert.equal(await graph.getAttribute('viewBox'),'0 0 360 480');
  assert.ok(await graph.locator('g.gen-node title').count()>=1);
  await graph.screenshot({path:path.join(out,'genograma-legivel.png')});
+ // Integrated RAG: test the real UI and callback routing with a simulated native bridge.
+ await home();await tile('assistenteIA').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+ await page.locator('[data-act="ecoAiScope"][data-id="integrado"]').click();
+ await page.locator('#ecoAiQuery').fill('Organize o relato e as referências teóricas, sem inferir diagnóstico.');
+ await page.evaluate(()=>{window.ecoTestRequests=[];window.NativeVault.analyzeSemantic=raw=>{window.ecoTestRequests.push(JSON.parse(raw));return 'OK';};});
+ await page.locator('[data-act="ecoAiStart"]').click();
+ const first=await page.evaluate(()=>window.ecoTestRequests[0]);
+ assert.equal(first.scope,'todos');assert.ok(first.rows.length>0);
+ assert.ok(first.rows.every(x=>x.sessionId&&x.text.includes('Nota de teste')));
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i:0,score:.75}]}));});
+ const second=await page.evaluate(()=>window.ecoTestRequests[1]);
+ assert.equal(second.scope,'desconhecido');assert.equal(second.cacheScope,'library');
+ assert.ok(second.rows.length>0&&second.rows.every(x=>!x.sessionId&&!x.text.includes('Nota de teste')));
+ const theoryIndex=second.rows.findIndex(x=>x.text.length<1200);
+ assert.ok(theoryIndex>=0);
+ await page.evaluate(i=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i,score:.8}]}));},theoryIndex);
+ const third=await page.evaluate(()=>window.ecoTestRequests[2]);
+ assert.equal(third.mode,'rerank');assert.equal(third.rows.length,2);
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:2,hits:[{i:1,score:.9},{i:0,score:.8}],skipped:[]}));});
+ await page.locator('#ecoAiPick_0').check();await page.locator('#ecoAiPick_1').check();
+ await page.locator('[data-act="ecoAiGenerate"]').click();
+ const fourth=await page.evaluate(()=>window.ecoTestRequests[3]);
+ assert.equal(fourth.mode,'generate');assert.match(fourth.sources[0].text,/REFERÊNCIA TEÓRICA/);assert.match(fourth.sources[1].text,/NOTA PROFISSIONAL/);
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:2,clinicalValidation:false,draft:'Nota profissional registrada [S2]. Referência teórica [S1].',model:'fixture'}));});
+ await page.locator('#ecoAiArchiveTitle').fill('Síntese integrada fictícia');
+ await page.locator('#ecoAiArchiveConfirm').check();
+ await page.locator('[data-act="ecoAiArchiveSave"]').click();
+ const result=await page.evaluate(()=>{const c=state.cases.find(x=>x.id==='browser-b'),rec=c.ecoAiArchive.at(-1);return {scope:rec.scope,sources:rec.sources.map(x=>x.scope),valid:ecoAiArchiveValid(c,rec),other:state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0};});
+ assert.deepEqual(result,{scope:'integrado',sources:['teoria','manual'],valid:true,other:0});
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
