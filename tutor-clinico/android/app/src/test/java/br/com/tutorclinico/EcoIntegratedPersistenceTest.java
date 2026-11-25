@@ -438,4 +438,61 @@ public class EcoIntegratedPersistenceTest {
         assertEquals("ORIGINAL B",byId(new JSONObject(store.read()),"clinical-b").getJSONObject("anamnese").getString("padroesSono"));
         store.getDbHelper().close();
     }
+    @Test public void largeAttachmentArchiveRestoresAtomicallyBeyondLegacyLimit() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        char[] password="eco-fixture-archive-2026".toCharArray();
+        SecureStore store=new SecureStore(context,key);
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(caseWith("archive-a","FICTICIO"))).put("appointments",new JSONArray());
+        store.save(root.toString());
+        java.util.List<JSONObject> metas=new java.util.ArrayList<>();
+        byte[] pdf=new byte[6_100_000];
+        byte[] header="%PDF-1.7".getBytes(StandardCharsets.US_ASCII);
+        System.arraycopy(header,0,pdf,0,header.length);
+        for(int n=0;n<4;n++){
+            pdf[pdf.length-1]=(byte)n;
+            metas.add(store.addAttachment("archive-a","Sintético "+n,"Teste",pdf));
+        }
+        try{store.exportPortableSnapshot(false);fail("legacy attachment budget bypassed");}catch(java.io.IOException expected){}
+        JSONObject clinical=store.exportPortableSnapshot(false,false);
+        assertEquals(0,clinical.getJSONArray("attachmentBundle").length());
+        java.io.File archive=java.io.File.createTempFile("eco-archive-test",".bin",context.getCacheDir());
+        try{
+            try(java.io.OutputStream out=new java.io.FileOutputStream(archive)){
+                assertEquals(4,store.exportAttachmentArchive(out,password,()->true));
+            }
+            assertTrue(archive.length()>24_000_000);
+            store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+            key=new SecretKeySpec(new byte[]{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},"AES");
+            store=new SecureStore(context,key);store.save(clinical.toString());
+            // Tamper only the authenticated terminal tag: earlier records must roll back.
+            int original;
+            try(java.io.RandomAccessFile raf=new java.io.RandomAccessFile(archive,"rw")){
+                raf.seek(raf.length()-1);original=raf.read();raf.seek(raf.length()-1);raf.write(original^1);
+            }
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){
+                try{store.restoreAttachmentArchive(in,password,()->true);fail("corrupt archive accepted");}catch(java.io.IOException expected){}
+            }
+            assertEquals(0,store.listAttachments("archive-a").length());
+            try(java.io.RandomAccessFile raf=new java.io.RandomAccessFile(archive,"rw")){
+                raf.seek(raf.length()-1);raf.write(original);
+            }
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){
+                assertEquals(4,store.restoreAttachmentArchive(in,password,()->true));
+            }
+            assertEquals(4,store.listAttachments("archive-a").length());
+            for(int n=0;n<metas.size();n++){
+                pdf[pdf.length-1]=(byte)n;
+                assertArrayEquals(pdf,store.attachmentBytes("archive-a",metas.get(n).getString("id")));
+            }
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){
+                assertEquals(0,store.restoreAttachmentArchive(in,password,()->true));
+            }
+            assertEquals(4,store.listAttachments("archive-a").length());
+        }finally{
+            java.util.Arrays.fill(pdf,(byte)0);java.util.Arrays.fill(password,'\\0');
+            store.getDbHelper().close();archive.delete();
+        }
+    }
+
 }
