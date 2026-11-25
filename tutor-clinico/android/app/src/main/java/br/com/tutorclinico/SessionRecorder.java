@@ -118,7 +118,7 @@ final class SessionRecorder {
             if (audio.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING)
                 throw new IllegalStateException("Microfone não iniciou a gravação");
 
-            events.status("GRAVANDO ÁUDIO LOCAL · PARAR PARA TRANSCREVER");
+            events.status("GRAVANDO ÁUDIO LOCAL · TRANSCRIÇÃO INCREMENTAL");
             byte[] buffer = new byte[CHUNK_SIZE];
             byte[] encChunk = new byte[CHUNK_SIZE + 32];
             long lastNotice = System.currentTimeMillis();
@@ -158,7 +158,7 @@ final class SessionRecorder {
                     lastNotice = System.currentTimeMillis();
                     wav.getFD().sync();
                     boundary.publish(wav.getFilePointer(),false);
-                    events.status("GRAVANDO · " + (bytes / (RATE * 2L)) + " s · PARAR PARA TRANSCREVER");
+                    events.status("GRAVANDO · " + (bytes / (RATE * 2L)) + " s · TRANSCRIÇÃO INCREMENTAL");
                 }
             }
 
