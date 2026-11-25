@@ -1754,3 +1754,21 @@ test('ECO neural overlap filter preserves anonymous status and explicit uncertai
  const native=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
  assert.match(native,/SpeakerTimeline\.OVERLAP\.equals\(role\)/);
 });
+
+
+test('ECO full vault archive requires password and private diary opt-in',()=>{
+ assert.match(js('settingsScreen()'),/Exportar cofre integral/);
+ assert.match(js('settingsScreen()'),/Restaurar cofre integral/);
+ assert.match(js('settingsScreen()'),/cofre vazio/);
+ const calls=[];
+ context.window.NativeVault.fullVaultArchive=(pass,ex,diary)=>calls.push([pass,ex,diary]);
+ elems['#backupPass']={value:'curta'};
+ elems['#ecoFullVaultDiary']={checked:false};
+ js("act('ecoFullVaultExport')");assert.equal(calls.length,0);
+ elems['#backupPass'].value='eco-fixture-password';
+ js("act('ecoFullVaultExport')");assert.deepEqual(calls[0],['eco-fixture-password',true,false]);
+ elems['#backupPass'].value='eco-fixture-password';elems['#ecoFullVaultDiary'].checked=true;
+ js("act('ecoFullVaultExport')");assert.deepEqual(calls[1],['eco-fixture-password',true,true]);
+ elems['#backupPass'].value='eco-fixture-password';
+ js("act('ecoFullVaultImport')");assert.deepEqual(calls[2],['eco-fixture-password',false,false]);
+});
