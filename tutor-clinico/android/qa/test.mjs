@@ -1605,3 +1605,31 @@ test('ECO grouped retrieval: complete multi-batch review and claim, reject malfo
   assert.equal(js('ecoClaimRun.phase'),'ready');assert.deepEqual(Array.from(js('ecoClaimRun.hits.map(h=>h.i)')),[1304,0]);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('ecoClaimCancel();ecoReviewCancel("");state=JSON.parse(ecoSavedState);persist();ecoReviewType="anamnese";ecoReviewScope="paciente";ecoNliScope="paciente"');}
 });
+
+
+test('ECO TXT: pasted and file-selected transcript, explicit roles, immutable original and stale callback rejection',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.selectTranscriptFile;let token=null;
+ try{
+  context.window.NativeVault.selectTranscriptFile=x=>{token=x};
+  js("state.cases=[{id:'txt-a',nome:'Fictício A',sessoes:[]},{id:'txt-b',nome:'Fictício B',sessoes:[]}];act('newManualSession','txt-a',{dataset:{case:'txt-a'}})");
+  el('#manualSessTexto').value='';el('#manualSessTranscript').value='';el('#manualSessRoles').checked=false;
+  js("act('ecoImportTranscript','',{dataset:{case:'txt-a'}})");
+  assert.ok(token.startsWith('txt-a|'));
+  const raw='Paciente: Senti alegria.\nTerapeuta: Quer falar disso?\nLinha sem rótulo.';
+  context.window.nativeTranscriptImport(JSON.stringify({token:'txt-b|old',text:'NÃO IMPORTAR'}));
+  assert.equal(el('#manualSessTranscript').value,'');
+  context.window.nativeTranscriptImport(JSON.stringify({token,text:raw}));
+  assert.equal(el('#manualSessTranscript').value,raw);
+  assert.equal(el('#manualSessRoles').checked,false);
+  el('#manualSessRoles').checked=true;
+  js("act('saveManualSession','txt-a',{dataset:{case:'txt-a'}})");
+  assert.equal(js('state.cases[0].sessoes.length'),1);
+  assert.equal(js('state.cases[0].sessoes[0].origem'),'texto');
+  assert.equal(js('state.cases[0].sessoes[0].mlTranscricao'),raw);
+  assert.deepEqual(Array.from(js('state.cases[0].sessoes[0].mlSegments.map(x=>x.speaker)')),['paciente','terapeuta','desconhecido']);
+  assert.ok(js('state.cases[0].sessoes[0].mlSegments.every(x=>x.startMs===null&&x.endMs===null)'));
+  assert.equal(js('ecoReviewRows(state.cases[0],"paciente","","")[0].text'),'Senti alegria.');
+  assert.equal(js('state.cases[1].sessoes.length'),0);
+  assert.ok(js('ecoParseImportedTranscript("Paciente: Exemplo.",false).every(x=>x.speaker==="desconhecido")'));
+ }finally{context.window.NativeVault.selectTranscriptFile=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();manualSessionDraft=null;screen="home"');el('#manualSessTranscript').value='';el('#manualSessRoles').checked=false;}
+});
