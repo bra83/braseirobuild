@@ -303,7 +303,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->{
-                selectedAsrModel="tagarela".equals(model)?"tagarela":"base".equals(model)?"base":"small";
+                selectedAsrModel="vosk".equals(model)?"vosk":"tagarela".equals(model)?"tagarela":"base".equals(model)?"base":"small";
                 chooseAudioFile();
             });
         }

@@ -73,20 +73,20 @@ object WhisperFileEngine {
         var model: WhisperModel? = null
         var tagarela: TagarelaEngine? = null
         var diarizer: SegmentDiarizer? = null
-        val mode = if(requestedModel=="tagarela")"tagarela" else if(requestedModel=="base")"base" else "small"
-        val modelName = if(mode=="tagarela") "TAGARELA" else if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
+        val mode = if(requestedModel=="vosk")"vosk" else if(requestedModel=="tagarela")"tagarela" else if(requestedModel=="base")"base" else "small"
+        val modelName = if(mode=="vosk") "VOSK PT-BR" else if(mode=="tagarela") "TAGARELA" else if(mode=="base") "WHISPER BASE" else "WHISPER SMALL Q5"
         val asset = if(mode=="base") MODEL_BASE else MODEL_SMALL
         try {
             listener.state(modelName+" · PREPARANDO MODELO OFFLINE")
-            if(mode=="tagarela") tagarela = TagarelaEngine.getOrCreate(context) else model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
+            if(mode=="vosk") diarizer=SegmentDiarizer(context,clusters) else if(mode=="tagarela") tagarela = TagarelaEngine.getOrCreate(context) else model = runBlocking { Whisper.loadModelFromAsset(context, asset) }
             if (!listener.isActive()) return false
 
             // Skip already-committed PCM during resume. No duplicate segments are emitted.
             // The file is decoded again from the beginning, but Whisper starts at this offset.
             val skipFromMs = resumeFromMs.coerceAtLeast(0L)
             var toSkipBytes = skipFromMs * PCM_BYTES_PER_SECOND / 1000L
-            if(clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
-            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela)
+            if(mode!="vosk"&&clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
+            val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela,mode=="vosk")
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
             val chunksCount = AudioFileTranscriber.streamPcmWithCount(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
@@ -129,7 +129,8 @@ object WhisperFileEngine {
         private val modelName: String,
         resumeFromMs: Long,
         private val diarizer: SegmentDiarizer?,
-        private val tagarela: TagarelaEngine?
+        private val tagarela: TagarelaEngine?,
+        private val voskFast: Boolean
     ) {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private val acoustic = AcousticMeter(resumeFromMs)
@@ -215,6 +216,22 @@ object WhisperFileEngine {
                 if(listener.isActive()){
                     listener.state(modelName+" · SILÊNCIO IGNORADO NO TRECHO "+chunkIndex)
                     listener.progress(processedFrames * 1000L / SAMPLE_RATE)
+                }
+                return
+            }
+            if(voskFast){
+                listener.state("VOSK PT-BR · TRANSCRIBINDO "+(baseMs/1000)+"s")
+                requireNotNull(diarizer).transcribe(bytes,java.util.function.BooleanSupplier {listener.isActive()}) {text,start,end,cluster ->
+                    if(listener.isActive()){
+                        recognizedCount++
+                        listener.segmentWithSpeaker(text,baseMs+start,baseMs+end,cluster)
+                    }
+                }
+                if(listener.isActive()){
+                    listener.progress(processedFrames*1000L/SAMPLE_RATE)
+                    val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
+                    val speed=(processedFrames*1000L/SAMPLE_RATE-initialMs).toDouble()/elapsed
+                    listener.state("VOSK PT-BR · TRECHO "+chunkIndex+" CONCLUÍDO · "+String.format(java.util.Locale.US,"%.2fx",speed)+" TEMPO REAL")
                 }
                 return
             }

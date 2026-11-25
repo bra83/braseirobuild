@@ -67,7 +67,7 @@ final class MlSessionEngine implements RecognitionListener {
         lastChunksProcessed=0;
         pauseRequested=false;paused=false;discarding=false;userExplicitDiscard=false;resumeFromMs=0L;
         deferRecognitionUntilResume=false;
-        fileModelName="tagarela".equals(engine)?"tagarela":"whisper-base".equals(engine)?"base":"small";
+        fileModelName="vosk".equals(engine)?"vosk":"tagarela".equals(engine)?"tagarela":"whisper-base".equals(engine)?"base":"small";
         recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
             @Override public void onStarted(File file, byte[] ephemeralKey) throws Exception {
@@ -160,7 +160,7 @@ final class MlSessionEngine implements RecognitionListener {
         if (busy() || destroyed || hasPendingAudio() || currentJobId.isEmpty()) { events.state("ERRO · CONTEXTO INDISPONÍVEL OU OPERAÇÃO EM ANDAMENTO"); return; }
         if (uri == null) { events.state("ERRO ARQUIVO: seleção inválida"); return; }
         recoveryMode=false;
-        fileModelName = "tagarela".equals(modelName)?"tagarela":"base".equals(modelName)?"base":"small";
+        fileModelName = "vosk".equals(modelName)?"vosk":"tagarela".equals(modelName)?"tagarela":"base".equals(modelName)?"base":"small";
         setActiveEphemeralKey(null);
         speakerClusters.clear();
         wanted=true;retainedUri=uri;pendingFile=uri;
@@ -445,7 +445,7 @@ final class MlSessionEngine implements RecognitionListener {
             if (key == null) return false;
 
             String savedModel = dbHelper.getAppConfig("asr:" + jobId);
-            if (!java.util.Arrays.asList("tagarela","base","small").contains(savedModel)) savedModel = "tagarela";
+            if (!java.util.Arrays.asList("tagarela","base","small","vosk").contains(savedModel)) savedModel = "tagarela";
             setJobContext(jobId, job.optString("case_id"), job.optString("session_id"));
             fileModelName = savedModel;
             recoveryMode = true;

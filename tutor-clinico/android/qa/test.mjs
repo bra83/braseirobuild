@@ -1166,3 +1166,14 @@ test('Grade do paciente visível antes do resumo, com acesso direto à anamnese 
  js("act('caseTab','sintese')");
  assert.match(js("caseScreen()"),/Módulos do paciente/);
 });
+
+test('Vosk rápido é selecionável e não troca silenciosamente para Whisper',()=>{
+ js("act('ecoOpen',state.cases[0].id);ecoChosenMic='vosk';ecoChosenAsr='vosk';ecoWorkspaceTab='captura'");
+ const view=js("sessionScreen()");
+ assert.match(view,/value="vosk" selected/);
+ const ml=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MlSessionEngine.java',import.meta.url),'utf8');
+ const engine=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/WhisperFileEngine.kt',import.meta.url),'utf8');
+ assert.match(ml,/fileModelName="vosk"\.equals\(engine\)\?"vosk"/);
+ assert.match(engine,/if\(voskFast\)/);
+ js("ecoChosenMic='tagarela';ecoChosenAsr='tagarela'");
+});
