@@ -241,6 +241,18 @@ let state=null, screen='home', openedId=null, tab='sintese', wizardStep=0, draft
  editSessionId=null, sessionDraft=null, editApptId=null, apptDraft=null,
  searchTerm='', studyMode='tecnicas', pendingImport=null, modal='';
 let errorLocked=false;
+// SQLite holds the committed raw segments even when no WebView is attached.
+function ecoMergeNativeAudio(native,journal){
+ const merged=JSON.parse(JSON.stringify({...native,...journal}));
+ const nativeRows=Array.isArray(native?.mlSegments)?native.mlSegments:[];
+ const journalRows=Array.isArray(journal?.mlSegments)?journal.mlSegments:[];
+ if(!nativeRows.length)return merged;
+ const rows=new Map(journalRows.filter(x=>x?.id).map(x=>[x.id,x]));
+ for(const n of nativeRows){const prior=rows.get(n.id);rows.set(n.id,{...prior,...n,cluster:n.cluster||prior?.cluster||'',speaker:n.manualSpeaker?n.speaker:prior?.speaker||n.speaker||'desconhecido'});}
+ merged.mlSegments=[...rows.values()].sort((a,b)=>(a.startMs??0)-(b.startMs??0)||(a.endMs??0)-(b.endMs??0)||String(a.id).localeCompare(String(b.id)));
+ merged.mlTranscricao=merged.mlSegments.map(x=>x.text||'').join(' ').trim();
+ return merged;
+}
 function appUnlock(){
  try {
    const raw=window.NativeVault.loadState(); const data=JSON.parse(raw);
@@ -258,10 +270,24 @@ function appUnlock(){
    // Recover the encrypted autosave even after OS process death. This cannot
    // restore a deleted temporary WAV, but preserves already transcribed text.
    const recovered=state.mlDraft;
+   let activeAudio=null;
+   try{activeAudio=JSON.parse(window.NativeVault.activeAudioJob?.()||"{}");}catch(e){}
+   if(activeAudio?.jobId&&activeAudio.caseId&&activeAudio.sessionId){
+      const owner=state.cases.find(c=>c.id===activeAudio.caseId),native=owner?.sessoes?.find(x=>x.id===activeAudio.sessionId);
+      if(native){
+        const journal=recovered?.caseId===owner.id&&recovered.session?.id===native.id?recovered.session:null;
+        openedId=owner.id;sessionDraft=ecoMergeNativeAudio(native,journal);editSessionId=native.id;
+        ecoActiveJobId=activeAudio.jobId;screen="session";ecoWorkspaceTab="captura";
+        ecoStatus=activeAudio.status||"PREPARANDO RECUPERAÇÃO";
+        if(activeAudio.paused&&!/^(PAUSADO|FALHA)/.test(ecoStatus))ecoStatus="PAUSADO · RETOME O ÁUDIO";
+        ecoAudioSource="microfone";ecoChosenMic=activeAudio.model==="small"?"whisper-small":activeAudio.model==="base"?"whisper-base":activeAudio.model||"tagarela";
+        ecoEnsure();render();return;
+      }
+   }
    const caseExists=recovered&&state.cases.some(c=>c.id===recovered.caseId);
    if(caseExists && recovered.session && typeof recovered.session==="object"){
       openedId=recovered.caseId;
-      sessionDraft=JSON.parse(JSON.stringify(recovered.session));
+      sessionDraft=ecoMergeNativeAudio(state.cases.find(c=>c.id===openedId)?.sessoes?.find(x=>x.id===recovered.session.id),recovered.session);
       editSessionId=state.cases.find(c=>c.id===openedId)?.sessoes?.some(s=>s.id===sessionDraft.id)?sessionDraft.id:null;
       screen="session";
       ecoWorkspaceTab="revisar";
@@ -921,7 +947,7 @@ function ecoRecoverJob(job){
  openedId=c.id;sessionDraft=JSON.parse(JSON.stringify(saved));editSessionId=saved.id;
  const draftRaw=window.NativeVault.loadCaseDraft?.(c.id);
  try{const journal=JSON.parse(draftRaw||"null");if(journal?.session?.id===saved.id&&journal.caseId===c.id){
-   sessionDraft={...sessionDraft,...journal.session,mlSegments:sessionDraft.mlSegments||journal.session.mlSegments||[]};
+   sessionDraft=ecoMergeNativeAudio(saved,journal.session);
  }}catch(e){}
  ecoEnsure();ecoActiveJobId=job.job_id;ecoStatus="PREPARANDO RECUPERAÇÃO";screen="session";ecoWorkspaceTab="captura";
  render();
