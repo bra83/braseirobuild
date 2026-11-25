@@ -680,7 +680,7 @@ function normalizeImported(raw){
    if(!a||!a.id||!a.caseId||!validDate(a.data)||!/^\d\d:\d\d$/.test(a.hora||''))throw Error('Consulta inválida');
    return {id:a.id,caseId:a.caseId,data:a.data,hora:a.hora,duracao:Number(a.duracao)||50,status:a.status||'Agendado',notas:a.notas||''};
  });
- return {cases,appointments,legacy:Array.isArray(raw),mlDraft:raw&&raw.mlDraft&&typeof raw.mlDraft==='object'?JSON.parse(JSON.stringify(raw.mlDraft)):null,uiTheme:raw&&raw.uiTheme==='dark'?'dark':'light'};
+ return {cases,appointments,attachmentBundle:Array.isArray(raw?.attachmentBundle)?raw.attachmentBundle:[],rootCollections:Object.fromEntries(['ecoFinance','ecoQuestionTemplates','ecoPersonalLibrary','ecoDocTemplates'].map(k=>[k,Array.isArray(raw?.[k])?raw[k]:[]])),legacy:Array.isArray(raw),mlDraft:raw&&raw.mlDraft&&typeof raw.mlDraft==='object'?JSON.parse(JSON.stringify(raw.mlDraft)):null,uiTheme:raw&&raw.uiTheme==='dark'?'dark':'light'};
 }
 function pdfForCase(c){const rows=()=>[...c.sessoes].sort((a,b)=>b.data.localeCompare(a.data)).map(s=>`<section style="break-inside:avoid;border-top:1px solid #ccc;padding:9px 0"><h3>Sessão ${esc(formatDate(s.data))}</h3><p>${esc(s.texto).replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p><strong>Pontos para acompanhamento:</strong> ${esc(s.plano)}</p>`:''}<small>Retificações: ${(s.revisoes||[]).length}</small></section>`).join('');
  return `<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><style>body{font:12px/1.5 Arial,sans-serif;color:#20342e;margin:30px}h1{font-size:22px;color:#155c52}h2{color:#155c52;border-bottom:1px solid #b8cfc3}h3{font-size:13px}p{white-space:normal;overflow-wrap:anywhere}small{color:#666}.kv{margin:5px 0}</style></head><body><h1>Relatório de acompanhamento</h1><small>Documento gerado localmente em ${esc(formatDate(datestr()))}. Revisar antes de compartilhar.</small><h2>Identificação e anamnese</h2>${[['Caso',c.nome],['Idade',c.idade],['Modalidade',c.modalidade],['Primeiro atendimento',formatDate(c.data)],['Status',c.status],['Queixa',c.queixaTexto],['Intensidade',String(c.intensidade)],['Desde quando',c.desde],['Gatilhos',c.gatilhos],['Histórico familiar',c.familia],['Relacionamentos',c.relacoes],['Recursos',c.recursos],['Sonhos e recorrências',c.sonhos],['Observações',c.obs]].map(([k,v])=>`<div class="kv"><strong>${esc(k)}:</strong> ${esc(v||'Não informado')}</div>`).join('')}<h2>Registros das sessões</h2>${rows()||'Nenhuma sessão registrada.'}<p><small>Material confidencial. A geração não equivale a assinatura, validação ou certificação de prontuário.</small></p></body></html>`;
@@ -768,9 +768,12 @@ function act(name,id){
   const success=change(()=>{
    state.cases.push(...newCases);state.appointments.push(...newAppointments);
    for(const addition of plan.sessions){const c=state.cases.find(x=>x.id===addition.caseId);c.sessoes=[...(c.sessoes||[]),addition.session];}
+   for(const [key,rows] of Object.entries(data.rootCollections||{})){const old=state[key]||[],ids=new Set(old.map(x=>x.id));state[key]=[...old,...rows.filter(x=>x&&typeof x.id==='string'&&!ids.has(x.id)&&(key!=='ecoFinance'||validIds.has(x.caseId)))];}
+   if(data.attachmentBundle?.length)state.attachmentBundle=data.attachmentBundle;
    if(!state.mlDraft && data.mlDraft && state.cases.some(c=>c.id===data.mlDraft.caseId))
       state.mlDraft=JSON.parse(JSON.stringify(data.mlDraft));
   });
+  if(success)delete state.attachmentBundle;
   if(success&&data.mlDraft&&window.NativeVault.saveDraft&&state.mlDraft?.caseId===data.mlDraft.caseId)
      window.NativeVault.saveDraft(JSON.stringify(data.mlDraft));
   if(success){pendingImport=null;closeModal();notify(`${newCases.length} caso(s), ${plan.sessions.length} sessão(ões) e ${newAppointments.length} consulta(s) adicionados. ${plan.conflicts} conflito(s) mantidos sem sobrescrever.`);}
@@ -783,7 +786,7 @@ function openModal(html){closeModal();const node=document.createElement('div');n
 window.nativeImportResult = function(content){
  try{const data=normalizeImported(JSON.parse(content));pendingImport=data;
   const plan=ecoPlanBackupMerge(state,data),newCount=plan.newCases.length;
-  openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>${plan.sessions.length} sessão(ões) ausentes serão recuperadas em casos existentes. ${plan.conflicts} conflito(s) serão mantidos localmente sem sobrescrever. Nenhum registro local será apagado.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
+  openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>${plan.sessions.length} sessão(ões) ausentes serão recuperadas em casos existentes. ${plan.conflicts} conflito(s) serão mantidos localmente sem sobrescrever. ${data.attachmentBundle.length} anexo(s) cifrados no pacote. Nenhum registro local será apagado.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
  }catch(e){pendingImport=null;notify('Não foi possível interpretar o arquivo: '+e.message,'red');}
 };
 document.addEventListener('click',e=>{const button=e.target.closest('[data-act]');if(button){e.preventDefault();act(button.dataset.act,button.dataset.id,button);}});
@@ -4525,5 +4528,32 @@ act=function(name,id,button){
  if(name==='ecoLabCancel'){ecoLabCancel();render();return;}
  if(name==='nav'||name==='openCase')ecoLabCancel();
  return ecoLabPriorAct(name,id,button);
+};
+
+function ecoAttachmentsPanel(c){
+ let list=[],error=false;try{list=JSON.parse(window.NativeVault?.listAttachments?.(c.id)||'[]');if(!Array.isArray(list)){error=true;list=[];}}catch(e){error=true;}
+ return '<section class="card"><h2>Anexos autorizados</h2><p class="small muted">PDF, PNG ou JPEG de até 8 MB. O arquivo é armazenado cifrado em blocos autenticados com SHA-256, sem abertura automática de links. Exportação externa gera arquivo sem proteção do cofre.</p><div class="field"><label>Título</label><input id="ecoAttachTitle" maxlength="200"></div><div class="field"><label>Classificação</label><select id="ecoAttachClass"><option>Documento recebido</option><option>Autorização / consentimento</option><option>Encaminhamento</option><option>Imagem autorizada</option><option>Outro registro</option></select></div><label class="choice"><input type="checkbox" id="ecoAttachConfirm">Confirmei autorização e finalidade do armazenamento.</label>'+btn('Selecionar arquivo','ecoAttachImport','secondary','data-case="'+esc(c.id)+'"')+(error?'<p class="alert red">Não foi possível abrir o índice de anexos.</p>':'')+list.map(x=>'<div class="eco-evidence"><strong>'+esc(x.title)+'</strong><p>'+esc(x.classification)+' · '+Math.ceil(x.bytes/1024)+' KB · '+esc(x.mime)+'</p><p class="small muted">SHA-256: '+esc(x.sha256)+'</p>'+(x.mime==='image/png'||x.mime==='image/jpeg'?btn('Visualizar imagem','ecoAttachPreview','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(x.id)+'"'):'')+btn('Exportar arquivo','ecoAttachExport','ghost','data-case="'+esc(c.id)+'" data-id="'+esc(x.id)+'"')+'</div>').join('')+'</section>';
+}
+const ecoAttachPriorCase=caseScreen;caseScreen=function(){const c=currentCase();return ecoAttachPriorCase()+(c&&tab==='documentos'?ecoAttachmentsPanel(c):'');};
+window.nativeAttachmentSaved=function(caseId){if(screen==='case'&&tab==='documentos'&&openedId===caseId)render();};
+const ecoAttachPriorAct=act;
+act=function(name,id,button){
+ if(['ecoAttachImport','ecoAttachPreview','ecoAttachExport'].includes(name)){
+  const c=currentCase();if(!c||screen!=='case'||tab!=='documentos'||button?.dataset?.case!==c.id)return;
+  if(name==='ecoAttachImport'){
+   const title=String(document.getElementById('ecoAttachTitle')?.value||'').trim(),classification=String(document.getElementById('ecoAttachClass')?.value||'');
+   if(!title||!document.getElementById('ecoAttachConfirm')?.checked){notify('Informe o título e confirme a autorização.','red');return;}
+   if(!window.NativeVault?.selectAttachment){notify('Importação de arquivos disponível no Android.','red');return;}
+   window.NativeVault.selectAttachment(c.id,title,classification,true);return;
+  }
+  if(name==='ecoAttachPreview'){
+   const uri=window.NativeVault?.previewAttachmentImage?.(c.id,id)||'';
+   if(!/^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(uri)){notify('Imagem indisponível ou alterada.','red');return;}
+   openModal('<h2>Anexo autorizado · visualização local</h2><img alt="Anexo autorizado" style="max-width:100%;height:auto" src="'+esc(uri)+'">'+btn('Fechar','closeModal','ghost'));return;
+  }
+  if(!window.NativeVault?.exportAttachment){notify('Exportação disponível no Android.','red');return;}
+  window.NativeVault.exportAttachment(c.id,id);return;
+ }
+ return ecoAttachPriorAct(name,id,button);
 };
 </script></body></html>
