@@ -4053,11 +4053,16 @@ function ecoLibraryStart(){
  if(screen!=='study'||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNliRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const query=String(document.getElementById('ecoLibraryQuery')?.value||'').trim(),rows=ecoLibraryChunks();
  if(!query||query.length>500){notify('Informe uma consulta de até 500 caracteres.','red');return;}
- const id='library-'+(++ecoLibrarySerial)+'-'+Date.now(),payload=JSON.stringify({id,scope:'desconhecido',cacheScope:'library',rows:rows.map(x=>({text:x.text,speaker:x.speaker,source:x.source})),queries:[{key:'library',text:query}]});
- if(rows.length>1200||payload.length>500000){notify('Corpus acima do limite de uma execução.','red');return;}
- ecoLibraryRun={id,query,rows,pending:true,last:Date.now(),stage:'Carregando DistilUSE'};
- try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){ecoLibraryRun.pending=false;ecoLibraryRun.error=String(status||'Motor indisponível.');}}catch(e){ecoLibraryRun.pending=false;ecoLibraryRun.error='Falha ao iniciar o motor.';}
- render();if(ecoLibraryRun.pending)setTimeout(()=>ecoLibraryWatch(id),5000);
+ if(!rows.length){notify('Biblioteca vazia.','red');return;}
+ ecoLibraryRun={query,rows,batches:ecoGroupedBatchPlan(rows),batch:0,covered:0,merged:[],pending:false};
+ ecoLibraryBatch(ecoLibraryRun);
+}
+function ecoLibraryBatch(r){
+ const batch=r.batches[r.batch],rows=r.rows.slice(batch.start,batch.end);
+ const id=r.id='library-'+(++ecoLibrarySerial)+'-'+Date.now(),payload=JSON.stringify({id,scope:'desconhecido',cacheScope:'library',rows:rows.map(x=>({text:x.text,speaker:x.speaker,source:x.source})),queries:[{key:'library',text:r.query}]});
+ r.pending=true;r.last=Date.now();r.stage='Lote '+(r.batch+1)+'/'+r.batches.length+' · '+r.covered+'/'+r.rows.length+' trechos';
+ try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){r.pending=false;r.error=String(status||'Motor indisponível.');}}catch(e){r.pending=false;r.error='Falha ao iniciar o motor.';}
+ render();if(r.pending)setTimeout(()=>ecoLibraryWatch(id),5000);
 }
 function ecoLibraryWatch(id){const r=ecoLibraryRun;if(!r?.pending||r.id!==id)return;if(screen!=='study'||Date.now()-r.last>180000){ecoLibraryCancel();if(screen==='study'){notify('Consulta interrompida.');render();}return;}setTimeout(()=>ecoLibraryWatch(id),5000);}
 function ecoLibraryPanel(){
@@ -4070,7 +4075,21 @@ function ecoLibraryPanel(){
 const ecoLibraryPriorStudy=studyScreen;studyScreen=function(){return ecoLibraryPriorStudy()+ecoLibraryPanel();};
 const ecoLibraryPriorProgress=window.nativeSemanticProgress,ecoLibraryPriorResult=window.nativeSemanticResult,ecoLibraryPriorUnlock=window.nativeSemanticUnlocked;
 window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('library-'))return ecoLibraryPriorProgress(raw);const r=ecoLibraryRun;if(!r?.pending||v.id!==r.id)return;if(screen!=='study'){ecoLibraryCancel();return;}r.last=Date.now();r.stage=String(v.stage||'Pesquisando');const el=document.getElementById('ecoLibraryStage');if(el)el.textContent=r.stage;};
-window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('library-'))return ecoLibraryPriorResult(raw);const r=ecoLibraryRun;if(!r?.pending||v.id!==r.id)return;if(screen!=='study'){ecoLibraryRun=null;return;}r.pending=false;const hits=v.groups?.[0]?.hits;if(v.error)r.error=String(v.error);else if(v.count!==r.rows.length||v.scope!=='desconhecido'||v.groups?.length!==1||v.groups[0].key!=='library'||!Array.isArray(hits)||hits.length>5||!hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.rows.length&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001))r.error='Resposta neural inválida.';else r.hits=hits;render();};
+window.nativeSemanticResult=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}
+ if(!String(v.id||'').startsWith('library-'))return ecoLibraryPriorResult(raw);
+ const r=ecoLibraryRun;if(!r?.pending||v.id!==r.id)return;if(screen!=='study'){ecoLibraryRun=null;return;}
+ r.pending=false;const hits=v.groups?.[0]?.hits,batch=r.batches[r.batch],count=batch.end-batch.start;
+ if(v.error)r.error=String(v.error);
+ else if(v.count!==count||v.scope!=='desconhecido'||v.groups?.length!==1||v.groups[0].key!=='library'||!Array.isArray(hits)||hits.length>5||new Set(hits.map(x=>x.i)).size!==hits.length||!hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<count&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001))r.error='Resposta neural inválida.';
+ else{
+  r.merged=[...r.merged,...hits.map(x=>({...x,i:x.i+batch.start}))].sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,5);
+  r.covered+=count;r.batch++;
+  if(r.batch<r.batches.length){ecoLibraryBatch(r);return;}
+  r.hits=r.merged;
+ }
+ render();
+};
 window.nativeSemanticUnlocked=function(){ecoLibraryCancel();return ecoLibraryPriorUnlock();};
 const ecoLibraryPriorAct=act;
 act=function(name,id,button){if(name==='ecoLibraryStart'){ecoLibraryStart();return;}if(name==='ecoLibraryCancel'){ecoLibraryCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name))ecoLibraryCancel();return ecoLibraryPriorAct(name,id,button);};
@@ -4984,7 +5003,11 @@ function ecoPerspectiveNext(r){
  if(r.index>=r.authors.length){r.pending=false;render();return;}
  const author=r.authors[r.index];r.theory=ecoPerspectiveTheory(author);
  if(!r.theory.length){r.results.push({author,error:'Nenhuma fonte exclusiva deste autor disponível. Não gerar por suposição.'});r.index++;ecoPerspectiveNext(r);return;}
- ecoPerspectiveSend(r,'retrieve',{query:r.quote,scope:'desconhecido',retrievalOnly:true,rows:r.theory.map(x=>({text:x.text,speaker:'desconhecido'}))},author+' · recuperando fontes teóricas com DistilUSE');
+ r.batches=ecoGroupedBatchPlan(r.theory);r.batch=0;r.merged=[];ecoPerspectiveBatch(r);
+}
+function ecoPerspectiveBatch(r){
+ const b=r.batches[r.batch];
+ ecoPerspectiveSend(r,'retrieve',{query:r.quote,scope:'desconhecido',retrievalOnly:true,rows:r.theory.slice(b.start,b.end).map(x=>({text:x.text,speaker:'desconhecido'}))},r.authors[r.index]+' · recuperando fontes · lote '+(r.batch+1)+'/'+r.batches.length);
 }
 function ecoPerspectiveStart(c){
  if(ecoPerspectiveRun?.pending||ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
@@ -5005,10 +5028,14 @@ window.nativeSemanticResult=function(raw){
  r.pending=false;const author=r.authors[r.index];
  if(v.error)r.results.push({author,error:String(v.error)});
  else if(r.mode==='retrieve'){
-  const valid=v.scope==='desconhecido'&&v.count===r.theory.length&&Array.isArray(v.hits)&&v.hits.length<=20&&new Set(v.hits.map(x=>x.i)).size===v.hits.length&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.theory.length&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001);
-  if(!valid||!v.hits.length)r.results.push({author,error:'Recuperação teórica insuficiente ou inválida.'});
+  const batch=r.batches[r.batch],count=batch.end-batch.start;
+  const valid=v.scope==='desconhecido'&&v.count===count&&Array.isArray(v.hits)&&v.hits.length<=20&&new Set(v.hits.map(x=>x.i)).size===v.hits.length&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<count&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001);
+  if(!valid)r.results.push({author,error:'Recuperação teórica inválida.'});
   else{
-   r.ranked=v.hits.map(x=>r.theory[x.i]);
+   r.merged=[...r.merged,...v.hits.map(x=>({...x,i:x.i+batch.start}))].sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,20);
+   r.batch++;if(r.batch<r.batches.length){ecoPerspectiveBatch(r);return;}
+   if(!r.merged.length){r.results.push({author,error:'Nenhuma passagem teórica recuperada.'});r.index++;ecoPerspectiveNext(r);return;}
+   r.ranked=r.merged.map(x=>r.theory[x.i]);
    ecoPerspectiveSend(r,'rerank',{mode:'rerank',query:r.quote,rows:r.ranked.map(x=>({text:x.text}))},author+' · reordenando fontes com mMARCO');return;
   }
  }else if(r.mode==='rerank'){
