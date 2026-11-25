@@ -272,7 +272,7 @@ public final class MainActivity extends Activity {
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] grants){
         super.onRequestPermissionsResult(code,permissions,grants);
         if(code==MIC_PERMISSION){
-            if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked)ml.start(selectedMicEngine);
+            if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked&&!semanticBusy.get()){embeddingCache.clear();releaseWarmSemantic();ml.start(selectedMicEngine);}
             else jsCallback("nativeMlState","MICROFONE NEGADO");
         }
     }
@@ -283,7 +283,7 @@ public final class MainActivity extends Activity {
             requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},MIC_PERMISSION);
             return;
         }
-        ml.start(selectedMicEngine);
+        embeddingCache.clear();releaseWarmSemantic();ml.start(selectedMicEngine);
     }
     private void chooseAudioFile(){
         if(!unlocked){jsCallback("nativeMlState","ERRO ARQUIVO: app bloqueado");return;}
@@ -309,7 +309,7 @@ public final class MainActivity extends Activity {
                 }
             }
         }catch(Exception ignored){ /* Some providers do not expose length; decoder enforces duration. */ }
-        ml.importFile(uri,selectedAsrModel);
+        embeddingCache.clear();releaseWarmSemantic();ml.importFile(uri,selectedAsrModel);
     }
     private final class Bridge {
         @JavascriptInterface public void setDiarization(boolean enabled){if(unlocked)ml.setDiarization(enabled);}
@@ -591,6 +591,22 @@ public final class MainActivity extends Activity {
             try { store.save(json); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
+        @JavascriptInterface public String recoveryCheckpoints(){
+            if(!unlocked)return "[]";
+            try{return store.checkpointList().toString();}catch(Exception e){return "[]";}
+        }
+        @JavascriptInterface public void exportRecoveryCheckpoint(String slot,String password){
+            if(!unlocked||password==null||password.length()<10)return;
+            main.post(()->reauthenticate("Exportar cópia de recuperação",()->{
+                try{
+                    String json=store.readCheckpoint(Integer.parseInt(slot));
+                    pendingExport=SecureStore.encryptBackup(json,password);
+                    if(pendingExport.length>50_000_000)throw new java.io.IOException("Cópia acima do limite");
+                    Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
+                    intent.putExtra(Intent.EXTRA_TITLE,"eco-recuperacao.psicbackup");startActivityForResult(intent,EXPORT_CODE);
+                }catch(Exception e){pendingExport=null;showToast("Não foi possível exportar a cópia de recuperação.");}
+            }));
+        }
         @JavascriptInterface public String databaseDiagnostics() {
             if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
             try{return store.diagnostics();}catch(Exception e){return "{\"__loadError\":\"Diagnóstico indisponível\"}";}
@@ -805,7 +821,7 @@ public final class MainActivity extends Activity {
                 jsCallback("nativeImportResult", content);
             }
         } catch (Exception e) {
-            android.util.Log.e("ECO", "Falha de operação local: " + code, e);
+            android.util.Log.w("ECO", "Falha de operação local: " + code);
             showToast((code == IMPORT_CODE ? "Falha ao abrir backup: " : "Operação não concluída: ") + e.getMessage());
             if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","ERRO ARQUIVO: " + e.getMessage());
         }
