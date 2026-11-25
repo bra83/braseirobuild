@@ -483,6 +483,59 @@ final class SecureStore {
         }finally{db.endTransaction();}
     }
 
+    // Separate slots for incomplete registrations and appointment forms.
+    // They never enter the clinical record until explicitly saved.
+    private static String editorKey(String slot) {
+        if(!"wizard".equals(slot)&&!"appointment".equals(slot))
+            throw new IllegalArgumentException("Editor inválido");
+        return "editor_draft:"+slot;
+    }
+    private static JSONObject validateEditor(String slot,String json) throws Exception {
+        editorKey(slot);
+        if(json==null||json.length()>2_000_000)throw new IllegalArgumentException("Rascunho acima do limite");
+        JSONObject data=new JSONObject(json),value=data.getJSONObject("value");
+        if(!slot.equals(data.optString("slot"))||value.optString("id").trim().isEmpty())
+            throw new IllegalArgumentException("Rascunho inválido");
+        if("wizard".equals(slot)&&(data.optInt("step",-1)<0||data.optInt("step",-1)>3))
+            throw new IllegalArgumentException("Etapa inválida");
+        if("appointment".equals(slot)&&value.optString("caseId").isEmpty())
+            throw new IllegalArgumentException("Consulta sem caso");
+        return data;
+    }
+    synchronized void saveEditorDraft(String slot,String json) throws Exception {
+        JSONObject data=validateEditor(slot,json);
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try{
+            if("appointment".equals(slot)&&!caseExists(db,data.getJSONObject("value").getString("caseId")))
+                throw new IllegalArgumentException("Caso inexistente");
+            String key=editorKey(slot);
+            String old=readEditorDraft(slot);
+            if(!old.isEmpty()&&!new JSONObject(old).getJSONObject("value").getString("id").equals(data.getJSONObject("value").getString("id")))
+                throw new IllegalArgumentException("Outro rascunho aguarda recuperação");
+            ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(json));
+            cv.put("updated_at",System.currentTimeMillis());
+            if(db.update("configuracoes",cv,"chave=?",new String[]{key})==0)db.insertOrThrow("configuracoes",null,cv);
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+    synchronized String readEditorDraft(String slot) throws Exception {
+        String key=editorKey(slot);
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{key},null,null,null)){
+            return c.moveToFirst()?dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{key})):"";
+        }
+    }
+    synchronized void clearEditorDraft(String slot,String id) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
+        try{
+            String old=readEditorDraft(slot);
+            if(!old.isEmpty()&&id.equals(new JSONObject(old).getJSONObject("value").getString("id")))
+                db.delete("configuracoes","chave=?",new String[]{editorKey(slot)});
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+
     // Portable backup stores decrypted journal data only inside the password-encrypted envelope.
     // Device-bound ciphertext must never be exported as a portable record.
     synchronized JSONObject exportNativeRecovery() throws Exception {
@@ -507,7 +560,9 @@ final class SecureStore {
                         .put("entityId",c.getString(3)).put("capturedAt",c.getLong(4)).put("payload",new JSONObject(payload)));
                 }
             }
-            bundle.put("drafts",drafts).put("revisions",revisions);
+            JSONArray editors=new JSONArray();
+            for(String slot:new String[]{"wizard","appointment"}){String editor=readEditorDraft(slot);if(!editor.isEmpty())editors.put(new JSONObject(editor));}
+            bundle.put("drafts",drafts).put("revisions",revisions).put("editors",editors);
             db.setTransactionSuccessful();
             return bundle;
         }finally{db.endTransaction();}
@@ -542,6 +597,16 @@ final class SecureStore {
             }
             ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(data));
             cv.put("updated_at",System.currentTimeMillis());db.insertOrThrow("configuracoes",null,cv);
+        }
+        JSONArray editors=bundle.optJSONArray("editors");
+        if(bundle.has("editors")&&editors==null)throw new IllegalArgumentException("Editores inválidos");
+        java.util.Set<String> slots=new java.util.HashSet<>();
+        if(editors!=null)for(int i=0;i<editors.length();i++){
+            JSONObject editor=editors.getJSONObject(i);String slot=editor.getString("slot");
+            if(!slots.add(slot))throw new IllegalArgumentException("Editor duplicado");
+            String old=readEditorDraft(slot);
+            if(!old.isEmpty()&&!old.equals(editor.toString()))throw new IllegalArgumentException("Rascunho de editor local divergente");
+            if(old.isEmpty())saveEditorDraft(slot,editor.toString());
         }
         for(int i=0;i<revisions.length();i++){
             JSONObject row=revisions.getJSONObject(i),payload=row.getJSONObject("payload");
