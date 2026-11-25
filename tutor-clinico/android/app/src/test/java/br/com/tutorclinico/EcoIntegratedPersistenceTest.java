@@ -311,4 +311,42 @@ public class EcoIntegratedPersistenceTest {
         assertEquals(large,new JSONObject(store.sessionVersion("large-a","large-a-s",versions.getJSONObject(0).getLong("id"))).getString("mlTranscricao"));
         store.getDbHelper().close();
     }
+
+    @Test public void portableRecoveryReencryptsAcrossDevicesAndRejectsConflictingDraftAtomically() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        byte[] k1=new byte[32],k2=new byte[32];java.util.Arrays.fill(k2,(byte)42);
+        SecureStore store=new SecureStore(context,new SecretKeySpec(k1,"AES"));
+        JSONObject a=caseWith("portable-a","VERSAO ANTERIOR"),b=caseWith("portable-b","NOTA B");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject draft=new JSONObject().put("caseId","portable-a").put("session",new JSONObject().put("id","portable-draft").put("texto","RASCUNHO REMOTO"));
+        store.saveFormDraft("portable-a",draft.toString());
+        a.getJSONArray("sessoes").getJSONObject(0).put("texto","VERSAO ATUAL");
+        store.save(root.toString());
+        JSONObject backup=new JSONObject(store.read()).put("nativeRecoveryBundle",store.exportNativeRecovery());
+        byte[] envelope=SecureStore.encryptBackup(backup.toString(),"eco-portable-fixture");
+        store.getDbHelper().close();
+        assertTrue(context.deleteDatabase("eco_vault.db"));
+        store=new SecureStore(context,new SecretKeySpec(k2,"AES"));
+        String restored=SecureStore.decryptBackup(envelope,"eco-portable-fixture");
+        store.save(restored);
+        assertEquals(draft.toString(),store.readFormDraft("portable-a"));
+        assertEquals("",store.readFormDraft("portable-b"));
+        JSONArray versions=new JSONArray(store.sessionVersions("portable-a","portable-a-s"));
+        assertEquals(1,versions.length());
+        assertEquals("VERSAO ANTERIOR",new JSONObject(store.sessionVersion("portable-a","portable-a-s",versions.getJSONObject(0).getLong("id"))).getString("texto"));
+        assertFalse(new JSONObject(store.read()).has("nativeRecoveryBundle"));
+        store.save(restored);
+        assertEquals(1,new JSONArray(store.sessionVersions("portable-a","portable-a-s")).length());
+        JSONObject divergent=new JSONObject(draft.toString());
+        divergent.getJSONObject("session").put("texto","RASCUNHO LOCAL");
+        store.saveFormDraft("portable-a",divergent.toString());
+        JSONObject attempted=new JSONObject(restored);
+        byId(attempted,"portable-b").put("nome","NAO GRAVAR");
+        try{store.save(attempted.toString());fail("conflicting draft accepted");}catch(IllegalArgumentException expected){}
+        assertEquals(divergent.toString(),store.readFormDraft("portable-a"));
+        assertEquals(b.getString("nome"),byId(new JSONObject(store.read()),"portable-b").getString("nome"));
+        assertEquals(1,new JSONArray(store.sessionVersions("portable-a","portable-a-s")).length());
+        store.getDbHelper().close();
+    }
 }
