@@ -587,8 +587,10 @@ final class SecureStore {
         SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
         try{
             String old=readClinicalDraft(caseId,kind);
-            if(!old.isEmpty()&&id.equals(new JSONObject(old).getString("id")))
+            if(!old.isEmpty()){
+                if(!id.equals(new JSONObject(old).getString("id")))throw new SecurityException("Rascunho divergente");
                 db.delete("configuracoes","chave=?",new String[]{clinicalDraftKey(caseId,kind)});
+            }
             db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }
