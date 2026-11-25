@@ -471,6 +471,168 @@ final class SecureStore {
         }
     }
 
+    // A native, single-snapshot portable vault archive. Fixed schema, no arbitrary
+    // SQL from the file. Device-bound encrypted cells are decrypted and re-encrypted
+    // under the destination key. Audio spools and device credentials never travel.
+    private static final int VAULT_MAGIC=0x45564c31;
+    private static final long VAULT_MAX=8L*1024*1024*1024;
+    private static final int VAULT_FIELD_MAX=MAX_RECORD_BLOB;
+    private static final class VaultTable {
+        final String table,encrypted,where,order;final String[] cols,keys;
+        VaultTable(String table,String encrypted,String where,String order,String cols,String keys){
+            this.table=table;this.encrypted=encrypted;this.where=where;this.order=order;
+            this.cols=cols.split(",");this.keys=keys.split(",");
+        }
+    }
+    private static final VaultTable[] VAULT_TABLES={
+        new VaultTable("_pacientes","payload_enc",null,"id","id,created_at,updated_at,payload_enc","id"),
+        new VaultTable("sessoes","payload_enc",null,"id","id,case_id,data,hora,origem,created_at,updated_at,payload_enc","id"),
+        new VaultTable("processamento_jobs","",null,"job_id","job_id,case_id,session_id,audio_path,state,total_segments,committed_segments,checkpoint_offset_ms,created_at,updated_at,error_message,eof_verified","job_id"),
+        new VaultTable("segmentos","text_enc",null,"id","id,job_id,session_id,case_id,speaker,speaker_confirmed,start_ms,end_ms,text_enc,checksum,status,created_at","id"),
+        new VaultTable("agenda","payload_enc",null,"id","id,case_id,data,hora,created_at,payload_enc","id"),
+        new VaultTable("rascunhos","draft_enc",null,"case_id","case_id,session_id,updated_at,draft_enc","case_id"),
+        new VaultTable("diario_privado","entry_enc",null,"id","id,case_id,data,categoria,created_at,entry_enc","id"),
+        new VaultTable("configuracoes","valor_enc","chave='app_state_meta' OR chave GLOB 'form_draft:*' OR chave GLOB 'editor_draft:*' OR chave GLOB 'clinical_draft:*' OR chave GLOB 'asr:*'","chave","chave,valor_enc,updated_at","chave"),
+        new VaultTable("eco_revisions","payload_enc",null,"seq","seq,kind,case_id,entity_id,captured_at,payload_enc","seq"),
+        new VaultTable("eco_attachments","meta_enc",null,"id","id,case_id,meta_enc,created_at","id"),
+        new VaultTable("eco_attachment_chunks","data_enc",null,"id,part","id,part,data_enc","id,part")
+    };
+    private static boolean portableConfig(String key,boolean diary){
+        return "app_state_meta".equals(key)||key.startsWith("form_draft:")||
+            key.equals("editor_draft:wizard")||key.equals("editor_draft:appointment")||
+            (key.startsWith("clinical_draft:")&&(diary||!key.startsWith("clinical_draft:res_diary:")))||
+            key.startsWith("asr:");
+    }
+    private static String rowWhere(VaultTable t){
+        return String.join("=? AND ",t.keys)+"=?";
+    }
+    private static String[] rowArgs(Cursor c,VaultTable t){
+        String[] args=new String[t.keys.length];
+        for(int i=0;i<args.length;i++)args[i]=c.getString(c.getColumnIndexOrThrow(t.keys[i]));
+        return args;
+    }
+    private static void writeVaultBytes(java.io.DataOutputStream out,byte[] bytes)throws Exception{
+        try{if(bytes.length>VAULT_FIELD_MAX)throw new java.io.IOException("Registro acima do limite individual");out.writeInt(bytes.length);out.write(bytes);}
+        finally{Arrays.fill(bytes,(byte)0);}
+    }
+    private static String readVaultText(java.io.DataInputStream in)throws Exception{
+        int length=in.readInt();
+        if(length<0||length>VAULT_FIELD_MAX)throw new java.io.IOException("Campo de arquivo inválido");
+        byte[] bytes=new byte[length];
+        try{in.readFully(bytes);return StandardCharsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString();}
+        finally{Arrays.fill(bytes,(byte)0);}
+    }
+    private static boolean any(SQLiteDatabase db,String table,String where){
+        try(Cursor c=db.query(table,new String[]{"1"},where,null,null,null,null,"1")){return c.moveToFirst();}
+    }
+    private void requireNoPendingAudio(SQLiteDatabase db)throws Exception{
+        if(any(db,"processamento_jobs","audio_key_enc IS NOT NULL OR audio_path<>''")||!readDraft().isEmpty())
+            throw new java.io.IOException("Finalize ou descarte a gravação e o rascunho de áudio antes do backup integral");
+    }
+    synchronized int exportFullVault(java.io.OutputStream target,char[] password,boolean diary,java.util.function.BooleanSupplier active)throws Exception{
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);ensureRevisionTable(db);
+        db.beginTransaction();
+        try(EcoBackupStream.Writer writer=new EcoBackupStream.Writer(target,password)){
+            requireNoPendingAudio(db);
+            java.io.DataOutputStream out=new java.io.DataOutputStream(writer);
+            out.writeInt(VAULT_MAGIC);out.writeBoolean(diary);
+            int count=0;
+            for(int index=0;index<VAULT_TABLES.length;index++){
+                VaultTable t=VAULT_TABLES[index];out.writeInt(index);
+                String[] projection=t.cols.clone();
+                for(int i=0;i<projection.length;i++)if(projection[i].equals(t.encrypted))projection[i]=smallBlob(t.encrypted);
+                if(diary||!t.table.equals("diario_privado")){
+                    try(Cursor c=db.query(t.table,projection,t.where,null,null,null,t.order)){
+                        while(c.moveToNext()){
+                            checkArchiveActive(active);
+                            if(t.table.equals("configuracoes")&&!portableConfig(c.getString(0),diary))continue;
+                            out.writeByte(1);
+                            for(int i=0;i<t.cols.length;i++){
+                                String col=t.cols[i];
+                                if(col.equals(t.encrypted)){
+                                    byte[] enc=readBoundedBlob(db,c,t.table,col,rowWhere(t),rowArgs(c,t));
+                                    if(enc==null)throw new SecurityException("Campo cifrado ausente");
+                                    out.writeByte(3);
+                                    writeVaultBytes(out,dbHelper.decrypt(enc).getBytes(StandardCharsets.UTF_8));
+                                }else if(c.isNull(i)){out.writeByte(0);}
+                                else if(c.getType(i)==Cursor.FIELD_TYPE_INTEGER){out.writeByte(1);out.writeLong(c.getLong(i));}
+                                else if(c.getType(i)==Cursor.FIELD_TYPE_STRING){out.writeByte(2);writeVaultBytes(out,c.getString(i).getBytes(StandardCharsets.UTF_8));}
+                                else throw new SecurityException("Tipo não portátil");
+                            }
+                            count=Math.addExact(count,1);
+                        }
+                    }
+                }
+                out.writeByte(0);
+            }
+            out.writeInt(count);checkArchiveActive(active);writer.finish();db.setTransactionSuccessful();return count;
+        }finally{db.endTransaction();}
+    }
+    // Refuse to merge an integral recovery into any populated vault.
+    // Ordinary legacy backup retains its separate non-destructive merge path.
+    private void requireEmptyVault(SQLiteDatabase db)throws Exception{
+        requireNoPendingAudio(db);
+        for(VaultTable t:VAULT_TABLES){
+            if(t.table.equals("configuracoes")){
+                if(any(db,t.table,"chave<>'db_migrated' AND chave<>'app_state_meta'"))
+                    throw new SecurityException("Cofre contém rascunhos ou configurações existentes");
+                try(Cursor c=db.query(t.table,new String[]{smallBlob("valor_enc")},"chave='app_state_meta'",null,null,null,null)){
+                    if(c.moveToFirst()){
+                        JSONObject meta=new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,t.table,"valor_enc","chave=?",new String[]{"app_state_meta"})));
+                        for(String k:new String[]{"ecoFinance","ecoQuestionTemplates","ecoPersonalLibrary","ecoDocTemplates"})
+                            if(meta.has(k)&&(!(meta.opt(k) instanceof JSONArray)||meta.getJSONArray(k).length()>0))
+                                throw new SecurityException("Cofre contém registros administrativos");
+                    }
+                }
+            }else if(any(db,t.table,null))throw new SecurityException("Restauração integral exige um cofre vazio");
+        }
+    }
+    synchronized int restoreFullVault(java.io.InputStream source,char[] password,java.util.function.BooleanSupplier active)throws Exception{
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureAttachments(db);ensureRevisionTable(db);
+        db.beginTransaction();
+        try(EcoBackupStream.Reader reader=new EcoBackupStream.Reader(source,password,VAULT_MAX)){
+            requireEmptyVault(db);
+            java.io.DataInputStream in=new java.io.DataInputStream(reader);
+            if(in.readInt()!=VAULT_MAGIC)throw new SecurityException("Arquivo não é backup integral ECO");
+            boolean diary=in.readBoolean();int count=0;
+            for(int index=0;index<VAULT_TABLES.length;index++){
+                VaultTable t=VAULT_TABLES[index];
+                if(in.readInt()!=index)throw new SecurityException("Ordem de tabelas inválida");
+                while(true){
+                    checkArchiveActive(active);int marker=in.readUnsignedByte();if(marker==0)break;
+                    if(marker!=1||(!diary&&t.table.equals("diario_privado")))throw new SecurityException("Registro inválido");
+                    ContentValues values=new ContentValues();
+                    for(String col:t.cols){
+                        int type=in.readUnsignedByte();
+                        if(col.equals(t.encrypted)){
+                            if(type!=3)throw new SecurityException("Campo cifrado inválido");
+                            values.put(col,encryptRecord(readVaultText(in)));
+                        }else if(type==0)values.putNull(col);
+                        else if(type==1)values.put(col,in.readLong());
+                        else if(type==2)values.put(col,readVaultText(in));
+                        else throw new SecurityException("Tipo não reconhecido");
+                    }
+                    if(t.table.equals("configuracoes")){
+                        String k=values.getAsString("chave");
+                        if(k==null||!portableConfig(k,diary))throw new SecurityException("Configuração não portátil");
+                        if(k.equals("app_state_meta"))db.delete(t.table,"chave=?",new String[]{k});
+                    }
+                    if(t.table.equals("processamento_jobs")&&!"".equals(values.getAsString("audio_path")))throw new SecurityException("Caminho de áudio não portátil");
+                    db.insertOrThrow(t.table,null,values);
+                    count=Math.addExact(count,1);
+                }
+            }
+            if(in.readInt()!=count||in.read()!=-1)throw new SecurityException("Final do backup divergente");
+            try(Cursor c=db.rawQuery("PRAGMA foreign_key_check",null)){if(c.moveToFirst())throw new SecurityException("Referência inconsistente");}
+            try(Cursor c=db.query("eco_attachments",new String[]{"id","case_id"},null,null,null,null,"id")){
+                while(c.moveToNext()){checkArchiveActive(active);byte[] bytes=attachmentBytes(c.getString(1),c.getString(0));Arrays.fill(bytes,(byte)0);}
+            }
+            ContentValues migrated=new ContentValues();migrated.put("chave","db_migrated");migrated.put("valor_enc",dbHelper.encrypt("true"));migrated.put("updated_at",System.currentTimeMillis());
+            db.insertWithOnConflict("configuracoes",null,migrated,SQLiteDatabase.CONFLICT_REPLACE);
+            checkArchiveActive(active);db.setTransactionSuccessful();return count;
+        }finally{db.endTransaction();}
+    }
+
     // Companion archive for large attachment collections. Case records must
     // already exist on restore; no existing attachment is overwritten.
     private static final int ATTACHMENT_ARCHIVE_MAGIC=0x45415431, ARCHIVE_META_MAX=65536;
