@@ -73,6 +73,17 @@ public final class MainActivity extends Activity {
     private SharedPreferences pref;
     private byte[] pendingExport;
     private String pendingPassword;
+    private void clearPendingBackup(){
+        if(pendingExport!=null)java.util.Arrays.fill(pendingExport,(byte)0);
+        pendingExport=null;pendingPassword=null;
+    }
+    private boolean privateOperationAuthorized(){
+        if(!unlocked||isFinishing()||isDestroyed())return false;
+        if(backgroundAt>0&&System.currentTimeMillis()-backgroundAt>120000){
+            requestUnlock();return false;
+        }
+        return true;
+    }
     private volatile boolean unlocked = false;
     private boolean showingLock = false;
     private long backgroundAt = 0;
@@ -200,7 +211,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
+        clearPendingBackup(); showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -257,6 +268,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
+        else backgroundAt=0;
     }
     @Override public void onTrimMemory(int level) {
         super.onTrimMemory(level);
@@ -266,7 +278,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -701,7 +713,7 @@ public final class MainActivity extends Activity {
                 try {
                     JSONObject obj = new JSONObject(json);
                     String draftCase = obj.optString("caseId");
-                    if(activeJobCaseId.isEmpty() || !activeJobCaseId.equals(draftCase)) return "Bloqueado: caso não autorizado durante bloqueio";
+                    if(activeJobCaseId.isEmpty() || !activeJobCaseId.equals(draftCase) || ml==null || !ml.getCurrentSessionId().equals(obj.optJSONObject("session")==null?"":obj.optJSONObject("session").optString("id"))) return "Bloqueado: sessão não autorizada durante bloqueio";
                 } catch(Exception ignored){return "Rascunho inválido";}
             }
             try{store.saveDraft(json);return "OK";}
@@ -744,13 +756,14 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public void importBackup(String password) {
             if (!unlocked) return;
-            pendingPassword = password;
-            main.post(() -> {
+            main.post(() -> reauthenticate("Importar backup clínico",()->{
+                if(!unlocked)return;
+                clearPendingBackup();pendingPassword=password;
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
                 startActivityForResult(intent, IMPORT_CODE);
-            });
+            }));
         }
         @JavascriptInterface public void printReport(String html) {
             if (!unlocked || html == null || html.trim().isEmpty()) return;
@@ -800,6 +813,11 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
+        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE)&&!privateOperationAuthorized()){
+            clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
+            if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;
+            return;
+        }
         if(code==ATTACHMENT_IMPORT_CODE){
             String caseId=pendingAttachmentCase,title=pendingAttachmentTitle,classification=pendingAttachmentClass;
             pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
@@ -839,8 +857,7 @@ public final class MainActivity extends Activity {
             return;
         }
         if (result != RESULT_OK || data == null || data.getData() == null) {
-            if (code == EXPORT_CODE) pendingExport = null;
-            if (code == IMPORT_CODE) pendingPassword = null;
+            if (code == EXPORT_CODE||code==IMPORT_CODE) clearPendingBackup();
             if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","IMPORTAÇÃO CANCELADA");
             return;
         }
@@ -869,6 +886,6 @@ public final class MainActivity extends Activity {
             showToast((code == IMPORT_CODE ? "Falha ao abrir backup: " : "Operação não concluída: ") + e.getMessage());
             if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","ERRO ARQUIVO: " + e.getMessage());
         }
-        finally { pendingPassword = null; pendingExport = null; }
+        finally { clearPendingBackup(); }
     }
 }
