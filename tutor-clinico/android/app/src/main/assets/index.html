@@ -3436,7 +3436,7 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=["base","small","tagarela","vosk"].includes(e.target.value)?e.target.value:"small"}
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela","vosk"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
- if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoAtlasPage=0;ecoAtlasFrom='';ecoAtlasTo='';ecoAtlasMode='todos';ecoDocSessionId='';ecoDocConfirmed=false;ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;render()}
+ if(e.target?.dataset?.ecoAtlasCase!==undefined){ecoOverviewCase=e.target.value;ecoAtlasPage=0;ecoAtlasFrom='';ecoAtlasTo='';ecoAtlasMode='todos';ecoDocSessionId='';ecoDocConfirmed=false;ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;render()}
  if(e.target?.dataset?.ecoDocSession!==undefined){ecoDocSessionId=e.target.value||'';ecoDocConfirmed=false;render();return;}
  if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;ecoDocConfirmed=false;for(const k of Object.keys(ecoDocSections))ecoDocSections[k]=ecoDocPreset(ecoDocType).includes(k);render();return;}
  if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;ecoDocConfirmed=false;render();return;}
