@@ -546,6 +546,14 @@ function ecoParseImportedTranscript(raw,rolesConfirmed){
  }
  return segments;
 }
+window.nativeTranscriptImport=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}
+ const input=document.getElementById('manualSessTranscript');
+ if(screen!=='manualSession'||!manualSessionDraft||v.token!==openedId+'|'+manualSessionDraft.id||!input||typeof v.text!=='string'||v.text.length>1000000)return;
+ if(input.value.trim()&&!window.confirm('Substituir o texto que está no formulário?'))return;
+ input.value=v.text;const roles=document.getElementById('manualSessRoles');if(roles)roles.checked=false;
+ notify('Texto importado. Revise e salve para registrar a sessão.');
+};
 function manualSessionScreen(){
   const c = currentCase();
   if(!c) return '<div class="alert red">Caso não encontrado.</div>';
@@ -559,6 +567,7 @@ function manualSessionScreen(){
     `</div>`+
     `<div class="field"><label>Síntese e relato clínico da sessão *</label><textarea id="manualSessTexto" rows="6" placeholder="Anotações do atendimento, falas marcantes do paciente, relato do processo...">${esc(s.texto||'')}</textarea></div>`+
     `<div class="field"><label>Importar transcrição em texto (opcional)</label><textarea id="manualSessTranscript" rows="8" placeholder="Cole a transcrição integral, sem áudio.">${esc(s.mlTranscricao||'')}</textarea></div>`+
+    btn('Importar arquivo TXT','ecoImportTranscript','secondary','data-case="'+esc(c.id)+'"')+
     `<label class="choice"><input type="checkbox" id="manualSessRoles" ${s.importRolesConfirmed?'checked':''}>Confirmei os rótulos explícitos Paciente: e Terapeuta: neste texto.</label><p class="small muted">Sem confirmação, os falantes ficam não identificados. O original é preservado e não são inventados horários.</p>`+
     `<div class="field"><label>Intervenções e observações técnicas</label><textarea id="manualSessInterv" rows="3" placeholder="Interpretações pontuadas, manejo de resistência, clarificações...">${esc(s.intervencoes||'')}</textarea></div>`+
     `<div class="field"><label>Encaminhamentos e pontos a acompanhar</label><textarea id="manualSessPlano" rows="3" placeholder="Próximos passos combinados para o encontro seguinte...">${esc(s.plano||'')}</textarea></div>`+
@@ -4323,4 +4332,14 @@ act=function(name,id,button){
  return result;
 };
 
+
+const ecoImportTranscriptPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoImportTranscript'){
+  if(screen!=='manualSession'||!manualSessionDraft||button?.dataset?.case!==openedId)return;
+  if(typeof window.NativeVault?.selectTranscriptFile!=='function'){notify('Seletor TXT disponível no Android. Você também pode colar o texto.');return;}
+  window.NativeVault.selectTranscriptFile(openedId+'|'+manualSessionDraft.id);return;
+ }
+ return ecoImportTranscriptPriorAct(name,id,button);
+};
 </script></body></html>
