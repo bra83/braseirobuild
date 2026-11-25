@@ -4465,10 +4465,15 @@ function ecoHealthPanel(){
  const d=ecoHealth;
  return '<section class="card"><h2>Integridade e recuperação</h2><p class="small muted">Checkpoint cifrado local diário após gravação. Duas cópias rotativas no próprio aparelho; não substituem backup independente. A recuperação adiciona registros ausentes e mantém conflitos locais.</p>'+btn('Verificar integridade e espaço','ecoHealthCheck','secondary')+btn('Criar checkpoint agora','ecoCheckpointCreate','secondary')+(ecoHealthError?'<p class="alert red">'+esc(ecoHealthError)+'</p>':'')+(d?'<p>SQLite: '+esc(d.integrity)+' · chaves estrangeiras: '+(d.foreignKeysOk?'OK':'Erro')+'</p><p>'+Number(d._pacientes||0)+' casos · '+Number(d.sessoes||0)+' sessões · '+Number(d.segmentos||0)+' trechos · '+Math.floor(Number(d.freeBytes||0)/1048576)+' MB livres</p>'+(d.checkpoints||[]).map(x=>'<div class="eco-evidence"><strong>Checkpoint '+esc(new Date(x.date).toLocaleString('pt-BR'))+'</strong><p>'+Math.ceil(x.bytes/1024)+' KB cifrados</p>'+btn('Conferir recuperação','ecoCheckpointRestore','secondary','data-id="'+x.slot+'"')+'</div>').join(''):'')+'</section>';
 }
-const ecoHealthPriorSettings=settingsScreen;settingsScreen=function(){return ecoHealthPriorSettings()+ecoHealthPanel();};
+const ecoHealthPriorSettings=settingsScreen;settingsScreen=function(){
+ const bio=window.NativeVault?.biometricStatus?.()||'unavailable';
+ return ecoHealthPriorSettings()+ecoHealthPanel()+'<section class="card"><h2>Autenticação</h2><p>PIN local sempre disponível. Biometria forte opcional, autorizada pelo PIN, sem armazenar impressões digitais no ECO.</p><p>'+esc(bio==='enabled'?'Biometria habilitada':bio==='available'?'Biometria disponível':'Biometria forte indisponível')+'</p>'+(bio!=='unavailable'?btn(bio==='enabled'?'Desativar biometria':'Habilitar biometria','ecoBioConfigure','secondary','data-id="'+(bio==='enabled'?'off':'on')+'"'):'')+btn('Atualizar situação','ecoBioRefresh','ghost')+'</section>';
+};
 function ecoHealthRefresh(){try{const d=JSON.parse(window.NativeVault?.databaseDiagnostics?.()||'{}');if(d.__loadError||!d.integrity)throw Error(d.__loadError||'Diagnóstico nativo indisponível');ecoHealth=d;ecoHealthError='';}catch(e){ecoHealth=null;ecoHealthError='Não foi possível verificar o banco.';}}
 const ecoHealthPriorAct=act;
 act=function(name,id,button){
+ if(name==='ecoBioConfigure'&&screen==='settings'&&['on','off'].includes(id)){window.NativeVault?.configureBiometric?.(id==='on');return;}
+ if(name==='ecoBioRefresh'&&screen==='settings'){render();return;}
  if(name==='ecoHealthCheck'&&screen==='settings'){ecoHealthRefresh();render();return;}
  if(name==='ecoCheckpointCreate'&&screen==='settings'){
   const result=window.NativeVault?.createLocalCheckpoint?.();ecoHealthRefresh();if(result!=='OK')ecoHealthError='Checkpoint não gravado. Preserve os registros e faça backup independente.';render();return;
