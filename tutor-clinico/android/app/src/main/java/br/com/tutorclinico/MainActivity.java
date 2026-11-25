@@ -538,13 +538,16 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public String getEngineInfo() {
             try {
                 JSONObject info = new JSONObject();
-                info.put("versionName", "0.23.0-arm64-beta");
-                info.put("versionCode", 28);
+                info.put("versionName", "0.24.0-arm64-beta");
+                info.put("versionCode", 29);
                 info.put("abi", "arm64-v8a");
                 info.put("micEngine", selectedMicEngine);
                 info.put("tagarelaAvailable", true);
                 info.put("whisperAvailable", true);
                 info.put("voskAvailable", true);
+                info.put("overlapAvailable",NeuralOverlapEngine.available(getApplicationContext()));
+                info.put("overlapModel",NeuralOverlapEngine.MODEL);
+                info.put("overlapExperimental",true);
                 info.put("semanticModel", "DistilUSE-multilingual-cased-v2-U8U8");
                 info.put("semanticAvailable", true);
                 info.put("nliAvailable", NliEngine.available(getApplicationContext()));
@@ -557,7 +560,7 @@ public final class MainActivity extends Activity {
                 info.put("databaseType", "SQLite-Transactional-AES-GCM-v5");
                 return info.toString();
             } catch (Exception e) {
-                return "{\"versionName\":\"0.23.0-arm64-beta\",\"versionCode\":28}";
+                return "{\"versionName\":\"0.24.0-arm64-beta\",\"versionCode\":29}";
             }
         }
 
