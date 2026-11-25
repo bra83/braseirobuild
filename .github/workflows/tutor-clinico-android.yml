@@ -52,6 +52,23 @@ jobs:
           java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SpeakerTimelineTest
           javac -d /tmp/eco-speaker-tests app/src/main/java/br/com/tutorclinico/SemanticRanking.java qa/SemanticRankingTest.java
           java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SemanticRankingTest
+      - name: Validar interface real em Chromium
+        run: |
+          set -euo pipefail
+          export ECO_UI_DEPS="$RUNNER_TEMP/eco-ui-deps"
+          mkdir -p "$ECO_UI_DEPS"
+          npm install --prefix "$ECO_UI_DEPS" --no-audit --no-fund playwright-core@1.51.1
+          export ECO_CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -x "$ECO_CHROME"
+          node qa/ui_browser.mjs
+      - name: Publicar evidências visuais de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECO-ui-fixtures
+          path: tutor-clinico/android/build/eco-ui/*.png
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Validar runtime ARM64 TAGARELA
         run: |
           set -euo pipefail
