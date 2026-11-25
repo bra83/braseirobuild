@@ -243,8 +243,17 @@ try{
  });
  assert.equal(await page.locator('#ecoPerspectivePassage option').count(),1);
  assert.equal(await page.locator('#ecoPerspectiveQuote').inputValue(),'Quando alguém se aproxima, eu me afasto.');
+ const perspectives=await page.evaluate(()=>({authors:ecoPerspectiveAuthors,groups:new Set(ecoPerspectiveCatalog.map(x=>x[0])).size,rows:ecoPerspectiveCatalogRows().length,isolated:ecoPerspectiveAuthors.every(a=>ecoPerspectiveTheory(a).length>=2&&ecoPerspectiveTheory(a).every(x=>x.author===a&&x.ref))}));
+ assert.equal(perspectives.authors.length,21);assert.equal(new Set(perspectives.authors).size,21);assert.equal(perspectives.groups,6);assert.equal(perspectives.rows,42);assert.equal(perspectives.isolated,true);
+ await page.locator('[data-act="ecoPerspectivePreset"][data-id="todos"]').click();
+ assert.equal(await page.locator('[data-eco-perspective-author]:checked').count(),21);
+ await page.locator('[data-act="ecoPerspectivePreset"][data-id="nenhum"]').click();
+ assert.equal(await page.locator('[data-eco-perspective-author]:checked').count(),0);
+ await page.locator('[data-act="ecoPerspectivePreset"][data-id="contemporanea"]').click();
+ assert.equal(await page.locator('[data-eco-perspective-author]:checked').count(),6);
+ await page.locator('[data-act="ecoPerspectivePreset"][data-id="todos"]').click();
  await page.locator('[data-act="ecoPerspectiveStart"]').click();
- for(const author of ['Freud','Klein','Winnicott']){
+ for(const author of perspectives.authors){
   const request=await page.evaluate(()=>window.ecoTestRequests.at(-1));
   assert.equal(request.query,'Quando alguém se aproxima, eu me afasto.');
   assert.ok(request.rows.length>0&&request.rows.every(x=>x.text.includes(' — '+author+'\n')&&!x.text.includes('MARCADOR_TERAPEUTA_EXCLUIR')));
@@ -252,10 +261,10 @@ try{
   await page.evaluate(i=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i,score:.8}]}));},index);
   const rerank=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(rerank.mode,'rerank');
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9}],skipped:[]}));});
-  const gen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(gen.mode,'generate');assert.ok(gen.query.includes(author));assert.equal(gen.sources.length,2);assert.ok(gen.sources[1].text.startsWith(author+' · '));
+  const gen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(gen.mode,'generate');assert.equal(gen.profile,'perspective');assert.ok(gen.query.includes(author));assert.equal(gen.sources.length,2);assert.ok(gen.sources[1].text.startsWith(author+' · '));
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Possibilidade didática [S1] [S2]. Exemplo de pergunta aberta.',model:'fixture'}));});
  }
- assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),[['Freud',true],['Klein',true],['Winnicott',true]]);
+ assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),perspectives.authors.map(a=>[a,true]));
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0),0);
  await page.screenshot({path:path.join(out,'perspectivas-psicanaliticas.png'),fullPage:true});
  await home();assert.equal(await page.evaluate(()=>ecoPerspectiveRun),null);
