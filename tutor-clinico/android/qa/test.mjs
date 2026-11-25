@@ -1573,3 +1573,35 @@ test('ECO expanded corpus: unique chapter keys, six theoretical schools, referen
  assert.ok(js("ecoLibraryChunks().some(x=>x.chapter==='metapsicologia'&&x.ref.includes('1915'))"));
  assert.ok(js("ecoLibraryChunks().some(x=>x.title==='Identificação projetiva'&&x.ref.includes('1946'))"));
 });
+
+
+test('ECO grouped retrieval: complete multi-batch review and claim, reject malformed source indices',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK';};
+  js("state.cases=[{id:'batch-a',nome:'Fictício',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:Array.from({length:1305},(_,i)=>'Nota fictícia '+i+'.').join('\\n')}]},{id:'batch-b',nome:'Outro',sessoes:[{id:'s2',data:'2026-11-25',origem:'manual',texto:'OUTRO_CASO'}]}];openedId='batch-a';screen='case';tab='revisaoInteligente';ecoReviewType='sonhos';ecoReviewScope='manual';");
+  el('#ecoReviewFrom').value='';el('#ecoReviewTo').value='';
+  js("act('ecoReviewStart')");
+  assert.equal(payload.rows.length,1200);assert.equal(payload.cacheScope,'case:batch-a');
+  const first=payload.id,key=payload.queries[0].key;
+  context.window.nativeSemanticResult(JSON.stringify({id:first,count:1200,scope:'desconhecido',model:'fixture',groups:payload.queries.map(q=>({key:q.key,hits:q.key===key?[{i:1199,score:.6}]:[]}))}));
+  assert.equal(payload.rows.length,105);assert.notEqual(payload.id,first);assert.equal(js('ecoReviewRun.groups'),undefined);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:105,scope:'desconhecido',model:'fixture',groups:payload.queries.map(q=>({key:q.key,hits:q.key===key?[{i:104,score:.9}]:[]}))}));
+  assert.equal(js('ecoReviewRun.done'),1305);assert.deepEqual(Array.from(js('ecoReviewRun.groups[0].hits.map(h=>h.i)')),[1304,1199]);
+  js("act('ecoReviewAccept','"+key+"|0',{dataset:{case:'batch-a'}})");
+  assert.equal(js('state.cases[0].ecoReviewRecords[0].quote'),'Nota fictícia 1304.');
+  assert.equal(js('state.cases[1].ecoReviewRecords'),undefined);
+  js("act('caseTab','compararRelatos');ecoNliScope='manual';ecoNliFrom='';ecoNliTo='';");
+  el('#ecoClaimText').value='Nota fictícia';
+  js("act('ecoClaimStart','',{dataset:{case:'batch-a'}})");
+  assert.equal(payload.rows.length,1200);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:1200,scope:'desconhecido',groups:[{key:'claim',hits:[{i:0,score:.6}]}]}));
+  assert.equal(payload.rows.length,105);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:105,scope:'desconhecido',groups:[{key:'claim',hits:[{i:105,score:.9}]}]}));
+  assert.match(js('ecoClaimRun.error'),/inválida/);assert.equal(js('ecoClaimRun.hits'),undefined);
+  js("ecoClaimCancel();act('ecoClaimStart','',{dataset:{case:'batch-a'}})");
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:1200,scope:'desconhecido',groups:[{key:'claim',hits:[{i:0,score:.6}]}]}));
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:105,scope:'desconhecido',groups:[{key:'claim',hits:[{i:104,score:.9}]}]}));
+  assert.equal(js('ecoClaimRun.phase'),'ready');assert.deepEqual(Array.from(js('ecoClaimRun.hits.map(h=>h.i)')),[1304,0]);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('ecoClaimCancel();ecoReviewCancel("");state=JSON.parse(ecoSavedState);persist();ecoReviewType="anamnese";ecoReviewScope="paciente";ecoNliScope="paciente"');}
+});
