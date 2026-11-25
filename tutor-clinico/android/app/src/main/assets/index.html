@@ -569,7 +569,7 @@ function settingsScreen(){
  `<div class="kv"><strong>Whisper Small Q5 multilíngue</strong><span>Disponível para importação detalhada</span></div>`+
  `<div class="kv"><strong>Whisper Base multilíngue</strong><span>Disponível para importação rápida</span></div>`+
  `<div class="kv"><strong>Vosk PT-BR</strong><span>Modo rápido de transcrição e separação de falantes em uma passagem (experimental)</span></div>`+
- `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Embeddings locais · comparação NLI experimental em módulo separado</span></div>`+
+ ecoAiEngineStatus()+
  `<div class="field"><label for="setMicEngine">Motor padrão para gravação de microfone</label>`+
  `<select id="setMicEngine" data-eco-setting="micEngine">`+
  `<option value="vosk" ${micEng==="vosk"?"selected":""}>Vosk PT-BR · modo rápido experimental</option>`+
@@ -3989,5 +3989,12 @@ window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){
 window.nativeSemanticUnlocked=function(){ecoAiCancel();return ecoAiPriorUnlock();};
 const ecoAiPriorAct=act;
 act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'){if(c&&button?.dataset?.case===c.id)ecoAiStart(c);return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCheckDraft'){if(c&&button?.dataset?.case===c.id)ecoAiCheckDraft(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
+
+
+function ecoAiEngineStatus(){
+ let info={};try{info=JSON.parse(window.NativeVault?.getEngineInfo?.()||'{}');}catch(e){}
+ const list=[['DistilUSE U8U8','semanticAvailable','Busca semântica'],['mMARCO MiniLM INT8','rerankerAvailable','Reranking contextual'],['BERTimbau InferBR INT8','nliAvailable','Comparação textual'],['Qwen2.5 0.5B Q4_K_M','llmAvailable','Geração local']];
+ return list.map(([name,key,desc])=>'<div class="kv"><strong>'+esc(name)+'</strong><span>'+esc(desc)+' · '+(info[key]===true?'Arquivos/runtime detectados':info[key]===false?'Indisponível':'Não verificado')+'</span></div>').join('')+'<p class="small muted">Disponibilidade não equivale à homologação de desempenho ou qualidade clínica. Motores são carregados sequencialmente.</p>';
+}
 
 </script></body></html>
