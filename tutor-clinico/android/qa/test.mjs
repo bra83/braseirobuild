@@ -1772,3 +1772,22 @@ test('ECO full vault archive requires password and private diary opt-in',()=>{
  elems['#backupPass'].value='eco-fixture-password';
  js("act('ecoFullVaultImport')");assert.deepEqual(calls[2],['eco-fixture-password',false,false]);
 });
+
+
+test('ECO native paged consultation and integral checkpoint are available without global state',()=>{
+ assert.match(js('settingsScreen()'),/Consultar prontuários por páginas/);
+ assert.match(js('ecoRecoveryOnlyPanel()'),/Criar checkpoint integral local/);
+ let calls=[];
+ context.window.NativeVault.browseVault=(...args)=>{calls.push(args);return JSON.stringify({rows:[{id:'page-a',nome:'Caso fictício'}],next:'page-a'});};
+ assert.equal(js("ecoPagedRead('cases','','','').rows[0].id"),'page-a');
+ assert.deepEqual(calls[0],['cases','','','','texto',0]);
+ context.window.NativeVault.browseVault=()=>JSON.stringify({__loadError:'escopo inválido'});
+ assert.throws(()=>js("ecoPagedRead('sessions','wrong')"),/escopo inválido/);
+ context.window.NativeVault.fullRecoveryCheckpoints=()=>JSON.stringify([{slot:2,date:1,bytes:10}]);
+ assert.match(js('ecoPagedVaultPanel()'),/data-id="2"/);
+ context.window.NativeVault.exportFullRecoveryCheckpoint=(slot,pass)=>calls.push([slot,pass]);
+ elems['#ecoFullCheckpointPass']={value:'eco-fixture-password'};
+ js("act('ecoFullCheckpointExport','2')");
+ assert.deepEqual(calls.at(-1),[2,'eco-fixture-password']);
+ assert.equal(elems['#ecoFullCheckpointPass'].value,'');
+});
