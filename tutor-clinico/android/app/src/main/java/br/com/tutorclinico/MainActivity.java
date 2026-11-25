@@ -619,6 +619,18 @@ public final class MainActivity extends Activity {
             if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
             try{return store.readCheckpoint(Integer.parseInt(slot));}catch(Exception e){return "{\"__loadError\":\"Checkpoint indisponível ou alterado\"}";}
         }
+        @JavascriptInterface public String saveEditorDraft(String slot,String json) {
+            if(!unlocked)return "Bloqueado";
+            try{store.saveEditorDraft(slot,json);return "OK";}catch(Exception e){return "Falha ao gravar rascunho do editor";}
+        }
+        @JavascriptInterface public String loadEditorDraft(String slot) {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.readEditorDraft(slot);}catch(Exception e){return "{\"__loadError\":\"Rascunho não pôde ser autenticado\"}";}
+        }
+        @JavascriptInterface public String clearEditorDraft(String slot,String id) {
+            if(!unlocked)return "Bloqueado";
+            try{store.clearEditorDraft(slot,id);return "OK";}catch(Exception e){return "Falha ao limpar rascunho";}
+        }
         @JavascriptInterface public String saveFormDraft(String caseId,String json) {
             if(!unlocked)return "Bloqueado";
             try{store.saveFormDraft(caseId,json);return "OK";}catch(Exception e){return "Falha ao gravar rascunho";}
