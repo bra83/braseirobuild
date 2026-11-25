@@ -374,4 +374,30 @@ public class EcoIntegratedPersistenceTest {
         store.clearEditorDraft("wizard","uncommitted");assertEquals("",store.readEditorDraft("wizard"));assertEquals(a.toString(),store.readEditorDraft("appointment"));
         store.getDbHelper().close();
     }
+
+    @Test public void authenticatedDecoderCheckpointSurvivesReopenAndRejectsWrongKeyOrModel() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        byte[] master=new byte[32],audio=new byte[32];audio[0]=7;
+        SecureStore store=new SecureStore(context,new SecretKeySpec(master,"AES"));
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(caseWith("decoder-a","nota"))).put("appointments",new JSONArray());
+        store.save(root.toString());
+        EcoDatabaseHelper db=store.getDbHelper();
+        db.createJob("decoder-job","decoder-a","decoder-a-s","fixture",audio);
+        assertTrue(db.commitSegment("decoder-job","decoder-a","decoder-a-s",0,1000,"falante1","primeiro",null));
+        SpeakerClusters clusters=new SpeakerClusters();clusters.assign(new double[]{1,0,0});
+        java.util.Set<String> prefix=db.verifiedPrefixIds("decoder-job",25000);
+        db.saveDecoderCheckpoint("decoder-job","small",25000,prefix,clusters.checkpoint(),true);
+        assertTrue(db.commitSegment("decoder-job","decoder-a","decoder-a-s",26000,27000,"falante1","segundo",null));
+        store.getDbHelper().close();store=new SecureStore(context,new SecretKeySpec(master,"AES"));db=store.getDbHelper();
+        JSONObject cp=db.readDecoderCheckpoint("decoder-job","small",audio);
+        assertEquals(25000,cp.getLong("offset"));assertEquals(1,cp.getInt("count"));assertEquals(prefix,db.verifiedPrefixIds("decoder-job",25000));
+        assertEquals(clusters.checkpoint(),cp.getString("speakers"));
+        try{db.readDecoderCheckpoint("decoder-job","small",new byte[32]);fail("wrong key");}catch(java.security.GeneralSecurityException expected){}
+        try{db.readDecoderCheckpoint("decoder-job","base",audio);fail("wrong model");}catch(SecurityException expected){}
+        assertTrue(db.commitSegment("decoder-job","decoder-a","decoder-a-s",26000,27000,"falante1","segundo",null));
+        db.saveDecoderCheckpoint("decoder-job","small",50000,db.verifiedPrefixIds("decoder-job",50000),clusters.checkpoint(),true);
+        assertTrue(db.markJobDecoded("decoder-job",2,2));assertTrue(db.acknowledgePersistence("decoder-job"));
+        assertTrue(db.clearJobAudioKey("decoder-job"));assertNull(db.readDecoderCheckpoint("decoder-job","small",audio));
+        store.getDbHelper().close();
+    }
 }
