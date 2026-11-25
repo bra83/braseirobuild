@@ -276,7 +276,7 @@ function render(){
  }
 }
 function renderNav(){
- const tabs=[['home','⌂','ECO'],['eco','●','Sessão'],['cases','▤','Casos'],['atlas','◎','Atlas'],['agenda','▦','Agenda'],['settings','⚙','Ajustes']];
+ const tabs=[['home','⌂','ECO'],['eco','●','Sessão'],['cases','▤','Casos'],['atlas','◎','Atlas'],['agenda','▦','Agenda'],['study','▚','Estudo'],['settings','⚙','Ajustes']];
  $('#bottom').innerHTML=tabs.map(([id,ic,label])=>`<button type="button" data-act="nav" data-id="${id}" class="${screen===id||(id==='eco'&&screen==='session')||(id==='cases'&&['case','wizard'].includes(screen))||(id==='agenda'&&screen==='appointment')?'active':''}"><span class="symbol">${ic}</span>${label}</button>`).join('');
 }
 const head=(tag,title,desc='')=>`<div class="eyebrow">${esc(tag)}</div><h1>${esc(title)}</h1>${desc?`<p class="lead">${esc(desc)}</p>`:''}`;
@@ -471,7 +471,7 @@ function caseScreen(){
     } else if(tab==='sonhos'){
       content += ecoRenderDreamAtlas(c);
     } else if(tab==='genograma'||tab==='cronologia'){
-      content += ecoRenderGenogram(c);
+      content += ecoRenderGenogram(c,tab);
     } else if(tab==='documentos'){
       content += ecoRenderDocuments(c);
     } else if(tab==='diario'){
@@ -1759,7 +1759,7 @@ function ecoLanding(){
    '</section>';
  out+='<div class="main-stats"><div class="main-stat"><strong>'+state.cases.length+'</strong><span>Casos</span></div><div class="main-stat"><strong>'+sessions+'</strong><span>Sessões</span></div><div class="main-stat"><strong>'+dreams+'</strong><span>Sessões com sonhos marcados</span></div></div>';
  out+='<div class="eco-headrow"><h2>Acesso rápido</h2></div>';
- out+='<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+btn('⚙ Ajustes & Diagnóstico','nav','ghost','data-id="settings"')+'</div>';
+ out+='<div class="actions">'+btn('＋ Novo caso','newCase','secondary')+btn('◎ Abrir atlas','nav','secondary','data-id="atlas"')+btn('▚ Conhecimentos','nav','secondary','data-id="study"')+btn('▦ Agenda','nav','ghost','data-id="agenda"')+btn('⚙ Ajustes & Diagnóstico','nav','ghost','data-id="settings"')+'</div>';
  out+='<div class="eco-outline"><h3>Últimos registros</h3>'+ (recent.length?recent.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+(c.sessoes||[]).length+' sessões registradas</span></div>'+btn('Abrir','openCase','secondary','data-id="'+esc(c.id)+'"')+'</div>').join(''):'<p class="muted">Nenhuma sessão salva. Crie um caso fictício para testar.</p>')+'</div>';
  out+='<p class="eco-caption">Protótipo experimental. Não utilize dados de pacientes reais até validação de segurança e adequação legal.</p>';
  return out;
@@ -2090,6 +2090,7 @@ function ecoRenderDreamAtlas(c){
  const symbols = query ? ecoSymbolDictionary.filter(s=>s.titulo.toLowerCase().includes(query)||s.sentidos.toLowerCase().includes(query)||s.perguntas.toLowerCase().includes(query)) : ecoSymbolDictionary;
  let out = '<section class="eco-outline"><h2>Atlas de Sonhos do Paciente</h2>'+
    '<p class="eco-caption">Registros de produções oníricas manifestas, afetos relatados e associações livres. O ECO não realiza interpretação automática; cada sonho preserva o vínculo com as palavras singulares do paciente.</p>';
+ out += ecoDreamSuggestionsHtml(c);
  if(dreams.length){
    out += '<h3>Sonhos documentados ('+dreams.length+')</h3>';
    out += dreams.map(d=>'<div class="eco-evidence"><strong>'+esc(formatDate(d.data||datestr()))+' · '+(d.recorrente?'<span class="chip warn">Imagem Recorrente</span>':'<span class="chip">Sonho</span>')+'</strong>'+
@@ -2110,7 +2111,7 @@ function ecoRenderDreamAtlas(c){
    '<div class="field"><label>Personagens presentes</label><input type="text" id="dreamPersonagens" placeholder="Ex.: mãe, figura sem rosto"></div>'+
    '<div class="field"><label>Afetos sentidos (medo, estranheza, alívio)</label><input type="text" id="dreamAfetos" placeholder="Ex.: angústia intensa, paralisia"></div>'+
    '</div>'+
-   '<div class="field"><label>Associações livres do paciente</label><textarea id="dreamAssociacoes" placeholder="Com o que o paciente associa elementos do sonho?"></textarea></div>'+
+   '<div class="field"><label>Lugares</label><input id="dreamLugares"></div>'+'<div class="field"><label>Imagens e objetos</label><input id="dreamSimbolos" placeholder="Separados por vírgula"></div>'+'<div class="field"><label>Associações livres do paciente</label><textarea id="dreamAssociacoes" placeholder="Com o que o paciente associa elementos do sonho?"></textarea></div>'+
    '<div class="field"><label>Hipótese de trabalho do terapeuta (opcional)</label><textarea id="dreamHipotese" placeholder="Hipótese provisória para escuta..."></textarea></div>'+
    '<div class="actions">'+btn('Salvar registro de sonho','ecoSaveDream','',`data-case="${esc(c.id)}"`) +'</div>'+
    '</div>';
@@ -2217,9 +2218,9 @@ function ecoRenderTechniques(c){
  return out;
 }
 
-function ecoRenderGenogram(c){
+function ecoRenderGenogram(c,only='both'){
  const gen = c.genograma || { membros: [], relacoes: [] };
- const members = Array.isArray(gen.membros) ? gen.membros : [];
+ const members = ecoFamilyMembers(c);
  const rels = Array.isArray(gen.relacoes) ? gen.relacoes : [];
  const timeline = Array.isArray(c.cronologia) ? c.cronologia : [];
 
@@ -2229,10 +2230,10 @@ function ecoRenderGenogram(c){
  const g4 = members.filter(m => (m.geracao||'').startsWith('G4'));
 
  const nodeCoords = new Map();
- const width = 800;
+ const width = Math.max(800,...[g1,g2,g3,g4].map(row=>row.length*150+100));
  const placeRow = (rowList, y) => {
    const n = rowList.length;
-   rowList.forEach((m, idx) => {
+   ecoFamilyOrder(rowList,rels,nodeCoords).forEach((m, idx) => {
      const x = Math.round((idx + 1) * (width / (n + 1)));
      nodeCoords.set(m.id, { x, y, m });
    });
@@ -2256,7 +2257,7 @@ function ecoRenderGenogram(c){
      else if(r.tipo === 'alianca'){ stroke = '#06b6d4'; strokeWidth = '3'; }
      else if(r.tipo === 'casamento'){ stroke = '#38bdf8'; }
      else { stroke = '#94a3b8'; }
-     edgesSvg += `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="${stroke}" stroke-width="${strokeWidth}" ${dash} />`;
+     edgesSvg += ecoFamilyEdge(r,from,to,stroke,strokeWidth,dash);
    }
  });
 
@@ -2265,8 +2266,8 @@ function ecoRenderGenogram(c){
    const { x, y, m } = coord;
    const isPatient = m.id === c.id || (m.parentesco && /paciente|sujeito|titular/i.test(m.parentesco)) || (m.geracao && m.geracao.includes('Paciente'));
    const isDeceased = m.vivo === 'não';
-   const isMale = m.sexo === 'M' || (m.parentesco && /pai|avô|irmão|filho|tio|homem/i.test(m.parentesco));
-   const isFemale = m.sexo === 'F' || (m.parentesco && /mãe|avó|irmã|filha|tia|mulher/i.test(m.parentesco));
+   const isMale = m.sexo === 'M';
+   const isFemale = m.sexo === 'F';
    const strokeColor = isPatient ? '#10b981' : isDeceased ? '#64748b' : '#38bdf8';
    const strokeWidth = isPatient ? '3.5' : '2';
 
@@ -2280,13 +2281,13 @@ function ecoRenderGenogram(c){
    }
 
    let deceasedSlash = isDeceased ? `<line x1="${x-16}" y1="${y+16}" x2="${x+16}" y2="${y-16}" stroke="#ef4444" stroke-width="2.5" />` : '';
-   let label = `<text x="${x}" y="${y+4}" fill="#f8fafc" font-size="11" font-weight="bold" text-anchor="middle">${esc(m.nome.slice(0,9))}</text>`;
-   let sublabel = `<text x="${x}" y="${y+34}" fill="#94a3b8" font-size="9" text-anchor="middle">${esc(m.parentesco||'')}</text>`;
+   let label = `<text x="${x}" y="${y+35}" fill="currentColor" font-size="11" font-weight="bold" text-anchor="middle">${esc(m.nome||'Sem nome')}</text>`;
+   let sublabel = `<text x="${x}" y="${y+49}" fill="#94a3b8" font-size="9" text-anchor="middle">${esc(m.parentesco||'')}</text>`;
 
    nodesSvg += `<g class="gen-node" data-id="${esc(m.id)}">${shape}${deceasedSlash}${label}${sublabel}</g>`;
  });
 
- let svgContent = `<svg class="eco-genogram-svg" viewBox="0 0 800 430" width="100%" height="400">
+ let svgContent = `<svg class="eco-genogram-svg" viewBox="0 0 ${width} 480" width="${Math.round(width*ecoGenZoom)}" height="${Math.round(480*ecoGenZoom)}">
    <!-- Generation Guides -->
    <line x1="15" y1="65" x2="785" y2="65" stroke="#1e293b" stroke-dasharray="4,4" />
    <text x="20" y="60" fill="#475569" font-size="10">G1: Avós</text>
@@ -2303,12 +2304,12 @@ function ecoRenderGenogram(c){
 
  let out = '<section class="eco-outline"><h2>Genograma Familiar Interativo</h2>'+
    '<p class="eco-caption">Mapeamento visual da dinâmica transgeracional e laços afetivos em grafo real. Nós representam os sujeitos (homem: quadrado; mulher: círculo; sujeito: verde neon) e arestas conectam as relações e vínculos relatados pelo paciente.</p>'+
-   svgContent;
+   '<div class="actions">'+btn("−","ecoGenZoomOut","secondary")+btn("＋","ecoGenZoomIn","secondary")+btn("Ajustar","ecoGenZoomReset","ghost")+'</div><div style="overflow:auto;max-height:65vh;border:1px solid var(--line);border-radius:10px">'+svgContent+'</div><p class="small muted">□ Masculino · ○ Feminino · símbolo neutro: não informado. Filiação por linhas ortogonais; vínculos afetivos por cores e traços.</p>';
 
  if(members.length){
    out += '<h3>Membros cadastrados ('+members.length+')</h3><div class="checklist">';
    out += members.map(m=>'<div class="choice" style="display:block"><strong>'+esc(m.nome)+'</strong> <span class="small muted">('+esc(m.parentesco)+')</span>'+
-     '<div><span class="chip '+(m.vivo==='não'?'gray':'good')+'">'+(m.vivo==='não'?'Falecido':'Vivo')+'</span><span class="chip">'+esc(m.geracao||'G3')+'</span></div>'+
+     '<div><span class="chip '+(m.vivo==='não'?'gray':'good')+'">'+(m.vivo==='não'?'Falecido':m.vivo==='sim'?'Vivo':'Não informado')+'</span><span class="chip">'+esc(m.geracao||'G3')+'</span></div>'+
      (m.vinculo?'<div class="small">Vínculo: <strong>'+esc(m.vinculo)+'</strong></div>':'')+
      (m.notas?'<div class="small muted">'+esc(m.notas)+'</div>':'')+
      '<div class="actions" style="margin-top:6px">'+btn('Excluir','ecoDeleteFamilyMember','ghost',`data-case="${esc(c.id)}" data-id="${esc(m.id)}"`) +'</div>'+
@@ -2351,17 +2352,19 @@ function ecoRenderGenogram(c){
    '</div>'+
    '<div class="split">'+
    '<div class="field"><label>Geração</label><select id="genGeracao"><option value="G1 (Avós)">G1 (Avós)</option><option value="G2 (Pais/Tios)">G2 (Pais/Tios)</option><option value="G3 (Paciente/Irmãos)" selected>G3 (Paciente/Irmãos/Parceiros)</option><option value="G4 (Filhos)">G4 (Filhos)</option></select></div>'+
-   '<div class="field"><label>Status vital</label><select id="genVivo"><option value="sim">Vivo(a)</option><option value="não">Falecido(a)</option></select></div>'+
+   '<div class="field"><label>Status vital</label><select id="genVivo"><option value="desconhecido">Não informado</option><option value="sim">Vivo(a)</option><option value="não">Falecido(a)</option></select></div>'+
    '</div>'+
    '<div class="split">'+
    '<div class="field"><label>Gênero / Símbolo</label><select id="genSexo"><option value="indefinido">Indefinido / Sujeito</option><option value="F">Feminino (Círculo)</option><option value="M">Masculino (Quadrado)</option></select></div>'+
-   '<div class="field"><label>Tipo de vínculo relatado</label><select id="genVinculo"><option value="Próximo e acolhedor">Próximo e acolhedor</option><option value="Muito Próximo / Simbiótico">Muito Próximo / Simbiótico</option><option value="Conflituoso / Hostil">Conflituoso / Hostil</option><option value="Distante / Frio">Distante / Frio</option><option value="Rompido / Sem contato">Rompido / Sem contato</option><option value="Dependente / Inversão de papéis">Dependente / Inversão de papéis</option><option value="Cuidador / Protetor">Cuidador / Protetor</option></select></div>'+
+   '<div class="field"><label>Tipo de vínculo relatado</label><select id="genVinculo"><option value="">Não informado</option><option value="Próximo e acolhedor">Próximo e acolhedor</option><option value="Muito Próximo / Simbiótico">Muito Próximo / Simbiótico</option><option value="Conflituoso / Hostil">Conflituoso / Hostil</option><option value="Distante / Frio">Distante / Frio</option><option value="Rompido / Sem contato">Rompido / Sem contato</option><option value="Dependente / Inversão de papéis">Dependente / Inversão de papéis</option><option value="Cuidador / Protetor">Cuidador / Protetor</option></select></div>'+
    '</div>'+
    '<div class="field"><label>Notas e observações</label><input type="text" id="genNotas" placeholder="Notas sobre histórico de perdas, migração, etc."></div>'+
    '<div class="actions">'+btn('Adicionar ao genograma','ecoAddFamilyMember','',`data-case="${esc(c.id)}"`) +'</div>'+
    '</div>';
  out += '</section>';
 
+ if(only==='genograma')return out;
+ if(only==='cronologia')out='';
  out += '<section class="eco-outline"><h2>Linha do Tempo Biográfica</h2>'+
    '<p class="eco-caption">Marcos e acontecimentos na história do sujeito com datas aproximadas e fontes do relato.</p>';
  if(timeline.length){
@@ -2912,16 +2915,17 @@ act=function(name,id,button){
     if(!txt.trim()){notify("Informe o conteúdo manifesto do sonho.",'red');return;}
     const dream={
       id:uid(),data:document.getElementById("dreamData")?.value||datestr(),
-      texto:txt.trim(),
+      ...(ecoDreamOrigin||{}),texto:txt.trim(),
+      lugares:document.getElementById("dreamLugares")?.value||"",simbolos:(document.getElementById("dreamSimbolos")?.value||"").split(",").map(s=>s.trim()).filter(Boolean),
       personagens:document.getElementById("dreamPersonagens")?.value||"",
       afetos:document.getElementById("dreamAfetos")?.value||"",
       associacoes:document.getElementById("dreamAssociacoes")?.value||"",
       hipotese:document.getElementById("dreamHipotese")?.value||"",
       criadoEm:new Date().toISOString()
     };
-    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
+    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];if(!dream.originKey||!c.sonhosList.some(d=>d.originKey===dream.originKey))c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
     if(!ok){notify("Falha ao salvar sonho. Dados mantidos no formulário.",'red');return;}
-    notify("Sonho documentado com sucesso.");render();return;
+    ecoDreamOrigin=null;notify("Sonho documentado com sucesso.");render();return;
   }
   if(name==="ecoDeleteDream"){
     const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
@@ -3011,7 +3015,7 @@ act=function(name,id,button){
       id:uid(),nome:nome.trim(),
       parentesco:document.getElementById("genParentesco")?.value||"",
       geracao:document.getElementById("genGeracao")?.value||"G3",
-      vivo:document.getElementById("genVivo")?.value||"sim",
+      vivo:document.getElementById("genVivo")?.value||"desconhecido",
       sexo:document.getElementById("genSexo")?.value||"indefinido",
       vinculo:document.getElementById("genVinculo")?.value||"",
       notas:document.getElementById("genNotas")?.value||""
@@ -3044,10 +3048,11 @@ act=function(name,id,button){
     const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
     const c=state.cases.find(x=>x.id===caseId);
     if(!c){notify("Caso não encontrado.",'red');return;}
-    const deId=document.getElementById("genRelDe")?.value;
-    const paraId=document.getElementById("genRelPara")?.value;
-    const tipo=document.getElementById("genRelTipo")?.value||"casamento";
-    if(!deId||!paraId||deId===paraId){notify("Selecione dois membros distintos para vincular.",'red');return;}
+    const deId=document.getElementById("relDeId")?.value;
+    const paraId=document.getElementById("relParaId")?.value;
+    const tipo=document.getElementById("relTipo")?.value||"casamento";
+    if(!deId||!paraId||deId===paraId||!ecoFamilyMembers(c).some(m=>m.id===deId)||!ecoFamilyMembers(c).some(m=>m.id===paraId)){notify("Selecione dois membros distintos para vincular.",'red');return;}
+    if((c.genograma?.relacoes||[]).some(r=>r.tipo===tipo&&((r.deId===deId&&r.paraId===paraId)||(tipo!=='pais_filho'&&r.deId===paraId&&r.paraId===deId)))){notify('Vínculo já registrado.','red');return;}
     const rel={id:uid(),deId:deId,paraId:paraId,tipo:tipo,criadoEm:new Date().toISOString()};
     const ok=change(()=>{
       if(!c.genograma)c.genograma={membros:[],relacoes:[]};
@@ -3407,5 +3412,71 @@ pdfForCase=function(c){
   '<p><strong>Atenção:</strong> este documento não é criptografado ao ser impresso ou exportado em PDF; controle o destino. Rótulos de falantes dependem de revisão humana. Sugestões de NLP não validadas nunca equivalem a diagnóstico.</p>'+
   section+'</body></html>');
 };
+
+
+let ecoGenZoom=.65,ecoDreamOrigin=null,ecoKnowledgeQuery='',ecoKnowledgeTab='todos';
+function ecoFamilyMembers(c){
+ const rows=Array.isArray(c.genograma?.membros)?c.genograma.membros:[];
+ return rows.some(m=>m.id===c.id||/^(paciente|sujeito|titular)(\s|$)/i.test(m.parentesco||''))?rows:[{id:c.id,nome:c.nome||'Paciente',parentesco:'Paciente',geracao:'G3 (Paciente/Irmãos)',sexo:'indefinido',vivo:'desconhecido',vinculo:''},...rows];
+}
+function ecoFamilyOrder(rows,rels,coords){
+ const rank=m=>{const a=rels.filter(r=>r.tipo==='pais_filho'&&r.paraId===m.id).map(r=>coords.get(r.deId)?.x).filter(Number.isFinite);return a.length?a.reduce((a,b)=>a+b,0)/a.length:Infinity;};
+ return [...rows].sort((a,b)=>rank(a)-rank(b)||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+}
+function ecoFamilyEdge(r,a,b,stroke,w,dash){
+ const style=' stroke="'+stroke+'" stroke-width="'+w+'" '+dash+' fill="none"';
+ if(r.tipo==='pais_filho'){const y=(a.y+b.y)/2;return '<path d="M'+a.x+' '+(a.y+22)+' V'+y+' H'+b.x+' V'+(b.y-22)+'"'+style+'/>';}
+ return '<line x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'"'+style+'/>';
+}
+function ecoFoldText(s){return String(s||'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();}
+const ecoDreamWords={personagens:['mãe','pai','irmã','irmão','avó','avô','filha','filho','marido','esposa','amiga','amigo','criança','homem','mulher'],lugares:['casa','cozinha','quarto','escola','hospital','rua','praia','floresta','cidade','igreja','escada','porão','sótão'],afetos:['medo','angústia','ansiedade','tristeza','alegria','raiva','vergonha','culpa','alívio','desespero','pânico','estranheza'],simbolos:['casa','porta','janela','espelho','dentes','água','mar','rio','cobra','cachorro','gato','animal','escada','queda','morte','viagem','perseguição','fogo','sangue','chave','ponte','carro','avião','relógio','mãe','pai']};
+function ecoDreamFields(quote){
+ const n=ecoFoldText(quote),find=words=>words.filter(w=>new RegExp('(^|[^a-z0-9])'+ecoFoldText(w)+'(?=$|[^a-z0-9])','u').test(n));
+ const affect=find(ecoDreamWords.afetos).filter(w=>new RegExp('(?:senti|sentia|estava com|tive|tinha|fiquei com)\\s+(?:muito\\s+|muita\\s+|um\\s+|uma\\s+)?'+ecoFoldText(w),'u').test(n));
+ return {personagens:find(ecoDreamWords.personagens).join(', '),lugares:find(ecoDreamWords.lugares).join(', '),afetos:affect.join(', '),simbolos:find(ecoDreamWords.simbolos)};
+}
+function ecoDreamCandidates(c){
+ const recorded=new Set((c.sonhosList||[]).map(d=>d.originKey).filter(Boolean)),out=[];
+ for(const s of c.sessoes||[]){
+  let units=ecoSourceUnits(s);if(!units.length&&s.texto?.trim())units=[{text:s.texto,source:'nota clínica manual',speaker:'desconhecido',atMs:null}];
+  const start=/(?:^|[^\p{L}])(?:sonhei|sonhava|tive (?:um |uma )?(?:sonho|pesadelo)|no meu sonho|relatou (?:um |uma )?(?:sonho|pesadelo))(?=$|[^\p{L}])/iu;
+  for(let i=0;i<units.length;i++){
+   const u=units[i],q=u.text.trim();
+   if(u.speaker==='terapeuta'||!start.test(q)||/\?$/.test(q)||/(?:não|nunca|jamais)\s+(?:eu\s+)?(?:sonhei|sonhava|tive)/iu.test(q))continue;
+   let quote=q;for(let j=i+1;j<Math.min(i+4,units.length);j++){const v=units[j];if(v.speaker!==u.speaker||start.test(v.text)||/^(?:acordei|despertei|na vida real|mudando de assunto)\b/i.test(v.text.trim())||/\?$/.test(v.text.trim()))break;quote+=' '+v.text.trim();}
+   const key=s.id+'|'+u.source+'|'+i+'|'+q;
+   if(!recorded.has(key))out.push({originKey:key,sessionId:s.id,data:s.data,source:u.source,speaker:u.speaker,atMs:u.atMs,texto:quote,...ecoDreamFields(quote)});
+  }
+ }return out;
+}
+function ecoDreamSuggestionsHtml(c){
+ const ds=ecoDreamCandidates(c),prior=c.sonhosList||[];
+ let out='<div class="card"><h3>Sugestões automáticas ('+ds.length+')</h3><p class="small muted">Extração lexical local, não neural. Revise relato e falante antes de confirmar.</p>';
+ for(const [i,d] of ds.entries()){out+='<div class="eco-evidence"><strong>'+esc(formatDate(d.data))+' · '+esc(d.speaker||'desconhecido')+'</strong><p>'+esc(d.texto)+'</p><p>Personagens: '+esc(d.personagens)+' · Lugares: '+esc(d.lugares)+' · Afetos: '+esc(d.afetos)+' · Imagens: '+esc(d.simbolos.join(', '))+'</p>'+btn('Preencher registro','ecoDreamPrefill','secondary','data-id="'+i+'" data-case="'+esc(c.id)+'"')+'</div>';}
+ if(!ds.length)out+='<p>Nenhum candidato novo.</p>';
+ const counts=new Map();for(const d of prior)for(const v of new Set(d.simbolos||[]))counts.set(v,(counts.get(v)||0)+1);
+ out+=[...counts].filter(([v,n])=>n>1).map(([v,n])=>'<p>Imagem recorrente: '+esc(v)+' · '+n+' registros</p>').join('');
+ return out+'</div>';
+}
+function ecoKnowledgeRows(){
+ return [...ecoSymbolDictionary.map(s=>({title:s.titulo,author:'Freud · Jung'+(s.lacan?' · Lacan':''),type:'sonhos',body:[s.freud,s.lacan,s.jung,s.sentidos,s.perguntas,s.limites].filter(Boolean).join('\n')})),...ecoSchoolsLibrary.flatMap(s=>s.tecnicas.map(t=>({title:t.nome,author:s.escola,type:'tecnicas',body:[t.objetivo,t.indicacao,t.limites].join('\n')}))),...ecoInvestigationAxes.map(a=>({title:a.nome,author:'Eixos de investigação',type:'eixos',body:a.descricao+'\n'+a.perguntaPadrao}))];
+}
+function ecoKnowledgeResults(){
+ const q=ecoFoldText(ecoKnowledgeQuery).trim().split(/\s+/).filter(Boolean);
+ const rs=ecoKnowledgeRows().filter(r=>(ecoKnowledgeTab==='todos'||ecoKnowledgeTab===r.type)&&q.every(w=>ecoFoldText(r.title+' '+r.author+' '+r.body).includes(w)));
+ return '<p>'+rs.length+' entradas</p>'+rs.map(r=>'<article class="card"><span class="chip">'+esc(r.author)+'</span><h3>'+esc(r.title)+'</h3><p style="white-space:pre-line">'+esc(r.body)+'</p><p class="small muted">Conteúdo introdutório; edição e paginação das referências pendentes de conferência.</p></article>').join('');
+}
+const ecoStudyLegacy=studyScreen;
+studyScreen=function(){return head('Biblioteca offline','Conhecimentos','Consulta independente do prontuário')+'<div class="field"><label>Pesquisar</label><input type="search" data-eco-knowledge-query value="'+esc(ecoKnowledgeQuery)+'" placeholder="Autor, técnica ou símbolo"></div><div class="actions">'+[['todos','Todos'],['sonhos','Verbetes oníricos'],['tecnicas','Técnicas'],['eixos','Investigação']].map(([id,label])=>btn(label,'ecoKnowledgeTab',ecoKnowledgeTab===id?'':'secondary','data-id="'+id+'"')).join('')+'</div><div id="ecoKnowledgeResults">'+ecoKnowledgeResults()+'</div>'+ecoStudyLegacy();};
+const ecoIntegratedAct=act;
+act=function(name,id,button){
+ const c=state?.cases?.find(x=>x.id===(button?.dataset?.case||openedId||ecoOverviewCase));
+ if(name==='ecoKnowledgeTab'){ecoKnowledgeTab=id;render();return;}
+ if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?.65:Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
+ if(name==='ecoDreamPrefill'&&c){const d=ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamOrigin={originKey:d.originKey,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', '),dreamAssociacoes:'',dreamHipotese:''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name))ecoDreamOrigin=null;
+ return ecoIntegratedAct(name,id,button);
+};
+document.addEventListener('input',e=>{if(e.target?.dataset?.ecoKnowledgeQuery!==undefined){ecoKnowledgeQuery=e.target.value||'';const el=document.getElementById('ecoKnowledgeResults');if(el)el.innerHTML=ecoKnowledgeResults();}});
 
 </script></body></html>
