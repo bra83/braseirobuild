@@ -535,6 +535,35 @@ final class MlSessionEngine implements RecognitionListener {
         lastChunksProcessed=0;
         beginFile();
     }
+    // Explicitly park an owned encrypted recording after the decoder stops.
+    // The SQLite job/key remain intact; the next patient gets an entirely new context.
+    synchronized boolean parkPausedJob(){
+        if(!paused||importing||recordingRequested||recorder!=null||recordedFile==null
+                ||recordedEphemeralKey==null||currentJobId.isEmpty())return false;
+        try{
+            EcoDatabaseHelper db=store.getDbHelper();
+            JSONObject job=db.getJob(currentJobId);
+            if(job==null||!currentCaseId.equals(job.optString("case_id"))
+                    ||!currentSessionId.equals(job.optString("session_id"))
+                    ||!recordedFile.getAbsolutePath().equals(job.optString("audio_path"))
+                    ||!recordedFile.isFile()||!SessionRecorder.isOwnedSpool(context,recordedFile))return false;
+            byte[] persisted=db.getJobKey(currentJobId);
+            if(persisted==null)return false;
+            boolean same=java.security.MessageDigest.isEqual(persisted,recordedEphemeralKey);
+            java.util.Arrays.fill(persisted,(byte)0);
+            if(!same)return false;
+            db.updateJobState(currentJobId,"PAUSED",null);
+            if(!"PAUSED".equals(db.getJob(currentJobId).optString("state")))return false;
+            generation++;wanted=false;paused=false;pauseRequested=false;discarding=false;
+            retainedUri=null;pendingFile=null;recordedFile=null;
+            java.util.Arrays.fill(recordedEphemeralKey,(byte)0);recordedEphemeralKey=null;setActiveEphemeralKey(null);
+            resumeFromMs=0;emittedIds.clear();speakerClusters.clear();sessionEmittedSegments=0;lastChunksProcessed=0;
+            currentJobId="";currentCaseId="";currentSessionId="";
+            TranscriptionService.clearJob();keepScreen(false);
+            events.state("PARADO · TEXTO PARCIAL PRESERVADO · ÁUDIO GUARDADO NA FILA");
+            return true;
+        }catch(Exception e){return false;}
+    }
     synchronized void discardRemainingAudio(){
         userExplicitDiscard = true;
         discarding = true;
