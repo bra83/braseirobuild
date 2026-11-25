@@ -185,6 +185,26 @@ try{
  await page.evaluate(()=>{window.NativeVault.databaseDiagnostics=()=>JSON.stringify({integrity:'ok',foreignKeysOk:true,_pacientes:2,sessoes:2,segmentos:0,freeBytes:104857600,checkpoints:[{slot:0,date:Date.now(),bytes:2000}]});});
  await page.locator('[data-act="ecoHealthCheck"]').click();assert.equal(await page.locator('[data-act="ecoCheckpointRestore"]').count(),1);
  await page.screenshot({path:path.join(out,'integridade.png'),fullPage:true});
+ // Clinical form recovery uses case/kind identity and does not modify the approved record.
+ await page.evaluate(()=>{const journal={};Object.assign(window.NativeVault,{
+  loadClinicalDraft:(c,k)=>journal[c+'|'+k]||'',
+  saveClinicalDraft:(c,k,raw)=>{journal[c+'|'+k]=raw;return 'OK'},
+  clearClinicalDraft:(c,k,id)=>{if(JSON.parse(journal[c+'|'+k]||'{}').id===id)delete journal[c+'|'+k];return 'OK'}
+ });act('openCase','browser-a');act('caseTab','enquadre');});
+ await page.locator('#enq_frequencia').fill('Rascunho de frequência fictício');
+ await home();
+ await page.evaluate(()=>{act('openCase','browser-b');act('caseTab','enquadre');});
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
+ assert.notEqual(await page.locator('#enq_frequencia').inputValue(),'Rascunho de frequência fictício');
+ await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','enquadre');});
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),1);
+ assert.equal(await page.locator('#enq_frequencia').isDisabled(),true);
+ assert.notEqual(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').enquadre?.frequencia),'Rascunho de frequência fictício');
+ await page.locator('[data-act="ecoClinicalDraftResume"]').click();
+ assert.equal(await page.locator('#enq_frequencia').inputValue(),'Rascunho de frequência fictício');
+ await page.locator('[data-act="ecoSaveEnquadre"]').click();
+ assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').enquadre.frequencia),'Rascunho de frequência fictício');
+ assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
