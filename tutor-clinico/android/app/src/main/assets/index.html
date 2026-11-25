@@ -3851,18 +3851,24 @@ function ecoVisitAction(c,name,id){
 document.addEventListener('change',e=>{if(e.target?.dataset?.ecoVisitSession!==undefined&&screen==='case'&&tab==='atendimento'){ecoVisitSelected=e.target.value;render();}});
 
 
-let ecoNliRun=null,ecoNliSerial=0,ecoNliScope='paciente',ecoNliFrom='',ecoNliTo='',ecoNliA='',ecoNliB='';
+let ecoNliRun=null,ecoNliSerial=0,ecoNliScope='paciente',ecoNliFrom='',ecoNliTo='',ecoNliA='',ecoNliB='',ecoNliPage=0;
 function ecoNliRows(c){return ecoReviewRows(c,ecoNliScope,ecoNliFrom,ecoNliTo);}
 function ecoNliKey(c){return JSON.stringify([c?.id,ecoNliScope,ecoNliFrom,ecoNliTo,ecoNliRows(c)]);}
 function ecoNliCurrent(r){return !!r&&screen==='case'&&tab==='compararRelatos'&&openedId===r.caseId&&r.key===ecoNliKey(currentCase());}
 function ecoNliCancel(){if(ecoNliRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoNliRun.id);}catch(e){}ecoNliRun=null;}
-function ecoNliReset(){ecoNliCancel();ecoNliA='';ecoNliB='';}
+function ecoNliReset(){ecoNliCancel();ecoNliA='';ecoNliB='';ecoNliPage=0;}
 function ecoNliWatch(id){const r=ecoNliRun;if(!r?.pending||r.id!==id)return;if(!ecoNliCurrent(r)){ecoNliCancel();return;}if(Date.now()-r.last>180000){ecoNliCancel();notify('Motor NLI sem progresso.','red');render();return;}setTimeout(()=>ecoNliWatch(id),5000);}
 function ecoNliPanel(c){
  const rows=ecoNliRows(c),r=ecoNliCurrent(ecoNliRun)?ecoNliRun:null;
- const opts=selected=>'<option value="">Selecione um trecho</option>'+rows.slice(0,1200).map((u,i)=>'<option value="'+i+'" '+(String(i)===selected?'selected':'')+'>'+esc(formatDate(u.sessionDate)+' · '+u.text.slice(0,160))+'</option>').join('');
- let out='<section class="card"><h2>Comparação textual neural — NLI</h2><p class="alert">Experimental. Compara relações lógicas entre dois textos, não a veracidade de uma pessoa. Tempo, sujeito, contexto, fala hipotética e mudanças de opinião exigem revisão humana. Não classifica mentira, personalidade ou diagnóstico.</p><div class="actions">'+[['paciente','Falas do paciente'],['manual','Notas profissionais']].map(([k,l])=>btn(l,'ecoNliScope',ecoNliScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><div class="split"><div class="field"><label>De</label><input id="ecoNliFrom" type="date" value="'+esc(ecoNliFrom)+'"></div><div class="field"><label>Até</label><input id="ecoNliTo" type="date" value="'+esc(ecoNliTo)+'"></div></div>'+btn('Aplicar período','ecoNliFilter','secondary')+'<p>'+rows.length+' trechos de origem. '+(rows.length>1200?'Reduza o período para selecionar os trechos.':'Selecione duas passagens do mesmo caso.')+'</p>';
- if(rows.length&&rows.length<=1200)out+='<div class="field"><label>Trecho A</label><select id="ecoNliA" data-eco-nli-pick="a">'+opts(ecoNliA)+'</select></div><div class="field"><label>Trecho B</label><select id="ecoNliB" data-eco-nli-pick="b">'+opts(ecoNliB)+'</select></div>'+btn('Comparar com modelo NLI','ecoNliStart','','data-case="'+esc(c.id)+'"');
+ const pageSize=100,pages=Math.max(1,Math.ceil(rows.length/pageSize));ecoNliPage=Math.max(0,Math.min(ecoNliPage,pages-1));
+ const opts=selected=>{
+  const indices=Array.from({length:Math.min(pageSize,Math.max(0,rows.length-ecoNliPage*pageSize))},(_,i)=>ecoNliPage*pageSize+i);
+  if(selected!==''&&rows[Number(selected)]&&!indices.includes(Number(selected)))indices.unshift(Number(selected));
+  return '<option value="">Selecione um trecho</option>'+indices.map(i=>{const u=rows[i];return '<option value="'+i+'" '+(String(i)===selected?'selected':'')+'>'+esc('#'+(i+1)+' · '+formatDate(u.sessionDate)+' · '+u.text.slice(0,160))+'</option>';}).join('');
+ };
+ let out='<section class="card"><h2>Comparação textual neural — NLI</h2><p class="alert">Experimental. Compara relações lógicas entre dois textos, não a veracidade de uma pessoa. Tempo, sujeito, contexto, fala hipotética e mudanças de opinião exigem revisão humana. Não classifica mentira, personalidade ou diagnóstico.</p><div class="actions">'+[['paciente','Falas do paciente'],['manual','Notas profissionais']].map(([k,l])=>btn(l,'ecoNliScope',ecoNliScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><div class="split"><div class="field"><label>De</label><input id="ecoNliFrom" type="date" value="'+esc(ecoNliFrom)+'"></div><div class="field"><label>Até</label><input id="ecoNliTo" type="date" value="'+esc(ecoNliTo)+'"></div></div>'+btn('Aplicar período','ecoNliFilter','secondary')+'<p>'+rows.length+' trechos de origem. '+'Selecione duas passagens do mesmo caso; use as páginas para consultar todo o período.'+'</p>';
+ if(rows.length&&pages>1)out+='<div class="actions">'+btn('Anterior','ecoNliPrev','secondary')+'<span>Página '+(ecoNliPage+1)+' de '+pages+'</span>'+btn('Próxima','ecoNliNext','secondary')+'</div>';
+ if(rows.length)out+='<div class="field"><label>Trecho A</label><select id="ecoNliA" data-eco-nli-pick="a">'+opts(ecoNliA)+'</select></div><div class="field"><label>Trecho B</label><select id="ecoNliB" data-eco-nli-pick="b">'+opts(ecoNliB)+'</select></div>'+btn('Comparar com modelo NLI','ecoNliStart','','data-case="'+esc(c.id)+'"');
  if(r?.pending)out+='<p id="ecoNliStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoNliCancel','secondary');
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
  else if(r?.result){const x=r.result.comparisons[0],names=['Possível incompatibilidade textual','Implicação textual','Relação indeterminada'];const score=v=>names.map((n,i)=>'<p>'+n+': '+(v[i]*100).toFixed(1)+'%</p>').join('');out+='<h3>Resultado experimental · '+esc(r.result.model)+'</h3><p>Saídas softmax do modelo, não probabilidades clínicas calibradas. Nenhuma conclusão é incorporada ao prontuário.</p><div class="eco-evidence"><strong>A · '+esc(formatDate(r.a.sessionDate))+'</strong><p>'+esc(r.a.text)+'</p><small>'+esc(r.a.source)+'</small></div><div class="eco-evidence"><strong>B · '+esc(formatDate(r.b.sessionDate))+'</strong><p>'+esc(r.b.text)+'</p><small>'+esc(r.b.source)+'</small></div><h4>A → B</h4>'+score(x.ab)+'<h4>B → A</h4>'+score(x.ba)+'<p class="small muted">Revise as datas e a atribuição da fala. Relações diferentes nas duas direções podem ser normais.</p>';}
@@ -3871,7 +3877,7 @@ function ecoNliPanel(c){
 function ecoNliStart(c){
  if(!c||ecoNliRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const rows=ecoNliRows(c),a=String(document.getElementById('ecoNliA')?.value||''),b=String(document.getElementById('ecoNliB')?.value||'');
- if(!/^\d+$/.test(a)||!/^\d+$/.test(b)||a===b||!rows[Number(a)]||!rows[Number(b)]||rows.length>1200){notify('Selecione dois trechos distintos.','red');return;}
+ if(!/^\d+$/.test(a)||!/^\d+$/.test(b)||a===b||!rows[Number(a)]||!rows[Number(b)]){notify('Selecione dois trechos distintos.','red');return;}
  const x=rows[Number(a)],y=rows[Number(b)];if(x.text.length>3000||y.text.length>3000){notify('Trechos muito longos; o motor não corta conteúdo clínico.','red');return;}
  ecoNliA=a;ecoNliB=b;const id='nli-'+(++ecoNliSerial)+'-'+Date.now();ecoNliRun={id,caseId:c.id,key:ecoNliKey(c),a:x,b:y,pending:true,last:Date.now(),stage:'Carregando BERTimbau NLI'};
  try{const status=window.NativeVault?.analyzeSemantic?.(JSON.stringify({id,mode:'nli',pairs:[{a:x.text,b:y.text}]}));if(status!=='OK'){ecoNliRun.pending=false;ecoNliRun.error=String(status||'Modelo indisponível.');}}catch(e){ecoNliRun.pending=false;ecoNliRun.error='Falha ao iniciar o modelo.';}
@@ -3885,6 +3891,7 @@ const ecoNliPreviousAct=act;
 act=function(name,id,button){
  const c=state?.cases?currentCase():null;
  if(name==='ecoNliScope'){if(['paciente','manual'].includes(id)){ecoNliReset();ecoNliScope=id;render();}return;}
+ if(name==='ecoNliPrev'||name==='ecoNliNext'){if(c&&screen==='case'&&tab==='compararRelatos'&&!ecoNliRun?.pending){ecoNliPage=Math.max(0,Math.min(Math.ceil(ecoNliRows(c).length/100)-1,ecoNliPage+(name==='ecoNliNext'?1:-1)));render();}return;}
  if(name==='ecoNliFilter'){const from=document.getElementById('ecoNliFrom')?.value||'',to=document.getElementById('ecoNliTo')?.value||'';if(from&&to&&from>to){notify('Período inválido.','red');return;}ecoNliReset();ecoNliFrom=from;ecoNliTo=to;render();return;}
  if(name==='ecoNliStart'){if(c&&button?.dataset?.case===c.id)ecoNliStart(c);return;}
  if(name==='ecoNliCancel'){ecoNliCancel();render();return;}
