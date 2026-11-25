@@ -13,6 +13,8 @@ final class SegmentDiarizer implements AutoCloseable {
     private Model asr;
     private SpeakerModel speaker;
     private final SpeakerClusters clusters;
+    private NeuralOverlapEngine overlap;
+    boolean overlapAvailable(){return overlap!=null;}
     SegmentDiarizer(Context c,SpeakerClusters clusters) throws Exception{
         this.clusters=clusters;
         try{
@@ -24,7 +26,10 @@ final class SegmentDiarizer implements AutoCloseable {
                 if(!ready.createNewFile()&&!ready.isFile())throw new IOException("Speaker model installation");
             }
             asr=new Model(new File(root,"asr").getAbsolutePath());
-            if(clusters!=null)speaker=new SpeakerModel(new File(root,"spk").getAbsolutePath());
+            if(clusters!=null){
+                speaker=new SpeakerModel(new File(root,"spk").getAbsolutePath());
+                try{overlap=new NeuralOverlapEngine(c);}catch(Exception|LinkageError unavailable){overlap=null;}
+            }
         }catch(Exception|LinkageError e){close();throw e;}
     }
     private static void copy(Context c,String path,File out)throws IOException{
@@ -38,9 +43,17 @@ final class SegmentDiarizer implements AutoCloseable {
             }
         }
     }
+    private void detectOverlap(byte[] pcm,SpeakerTimeline timeline,java.util.function.BooleanSupplier active){
+        if(overlap==null)return;
+        try{overlap.detect(pcm,timeline,active);}
+        catch(Exception|LinkageError e){
+            timeline.clearOverlap();try{overlap.close();}catch(Exception ignored){}overlap=null;
+        }
+    }
     /** One Vosk x-vector pass per chunk, using Vosk utterance timestamps, not its transcript. */
     SpeakerTimeline analyze(byte[] pcm,java.util.function.BooleanSupplier active){
         SpeakerTimeline result=new SpeakerTimeline();
+        detectOverlap(pcm,result,active);
         try(Recognizer rec=new Recognizer(asr,16000f,speaker)){
             rec.setWords(true);
             for(int i=0;i<pcm.length&&active.getAsBoolean();i+=8000){
@@ -48,23 +61,24 @@ final class SegmentDiarizer implements AutoCloseable {
                 if(rec.acceptWaveForm(block,block.length))append(result,new JSONObject(rec.getResult()),pcm.length/32L);
             }
             if(active.getAsBoolean())append(result,new JSONObject(rec.getFinalResult()),pcm.length/32L);
-        }catch(Exception|LinkageError e){return new SpeakerTimeline();}
+        }catch(Exception|LinkageError e){result.clearGroups();}
         return result;
     }
     interface SpeechConsumer {void accept(String text,long startMs,long endMs,String cluster);}
     /** Fast alternative: the same Vosk pass produces text, timestamps and optional x-vectors. */
     void transcribe(byte[] pcm,java.util.function.BooleanSupplier active,SpeechConsumer consumer) throws Exception {
+        SpeakerTimeline neural=new SpeakerTimeline();detectOverlap(pcm,neural,active);
         try(Recognizer rec=speaker==null?new Recognizer(asr,16000f):new Recognizer(asr,16000f,speaker)){
             rec.setWords(true);
             for(int i=0;i<pcm.length&&active.getAsBoolean();i+=8000){
                 byte[] block=Arrays.copyOfRange(pcm,i,Math.min(i+8000,pcm.length));
-                try{if(rec.acceptWaveForm(block,block.length))emitSpeech(new JSONObject(rec.getResult()),pcm.length/32L,consumer);}
+                try{if(rec.acceptWaveForm(block,block.length))emitSpeech(new JSONObject(rec.getResult()),pcm.length/32L,consumer,neural);}
                 finally{Arrays.fill(block,(byte)0);}
             }
-            if(active.getAsBoolean())emitSpeech(new JSONObject(rec.getFinalResult()),pcm.length/32L,consumer);
+            if(active.getAsBoolean())emitSpeech(new JSONObject(rec.getFinalResult()),pcm.length/32L,consumer,neural);
         }
     }
-    private void emitSpeech(JSONObject v,long maxMs,SpeechConsumer consumer)throws JSONException{
+    private void emitSpeech(JSONObject v,long maxMs,SpeechConsumer consumer,SpeakerTimeline neural)throws JSONException{
         String text=v.optString("text","").trim();
         if(text.isEmpty())return;
         JSONArray words=v.optJSONArray("result");
@@ -74,7 +88,7 @@ final class SegmentDiarizer implements AutoCloseable {
             end=Math.min(maxMs,Math.round(words.getJSONObject(words.length()-1).getDouble("end")*1000));
         }
         if(end<=start)throw new JSONException("Tempos Vosk inválidos");
-        consumer.accept(text,start,end,clusterFor(v,end-start));
+        consumer.accept(text,start,end,neural.hasOverlap(start,end)?SpeakerTimeline.OVERLAP:clusterFor(v,end-start));
     }
     private String clusterFor(JSONObject v,long duration)throws JSONException {
         JSONArray spk=v.optJSONArray("spk");
@@ -90,7 +104,7 @@ final class SegmentDiarizer implements AutoCloseable {
         long start=Math.max(0,Math.round(words.getJSONObject(0).getDouble("start")*1000));
         long end=Math.min(maxMs,Math.round(words.getJSONObject(words.length()-1).getDouble("end")*1000));
         if(end<=start)return;
-        result.add(start,end,clusterFor(v,end-start));
+        result.add(start,end,result.hasOverlap(start,end)?"":clusterFor(v,end-start));
     }
-    @Override public void close(){if(speaker!=null){speaker.close();speaker=null;}if(asr!=null){asr.close();asr=null;}}
+    @Override public void close(){if(overlap!=null){try{overlap.close();}catch(Exception ignored){}overlap=null;}if(speaker!=null){speaker.close();speaker=null;}if(asr!=null){asr.close();asr=null;}}
 }
