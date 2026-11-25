@@ -68,12 +68,16 @@ public final class MainActivity extends Activity {
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
+    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909;
+    private final java.util.concurrent.atomic.AtomicBoolean archiveBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
+    private volatile java.util.concurrent.atomic.AtomicBoolean archiveCancel;
     private WebView web;
     private SecureStore store;
     private SharedPreferences pref;
     private byte[] pendingExport;
     private String pendingPassword;
     private void clearPendingBackup(){
+        if(archiveCancel!=null)archiveCancel.set(true);
         if(pendingExport!=null)java.util.Arrays.fill(pendingExport,(byte)0);
         pendingExport=null;pendingPassword=null;
     }
@@ -755,6 +759,17 @@ public final class MainActivity extends Activity {
                 startActivityForResult(intent, EXPORT_CODE);
             });
         }
+        @JavascriptInterface public void attachmentArchive(String password,boolean export){
+            if(!unlocked||password==null||password.length()<10||archiveBusy.get())return;
+            main.post(()->reauthenticate(export?"Exportar arquivo de anexos":"Restaurar arquivo de anexos",()->{
+                if(!unlocked||archiveBusy.get())return;
+                clearPendingBackup();pendingPassword=password;
+                Intent intent=new Intent(export?Intent.ACTION_CREATE_DOCUMENT:Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);intent.setType(export?"application/octet-stream":"*/*");
+                if(export)intent.putExtra(Intent.EXTRA_TITLE,"eco-anexos.ecobkp");
+                startActivityForResult(intent,export?ARCHIVE_EXPORT_CODE:ARCHIVE_IMPORT_CODE);
+            }));
+        }
         @JavascriptInterface public void importBackup(String password) {
             if (!unlocked) return;
             main.post(() -> reauthenticate("Importar backup clínico",()->{
@@ -812,11 +827,61 @@ public final class MainActivity extends Activity {
             });
         }
     }
+    private void runAttachmentArchive(Uri uri,char[] password,boolean export){
+        if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,'\\0');return;}
+        final java.util.concurrent.atomic.AtomicBoolean cancelled=new java.util.concurrent.atomic.AtomicBoolean(false);
+        archiveCancel=cancelled;
+        final AlertDialog progress=new AlertDialog.Builder(this)
+            .setTitle(export?"Backup de anexos":"Restauração de anexos")
+            .setMessage("Processamento cifrado em blocos. Não feche o ECO. Cancelar não altera os registros locais.")
+            .setCancelable(false).setNegativeButton("Cancelar",(dialog,which)->cancelled.set(true)).create();
+        progress.show();
+        progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{
+            cancelled.set(true);progress.setMessage("Cancelando com segurança…");v.setEnabled(false);
+        });
+        new Thread(()->{
+            String message;
+            java.util.function.BooleanSupplier active=()->unlocked&&!cancelled.get();
+            try{
+                int count;
+                if(export){
+                    try(OutputStream out=getContentResolver().openOutputStream(uri,"wt")){
+                        if(out==null)throw new java.io.IOException("Destino indisponível");
+                        count=store.exportAttachmentArchive(out,password,active);
+                    }
+                    message="Backup de anexos salvo: "+count+" arquivo(s).";
+                }else{
+                    try(InputStream in=getContentResolver().openInputStream(uri)){
+                        if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                        count=store.restoreAttachmentArchive(in,password,active);
+                    }
+                    message="Restauração concluída: "+count+" anexo(s) novo(s).";
+                }
+            }catch(Exception e){
+                message=export?"Backup não concluído; descarte o arquivo incompleto.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
+            }finally{
+                java.util.Arrays.fill(password,'\\0');archiveCancel=null;archiveBusy.set(false);
+            }
+            final String result=message;
+            main.post(()->{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);}});
+        },"eco-attachment-archive").start();
+    }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
-        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE)&&!privateOperationAuthorized()){
+        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE)&&!privateOperationAuthorized()){
             clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
             if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;
+            return;
+        }
+        if(code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE){
+            String pass=pendingPassword;clearPendingBackup();
+            if(!unlocked||pass==null||pass.length()<10||result!=RESULT_OK||data==null||data.getData()==null)return;
+            final Uri archiveUri=data.getData();final boolean export=code==ARCHIVE_EXPORT_CODE;
+            if(export)runAttachmentArchive(archiveUri,pass.toCharArray(),true);
+            else new AlertDialog.Builder(this).setTitle("Restaurar anexos")
+                .setMessage("Os casos do arquivo precisam existir neste aparelho. O ECO mescla apenas anexos novos e cancela tudo se houver conflito ou arquivo inválido.")
+                .setNegativeButton("Cancelar",null)
+                .setPositiveButton("Restaurar",(d,w)->{if(privateOperationAuthorized())runAttachmentArchive(archiveUri,pass.toCharArray(),false);}).show();
             return;
         }
         if(code==ATTACHMENT_IMPORT_CODE){
