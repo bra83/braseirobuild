@@ -656,7 +656,7 @@ function settingsScreen(){
  `<option value="base" ${asrMod==="base"?"selected":""}>Whisper Base · mais rápido</option>`+
  `</select></div>`+
  `</div>`+
- `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha original do backup protegido (exportação: mínimo 10 caracteres)</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
+ `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha original do backup protegido (exportação: mínimo 10 caracteres)</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><div class="actions">${btn('Exportar anexos em grande volume','ecoArchiveExport','secondary')}${btn('Restaurar arquivo de anexos','ecoArchiveImport','secondary')}</div><p class="small muted">Arquivo complementar cifrado de anexos (até 8 GiB; cada arquivo até 8 MB). Para recuperar o consultório, restaure primeiro os casos do backup clínico e depois os anexos. Nenhum anexo local é substituído; arquivo incompleto ou conflitante cancela toda a restauração.</p><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
  `<div class="card"><h2>Privacidade e Segurança Operacional</h2><p>● Não há permissão de internet no aplicativo (android.permission.INTERNET ausente).</p><p>● O arquivo interno é criptografado com AES-256-GCM com chave do Android Keystore.</p><p>● O aplicativo exige PIN local e bloqueia capturas de tela via FLAG_SECURE.</p><p>● O backup externo usa AES-256-GCM e chave derivada com PBKDF2 (240.000 iterações).</p><p class="muted small">O PIN controla o acesso à interface; a criptografia interna utiliza uma chave protegida por hardware do dispositivo.</p></div>`+
  `<div class="card"><h2>Compatibilidade</h2><p>Permite importar o backup JSON simples do Tutor Clínico original. Como ele não possui criptografia, trate esse arquivo com cuidado. O aplicativo converte registros de sessão para o formato ECO com identificadores imutáveis.</p></div>`+
  `<p class="notice">Ambiente de homologação e certificação ECO v0.24.0-arm64-beta. Utilize somente dados simulados/fictícios até aprovação da auditoria de conformidade.</p>`;}
@@ -778,6 +778,12 @@ function act(name,id){
  if(name==='todayAgenda'){render();return;}
  if(name==='doSearch'){render();return;}
  if(name==='pdfCase'){const c=currentCase();if(c){ecoDocConfirmed=false;ecoDocType='ficha';ecoDocSections=Object.fromEntries(Object.keys(ecoDocSections).map(k=>[k,ecoDocPreset('ficha').includes(k)]));tab='documentos';render();}return;}
+ if(name==='ecoArchiveExport'||name==='ecoArchiveImport'){
+  const input=$('#backupPass'),pass=input?.value||'';
+  if(pass.length<10){notify('Senha do arquivo de anexos: use pelo menos 10 caracteres.','red');return;}
+  if(typeof window.NativeVault?.attachmentArchive!=='function'){notify('Arquivo de anexos indisponível nesta versão.','red');return;}
+  window.NativeVault.attachmentArchive(pass,name==='ecoArchiveExport');if(input)input.value='';return;
+ }
  if(name==='exportBackup'){
   const input=$('#backupPass');const pass=input?.value||'';
   if(pass.length<10){notify('Senha do backup: use pelo menos 10 caracteres.','red');return;}
