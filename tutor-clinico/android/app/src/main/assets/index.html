@@ -568,7 +568,7 @@ function settingsScreen(){
  `<div class="kv"><strong>Whisper Small Q5 multilíngue</strong><span>Disponível para importação detalhada</span></div>`+
  `<div class="kv"><strong>Whisper Base multilíngue</strong><span>Disponível para importação rápida</span></div>`+
  `<div class="kv"><strong>Vosk PT-BR</strong><span>Modo rápido de transcrição e separação de falantes em uma passagem (experimental)</span></div>`+
- `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Embeddings locais · NLI ainda não integrado</span></div>`+
+ `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Embeddings locais · comparação NLI experimental em módulo separado</span></div>`+
  `<div class="field"><label for="setMicEngine">Motor padrão para gravação de microfone</label>`+
  `<select id="setMicEngine" data-eco-setting="micEngine">`+
  `<option value="vosk" ${micEng==="vosk"?"selected":""}>Vosk PT-BR · modo rápido experimental</option>`+
@@ -3823,5 +3823,41 @@ act=function(name,id,button){
  return ecoNliPreviousAct(name,id,button);
 };
 document.addEventListener('change',e=>{if(screen==='case'&&tab==='compararRelatos'&&e.target?.dataset?.ecoNliPick){ecoNliCancel();if(e.target.dataset.ecoNliPick==='a')ecoNliA=e.target.value;else ecoNliB=e.target.value;render();}});
+
+
+let ecoLibraryRun=null,ecoLibrarySerial=0;
+function ecoLibraryChunks(){
+ const rows=ecoKnowledgeRows();
+ return rows.flatMap((r,index)=>{
+  const parts=r.type==='capitulos'?(ecoClinicalChapters.find(x=>x[0]===r.id)?.slice(5)||[]):[r.body];
+  return parts.map((text,part)=>({text:r.title+' — '+r.author+'\n'+text,speaker:'desconhecido',source:'biblioteca didática local',entry:index,part,title:r.title,author:r.author,ref:r.type==='capitulos'?ecoClinicalChapters.find(x=>x[0]===r.id)?.[3]||'':r.type==='glossario'?ecoGlossary.find(x=>x[0]===r.title)?.[2]||'':'Referência a conferir',chapter:r.id||''}));
+ });
+}
+function ecoLibraryCancel(){if(ecoLibraryRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoLibraryRun.id);}catch(e){}ecoLibraryRun=null;}
+function ecoLibraryStart(){
+ if(screen!=='study'||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNliRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
+ const query=String(document.getElementById('ecoLibraryQuery')?.value||'').trim(),rows=ecoLibraryChunks();
+ if(!query||query.length>500){notify('Informe uma consulta de até 500 caracteres.','red');return;}
+ const id='library-'+(++ecoLibrarySerial)+'-'+Date.now(),payload=JSON.stringify({id,scope:'desconhecido',rows:rows.map(x=>({text:x.text,speaker:x.speaker,source:x.source})),queries:[{key:'library',text:query}]});
+ if(rows.length>1200||payload.length>500000){notify('Corpus acima do limite de uma execução.','red');return;}
+ ecoLibraryRun={id,query,rows,pending:true,last:Date.now(),stage:'Carregando DistilUSE'};
+ try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){ecoLibraryRun.pending=false;ecoLibraryRun.error=String(status||'Motor indisponível.');}}catch(e){ecoLibraryRun.pending=false;ecoLibraryRun.error='Falha ao iniciar o motor.';}
+ render();if(ecoLibraryRun.pending)setTimeout(()=>ecoLibraryWatch(id),5000);
+}
+function ecoLibraryWatch(id){const r=ecoLibraryRun;if(!r?.pending||r.id!==id)return;if(screen!=='study'||Date.now()-r.last>180000){ecoLibraryCancel();if(screen==='study'){notify('Consulta interrompida.');render();}return;}setTimeout(()=>ecoLibraryWatch(id),5000);}
+function ecoLibraryPanel(){
+ const r=ecoLibraryRun;let out='<section class="card"><h2>Pesquisa por significado · biblioteca</h2><p class="small muted">Recuperação neural de trechos teóricos, separada dos prontuários. Consulte os textos de referência; as sínteses didáticas não são citações literais nem substituem edição e página verificadas. Não insira identificação de pacientes.</p><div class="field"><label>Questão teórica</label><input id="ecoLibraryQuery" maxlength="500" value="'+esc(r?.query||'')+'" placeholder="Ex.: como trabalhar a repetição de vínculos?"></div>'+btn('Pesquisar com modelo local','ecoLibraryStart','secondary');
+ if(r?.pending)out+='<p id="ecoLibraryStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoLibraryCancel','ghost');
+ else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
+ else if(r?.hits){out+='<h3>Trechos recuperados</h3>'+(r.hits.length?r.hits.map(hit=>{const x=r.rows[hit.i];return '<div class="eco-evidence"><strong>'+esc(x.title)+' · '+esc(x.author)+'</strong><p style="white-space:pre-line">'+esc(x.text)+'</p><p class="small">Referência: '+esc(x.ref)+' · cosseno '+hit.score.toFixed(3)+'</p>'+(x.chapter?btn('Ler capítulo completo','ecoReadChapter','secondary','data-id="'+esc(x.chapter)+'"'):'')+'</div>';}).join(''):'<p>Nenhum trecho acima do limiar.</p>');}
+ return out+'</section>';
+}
+const ecoLibraryPriorStudy=studyScreen;studyScreen=function(){return ecoLibraryPriorStudy()+ecoLibraryPanel();};
+const ecoLibraryPriorProgress=window.nativeSemanticProgress,ecoLibraryPriorResult=window.nativeSemanticResult,ecoLibraryPriorUnlock=window.nativeSemanticUnlocked;
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('library-'))return ecoLibraryPriorProgress(raw);const r=ecoLibraryRun;if(!r?.pending||v.id!==r.id)return;if(screen!=='study'){ecoLibraryCancel();return;}r.last=Date.now();r.stage=String(v.stage||'Pesquisando');const el=document.getElementById('ecoLibraryStage');if(el)el.textContent=r.stage;};
+window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('library-'))return ecoLibraryPriorResult(raw);const r=ecoLibraryRun;if(!r?.pending||v.id!==r.id)return;if(screen!=='study'){ecoLibraryRun=null;return;}r.pending=false;const hits=v.groups?.[0]?.hits;if(v.error)r.error=String(v.error);else if(v.count!==r.rows.length||v.scope!=='desconhecido'||v.groups?.length!==1||v.groups[0].key!=='library'||!Array.isArray(hits)||hits.length>5||!hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.rows.length&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001))r.error='Resposta neural inválida.';else r.hits=hits;render();};
+window.nativeSemanticUnlocked=function(){ecoLibraryCancel();return ecoLibraryPriorUnlock();};
+const ecoLibraryPriorAct=act;
+act=function(name,id,button){if(name==='ecoLibraryStart'){ecoLibraryStart();return;}if(name==='ecoLibraryCancel'){ecoLibraryCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name))ecoLibraryCancel();return ecoLibraryPriorAct(name,id,button);};
 
 </script></body></html>
