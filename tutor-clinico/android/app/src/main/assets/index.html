@@ -4674,9 +4674,47 @@ act=function(name,id,button){
  return ecoAttachPriorAct(name,id,button);
 };
 
+function ecoPagedVaultPanel(){
+ let rows=[];try{rows=JSON.parse(window.NativeVault?.fullRecoveryCheckpoints?.()||'[]');if(!Array.isArray(rows))rows=[];}catch(e){}
+ return '<section class="card"><h2>Consulta paginada e recuperação integral</h2><p>Consulte casos e sessões diretamente do SQLite sem carregar o prontuário inteiro. Modo somente leitura, inclusive se a abertura normal falhar.</p>'+btn('Consultar prontuários por páginas','ecoPagedCases','secondary')+btn('Criar checkpoint integral local','ecoFullCheckpointCreate','secondary')+'<p class="small muted">Duas cópias rotativas cifradas, com anexos e histórico; diário privado excluído. Exporte para outro armazenamento para se proteger de perda do aparelho.</p><label class="field">Senha para exportar checkpoint<input id="ecoFullCheckpointPass" type="password" autocomplete="new-password"></label>'+rows.map(x=>btn('Exportar checkpoint '+new Date(x.date).toLocaleString('pt-BR'),'ecoFullCheckpointExport','secondary','data-id="'+esc(x.slot)+'"')).join('')+(!rows.length?'<p>Nenhum checkpoint integral salvo.</p>':'')+'</section>';
+}
+function ecoPagedRead(kind,caseId='',sessionId='',cursor='',field='texto',offset=0){
+ const raw=window.NativeVault?.browseVault?.(kind,caseId,sessionId,cursor,field,offset);
+ if(typeof raw!=='string')throw Error('Consulta indisponível');
+ const data=JSON.parse(raw);if(data.__loadError)throw Error(data.__loadError);return data;
+}
+let ecoPagedCase='',ecoPagedSession='',ecoPagedField='texto',ecoPagedCursor='',ecoPagedOffset=0,ecoPagedHistory=[];
+function ecoPagedShow(kind,cursor='',offset=0){
+ try{
+  const data=ecoPagedRead(kind,ecoPagedCase,ecoPagedSession,cursor,ecoPagedField,offset);
+  let html='<h2>'+({cases:'Casos · consulta paginada',sessions:'Sessões do caso',text:'Registro da sessão',segments:'Trechos originais'})[kind]+'</h2><p class="small muted">Somente leitura. Nenhuma alteração será gravada.</p>';
+  if(kind==='text'){
+   html+='<p>'+esc(data.text||'Sem conteúdo registrado.')+'</p><p class="small muted">Caracteres '+Number(data.offset)+'–'+(Number(data.offset)+String(data.text||'').length)+' de '+Number(data.total)+'</p>';
+   html+=['texto','mlTranscricao','mlRevisada','intervencoes','plano'].map((k,i)=>btn(['Registro','Transcrição','Revisada','Intervenções','Plano'][i],'ecoPagedField','ghost','data-id="'+k+'"')).join('');
+   html+=btn('Trechos originais','ecoPagedSegments','secondary');
+   if(offset>0)html+=btn('Início do texto','ecoPagedText','ghost','data-id="0"');
+   if(data.next>=0)html+=btn('Continuar texto','ecoPagedText','secondary','data-id="'+Number(data.next)+'"');
+  }else{
+   if(!Array.isArray(data.rows))throw Error('Página inválida');
+   for(const r of data.rows){
+    if(kind==='cases')html+=btn((r.nome||'Sem apelido')+' · '+(r.status||''),'ecoPagedCase','secondary','data-id="'+esc(r.id)+'"');
+    if(kind==='sessions')html+=btn((r.data||'Sem data')+' '+(r.hora||'')+' · '+(r.origem||''),'ecoPagedSession','secondary','data-id="'+esc(r.id)+'"');
+    if(kind==='segments')html+='<div class="eco-evidence"><small>'+esc(ecoTimecode(r.startMs))+' · '+esc(r.speaker||'desconhecido')+(r.confirmed?' · revisado':'')+'</small><p>'+esc(r.text||'')+'</p>'+(r.truncated?'<p>Prévia limitada; original preservado no banco.</p>':'')+'</div>';
+   }
+   if(!data.rows.length)html+='<p>Nenhum registro nesta página.</p>';
+   if(cursor)html+=btn('Primeira página','ecoPagedFirst','ghost','data-id="'+kind+'"');
+   if(data.next)html+=btn('Próxima página','ecoPagedNext','secondary','data-id="'+kind+'"');
+  }
+  ecoPagedCursor=data.next||'';ecoPagedOffset=offset;
+  if(kind==='sessions')html+=btn('Voltar aos casos','ecoPagedCases','ghost');
+  if(kind==='text'||kind==='segments')html+=btn('Voltar às sessões','ecoPagedBackSessions','ghost');
+  if(kind==='segments')html+=btn('Voltar ao registro','ecoPagedText','ghost','data-id="0"');
+  openModal(html+btn('Fechar','closeModal','ghost'));
+ }catch(e){notify('Consulta não concluída: '+e.message,'red');}
+}
 function ecoRecoveryOnlyPanel(){
  let rows=[];try{rows=JSON.parse(window.NativeVault?.recoveryCheckpoints?.()||'[]');if(!Array.isArray(rows))rows=[];}catch(e){}
- return '<section class="card"><h2>Recuperação sem sobrescrever o banco</h2><p>Exporte uma cópia local autenticada para armazenamento independente. Esta operação não modifica o banco danificado; anexos não estão incluídos no checkpoint local.</p><div class="field"><label>Nova senha do backup de recuperação</label><input id="ecoRecoveryPass" type="password" autocomplete="new-password"></div>'+btn('Tentar exportar cofre integral diretamente do SQLite','ecoRecoveryFull','secondary')+'<p class="small muted">A exportação integral não depende da abertura da interface. Se houver corrupção, gravação pendente ou falha de autenticação, o arquivo será recusado. O diário privado não será incluído.</p>'+rows.map(x=>btn('Exportar cópia de '+new Date(x.date).toLocaleString('pt-BR'),'ecoRecoveryExport','secondary','data-id="'+x.slot+'"')).join('')+(!rows.length?'<p>Nenhum checkpoint disponível.</p>':'')+'</section>';
+ return ecoPagedVaultPanel()+'<section class="card"><h2>Recuperação sem sobrescrever o banco</h2><p>Exporte uma cópia local autenticada para armazenamento independente. Esta operação não modifica o banco danificado; anexos não estão incluídos no checkpoint local.</p><div class="field"><label>Nova senha do backup de recuperação</label><input id="ecoRecoveryPass" type="password" autocomplete="new-password"></div>'+btn('Tentar exportar cofre integral diretamente do SQLite','ecoRecoveryFull','secondary')+'<p class="small muted">A exportação integral não depende da abertura da interface. Se houver corrupção, gravação pendente ou falha de autenticação, o arquivo será recusado. O diário privado não será incluído.</p>'+rows.map(x=>btn('Exportar cópia de '+new Date(x.date).toLocaleString('pt-BR'),'ecoRecoveryExport','secondary','data-id="'+x.slot+'"')).join('')+(!rows.length?'<p>Nenhum checkpoint disponível.</p>':'')+'</section>';
 }
 function ecoRevealField(id){const e=document.getElementById(id);for(let p=e?.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;e?.scrollIntoView?.({block:'center'});}
 function ecoDreamAutoFill(){
@@ -5271,4 +5309,24 @@ act=function(name,id,button){
  }
  return result;
 };
+
+const ecoPagedSettingsPrior=settingsScreen;
+settingsScreen=function(){return ecoPagedSettingsPrior()+ecoPagedVaultPanel();};
+const ecoPagedActPrior=act;
+act=function(name,id,button){
+ if(name==='ecoPagedCases'){ecoPagedCase='';ecoPagedSession='';ecoPagedShow('cases');return;}
+ if(name==='ecoPagedCase'){ecoPagedCase=id;ecoPagedSession='';ecoPagedShow('sessions');return;}
+ if(name==='ecoPagedSession'){ecoPagedSession=id;ecoPagedField='texto';ecoPagedShow('text');return;}
+ if(name==='ecoPagedBackSessions'){ecoPagedShow('sessions');return;}
+ if(name==='ecoPagedSegments'){ecoPagedShow('segments');return;}
+ if(name==='ecoPagedField'&&['texto','mlTranscricao','mlRevisada','intervencoes','plano'].includes(id)){ecoPagedField=id;ecoPagedShow('text');return;}
+ if(name==='ecoPagedText'){ecoPagedShow('text','',Math.max(0,Number(id)||0));return;}
+ if(name==='ecoPagedFirst'&&['cases','sessions','segments'].includes(id)){ecoPagedShow(id);return;}
+ if(name==='ecoPagedNext'&&['cases','sessions','segments'].includes(id)){ecoPagedShow(id,ecoPagedCursor);return;}
+ if(name==='ecoFullCheckpointCreate'){if(typeof window.NativeVault?.createFullCheckpoint!=='function'){notify('Checkpoint integral indisponível.','red');return;}window.NativeVault.createFullCheckpoint();return;}
+ if(name==='ecoFullCheckpointExport'&&['2','3'].includes(String(id))){const input=$('#ecoFullCheckpointPass'),pass=input?.value||'';if(pass.length<10){notify('Use ao menos 10 caracteres na senha.','red');return;}if(typeof window.NativeVault?.exportFullRecoveryCheckpoint!=='function'){notify('Exportação indisponível.','red');return;}window.NativeVault.exportFullRecoveryCheckpoint(Number(id),pass);input.value='';return;}
+ return ecoPagedActPrior(name,id,button);
+};
+window.nativeFullCheckpointChanged=function(){if(errorLocked){$('#app').innerHTML='<div class="alert red">Abertura normal indisponível. Consulte os registros por páginas ou exporte uma cópia.</div>'+ecoRecoveryOnlyPanel();}else if(screen==='settings')render();};
+
 </script></body></html>
