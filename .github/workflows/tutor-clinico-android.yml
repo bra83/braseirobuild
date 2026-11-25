@@ -22,7 +22,7 @@ permissions:
 jobs:
   build:
     name: Testar e gerar APK
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Playwright 1.51.1 supports Noble; avoid ubuntu-latest drift
     defaults:
       run:
         working-directory: tutor-clinico/android
