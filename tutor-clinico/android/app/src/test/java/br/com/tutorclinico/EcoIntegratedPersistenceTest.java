@@ -248,4 +248,43 @@ public class EcoIntegratedPersistenceTest {
         assertEquals("ALTERADO",byId(new JSONObject(store.read()),"recover-a").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
         store.getDbHelper().close();
     }
+
+    @Test public void encryptedAttachmentChunksAndCheckpointRecovery() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        JSONObject a=caseWith("attach-a","ANTES"),b=caseWith("attach-b","OUTRO");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        byte[] pdf=new byte[205_000];byte[] head="%PDF-1.4\nMARCADOR_SINTETICO".getBytes(StandardCharsets.UTF_8);
+        System.arraycopy(head,0,pdf,0,head.length);
+        JSONObject meta=store.addAttachment("attach-a","Documento fictício","Documento recebido",pdf);
+        String id=meta.getString("id");
+        assertEquals(1,store.listAttachments("attach-a").length());assertEquals(0,store.listAttachments("attach-b").length());
+        try{store.attachmentBytes("attach-b",id);fail("cross-case attachment");}catch(IllegalArgumentException expected){}
+        try(Cursor c=store.getDbHelper().getReadableDatabase().query("eco_attachment_chunks",new String[]{"data_enc"},"id=?",new String[]{id},null,null,null)){
+            assertEquals(3,c.getCount());while(c.moveToNext())assertFalse(new String(c.getBlob(0),StandardCharsets.UTF_8).contains("MARCADOR_SINTETICO"));
+        }
+        assertArrayEquals(pdf,store.attachmentBytes("attach-a",id));
+        try{store.addAttachment("attach-a","Executável","Outro",new byte[20]);fail("unknown format");}catch(java.io.IOException expected){}
+        store.checkpoint(true);
+        JSONArray slots=store.checkpointList();assertTrue(slots.length()>=1);
+        int slot=slots.getJSONObject(0).getInt("slot");
+        JSONObject checkpoint=new JSONObject(store.readCheckpoint(slot));assertEquals("ANTES",byId(checkpoint,"attach-a").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        a.getJSONArray("sessoes").getJSONObject(0).put("texto","DEPOIS");
+        store.save(root.toString());store.getDbHelper().close();store=new SecureStore(context,key);
+        assertArrayEquals(pdf,store.attachmentBytes("attach-a",id));
+        JSONArray bundle=store.exportAttachments();assertEquals(1,bundle.length());
+        JSONObject archived=new JSONObject(store.read()).put("attachmentBundle",bundle);
+        String decoded=SecureStore.decryptBackup(SecureStore.encryptBackup(archived.toString(),"eco-fixture-2026"),"eco-fixture-2026");
+        assertEquals(archived.toString(),decoded);
+        store.save(decoded);assertEquals(1,store.listAttachments("attach-a").length());
+        JSONObject bad=new JSONObject(decoded);
+        bad.getJSONArray("cases").getJSONObject(0).put("nome","NÃO SALVAR");
+        bad.getJSONArray("attachmentBundle").getJSONObject(0).getJSONObject("meta").put("sha256","invalid");
+        try{store.save(bad.toString());fail("invalid attachment accepted");}catch(SecurityException expected){}
+        assertEquals(a.getString("nome"),byId(new JSONObject(store.read()),"attach-a").getString("nome"));
+        assertArrayEquals(pdf,store.attachmentBytes("attach-a",id));
+        store.getDbHelper().close();
+    }
 }
