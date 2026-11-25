@@ -4734,4 +4734,19 @@ act=function(name,id,button){
  }
  return result;
 };
+
+const ecoReminderPriorAgenda=agendaScreen;
+agendaScreen=function(){
+ const status=window.NativeVault?.agendaReminderStatus?.()||'off';
+ return ecoReminderPriorAgenda()+'<section class="card"><h2>Lembretes privados</h2><p>Notificação genérica aproximadamente 30 minutos antes de consultas futuras. Não contém nome, horário ou conteúdo clínico. O Android pode atrasar ou impedir alertas.</p><p class="small muted">'+(status==='on'?'Ativados; horário não garantido.':status==='permission'?'Permissão de notificações necessária.':'Desativados.')+'</p><div class="actions">'+(status==='on'?btn('Desativar lembretes','ecoAgendaReminderOff','secondary'):btn('Ativar lembretes','ecoAgendaReminderOn','secondary'))+'</div></section>';
+};
+window.nativeAgendaReminderChanged=function(){if(screen==='agenda')render();};
+const ecoReminderPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoAgendaReminderOn'||name==='ecoAgendaReminderOff'){
+  if(window.NativeVault?.setAgendaReminders)window.NativeVault.setAgendaReminders(name==='ecoAgendaReminderOn');
+  return;
+ }
+ return ecoReminderPriorAct(name,id,button);
+};
 </script></body></html>
