@@ -538,20 +538,45 @@ public final class MainActivity extends Activity {
             });
         }
         @JavascriptInterface public void printReport(String html) {
-            if (!unlocked) return;
+            if (!unlocked || html == null || html.trim().isEmpty()) return;
             main.post(() -> {
+                if (!unlocked || isFinishing() || isDestroyed()) return;
                 WebView printView = new WebView(MainActivity.this);
                 printView.getSettings().setBlockNetworkLoads(true);
                 printView.getSettings().setJavaScriptEnabled(false);
+                printView.getSettings().setAllowFileAccess(false);
+                printView.getSettings().setAllowContentAccess(false);
                 printView.setWebViewClient(new WebViewClient() {
+                    private boolean submitted = false;
                     @Override public void onPageFinished(WebView view, String url) {
+                        if (submitted) return;
+                        submitted = true;
                         PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
-                        if (!unlocked || manager == null) { view.destroy(); return; }
+                        if (!unlocked || manager == null || isFinishing() || isDestroyed()) { view.destroy(); return; }
                         PrintAttributes attrs = new PrintAttributes.Builder()
                             .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
                             .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
                             .build();
-                        manager.print("Documento ECO", view.createPrintDocumentAdapter("Documento ECO"), attrs);
+                        android.print.PrintDocumentAdapter delegate = view.createPrintDocumentAdapter("Documento ECO");
+                        try {
+                            manager.print("Documento ECO", new android.print.PrintDocumentAdapter() {
+                                @Override public void onStart() { delegate.onStart(); }
+                                @Override public void onLayout(PrintAttributes oldAttrs, PrintAttributes newAttrs,
+                                        android.os.CancellationSignal cancel, LayoutResultCallback callback, android.os.Bundle extras) {
+                                    delegate.onLayout(oldAttrs, newAttrs, cancel, callback, extras);
+                                }
+                                @Override public void onWrite(android.print.PageRange[] pages, android.os.ParcelFileDescriptor destination,
+                                        android.os.CancellationSignal cancel, WriteResultCallback callback) {
+                                    delegate.onWrite(pages, destination, cancel, callback);
+                                }
+                                @Override public void onFinish() {
+                                    try { delegate.onFinish(); }
+                                    finally { main.post(() -> { view.stopLoading(); view.destroy(); }); }
+                                }
+                            }, attrs);
+                        } catch (RuntimeException e) {
+                            view.destroy();
+                        }
                     }
                 });
                 printView.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
