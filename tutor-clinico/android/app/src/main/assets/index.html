@@ -306,19 +306,19 @@ function ecoCaseAnalysis(c){
  if(!ss.length)return '<section class="eco-outline"><h2>Registros para análise</h2><p>Este caso ainda não possui transcrição arquivada. Grave uma sessão ou importe um arquivo e salve a transcrição.</p>'+
  btn("Gravar ou importar","ecoOpen","",'data-id="'+esc(c.id)+'"')+'</section>';
  const compiled=new Map();
- for(const session of ss)for(const row of ecoWordRows(session,"paciente").slice(0,150)){
+ for(const session of ss)for(const row of ecoWordRows(session,"paciente")){
    if(!compiled.has(row.word))compiled.set(row.word,{word:row.word,count:0,mentions:[]});
    const current=compiled.get(row.word);
    current.count+=row.count;
-   current.mentions.push(...row.locations.slice(0,20).map(loc=>({date:session.data,id:session.id,atMs:loc.atMs,quote:loc.quote})));
+   current.mentions.push(...row.locations.slice(0,Math.max(0,60-current.mentions.length)).map(loc=>({date:session.data,id:session.id,atMs:loc.atMs,quote:loc.quote})));
  }
  const top=[...compiled.values()].sort((a,b)=>b.count-a.count).slice(0,25);
  let out='<section class="eco-outline"><h2>Termos recorrentes neste caso</h2>'+
   '<p class="eco-caption">Contagem lexical das falas identificadas como paciente nas sessões arquivadas. Não representa sintoma, diagnóstico ou relação psicológica.</p>'+
-  '<h3>Nuvem de palavras do caso</h3><div class="eco-wordcloud">'+top.slice(0,20).map(r=>'<span class="eco-cloud-token" style="font-size:'+
-    (14+Math.round(13*Math.sqrt(r.count/Math.max(1,top[0]?.count||1))))+'px">'+esc(r.word)+' <small>'+r.count+'</small></span>').join('')+'</div>'+
+  '<h3>Nuvem de palavras do caso</h3><p class="eco-caption">Tamanho proporcional à frequência em escala logarítmica; números mostram a contagem exata.</p><div class="eco-wordcloud">'+top.slice(0,20).map(r=>'<button type="button" class="eco-cloud-token" data-act="ecoCaseWord" data-id="'+esc(r.word)+'" style="font-size:'+
+    ecoCloudSize(r.count,top.slice(0,20))+'px">'+esc(r.word)+' <small>'+r.count+'</small></button>').join(' ')+'</div>'+
   '<h3>Ocorrências no histórico</h3>';
- out+=top.slice(0,12).map(row=>'<div class="eco-evidence"><strong>'+esc(row.word)+' · '+row.count+
+ out+=(ecoCaseWordSelection&&top.some(r=>r.word===ecoCaseWordSelection)?top.filter(r=>r.word===ecoCaseWordSelection):top.slice(0,12)).map(row=>'<div class="eco-evidence"><strong>'+esc(row.word)+' · '+row.count+
    ' menção(ões)</strong>'+row.mentions.slice(0,5).map(loc=>'<p>'+
    (loc.atMs==null?'<span class="eco-caption">Horário indisponível</span>':
      btn(ecoTimecode(loc.atMs),'ecoJumpToSession','secondary','data-id="'+esc(c.id+'|'+loc.id+'|'+loc.atMs)+'"'))+
@@ -1365,6 +1365,14 @@ function ecoWordKey(value){
  esperava:"esperar",esperando:"esperar",esperei:"esperar",medos:"medo",crises:"crise"};
  return aliases[w]||w;
 }
+function ecoCloudSize(count,rows){
+ const values=rows.map(r=>Number(r.count)).filter(n=>Number.isFinite(n)&&n>0);
+ if(!values.length)return 14;
+ const min=Math.min(...values),max=Math.max(...values);
+ if(min===max)return 22;
+ const ratio=Math.max(0,Math.min(1,(Math.log(Math.max(min,count))-Math.log(min))/(Math.log(max)-Math.log(min))));
+ return Math.round(13+31*ratio);
+}
 function ecoWordRows(session,scope=null){
  const raw=session?.mlSegments||[];
  const rows=scope?ecoAnalysisRows(session,scope).map(r=>({...r,startMs:r.atMs})):raw.length?raw.map((e,i)=>({...e,index:i})):
@@ -1407,10 +1415,10 @@ function ecoAnalyticsPanel(session){
  const total=ecoWordTokens(ecoAnalysisRows(session).map(r=>r.text).join(" ")).length;
  const metrics=(session?.mlAcoustic||[]).filter(v=>v&&Number.isFinite(v.rmsDbFs)).slice(0,500);
  const cloud='<section class="eco-outline" id="ecoCloudPanel"><h2>Nuvem de palavras</h2>'+ecoScopeControls(session)+
- '<p class="eco-caption">Termos do filtro escolhido; toque para ver as falas de origem.</p>'+
+ '<p class="eco-caption">Quanto mais frequente a palavra, maior sua fonte. Toque para ver as falas de origem.</p>'+
  (top.length?'<div class="eco-wordcloud">'+top.slice(0,26).map(r=>
    '<button type="button" data-act="ecoKeywordDetails" data-id="'+esc(r.word)+
-   '" class="eco-cloud-token" style="font-size:'+(16+Math.round(23*Math.sqrt(r.count/max)))+'px">'+
+   '" class="eco-cloud-token" style="font-size:'+ecoCloudSize(r.count,top.slice(0,26))+'px">'+
    esc(r.word)+' <small>'+r.count+'</small></button>').join(" ")+'</div>':
    '<p class="muted">Nenhum termo relevante disponível. Grave, importe ou revise uma transcrição.</p>')+'</section>';
  let out=cloud+'<section class="eco-outline" id="ecoNlpDashboard"><h2>◎ Análise da sessão</h2>'+
@@ -3528,6 +3536,7 @@ const ecoCaseAnalysisBeforeManual=ecoCaseAnalysis;
 ecoCaseAnalysis=function(c){return ecoManualAnalysis(c)+ecoCaseAnalysisBeforeManual(c);};
 
 
+let ecoCaseWordSelection="";
 let ecoReviewRun=null,ecoReviewSerial=0,ecoReviewType='anamnese',ecoReviewScope='paciente',ecoReviewFrom='',ecoReviewTo='';
 function ecoReviewQueries(type){
  if(type==='anamnese')return ecoAnamneseCategories.flatMap(cat=>cat.campos.map(f=>({key:f.k,text:f.label,section:cat.nome})));
@@ -3657,6 +3666,7 @@ function ecoEvolutionPanel(c){
 const ecoReviewPrevAct=act;
 act=function(name,id,button){
  const c=state?.cases?currentCase():null;
+ if(name==='ecoCaseWord'){ecoCaseWordSelection=String(id||'');render();return;}
  if(name==='ecoReviewApply'){if(c&&button?.dataset?.case===c.id)ecoReviewApply(c,id);return;}
  if(['ecoQuestionAdd','ecoQuestionUpdate','ecoQuestionDelete'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoQuestionAction(name,c,id);return;}
  if(name==='ecoReviewOpenEvolution'){ecoReviewCancel('');ecoReviewType='evolucao';tab='revisaoInteligente';render();return;}
@@ -3665,7 +3675,7 @@ act=function(name,id,button){
  if(name==='ecoReviewCancel'){ecoReviewCancel();return;}
  if(name==='ecoReviewAccept'){if(c&&(!button?.dataset?.case||button.dataset.case===c.id)){const [key,i]=String(id||'').split('|');ecoReviewAccept(c,key,Number(i));}return;}
  if(name==='ecoReviewDelete'){if(c&&button?.dataset?.case===c.id)change(()=>{c.ecoReviewRecords=(c.ecoReviewRecords||[]).filter(x=>x.id!==id);});return;}
- if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoCaseWordSelection='';ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
  return ecoReviewPrevAct(name,id,button);
 };
 
