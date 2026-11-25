@@ -1251,7 +1251,7 @@ test('ECO: chapter search, open, close and all investigation axes have readings'
  try{
   js("state.cases=[];act('nav','study');ecoKnowledgeTab='capitulos';ecoKnowledgeQuery='funcao alfa'");
   assert.match(js('ecoKnowledgeResults()'),/Continência/);
-  assert.equal(js('ecoClinicalChapters.length'),8);
+  assert.ok(js('ecoClinicalChapters.length')>=14);
   js("act('ecoReadChapter','bion')");
   const v=js('studyScreen()');assert.match(v,/Conceitos e fundamentos/);assert.match(v,/Exemplo fictício/);assert.match(v,/Leituras de referência/);
   js("act('ecoCloseChapter')");
@@ -1561,4 +1561,15 @@ test('ECO AI clinical tasks: session filter, explicit archival, invalidation and
   assert.match(js('ecoAiArchivePanel(state.cases[0])'),/Revisão necessária/);
   assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{sintesesIA:true},{confirmed:true})"),/Síntese revisada pelo profissional/);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoAiCancel();ecoAiFrom="";ecoAiTo="";ecoAiSession="";ecoAiPrefill=""');el('#ecoAiSession').value='';el('#ecoAiFrom').value='';el('#ecoAiTo').value='';}
+});
+
+
+test('ECO expanded corpus: unique chapter keys, six theoretical schools, references and semantic chunks',()=>{
+ const chapters=js('ecoClinicalChapters'),terms=js('ecoGlossary');
+ assert.ok(chapters.length>=14);assert.ok(terms.length>=61);
+ assert.equal(new Set(chapters.map(x=>x[0])).size,chapters.length);
+ assert.ok(chapters.every(x=>x.length===10&&x.every(v=>typeof v==='string'&&v.length>0)));
+ for(const author of ['Freud','Lacan','Jung','Winnicott','Klein','Bion'])assert.ok(terms.filter(x=>x[1]===author).length>=4);
+ assert.ok(js("ecoLibraryChunks().some(x=>x.chapter==='metapsicologia'&&x.ref.includes('1915'))"));
+ assert.ok(js("ecoLibraryChunks().some(x=>x.title==='Identificação projetiva'&&x.ref.includes('1946'))"));
 });
