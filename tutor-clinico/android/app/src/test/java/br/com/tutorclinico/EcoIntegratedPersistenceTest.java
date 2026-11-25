@@ -159,4 +159,36 @@ public class EcoIntegratedPersistenceTest {
         assertEquals("exclusivo B",patientB.getJSONArray("sessoes").getJSONObject(0).getString("texto"));
         store.getDbHelper().close();
     }
+
+    private static byte[] sessionCiphertext(SecureStore store,String id) {
+        try(Cursor c=store.getDbHelper().getReadableDatabase().query("sessoes",
+                new String[]{"payload_enc"},"id = ?",new String[]{id},null,null,null)){
+            assertTrue(c.moveToFirst());return c.getBlob(0);
+        }
+    }
+
+    @Test public void unchangedSessionRetainsCiphertextAcrossEditsAndReopen() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        JSONObject a=caseWith("incremental-a","primeira nota"),b=caseWith("incremental-b","segunda nota");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b))
+            .put("appointments",new JSONArray());
+        store.save(root.toString());
+        byte[] originalA=sessionCiphertext(store,"incremental-a-s");
+        byte[] originalB=sessionCiphertext(store,"incremental-b-s");
+        a.put("nome","Paciente fictício renomeado");
+        store.save(root.toString());
+        assertArrayEquals(originalA,sessionCiphertext(store,"incremental-a-s"));
+        assertArrayEquals(originalB,sessionCiphertext(store,"incremental-b-s"));
+        store.getDbHelper().close();store=new SecureStore(context,key);
+        a.getJSONArray("sessoes").getJSONObject(0).put("texto","nota revisada");
+        store.save(root.toString());
+        assertFalse(java.util.Arrays.equals(originalA,sessionCiphertext(store,"incremental-a-s")));
+        assertArrayEquals(originalB,sessionCiphertext(store,"incremental-b-s"));
+        JSONObject restored=new JSONObject(store.read());
+        assertEquals("nota revisada",byId(restored,"incremental-a").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        assertEquals("segunda nota",byId(restored,"incremental-b").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        store.getDbHelper().close();
+    }
 }
