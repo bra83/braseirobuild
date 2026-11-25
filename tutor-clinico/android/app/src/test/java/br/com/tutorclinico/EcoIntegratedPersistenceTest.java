@@ -490,7 +490,7 @@ public class EcoIntegratedPersistenceTest {
             }
             assertEquals(4,store.listAttachments("archive-a").length());
         }finally{
-            java.util.Arrays.fill(pdf,(byte)0);java.util.Arrays.fill(password,'\\0');
+            java.util.Arrays.fill(pdf,(byte)0);java.util.Arrays.fill(password,(char)0);
             store.getDbHelper().close();archive.delete();
         }
     }
