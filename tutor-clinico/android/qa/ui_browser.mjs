@@ -141,6 +141,15 @@ try{
  if(!await panel.evaluate(x=>x.open))await panel.locator('summary').click();
  await sessionButton.click();
  assert.equal(await page.evaluate(()=>openedId),'browser-b');assert.equal(await page.evaluate(()=>screen),'session');
+ // Multi-batch semantic retrieval: no silent loss, global source indices, separated theoretical corpus.
+ const batchResult=await page.evaluate(()=>{
+  const rows=Array.from({length:2600},(_,i)=>({text:'Registro fictício '+i,speaker:'paciente',sourceScope:'paciente',sessionId:'s'+i})).concat(Array.from({length:173},(_,i)=>({text:'Teoria fictícia '+i,speaker:'desconhecido',sourceScope:'teoria'})));
+  const batches=ecoAiBatchPlan(rows,'integrado'),r={rows,scope:'integrado',hits:[]};
+  for(const batch of batches){r.groupIndices=batch.indices;ecoAiMergeHits(r,batch.indices.slice(0,20).map((_,i)=>({i,score:.5+i/100})));}
+  return {sizes:batches.map(x=>x.indices.length),unique:new Set(batches.flatMap(x=>x.indices)).size,covered:batches.flatMap(x=>x.indices).length,clinical:r.hits.filter(x=>rows[x.i].sourceScope==='paciente').length,theory:r.hits.filter(x=>rows[x.i].sourceScope==='teoria').length,byteBound:ecoAiBatchPlan(Array.from({length:100},()=>({text:'x'.repeat(10000),sourceScope:'paciente'})),'paciente').map(x=>x.indices.length)};
+ });
+ assert.deepEqual(batchResult.sizes,[1200,1200,200,173]);assert.equal(batchResult.unique,2773);assert.equal(batchResult.covered,2773);
+ assert.equal(batchResult.clinical,10);assert.equal(batchResult.theory,10);assert.equal(batchResult.byteBound.length,3);
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
