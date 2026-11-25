@@ -62,7 +62,7 @@ public final class AgendaReminderReceiver extends BroadcastReceiver {
         SecureStore store=null;
         try{
             store=new SecureStore(c);
-            JSONArray appointments=new JSONObject(store.read()).getJSONArray("appointments");
+            JSONArray appointments=store.readReminderAgenda();
             long due=nextReminder(appointments,System.currentTimeMillis(),ZoneId.systemDefault());
             if(!enabled(c)||!permitted(c))return;
             AlarmManager manager=c.getSystemService(AlarmManager.class);
