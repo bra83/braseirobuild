@@ -53,6 +53,7 @@ final class SessionRecorder {
     private final Events events;
     private final AtomicBoolean recording = new AtomicBoolean(false);
     private volatile Thread worker;
+    final LiveSpoolInput.Boundary boundary=new LiveSpoolInput.Boundary();
 
     SessionRecorder(Context context, Events events) {
         this.context = context.getApplicationContext();
@@ -109,6 +110,7 @@ final class SessionRecorder {
 
             // Persist audio spool path and encrypted key before audio recording begins!
             wav.getFD().sync();
+            boundary.publish(wav.getFilePointer(),false);
             events.onStarted(file, ephemeralKey);
             linked = true;
 
@@ -155,6 +157,7 @@ final class SessionRecorder {
                 if (System.currentTimeMillis() - lastNotice >= 3000) {
                     lastNotice = System.currentTimeMillis();
                     wav.getFD().sync();
+                    boundary.publish(wav.getFilePointer(),false);
                     events.status("GRAVANDO · " + (bytes / (RATE * 2L)) + " s · PARAR PARA TRANSCREVER");
                 }
             }
@@ -186,12 +189,15 @@ final class SessionRecorder {
             failure = "ERRO GRAVAÇÃO: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
         } finally {
             recording.set(false);
+            long finalBoundary=0;
+            if(wav!=null)try{finalBoundary=wav.length();}catch(Exception ignored){}
             if (audio != null) {
                 try { if (audio.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) audio.stop(); } catch (Exception ignored) {}
                 try { audio.release(); } catch (Exception ignored) {}
             }
             if (wav != null) try { wav.close(); } catch (Exception ignored) {}
 
+            try{
             if (good && file != null) {
                 events.ready(file,bytes * 1000L / (RATE * 2L), ephemeralKey);
             } else if (file != null && bytes > 0 && linked) {
@@ -200,6 +206,7 @@ final class SessionRecorder {
                 if(file!=null)wipeAndClean(file,ephemeralKey);
                 events.failed(null,null,failure);
             }
+            }finally{if(good)boundary.publish(finalBoundary,true);else boundary.finish();}
         }
     }
 
