@@ -489,7 +489,7 @@ final class SecureStore {
                 export.put("mlDraft",journal);
             }
             export.put("attachmentBundle",exportAttachments());
-            export.put("nativeRecoveryBundle",exportNativeRecovery());
+            export.put("nativeRecoveryBundle",exportNativeRecovery(includePrivateDiary));
             db.setTransactionSuccessful();
             return export;
         }finally{db.endTransaction();}
@@ -549,8 +549,10 @@ final class SecureStore {
     }
 
     private static String clinicalDraftKey(String caseId,String kind){
-        if(caseId==null||caseId.isEmpty()||caseId.length()>200||!java.util.Arrays.asList("anamnese","enquadre","sonhos","genograma","cronologia").contains(kind))
+        if(caseId==null||caseId.isEmpty()||caseId.length()>200||(!java.util.Arrays.asList("anamnese","enquadre","sonhos","genograma","cronologia").contains(kind)&&!kind.matches("res_(ficha|rede|prep|post|question|qedit|axis|hypo|interv|relation|safety|diary|custom|finance|template|personal|doctemplate)(_[A-Za-z0-9_-]{1,100})?")))
             throw new IllegalArgumentException("Formulário clínico inválido");
+        boolean admin=java.util.Arrays.asList("res_finance","res_template","res_personal","res_doctemplate").contains(kind);
+        if(admin!="__eco_admin__".equals(caseId))throw new IllegalArgumentException("Escopo de rascunho inválido");
         return "clinical_draft:"+kind+":"+caseId;
     }
     synchronized String readClinicalDraft(String caseId,String kind) throws Exception {
@@ -573,7 +575,7 @@ final class SecureStore {
         }
         SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
         try{
-            if(!caseExists(db,caseId))throw new IllegalArgumentException("Caso inexistente");
+            if(!"__eco_admin__".equals(caseId)&&!caseExists(db,caseId))throw new IllegalArgumentException("Caso inexistente");
             String old=readClinicalDraft(caseId,kind);
             if(!old.isEmpty()&&!data.getString("id").equals(new JSONObject(old).getString("id")))throw new IllegalArgumentException("Rascunho divergente");
             ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(raw));cv.put("updated_at",System.currentTimeMillis());
@@ -593,7 +595,8 @@ final class SecureStore {
 
     // Portable backup stores decrypted journal data only inside the password-encrypted envelope.
     // Device-bound ciphertext must never be exported as a portable record.
-    synchronized JSONObject exportNativeRecovery() throws Exception {
+    synchronized JSONObject exportNativeRecovery() throws Exception {return exportNativeRecovery(false);}
+    synchronized JSONObject exportNativeRecovery(boolean includePrivateDiary) throws Exception {
         SQLiteDatabase db=dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -621,6 +624,7 @@ final class SecureStore {
             try(Cursor c=db.query("configuracoes",new String[]{"chave",smallBlob("valor_enc")},"chave LIKE ?",new String[]{"clinical_draft:%"},null,null,"chave ASC")){
                 while(c.moveToNext()){
                     String k=c.getString(0);
+                    if(k.startsWith("clinical_draft:res_diary:")&&!includePrivateDiary)continue;
                     clinical.put(new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{k}))));
                 }
             }
