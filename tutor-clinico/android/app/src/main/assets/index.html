@@ -3931,7 +3931,7 @@ function ecoAiStart(c){
  if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const query=String(document.getElementById('ecoAiQuery')?.value||'').trim(),rows=ecoAiRows(c,ecoAiScope);
  const scope=ecoAiScope==='paciente'?'paciente':'desconhecido';
- const payload={query,scope,rows:rows.map(x=>({text:x.text,speaker:x.speaker,sessionId:x.sessionId||'',atMs:x.atMs??null}))};
+ const payload={query,scope,retrievalOnly:true,rows:rows.map(x=>({text:x.text,speaker:x.speaker,sessionId:x.sessionId||'',atMs:x.atMs??null}))};
  if(!query||query.length>500||!rows.length||rows.length>1200||JSON.stringify(payload).length>490000||rows.some(x=>x.text.length>12000)){notify('Consulta ou corpus acima do limite. Use uma consulta de até 500 caracteres e até 1200 trechos.','red');return;}
  const r=ecoAiRun={caseId:c.id,scope:ecoAiScope,nativeScope:scope,key:ecoAiKey(c,ecoAiScope),rows,query};
  ecoAiSend(r,'retrieve',payload,'1/3 · Recuperando fontes com DistilUSE');
@@ -3946,6 +3946,25 @@ function ecoAiGenerate(c){
  if(!selected.length||selected.length>5||selected.some(x=>r.rows[x.i].text.length>1800)||selected.reduce((n,x)=>n+r.rows[x.i].text.length,0)>4200){notify('Selecione 1 a 5 fontes inteiras, até 4200 caracteres no total.','red');return;}
  r.selected=selected;ecoAiSend(r,'generate',{mode:'generate',query:r.query,sources:selected.map(x=>({text:r.rows[x.i].text}))},'3/3 · Gerando minuta com Qwen');
 }
+
+function ecoAiCitations(r){
+ const out=[];
+ const lines=String(r.draft||'').split(/\n+|(?<=[.!?])\s+(?=[\p{L}\d])/u).map(x=>x.trim()).filter(Boolean);
+ for(const line of lines){const refs=[...new Set([...line.matchAll(/\[S(\d+)\]/g)].map(m=>Number(m[1])))];const valid=refs.filter(n=>n>=1&&n<=r.selected.length);out.push({line,refs,valid,unresolved:!refs.length||refs.length!==valid.length});}
+ return out;
+}
+function ecoAiCheckDraft(c){
+ const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='done')return;
+ const lines=ecoAiCitations(r),pairs=[];
+ for(const line of lines){if(line.unresolved)continue;for(const n of line.valid){const source=r.rows[r.selected[n-1].i].text,claim=line.line.replace(/\[S\d+\]/g,'').trim();if(claim&&claim.length<=500&&source.length<=1800)pairs.push({a:source,b:claim,ref:n});}}
+ if(!pairs.length||pairs.length>12){notify('A minuta não possui referências verificáveis suficientes ou excede 12 pares. Revise manualmente.','red');return;}
+ r.verificationPairs=pairs;ecoAiSend(r,'verify',{mode:'nli',pairs:pairs.map(({a,b})=>({a,b}))},'4/4 · Conferindo relações textuais com NLI');
+}
+function ecoAiDraftVerification(r){
+ const lines=ecoAiCitations(r),missing=lines.filter(x=>x.unresolved).length;
+ return '<h3>Conferência das referências</h3><p class="small">'+missing+' de '+lines.length+' passagem(ns) sem referência válida. Mesmo com referência, a sustentação exige leitura humana.</p>'+ (r.verification?.length?r.verification.map((x,i)=>{const p=r.verificationPairs[i];return '<div class="eco-evidence"><strong>[S'+p.ref+'] · Relação textual experimental</strong><p>'+esc(p.b)+'</p><p>Implicação: '+(100*x.ab[1]).toFixed(1)+'% · Indeterminada: '+(100*x.ab[2]).toFixed(1)+'% · Possível incompatibilidade: '+(100*x.ab[0]).toFixed(1)+'%</p></div>';}).join(''):'')+btn('Conferir referências com NLI','ecoAiCheckDraft','secondary','data-case="'+esc(r.caseId)+'"');
+}
+
 function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(r.scope==='teoria'?(u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
 function ecoAiPanel(c){
  const r=ecoAiCurrent(ecoAiRun)?ecoAiRun:null;
@@ -3953,7 +3972,7 @@ function ecoAiPanel(c){
  if(r?.pending)out+='<p id="ecoAiStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoAiCancel','ghost');
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
  else if(r?.phase==='ready'){out+='<h3>Fontes reordenadas pelo cross-encoder</h3><p class="small">Selecione as fontes antes de gerar. Passagens longas não são cortadas silenciosamente.</p>'+r.ranked.map((x,i)=>'<div class="eco-evidence"><label class="choice"><input type="checkbox" id="ecoAiPick_'+i+'" '+(r.rows[x.i].text.length>1800?'disabled':'')+'>Selecionar fonte</label>'+ecoAiSource(r,x)+'</div>').join('')+(r.ranked.length?btn('Gerar minuta local','ecoAiGenerate','','data-case="'+esc(c.id)+'"'):'<p>Nenhuma fonte elegível; não gerar resposta.</p>')+(r.skipped?.length?'<p>'+r.skipped.length+' fonte(s) excederam o limite do reranker.</p>':'');}
- else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
+ else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+ecoAiDraftVerification(r)+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
  return out+'</section>';
 }
 const ecoAiPriorProgress=window.nativeSemanticProgress,ecoAiPriorResult=window.nativeSemanticResult,ecoAiPriorUnlock=window.nativeSemanticUnlocked;
@@ -3963,11 +3982,12 @@ window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){
  if(v.error)r.error=String(v.error);
  else if(r.phase==='retrieve'){if(v.count!==r.rows.length||v.scope!==r.nativeScope||!hitsValid(v.hits,r.rows.length,-1.001,1.001,20))r.error='Retorno de recuperação inválido.';else if(!v.hits.length){r.ranked=[];r.phase='ready';}else{r.hits=v.hits;ecoAiRerank(r);return;}}
  else if(r.phase==='rerank'){if(v.count!==r.hits.length||!hitsValid(v.hits,r.hits.length,0,1,20)||!Array.isArray(v.skipped)||v.skipped.some(i=>!Number.isInteger(i)||i<0||i>=r.hits.length)||new Set([...v.hits.map(x=>x.i),...v.skipped]).size!==r.hits.length||v.hits.length+v.skipped.length!==r.hits.length)r.error='Retorno de reranking inválido.';else{r.ranked=v.hits.map(x=>({...r.hits[x.i],rank:x.score}));r.skipped=v.skipped;r.phase='ready';}}
+ else if(r.phase==='verify'){const valid=x=>Array.isArray(x)&&x.length===3&&x.every(n=>Number.isFinite(n)&&n>=0&&n<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;if(JSON.stringify(v.labels)!=='["contradiction","entailment","neutral"]'||!Array.isArray(v.comparisons)||v.comparisons.length!==r.verificationPairs.length||!v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba))){r.error='Retorno NLI inválido.';}else{r.verification=v.comparisons;r.phase='done';}}
  else if(r.phase==='generate'){if(v.sourceCount!==r.selected.length||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.error='Minuta inválida.';else{r.draft=v.draft;r.model=String(v.model||'Qwen');r.phase='done';}}
  render();
 };
 window.nativeSemanticUnlocked=function(){ecoAiCancel();return ecoAiPriorUnlock();};
 const ecoAiPriorAct=act;
-act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'){if(c&&button?.dataset?.case===c.id)ecoAiStart(c);return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
+act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'){if(c&&button?.dataset?.case===c.id)ecoAiStart(c);return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCheckDraft'){if(c&&button?.dataset?.case===c.id)ecoAiCheckDraft(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
 
 </script></body></html>
