@@ -107,6 +107,8 @@ jobs:
           python qa/provision_semantic.py
       - name: Preparar e testar NLI PT-BR experimental
         run: python qa/provision_nli.py
+      - name: Preparar e testar reranker mMARCO
+        run: python qa/provision_rerank.py
       - name: Validar inferência TAGARELA em português
         run: |
           set -euo pipefail
@@ -122,8 +124,10 @@ jobs:
           ls -l "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools"
       - name: Instalar plataforma Android 35
         run: |
-          sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
           yes | sdkmanager --licenses >/dev/null || true
+      - name: Preparar e testar geração local Qwen e compilar ARM64
+        run: bash qa/provision_llm.sh
       - name: Configurar Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
