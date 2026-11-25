@@ -254,7 +254,8 @@ final class SecureStore {
             }
             ContentValues cv=new ContentValues();
             cv.put("chave","form_draft:"+caseId);cv.put("valor_enc",dbHelper.encrypt(json));cv.put("updated_at",System.currentTimeMillis());
-            db.insertWithOnConflict("configuracoes",null,cv,SQLiteDatabase.CONFLICT_REPLACE);
+            int updated=db.update("configuracoes",cv,"chave=?",new String[]{"form_draft:"+caseId});
+            if(updated==0)db.insertOrThrow("configuracoes",null,cv);
             db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }
@@ -306,6 +307,7 @@ final class SecureStore {
         int slot=a.lastModified()<=b.lastModified()?0:1;
         JSONObject pkg=new JSONObject().put("capturedAt",now).put("state",new JSONObject(read()));
         byte[] encrypted=dbHelper.encrypt(pkg.toString());
+        if(encrypted.length>100_000_000)throw new java.io.IOException("Checkpoint acima do limite de recuperação");
         AtomicFile file=checkpointFile(slot);FileOutputStream out=null;
         try{out=file.startWrite();out.write(encrypted);file.finishWrite(out);}
         catch(Exception e){if(out!=null)file.failWrite(out);throw e;}
@@ -319,6 +321,11 @@ final class SecureStore {
             return pkg.getJSONObject("state").toString();
         }
     }
+    synchronized JSONArray checkpointList() throws Exception {
+        JSONArray checkpoints=new JSONArray();
+        for(int i=0;i<2;i++){File f=checkpointFile(i).getBaseFile();if(f.exists())checkpoints.put(new JSONObject().put("slot",i).put("date",f.lastModified()).put("bytes",f.length()));}
+        return checkpoints;
+    }
     synchronized String diagnostics() throws Exception {
         SQLiteDatabase db=dbHelper.getReadableDatabase();
         JSONObject result=new JSONObject();
@@ -327,9 +334,7 @@ final class SecureStore {
         for(String table:new String[]{"_pacientes","sessoes","segmentos","agenda"}){
             try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+table,null)){if(c.moveToFirst())result.put(table,c.getLong(0));}
         }
-        JSONArray checkpoints=new JSONArray();
-        for(int i=0;i<2;i++){File f=checkpointFile(i).getBaseFile();if(f.exists())checkpoints.put(new JSONObject().put("slot",i).put("date",f.lastModified()).put("bytes",f.length()));}
-        return result.put("checkpoints",checkpoints).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
+        return result.put("checkpoints",checkpointList()).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
     }
 
 
@@ -435,6 +440,7 @@ final class SecureStore {
         JSONArray cases = validated.getJSONArray("cases");
         JSONArray appts = validated.getJSONArray("appointments");
         validateSnapshot(cases, appts);
+        if(validated.has("attachmentBundle")&&!(validated.opt("attachmentBundle") instanceof JSONArray))throw new IllegalArgumentException("Anexos inválidos");
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
