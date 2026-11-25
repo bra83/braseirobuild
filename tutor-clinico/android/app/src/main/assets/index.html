@@ -2146,7 +2146,7 @@ function ecoRenderDreamAtlas(c){
  }
  out += '<div class="card" style="margin-top:16px"><h3>＋ Registrar novo sonho</h3>'+
    '<div class="field"><label>Data do relato</label><input type="date" id="dreamData" value="'+datestr()+'"></div>'+
-   '<div class="field"><label>Conteúdo manifesto nas palavras da pessoa</label><textarea id="dreamTexto" placeholder="Descreva a narrativa onírica..."></textarea></div>'+
+   '<div class="field"><label>Conteúdo manifesto nas palavras da pessoa</label><textarea id="dreamTexto" placeholder="Descreva a narrativa onírica..."></textarea></div>'+btn('Extrair personagens, lugares, afetos e imagens','ecoDreamExtractFields','secondary','data-case="'+esc(c.id)+'"')+'<p class="small muted">Preenche somente campos vazios com elementos literais do relato; revise antes de salvar.</p>'+
    '<div class="split">'+
    '<div class="field"><label>Personagens presentes</label><input type="text" id="dreamPersonagens" placeholder="Ex.: mãe, figura sem rosto"></div>'+
    '<div class="field"><label>Afetos sentidos (medo, estranheza, alívio)</label><input type="text" id="dreamAfetos" placeholder="Ex.: angústia intensa, paralisia"></div>'+
@@ -2270,11 +2270,11 @@ function ecoRenderGenogram(c,only='both'){
  const g4 = members.filter(m => (m.geracao||'').startsWith('G4'));
 
  const nodeCoords = new Map();
- const width = Math.max(800,...[g1,g2,g3,g4].map(row=>row.length*150+100));
+ const width = Math.max(360,...[g1,g2,g3,g4].map(row=>row.length*148+48));
  const placeRow = (rowList, y) => {
    const n = rowList.length;
    ecoFamilyOrder(rowList,rels,nodeCoords).forEach((m, idx) => {
-     const x = Math.round((idx + 1) * (width / (n + 1)));
+     const x = Math.round(24+(idx+.5)*(width-48)/Math.max(1,n));
      nodeCoords.set(m.id, { x, y, m });
    });
  };
@@ -2321,21 +2321,21 @@ function ecoRenderGenogram(c,only='both'){
    }
 
    let deceasedSlash = isDeceased ? `<line x1="${x-16}" y1="${y+16}" x2="${x+16}" y2="${y-16}" stroke="#ef4444" stroke-width="2.5" />` : '';
-   let label = `<text x="${x}" y="${y+35}" fill="currentColor" font-size="11" font-weight="bold" text-anchor="middle">${esc(m.nome||'Sem nome')}</text>`;
-   let sublabel = `<text x="${x}" y="${y+49}" fill="#94a3b8" font-size="9" text-anchor="middle">${esc(m.parentesco||'')}</text>`;
+   let label = `<text x="${x}" y="${y+35}" fill="currentColor" font-size="13" font-weight="bold" text-anchor="middle">${esc(String(m.nome||'Sem nome').length>19?String(m.nome).slice(0,18)+'…':m.nome||'Sem nome')}</text>`;
+   let sublabel = `<text x="${x}" y="${y+49}" fill="#94a3b8" font-size="11" text-anchor="middle">${esc(String(m.parentesco||'').slice(0,22))}</text>`;
 
-   nodesSvg += `<g class="gen-node" role="button" tabindex="0" data-act="ecoFamilyEdit" data-id="${esc(m.id)}" data-case="${esc(c.id)}">${shape}${deceasedSlash}${label}${sublabel}</g>`;
+   nodesSvg += `<g class="gen-node" role="button" tabindex="0" data-act="ecoFamilyEdit" data-id="${esc(m.id)}" data-case="${esc(c.id)}"><title>${esc(m.nome||'Sem nome')} · ${esc(m.parentesco||'')}</title>${shape}${deceasedSlash}${label}${sublabel}</g>`;
  });
 
  let svgContent = `<svg class="eco-genogram-svg" viewBox="0 0 ${width} 480" width="${Math.round(width*ecoGenZoom)}" height="${Math.round(480*ecoGenZoom)}">
    <!-- Generation Guides -->
-   <line x1="15" y1="65" x2="785" y2="65" stroke="#1e293b" stroke-dasharray="4,4" />
+   <line x1="15" y1="65" x2="${width-15}" y2="65" stroke="#1e293b" stroke-dasharray="4,4" />
    <text x="20" y="60" fill="#475569" font-size="10">G1: Avós</text>
-   <line x1="15" y1="160" x2="785" y2="160" stroke="#1e293b" stroke-dasharray="4,4" />
+   <line x1="15" y1="160" x2="${width-15}" y2="160" stroke="#1e293b" stroke-dasharray="4,4" />
    <text x="20" y="155" fill="#475569" font-size="10">G2: Pais e Tios</text>
-   <line x1="15" y1="260" x2="785" y2="260" stroke="#1e293b" stroke-dasharray="4,4" />
+   <line x1="15" y1="260" x2="${width-15}" y2="260" stroke="#1e293b" stroke-dasharray="4,4" />
    <text x="20" y="255" fill="#475569" font-size="10">G3: Sujeito / Parceiros / Irmãos</text>
-   <line x1="15" y1="370" x2="785" y2="370" stroke="#1e293b" stroke-dasharray="4,4" />
+   <line x1="15" y1="370" x2="${width-15}" y2="370" stroke="#1e293b" stroke-dasharray="4,4" />
    <text x="20" y="365" fill="#475569" font-size="10">G4: Filhos e Descendentes</text>
 
    ${edgesSvg}
@@ -3478,7 +3478,7 @@ pdfForCase=function(c){
 };
 
 
-let ecoGenZoom=.65,ecoDreamOrigin=null,ecoDreamEditId=null,ecoFamilyEditId=null,ecoKnowledgeQuery='',ecoKnowledgeTab='todos';
+let ecoGenZoom=1,ecoDreamOrigin=null,ecoDreamEditId=null,ecoFamilyEditId=null,ecoKnowledgeQuery='',ecoKnowledgeTab='todos';
 function ecoFamilyMembers(c){
  const rows=Array.isArray(c.genograma?.membros)?c.genograma.membros:[];
  return rows.some(m=>m.id===c.id||/^(paciente|sujeito|titular)(\s|$)/i.test(m.parentesco||''))?rows:[{id:c.id,nome:c.nome||'Paciente',parentesco:'Paciente',geracao:'G3 (Paciente/Irmãos)',sexo:'indefinido',vivo:'desconhecido',vinculo:''},...rows];
@@ -3495,21 +3495,27 @@ function ecoFamilyEdge(r,a,b,stroke,w,dash){
 function ecoFoldText(s){return String(s||'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();}
 const ecoDreamWords={personagens:['mãe','pai','irmã','irmão','avó','avô','filha','filho','marido','esposa','amiga','amigo','criança','homem','mulher'],lugares:['casa','cozinha','quarto','escola','hospital','rua','praia','floresta','cidade','igreja','escada','porão','sótão'],afetos:['medo','angústia','ansiedade','tristeza','alegria','raiva','vergonha','culpa','alívio','desespero','pânico','estranheza'],simbolos:['casa','porta','janela','espelho','dentes','água','mar','rio','cobra','cachorro','gato','animal','escada','queda','morte','viagem','perseguição','fogo','sangue','chave','ponte','carro','avião','relógio','mãe','pai']};
 function ecoDreamFields(quote){
- const n=ecoFoldText(quote),find=words=>words.filter(w=>new RegExp('(^|[^a-z0-9])'+ecoFoldText(w)+'(?=$|[^a-z0-9])','u').test(n));
- const affect=find(ecoDreamWords.afetos).filter(w=>new RegExp('(?:senti|sentia|estava com|tive|tinha|fiquei com)\\s+(?:muito\\s+|muita\\s+|um\\s+|uma\\s+)?'+ecoFoldText(w),'u').test(n));
+ // Only propose literal entities and explicitly reported feelings; never infer a symbolic meaning.
+ const n=ecoFoldText(quote);
+ const find=words=>words.filter(w=>new RegExp('(^|[^a-z0-9])'+ecoFoldText(w)+'(?:s|es)?(?=$|[^a-z0-9])','u').test(n));
+ const clauses=n.split(/[.!?;]|\bmas\b|\bporem\b/u);
+ const affect=find(ecoDreamWords.afetos).filter(w=>clauses.some(clause=>{
+   const match=clause.match(new RegExp('(?:senti|sentia|estava com|tive|tinha|fiquei com)\\s+(?:(?:muito|muita|um|uma)\\s+)?'+ecoFoldText(w)+'\\b','u'));
+   return !!match&&!/\b(?:nao|nunca|jamais|nem|sem)\b/u.test(clause.slice(Math.max(0,match.index-35),match.index));
+ }));
  return {personagens:find(ecoDreamWords.personagens).join(', '),lugares:find(ecoDreamWords.lugares).join(', '),afetos:affect.join(', '),simbolos:find(ecoDreamWords.simbolos)};
 }
 function ecoDreamCandidates(c){
- const recorded=new Set((c.sonhosList||[]).map(d=>d.originKey).filter(Boolean)),out=[];
+ const prior=c.sonhosList||[],recorded=new Set(prior.map(d=>d.originKey).filter(Boolean)),out=[];
  for(const s of c.sessoes||[]){
   let units=ecoSourceUnits(s);if(!units.length&&s.texto?.trim())units=[{text:s.texto,source:'nota clínica manual',speaker:'desconhecido',atMs:null}];
   const start=/(?:^|[^\p{L}])(?:sonhei|sonhava|tive (?:um |uma )?(?:sonho|pesadelo)|no meu sonho|relatou (?:um |uma )?(?:sonho|pesadelo))(?=$|[^\p{L}])/iu;
   for(let i=0;i<units.length;i++){
    const u=units[i],q=u.text.trim();
    if(u.speaker==='terapeuta'||!start.test(q)||/\?$/.test(q)||/(?:não|nunca|jamais)\s+(?:eu\s+)?(?:sonhei|sonhava|tive)/iu.test(q))continue;
-   let quote=q;for(let j=i+1;j<Math.min(i+4,units.length);j++){const v=units[j];if(v.speaker!==u.speaker||start.test(v.text)||/^(?:acordei|despertei|na vida real|mudando de assunto)\b/i.test(v.text.trim())||/\?$/.test(v.text.trim()))break;quote+=' '+v.text.trim();}
+   let quote=q;for(let j=i+1;j<Math.min(i+4,units.length);j++){const v=units[j];if(v.speaker!==u.speaker||v.source!==u.source||start.test(v.text)||/^(?:acordei|despertei|na vida real|mudando de assunto)\b/i.test(v.text.trim())||/\?$/.test(v.text.trim()))break;quote+=' '+v.text.trim();}
    const key=s.id+'|'+u.source+'|'+i+'|'+q;
-   if(!recorded.has(key))out.push({originKey:key,sessionId:s.id,data:s.data,source:u.source,speaker:u.speaker,atMs:u.atMs,texto:quote,...ecoDreamFields(quote)});
+   if(!recorded.has(key)&&!prior.some(d=>d.sessionId===s.id&&(d.originalQuote||d.texto)===quote))out.push({originKey:key,sessionId:s.id,data:s.data,source:u.source,speaker:u.speaker,atMs:u.atMs,texto:quote,...ecoDreamFields(quote)});
   }
  }return out;
 }
@@ -3544,8 +3550,9 @@ act=function(name,id,button){
  if(name==='ecoKnowledgeTab'){ecoChapterOpen='';ecoKnowledgeTab=id;render();return;}
  if(name==='ecoReadChapter'){ecoChapterOpen=id;render();window.scrollTo(0,0);return;}
  if(name==='ecoCloseChapter'){ecoChapterOpen='';render();return;}
- if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?.65:Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
- if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,reviewSourceId:d.reviewSourceId,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs,originalQuote:d.originalQuote||d.texto};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
+ if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?Math.min(1,Math.max(.4,(document.querySelector('.eco-genogram-svg')?.parentElement?.clientWidth||360)/Math.max(360,document.querySelector('.eco-genogram-svg')?.viewBox?.baseVal?.width||360))):Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
+ if(name==='ecoDreamExtractFields'&&c&&button?.dataset?.case===c.id){const text=document.getElementById('dreamTexto')?.value||'';if(!text.trim()){notify('Informe o relato do sonho.','red');return;}const d=ecoDreamFields(text),vals={dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', ')};for(const [k,v] of Object.entries(vals)){const el=document.getElementById(k);if(el&&!el.value.trim())el.value=v;}notify('Campos sugeridos. Confira antes de salvar.');return;}
+ if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c&&button?.dataset?.case===c.id){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,reviewSourceId:d.reviewSourceId,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs,originalQuote:d.originalQuote||d.texto};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
  if(name==='ecoDocPreview'){ecoDocConfirmed=false;render();return;}
  if(name==='ecoFamilyEdit'&&c){const m=ecoFamilyMembers(c).find(x=>x.id===id);if(!m)return;ecoFamilyEditId=m.id;const vals={genNome:m.nome,genParentesco:m.parentesco,genGeracao:m.geracao,genVivo:m.vivo,genSexo:m.sexo,genVinculo:m.vinculo,genNotas:m.notas};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('genNome')?.scrollIntoView?.({block:'center'});return;}
  if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;ecoDocSessionId='';ecoDocConfirmed=false;}
@@ -3986,12 +3993,12 @@ function ecoAiCheckDraft(c){
  const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='done')return;
  const lines=ecoAiCitations(r),pairs=[];
  for(const line of lines){if(line.unresolved)continue;for(const n of line.valid){const source=r.rows[r.selected[n-1].i].text,claim=line.line.replace(/\[S\d+\]/g,'').trim();if(claim&&claim.length<=500&&source.length<=1800)pairs.push({a:source,b:claim,ref:n});}}
- if(!pairs.length||pairs.length>12){notify('A minuta não possui referências verificáveis suficientes ou excede 12 pares. Revise manualmente.','red');return;}
+ if(!pairs.length){notify('A minuta não possui referências verificáveis. Revise manualmente.','red');return;} if(pairs.length>12){notify('Mais de 12 pares: conferindo os primeiros 12; os demais exigem revisão manual.');pairs.splice(12);}
  r.verificationPairs=pairs;ecoAiSend(r,'verify',{mode:'nli',pairs:pairs.map(({a,b})=>({a,b}))},'4/4 · Conferindo relações textuais com NLI');
 }
 function ecoAiDraftVerification(r){
  const lines=ecoAiCitations(r),missing=lines.filter(x=>x.unresolved).length;
- return '<h3>Conferência das referências</h3><p class="small">'+missing+' de '+lines.length+' passagem(ns) sem referência válida. Mesmo com referência, a sustentação exige leitura humana.</p>'+ (r.verification?.length?r.verification.map((x,i)=>{const p=r.verificationPairs[i];return '<div class="eco-evidence"><strong>[S'+p.ref+'] · Relação textual experimental</strong><p>'+esc(p.b)+'</p><p>Implicação: '+(100*x.ab[1]).toFixed(1)+'% · Indeterminada: '+(100*x.ab[2]).toFixed(1)+'% · Possível incompatibilidade: '+(100*x.ab[0]).toFixed(1)+'%</p></div>';}).join(''):'')+btn('Conferir referências com NLI','ecoAiCheckDraft','secondary','data-case="'+esc(r.caseId)+'"');
+ return '<h3>Conferência das referências</h3>'+(r.verificationError?'<p class="alert red">'+esc(r.verificationError)+' · A minuta permanece disponível para revisão manual.</p>':'')+'<p class="small">'+missing+' de '+lines.length+' passagem(ns) sem referência válida. Mesmo com referência, a sustentação exige leitura humana.</p>'+ (r.verification?.length?r.verification.map((x,i)=>{const p=r.verificationPairs[i];return '<div class="eco-evidence"><strong>[S'+p.ref+'] · Relação textual experimental</strong><p>'+esc(p.b)+'</p><p>Implicação: '+(100*x.ab[1]).toFixed(1)+'% · Indeterminada: '+(100*x.ab[2]).toFixed(1)+'% · Possível incompatibilidade: '+(100*x.ab[0]).toFixed(1)+'%</p></div>';}).join(''):'')+btn('Conferir referências com NLI','ecoAiCheckDraft','secondary','data-case="'+esc(r.caseId)+'"');
 }
 
 function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(r.scope==='teoria'?(u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
@@ -4008,10 +4015,11 @@ const ecoAiPriorProgress=window.nativeSemanticProgress,ecoAiPriorResult=window.n
 window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('ai-'))return ecoAiPriorProgress(raw);const r=ecoAiRun;if(!r?.pending||v.id!==r.id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}r.last=Date.now();r.stage=String(v.stage||r.stage);const el=document.getElementById('ecoAiStage');if(el)el.textContent=r.stage;};
 window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('ai-'))return ecoAiPriorResult(raw);const r=ecoAiRun;if(!r?.pending||v.id!==r.id)return;if(!ecoAiCurrent(r)){ecoAiRun=null;return;}r.pending=false;
  const hitsValid=(hits,n,lo,hi,max)=>Array.isArray(hits)&&hits.length<=max&&new Set(hits.map(x=>x.i)).size===hits.length&&hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<n&&Number.isFinite(x.score)&&x.score>=lo&&x.score<=hi);
- if(v.error)r.error=String(v.error);
+ if(v.error&&r.phase==='verify'){r.verificationError=String(v.error);r.phase='done';}
+ else if(v.error)r.error=String(v.error);
  else if(r.phase==='retrieve'){if(v.count!==r.rows.length||v.scope!==r.nativeScope||!hitsValid(v.hits,r.rows.length,-1.001,1.001,20))r.error='Retorno de recuperação inválido.';else if(!v.hits.length){r.ranked=[];r.phase='ready';}else{r.hits=v.hits;ecoAiRerank(r);return;}}
  else if(r.phase==='rerank'){if(v.count!==r.hits.length||!hitsValid(v.hits,r.hits.length,0,1,20)||!Array.isArray(v.skipped)||v.skipped.some(i=>!Number.isInteger(i)||i<0||i>=r.hits.length)||new Set([...v.hits.map(x=>x.i),...v.skipped]).size!==r.hits.length||v.hits.length+v.skipped.length!==r.hits.length)r.error='Retorno de reranking inválido.';else{r.ranked=v.hits.map(x=>({...r.hits[x.i],rank:x.score}));r.skipped=v.skipped;r.phase='ready';}}
- else if(r.phase==='verify'){const valid=x=>Array.isArray(x)&&x.length===3&&x.every(n=>Number.isFinite(n)&&n>=0&&n<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;if(JSON.stringify(v.labels)!=='["contradiction","entailment","neutral"]'||!Array.isArray(v.comparisons)||v.comparisons.length!==r.verificationPairs.length||!v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba))){r.error='Retorno NLI inválido.';}else{r.verification=v.comparisons;r.phase='done';}}
+ else if(r.phase==='verify'){const valid=x=>Array.isArray(x)&&x.length===3&&x.every(n=>Number.isFinite(n)&&n>=0&&n<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;if(JSON.stringify(v.labels)!=='["contradiction","entailment","neutral"]'||!Array.isArray(v.comparisons)||v.comparisons.length!==r.verificationPairs.length||!v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba))){r.verificationError='Retorno NLI inválido.';r.phase='done';}else{r.verificationError='';r.verification=v.comparisons;r.phase='done';}}
  else if(r.phase==='generate'){if(v.sourceCount!==r.selected.length||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.error='Minuta inválida.';else{r.draft=v.draft;r.model=String(v.model||'Qwen');r.phase='done';}}
  render();
 };
