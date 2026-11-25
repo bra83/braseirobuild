@@ -541,6 +541,9 @@ final class SecureStore {
     // Capture all portable SQLite data at the same transaction boundary.
     // Private diary remains opt-in and is not copied into recovery metadata.
     synchronized JSONObject exportPortableSnapshot(boolean includePrivateDiary) throws Exception {
+        return exportPortableSnapshot(includePrivateDiary,true);
+    }
+    synchronized JSONObject exportPortableSnapshot(boolean includePrivateDiary,boolean includeAttachments) throws Exception {
         SQLiteDatabase db=dbHelper.getWritableDatabase();
         db.beginTransaction();
         try{
@@ -556,7 +559,7 @@ final class SecureStore {
                 if(journal.has("__loadError"))throw new java.io.IOException("Rascunho de áudio indisponível; backup não criado");
                 export.put("mlDraft",journal);
             }
-            export.put("attachmentBundle",exportAttachments());
+            export.put("attachmentBundle",includeAttachments?exportAttachments():new JSONArray());
             export.put("nativeRecoveryBundle",exportNativeRecovery(includePrivateDiary));
             db.setTransactionSuccessful();
             return export;
