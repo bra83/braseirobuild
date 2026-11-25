@@ -12,7 +12,7 @@ try{
  const page=await browser.newPage({viewport:{width:393,height:852},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.setContent(html);
- await page.evaluate(f=>{let raw=JSON.stringify(f);window.NativeVault={loadState:()=>raw,saveState:x=>{raw=x;return 'OK'},getEngineInfo:()=>JSON.stringify({semanticAvailable:true,nliAvailable:true,rerankerAvailable:true,llmAvailable:true}),printReport:()=>{throw Error('Unexpected print')}};window.appUnlock();},fixture);
+ await page.evaluate(f=>{let raw=JSON.stringify(f);const editors={};window.NativeVault={loadEditorDraft:slot=>editors[slot]||'',saveEditorDraft:(slot,json)=>{editors[slot]=json;return 'OK'},clearEditorDraft:(slot,id)=>{if(JSON.parse(editors[slot]||'{}').value?.id===id)delete editors[slot];return 'OK'},loadState:()=>raw,saveState:x=>{raw=x;return 'OK'},getEngineInfo:()=>JSON.stringify({semanticAvailable:true,nliAvailable:true,rerankerAvailable:true,llmAvailable:true}),printReport:()=>{throw Error('Unexpected print')}};window.appUnlock();},fixture);
  const home=()=>page.locator('#bottom [data-id="home"]').click();
  const tile=id=>page.locator('.eco-home-grid [data-id="'+id+'"]');
  for(const width of [360,393,415]){
