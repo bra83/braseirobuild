@@ -2096,10 +2096,10 @@ function ecoRenderDreamAtlas(c){
    out += dreams.map(d=>'<div class="eco-evidence"><strong>'+esc(formatDate(d.data||datestr()))+' · '+(d.recorrente?'<span class="chip warn">Imagem Recorrente</span>':'<span class="chip">Sonho</span>')+'</strong>'+
      '<p><strong>Conteúdo manifesto:</strong> “'+esc(d.texto||'')+'”</p>'+
      (d.personagens?'<p class="small"><strong>Personagens/Figuras:</strong> '+esc(d.personagens)+'</p>':'')+
-     (d.afetos?'<p class="small"><strong>Afetos no sonho:</strong> '+esc(d.afetos)+'</p>':'')+
+     (d.lugares?'<p class="small"><strong>Lugares:</strong> '+esc(d.lugares)+'</p>':'')+(d.simbolos?.length?'<p class="small"><strong>Imagens:</strong> '+esc(d.simbolos.join(', '))+'</p>':'')+(d.sessionId?'<p class="small muted">Sessão: '+esc(formatDate(d.data))+' · '+esc(d.source||'relato')+' · '+esc(d.speaker||'não identificado')+' · '+esc(ecoTimecode(d.atMs))+'</p>':'')+(d.afetos?'<p class="small"><strong>Afetos no sonho:</strong> '+esc(d.afetos)+'</p>':'')+
      (d.associacoes?'<p class="small"><strong>Associações do paciente:</strong> '+esc(d.associacoes)+'</p>':'')+
      (d.hipotese?'<p class="small"><strong>Hipótese profissional:</strong> '+esc(d.hipotese)+'</p>':'')+
-     '<div class="actions">'+btn('Excluir sonho','ecoDeleteDream','ghost',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`) +'</div>'+
+     '<div class="actions">'+btn('Editar sonho','ecoDreamEdit','secondary',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`)+btn('Excluir sonho','ecoDeleteDream','ghost',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`) +'</div>'+
      '</div>').join('');
  } else {
    out += '<p class="muted small">Nenhum sonho registrado neste caso até o momento.</p>';
@@ -2284,7 +2284,7 @@ function ecoRenderGenogram(c,only='both'){
    let label = `<text x="${x}" y="${y+35}" fill="currentColor" font-size="11" font-weight="bold" text-anchor="middle">${esc(m.nome||'Sem nome')}</text>`;
    let sublabel = `<text x="${x}" y="${y+49}" fill="#94a3b8" font-size="9" text-anchor="middle">${esc(m.parentesco||'')}</text>`;
 
-   nodesSvg += `<g class="gen-node" data-id="${esc(m.id)}">${shape}${deceasedSlash}${label}${sublabel}</g>`;
+   nodesSvg += `<g class="gen-node" role="button" tabindex="0" data-act="ecoFamilyEdit" data-id="${esc(m.id)}" data-case="${esc(c.id)}">${shape}${deceasedSlash}${label}${sublabel}</g>`;
  });
 
  let svgContent = `<svg class="eco-genogram-svg" viewBox="0 0 ${width} 480" width="${Math.round(width*ecoGenZoom)}" height="${Math.round(480*ecoGenZoom)}">
@@ -2312,7 +2312,7 @@ function ecoRenderGenogram(c,only='both'){
      '<div><span class="chip '+(m.vivo==='não'?'gray':'good')+'">'+(m.vivo==='não'?'Falecido':m.vivo==='sim'?'Vivo':'Não informado')+'</span><span class="chip">'+esc(m.geracao||'G3')+'</span></div>'+
      (m.vinculo?'<div class="small">Vínculo: <strong>'+esc(m.vinculo)+'</strong></div>':'')+
      (m.notas?'<div class="small muted">'+esc(m.notas)+'</div>':'')+
-     '<div class="actions" style="margin-top:6px">'+btn('Excluir','ecoDeleteFamilyMember','ghost',`data-case="${esc(c.id)}" data-id="${esc(m.id)}"`) +'</div>'+
+     '<div class="actions" style="margin-top:6px">'+btn('Editar','ecoFamilyEdit','secondary',`data-case="${esc(c.id)}" data-id="${esc(m.id)}"`)+(m.id===c.id?'':btn('Excluir','ecoDeleteFamilyMember','ghost',`data-case="${esc(c.id)}" data-id="${esc(m.id)}"`))+'</div>'+
      '</div>').join('');
    out += '</div>';
 
@@ -2454,7 +2454,7 @@ function ecoRenderClinicalSafety(c){
 
 function ecoFormatClinicalDoc(c, type, sections, options){
   const opts = options || { confirmed: ecoDocConfirmed, profNome: ecoDocProfNome, profRegistro: ecoDocProfRegistro, profContato: ecoDocProfContato, docDateFrom: ecoDocDateFrom, docDateTo: ecoDocDateTo };
-  const title = type==='resumo' ? 'Resumo de Acompanhamento Multidisciplinar' :
+  const title = type==='sessao' ? 'Registro de Sessão' : type==='evolucao' ? 'Evolução do Acompanhamento' : type==='encerramento' ? 'Resumo de Encerramento' : type==='acesso' ? 'Cópia de Registro para Solicitação de Acesso' : type==='relatorio' ? 'Relatório de Acompanhamento Autorizado' : type==='resumo' ? 'Resumo de Acompanhamento Multidisciplinar' :
     type==='encaminhamento' ? 'Encaminhamento Clínico' :
     type==='supervisao' ? 'Síntese para Supervisão Clínica (Pseudonimizada)' :
     'Ficha de Acompanhamento Clínico';
@@ -2676,7 +2676,7 @@ function ecoRenderDocuments(c){
    '<div class="card">'+
    '<div class="field"><label>Modelo do documento</label><select id="docTypeSelect" data-eco-doc-type>'+
    '<option value="ficha" '+(ecoDocType==='ficha'?'selected':'')+'>Ficha de Acompanhamento Completa (Prontuário pessoal)</option>'+
-   '<option value="resumo" '+(ecoDocType==='resumo'?'selected':'')+'>Resumo de Acompanhamento (Multidisciplinar)</option>'+
+   '<option value="resumo" '+(ecoDocType==='resumo'?'selected':'')+'>Resumo de Acompanhamento (Multidisciplinar)</option>' + [['sessao','Registro de sessão'],['evolucao','Evolução'],['encerramento','Resumo de encerramento'],['acesso','Solicitação de acesso'],['relatorio','Relatório autorizado']].map(([k,label])=>'<option value="'+k+'" '+(ecoDocType===k?'selected':'')+'>'+label+'</option>').join('')+
    '<option value="encaminhamento" '+(ecoDocType==='encaminhamento'?'selected':'')+'>Encaminhamento Clínico</option>'+
    '<option value="supervisao" '+(ecoDocType==='supervisao'?'selected':'')+'>Síntese para Supervisão (Pseudonimizada)</option>'+
    '</select></div>'+
@@ -2930,7 +2930,7 @@ act=function(name,id,button){
     const txt=document.getElementById("dreamTexto")?.value||"";
     if(!txt.trim()){notify("Informe o conteúdo manifesto do sonho.",'red');return;}
     const dream={
-      id:uid(),data:document.getElementById("dreamData")?.value||datestr(),
+      id:ecoDreamEditId||uid(),data:document.getElementById("dreamData")?.value||datestr(),
       ...(ecoDreamOrigin||{}),texto:txt.trim(),
       lugares:document.getElementById("dreamLugares")?.value||"",simbolos:(document.getElementById("dreamSimbolos")?.value||"").split(",").map(s=>s.trim()).filter(Boolean),
       personagens:document.getElementById("dreamPersonagens")?.value||"",
@@ -2939,9 +2939,9 @@ act=function(name,id,button){
       hipotese:document.getElementById("dreamHipotese")?.value||"",
       criadoEm:new Date().toISOString()
     };
-    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];if(!dream.originKey||!c.sonhosList.some(d=>d.originKey===dream.originKey))c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
+    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];const index=c.sonhosList.findIndex(d=>d.id===dream.id);if(index>=0)c.sonhosList[index]={...c.sonhosList[index],...dream};else if(!dream.originKey||!c.sonhosList.some(d=>d.originKey===dream.originKey))c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
     if(!ok){notify("Falha ao salvar sonho. Dados mantidos no formulário.",'red');return;}
-    ecoDreamOrigin=null;notify("Sonho documentado com sucesso.");render();return;
+    ecoDreamOrigin=null;ecoDreamEditId=null;notify("Sonho documentado com sucesso.");render();return;
   }
   if(name==="ecoDeleteDream"){
     const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
@@ -3028,7 +3028,7 @@ act=function(name,id,button){
     const nome=document.getElementById("genNome")?.value||"";
     if(!nome.trim()){notify("Informe o nome ou iniciais do familiar.",'red');return;}
     const member={
-      id:uid(),nome:nome.trim(),
+      id:ecoFamilyEditId||uid(),nome:nome.trim(),
       parentesco:document.getElementById("genParentesco")?.value||"",
       geracao:document.getElementById("genGeracao")?.value||"G3",
       vivo:document.getElementById("genVivo")?.value||"desconhecido",
@@ -3039,17 +3039,17 @@ act=function(name,id,button){
     const ok=change(()=>{
       if(!c.genograma)c.genograma={membros:[],relacoes:[]};
       if(!Array.isArray(c.genograma.membros))c.genograma.membros=[];
-      c.genograma.membros.push(member);
+      const index=c.genograma.membros.findIndex(m=>m.id===member.id);if(index>=0)c.genograma.membros[index]={...c.genograma.membros[index],...member};else c.genograma.membros.push(member);
       c.atualizadoEm=new Date().toISOString();
     });
     if(!ok){notify("Falha ao adicionar familiar ao genograma. Dados mantidos no formulário.",'red');return;}
-    notify("Familiar adicionado ao genograma.");render();return;
+    ecoFamilyEditId=null;notify("Familiar salvo no genograma.");render();return;
   }
   if(name==="ecoDeleteFamilyMember"){
     const caseId=button?.dataset?.case||document.querySelector('[data-eco-atlas-case]')?.value||openedId;
     const c=state.cases.find(x=>x.id===caseId);
     if(!c||!c.genograma?.membros)return;
-    const memberId=button?.dataset?.id||id;
+    const memberId=button?.dataset?.id||id;if(memberId===c.id){notify('O paciente central não pode ser excluído do genograma.','red');return;}
     const ok=change(()=>{
       c.genograma.membros=c.genograma.membros.filter(m=>m.id!==memberId);
       if(Array.isArray(c.genograma.relacoes)){
@@ -3370,7 +3370,7 @@ document.addEventListener("change",e=>{
  if(e.target?.dataset?.ecoAsrModel){ecoChosenAsr=["base","small","tagarela","vosk"].includes(e.target.value)?e.target.value:"small"}
  if(e.target?.dataset?.ecoMicEngine){ecoChosenMic=["whisper-base","whisper-small","tagarela","vosk"].includes(e.target.value)?e.target.value:"whisper-small"}
  if(e.target?.dataset?.ecoConsentKind){ecoConsentKind=e.target.value==="autorizado"?"autorizado":"simulacao";render()}
- if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoDocConfirmed=false;ecoDreamOrigin=null;render()}
+ if(e.target?.dataset?.ecoAtlasCase){ecoOverviewCase=e.target.value;ecoDocConfirmed=false;ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;render()}
  if(e.target?.dataset?.ecoDocType){ecoDocType=e.target.value;ecoDocConfirmed=false;for(const k of Object.keys(ecoDocSections))ecoDocSections[k]=ecoDocType==='ficha'?!['bruto','revisado','falantes','graficos'].includes(k):['identificacao','plano'].includes(k);render();return;}
  if(e.target?.dataset?.ecoDocSec){ecoDocSections[e.target.dataset.ecoDocSec]=e.target.checked;ecoDocConfirmed=false;render();return;}
  if(e.target?.dataset?.ecoSetting){
@@ -3430,7 +3430,7 @@ pdfForCase=function(c){
 };
 
 
-let ecoGenZoom=.65,ecoDreamOrigin=null,ecoKnowledgeQuery='',ecoKnowledgeTab='todos';
+let ecoGenZoom=.65,ecoDreamOrigin=null,ecoDreamEditId=null,ecoFamilyEditId=null,ecoKnowledgeQuery='',ecoKnowledgeTab='todos';
 function ecoFamilyMembers(c){
  const rows=Array.isArray(c.genograma?.membros)?c.genograma.membros:[];
  return rows.some(m=>m.id===c.id||/^(paciente|sujeito|titular)(\s|$)/i.test(m.parentesco||''))?rows:[{id:c.id,nome:c.nome||'Paciente',parentesco:'Paciente',geracao:'G3 (Paciente/Irmãos)',sexo:'indefinido',vivo:'desconhecido',vinculo:''},...rows];
@@ -3474,8 +3474,9 @@ function ecoDreamSuggestionsHtml(c){
  out+=[...counts].filter(([v,n])=>n>1).map(([v,n])=>'<p>Imagem recorrente: '+esc(v)+' · '+n+' registros</p>').join('');
  return out+'</div>';
 }
+const ecoGlossary=[["Associação livre","Freud","Sobre o início do tratamento (1913)","Regra de dizer o que ocorre ao pensamento, sem seleção prévia.","O que lhe ocorre a partir dessa palavra?"],["Atenção flutuante","Freud","Recomendações aos médicos que exercem a psicanálise (1912)","Escuta sem escolha antecipada do material considerado importante.","Que aspecto da narrativa ainda não foi escutado?"],["Transferência","Freud","A dinâmica da transferência (1912)","Atualização de modalidades de relação no vínculo analítico; hipótese dependente do contexto.","Que expectativa aparece na relação terapêutica?"],["Repetição","Freud","Recordar, repetir e elaborar (1914)","Reatualização de padrões que podem aparecer em atos e relações.","Onde essa situação já apareceu, segundo o paciente?"],["Elaboração","Freud","Recordar, repetir e elaborar (1914)","Trabalho continuado com resistências e padrões, não reduzido a esclarecimento pontual.","Que mudança ou dificuldade o paciente percebe ao retomar o tema?"],["Recalque","Freud","O recalque (1915)","Processo teórico pelo qual representações incompatíveis ficam afastadas da consciência.","Que associações surgem quando o tema retorna?"],["Inconsciente","Freud","O inconsciente (1915)","Conceito metapsicológico; não equivale a qualquer informação esquecida.","Que manifestações o relato permite explorar sem pressupor uma causa?"],["Conteúdo manifesto","Freud","A interpretação dos sonhos (1900)","Narrativa do sonho tal como lembrada e relatada.","Como o paciente descreve a sequência do sonho?"],["Conteúdo latente","Freud","A interpretação dos sonhos (1900)","Construção teórica dos pensamentos do sonho investigada por associações, não por tradução fixa.","Quais associações pessoais surgem para cada imagem?"],["Condensação","Freud","A interpretação dos sonhos (1900)","Na teoria do trabalho do sonho, múltiplos pensamentos podem convergir numa representação.","Uma figura remete a mais de uma lembrança?"],["Deslocamento","Freud","A interpretação dos sonhos (1900)","Redistribuição de intensidade psíquica na elaboração onírica.","O que parece relevante ou estranho ao sonhador?"],["Resistência","Freud","Recordar, repetir e elaborar (1914)","Conceito para dificuldades do trabalho analítico; silêncio ou recusa isolados não a demonstram.","Como o paciente compreende sua dificuldade de abordar o assunto?"],["Compulsão à repetição","Freud","Além do princípio do prazer (1920)","Hipótese teórica sobre repetição que não se reduz à busca imediata de prazer.","Que padrões são documentados em diferentes contextos?"],["Significante","Lacan","A instância da letra no inconsciente (1957)","Elemento cuja função depende de relações na cadeia significante.","Que palavras particulares retornam na fala?"],["Estádio do espelho","Lacan","O estádio do espelho como formador da função do eu (1949)","Formulação sobre identificação à imagem e constituição do eu.","Como o sujeito descreve a própria imagem e a mirada alheia?"],["Demanda e desejo","Lacan","A direção do tratamento e os princípios de seu poder (1958)","Distinção entre pedido articulado e desejo; não deduzir desejo oculto por palavras isoladas.","O que é solicitado explicitamente?"],["Sombra","Jung","Aion (1951)","Conceito da psicologia analítica relativo a aspectos da personalidade pouco reconhecidos pelo eu.","O que a imagem evoca para esta pessoa?"],["Individuação","Jung","Dois ensaios sobre psicologia analítica","Processo teórico de diferenciação e integração da personalidade.","Que transformações o paciente identifica em sua história?"],["Amplificação","Jung","Textos sobre sonhos, Obras completas, vols. 8 e 16","Exploração de paralelos culturais e simbólicos após associações pessoais.","Que histórias ou imagens culturais lhe fazem sentido?"],["Holding","Winnicott","The theory of the parent-infant relationship (1960)","Sustentação ambiental e continuidade de cuidado; aplicação clínica requer contexto.","O que proporciona segurança e continuidade?"],["Objeto transicional","Winnicott","Transitional objects and transitional phenomena (1953)","Fenômenos na área intermediária entre experiência subjetiva e realidade compartilhada.","Qual significado pessoal tem esse objeto?"],["Brincar","Winnicott","Playing and Reality (1971)","Experiência criativa na área potencial, relevante à relação terapêutica.","Há espaço para experimentar e criar sem exigência de resposta?"],["Posição esquizoparanoide","Klein","Notes on some schizoid mechanisms (1946)","Organização teórica de ansiedades e defesas primitivas; não é diagnóstico de esquizofrenia.","Que tensões e afetos foram explicitamente relatados?"],["Posição depressiva","Klein","A contribution to the psychogenesis of manic-depressive states (1935)","Conceito relativo à integração de aspectos amados e odiados do objeto e à preocupação reparadora.","Que sentimentos diferentes coexistem em relação à mesma pessoa?"],["Função alfa","Bion","Learning from Experience (1962)","Modelo teórico de transformação de experiências emocionais em elementos pensáveis.","Como o paciente consegue descrever a experiência?"],["Continente-conteúdo","Bion","Learning from Experience (1962)","Modelo de relação e transformação da experiência emocional.","O que favorece que uma sensação possa ser nomeada?"]];
 function ecoKnowledgeRows(){
- return [...ecoSymbolDictionary.map(s=>({title:s.titulo,author:'Freud · Jung'+(s.lacan?' · Lacan':''),type:'sonhos',body:[s.freud,s.lacan,s.jung,s.sentidos,s.perguntas,s.limites].filter(Boolean).join('\n')})),...ecoSchoolsLibrary.flatMap(s=>s.tecnicas.map(t=>({title:t.nome,author:s.escola,type:'tecnicas',body:[t.objetivo,t.indicacao,t.limites].join('\n')}))),...ecoInvestigationAxes.map(a=>({title:a.nome,author:'Eixos de investigação',type:'eixos',body:a.descricao+'\n'+a.perguntaPadrao}))];
+ return [...ecoGlossary.map(([title,author,ref,def,question])=>({title,author,type:'glossario',body:def+'\nPergunta aberta: '+question+'\nLeitura de referência: '+ref})),...ecoSymbolDictionary.map(s=>({title:s.titulo,author:'Freud · Jung'+(s.lacan?' · Lacan':''),type:'sonhos',body:[s.freud,s.lacan,s.jung,s.sentidos,s.perguntas,s.limites].filter(Boolean).join('\n')})),...ecoSchoolsLibrary.flatMap(s=>s.tecnicas.map(t=>({title:t.nome,author:s.escola,type:'tecnicas',body:[t.objetivo,t.indicacao,t.limites].join('\n')}))),...ecoInvestigationAxes.map(a=>({title:a.nome,author:'Eixos de investigação',type:'eixos',body:a.descricao+'\n'+a.perguntaPadrao}))];
 }
 function ecoKnowledgeResults(){
  const q=ecoFoldText(ecoKnowledgeQuery).trim().split(/\s+/).filter(Boolean);
@@ -3483,15 +3484,16 @@ function ecoKnowledgeResults(){
  return '<p>'+rs.length+' entradas</p>'+rs.map(r=>'<article class="card"><span class="chip">'+esc(r.author)+'</span><h3>'+esc(r.title)+'</h3><p style="white-space:pre-line">'+esc(r.body)+'</p><p class="small muted">Conteúdo introdutório; edição e paginação das referências pendentes de conferência.</p></article>').join('');
 }
 const ecoStudyLegacy=studyScreen;
-studyScreen=function(){return head('Biblioteca offline','Conhecimentos','Consulta independente do prontuário')+'<div class="field"><label>Pesquisar</label><input type="search" data-eco-knowledge-query value="'+esc(ecoKnowledgeQuery)+'" placeholder="Autor, técnica ou símbolo"></div><div class="actions">'+[['todos','Todos'],['sonhos','Verbetes oníricos'],['tecnicas','Técnicas'],['eixos','Investigação']].map(([id,label])=>btn(label,'ecoKnowledgeTab',ecoKnowledgeTab===id?'':'secondary','data-id="'+id+'"')).join('')+'</div><div id="ecoKnowledgeResults">'+ecoKnowledgeResults()+'</div>'+ecoStudyLegacy();};
+studyScreen=function(){return head('Biblioteca offline','Conhecimentos','Consulta independente do prontuário')+'<div class="field"><label>Pesquisar</label><input type="search" data-eco-knowledge-query value="'+esc(ecoKnowledgeQuery)+'" placeholder="Autor, técnica ou símbolo"></div><div class="actions">'+[['todos','Todos'],['glossario','Verbetes teóricos'],['sonhos','Verbetes oníricos'],['tecnicas','Técnicas'],['eixos','Investigação']].map(([id,label])=>btn(label,'ecoKnowledgeTab',ecoKnowledgeTab===id?'':'secondary','data-id="'+id+'"')).join('')+'</div><div id="ecoKnowledgeResults">'+ecoKnowledgeResults()+'</div>'+ecoStudyLegacy();};
 const ecoIntegratedAct=act;
 act=function(name,id,button){
  const c=state?.cases?.find(x=>x.id===(button?.dataset?.case||openedId||ecoOverviewCase));
  if(name==='ecoKnowledgeTab'){ecoKnowledgeTab=id;render();return;}
  if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?.65:Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
- if(name==='ecoDreamPrefill'&&c){const d=ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamOrigin={originKey:d.originKey,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', '),dreamAssociacoes:'',dreamHipotese:''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
+ if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
  if(name==='ecoDocPreview'){ecoDocConfirmed=false;render();return;}
- if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDocConfirmed=false;}
+ if(name==='ecoFamilyEdit'&&c){const m=ecoFamilyMembers(c).find(x=>x.id===id);if(!m)return;ecoFamilyEditId=m.id;const vals={genNome:m.nome,genParentesco:m.parentesco,genGeracao:m.geracao,genVivo:m.vivo,genSexo:m.sexo,genVinculo:m.vinculo,genNotas:m.notas};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('genNome')?.scrollIntoView?.({block:'center'});return;}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;ecoDocConfirmed=false;}
  return ecoIntegratedAct(name,id,button);
 };
 document.addEventListener('input',e=>{if(e.target?.dataset?.ecoKnowledgeQuery!==undefined){ecoKnowledgeQuery=e.target.value||'';const el=document.getElementById('ecoKnowledgeResults');if(el)el.innerHTML=ecoKnowledgeResults();}});
