@@ -4626,4 +4626,112 @@ function ecoClinicalHistoryPanel(c,kind){
  return '<section class="card"><h2>Histórico de alterações</h2><p class="small muted">Versões anteriores preservadas para retificação e rastreabilidade. Não são incluídas automaticamente nos documentos.</p>'+(rows.length?rows.slice().reverse().map(x=>'<details class="card"><summary>'+esc(x.kind)+' · '+esc(new Date(x.at).toLocaleString('pt-BR'))+'</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(x.previous,null,2))+'</pre></details>').join(''):'<p>Sem alterações anteriores.</p>')+'</section>';
 }
 const ecoHistoryPriorCase=caseScreen;caseScreen=function(){const c=currentCase(),html=ecoHistoryPriorCase();return c&&['anamnese','enquadre','sonhos','genograma','cronologia'].includes(tab)?html+ecoClinicalHistoryPanel(c,tab==='sonhos'?'sonho':tab):html;};
+
+/* Durable, explicit recovery of the registration and agenda editors.
+   Only edited registration fields are journaled: never copy existing clinical sessions. */
+let ecoEditorTimer=null,ecoEditorDirty=false,ecoEditorRepeat='1',ecoEditorInterval='7';
+function ecoEditorSlot(){return screen==='wizard'?'wizard':screen==='appointment'?'appointment':'';}
+function ecoEditorValue(slot){return slot==='wizard'?draft:apptDraft;}
+function ecoEditorRead(slot){
+ if(!window.NativeVault?.loadEditorDraft)return null;
+ const raw=window.NativeVault.loadEditorDraft(slot);
+ if(!raw)return null;
+ const data=JSON.parse(raw);
+ if(data.__loadError)throw Error(data.__loadError);
+ if(data.slot!==slot||!data.value?.id)throw Error('Rascunho inválido');
+ return data;
+}
+function ecoEditorFlush(){
+ if(ecoEditorTimer){clearTimeout(ecoEditorTimer);ecoEditorTimer=null;}
+ const slot=ecoEditorSlot(),v=ecoEditorValue(slot);
+ if(!slot||!v||!ecoEditorDirty)return true;
+ if(!window.NativeVault?.saveEditorDraft)return false;
+ let value=v;
+ if(slot==='wizard'){
+  value={};for(const key of Object.keys(makeCase()))if(!['sessoes','atualizadoEm'].includes(key))value[key]=v[key];
+  value._isEditing=!!v._isEditing;
+ }else{
+  ecoEditorRepeat=document.getElementById('ecoApptRepeat')?.value||ecoEditorRepeat;
+  ecoEditorInterval=document.getElementById('ecoApptInterval')?.value||ecoEditorInterval;
+ }
+ const payload={slot,value,step:wizardStep,editingId:slot==='appointment'?editApptId:null,repeat:ecoEditorRepeat,interval:ecoEditorInterval};
+ const result=window.NativeVault.saveEditorDraft(slot,JSON.stringify(payload));
+ const node=document.getElementById('ecoEditorStatus');
+ if(node)node.textContent=result==='OK'?'Rascunho cifrado salvo.':'Rascunho NÃO salvo. Não saia sem recuperar o texto.';
+ if(result==='OK')ecoEditorDirty=false;
+ return result==='OK';
+}
+function ecoEditorRecover(slot,data){
+ if(slot==='wizard'){
+  const local=data.value._isEditing?state.cases.find(c=>c.id===data.value.id):null;
+  if(data.value._isEditing&&!local){notify('O caso original não está disponível.','red');return;}
+  draft={...(local?JSON.parse(JSON.stringify(local)):makeCase()),...data.value};
+  wizardStep=Math.max(0,Math.min(3,Number(data.step)||0));screen='wizard';
+ }else{
+  if(!state.cases.some(c=>c.id===data.value.caseId)){notify('O caso da consulta não está disponível.','red');return;}
+  if(data.editingId&&!state.appointments.some(a=>a.id===data.editingId)){notify('A consulta original não está disponível.','red');return;}
+  apptDraft=JSON.parse(JSON.stringify(data.value));editApptId=data.editingId||null;
+  ecoEditorRepeat=data.repeat||'1';ecoEditorInterval=data.interval||'7';screen='appointment';
+ }
+ ecoEditorDirty=false;closeModal();render();
+}
+function ecoEditorPanel(){
+ if(!window.NativeVault?.loadEditorDraft)return '';
+ const rows=[];
+ for(const slot of ['wizard','appointment']){
+  try{const d=ecoEditorRead(slot);if(d)rows.push('<p><strong>'+ (slot==='wizard'?'Cadastro de caso':'Consulta')+'</strong> · rascunho protegido</p><div class="actions">'+btn('Recuperar','ecoEditorResume','secondary','data-id="'+slot+'"')+btn('Descartar…','ecoEditorDiscardAsk','ghost','data-id="'+slot+'"')+'</div>');}
+  catch(e){rows.push('<p class="alert red">Rascunho indisponível. Não reinstale o ECO antes de avaliar a recuperação.</p>');}
+ }
+ return rows.length?'<section class="card"><h2>Formulários não concluídos</h2>'+rows.join('')+'</section>':'';
+}
+const ecoEditorPriorRender=render;
+render=function(){
+ ecoEditorPriorRender();
+ const slot=ecoEditorSlot(),app=document.getElementById('app');
+ if(!app||!state||errorLocked)return;
+ if(slot){
+  if(slot==='appointment'){
+   const repeat=document.getElementById('ecoApptRepeat'),interval=document.getElementById('ecoApptInterval');
+   if(repeat)repeat.value=ecoEditorRepeat;if(interval)interval.value=ecoEditorInterval;
+  }
+  const p=document.createElement('p');p.id='ecoEditorStatus';p.className='small muted';p.textContent='Alterações são guardadas como rascunho cifrado.';app.prepend(p);
+ }else if(['home','cases','agenda'].includes(screen))app.insertAdjacentHTML('beforeend',ecoEditorPanel());
+};
+function ecoEditorChanged(e){
+ if(!ecoEditorSlot()||!e.target?.closest('#app')||!e.target.matches('input,textarea,select'))return;
+ ecoEditorDirty=true;
+ if(ecoEditorTimer)clearTimeout(ecoEditorTimer);
+ ecoEditorTimer=setTimeout(ecoEditorFlush,350);
+}
+document.addEventListener('input',ecoEditorChanged);
+document.addEventListener('change',e=>{ecoEditorChanged(e);if(ecoEditorSlot())ecoEditorFlush();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ecoEditorFlush();});
+const ecoEditorPriorAct=act;
+act=function(name,id,button){
+ const slot=ecoEditorSlot(),value=ecoEditorValue(slot);
+ if(slot&&ecoEditorDirty&&!ecoEditorFlush()){notify('Falha na gravação do rascunho. Não saia desta tela.','red');return;}
+ if(['ecoEditorResume','ecoEditorDiscardAsk','ecoEditorDiscard'].includes(name)){
+  try{
+   const data=ecoEditorRead(id);if(!data)return;
+   if(name==='ecoEditorResume'){ecoEditorRecover(id,data);return;}
+   if(name==='ecoEditorDiscardAsk'){openModal('<h2>Descartar rascunho?</h2><p>Somente o formulário incompleto será apagado. O prontuário salvo será preservado.</p><div class="actions">'+btn('Cancelar','closeModal','ghost')+btn('Descartar','ecoEditorDiscard','danger','data-id="'+esc(id)+'"')+'</div>');return;}
+   if(window.NativeVault.clearEditorDraft(id,data.value.id)!=='OK')throw Error('Não foi possível descartar');
+   closeModal();render();return;
+  }catch(e){notify(e.message,'red');return;}
+ }
+ const target=['newCase','editCase'].includes(name)?'wizard':['newAppointment','editAppointment'].includes(name)?'appointment':'';
+ if(target){
+  try{const data=ecoEditorRead(target);if(data){openModal('<h2>Existe um formulário não concluído</h2><p>Recupere ou descarte o rascunho antes de iniciar outro.</p><div class="actions">'+btn('Recuperar','ecoEditorResume','secondary','data-id="'+target+'"')+btn('Descartar…','ecoEditorDiscardAsk','ghost','data-id="'+target+'"')+btn('Cancelar','closeModal','ghost')+'</div>');return;}}
+  catch(e){notify(e.message,'red');return;}
+  if(target==='appointment'){ecoEditorRepeat='1';ecoEditorInterval='7';}
+ }
+ const savedId=value?.id;
+ const result=ecoEditorPriorAct(name,id,button);
+ if(slot==='wizard'&&['wizardNext','wizardBack'].includes(name)&&screen==='wizard'){ecoEditorDirty=true;ecoEditorFlush();}
+ if(savedId&&((name==='saveCase'&&slot==='wizard'&&screen==='case'&&state.cases.some(c=>c.id===savedId))||(name==='saveAppointment'&&slot==='appointment'&&screen==='agenda'&&state.appointments.some(a=>a.id===savedId)))){
+  if(window.NativeVault?.clearEditorDraft?.(slot,savedId)!=='OK')notify('Registro salvo, mas o rascunho ainda pode aparecer na recuperação.','red');
+  ecoEditorDirty=false;render();
+ }
+ return result;
+};
 </script></body></html>
