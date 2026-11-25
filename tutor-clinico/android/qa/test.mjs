@@ -1448,3 +1448,24 @@ test('ECO library semantic retrieval: only public didactic corpus, exact source 
   js("act('nav','home')");assert.equal(js('ecoLibraryRun'),null);
  }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoLibraryCancel()');}
 });
+
+
+test('ECO claim review: retrieval then explicit selected NLI pairs, no global verdict',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK'};
+  js("state.cases=[{id:'claim-a',nome:'Fictício',sessoes:[{id:'a1',data:'2026-11-25',mlSegments:[{text:'Em 2024 eu morava em Ubá.',speaker:'paciente',startMs:0},{text:'Em 2025 me mudei.',speaker:'paciente',startMs:2000},{text:'FALA_PROFISSIONAL',speaker:'terapeuta',startMs:4000}]}]},{id:'claim-b',nome:'Outro',sessoes:[{id:'b1',data:'2026-11-25',mlSegments:[{text:'OUTRO_CASO',speaker:'paciente'}]}]}];openedId='claim-a';screen='case';tab='compararRelatos';ecoNliScope='paciente';ecoNliFrom='';ecoNliTo='';");
+  el('#ecoClaimText').value='Em 2024 a pessoa morava em Ubá.';
+  js("act('ecoClaimStart','',{dataset:{case:'claim-a'}})");
+  assert.equal(payload.rows.length,2);assert.doesNotMatch(JSON.stringify(payload),/OUTRO_CASO|FALA_PROFISSIONAL/);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:2,scope:'paciente',groups:[{key:'claim',hits:[{i:0,score:.8},{i:1,score:.7}]}]}));
+  assert.equal(js('ecoClaimRun.phase'),'ready');
+  el('#ecoClaimPick_0').checked=true;el('#ecoClaimPick_1').checked=false;
+  js("act('ecoClaimCompare','',{dataset:{case:'claim-a'}})");
+  assert.equal(payload.mode,'nli');assert.equal(payload.pairs.length,1);assert.equal(payload.pairs[0].a,'Em 2024 eu morava em Ubá.');
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.1,.8,.1],ba:[.1,.2,.7]}]}));
+  assert.equal(js('ecoClaimRun.phase'),'done');assert.match(js('caseScreen()'),/Implicação: 80.0%/);assert.match(js('caseScreen()'),/Não há decisão global automatizada/);
+  js("state.cases[0].sessoes[0].mlSegments[0].text='Corrigido'");
+  assert.doesNotMatch(js('caseScreen()'),/Implicação: 80.0%/);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoClaimCancel()');}
+});
