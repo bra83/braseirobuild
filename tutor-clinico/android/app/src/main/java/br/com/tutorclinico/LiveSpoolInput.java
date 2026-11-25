@@ -13,11 +13,15 @@ final class LiveSpoolInput extends InputStream {
             if(bytes<published)throw new IllegalArgumentException("Spool boundary regressed");
             published=bytes;closed=finished;notifyAll();
         }
-        synchronized long availableFrom(long pos,BooleanSupplier active) throws IOException{
-            while(pos>=published&&!closed&&active.getAsBoolean()){
-                try{wait(100);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new InterruptedIOException();}
+        synchronized void finish(){closed=true;notifyAll();}
+        long availableFrom(long pos,BooleanSupplier active) throws IOException{
+            while(active.getAsBoolean()){
+                synchronized(this){
+                    if(pos<published||closed)return Math.max(0,published-pos);
+                    try{wait(100);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new InterruptedIOException();}
+                }
             }
-            return active.getAsBoolean()?Math.max(0,published-pos):0;
+            return 0;
         }
     }
     private final RandomAccessFile file;
