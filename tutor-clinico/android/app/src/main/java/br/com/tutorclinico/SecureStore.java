@@ -243,6 +243,18 @@ final class SecureStore {
         return root.toString();
     }
 
+    synchronized JSONArray readReminderAgenda() throws Exception {
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        JSONArray rows=new JSONArray();
+        try(Cursor c=db.query("agenda",new String[]{"id",smallBlob("payload_enc")},null,null,null,null,"data ASC,hora ASC")){
+            while(c.moveToNext()){
+                JSONObject a=new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,"agenda","payload_enc","id=?",new String[]{c.getString(0)})));
+                rows.put(new JSONObject().put("data",a.optString("data")).put("hora",a.optString("hora")).put("status",a.optString("status")));
+            }
+        }
+        return rows;
+    }
+
     private static String requiredId(JSONObject object, java.util.Set<String> seen, String kind) throws Exception {
         Object raw = object.opt("id");
         if (!(raw instanceof String) || ((String)raw).trim().isEmpty() || !seen.add((String)raw))
