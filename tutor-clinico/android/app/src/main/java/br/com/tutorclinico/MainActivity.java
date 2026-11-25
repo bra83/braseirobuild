@@ -46,6 +46,7 @@ public final class MainActivity extends Activity {
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile long semanticEpoch=0;
+    private final EcoEmbeddingCache embeddingCache=new EcoEmbeddingCache();
     private volatile String semanticJobId="";
     private String selectedAsrModel="small";
     private String selectedMicEngine="whisper-base";
@@ -139,7 +140,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; semanticEpoch++; web.setVisibility(View.INVISIBLE);
+        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; semanticEpoch++; embeddingCache.clear(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -199,10 +200,11 @@ public final class MainActivity extends Activity {
     @Override public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         if (level >= TRIM_MEMORY_MODERATE) {
+            embeddingCache.clear();
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { semanticEpoch++; semanticWorker.shutdownNow(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); semanticWorker.shutdownNow(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -250,8 +252,9 @@ public final class MainActivity extends Activity {
     }
     private final class Bridge {
         @JavascriptInterface public void setDiarization(boolean enabled){if(unlocked)ml.setDiarization(enabled);}
+        @JavascriptInterface public void clearSemanticCache(){embeddingCache.clear();}
         @JavascriptInterface public String cancelSemantic(String id){
-            if(id!=null&&id.equals(semanticJobId)){semanticEpoch++;return "OK";}
+            if(id!=null&&id.equals(semanticJobId)){semanticEpoch++;embeddingCache.clear();return "OK";}
             return "INATIVO";
         }
         @JavascriptInterface public String analyzeSemantic(String json){
@@ -298,6 +301,7 @@ public final class MainActivity extends Activity {
                         int count=req.getJSONArray("rows").length();
                         progress.report(0,count,"Carregando modelo ONNX");
                         try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
+                            if(active.getAsBoolean())engine.setCache(embeddingCache,embeddingCache.open(req.optString("cacheScope",""),NeuralSemanticEngine.MODEL));
                             if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
                             result=engine.analyze(req,active,progress);
                         }
