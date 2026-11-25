@@ -549,7 +549,7 @@ final class SecureStore {
     }
 
     private static String clinicalDraftKey(String caseId,String kind){
-        if(caseId==null||caseId.isEmpty()||caseId.length()>200||(!java.util.Arrays.asList("anamnese","enquadre","sonhos","genograma","cronologia").contains(kind)&&!kind.matches("res_(ficha|rede|prep|post|question|qedit|axis|hypo|interv|relation|safety|diary|custom|finance|template|personal|doctemplate)(_[A-Za-z0-9_-]{1,100})?")))
+        if(caseId==null||caseId.isEmpty()||caseId.length()>200||(!java.util.Arrays.asList("anamnese","enquadre","sonhos","genograma","cronologia").contains(kind)&&!kind.matches("res_(ficha|rede|prep|post|question|qedit|axis|hypo|interv|relation|safety|diary|custom|finance|template|personal|doctemplate|aiarchive|attachment)(_[A-Za-z0-9_-]{1,100})?")))
             throw new IllegalArgumentException("Formulário clínico inválido");
         boolean admin=java.util.Arrays.asList("res_finance","res_template","res_personal","res_doctemplate").contains(kind);
         if(admin!="__eco_admin__".equals(caseId))throw new IllegalArgumentException("Escopo de rascunho inválido");
