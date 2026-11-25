@@ -69,7 +69,7 @@ public final class EcoBackupStream {
         }
         @Override public void write(int b)throws IOException{check();buffer[used++]=(byte)b;if(used==buffer.length)frame();}
         @Override public void write(byte[] b,int off,int len)throws IOException{
-            check();java.util.Objects.checkFromIndexSize(off,len,b.length);
+            check();if(off<0||len<0||off>b.length-len)throw new IndexOutOfBoundsException();
             while(len>0){int n=Math.min(len,buffer.length-used);System.arraycopy(b,off,buffer,used,n);used+=n;off+=n;len-=n;if(used==buffer.length)frame();}
         }
         public long finish()throws IOException{
@@ -112,7 +112,7 @@ public final class EcoBackupStream {
         }
         @Override public int read()throws IOException{return next()?clear[position++]&255:-1;}
         @Override public int read(byte[] b,int off,int len)throws IOException{
-            java.util.Objects.checkFromIndexSize(off,len,b.length);if(len==0)return 0;
+            if(off<0||len<0||off>b.length-len)throw new IndexOutOfBoundsException();if(len==0)return 0;
             if(!next())return -1;int n=Math.min(len,clear.length-position);
             System.arraycopy(clear,position,b,off,n);position+=n;return n;
         }
