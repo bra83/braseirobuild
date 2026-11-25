@@ -352,4 +352,26 @@ public class EcoIntegratedPersistenceTest {
         assertEquals(1,new JSONArray(store.sessionVersions("portable-a","portable-a-s")).length());
         store.getDbHelper().close();
     }
+
+    @Test public void encryptedEditorDraftsSurviveReopenAndPortableRestoreWithoutBecomingRecords() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        byte[] k=new byte[32];SecureStore store=new SecureStore(context,new SecretKeySpec(k,"AES"));
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(caseWith("editor-a","nota"))).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject w=new JSONObject().put("slot","wizard").put("step",2).put("value",new JSONObject().put("id","uncommitted").put("nome","RASCUNHO SINTETICO"));
+        JSONObject a=new JSONObject().put("slot","appointment").put("value",new JSONObject().put("id","unsaved-appt").put("caseId","editor-a"));
+        store.saveEditorDraft("wizard",w.toString());store.saveEditorDraft("appointment",a.toString());
+        store.getDbHelper().close();store=new SecureStore(context,new SecretKeySpec(k,"AES"));
+        assertEquals(w.toString(),store.readEditorDraft("wizard"));assertEquals(a.toString(),store.readEditorDraft("appointment"));
+        assertEquals(1,new JSONObject(store.read()).getJSONArray("cases").length());assertEquals(0,new JSONObject(store.read()).getJSONArray("appointments").length());
+        store.clearEditorDraft("wizard","wrong");assertEquals(w.toString(),store.readEditorDraft("wizard"));
+        JSONObject another=new JSONObject(w.toString());another.getJSONObject("value").put("id","another");
+        try{store.saveEditorDraft("wizard",another.toString());fail("overwritten draft");}catch(IllegalArgumentException expected){}
+        JSONObject portable=store.exportPortableSnapshot(false);assertEquals(2,portable.getJSONObject("nativeRecoveryBundle").getJSONArray("editors").length());
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        k[0]=9;store=new SecureStore(context,new SecretKeySpec(k,"AES"));store.save(portable.toString());
+        assertEquals(w.toString(),store.readEditorDraft("wizard"));assertEquals(a.toString(),store.readEditorDraft("appointment"));
+        store.clearEditorDraft("wizard","uncommitted");assertEquals("",store.readEditorDraft("wizard"));assertEquals(a.toString(),store.readEditorDraft("appointment"));
+        store.getDbHelper().close();
+    }
 }
