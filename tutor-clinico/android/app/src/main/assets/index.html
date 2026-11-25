@@ -2984,6 +2984,7 @@ act=function(name,id,button){
       });
     });
     const ok=change(()=>{
+      ecoKeepClinicalVersion(targetCase,'anamnese',targetCase.anamnese||{},newAna);
       targetCase.anamnese=newAna;
       targetCase.atualizadoEm=new Date().toISOString();
     });
@@ -3005,6 +3006,7 @@ act=function(name,id,button){
       atualizadoEm:new Date().toISOString()
     };
     const ok=change(()=>{
+      ecoKeepClinicalVersion(targetCase,'enquadre',targetCase.enquadre||{},enq);
       targetCase.enquadre=enq;
       targetCase.atualizadoEm=new Date().toISOString();
     });
@@ -3049,7 +3051,7 @@ act=function(name,id,button){
       hipotese:document.getElementById("dreamHipotese")?.value||"",
       criadoEm:new Date().toISOString()
     };
-    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];const index=c.sonhosList.findIndex(d=>d.id===dream.id);if(index>=0)c.sonhosList[index]={...c.sonhosList[index],...dream};else if(!dream.originKey||!c.sonhosList.some(d=>d.originKey===dream.originKey))c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
+    const ok=change(()=>{if(!Array.isArray(c.sonhosList))c.sonhosList=[];const index=c.sonhosList.findIndex(d=>d.id===dream.id);if(index>=0){ecoKeepClinicalVersion(c,'sonho',c.sonhosList[index],dream);c.sonhosList[index]={...c.sonhosList[index],...dream};}else if(!dream.originKey||!c.sonhosList.some(d=>d.originKey===dream.originKey))c.sonhosList.push(dream);c.atualizadoEm=new Date().toISOString();});
     if(!ok){notify("Falha ao salvar sonho. Dados mantidos no formulário.",'red');return;}
     ecoDreamOrigin=null;ecoDreamEditId=null;notify("Sonho documentado com sucesso.");render();return;
   }
@@ -3058,7 +3060,7 @@ act=function(name,id,button){
     const c=state.cases.find(x=>x.id===caseId);
     if(!c){notify("Caso não encontrado.",'red');return;}
     const dreamId=button?.dataset?.id||id;
-    const ok=change(()=>{c.sonhosList=(c.sonhosList||[]).filter(d=>d.id!==dreamId);c.atualizadoEm=new Date().toISOString();});
+    const ok=change(()=>{const previous=(c.sonhosList||[]).find(d=>d.id===dreamId);if(previous)ecoKeepClinicalVersion(c,'sonho arquivado',previous,null);c.sonhosList=(c.sonhosList||[]).filter(d=>d.id!==dreamId);c.atualizadoEm=new Date().toISOString();});
     if(!ok){notify("Falha ao excluir sonho.",'red');return;}
     notify("Registro de sonho excluído.");render();return;
   }
@@ -3147,6 +3149,7 @@ act=function(name,id,button){
       notas:document.getElementById("genNotas")?.value||""
     };
     const ok=change(()=>{
+      ecoKeepClinicalVersion(c,'genograma',c.genograma||{},null);
       if(!c.genograma)c.genograma={membros:[],relacoes:[]};
       if(!Array.isArray(c.genograma.membros))c.genograma.membros=[];
       const index=c.genograma.membros.findIndex(m=>m.id===member.id);if(index>=0)c.genograma.membros[index]={...c.genograma.membros[index],...member};else c.genograma.membros.push(member);
@@ -3161,6 +3164,7 @@ act=function(name,id,button){
     if(!c||!c.genograma?.membros)return;
     const memberId=button?.dataset?.id||id;if(memberId===c.id){notify('O paciente central não pode ser excluído do genograma.','red');return;}
     const ok=change(()=>{
+      ecoKeepClinicalVersion(c,'genograma',c.genograma,null);
       c.genograma.membros=c.genograma.membros.filter(m=>m.id!==memberId);
       if(Array.isArray(c.genograma.relacoes)){
         c.genograma.relacoes=c.genograma.relacoes.filter(r=>r.deId!==memberId&&r.paraId!==memberId);
@@ -3181,6 +3185,7 @@ act=function(name,id,button){
     if((c.genograma?.relacoes||[]).some(r=>r.tipo===tipo&&((r.deId===deId&&r.paraId===paraId)||(tipo!=='pais_filho'&&r.deId===paraId&&r.paraId===deId)))){notify('Vínculo já registrado.','red');return;}
     const rel={id:uid(),deId:deId,paraId:paraId,tipo:tipo,criadoEm:new Date().toISOString()};
     const ok=change(()=>{
+      ecoKeepClinicalVersion(c,'genograma',c.genograma||{},null);
       if(!c.genograma)c.genograma={membros:[],relacoes:[]};
       if(!Array.isArray(c.genograma.relacoes))c.genograma.relacoes=[];
       c.genograma.relacoes.push(rel);
@@ -3195,6 +3200,7 @@ act=function(name,id,button){
     if(!c||!c.genograma?.relacoes)return;
     const relId=button?.dataset?.id||id;
     const ok=change(()=>{
+      ecoKeepClinicalVersion(c,'genograma',c.genograma,null);
       c.genograma.relacoes=c.genograma.relacoes.filter(r=>r.id!==relId);
       c.atualizadoEm=new Date().toISOString();
     });
@@ -3223,7 +3229,7 @@ act=function(name,id,button){
     const c=state.cases.find(x=>x.id===caseId);
     if(!c||!c.cronologia)return;
     const bioId=button?.dataset?.id||id;
-    const ok=change(()=>{c.cronologia=c.cronologia.filter(e=>e.id!==bioId);c.atualizadoEm=new Date().toISOString();});
+    const ok=change(()=>{const previous=c.cronologia.find(e=>e.id===bioId);if(previous)ecoKeepClinicalVersion(c,'cronologia arquivada',previous,null);c.cronologia=c.cronologia.filter(e=>e.id!==bioId);c.atualizadoEm=new Date().toISOString();});
     if(!ok){notify("Falha ao excluir evento da cronologia.",'red');return;}
     notify("Evento excluído da cronologia.");render();return;
   }
@@ -3548,7 +3554,12 @@ function ecoFamilyMembers(c){
 }
 function ecoFamilyOrder(rows,rels,coords){
  const rank=m=>{const a=rels.filter(r=>r.tipo==='pais_filho'&&r.paraId===m.id).map(r=>coords.get(r.deId)?.x).filter(Number.isFinite);return a.length?a.reduce((a,b)=>a+b,0)/a.length:Infinity;};
- return [...rows].sort((a,b)=>rank(a)-rank(b)||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+ const ordered=[...rows].sort((a,b)=>rank(a)-rank(b)||String(a.nome).localeCompare(String(b.nome),'pt-BR')),result=[],used=new Set();
+ for(const m of ordered){if(used.has(m.id))continue;result.push(m);used.add(m.id);
+  const partner=ordered.find(p=>!used.has(p.id)&&rels.some(r=>['casamento','divorcio'].includes(r.tipo)&&((r.deId===m.id&&r.paraId===p.id)||(r.paraId===m.id&&r.deId===p.id))));
+  if(partner){result.push(partner);used.add(partner.id);}
+ }
+ return result;
 }
 function ecoFamilyEdge(r,a,b,stroke,w,dash){
  const style=' stroke="'+stroke+'" stroke-width="'+w+'" '+dash+' fill="none"';
@@ -4590,4 +4601,14 @@ act=function(name,id,button){
  }
  return ecoFinishingPriorAct(name,id,button);
 };
+
+function ecoKeepClinicalVersion(c,kind,previous,next){
+ if(!previous||!Object.keys(previous).length||JSON.stringify(previous)===JSON.stringify(next))return;
+ c.ecoClinicalHistory=[...(c.ecoClinicalHistory||[]),{id:uid(),kind,at:new Date().toISOString(),previous:JSON.parse(JSON.stringify(previous))}];
+}
+function ecoClinicalHistoryPanel(c,kind){
+ const rows=(c.ecoClinicalHistory||[]).filter(x=>x.kind.startsWith(kind));
+ return '<section class="card"><h2>Histórico de alterações</h2><p class="small muted">Versões anteriores preservadas para retificação e rastreabilidade. Não são incluídas automaticamente nos documentos.</p>'+(rows.length?rows.slice().reverse().map(x=>'<details class="card"><summary>'+esc(x.kind)+' · '+esc(new Date(x.at).toLocaleString('pt-BR'))+'</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(x.previous,null,2))+'</pre></details>').join(''):'<p>Sem alterações anteriores.</p>')+'</section>';
+}
+const ecoHistoryPriorCase=caseScreen;caseScreen=function(){const c=currentCase(),html=ecoHistoryPriorCase();return c&&['anamnese','enquadre','sonhos','genograma','cronologia'].includes(tab)?html+ecoClinicalHistoryPanel(c,tab==='sonhos'?'sonho':tab):html;};
 </script></body></html>
