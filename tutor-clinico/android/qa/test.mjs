@@ -1535,3 +1535,30 @@ test('ECO square home: all 16 real destinations, explicit patient selection, no 
   js("act('ecoHomeBack');act('ecoHomeLaunch','study')");assert.equal(js('screen'),'study');
  }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoHomeTarget="";act("nav","home")');}
 });
+
+
+test('ECO AI clinical tasks: session filter, explicit archival, invalidation and restricted print',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload=null;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK'};
+  js("state.cases=[{id:'archive-a',nome:'Fictício',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:'Dificuldade para dormir.'},{id:'s2',data:'2026-11-20',origem:'manual',texto:'TEXTO_OUTRA_SESSAO'}]}];openedId='archive-a';screen='case';tab='atendimento';");
+  js("act('ecoAiOpenTask','0',{dataset:{case:'archive-a',session:'s1'}})");
+  assert.equal(js('tab'),'assistenteIA');assert.equal(js('ecoAiSession'),'s1');assert.equal(js('ecoAiScope'),'manual');
+  el('#ecoAiQuery').value='Síntese';el('#ecoAiFrom').value='';el('#ecoAiTo').value='';el('#ecoAiSession').value='s1';
+  js("act('ecoAiStart','',{dataset:{case:'archive-a'}})");
+  assert.equal(payload.rows.length,1);assert.doesNotMatch(JSON.stringify(payload),/TEXTO_OUTRA_SESSAO/);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:1,scope:'desconhecido',hits:[{i:0,score:.8}]}));
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:1,hits:[{i:0,score:.9}],skipped:[]}));
+  el('#ecoAiPick_0').checked=true;js("act('ecoAiGenerate','',{dataset:{case:'archive-a'}})");
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,sourceCount:1,clinicalValidation:false,model:'fixture',draft:'Dificuldade de sono [S1].'}));
+  el('#ecoAiArchiveTitle').value='Síntese fictícia';el('#ecoAiArchiveText').value='Síntese revisada pelo profissional [S1].';el('#ecoAiArchiveConfirm').checked=false;
+  js("act('ecoAiArchiveSave','',{dataset:{case:'archive-a'}})");assert.equal(js('state.cases[0].ecoAiArchive'),undefined);
+  el('#ecoAiArchiveConfirm').checked=true;js("act('ecoAiArchiveSave','',{dataset:{case:'archive-a'}})");assert.equal(js('state.cases[0].ecoAiArchive.length'),1);
+  assert.match(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{sintesesIA:true},{confirmed:true})"),/Síntese revisada pelo profissional/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'supervisao',{sintesesIA:true},{confirmed:true})"),/Síntese revisada pelo profissional/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'sessao',{sintesesIA:true},{confirmed:true,sessionId:'s2'})"),/Síntese revisada pelo profissional/);
+  js("state.cases[0].sessoes[0].texto='Texto retificado.'");
+  assert.match(js('ecoAiArchivePanel(state.cases[0])'),/Revisão necessária/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{sintesesIA:true},{confirmed:true})"),/Síntese revisada pelo profissional/);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoAiCancel();ecoAiFrom="";ecoAiTo="";ecoAiSession="";ecoAiPrefill=""');el('#ecoAiSession').value='';el('#ecoAiFrom').value='';el('#ecoAiTo').value='';}
+});
