@@ -126,8 +126,9 @@ final class SecureStore {
                         seg.put("startMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("start_ms")));
                         seg.put("endMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("end_ms")));
                         String role = segCursor.getString(segCursor.getColumnIndexOrThrow("speaker"));
-                        seg.put("cluster", role.startsWith("falante") ? role : "");
-                        seg.put("speaker", role.startsWith("falante") ? "desconhecido" : role);
+                        boolean anonymous=role.matches("falante[1-4]")||SpeakerTimeline.OVERLAP.equals(role);
+                        seg.put("cluster", anonymous ? role : "");
+                        seg.put("speaker", anonymous ? "desconhecido" : role);
                         seg.put("manualSpeaker", segCursor.getInt(segCursor.getColumnIndexOrThrow("speaker_confirmed")) == 1);
                         seg.put("text", dbHelper.decrypt(segCursor.getBlob(segCursor.getColumnIndexOrThrow("text_enc"))));
                         JSONArray sessionSegments = segmentsBySession.get(sessionId);
