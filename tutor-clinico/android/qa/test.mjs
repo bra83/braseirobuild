@@ -586,11 +586,12 @@ test('ECO medidas acústicas registradas no rascunho cifrado, sem inferir emoç�
  assert.match(html,/-28\.3/);
  assert.match(html,/gravação inteira/);
 });
-test('ECO caso oferece análises reais, sem menus genéricos de investigar e técnicas',()=>{
+test('ECO caso oferece análise real e atalhos diretos para investigação e técnicas',()=>{
  const html=js("caseScreen()");
- assert.match(html,/Análises/);
- assert.doesNotMatch(html,/data-id="investigar"/);
- assert.doesNotMatch(html,/data-id="tecnicas"/);
+ assert.match(html,/Análise & Ecos|Termos recorrentes neste caso|Registros para análise/);
+ js('act("openCase",state.cases[0].id)');
+ assert.match(js('caseScreen()'),/data-id="investigar"/);
+ assert.match(js('caseScreen()'),/data-id="tecnicas"/);
  const caseId=js('state.cases[0].id');
  js('act("openCase",state.cases[0].id);act("caseTab","analisar")');
  assert.match(js('caseScreen()'),/Registros para análise|Termos recorrentes neste caso/);
@@ -704,10 +705,11 @@ test('ECO 0.14 paciente exclui terapeuta e indefinido mesmo quando existe revis�
 
 test('ECO acústica independe de falas do paciente sem misturar o discurso do terapeuta',()=>{context.acousticFilterFixture={mlSegments:[{text:"Pergunta sobre trabalho",speaker:"terapeuta"}],mlAcoustic:[{atMs:0,rmsDbFs:-21,nearSilenceRatio:0.2}]};js('ecoAnalysisScope="paciente"');const h=js('ecoAnalyticsPanel(acousticFilterFixture)');assert.match(h,/Nenhum termo disponível neste filtro/);assert.match(h,/dBFS médio/);assert.match(h,/-21\.0/);assert.doesNotMatch(h,/Pergunta sobre trabalho/);assert.doesNotMatch(h,/data-id="trabalho"/);});
 
-test('ECO 0.15 Painel Hoje exibe badge ativo do TAGARELA e agenda',()=>{
+test('ECO Painel Hoje informa disponibilidade sem afirmar motor em execução',()=>{
  js("act('nav','home')");
  const h=js("homeScreen()");
- assert.match(h,/Motor Neural Ativo: TAGARELA PT-BR INT8/);
+ assert.match(h,/Motores de voz offline disponíveis/);
+ assert.doesNotMatch(h,/Motor Neural Ativo:/);
  assert.match(h,/Hoje · Agenda & Próximo Atendimento/);
  assert.match(h,/Acesso rápido/);
 });
