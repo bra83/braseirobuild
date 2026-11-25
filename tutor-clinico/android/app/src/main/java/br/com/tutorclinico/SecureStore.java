@@ -293,6 +293,45 @@ final class SecureStore {
         }
     }
 
+
+    private AtomicFile checkpointFile(int slot){
+        if(slot<0||slot>1)throw new IllegalArgumentException("Checkpoint inválido");
+        return new AtomicFile(new File(context.getFilesDir(),"eco-checkpoint-"+slot+".aes"));
+    }
+    synchronized void checkpoint(boolean force) throws Exception {
+        long now=System.currentTimeMillis();
+        File a=checkpointFile(0).getBaseFile(),b=checkpointFile(1).getBaseFile();
+        long last=Math.max(a.lastModified(),b.lastModified());
+        if(!force&&last>0&&now-last<24L*60*60*1000)return;
+        int slot=a.lastModified()<=b.lastModified()?0:1;
+        JSONObject pkg=new JSONObject().put("capturedAt",now).put("state",new JSONObject(read()));
+        byte[] encrypted=dbHelper.encrypt(pkg.toString());
+        AtomicFile file=checkpointFile(slot);FileOutputStream out=null;
+        try{out=file.startWrite();out.write(encrypted);file.finishWrite(out);}
+        catch(Exception e){if(out!=null)file.failWrite(out);throw e;}
+    }
+    synchronized String readCheckpoint(int slot) throws Exception {
+        AtomicFile file=checkpointFile(slot);
+        try(FileInputStream in=file.openRead()){
+            ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[65536];int n;
+            while((n=in.read(buffer))!=-1){if(out.size()+n>100_000_000)throw new java.io.IOException("Checkpoint acima do limite");out.write(buffer,0,n);}
+            JSONObject pkg=new JSONObject(dbHelper.decrypt(out.toByteArray()));
+            return pkg.getJSONObject("state").toString();
+        }
+    }
+    synchronized String diagnostics() throws Exception {
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        JSONObject result=new JSONObject();
+        try(Cursor c=db.rawQuery("PRAGMA quick_check",null)){result.put("integrity",c.moveToFirst()&&"ok".equals(c.getString(0))?"ok":"erro");}
+        try(Cursor c=db.rawQuery("PRAGMA foreign_key_check",null)){result.put("foreignKeysOk",!c.moveToFirst());}
+        for(String table:new String[]{"_pacientes","sessoes","segmentos","agenda"}){
+            try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+table,null)){if(c.moveToFirst())result.put(table,c.getLong(0));}
+        }
+        JSONArray checkpoints=new JSONArray();
+        for(int i=0;i<2;i++){File f=checkpointFile(i).getBaseFile();if(f.exists())checkpoints.put(new JSONObject().put("slot",i).put("date",f.lastModified()).put("bytes",f.length()));}
+        return result.put("checkpoints",checkpoints).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
+    }
+
     synchronized void save(String json) throws Exception {
         JSONObject validated = new JSONObject(json);
         if (validated.optInt("version") < 1 || !(validated.opt("cases") instanceof JSONArray)
