@@ -48,50 +48,92 @@ public final class EcoBackupStream {
     public static boolean matchesMagic(byte[] bytes){
         return bytes!=null&&bytes.length>=MAGIC.length&&Arrays.equals(MAGIC,Arrays.copyOf(bytes,MAGIC.length));
     }
-    /** Caller owns both streams; they are not closed here. */
+    /** Explicit finish authenticates successful completion; close alone never does. */
+    public static final class Writer extends OutputStream {
+        private final DataOutputStream out;
+        private final byte[] header=new byte[HEADER_BYTES], buffer=new byte[FRAME_BYTES];
+        private final SecretKeySpec key;
+        private int used=0;
+        private long sequence=0,total=0;
+        private boolean closed=false,finished=false,failed=false;
+        public Writer(OutputStream target,char[] password)throws Exception{
+            RANDOM.nextBytes(header);System.arraycopy(MAGIC,0,header,0,MAGIC.length);
+            key=key(password,header);out=new DataOutputStream(target);out.write(header);
+        }
+        private void check()throws IOException{if(closed||finished||failed)throw new IOException("Backup encerrado");}
+        private void frame()throws IOException{
+            try{
+                out.writeInt(used);out.write(crypt(Cipher.ENCRYPT_MODE,key,header,sequence++,used,buffer,used));
+                total=Math.addExact(total,used);Arrays.fill(buffer,0,used,(byte)0);used=0;
+            }catch(Exception e){failed=true;throw new IOException("Falha ao cifrar bloco",e);}
+        }
+        @Override public void write(int b)throws IOException{check();buffer[used++]=(byte)b;if(used==buffer.length)frame();}
+        @Override public void write(byte[] b,int off,int len)throws IOException{
+            check();java.util.Objects.checkFromIndexSize(off,len,b.length);
+            while(len>0){int n=Math.min(len,buffer.length-used);System.arraycopy(b,off,buffer,used,n);used+=n;off+=n;len-=n;if(used==buffer.length)frame();}
+        }
+        public long finish()throws IOException{
+            check();if(used>0)frame();
+            try{frame();out.flush();finished=true;return total;}
+            catch(IOException e){failed=true;throw e;}
+        }
+        @Override public void close(){closed=true;Arrays.fill(buffer,(byte)0);}
+    }
+    /** Reader authenticates EOF only when consumed through its terminal frame. */
+    public static final class Reader extends InputStream {
+        private final DataInputStream in;
+        private final byte[] header=new byte[HEADER_BYTES];
+        private final SecretKeySpec key;
+        private final long maxPlaintext;
+        private byte[] clear=new byte[0];
+        private int position=0;
+        private long sequence=0,total=0;
+        private boolean ended=false,closed=false,failed=false;
+        public Reader(InputStream source,char[] password,long maxPlaintext)throws Exception{
+            if(maxPlaintext<0)throw new IllegalArgumentException("Limite inválido");
+            this.maxPlaintext=maxPlaintext;in=new DataInputStream(source);in.readFully(header);
+            if(!matchesMagic(header))throw new IOException("Formato de backup não reconhecido");
+            key=key(password,header);
+        }
+        private boolean next()throws IOException{
+            if(closed||failed)throw new IOException("Backup encerrado");
+            if(position<clear.length)return true;
+            Arrays.fill(clear,(byte)0);clear=new byte[0];position=0;
+            if(ended)return false;
+            try{
+                int size=in.readInt();
+                if(size<0||size>FRAME_BYTES||size>maxPlaintext-total)throw new IOException("Bloco de backup inválido ou limite excedido");
+                byte[] encrypted=new byte[size+TAG_BYTES];in.readFully(encrypted);
+                clear=crypt(Cipher.DECRYPT_MODE,key,header,sequence++,size,encrypted,encrypted.length);
+                if(clear.length!=size)throw new SecurityException("Tamanho autenticado divergente");
+                if(size==0){if(in.read()!=-1)throw new IOException("Dados após o final autenticado");ended=true;return false;}
+                total+=size;return true;
+            }catch(Exception e){failed=true;Arrays.fill(clear,(byte)0);throw new IOException("Backup inválido, senha incorreta ou arquivo incompleto",e);}
+        }
+        @Override public int read()throws IOException{return next()?clear[position++]&255:-1;}
+        @Override public int read(byte[] b,int off,int len)throws IOException{
+            java.util.Objects.checkFromIndexSize(off,len,b.length);if(len==0)return 0;
+            if(!next())return -1;int n=Math.min(len,clear.length-position);
+            System.arraycopy(clear,position,b,off,n);position+=n;return n;
+        }
+        @Override public void close(){closed=true;Arrays.fill(clear,(byte)0);}
+    }
+    /** Caller owns both underlying streams. */
     public static long write(InputStream source,OutputStream target,char[] password)throws Exception{
-        byte[] header=new byte[HEADER_BYTES];RANDOM.nextBytes(header);
-        System.arraycopy(MAGIC,0,header,0,MAGIC.length);
-        SecretKeySpec key=key(password,header);
-        DataOutputStream out=new DataOutputStream(target);
-        byte[] buffer=new byte[FRAME_BYTES];long sequence=0,total=0;
-        try{
-            out.write(header);
-            int count;
-            while((count=source.read(buffer))!=-1){
-                if(count==0){int value=source.read();if(value<0)break;buffer[0]=(byte)value;count=1;}
-                out.writeInt(count);out.write(crypt(Cipher.ENCRYPT_MODE,key,header,sequence++,count,buffer,count));
-                total=Math.addExact(total,count);
+        byte[] buffer=new byte[FRAME_BYTES];
+        try(Writer out=new Writer(target,password)){
+            int n;while((n=source.read(buffer))!=-1){
+                if(n==0){int value=source.read();if(value<0)break;out.write(value);}
+                else out.write(buffer,0,n);
             }
-            out.writeInt(0);out.write(crypt(Cipher.ENCRYPT_MODE,key,header,sequence,0,buffer,0));out.flush();
-            return total;
+            return out.finish();
         }finally{Arrays.fill(buffer,(byte)0);}
     }
-    /**
-     * Only authenticated frames reach the target. A successful return additionally
-     * authenticates the final frame and EOF. Target must not commit on failure.
-     * The caller defines a resource budget; no allocation depends on archive size.
-     */
     public static long read(InputStream source,OutputStream target,char[] password,long maxPlaintext)throws Exception{
-        if(maxPlaintext<0)throw new IllegalArgumentException("Limite inválido");
-        DataInputStream in=new DataInputStream(source);
-        byte[] header=new byte[HEADER_BYTES];in.readFully(header);
-        if(!matchesMagic(header))throw new IOException("Formato de backup não reconhecido");
-        SecretKeySpec key=key(password,header);
-        long sequence=0,total=0;
-        while(true){
-            int size=in.readInt();
-            if(size<0||size>FRAME_BYTES||size>maxPlaintext-total)throw new IOException("Bloco de backup inválido ou limite excedido");
-            byte[] encrypted=new byte[size+TAG_BYTES];in.readFully(encrypted);
-            byte[] clear=crypt(Cipher.DECRYPT_MODE,key,header,sequence++,size,encrypted,encrypted.length);
-            try{
-                if(clear.length!=size)throw new SecurityException("Tamanho autenticado divergente");
-                if(size==0){
-                    if(in.read()!=-1)throw new IOException("Dados após o final autenticado");
-                    target.flush();return total;
-                }
-                target.write(clear);total+=size;
-            }finally{Arrays.fill(clear,(byte)0);}
-        }
+        byte[] buffer=new byte[FRAME_BYTES];long total=0;
+        try(Reader in=new Reader(source,password,maxPlaintext)){
+            int n;while((n=in.read(buffer))!=-1){target.write(buffer,0,n);total+=n;}
+            target.flush();return total;
+        }finally{Arrays.fill(buffer,(byte)0);}
     }
 }
