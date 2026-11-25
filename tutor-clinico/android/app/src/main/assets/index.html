@@ -5106,8 +5106,9 @@ function ecoResidualSpecs(){
  if(screen==='agenda')add('finance',['ecoFinCase','ecoFinDate','ecoFinValue','ecoFinRef'],['ecoFinAdd'],{admin:true});
  if(screen==='settings'){
   add('template',['ecoTemplateTitle','ecoTemplateQuestions'],['ecoTemplateAdd'],{admin:true});
-  add('doctemplate',['ecoDocTemplateName'],['ecoDocTemplateSave'],{admin:true});
+
  }
+ if(c&&((screen==='case'&&tab==='documentos')||(screen==='atlas'&&ecoAtlasTab==='documentos')))add('doctemplate',['ecoDocTemplateName'],['ecoDocTemplateSave'],{admin:true});
  if(screen==='study')add('personal',['ecoPersonalTitle','ecoPersonalAuthor','ecoPersonalRef','ecoPersonalBody'],['ecoPersonalAdd'],{admin:true});
  return out.filter(x=>x.caseId&&/^res_[A-Za-z0-9_-]{1,125}$/.test(x.kind));
 }
@@ -5189,8 +5190,16 @@ act=function(name,id,button){
  const relevant=ecoResidualSlots.filter(x=>x.actions.includes(name)&&(x.actionId===undefined||x.actionId===id)&&(x.axis===undefined||x.axis===button?.dataset?.axis));
  if(relevant.some(x=>x.pending)){notify('Recupere ou descarte o rascunho antes de salvar.','red');return;}
  const before=relevant.length?JSON.stringify(state):null;
+ const diary=relevant.find(x=>x.kind==='res_diary');
+ let diaryBefore=null;
+ if(diary&&window.NativeVault?.loadPrivateDiary)try{diaryBefore=JSON.parse(window.NativeVault.loadPrivateDiary(diary.caseId));}catch(e){}
  const result=ecoResidualPriorAct(name,id,button);
- if(before!==null&&JSON.stringify(state)!==before){
+ let diarySaved=false;
+ if(diary&&Array.isArray(diaryBefore))try{
+  const next=JSON.parse(window.NativeVault.loadPrivateDiary(diary.caseId));
+  diarySaved=Array.isArray(next)&&next.length===diaryBefore.length+1&&diaryBefore.every((x,i)=>JSON.stringify(x)===JSON.stringify(next[i]))&&next.at(-1)?.texto===String(diary.draft?.fields?.f2||'').trim();
+ }catch(e){}
+ if(before!==null&&(JSON.stringify(state)!==before||diarySaved)){
   for(const slot of relevant)if(slot.draft){
    if(window.NativeVault.clearClinicalDraft(slot.caseId,slot.kind,slot.draft.id)!=='OK'){notify('Registro salvo; rascunho ainda disponível.','red');continue;}
   }
