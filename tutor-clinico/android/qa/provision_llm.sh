@@ -7,7 +7,9 @@ echo "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db  $root/mo
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git "$tmp/llama"
 cp "$tmp/llama/LICENSE" "$root/llama-license.txt"
-curl --fail --location --retry 3 https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/raw/6dd44a1/README.md -o "$root/attribution.txt"
+# This pinned GGUF revision does not provide README.md at the raw URL.
+# Preserve exact model identity and source without blocking on a nonexistent file.
+printf '%s\n' 'Qwen2.5-0.5B-Instruct-GGUF — Qwen' 'Source: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF' 'Revision: 6dd44a1' 'File: qwen2.5-0.5b-instruct-q4_k_m.gguf' 'SHA256: 74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db' > "$root/attribution.txt"
 cmake -S qa/native -B "$tmp/host" -DLLAMA_SOURCE="$tmp/llama" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$tmp/host" -j 2 --target eco_generate
 # Genuine generation, no prompt in command-line arguments.
