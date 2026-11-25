@@ -11,6 +11,19 @@ public final class SpeakerTimeline {
  }
  private final List<Span> spans=new ArrayList<>();
  private final List<Span> uncertain=new ArrayList<>();
+ private final List<Span> overlap=new ArrayList<>();
+ public static final String OVERLAP="sobreposicao";
+ public void addOverlap(long s,long e){
+  if(s>=0&&e>s)overlap.add(new Span(s,e,0));
+ }
+ public void clearOverlap(){overlap.clear();}
+ public void clearGroups(){spans.clear();uncertain.clear();}
+ public boolean hasOverlap(long s,long e){
+  if(s<0||e<=s)return false;
+  long sum=0;for(Span v:overlap)sum+=intersection(s,e,v);
+  return sum>=Math.max(60,Math.min(150,(e-s)*0.35));
+ }
+
  private static int group(String label){
   for(int i=1;i<=GROUPS;i++)if(("falante"+i).equals(label))return i;
   return 0;
@@ -29,6 +42,7 @@ public final class SpeakerTimeline {
  }
  public String label(long s,long e){
   if(s<0||e<=s)return "";
+  if(hasOverlap(s,e))return OVERLAP;
   for(Span v:uncertain)if(intersection(s,e,v)>0)return "";
   long[] duration=new long[GROUPS+1];
   for(Span v:spans)duration[v.group]+=intersection(s,e,v);
