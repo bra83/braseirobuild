@@ -1244,3 +1244,27 @@ test('ECO: actual document output A4, session filter, raw opt-in and external ex
   finally{context.window.NativeVault.printReport=old;}
  }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoDocConfirmed=false;ecoDocSessionId="";ecoDocType="ficha";ecoDocSections=Object.fromEntries(Object.keys(ecoDocPreset("ficha").reduce((a,k)=>(a[k]=true,a),{})).map(k=>[k,true]))');}
 });
+
+
+test('ECO: chapter search, open, close and all investigation axes have readings',()=>{
+ const before=js('JSON.stringify(state.cases)');
+ try{
+  js("state.cases=[];act('nav','study');ecoKnowledgeTab='capitulos';ecoKnowledgeQuery='funcao alfa'");
+  assert.match(js('ecoKnowledgeResults()'),/Continência/);
+  assert.equal(js('ecoClinicalChapters.length'),8);
+  js("act('ecoReadChapter','bion')");
+  const v=js('studyScreen()');assert.match(v,/Conceitos e fundamentos/);assert.match(v,/Exemplo fictício/);assert.match(v,/Leituras de referência/);
+  js("act('ecoCloseChapter')");
+  assert.ok(js("ecoInvestigationAxes.every(a=>ecoAxisReading(a.id).includes('Fundamentação:'))"));
+ }finally{context.ecoSavedCases=before;js('state.cases=JSON.parse(ecoSavedCases);ecoKnowledgeTab="todos";ecoKnowledgeQuery="";ecoChapterOpen=""');}
+});
+test('ECO: manual sessions provide factual sources without pretending patient speech',()=>{
+ context.manualFixture={id:'manual-a',origem:'manual',data:'2026-11-25',texto:'Relatou que sonhei com a casa. Senti medo. <script>ficticio</script>'};
+ const units=js('ecoSourceUnits(manualFixture)');
+ assert.equal(units[0].source,'nota clínica manual');assert.equal(units[0].speaker,'desconhecido');
+ assert.ok(js('ecoStructuredEvents(manualFixture).length')>=1);
+ const panel=js('ecoCaseAnalysis({id:"case-a",sessoes:[manualFixture]})');
+ assert.match(panel,/Atendimentos manuais/);assert.match(panel,/Senti medo/);assert.match(panel,/não transcrição literal/);assert.match(panel,/&lt;script&gt;/);assert.doesNotMatch(panel,/<script>ficticio/);
+ assert.equal(js('ecoEventCurrent(manualFixture,{status:"confirmado",quote:"Senti medo."})'),true);
+ assert.equal(js('ecoEventCurrent(manualFixture,{status:"confirmado",quote:"Não consta"})'),false);
+});
