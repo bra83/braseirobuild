@@ -177,7 +177,7 @@ final class NeuralSemanticEngine implements AutoCloseable {
             if(q!=null){double score=cosine(q,v);if(SemanticRanking.relevant(score,true))hits.add(new JSONObject().put("i",i).put("score",score));}
             double best=-2;int match=-1;
             JSONObject row=rows.getJSONObject(i);
-            if(SemanticRanking.eligible(text))for(int j=0;j<vs.size();j++){
+            if(!request.optBoolean("retrievalOnly",false)&&SemanticRanking.eligible(text))for(int j=0;j<vs.size();j++){
                 JSONObject prior=rows.getJSONObject(j);
                 if(longitudinal&&row.optString("sessionId").equals(prior.optString("sessionId")))continue;
                 if(!SemanticRanking.eligible(prior.getString("text"))||(!longitudinal&&!SemanticRanking.canCompare(row.optString("speaker","desconhecido"),prior.optString("speaker","desconhecido"),row.isNull("atMs")?null:row.optLong("atMs"),prior.isNull("atMs")?null:prior.optLong("atMs"),i,j)))continue;
