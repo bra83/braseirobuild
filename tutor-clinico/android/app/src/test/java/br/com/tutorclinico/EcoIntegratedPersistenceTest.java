@@ -565,4 +565,57 @@ public class EcoIntegratedPersistenceTest {
         }finally{java.util.Arrays.fill(password,(char)0);java.util.Arrays.fill(pdf,(byte)0);store.getDbHelper().close();archive.delete();}
     }
 
+    @Test public void nativeKeysetPagesStayScopedAndBounded() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONArray cases=new JSONArray();
+        for(int n=0;n<23;n++)cases.put(caseWith(String.format(java.util.Locale.ROOT,"page-%02d",n),"FICTICIO"));
+        JSONObject first=cases.getJSONObject(0);
+        String longText="";char[] chars=new char[32001];java.util.Arrays.fill(chars,'x');longText=new String(chars);
+        JSONArray sessions=first.getJSONArray("sessoes");
+        for(int n=0;n<22;n++)sessions.put(new JSONObject().put("id",String.format(java.util.Locale.ROOT,"page-session-%02d",n)).put("data","2026-11-25").put("origem","manual").put("texto",longText));
+        store.save(new JSONObject().put("version",1).put("cases",cases).put("appointments",new JSONArray()).toString());
+        JSONObject page=store.casePage("");assertEquals(20,page.getJSONArray("rows").length());
+        JSONObject tail=store.casePage(page.getString("next"));assertEquals(3,tail.getJSONArray("rows").length());assertEquals("",tail.getString("next"));
+        JSONObject sp=store.sessionPage("page-00","");assertEquals(20,sp.getJSONArray("rows").length());
+        assertEquals(3,store.sessionPage("page-00",sp.getString("next")).getJSONArray("rows").length());
+        JSONObject text=store.sessionTextPage("page-00","page-session-00","texto",0);
+        assertEquals(16000,text.getString("text").length());assertEquals(16000,text.getInt("next"));
+        assertEquals(1,store.sessionTextPage("page-00","page-session-00","texto",32000).getString("text").length());
+        try{store.sessionTextPage("page-01","page-session-00","texto",0);fail("cross-case text");}catch(SecurityException expected){}
+        EcoDatabaseHelper helper=store.getDbHelper();helper.createJob("page-job","page-00","page-00-s","",null);
+        for(int n=0;n<22;n++)assertTrue(helper.commitSegment("page-job","page-00","page-00-s",n*1000,n*1000+500,"falante1","TRECHO "+n,null));
+        JSONObject seg=store.segmentPage("page-00","page-00-s","");assertEquals(20,seg.getJSONArray("rows").length());
+        assertEquals(2,store.segmentPage("page-00","page-00-s",seg.getString("next")).getJSONArray("rows").length());
+        try{store.segmentPage("page-01","page-00-s","");fail("cross-case segments");}catch(SecurityException expected){}
+        store.getDbHelper().close();
+    }
+    @Test public void integralLocalCheckpointReexportsExactOldSnapshotAndPreservesPreviousOnCancel() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();byte[] firstKey=new byte[32];
+        SecureStore store=new SecureStore(context,new SecretKeySpec(firstKey,"AES"));
+        JSONObject c=caseWith("local-full","ANTES");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(c)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        store.savePrivateDiary("local-full",new JSONArray().put(new JSONObject().put("id","local-diary").put("texto","PRIVADO")).toString());
+        byte[] pdf="%PDF-1.7 ficticio".getBytes(StandardCharsets.UTF_8);
+        JSONObject meta=store.addAttachment("local-full","Teste","Teste",pdf);
+        assertTrue(store.fullCheckpoint(true,()->true));JSONArray rows=store.fullCheckpointList();assertEquals(1,rows.length());
+        int slot=rows.getJSONObject(0).getInt("slot");
+        assertFalse(store.fullCheckpoint(false,()->true));
+        c.getJSONArray("sessoes").getJSONObject(0).put("texto","DEPOIS");store.save(root.toString());
+        try{store.fullCheckpoint(true,()->false);fail("cancelled checkpoint");}catch(java.io.IOException expected){}
+        assertEquals(1,store.fullCheckpointList().length());
+        char[] password="eco-checkpoint-fixture".toCharArray();
+        java.io.ByteArrayOutputStream portable=new java.io.ByteArrayOutputStream();store.exportFullCheckpoint(slot,portable,password,()->true);
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        byte[] secondKey=new byte[32];secondKey[0]=1;
+        store=new SecureStore(context,new SecretKeySpec(secondKey,"AES"));
+        store.restoreFullVault(new java.io.ByteArrayInputStream(portable.toByteArray()),password,()->true);
+        assertEquals("ANTES",byId(new JSONObject(store.read()),"local-full").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        assertArrayEquals(pdf,store.attachmentBytes("local-full",meta.getString("id")));
+        assertEquals("[]",store.readPrivateDiary("local-full"));
+        store.getDbHelper().close();java.util.Arrays.fill(password,(char)0);
+        new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+slot+".aes").delete();
+    }
+
 }
