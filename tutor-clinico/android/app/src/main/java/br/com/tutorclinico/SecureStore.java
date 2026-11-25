@@ -366,6 +366,59 @@ final class SecureStore {
         for(int i=0;i<2;i++){File f=checkpointFile(i).getBaseFile();if(f.exists())checkpoints.put(new JSONObject().put("slot",i).put("date",f.lastModified()).put("bytes",f.length()));}
         return checkpoints;
     }
+    // Two independent rotating integral recovery files. Each has its own random
+    // passphrase wrapped by the Android Keystore; no plaintext intermediate file.
+    private static final int LOCAL_CHECKPOINT_MAGIC=0x45434c31;
+    private AtomicFile fullCheckpointFile(int slot){
+        if(slot<2||slot>3)throw new IllegalArgumentException("Checkpoint integral inválido");
+        return new AtomicFile(new File(context.getFilesDir(),"eco-full-checkpoint-"+slot+".aes"));
+    }
+    synchronized JSONArray fullCheckpointList() throws Exception {
+        JSONArray rows=new JSONArray();
+        for(int i=2;i<=3;i++){
+            File file=fullCheckpointFile(i).getBaseFile();
+            if(file.isFile())rows.put(new JSONObject().put("slot",i).put("date",file.lastModified()).put("bytes",file.length()));
+        }
+        return rows;
+    }
+    synchronized boolean fullCheckpoint(boolean force,java.util.function.BooleanSupplier active)throws Exception{
+        File a=fullCheckpointFile(2).getBaseFile(),b=fullCheckpointFile(3).getBaseFile();
+        long now=System.currentTimeMillis(),last=Math.max(a.lastModified(),b.lastModified());
+        if(!force&&last>0&&now-last<24L*60*60*1000)return false;
+        checkArchiveActive(active);
+        int slot=a.lastModified()<=b.lastModified()?2:3;
+        byte[] secret=new byte[32];RNG.nextBytes(secret);
+        char[] password=Base64.encodeToString(secret,Base64.NO_WRAP).toCharArray();Arrays.fill(secret,(byte)0);
+        AtomicFile file=fullCheckpointFile(slot);FileOutputStream raw=null;
+        try{
+            byte[] wrapped=dbHelper.encrypt(new String(password));
+            raw=file.startWrite();
+            java.io.DataOutputStream out=new java.io.DataOutputStream(raw);
+            out.writeInt(LOCAL_CHECKPOINT_MAGIC);out.writeInt(wrapped.length);out.write(wrapped);
+            exportFullVault(out,password,false,active);
+            checkArchiveActive(active);out.flush();file.finishWrite(raw);raw=null;return true;
+        }catch(Exception e){if(raw!=null)file.failWrite(raw);throw e;}
+        finally{Arrays.fill(password,(char)0);}
+    }
+    // Rewrap the exact saved snapshot with the user's portable backup password.
+    // The original local file never changes. Source EOF must authenticate before
+    // the portable writer emits its own authenticated final frame.
+    synchronized void exportFullCheckpoint(int slot,java.io.OutputStream target,char[] password,java.util.function.BooleanSupplier active)throws Exception{
+        AtomicFile file=fullCheckpointFile(slot);
+        try(java.io.DataInputStream in=new java.io.DataInputStream(file.openRead())){
+            if(in.readInt()!=LOCAL_CHECKPOINT_MAGIC)throw new SecurityException("Checkpoint integral incompatível");
+            int n=in.readInt();if(n<28||n>1024)throw new SecurityException("Chave local inválida");
+            byte[] wrapped=new byte[n];in.readFully(wrapped);
+            char[] local=dbHelper.decrypt(wrapped).toCharArray();
+            byte[] buffer=new byte[EcoBackupStream.FRAME_BYTES];
+            try(EcoBackupStream.Reader reader=new EcoBackupStream.Reader(in,local,VAULT_MAX);
+                EcoBackupStream.Writer writer=new EcoBackupStream.Writer(target,password,VAULT_MAX)){
+                int count;while((count=reader.read(buffer))!=-1){checkArchiveActive(active);writer.write(buffer,0,count);}
+                checkArchiveActive(active);writer.finish();
+            }finally{Arrays.fill(local,(char)0);Arrays.fill(buffer,(byte)0);}
+        }
+    }
+
     synchronized String diagnostics() throws Exception {
         SQLiteDatabase db=dbHelper.getReadableDatabase();
         JSONObject result=new JSONObject();
@@ -374,7 +427,7 @@ final class SecureStore {
         for(String table:new String[]{"_pacientes","sessoes","segmentos","agenda"}){
             try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+table,null)){if(c.moveToFirst())result.put(table,c.getLong(0));}
         }
-        return result.put("checkpoints",checkpointList()).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
+        return result.put("checkpoints",checkpointList()).put("fullCheckpoints",fullCheckpointList()).put("freeBytes",context.getFilesDir().getUsableSpace()).toString();
     }
 
 
