@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
     <application android:allowBackup="false" android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/eco_data_extraction_rules"
         android:usesCleartextTraffic="false" android:label="ECO" android:icon="@drawable/eco_logo" android:theme="@style/AppTheme"
         android:supportsRtl="true">
         <service android:name=".TranscriptionService" android:exported="false" android:foregroundServiceType="mediaProcessing|dataSync"/>
