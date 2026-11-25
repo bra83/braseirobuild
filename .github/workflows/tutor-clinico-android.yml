@@ -52,6 +52,8 @@ jobs:
           java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SpeakerTimelineTest
           javac -d /tmp/eco-speaker-tests app/src/main/java/br/com/tutorclinico/SemanticRanking.java qa/SemanticRankingTest.java
           java -cp /tmp/eco-speaker-tests br.com.tutorclinico.SemanticRankingTest
+          javac -d /tmp/eco-speaker-tests app/src/main/java/br/com/tutorclinico/EcoEmbeddingCache.java qa/EcoEmbeddingCacheTest.java
+          java -cp /tmp/eco-speaker-tests br.com.tutorclinico.EcoEmbeddingCacheTest
       - name: Validar interface real em Chromium
         run: |
           set -euo pipefail
