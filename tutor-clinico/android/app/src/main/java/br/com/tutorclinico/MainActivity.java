@@ -121,6 +121,7 @@ public final class MainActivity extends Activity {
             @Override public void acoustic(String json){jsCallback("nativeMlAcoustic",json);}
         });
         pref = getSharedPreferences("tutor-lock", MODE_PRIVATE);
+        WebView.setWebContentsDebuggingEnabled(false);
         web = new WebView(this);
         web.setBackgroundColor(Color.rgb(246,248,246));
         web.getSettings().setJavaScriptEnabled(true);
@@ -594,7 +595,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public String savePrivateDiary(String caseId, String json) {
             if (!unlocked) return "Bloqueado";
             try { store.savePrivateDiary(caseId, json); return "OK"; }
-            catch (Exception e) { android.util.Log.e("ECO", "Falha ao persistir cofre local", e); return "ERRO COFRE LOCAL: " + e.getClass().getSimpleName() + ": " + e.getMessage(); }
+            catch (Exception e) { android.util.Log.w("ECO", "Falha ao persistir cofre local"); return "Falha ao persistir diário privado"; }
         }
 
         @JavascriptInterface public String loadPrivateDiary(String caseId) {
@@ -604,7 +605,7 @@ public final class MainActivity extends Activity {
         }
 
         @JavascriptInterface public String saveCaseDraft(String caseId, String json) {
-            if (!unlocked && (!journalWhileLocked || activeJobCaseId.isEmpty() || !activeJobCaseId.equals(caseId))) return "Bloqueado";
+            if (!unlocked) return "Bloqueado";
             try { store.saveCaseDraft(caseId, json); return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
