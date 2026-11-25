@@ -464,7 +464,7 @@ function caseScreen(){
     if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual / importar texto (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
-        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
+        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
     } else if(tab==='anamnese'){
       content += `<div class="eco-outline"><h2>Anamnese Clínica em 10 Categorias Estruturadas (ECO-014)</h2>`+
         `<p class="eco-caption">Registro abrangente da história de vida e da dinâmica subjetiva. Preenchimento gradual ao longo dos atendimentos, sem antecipar conclusões.</p>`+btn("Buscar fontes com IA local","caseTab","secondary",'data-id="revisaoInteligente"')+
@@ -4458,5 +4458,37 @@ act=function(name,id,button){
  }
  if(name==='ecoPersonalArchive'&&screen==='study'){const r=(state.ecoPersonalLibrary||[]).find(x=>x.id===id);if(r)change(()=>{r.archived=true;});return;}
  return ecoAdminPriorAct(name,id,button);
+};
+
+let ecoHealth=null,ecoHealthError='';
+function ecoHealthPanel(){
+ const d=ecoHealth;
+ return '<section class="card"><h2>Integridade e recuperação</h2><p class="small muted">Checkpoint cifrado local diário após gravação. Duas cópias rotativas no próprio aparelho; não substituem backup independente. A recuperação adiciona registros ausentes e mantém conflitos locais.</p>'+btn('Verificar integridade e espaço','ecoHealthCheck','secondary')+btn('Criar checkpoint agora','ecoCheckpointCreate','secondary')+(ecoHealthError?'<p class="alert red">'+esc(ecoHealthError)+'</p>':'')+(d?'<p>SQLite: '+esc(d.integrity)+' · chaves estrangeiras: '+(d.foreignKeysOk?'OK':'Erro')+'</p><p>'+Number(d._pacientes||0)+' casos · '+Number(d.sessoes||0)+' sessões · '+Number(d.segmentos||0)+' trechos · '+Math.floor(Number(d.freeBytes||0)/1048576)+' MB livres</p>'+(d.checkpoints||[]).map(x=>'<div class="eco-evidence"><strong>Checkpoint '+esc(new Date(x.date).toLocaleString('pt-BR'))+'</strong><p>'+Math.ceil(x.bytes/1024)+' KB cifrados</p>'+btn('Conferir recuperação','ecoCheckpointRestore','secondary','data-id="'+x.slot+'"')+'</div>').join(''):'')+'</section>';
+}
+const ecoHealthPriorSettings=settingsScreen;settingsScreen=function(){return ecoHealthPriorSettings()+ecoHealthPanel();};
+function ecoHealthRefresh(){try{const d=JSON.parse(window.NativeVault?.databaseDiagnostics?.()||'{}');if(d.__loadError||!d.integrity)throw Error(d.__loadError||'Diagnóstico nativo indisponível');ecoHealth=d;ecoHealthError='';}catch(e){ecoHealth=null;ecoHealthError='Não foi possível verificar o banco.';}}
+const ecoHealthPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoHealthCheck'&&screen==='settings'){ecoHealthRefresh();render();return;}
+ if(name==='ecoCheckpointCreate'&&screen==='settings'){
+  const result=window.NativeVault?.createLocalCheckpoint?.();ecoHealthRefresh();if(result!=='OK')ecoHealthError='Checkpoint não gravado. Preserve os registros e faça backup independente.';render();return;
+ }
+ if(name==='ecoCheckpointRestore'&&screen==='settings'&&['0','1'].includes(String(id))){
+  try{const raw=window.NativeVault.loadLocalCheckpoint(String(id)),data=JSON.parse(raw);if(data.__loadError)throw Error(data.__loadError);window.nativeImportResult(raw);}catch(e){notify('Checkpoint inválido ou indisponível; nenhum registro alterado.','red');}return;
+ }
+ if(name==='ecoVersionList'&&screen==='case'&&tab==='sessoes'){
+  const c=currentCase();if(!c||button?.dataset?.case!==c.id||!c.sessoes?.some(x=>x.id===id))return;
+  try{const list=JSON.parse(window.NativeVault?.listSessionVersions?.(c.id,id)||'[]');if(!Array.isArray(list))throw Error('invalid');
+   openModal('<h2>Versões anteriores cifradas</h2><p>Somente leitura. A versão atual não será substituída.</p>'+(list.length?list.map(x=>'<div class="eco-evidence">'+esc(new Date(x.date).toLocaleString('pt-BR'))+btn('Visualizar versão','ecoVersionRead','secondary','data-case="'+esc(c.id)+'" data-session="'+esc(id)+'" data-id="'+esc(x.id)+'"')+'</div>').join(''):'<p>Nenhuma versão anterior arquivada.</p>')+btn('Fechar','closeModal','ghost'));
+  }catch(e){notify('Histórico indisponível.','red');}return;
+ }
+ if(name==='ecoVersionRead'&&screen==='case'&&tab==='sessoes'){
+  const c=currentCase(),sid=button?.dataset?.session;if(!c||button?.dataset?.case!==c.id||!c.sessoes?.some(x=>x.id===sid))return;
+  try{const v=JSON.parse(window.NativeVault.loadSessionVersion(c.id,sid,String(id)));if(v.__loadError||v.id!==sid)throw Error('invalid');
+   openModal('<h2>Versão histórica · somente leitura</h2><p>'+esc(formatDate(v.data))+'</p><h3>Relato</h3><p style="white-space:pre-wrap">'+esc(v.texto||'')+'</p><h3>Transcrição original</h3><p style="white-space:pre-wrap">'+esc(v.mlTranscricao||'')+'</p><h3>Revisada</h3><p style="white-space:pre-wrap">'+esc(v.mlRevisada||'')+'</p>'+btn('Fechar','closeModal','ghost'));
+  }catch(e){notify('Versão indisponível ou alterada.','red');}return;
+ }
+ if(name==='nav'||name==='openCase'){ecoHealth=null;ecoHealthError='';}
+ return ecoHealthPriorAct(name,id,button);
 };
 </script></body></html>
