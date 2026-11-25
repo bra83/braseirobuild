@@ -3633,18 +3633,38 @@ function ecoReviewCancel(reason='Consulta cancelada.'){
  ecoReviewRun=null;if(screen==='case'&&tab==='revisaoInteligente'&&reason){notify(reason);render();}
 }
 function ecoReviewWatch(id){const r=ecoReviewRun;if(!r?.pending||r.id!==id)return;if(!ecoReviewCurrent(r)){ecoReviewCancel('');return;}if(Date.now()-r.last>180000){ecoReviewCancel('Motor sem progresso. Reduza o período e tente novamente.');return;}setTimeout(()=>ecoReviewWatch(id),5000);}
+// Bounded native requests with stable global source indices. A failed batch never exposes partial results as complete.
+function ecoGroupedBatchPlan(rows){
+ const batches=[];let start=0,size=0;
+ for(let i=0;i<rows.length;i++){
+  const chars=JSON.stringify(rows[i]).length+1;
+  if(i>start&&(i-start>=1200||size+chars>450000)){batches.push({start,end:i});start=i;size=0;}
+  size+=chars;
+ }
+ if(start<rows.length)batches.push({start,end:rows.length});
+ return batches;
+}
+function ecoGroupedMerge(groups,incoming,offset,keys,count){
+ if(!Array.isArray(incoming)||incoming.length!==keys.length||!keys.every(k=>incoming.filter(g=>g.key===k).length===1))return null;
+ for(const g of incoming){if(!Array.isArray(g.hits)||g.hits.length>5||new Set(g.hits.map(h=>h.i)).size!==g.hits.length||!g.hits.every(h=>Number.isInteger(h.i)&&h.i>=0&&h.i<count&&Number.isFinite(h.score)&&h.score>=-1.001&&h.score<=1.001))return null;}
+ return keys.map(key=>({key,hits:[...(groups.find(g=>g.key===key)?.hits||[]),...incoming.find(g=>g.key===key).hits.map(h=>({...h,i:offset+h.i}))].sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,5)}));
+}
+function ecoReviewBatchSend(r){
+ const batch=r.batches[r.batchIndex];r.id='review-'+(++ecoReviewSerial)+'-'+Date.now();r.pending=true;r.last=Date.now();r.stage='Preparando modelo · lote '+(r.batchIndex+1)+'/'+r.batches.length;
+ const payload=JSON.stringify({id:r.id,rows:r.rows.slice(batch.start,batch.end),cacheScope:'case:'+r.caseId,scope:r.scope==='manual'?'desconhecido':'paciente',longitudinal:r.scope==='paciente',queries:r.queries.map(({key,text})=>({key,text}))});
+ try{const status=window.NativeVault.analyzeSemantic(payload);if(status!=='OK'){r.pending=false;r.error=String(status||'Falha de inicialização');}}catch(e){r.pending=false;r.error='Falha ao iniciar a inferência.';}
+ render();if(r.pending){const id=r.id;setTimeout(()=>ecoReviewWatch(id),5000);}
+}
 function ecoReviewStart(c){
- if(!c||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação de áudio ou análise anterior.','red');return;}
+ if(!c||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoAiRun?.pending||ecoIsCapturing()){notify('Finalize a operação de áudio ou análise anterior.','red');return;}
  const from=document.getElementById('ecoReviewFrom')?.value||'',to=document.getElementById('ecoReviewTo')?.value||'';
  if(from&&to&&from>to){notify('Período inválido.','red');return;}
  ecoReviewFrom=from;ecoReviewTo=to;
- const rows=ecoReviewRows(c,ecoReviewScope,from,to),queries=ecoReviewQueries(ecoReviewType),id='review-'+(++ecoReviewSerial)+'-'+Date.now();
- const payload=JSON.stringify({id,rows,cacheScope:'case:'+c.id,scope:ecoReviewScope==='manual'?'desconhecido':'paciente',longitudinal:ecoReviewScope==='paciente',queries:queries.map(({key,text})=>({key,text}))});
- if(!rows.length||rows.length>1200||payload.length>500000||rows.some(u=>u.text.length>12000)){notify('Selecione um período com 1 a 1200 trechos válidos, até 500 mil caracteres.','red');return;}
+ const rows=ecoReviewRows(c,ecoReviewScope,from,to),queries=ecoReviewQueries(ecoReviewType);
+ if(!rows.length||rows.some(u=>u.text.length>12000)){notify('Selecione registros válidos, com até 12 mil caracteres por trecho.','red');return;}
  if(typeof window.NativeVault?.analyzeSemantic!=='function'){notify('Motor neural indisponível; nenhuma simulação utilizada.','red');return;}
- ecoReviewRun={id,caseId:c.id,type:ecoReviewType,scope:ecoReviewScope,from,to,key:ecoReviewKey(c,ecoReviewScope,from,to,ecoReviewType),rows,queries,pending:true,last:Date.now(),done:0,total:rows.length,stage:'Preparando modelo'};
- try{const status=window.NativeVault.analyzeSemantic(payload);if(status!=='OK'){ecoReviewRun.pending=false;ecoReviewRun.error=String(status||'Falha de inicialização');}}catch(e){ecoReviewRun.pending=false;ecoReviewRun.error='Falha ao iniciar a inferência.';}
- render();if(ecoReviewRun.pending)setTimeout(()=>ecoReviewWatch(id),5000);
+ ecoReviewRun={caseId:c.id,type:ecoReviewType,scope:ecoReviewScope,from,to,key:ecoReviewKey(c,ecoReviewScope,from,to,ecoReviewType),rows,queries,batches:ecoGroupedBatchPlan(rows),batchIndex:0,accumulated:[],done:0,total:rows.length};
+ ecoReviewBatchSend(ecoReviewRun);
 }
 function ecoReviewCandidate(r,key,index){
  if(!r||r.pending||r.error||!ecoReviewCurrent(r))return null;
@@ -3677,8 +3697,13 @@ function ecoReviewRelated(c,type,key){
  return rows.length?'<details class="card"><summary>Fontes confirmadas ('+rows.length+')</summary>'+rows.map(x=>'<p>'+esc(x.quote)+'<br><small>'+esc(formatDate(x.sessionDate))+' · '+esc(x.source)+' · '+(ecoReviewValid(c,x)?'Fonte atual':'Fonte alterada')+'</small></p>'+(type==='anamnese'&&ecoReviewValid(c,x)?btn('Acrescentar ao campo','ecoReviewApply','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(x.id)+'"'):'')).join('')+'</details>':'';
 }
 const ecoReviewPreviousProgress=window.nativeSemanticProgress,ecoReviewPreviousResult=window.nativeSemanticResult,ecoReviewPreviousUnlock=window.nativeSemanticUnlocked;
-window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousProgress(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewCancel('');return;}r.stage=String(v.stage||'Analisando');r.done=Number(v.done)||0;r.total=Number(v.total)||r.total;r.last=Date.now();const a=document.getElementById('ecoReviewStage'),b=document.getElementById('ecoReviewProgress'),c=document.getElementById('ecoReviewCount');if(a)a.textContent=r.stage;if(b){b.max=Math.max(1,r.total);b.value=r.done;}if(c)c.textContent=r.done+' / '+r.total;};
-window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousResult(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewRun=null;return;}r.pending=false;if(v.error)r.error=String(v.error);else if(v.count!==r.rows.length||!Array.isArray(v.groups)||v.groups.length!==r.queries.length||v.scope!==(r.scope==='manual'?'desconhecido':'paciente')||!r.queries.every(q=>v.groups.filter(g=>g.key===q.key).length===1)||!v.groups.every(g=>Array.isArray(g.hits)&&g.hits.length<=5&&g.hits.every(h=>Number.isInteger(h.i)&&h.i>=0&&h.i<r.rows.length&&Number.isFinite(h.score)&&h.score>=-1.001&&h.score<=1.001)))r.error='Resposta neural inválida; nenhum resultado aceito.';else{r.groups=v.groups;r.model=String(v.model||'DistilUSE');}render();};
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousProgress(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewCancel('');return;}const batch=r.batches[r.batchIndex];r.stage='Lote '+(r.batchIndex+1)+'/'+r.batches.length+' · '+String(v.stage||'Analisando');r.done=batch.start+Math.max(0,Math.min(batch.end-batch.start,Number(v.done)||0));r.last=Date.now();const a=document.getElementById('ecoReviewStage'),b=document.getElementById('ecoReviewProgress'),c=document.getElementById('ecoReviewCount');if(a)a.textContent=r.stage;if(b){b.max=Math.max(1,r.total);b.value=r.done;}if(c)c.textContent=r.done+' / '+r.total;};
+window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('review-'))return ecoReviewPreviousResult(raw);const r=ecoReviewRun;if(!r?.pending||v.id!==r.id)return;if(!ecoReviewCurrent(r)){ecoReviewRun=null;return;}r.pending=false;
+ const batch=r.batches[r.batchIndex],count=batch.end-batch.start,model=String(v.model||'DistilUSE');
+ if(v.error)r.error=String(v.error);
+ else if(v.count!==count||v.scope!==(r.scope==='manual'?'desconhecido':'paciente')||(r.model&&r.model!==model))r.error='Resposta neural inválida; nenhum resultado aceito.';
+ else {const merged=ecoGroupedMerge(r.accumulated,v.groups,batch.start,r.queries.map(q=>q.key),count);if(!merged)r.error='Resposta neural inválida; nenhum resultado aceito.';else{r.accumulated=merged;r.model=model;r.done=batch.end;r.batchIndex++;if(r.batchIndex<r.batches.length){ecoReviewBatchSend(r);return;}r.groups=merged;}}
+ render();};
 window.nativeSemanticUnlocked=function(){ecoReviewCancel('');return ecoReviewPreviousUnlock();};
 
 function ecoReviewApply(c,id){
@@ -3925,7 +3950,7 @@ function ecoLibraryPanel(){
  const r=ecoLibraryRun;let out='<section class="card"><h2>Pesquisa por significado · biblioteca</h2><p class="small muted">Recuperação neural de trechos teóricos, separada dos prontuários. Consulte os textos de referência; as sínteses didáticas não são citações literais nem substituem edição e página verificadas. Não insira identificação de pacientes.</p><div class="field"><label>Questão teórica</label><input id="ecoLibraryQuery" maxlength="500" value="'+esc(r?.query||'')+'" placeholder="Ex.: como trabalhar a repetição de vínculos?"></div>'+btn('Pesquisar com modelo local','ecoLibraryStart','secondary');
  if(r?.pending)out+='<p id="ecoLibraryStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoLibraryCancel','ghost');
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
- else if(r?.hits){out+='<h3>Trechos recuperados</h3>'+(r.hits.length?r.hits.map(hit=>{const x=r.rows[hit.i];return '<div class="eco-evidence"><strong>'+esc(x.title)+' · '+esc(x.author)+'</strong><p style="white-space:pre-line">'+esc(x.text)+'</p><p class="small">Referência: '+esc(x.ref)+' · cosseno '+hit.score.toFixed(3)+'</p>'+(x.chapter?btn('Ler capítulo completo','ecoReadChapter','secondary','data-id="'+esc(x.chapter)+'"'):'')+'</div>';}).join(''):'<p>Nenhum trecho acima do limiar.</p>');}
+ else if(r?.hits){out+='<h3>Trechos recuperados</h3><p class="small">Cobertura: '+r.rows.length+' trechos em '+r.batches.length+' lote(s).</p>'+(r.hits.length?r.hits.map(hit=>{const x=r.rows[hit.i];return '<div class="eco-evidence"><strong>'+esc(x.title)+' · '+esc(x.author)+'</strong><p style="white-space:pre-line">'+esc(x.text)+'</p><p class="small">Referência: '+esc(x.ref)+' · cosseno '+hit.score.toFixed(3)+'</p>'+(x.chapter?btn('Ler capítulo completo','ecoReadChapter','secondary','data-id="'+esc(x.chapter)+'"'):'')+'</div>';}).join(''):'<p>Nenhum trecho acima do limiar.</p>');}
  return out+'</section>';
 }
 const ecoLibraryPriorStudy=studyScreen;studyScreen=function(){return ecoLibraryPriorStudy()+ecoLibraryPanel();};
@@ -3941,15 +3966,19 @@ let ecoClaimRun=null,ecoClaimSerial=0;
 function ecoClaimCancel(){if(ecoClaimRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoClaimRun.id);}catch(e){}ecoClaimRun=null;}
 function ecoClaimCurrent(r){return !!r&&screen==='case'&&tab==='compararRelatos'&&r.caseId===openedId&&r.key===ecoNliKey(currentCase());}
 function ecoClaimWatch(id){const r=ecoClaimRun;if(!r?.pending||r.id!==id)return;if(!ecoClaimCurrent(r)){ecoClaimCancel();return;}if(Date.now()-r.last>180000){ecoClaimCancel();notify('Motor sem progresso. Reduza o período.','red');render();return;}setTimeout(()=>ecoClaimWatch(id),5000);}
+function ecoClaimBatchSend(r){
+ const batch=r.batches[r.batchIndex];r.id='claim-search-'+(++ecoClaimSerial)+'-'+Date.now();r.pending=true;r.last=Date.now();r.stage='Recuperando trechos · lote '+(r.batchIndex+1)+'/'+r.batches.length;
+ const payload=JSON.stringify({id:r.id,rows:r.rows.slice(batch.start,batch.end),scope:r.scope,cacheScope:'case:'+r.caseId,queries:[{key:'claim',text:r.claim}]});
+ try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){r.pending=false;r.error=String(status||'Motor indisponível.');}}catch(e){r.pending=false;r.error='Falha ao iniciar a recuperação.';}
+ render();if(r.pending){const id=r.id;setTimeout(()=>ecoClaimWatch(id),5000);}
+}
 function ecoClaimStart(c){
  if(!c||ecoClaimRun?.pending||ecoNliRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoLibraryRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
- const claim=String(document.getElementById('ecoClaimText')?.value||'').trim(),rows=ecoNliRows(c),id='claim-search-'+(++ecoClaimSerial)+'-'+Date.now();
- if(!claim||claim.length>500||!rows.length||rows.length>1200){notify('Informe uma afirmação factual de até 500 caracteres e um período de 1 a 1200 trechos.','red');return;}
- const scope=ecoNliScope==='manual'?'desconhecido':'paciente',payload=JSON.stringify({id,rows,scope,cacheScope:'case:'+c.id,queries:[{key:'claim',text:claim}]});
- if(payload.length>500000||rows.some(x=>x.text.length>12000)){notify('Reduza o período de busca.','red');return;}
- ecoClaimRun={id,caseId:c.id,key:ecoNliKey(c),claim,rows,scope,pending:true,stage:'Recuperando trechos com DistilUSE',last:Date.now(),phase:'retrieve'};
- try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){ecoClaimRun.pending=false;ecoClaimRun.error=String(status||'Motor indisponível.');}}catch(e){ecoClaimRun.pending=false;ecoClaimRun.error='Falha ao iniciar a recuperação.';}
- render();if(ecoClaimRun.pending)setTimeout(()=>ecoClaimWatch(id),5000);
+ const claim=String(document.getElementById('ecoClaimText')?.value||'').trim(),rows=ecoNliRows(c);
+ if(!claim||claim.length>500||!rows.length||rows.some(x=>x.text.length>12000)){notify('Informe uma afirmação factual de até 500 caracteres e fontes de até 12 mil caracteres por trecho.','red');return;}
+ const scope=ecoNliScope==='manual'?'desconhecido':'paciente';
+ ecoClaimRun={caseId:c.id,key:ecoNliKey(c),claim,rows,scope,batches:ecoGroupedBatchPlan(rows),batchIndex:0,accumulated:[],phase:'retrieve'};
+ ecoClaimBatchSend(ecoClaimRun);
 }
 function ecoClaimCompare(c){
  const r=ecoClaimRun;if(!c||!ecoClaimCurrent(r)||r.pending||r.phase!=='ready'||!r.hits?.length)return;
@@ -3972,10 +4001,10 @@ function ecoClaimPanel(c){
 }
 const ecoClaimPriorPanel=ecoNliPanel;ecoNliPanel=function(c){return ecoClaimPriorPanel(c)+ecoClaimPanel(c);};
 const ecoClaimPriorProgress=window.nativeSemanticProgress,ecoClaimPriorResult=window.nativeSemanticResult,ecoClaimPriorUnlock=window.nativeSemanticUnlocked;
-window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('claim-'))return ecoClaimPriorProgress(raw);const r=ecoClaimRun;if(!r?.pending||v.id!==r.id)return;if(!ecoClaimCurrent(r)){ecoClaimCancel();return;}r.stage=String(v.stage||'Processando');r.last=Date.now();const e=document.getElementById('ecoClaimStage');if(e)e.textContent=r.stage;};
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('claim-'))return ecoClaimPriorProgress(raw);const r=ecoClaimRun;if(!r?.pending||v.id!==r.id)return;if(!ecoClaimCurrent(r)){ecoClaimCancel();return;}r.stage=(r.phase==='retrieve'?'Lote '+(r.batchIndex+1)+'/'+r.batches.length+' · ':'')+String(v.stage||'Processando');r.last=Date.now();const e=document.getElementById('ecoClaimStage');if(e)e.textContent=r.stage;};
 window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('claim-'))return ecoClaimPriorResult(raw);const r=ecoClaimRun;if(!r?.pending||v.id!==r.id)return;if(!ecoClaimCurrent(r)){ecoClaimRun=null;return;}r.pending=false;
  if(v.error)r.error=String(v.error);
- else if(r.phase==='retrieve'){const hits=v.groups?.[0]?.hits;if(v.count!==r.rows.length||v.scope!==r.scope||v.groups?.length!==1||v.groups[0].key!=='claim'||!Array.isArray(hits)||hits.length>5||!hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.rows.length&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001)||new Set(hits.map(x=>x.i)).size!==hits.length)r.error='Resposta da recuperação inválida.';else{r.hits=hits;r.phase='ready';}}
+ else if(r.phase==='retrieve'){const batch=r.batches[r.batchIndex],count=batch.end-batch.start,model=String(v.model||'DistilUSE');const merged=v.count===count&&v.scope===r.scope&&(!r.model||r.model===model)?ecoGroupedMerge(r.accumulated,v.groups,batch.start,['claim'],count):null;if(!merged)r.error='Resposta da recuperação inválida.';else{r.accumulated=merged;r.model=model;r.batchIndex++;if(r.batchIndex<r.batches.length){ecoClaimBatchSend(r);return;}r.hits=merged[0].hits;r.phase='ready';}}
  else if(r.phase==='compare'){const valid=x=>Array.isArray(x)&&x.length===3&&x.every(n=>Number.isFinite(n)&&n>=0&&n<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;if(JSON.stringify(v.labels)!=='["contradiction","entailment","neutral"]'||!Array.isArray(v.comparisons)||v.comparisons.length!==r.selected.length||!v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba)))r.error='Resposta NLI inválida.';else{r.comparisons=v.comparisons;r.phase='done';}}
  render();};
 window.nativeSemanticUnlocked=function(){ecoClaimCancel();return ecoClaimPriorUnlock();};
