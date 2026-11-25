@@ -239,6 +239,60 @@ final class SecureStore {
         for(int i=0;i<appts.length();i++) requiredId(appts.getJSONObject(i),appointmentIds,"agenda");
     }
 
+    // Separate encrypted, durable form journal. Never overwrites the audio recovery journal.
+    synchronized void saveFormDraft(String caseId, String json) throws Exception {
+        if(caseId == null || caseId.trim().isEmpty() || caseId.length()>200 || json.length()>5_000_000)
+            throw new IllegalArgumentException("Rascunho de formulário inválido");
+        JSONObject obj=new JSONObject(json);
+        if(!caseId.equals(obj.optString("caseId")) || !(obj.opt("session") instanceof JSONObject))
+            throw new IllegalArgumentException("Rascunho de formulário inválido");
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            try(Cursor c=db.query("_pacientes",new String[]{"id"},"id=?",new String[]{caseId},null,null,null)){
+                if(!c.moveToFirst())throw new IllegalArgumentException("Caso inexistente");
+            }
+            ContentValues cv=new ContentValues();
+            cv.put("chave","form_draft:"+caseId);cv.put("valor_enc",dbHelper.encrypt(json));cv.put("updated_at",System.currentTimeMillis());
+            db.insertWithOnConflict("configuracoes",null,cv,SQLiteDatabase.CONFLICT_REPLACE);
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+    synchronized String readFormDraft(String caseId) throws Exception {
+        try(Cursor c=dbHelper.getReadableDatabase().query("configuracoes",new String[]{"valor_enc"},"chave=?",new String[]{"form_draft:"+caseId},null,null,null)){
+            return c.moveToFirst()?dbHelper.decrypt(c.getBlob(0)):"";
+        }
+    }
+    synchronized void clearFormDraft(String caseId,String sessionId) throws Exception {
+        String json=readFormDraft(caseId);
+        if(!json.isEmpty()&&sessionId.equals(new JSONObject(json).getJSONObject("session").optString("id")))
+            dbHelper.getWritableDatabase().delete("configuracoes","chave=?",new String[]{"form_draft:"+caseId});
+    }
+    private static void ensureRevisionTable(SQLiteDatabase db){
+        db.execSQL("CREATE TABLE IF NOT EXISTS eco_revisions (seq INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, case_id TEXT NOT NULL, entity_id TEXT NOT NULL, captured_at INTEGER NOT NULL, payload_enc BLOB NOT NULL)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS eco_revisions_case_idx ON eco_revisions(case_id,kind,entity_id,seq)");
+    }
+    private static void retainRevision(SQLiteDatabase db,String kind,String caseId,String entityId,byte[] previous){
+        if(previous==null||previous.length==0)return;
+        ContentValues cv=new ContentValues();cv.put("kind",kind);cv.put("case_id",caseId);cv.put("entity_id",entityId);
+        cv.put("captured_at",System.currentTimeMillis());cv.put("payload_enc",previous);db.insertOrThrow("eco_revisions",null,cv);
+    }
+    synchronized String sessionVersions(String caseId,String sessionId) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureRevisionTable(db);
+        JSONArray versions=new JSONArray();
+        try(Cursor c=db.query("eco_revisions",new String[]{"seq","captured_at","payload_enc"},"kind=? AND case_id=? AND entity_id=?",new String[]{"session",caseId,sessionId},null,null,"seq DESC")){
+            while(c.moveToNext())versions.put(new JSONObject().put("id",c.getLong(0)).put("date",c.getLong(1)));
+        }
+        return versions.toString();
+    }
+    synchronized String sessionVersion(String caseId,String sessionId,long seq) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();ensureRevisionTable(db);
+        try(Cursor c=db.query("eco_revisions",new String[]{"payload_enc"},"kind=? AND case_id=? AND entity_id=? AND seq=?",new String[]{"session",caseId,sessionId,Long.toString(seq)},null,null,null)){
+            if(!c.moveToFirst())throw new IllegalArgumentException("Versão indisponível");
+            return dbHelper.decrypt(c.getBlob(0));
+        }
+    }
+
     synchronized void save(String json) throws Exception {
         JSONObject validated = new JSONObject(json);
         if (validated.optInt("version") < 1 || !(validated.opt("cases") instanceof JSONArray)
@@ -252,6 +306,7 @@ final class SecureStore {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
+            ensureRevisionTable(db);
             // Save root configurations to preserve preferences, active engine and UI state
             JSONObject rootMeta = new JSONObject(json);
             rootMeta.remove("cases");
@@ -314,6 +369,7 @@ final class SecureStore {
                         if (existingPayload != null && sessionPayload.equals(dbHelper.decrypt(existingPayload))) {
                             continue;
                         }
+                        retainRevision(db,"session",caseId,sId,existingPayload);
 
                         ContentValues scv = new ContentValues();
                         scv.put("id", sId);
@@ -334,6 +390,18 @@ final class SecureStore {
                 }
             }
 
+            // Preserve prior appointments transactionally when their payload is modified or removed.
+            java.util.Map<String,byte[]> oldAgenda=new java.util.HashMap<>();
+            java.util.Map<String,String> oldAgendaCase=new java.util.HashMap<>();
+            try(Cursor c=db.query("agenda",new String[]{"id","case_id","payload_enc"},null,null,null,null,null)){
+                while(c.moveToNext()){oldAgenda.put(c.getString(0),c.getBlob(2));oldAgendaCase.put(c.getString(0),c.getString(1));}
+            }
+            java.util.Set<String> nextAgenda=new java.util.HashSet<>();
+            for(int i=0;i<appts.length();i++){
+                JSONObject a=appts.getJSONObject(i);String aid=a.getString("id");nextAgenda.add(aid);
+                byte[] old=oldAgenda.get(aid);if(old!=null&&!a.toString().equals(dbHelper.decrypt(old)))retainRevision(db,"agenda",oldAgendaCase.get(aid),aid,old);
+            }
+            for(String aid:oldAgenda.keySet())if(!nextAgenda.contains(aid))retainRevision(db,"agenda",oldAgendaCase.get(aid),aid,oldAgenda.get(aid));
             db.delete("agenda", null, null);
             for (int i = 0; i < appts.length(); i++) {
                 JSONObject aObj = appts.getJSONObject(i);
