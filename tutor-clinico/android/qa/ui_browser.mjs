@@ -268,6 +268,16 @@ try{
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0),0);
  await page.screenshot({path:path.join(out,'perspectivas-psicanaliticas.png'),fullPage:true});
  await home();assert.equal(await page.evaluate(()=>ecoPerspectiveRun),null);
+ // Personal material is opt-in, never retrieved after archive, and exact substrings are reconstructable.
+ const personal=await page.evaluate(()=>{
+  const previous=state.ecoPersonalLibrary;
+  const body=Array.from({length:135},(_,i)=>'Parágrafo teórico autorizado '+i+' sobre vínculo e escuta. ').join('');
+  state.ecoPersonalLibrary=[{id:'p-theory',title:'Notas de estudo',author:'Klein',ref:'Edição declarada',body,semanticConfirmed:true},{id:'not-authorized',title:'NÃO INDEXAR',ref:'Teste',body:'texto excluído'},{id:'archived',title:'ARQUIVADO',ref:'Teste',body:'texto excluído',semanticConfirmed:true,archived:true}];
+  const rows=ecoPersonalSemanticChunks(),scope=ecoPerspectiveTheory('Klein');
+  const result={rows:rows.length,exact:rows.map(x=>body.slice(x.offset,x.end)).join('')===body,excluded:!ecoLibraryChunks().some(x=>['not-authorized','archived'].includes(x.personalId)),klein:scope.some(x=>x.personalId==='p-theory'),freud:ecoPerspectiveTheory('Freud').some(x=>x.personalId==='p-theory')};
+  state.ecoPersonalLibrary=previous;return result;
+ });
+ assert.ok(personal.rows>1);assert.equal(personal.exact,true);assert.equal(personal.excluded,true);assert.equal(personal.klein,true);assert.equal(personal.freud,false);
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
