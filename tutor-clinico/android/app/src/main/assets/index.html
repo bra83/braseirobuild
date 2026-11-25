@@ -4580,9 +4580,17 @@ function ecoRevealField(id){const e=document.getElementById(id);for(let p=e?.par
 function ecoDreamAutoFill(){
  const text=document.getElementById('dreamTexto')?.value||'';if(!text.trim())return;
  const d=ecoDreamFields(text),values={dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', ')};
- for(const [id,value] of Object.entries(values)){const e=document.getElementById(id);if(e&&!e.value.trim())e.value=value;}
+ for(const [id,value] of Object.entries(values)){const e=document.getElementById(id);if(e&&e!==document.activeElement&&!e.value.trim())e.value=value;}
 }
-document.addEventListener('change',e=>{if(e.target?.id==='dreamTexto'&&((screen==='case'&&tab==='sonhos')||(screen==='atlas'&&ecoAtlasTab==='sonhos')))ecoDreamAutoFill();});
+let ecoDreamAutoTimer=null;
+document.addEventListener('input',e=>{
+ if(e.target?.id!=='dreamTexto'||!((screen==='case'&&tab==='sonhos')||(screen==='atlas'&&ecoAtlasTab==='sonhos')))return;
+ if(ecoDreamAutoTimer)clearTimeout(ecoDreamAutoTimer);
+ const owner=screen==='atlas'?ecoOverviewCase:openedId,source=e.target.value;
+ ecoDreamAutoTimer=setTimeout(()=>{
+  if(((screen==='case'&&tab==='sonhos'&&openedId===owner)||(screen==='atlas'&&ecoAtlasTab==='sonhos'&&ecoOverviewCase===owner))&&document.getElementById('dreamTexto')?.value===source)ecoDreamAutoFill();
+ },500);
+});
 function ecoDocTemplatesPanel(){
  const rows=state.ecoDocTemplates||[];
  return '<section class="card"><h2>Modelos de documentos personalizados</h2><p class="small muted">Salva apenas tipo e seções selecionadas, sem dados de pacientes. A revisão e confirmação continuam obrigatórias.</p><div class="field"><label>Nome do modelo atual</label><input id="ecoDocTemplateName" maxlength="120"></div>'+btn('Guardar configuração atual','ecoDocTemplateSave','secondary')+rows.filter(x=>!x.archived).map(x=>'<div class="eco-evidence"><strong>'+esc(x.title)+'</strong><p>'+esc(x.type)+' · '+x.sections.length+' seções</p>'+btn('Aplicar modelo','ecoDocTemplateUse','secondary','data-id="'+esc(x.id)+'"')+btn('Arquivar','ecoDocTemplateArchive','ghost','data-id="'+esc(x.id)+'"')+'</div>').join('')+'</section>';
