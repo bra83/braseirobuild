@@ -136,6 +136,11 @@ final class MlSessionEngine implements RecognitionListener {
                         retainedUri=Uri.fromFile(file);paused=true;recoveryMode=true;
                         events.state("FALHA NA TRANSCRIÇÃO · CAPTURA INTERROMPIDA · RETOME PARA RECUPERAR TRECHOS");
                     }else{
+                        // Empty capture: no recoverable audio and no active decoder may report completion.
+                        generation++;importing=false;fileWorker=null;pauseRequested=false;paused=false;
+                        retainedUri=null;pendingFile=null;
+                        if(backgroundAllowed)TranscriptionService.end(context);
+                        backgroundAllowed=false;
                         recordedFile=null;recordedEphemeralKey=null;setActiveEphemeralKey(null);
                         try{store.getDbHelper().updateJobState(currentJobId,"FAILED_EMPTY",null);store.getDbHelper().clearJobAudioKey(currentJobId);}catch(Exception e){Log.e("MlSessionEngine","Limpeza pendente",e);}
                         events.state(message);
@@ -258,7 +263,7 @@ final class MlSessionEngine implements RecognitionListener {
         importing=true;
         backgroundAllowed=TranscriptionService.begin(context,this::pauseTranscription);
         final SpeakerClusters clusters=diarizationEnabled?speakerClusters:null;
-        events.state(fromMs>0
+        events.state(liveBoundary!=null?"GRAVANDO · INICIANDO TRANSCRIÇÃO OFFLINE":fromMs>0
                 ? "RETOMANDO TRANSCRIÇÃO · A PARTIR DE "+(fromMs/1000)+"s"
                 : "INICIANDO TRANSCRIÇÃO OFFLINE · AGUARDE O PRIMEIRO TRECHO");
         keepScreen(true);
