@@ -26,7 +26,39 @@ public final class AuthenticatedSpoolReaderTest {
     private static int read(byte[] source,byte[] key,boolean partial,ByteArrayOutputStream out)throws Exception{return AuthenticatedSpoolReader.read(new ByteArrayInputStream(source),key,()->true,partial,(pcm,n)->out.write(pcm,0,n));}
     private static void require(boolean b,String label){if(!b)throw new AssertionError(label);System.out.println("PASS "+label);}
     private static void reject(byte[] source,byte[] key,boolean partial,String label)throws Exception{boolean failed=false;try{read(source,key,partial,new ByteArrayOutputStream());}catch(IOException|SecurityException|javax.crypto.AEADBadTagException e){failed=true;}require(failed,label);}
+    private static void live(boolean complete)throws Exception{
+        byte[] full=fixture(true), partial=fixture(false);
+        File path=File.createTempFile("eco-test-live",".bin");
+        java.util.concurrent.ExecutorService executor=java.util.concurrent.Executors.newSingleThreadExecutor();
+        LiveSpoolInput.Boundary boundary=new LiveSpoolInput.Boundary();
+        java.util.concurrent.CountDownLatch first=new java.util.concurrent.CountDownLatch(1);
+        ByteArrayOutputStream pcm=new ByteArrayOutputStream();
+        try(RandomAccessFile writer=new RandomAccessFile(path,"rw")){
+            // The final header length is unknown while capture is open.
+            int cut=32+36+8192;
+            writer.write(partial,0,cut);writer.getFD().sync();boundary.publish(cut,false);
+            java.util.concurrent.Future<Integer> reader=executor.submit(()->{
+                try(LiveSpoolInput input=new LiveSpoolInput(path,boundary,()->true)){
+                    return AuthenticatedSpoolReader.readLive(input,KEY,()->true,(data,n)->{pcm.write(data,0,n);first.countDown();});
+                }
+            });
+            require(first.await(5,java.util.concurrent.TimeUnit.SECONDS),"live first frame decoded before recorder closes");
+            require(!reader.isDone(),"live reader waits for published next frame");
+            if(complete){
+                writer.seek(cut);writer.write(full,cut,full.length-cut);
+                writer.seek(24);writer.write(full,24,8);writer.getFD().sync();
+                boundary.publish(full.length,true);
+                require(reader.get(5,java.util.concurrent.TimeUnit.SECONDS)==2&&pcm.size()==16384,"live authenticated terminal proof requires final header and trailer");
+            }else{
+                // Write unconfirmed bytes but never publish them as durable frames.
+                writer.seek(cut);writer.write(partial,cut,partial.length-cut);
+                boundary.finish();
+                require(reader.get(5,java.util.concurrent.TimeUnit.SECONDS)==-1&&pcm.size()==8192,"interrupted live reader excludes unpublished tail and cannot certify EOF");
+            }
+        }finally{boundary.finish();executor.shutdownNow();path.delete();}
+    }
     public static void main(String[] args)throws Exception{
+        live(true);live(false);
         byte[] full=fixture(true), incomplete=fixture(false);ByteArrayOutputStream pcm=new ByteArrayOutputStream();
         require(read(full,KEY,false,pcm)==2&&pcm.size()==16384&&pcm.toByteArray()[0]==1&&pcm.toByteArray()[8192]==2,"real reader roundtrip two frames");
         reject(incomplete,KEY,false,"incomplete capture cannot authorize full EOF");
