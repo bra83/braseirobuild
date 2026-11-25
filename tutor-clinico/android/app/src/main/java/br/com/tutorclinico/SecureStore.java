@@ -548,6 +548,49 @@ final class SecureStore {
         }finally{db.endTransaction();}
     }
 
+    private static String clinicalDraftKey(String caseId,String kind){
+        if(caseId==null||caseId.isEmpty()||caseId.length()>200||(!"anamnese".equals(kind)&&!"enquadre".equals(kind)))
+            throw new IllegalArgumentException("Formulário clínico inválido");
+        return "clinical_draft:"+kind+":"+caseId;
+    }
+    synchronized String readClinicalDraft(String caseId,String kind) throws Exception {
+        String key=clinicalDraftKey(caseId,kind);SQLiteDatabase db=dbHelper.getReadableDatabase();
+        try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{key},null,null,null)){
+            return c.moveToFirst()?dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{key})):"";
+        }
+    }
+    synchronized void saveClinicalDraft(String caseId,String kind,String raw) throws Exception {
+        String key=clinicalDraftKey(caseId,kind);
+        if(raw==null||raw.length()>2_000_000)throw new IllegalArgumentException("Rascunho acima do limite");
+        JSONObject data=new JSONObject(raw),fields=data.getJSONObject("fields"),base=data.getJSONObject("base");
+        if(!caseId.equals(data.optString("caseId"))||!kind.equals(data.optString("kind"))||data.optString("id").isEmpty()
+                ||fields.length()==0||fields.length()>150||base.length()!=fields.length())throw new IllegalArgumentException("Rascunho inválido");
+        java.util.Iterator<String> keys=fields.keys();
+        while(keys.hasNext()){
+            String field=keys.next();
+            if(!field.matches("[A-Za-z0-9_]{1,100}")||!(fields.opt(field) instanceof String)||!(base.opt(field) instanceof String))
+                throw new IllegalArgumentException("Campo inválido");
+        }
+        SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
+        try{
+            if(!caseExists(db,caseId))throw new IllegalArgumentException("Caso inexistente");
+            String old=readClinicalDraft(caseId,kind);
+            if(!old.isEmpty()&&!data.getString("id").equals(new JSONObject(old).getString("id")))throw new IllegalArgumentException("Rascunho divergente");
+            ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(raw));cv.put("updated_at",System.currentTimeMillis());
+            if(db.update("configuracoes",cv,"chave=?",new String[]{key})==0)db.insertOrThrow("configuracoes",null,cv);
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+    synchronized void clearClinicalDraft(String caseId,String kind,String id) throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
+        try{
+            String old=readClinicalDraft(caseId,kind);
+            if(!old.isEmpty()&&id.equals(new JSONObject(old).getString("id")))
+                db.delete("configuracoes","chave=?",new String[]{clinicalDraftKey(caseId,kind)});
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+
     // Portable backup stores decrypted journal data only inside the password-encrypted envelope.
     // Device-bound ciphertext must never be exported as a portable record.
     synchronized JSONObject exportNativeRecovery() throws Exception {
@@ -574,7 +617,14 @@ final class SecureStore {
             }
             JSONArray editors=new JSONArray();
             for(String slot:new String[]{"wizard","appointment"}){String editor=readEditorDraft(slot);if(!editor.isEmpty())editors.put(new JSONObject(editor));}
-            bundle.put("drafts",drafts).put("revisions",revisions).put("editors",editors);
+            JSONArray clinical=new JSONArray();
+            try(Cursor c=db.query("configuracoes",new String[]{"chave",smallBlob("valor_enc")},"chave LIKE ?",new String[]{"clinical_draft:%"},null,null,"chave ASC")){
+                while(c.moveToNext()){
+                    String k=c.getString(0);
+                    clinical.put(new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{k}))));
+                }
+            }
+            bundle.put("drafts",drafts).put("revisions",revisions).put("editors",editors).put("clinical",clinical);
             db.setTransactionSuccessful();
             return bundle;
         }finally{db.endTransaction();}
@@ -619,6 +669,16 @@ final class SecureStore {
             String old=readEditorDraft(slot);
             if(!old.isEmpty()&&!old.equals(editor.toString()))throw new IllegalArgumentException("Rascunho de editor local divergente");
             if(old.isEmpty())saveEditorDraft(slot,editor.toString());
+        }
+        JSONArray clinical=bundle.optJSONArray("clinical");
+        if(bundle.has("clinical")&&clinical==null)throw new IllegalArgumentException("Rascunhos clínicos inválidos");
+        java.util.Set<String> seenClinical=new java.util.HashSet<>();
+        if(clinical!=null)for(int i=0;i<clinical.length();i++){
+            JSONObject item=clinical.getJSONObject(i);String caseId=item.getString("caseId"),kind=item.getString("kind");
+            if(!seenClinical.add(clinicalDraftKey(caseId,kind)))throw new IllegalArgumentException("Rascunho clínico duplicado");
+            String old=readClinicalDraft(caseId,kind);
+            if(!old.isEmpty()&&!old.equals(item.toString()))throw new IllegalArgumentException("Rascunho clínico local divergente");
+            if(old.isEmpty())saveClinicalDraft(caseId,kind,item.toString());
         }
         for(int i=0;i<revisions.length();i++){
             JSONObject row=revisions.getJSONObject(i),payload=row.getJSONObject("payload");
