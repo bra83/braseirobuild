@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root=app/src/main/assets/llm
+mkdir -p "$root" app/src/main/jniLibs/arm64-v8a
+curl --fail --location --retry 3 --max-time 900 https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/6dd44a1/qwen2.5-0.5b-instruct-q4_k_m.gguf -o "$root/model.gguf"
+echo "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db  $root/model.gguf" | sha256sum -c -
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git "$tmp/llama"
+cp "$tmp/llama/LICENSE" "$root/llama-license.txt"
+curl --fail --location --retry 3 https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/raw/6dd44a1/README.md -o "$root/attribution.txt"
+cmake -S qa/native -B "$tmp/host" -DLLAMA_SOURCE="$tmp/llama" -DCMAKE_BUILD_TYPE=Release
+cmake --build "$tmp/host" -j 2 --target eco_generate
+# Genuine generation, no prompt in command-line arguments.
+python - "$tmp/host/eco_generate" "$root" <<'PY'
+import pathlib,subprocess,sys,json
+exe,root=sys.argv[1],pathlib.Path(sys.argv[2])
+prompt="<|im_start|>system\nResponda em português usando a fonte.\n<|im_end|>\n<|im_start|>user\n[S1] A pessoa relatou dificuldade para dormir. Qual dificuldade foi relatada? Responda em uma frase.\n<|im_end|>\n<|im_start|>assistant\n"
+r=subprocess.run([exe,str(root/"model.gguf")],input=prompt,text=True,capture_output=True,timeout=180,check=True)
+out=r.stdout.strip();print("Synthetic generation:",out,flush=True)
+assert len(out)>5 and ("dorm" in out.lower() or "sono" in out.lower()),"Generation smoke gate"
+(root/"gate.txt").write_text(json.dumps({"runtime":"llama.cpp-b5046","model_sha256":"74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db","output":out,"clinical_validation":False},ensure_ascii=False))
+PY
+ndk="$ANDROID_HOME/ndk/27.2.12479018"
+test -f "$ndk/build/cmake/android.toolchain.cmake"
+cmake -S qa/native -B "$tmp/android" -DLLAMA_SOURCE="$tmp/llama" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ndk/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static
+cmake --build "$tmp/android" -j 2 --target eco_generate
+cp "$tmp/android/eco_generate" app/src/main/jniLibs/arm64-v8a/libeco_generate.so
+file app/src/main/jniLibs/arm64-v8a/libeco_generate.so
+echo "PASS host generation and ARM64 generator compilation"
