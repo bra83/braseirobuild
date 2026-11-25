@@ -161,6 +161,16 @@ html[data-theme="dark"] .eco-caption{color:#c6d0ca}
 .eco-ficha-sheet header{background:#252e26;color:#baff4a;padding:16px}.eco-ficha-sheet header h2{margin:0}.eco-ficha-sheet header p{color:#e0e9de;margin:4px 0}
 .eco-ficha-heading{padding:11px 12px;margin:0;background:var(--light);color:var(--teal);border-top:1px solid var(--border);letter-spacing:.2px}
 .eco-ficha-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:14px}.eco-ficha-table th,.eco-ficha-table td{padding:10px;vertical-align:top;text-align:left;border-bottom:1px solid var(--border);overflow-wrap:anywhere}.eco-ficha-table th{width:30%;background:var(--light);color:var(--teal)}.eco-ficha-table td p{white-space:pre-wrap;margin:6px 0}.eco-ficha-table small{color:var(--muted)}.eco-ficha-empty{padding:12px;margin:0;overflow-wrap:anywhere}
+
+.eco-case-heading{display:flex;align-items:center;gap:10px;margin:0 0 12px}.eco-case-heading h1{font-size:20px;margin:0;overflow-wrap:anywhere}.eco-case-heading small{color:var(--muted)}
+.eco-case-menu h2{font-size:15px;margin:0 0 7px}.eco-module-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 13px}
+.eco-module-card{width:100%;aspect-ratio:1;min-height:0;padding:5px 3px;border-radius:12px;gap:2px;box-shadow:none;color:var(--ink);background:var(--paper)}.eco-module-icon{font-size:23px;margin:0 0 3px}.eco-module-title{font-size:12px;line-height:1.12;overflow-wrap:anywhere}.eco-module-sub{font-size:10px;line-height:1.15;margin:0}
+@media(min-width:650px){.eco-module-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.eco-wordcloud{display:flex;flex-wrap:wrap;align-items:baseline;align-content:center;justify-content:center;column-gap:5px;row-gap:1px;padding:10px 5px;line-height:1.04;min-height:90px}
+.eco-wordcloud .eco-cloud-token{display:inline-block;min-width:0;min-height:0;padding:1px 2px!important;line-height:1.05;white-space:normal;overflow-wrap:anywhere;background:transparent!important;box-shadow:none;border:0;font-weight:750;color:#146b64}
+.eco-cloud-token:nth-child(6n+1){color:#196c59}.eco-cloud-token:nth-child(6n+2){color:#275ca8}.eco-cloud-token:nth-child(6n+3){color:#a24725}.eco-cloud-token:nth-child(6n+4){color:#8655b4}.eco-cloud-token:nth-child(6n+5){color:#a12c62}.eco-cloud-token:nth-child(6n+6){color:#596c17}
+html[data-theme="dark"] .eco-cloud-token:nth-child(6n+1){color:#baff4a}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+2){color:#69c7ff}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+3){color:#ffb366}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+4){color:#d5a5ff}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+5){color:#ff93bd}html[data-theme="dark"] .eco-cloud-token:nth-child(6n+6){color:#70e0c4}
+.eco-wordcloud .eco-cloud-token small{font-size:9px;opacity:.8;vertical-align:baseline}.eco-cloud-token:focus-visible{outline:2px solid var(--teal)}
 </style></head><body><div class="top"><div class="brand"><img class="eco-brand-image" src="{{ECO_APP_ICON}}" alt=""/> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
@@ -395,7 +405,24 @@ function caseScreen(){
   let content = '';
 
   if(tab==='sintese'){
-    content = ecoFichaPanel(c)+`<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'Não informada')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
+    content = `<div class="eco-case-menu"><h2>Módulos do paciente</h2>`+
+    `<div class="eco-module-grid">`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="fichaEvolutiva"><div class="eco-module-icon">▤</div><div class="eco-module-title">Ficha clínica</div><div class="eco-module-sub">Evolutiva</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="analisar"><div class="eco-module-icon">📊</div><div class="eco-module-title">Análise & Ecos</div><div class="eco-module-sub">NLP e recorrências</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="anamnese"><div class="eco-module-icon">📋</div><div class="eco-module-title">Anamnese</div><div class="eco-module-sub">10 categorias</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="enquadre"><div class="eco-module-icon">📜</div><div class="eco-module-title">Enquadre</div><div class="eco-module-sub">Contrato clínico</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="investigar"><div class="eco-module-icon">🧭</div><div class="eco-module-title">Investigação</div><div class="eco-module-sub">8 eixos analíticos</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="tecnicas"><div class="eco-module-icon">💡</div><div class="eco-module-title">Técnicas</div><div class="eco-module-sub">Manejo clínico</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sonhos"><div class="eco-module-icon">🌙</div><div class="eco-module-title">Sonhos</div><div class="eco-module-sub">${(c.sonhosList||[]).length} relato(s)</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="genograma"><div class="eco-module-icon">🌳</div><div class="eco-module-title">Genograma</div><div class="eco-module-sub">${(c.genograma?.membros||[]).length} membro(s)</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="cronologia"><div class="eco-module-icon">⏳</div><div class="eco-module-title">Cronologia</div><div class="eco-module-sub">${(c.cronologia||[]).length} marco(s)</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="documentos"><div class="eco-module-icon">🖨</div><div class="eco-module-title">Documentos</div><div class="eco-module-sub">A4 / PDF / Sigilo</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="diario"><div class="eco-module-icon">🔒</div><div class="eco-module-title">Diário Privado</div><div class="eco-module-sub">Segregado</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="seguranca"><div class="eco-module-icon">🛡</div><div class="eco-module-title">Segurança</div><div class="eco-module-sub">Julgamento ético</div></button>`+
+    `</div></div>`+
+`<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'Não informada')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
     `<div class="card"><h2>Enquadre Terapêutico e Contrato (ECO-105)</h2>`+
     keyval('Frequência acordada', enq.frequencia || 'Não registrada')+
     keyval('Modalidade pactuada', enq.modalidade || c.modalidade || 'Presencial')+
@@ -403,24 +430,7 @@ function caseScreen(){
     keyval('Limites de contato', enq.limites || 'Não registrados')+
     keyval('Expectativas acordadas', enq.expectativas || 'Não registradas')+
     `<div class="actions" style="margin-top:10px">${btn('Editar enquadre completo','caseTab','secondary','data-id="enquadre"')}</div>`+
-    `</div>`+
-    `<div class="eco-outline"><h2>Grade de Módulos Clínicos (12 Módulos Estruturados)</h2>`+
-    `<p class="eco-caption">Acesso direto a todas as dimensões do prontuário confidencial e ferramentas de escuta.</p>`+
-    `<div class="eco-module-grid">`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></div>`+
-    `<div class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="analisar"><div class="eco-module-icon">📊</div><div class="eco-module-title">Análise & Ecos</div><div class="eco-module-sub">NLP e recorrências</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="anamnese"><div class="eco-module-icon">📋</div><div class="eco-module-title">Anamnese</div><div class="eco-module-sub">10 categorias</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="enquadre"><div class="eco-module-icon">📜</div><div class="eco-module-title">Enquadre</div><div class="eco-module-sub">Contrato clínico</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="investigar"><div class="eco-module-icon">🧭</div><div class="eco-module-title">Investigação</div><div class="eco-module-sub">8 eixos analíticos</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="tecnicas"><div class="eco-module-icon">💡</div><div class="eco-module-title">Técnicas</div><div class="eco-module-sub">Manejo clínico</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="sonhos"><div class="eco-module-icon">🌙</div><div class="eco-module-title">Sonhos</div><div class="eco-module-sub">${(c.sonhosList||[]).length} relato(s)</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="genograma"><div class="eco-module-icon">🌳</div><div class="eco-module-title">Genograma</div><div class="eco-module-sub">${(c.genograma?.membros||[]).length} membro(s)</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="cronologia"><div class="eco-module-icon">⏳</div><div class="eco-module-title">Cronologia</div><div class="eco-module-sub">${(c.cronologia||[]).length} marco(s)</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="documentos"><div class="eco-module-icon">🖨</div><div class="eco-module-title">Documentos</div><div class="eco-module-sub">A4 / PDF / Sigilo</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="diario"><div class="eco-module-icon">🔒</div><div class="eco-module-title">Diário Privado</div><div class="eco-module-sub">Segregado</div></div>`+
-    `<div class="eco-module-card" data-act="caseTab" data-id="seguranca"><div class="eco-module-icon">🛡</div><div class="eco-module-title">Segurança</div><div class="eco-module-sub">Julgamento ético</div></div>`+
-    `</div></div>`;
+    `</div>`;
   } else {
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
     if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
@@ -447,7 +457,7 @@ function caseScreen(){
         `<div class="field"><label>Modalidade acordada</label><select id="enq_modalidade"><option value="Presencial" ${enq.modalidade==='Presencial'?'selected':''}>Presencial</option><option value="Online" ${enq.modalidade==='Online'?'selected':''}>Online</option><option value="Híbrido" ${enq.modalidade==='Híbrido'?'selected':''}>Híbrido</option></select></div>`+
         `<div class="field"><label>Honorários e forma de pagamento</label><input type="text" id="enq_honorarios" value="${esc(enq.honorarios||'')}" placeholder="Ex.: Conforme pactuado / recibo"></div>`+
         `</div>`+
-        `<div class="field"><label>Limites de contato e mensagens fora da sessão</label><textarea id="enq_limites" rows="2" placeholder="Ex.: Mensagens restritas a agendamento e desmarcação com 24h de antecedência...">${esc(enq.limites||'Mensagens apenas para agendamento e urgências objetivas')}</textarea></div>`+
+        `<div class="field"><label>Limites de contato e mensagens fora da sessão</label><textarea id="enq_limites" rows="2" placeholder="Ex.: Mensagens restritas a agendamento e desmarcação com 24h de antecedência...">${esc(enq.limites||'')}</textarea></div>`+
         `<div class="field"><label>Férias, recessos e faltas</label><textarea id="enq_ferias" rows="2" placeholder="Ex.: Aviso mútuo prévio de 30 dias para férias...">${esc(enq.ferias||'')}</textarea></div>`+
         `<div class="field"><label>Expectativas e objetivos pactuados com o sujeito</label><textarea id="enq_expectativas" rows="3" placeholder="Ex.: Espaço de escuta e elaboração subjetiva...">${esc(enq.expectativas||'')}</textarea></div>`+
         `<div class="actions">${btn('Salvar Enquadre Terapêutico','ecoSaveEnquadre','',`data-case="${esc(c.id)}" data-id="${esc(c.id)}" data-enq="1"`)}</div>`+
@@ -473,11 +483,10 @@ function caseScreen(){
 
   const navTabs=[['sintese','Grade Geral'],['sessoes','Sessões'],['analisar','Análises'],['anamnese','Anamnese'],['enquadre','Enquadre'],['documentos','Documentos']];
 
-  return `${head('Caso clínico',c.nome,(enq.modalidade||c.modalidade)+' · '+formatDate(c.data))}`+
-    `<div class="actions">${btn('Voltar a casos','nav','ghost','data-id="cases"')}${btn('🎙 Gravar sessão','ecoOpen','',`data-id="${esc(c.id)}"`)}${btn('✍️ Atend. manual','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)}${btn('Editar caso','editCase','secondary')}${btn('PDF','pdfCase','secondary')}${btn(c.status==='Concluído'?'Reabrir caso':'Concluir caso','toggleStatus','ghost')}</div>`+
-    (c.alertas?.length?`<div class="alert red"><strong>Sinais de atenção assinalados</strong><p>${esc(c.alertas.map(a=>alerts.find(v=>v[0]===a)?.[1]||a).join('; '))}</p><p>Requer avaliação e conduta de profissional qualificado. Este app não realiza triagem nem emite protocolo de emergência.</p></div>`:'')+
-    `<div class="tabs">${navTabs.map(([id,n])=>`<button data-act="caseTab" data-id="${id}" class="${tab===id?'active':''}">${n}</button>`).join('')}</div>`+
-    content;
+  return '<div class="eco-case-heading"><button type="button" class="btn ghost sm" data-act="nav" data-id="cases">← Casos</button><div><h1>'+esc(c.nome)+'</h1><small>'+esc(enq.modalidade||c.modalidade||"")+' · '+(c.sessoes||[]).length+' sessão(ões)</small></div></div>'+
+    (c.alertas?.length?'<div class="alert red"><strong>Sinais de atenção assinalados</strong><p>'+esc(c.alertas.map(a=>alerts.find(v=>v[0]===a)?.[1]||a).join('; '))+'</p></div>':'')+
+    content+
+    '<details class="card"><summary>Outras ações do caso</summary><div class="actions">'+btn('Editar caso','editCase','secondary')+btn('PDF','pdfCase','secondary')+btn(c.status==='Concluído'?'Reabrir caso':'Concluir caso','toggleStatus','ghost')+'</div></details>';
 }
 function suggestions(c){const qs=[...new Set((c.queixas||[]).flatMap(code=>guidance[code]||[]))];return [...qs,'Como a pessoa descreve a própria experiência?','Que mudanças ela identifica desde o início do acompanhamento?','Quais aspectos merecem cuidado na próxima escuta?'].slice(0,10);}
 function field(k,label,type='text',opts={}){
@@ -541,9 +550,9 @@ function settingsScreen(){
  const asrMod=state.settings?.asrModel||ecoChosenAsr||"tagarela";
  return `${head('ECO / Configurações','Ajustes e Diagnóstico','Sistema local autônomo com IA neural sem dependência de nuvem.')}`+
  `<div class="card"><h2>Identidade e Versão do Sistema</h2>`+
- `<div class="kv"><strong>Versão instalada</strong><span>0.23.0-arm64-beta (build 28)</span></div>`+
+ `<div class="kv"><strong>Versão instalada</strong><span>0.24.0-arm64-beta (build 29)</span></div>`+
  `<div class="kv"><strong>Arquitetura nativa</strong><span>ARM64 (arm64-v8a) · Samsung Galaxy A57</span></div>`+
- `<div class="kv"><strong>Commit de compilação</strong><span>antigravity/eco-corretivo-20261124</span></div>`+
+ `<div class="kv"><strong>Commit de compilação</strong><span>codex/eco-023-takeover-20261125</span></div>`+
  `<div class="kv"><strong>Identificador Android</strong><span>br.com.tutorclinico.offline</span></div>`+
  `<div class="kv"><strong>Namespace</strong><span>br.com.tutorclinico</span></div>`+
  `</div>`+
@@ -553,7 +562,7 @@ function settingsScreen(){
  `<div class="kv"><strong>Whisper Small Q5 multilíngue</strong><span>Disponível para importação detalhada</span></div>`+
  `<div class="kv"><strong>Whisper Base multilíngue</strong><span>Disponível para importação rápida</span></div>`+
  `<div class="kv"><strong>Vosk PT-BR</strong><span>Disponível para alinhamento e medidas físicas</span></div>`+
- `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Ativo para indexação semântica e embeddings locais (NLI via avaliador linguístico contextual)</span></div>`+
+ `<div class="kv"><strong>DistilUSE Multilingual U8U8</strong><span>Embeddings locais · NLI ainda não integrado</span></div>`+
  `<div class="field"><label for="setMicEngine">Motor padrão para gravação de microfone</label>`+
  `<select id="setMicEngine" data-eco-setting="micEngine">`+
  `<option value="tagarela" ${micEng==="tagarela"?"selected":""}>TAGARELA PT-BR INT8 · fine-tune brasileiro (Padrão)</option>`+
@@ -567,10 +576,10 @@ function settingsScreen(){
  `<option value="base" ${asrMod==="base"?"selected":""}>Whisper Base · mais rápido</option>`+
  `</select></div>`+
  `</div>`+
- `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha do backup — 10 caracteres ou mais</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
+ `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha original do backup protegido (exportação: mínimo 10 caracteres)</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar backup','exportBackup','')}${btn('Importar backup','importBackup','secondary')}</div><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
  `<div class="card"><h2>Privacidade e Segurança Operacional</h2><p>● Não há permissão de internet no aplicativo (android.permission.INTERNET ausente).</p><p>● O arquivo interno é criptografado com AES-256-GCM com chave do Android Keystore.</p><p>● O aplicativo exige PIN local e bloqueia capturas de tela via FLAG_SECURE.</p><p>● O backup externo usa AES-256-GCM e chave derivada com PBKDF2 (240.000 iterações).</p><p class="muted small">O PIN controla o acesso à interface; a criptografia interna utiliza uma chave protegida por hardware do dispositivo.</p></div>`+
  `<div class="card"><h2>Compatibilidade</h2><p>Permite importar o backup JSON simples do Tutor Clínico original. Como ele não possui criptografia, trate esse arquivo com cuidado. O aplicativo converte registros de sessão para o formato ECO com identificadores imutáveis.</p></div>`+
- `<p class="notice">Ambiente de homologação e certificação ECO v0.22.0-arm64-beta. Utilize somente dados simulados/fictícios até aprovação da auditoria de conformidade.</p>`;}
+ `<p class="notice">Ambiente de homologação e certificação ECO v0.24.0-arm64-beta. Utilize somente dados simulados/fictícios até aprovação da auditoria de conformidade.</p>`;}
 function validDate(value){return /^\d{4}-\d{2}-\d{2}$/.test(value||'')&&(() => {const d=new Date(value+'T12:00:00');return d.getFullYear()===Number(value.slice(0,4))&&d.getMonth()+1===Number(value.slice(5,7))&&d.getDate()===Number(value.slice(8,10));})();}
 function validateWizard(){
  if(wizardStep===0){if(!draft.nome.trim()){notify('Informe um apelido.','red');return false;}
@@ -635,8 +644,8 @@ function act(name,id){
   const ok=change(()=>{copy.atualizadoEm=new Date().toISOString();const idx=state.cases.findIndex(c=>c.id===copy.id);if(idx>=0)state.cases[idx]=copy;else state.cases.push(copy);});
   if(ok){openedId=copy.id;draft=null;screen='case';tab='sintese';render();}return;
  }
- if(name==='openCase'){openedId=id||openedId;screen='case';tab=tab==='sessoes'?'sessoes':'sintese';render();return;}
- if(name==='caseTab'){tab=id;render();return;}
+ if(name==='openCase'){openedId=id||openedId;screen='case';tab='sintese';render();window.scrollTo(0,0);return;}
+ if(name==='caseTab'){tab=id;render();window.scrollTo(0,0);return;}
  if(name==='toggleStatus'){change(()=>{const c=currentCase();c.status=c.status==='Concluído'?'Em andamento':'Concluído';c.atualizadoEm=new Date().toISOString();});return;}
  if(name==='newSession'){editSessionId=null;sessionDraft=newSessionDraft();screen='session';render();return;}
  if(name==='editSession'){
@@ -1720,7 +1729,7 @@ function ecoLanding(){
    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
    '<div style="display:flex;align-items:center;gap:8px">'+
    '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#baff4a;box-shadow:0 0 6px #baff4a"></span>'+
-   '<strong>Motor Neural Ativo: TAGARELA PT-BR INT8</strong>'+
+   '<strong>Motores de voz offline disponíveis</strong>'+
    '</div>'+
    '<div><span class="chip good">0.6B Parakeet TDT</span><span class="chip gray">sherpa-onnx</span><span class="chip">Offline</span></div>'+
    '</div>'+

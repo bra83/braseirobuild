@@ -1154,3 +1154,15 @@ test('Ficha evolutiva exige fonte literal, preserva isolamento, sinaliza fonte a
  js('fichaSample.sessoes[0].texto="Fonte modificada"');
  assert.match(js('ecoFichaBody(fichaSample)'),/Fonte alterada ou removida/);
 });
+
+test('Grade do paciente visível antes do resumo, com acesso direto à anamnese e ficha',()=>{
+ js("openedId=state.cases[0].id;screen='case';tab='sintese'");
+ const view=js("caseScreen()");
+ assert.ok(view.indexOf("eco-module-grid")<view.indexOf("Resumo do caso"));
+ assert.match(view,/button type="button" class="eco-module-card" data-act="caseTab" data-id="anamnese"/);
+ assert.match(view,/data-id="fichaEvolutiva"/);
+ js("act('caseTab','anamnese')");
+ assert.match(js("caseScreen()"),/Anamnese Clínica em 10 Categorias/);
+ js("act('caseTab','sintese')");
+ assert.match(js("caseScreen()"),/Módulos do paciente/);
+});

@@ -420,11 +420,37 @@ final class SecureStore {
     }
 
     private static SecretKey passKey(String pass, byte[] salt) throws Exception {
+        if (pass == null || pass.isEmpty()) throw new IllegalArgumentException("Senha do backup não informada");
         PBEKeySpec spec = new PBEKeySpec(pass.toCharArray(), salt, 240000, 256);
+        byte[] derived = null;
         try {
-            return new SecretKeySpec(
-                    SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded(), "AES");
-        } finally { spec.clearPassword(); }
+            try {
+                derived = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
+                if (derived == null || derived.length != 32) throw new java.security.InvalidKeyException("PBKDF2 retornou chave inválida");
+            } catch (java.security.GeneralSecurityException providerFailure) {
+                // Same standard, same parameters and password encoding; no weaker key or ephemeral vault fallback.
+                derived = pbkdf2Utf8(pass, salt, 240000);
+            }
+            return new SecretKeySpec(derived, "AES");
+        } finally { spec.clearPassword(); if (derived != null) Arrays.fill(derived, (byte)0); }
+    }
+
+    static byte[] pbkdf2Utf8(String pass, byte[] salt, int iterations) throws Exception {
+        if(pass == null || pass.isEmpty() || iterations < 1) throw new IllegalArgumentException("PBKDF2 inválido");
+        byte[] password=pass.getBytes(StandardCharsets.UTF_8);
+        byte[] first=Arrays.copyOf(salt,salt.length+4);
+        first[first.length-1]=1;
+        byte[] u=null,result=null;
+        try {
+            javax.crypto.Mac mac=javax.crypto.Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(password,"HmacSHA256"));
+            u=mac.doFinal(first);result=u.clone();
+            for(int i=1;i<iterations;i++){
+                byte[] next=mac.doFinal(u);Arrays.fill(u,(byte)0);u=next;
+                for(int j=0;j<result.length;j++) result[j]^=u[j];
+            }
+            return result;
+        }finally{Arrays.fill(password,(byte)0);Arrays.fill(first,(byte)0);if(u!=null)Arrays.fill(u,(byte)0);}
     }
 
     static byte[] encryptBackup(String json, String pass) throws Exception {
@@ -447,14 +473,17 @@ final class SecureStore {
         String input = new String(bytes, StandardCharsets.UTF_8).trim();
         if (input.startsWith("[")) return input; // Legacy backup
         JSONObject pkg = new JSONObject(input);
+        if (pkg.optInt("version") == 1 && pkg.opt("cases") instanceof JSONArray && !pkg.has("format")) return input;
         if (!"tutor-clinico-encrypted-backup".equals(pkg.optString("format")) || pkg.optInt("version") != 1)
             throw new IllegalArgumentException("Formato não reconhecido");
+        if (pass == null || pass.isEmpty()) throw new IllegalArgumentException("Informe a senha original do backup criptografado antes de selecionar o arquivo.");
         if (pkg.optInt("iterations") != 240000) throw new IllegalArgumentException("Parâmetros de derivação não suportados");
         byte[] salt = Base64.decode(pkg.getString("salt"), Base64.NO_WRAP);
         byte[] iv = Base64.decode(pkg.getString("iv"), Base64.NO_WRAP);
         if (salt.length != 16 || iv.length != 12) throw new IllegalArgumentException("Backup inválido");
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, passKey(pass, salt), new GCMParameterSpec(128, iv));
-        return new String(cipher.doFinal(Base64.decode(pkg.getString("ciphertext"), Base64.NO_WRAP)), StandardCharsets.UTF_8);
+        try { return new String(cipher.doFinal(Base64.decode(pkg.getString("ciphertext"), Base64.NO_WRAP)), StandardCharsets.UTF_8); }
+        catch (javax.crypto.AEADBadTagException e) { throw new SecurityException("Senha incorreta ou backup alterado/corrompido. Nenhum dado foi importado.", e); }
     }
 }

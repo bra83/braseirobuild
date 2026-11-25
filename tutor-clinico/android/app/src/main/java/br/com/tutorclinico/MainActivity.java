@@ -422,7 +422,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public String savePrivateDiary(String caseId, String json) {
             if (!unlocked) return "Bloqueado";
             try { store.savePrivateDiary(caseId, json); return "OK"; }
-            catch (Exception e) { return "ERRO: " + e.getMessage(); }
+            catch (Exception e) { android.util.Log.e("ECO", "Falha ao persistir cofre local", e); return "ERRO COFRE LOCAL: " + e.getClass().getSimpleName() + ": " + e.getMessage(); }
         }
 
         @JavascriptInterface public String loadPrivateDiary(String caseId) {
@@ -559,7 +559,8 @@ public final class MainActivity extends Activity {
                 jsCallback("nativeImportResult", content);
             }
         } catch (Exception e) {
-            showToast("Operação não concluída: " + e.getMessage());
+            android.util.Log.e("ECO", "Falha de operação local: " + code, e);
+            showToast((code == IMPORT_CODE ? "Falha ao abrir backup: " : "Operação não concluída: ") + e.getMessage());
             if (code == AUDIO_FILE_CODE) jsCallback("nativeMlState","ERRO ARQUIVO: " + e.getMessage());
         }
         finally { pendingPassword = null; pendingExport = null; }
