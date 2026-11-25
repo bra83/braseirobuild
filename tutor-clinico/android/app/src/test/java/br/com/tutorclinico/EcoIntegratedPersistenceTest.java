@@ -323,7 +323,10 @@ public class EcoIntegratedPersistenceTest {
         store.saveFormDraft("portable-a",draft.toString());
         a.getJSONArray("sessoes").getJSONObject(0).put("texto","VERSAO ATUAL");
         store.save(root.toString());
-        JSONObject backup=new JSONObject(store.read()).put("nativeRecoveryBundle",store.exportNativeRecovery());
+        JSONObject backup=store.exportPortableSnapshot(false);
+        assertEquals(1,backup.getJSONObject("nativeRecoveryBundle").getJSONArray("drafts").length());
+        assertEquals(1,backup.getJSONObject("nativeRecoveryBundle").getJSONArray("revisions").length());
+        assertFalse(byId(backup,"portable-a").has("diarioNotas"));
         byte[] envelope=SecureStore.encryptBackup(backup.toString(),"eco-portable-fixture");
         store.getDbHelper().close();
         assertTrue(context.deleteDatabase("eco_vault.db"));
