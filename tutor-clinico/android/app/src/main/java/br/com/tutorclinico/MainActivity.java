@@ -42,6 +42,8 @@ public final class MainActivity extends Activity {
             new java.util.concurrent.atomic.AtomicBoolean(false);
     private static final int MIC_PERMISSION = 903;
     private static final int AUDIO_FILE_CODE = 904;
+    private static final int TRANSCRIPT_FILE_CODE = 905;
+    private String pendingTranscriptToken;
     private MlSessionEngine ml;
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -140,7 +142,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; semanticEpoch++; embeddingCache.clear(); web.setVisibility(View.INVISIBLE);
+        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; semanticEpoch++; embeddingCache.clear(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -318,6 +320,19 @@ public final class MainActivity extends Activity {
             return "OK";
         }
 
+        @JavascriptInterface public void selectTranscriptFile(String token) {
+            if(!unlocked || token == null || token.isEmpty() || token.length() > 200) return;
+            main.post(() -> {
+                if(!unlocked || pendingTranscriptToken != null) return;
+                pendingTranscriptToken = token;
+                try {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("text/plain");
+                    startActivityForResult(intent, TRANSCRIPT_FILE_CODE);
+                } catch(RuntimeException e) { pendingTranscriptToken = null; showToast("Não foi possível abrir o seletor de texto."); }
+            });
+        }
         @JavascriptInterface public void selectAudioFileWithModel(boolean confirmed,String model){
             if(!unlocked||!confirmed){jsCallback("nativeMlState","AUTORIZAÇÃO NÃO CONFIRMADA");return;}
             main.post(()->{
@@ -585,6 +600,19 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
+        if(code == TRANSCRIPT_FILE_CODE) {
+            final String token = pendingTranscriptToken; pendingTranscriptToken = null;
+            if(!unlocked || token == null || result != RESULT_OK || data == null || data.getData() == null) return;
+            try(InputStream in = getContentResolver().openInputStream(data.getData())) {
+                if(in == null) throw new java.io.IOException("Arquivo indisponível");
+                byte[] bytes = readLimited(in, 4_000_004);
+                String text = java.nio.charset.StandardCharsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString();
+                if(text.startsWith("\uFEFF")) text=text.substring(1);
+                if(text.length()>1000000 || text.indexOf(0)>=0 || text.trim().isEmpty()) throw new java.io.IOException("Texto inválido ou acima do limite");
+                jsCallback("nativeTranscriptImport", new JSONObject().put("token",token).put("text",text).toString());
+            } catch(Exception e) { showToast("Importação não concluída: use TXT UTF-8 de até 1 milhão de caracteres."); }
+            return;
+        }
         if (result != RESULT_OK || data == null || data.getData() == null) {
             if (code == EXPORT_CODE) pendingExport = null;
             if (code == IMPORT_CODE) pendingPassword = null;
