@@ -287,4 +287,28 @@ public class EcoIntegratedPersistenceTest {
         assertArrayEquals(pdf,store.attachmentBytes("attach-a",id));
         store.getDbHelper().close();
     }
+
+    @Test public void largeEncryptedRecordsBeyondCursorWindowSurviveReopenAndVersionRead() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        String large="História fictícia com acentuação. ".repeat(100000);
+        JSONObject a=caseWith("large-a","nota");
+        JSONObject session=a.getJSONArray("sessoes").getJSONObject(0);
+        session.put("origem","texto").put("mlTranscricao",large);
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject draft=new JSONObject().put("caseId","large-a").put("session",new JSONObject().put("id","large-draft").put("texto",large));
+        store.saveFormDraft("large-a",draft.toString());
+        store.getDbHelper().close();store=new SecureStore(context,key);
+        JSONObject read=new JSONObject(store.read());
+        assertEquals(large,byId(read,"large-a").getJSONArray("sessoes").getJSONObject(0).getString("mlTranscricao"));
+        assertEquals(draft.toString(),store.readFormDraft("large-a"));
+        session.put("mlTranscricao","TEXTO RETIFICADO");
+        store.save(root.toString());
+        JSONArray versions=new JSONArray(store.sessionVersions("large-a","large-a-s"));
+        assertEquals(1,versions.length());
+        assertEquals(large,new JSONObject(store.sessionVersion("large-a","large-a-s",versions.getJSONObject(0).getLong("id"))).getString("mlTranscricao"));
+        store.getDbHelper().close();
+    }
 }
