@@ -1334,7 +1334,7 @@ function ecoNeuralStart(longitudinal=false){
  if(ecoNeuralRun?.pending){notify("Análise neural em andamento");return;}
  ecoNeuralRun={id,key,query,longitudinal,pending:true,total:rows.length,done:0,stage:"Carregando modelo ONNX",lastProgress:Date.now()};
  if(!rows.length){ecoNeuralRun={id,key,query,longitudinal,error:"Não há falas neste filtro. Confirme os interlocutores ou selecione explicitamente outro discurso."};ecoNeuralRefresh();return;}
- const payload=JSON.stringify({id,query,rows,scope:longitudinal?"paciente":ecoAnalysisScope,longitudinal});
+ const payload=JSON.stringify({id,query,rows,scope:longitudinal?"paciente":ecoAnalysisScope,longitudinal,cacheScope:openedId?'case:'+openedId:''});
  if(!rows.length||rows.length>1200||payload.length>500000||rows.some(r=>r.text.length>12000)){
    ecoNeuralRun={id,key,query,longitudinal,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};ecoNeuralRefresh();return;
  }
@@ -3613,7 +3613,7 @@ function ecoReviewStart(c){
  if(from&&to&&from>to){notify('Período inválido.','red');return;}
  ecoReviewFrom=from;ecoReviewTo=to;
  const rows=ecoReviewRows(c,ecoReviewScope,from,to),queries=ecoReviewQueries(ecoReviewType),id='review-'+(++ecoReviewSerial)+'-'+Date.now();
- const payload=JSON.stringify({id,rows,scope:ecoReviewScope==='manual'?'desconhecido':'paciente',longitudinal:ecoReviewScope==='paciente',queries:queries.map(({key,text})=>({key,text}))});
+ const payload=JSON.stringify({id,rows,cacheScope:'case:'+c.id,scope:ecoReviewScope==='manual'?'desconhecido':'paciente',longitudinal:ecoReviewScope==='paciente',queries:queries.map(({key,text})=>({key,text}))});
  if(!rows.length||rows.length>1200||payload.length>500000||rows.some(u=>u.text.length>12000)){notify('Selecione um período com 1 a 1200 trechos válidos, até 500 mil caracteres.','red');return;}
  if(typeof window.NativeVault?.analyzeSemantic!=='function'){notify('Motor neural indisponível; nenhuma simulação utilizada.','red');return;}
  ecoReviewRun={id,caseId:c.id,type:ecoReviewType,scope:ecoReviewScope,from,to,key:ecoReviewKey(c,ecoReviewScope,from,to,ecoReviewType),rows,queries,pending:true,last:Date.now(),done:0,total:rows.length,stage:'Preparando modelo'};
@@ -3865,7 +3865,7 @@ function ecoLibraryStart(){
  if(screen!=='study'||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNliRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const query=String(document.getElementById('ecoLibraryQuery')?.value||'').trim(),rows=ecoLibraryChunks();
  if(!query||query.length>500){notify('Informe uma consulta de até 500 caracteres.','red');return;}
- const id='library-'+(++ecoLibrarySerial)+'-'+Date.now(),payload=JSON.stringify({id,scope:'desconhecido',rows:rows.map(x=>({text:x.text,speaker:x.speaker,source:x.source})),queries:[{key:'library',text:query}]});
+ const id='library-'+(++ecoLibrarySerial)+'-'+Date.now(),payload=JSON.stringify({id,scope:'desconhecido',cacheScope:'library',rows:rows.map(x=>({text:x.text,speaker:x.speaker,source:x.source})),queries:[{key:'library',text:query}]});
  if(rows.length>1200||payload.length>500000){notify('Corpus acima do limite de uma execução.','red');return;}
  ecoLibraryRun={id,query,rows,pending:true,last:Date.now(),stage:'Carregando DistilUSE'};
  try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){ecoLibraryRun.pending=false;ecoLibraryRun.error=String(status||'Motor indisponível.');}}catch(e){ecoLibraryRun.pending=false;ecoLibraryRun.error='Falha ao iniciar o motor.';}
@@ -3896,7 +3896,7 @@ function ecoClaimStart(c){
  if(!c||ecoClaimRun?.pending||ecoNliRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoLibraryRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const claim=String(document.getElementById('ecoClaimText')?.value||'').trim(),rows=ecoNliRows(c),id='claim-search-'+(++ecoClaimSerial)+'-'+Date.now();
  if(!claim||claim.length>500||!rows.length||rows.length>1200){notify('Informe uma afirmação factual de até 500 caracteres e um período de 1 a 1200 trechos.','red');return;}
- const scope=ecoNliScope==='manual'?'desconhecido':'paciente',payload=JSON.stringify({id,rows,scope,queries:[{key:'claim',text:claim}]});
+ const scope=ecoNliScope==='manual'?'desconhecido':'paciente',payload=JSON.stringify({id,rows,scope,cacheScope:'case:'+c.id,queries:[{key:'claim',text:claim}]});
  if(payload.length>500000||rows.some(x=>x.text.length>12000)){notify('Reduza o período de busca.','red');return;}
  ecoClaimRun={id,caseId:c.id,key:ecoNliKey(c),claim,rows,scope,pending:true,stage:'Recuperando trechos com DistilUSE',last:Date.now(),phase:'retrieve'};
  try{const status=window.NativeVault?.analyzeSemantic?.(payload);if(status!=='OK'){ecoClaimRun.pending=false;ecoClaimRun.error=String(status||'Motor indisponível.');}}catch(e){ecoClaimRun.pending=false;ecoClaimRun.error='Falha ao iniciar a recuperação.';}
@@ -3949,7 +3949,7 @@ function ecoAiCurrent(r){return !!r&&screen==='case'&&tab==='assistenteIA'&&r.ca
 function ecoAiCancel(){if(ecoAiRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoAiRun.id);}catch(e){}ecoAiRun=null;}
 function ecoAiSend(r,phase,payload,stage){
  r.id='ai-'+(++ecoAiSerial)+'-'+Date.now();r.phase=phase;r.pending=true;r.error='';r.stage=stage;r.last=Date.now();
- try{const result=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...payload,id:r.id}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Falha ao iniciar a inferência.';}
+ try{const result=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...payload,id:r.id,cacheScope:r.scope==='teoria'?'library':'case:'+r.caseId}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Falha ao iniciar a inferência.';}
  render();if(r.pending)setTimeout(()=>ecoAiWatch(r.id),5000);
 }
 function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
@@ -4162,6 +4162,17 @@ act=function(name,id,button){
  if(name==='ecoAiArchiveDelete'){if(c&&button?.dataset?.case===c.id&&window.confirm?.('Excluir a síntese revisada?'))change(()=>{c.ecoAiArchive=(c.ecoAiArchive||[]).filter(x=>x.id!==id);});return;}
  if(['nav','openCase','caseTab','ecoAtlasTab','ecoAiScope'].includes(name)){ecoAiFrom='';ecoAiTo='';ecoAiSession='';ecoAiPrefill='';}
  return ecoArchivePriorAct(name,id,button);
+};
+
+
+const ecoCachePriorAct=act;
+act=function(name,id,button){
+ const previous=openedId,previousScreen=screen;
+ const result=ecoCachePriorAct(name,id,button);
+ if(previous!==openedId||((previousScreen==='study')!==(screen==='study'))||name==='newCase'){
+   try{window.NativeVault.clearSemanticCache?.();}catch(e){}
+ }
+ return result;
 };
 
 </script></body></html>
