@@ -244,6 +244,74 @@ final class SecureStore {
         return root.toString();
     }
 
+    // Read-only keyset pagination. This path never materializes the global
+    // clinical snapshot or returns another patient's session.
+    private static final int PAGE_LIMIT=20, TEXT_PAGE=16000;
+    synchronized JSONObject casePage(String after)throws Exception{
+        SQLiteDatabase db=dbHelper.getReadableDatabase();JSONArray rows=new JSONArray();String next="";
+        try(Cursor c=db.query("_pacientes",new String[]{"id",smallBlob("payload_enc")},"id>?",new String[]{after==null?"":after},null,null,"id ASC","21")){
+            while(c.moveToNext()){
+                if(rows.length()==PAGE_LIMIT){next=rows.getJSONObject(PAGE_LIMIT-1).getString("id");break;}
+                String id=c.getString(0);
+                JSONObject item=new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,"_pacientes","payload_enc","id=?",new String[]{id})));
+                rows.put(new JSONObject().put("id",id).put("nome",item.optString("nome","Sem apelido")).put("status",item.optString("status","")));
+            }
+        }
+        return new JSONObject().put("rows",rows).put("next",next);
+    }
+    synchronized JSONObject sessionPage(String caseId,String after)throws Exception{
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        if(!caseExists(db,caseId))throw new SecurityException("Caso inexistente");
+        JSONArray rows=new JSONArray();String next="";
+        try(Cursor c=db.query("sessoes",new String[]{"id","data","hora","origem"},"case_id=? AND id>?",new String[]{caseId,after==null?"":after},null,null,"id ASC","21")){
+            while(c.moveToNext()){
+                if(rows.length()==PAGE_LIMIT){next=rows.getJSONObject(PAGE_LIMIT-1).getString("id");break;}
+                rows.put(new JSONObject().put("id",c.getString(0)).put("data",c.getString(1)).put("hora",c.isNull(2)?"":c.getString(2)).put("origem",c.getString(3)));
+            }
+        }
+        return new JSONObject().put("rows",rows).put("next",next);
+    }
+    synchronized JSONObject sessionTextPage(String caseId,String sessionId,String field,int offset)throws Exception{
+        if(!java.util.Arrays.asList("texto","mlTranscricao","mlRevisada","intervencoes","plano").contains(field)||offset<0)throw new IllegalArgumentException("Campo inválido");
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        try(Cursor c=db.query("sessoes",new String[]{smallBlob("payload_enc")},"case_id=? AND id=?",new String[]{caseId,sessionId},null,null,null)){
+            if(!c.moveToFirst())throw new SecurityException("Sessão não localizada neste caso");
+            JSONObject record=new JSONObject(dbHelper.decrypt(readBoundedBlob(db,c,"sessoes","payload_enc","case_id=? AND id=?",new String[]{caseId,sessionId})));
+            String value=record.optString(field,"");
+            int start=Math.min(offset,value.length()),end=Math.min(value.length(),start+TEXT_PAGE);
+            if(end<value.length()&&end>start&&Character.isHighSurrogate(value.charAt(end-1)))end--;
+            return new JSONObject().put("text",value.substring(start,end)).put("offset",start).put("next",end<value.length()?end:-1).put("total",value.length());
+        }
+    }
+    synchronized JSONObject segmentPage(String caseId,String sessionId,String after)throws Exception{
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        try(Cursor check=db.query("sessoes",new String[]{"id"},"case_id=? AND id=?",new String[]{caseId,sessionId},null,null,null)){
+            if(!check.moveToFirst())throw new SecurityException("Sessão não localizada neste caso");
+        }
+        JSONArray rows=new JSONArray();String next="";
+        // Chronological keyset cursor uses start_ms plus unique segment ID.
+        long time=-1;String id="";
+        if(after!=null&&!after.isEmpty()){JSONObject cursor=new JSONObject(after);time=cursor.getLong("time");id=cursor.getString("id");}
+        try(Cursor c=db.query("segmentos",new String[]{"id","start_ms","end_ms","speaker","speaker_confirmed",smallBlob("text_enc")},"case_id=? AND session_id=? AND (start_ms>? OR (start_ms=? AND id>?))",new String[]{caseId,sessionId,Long.toString(time),Long.toString(time),id},null,null,"start_ms ASC,id ASC","21")){
+            while(c.moveToNext()){
+                if(rows.length()==PAGE_LIMIT){JSONObject last=rows.getJSONObject(PAGE_LIMIT-1);next=new JSONObject().put("time",last.getLong("startMs")).put("id",last.getString("id")).toString();break;}
+                String segmentId=c.getString(0),value=dbHelper.decrypt(readBoundedBlob(db,c,"segmentos","text_enc","case_id=? AND session_id=? AND id=?",new String[]{caseId,sessionId,segmentId}));
+                // Original long segments remain stored. This preview is bounded.
+                int end=Math.min(TEXT_PAGE,value.length());if(end<value.length()&&Character.isHighSurrogate(value.charAt(end-1)))end--;
+                rows.put(new JSONObject().put("id",segmentId).put("startMs",c.getLong(1)).put("endMs",c.getLong(2)).put("speaker",c.getString(3)).put("confirmed",c.getInt(4)==1).put("text",value.substring(0,end)).put("truncated",end<value.length()));
+            }
+        }
+        return new JSONObject().put("rows",rows).put("next",next);
+    }
+    synchronized JSONObject vaultReadBudget()throws Exception{
+        SQLiteDatabase db=dbHelper.getReadableDatabase();long bytes=0;
+        for(String[] pair:new String[][]{{"_pacientes","payload_enc"},{"sessoes","payload_enc"},{"segmentos","text_enc"},{"agenda","payload_enc"},{"configuracoes","valor_enc"}}){
+            String where=pair[0].equals("configuracoes")?" WHERE chave='app_state_meta'":"";
+            try(Cursor c=db.rawQuery("SELECT COALESCE(SUM(length("+pair[1]+")),0) FROM "+pair[0]+where,null)){if(c.moveToFirst())bytes+=c.getLong(0);}
+        }
+        return new JSONObject().put("bytes",bytes).put("large",bytes>24_000_000L);
+    }
+
     synchronized JSONArray readReminderAgenda() throws Exception {
         SQLiteDatabase db=dbHelper.getReadableDatabase();
         JSONArray rows=new JSONArray();
