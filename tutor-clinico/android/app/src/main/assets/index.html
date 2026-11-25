@@ -268,7 +268,7 @@ function appUnlock(){
       ecoStatus="RASCUNHO RESTAURADO · TRANSCRIÇÃO ANTERIOR INTERROMPIDA · CONFIRA O TEXTO";
    }
    render();
- } catch(e){errorLocked=true;$('#app').innerHTML='<div class="alert red"><strong>Dados não abertos</strong><p>'+esc(e.message)+'</p><p>Não crie registros novos nem reinstale o app antes de avaliar a recuperação.</p></div>';$('#bottom').innerHTML='';}
+ } catch(e){errorLocked=true;$('#app').innerHTML='<div class="alert red"><strong>Dados não abertos</strong><p>'+esc(e.message)+'</p><p>Não crie registros novos nem reinstale o app antes de avaliar a recuperação.</p></div>'+ecoRecoveryOnlyPanel();$('#bottom').innerHTML='';}
 }
 window.appUnlock=appUnlock;
 function persist(){
@@ -2731,6 +2731,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
     <h1>${title}</h1>
     <div class="doc-sub">ECO · SISTEMA DE REGISTRO CLÍNICO CONFIDENCIAL · Gerado em ${esc(formatDate(datestr()))} · Documento local</div>
     ${profHeader}
+    ${ecoDocContents(body)}
     ${body}
     <div style="margin-top:32px;break-inside:avoid"><p>________________________________________</p><p>Assinatura do profissional (manual) · ${esc(opts.profNome||'')}</p></div>
     <div class="footer ${opts.confirmed ? '' : 'alert-draft'}">
@@ -3614,9 +3615,9 @@ act=function(name,id,button){
  if(name==='ecoCloseChapter'){ecoChapterOpen='';render();return;}
  if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?Math.min(1,Math.max(.4,(document.querySelector('.eco-genogram-svg')?.parentElement?.clientWidth||360)/Math.max(360,document.querySelector('.eco-genogram-svg')?.viewBox?.baseVal?.width||360))):Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
  if(name==='ecoDreamExtractFields'&&c&&button?.dataset?.case===c.id){const text=document.getElementById('dreamTexto')?.value||'';if(!text.trim()){notify('Informe o relato do sonho.','red');return;}const d=ecoDreamFields(text),vals={dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', ')};for(const [k,v] of Object.entries(vals)){const el=document.getElementById(k);if(el&&!el.value.trim())el.value=v;}notify('Campos sugeridos. Confira antes de salvar.');return;}
- if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c&&button?.dataset?.case===c.id){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,reviewSourceId:d.reviewSourceId,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs,originalQuote:d.originalQuote||d.texto};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
+ if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c&&button?.dataset?.case===c.id){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,reviewSourceId:d.reviewSourceId,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs,originalQuote:d.originalQuote||d.texto};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}ecoRevealField('dreamTexto');return;}
  if(name==='ecoDocPreview'){ecoDocConfirmed=false;render();return;}
- if(name==='ecoFamilyEdit'&&c){const m=ecoFamilyMembers(c).find(x=>x.id===id);if(!m)return;ecoFamilyEditId=m.id;const vals={genNome:m.nome,genParentesco:m.parentesco,genGeracao:m.geracao,genVivo:m.vivo,genSexo:m.sexo,genVinculo:m.vinculo,genNotas:m.notas};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('genNome')?.scrollIntoView?.({block:'center'});return;}
+ if(name==='ecoFamilyEdit'&&c){const m=ecoFamilyMembers(c).find(x=>x.id===id);if(!m)return;ecoFamilyEditId=m.id;const vals={genNome:m.nome,genParentesco:m.parentesco,genGeracao:m.geracao,genVivo:m.vivo,genSexo:m.sexo,genVinculo:m.vinculo,genNotas:m.notas};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}ecoRevealField('genNome');return;}
  if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;ecoDocSessionId='';ecoDocConfirmed=false;}
  return ecoIntegratedAct(name,id,button);
 };
@@ -4555,5 +4556,38 @@ act=function(name,id,button){
   window.NativeVault.exportAttachment(c.id,id);return;
  }
  return ecoAttachPriorAct(name,id,button);
+};
+
+function ecoRecoveryOnlyPanel(){
+ let rows=[];try{rows=JSON.parse(window.NativeVault?.recoveryCheckpoints?.()||'[]');if(!Array.isArray(rows))rows=[];}catch(e){}
+ return '<section class="card"><h2>Recuperação sem sobrescrever o banco</h2><p>Exporte uma cópia local autenticada para armazenamento independente. Esta operação não modifica o banco danificado; anexos não estão incluídos no checkpoint local.</p><div class="field"><label>Nova senha do backup de recuperação</label><input id="ecoRecoveryPass" type="password" autocomplete="new-password"></div>'+rows.map(x=>btn('Exportar cópia de '+new Date(x.date).toLocaleString('pt-BR'),'ecoRecoveryExport','secondary','data-id="'+x.slot+'"')).join('')+(!rows.length?'<p>Nenhum checkpoint disponível.</p>':'')+'</section>';
+}
+function ecoDocContents(body){
+ const headings=[...body.matchAll(/<h2>([^<]+)<\/h2>/g)].map(x=>x[1]);
+ return headings.length>2?'<section style="border:1px solid #d6dfdb;padding:10px;margin-bottom:12px;break-inside:avoid"><strong>Conteúdo do documento</strong><ol style="margin:6px 0;padding-left:24px">'+headings.map(x=>'<li>'+x+'</li>').join('')+'</ol></section>':'';
+}
+function ecoRevealField(id){const e=document.getElementById(id);for(let p=e?.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;e?.scrollIntoView?.({block:'center'});}
+function ecoDreamAutoFill(){
+ const text=document.getElementById('dreamTexto')?.value||'';if(!text.trim())return;
+ const d=ecoDreamFields(text),values={dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', ')};
+ for(const [id,value] of Object.entries(values)){const e=document.getElementById(id);if(e&&!e.value.trim())e.value=value;}
+}
+document.addEventListener('change',e=>{if(e.target?.id==='dreamTexto'&&((screen==='case'&&tab==='sonhos')||(screen==='atlas'&&ecoAtlasTab==='sonhos')))ecoDreamAutoFill();});
+function ecoDocTemplatesPanel(){
+ const rows=state.ecoDocTemplates||[];
+ return '<section class="card"><h2>Modelos de documentos personalizados</h2><p class="small muted">Salva apenas tipo e seções selecionadas, sem dados de pacientes. A revisão e confirmação continuam obrigatórias.</p><div class="field"><label>Nome do modelo atual</label><input id="ecoDocTemplateName" maxlength="120"></div>'+btn('Guardar configuração atual','ecoDocTemplateSave','secondary')+rows.filter(x=>!x.archived).map(x=>'<div class="eco-evidence"><strong>'+esc(x.title)+'</strong><p>'+esc(x.type)+' · '+x.sections.length+' seções</p>'+btn('Aplicar modelo','ecoDocTemplateUse','secondary','data-id="'+esc(x.id)+'"')+btn('Arquivar','ecoDocTemplateArchive','ghost','data-id="'+esc(x.id)+'"')+'</div>').join('')+'</section>';
+}
+const ecoDocTemplatesPrior=ecoRenderDocuments;ecoRenderDocuments=function(c){return ecoDocTemplatesPrior(c)+ecoDocTemplatesPanel();};
+const ecoFinishingPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoRecoveryExport'&&errorLocked&&['0','1'].includes(String(id))){const el=document.getElementById('ecoRecoveryPass');if(!el||el.value.length<10){notify('Use ao menos 10 caracteres na senha.','red');return;}window.NativeVault?.exportRecoveryCheckpoint?.(String(id),el.value);el.value='';return;}
+ if(['ecoDocTemplateSave','ecoDocTemplateUse','ecoDocTemplateArchive'].includes(name)&&((screen==='case'&&tab==='documentos')||(screen==='atlas'&&ecoAtlasTab==='documentos'))){
+  if(name==='ecoDocTemplateSave'){const title=String(document.getElementById('ecoDocTemplateName')?.value||'').trim();if(!title){notify('Informe um nome.','red');return;}change(()=>{state.ecoDocTemplates=[...(state.ecoDocTemplates||[]),{id:uid(),title,type:ecoDocType,sections:Object.keys(ecoDocSections).filter(k=>ecoDocSections[k]),createdAt:new Date().toISOString()}];});return;}
+  const t=(state.ecoDocTemplates||[]).find(x=>x.id===id&&!x.archived);if(!t)return;
+  if(name==='ecoDocTemplateArchive'){change(()=>{t.archived=true;});return;}
+  if(!['ficha','resumo','sessao','transcricao','evolucao','encerramento','acesso','relatorio','encaminhamento','supervisao'].includes(t.type))return;
+  ecoDocType=t.type;ecoDocSections=Object.fromEntries(Object.keys(ecoDocSections).map(k=>[k,t.sections.includes(k)]));ecoDocConfirmed=false;render();return;
+ }
+ return ecoFinishingPriorAct(name,id,button);
 };
 </script></body></html>
