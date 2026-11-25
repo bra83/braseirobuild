@@ -16,6 +16,13 @@ public final class SpeakerTimelineTest {
   four.add(3100,3900,"falante3");
   check(four.label(3200,3800),"");
   check(four.label(2000,3000),"falante3");
+  SpeakerTimeline neural=new SpeakerTimeline();
+  neural.add(0,3000,"falante3");neural.addOverlap(1000,1400);
+  check(neural.label(0,700),"falante3");
+  check(neural.label(900,1500),SpeakerTimeline.OVERLAP);
+  check(neural.label(0,3000),SpeakerTimeline.OVERLAP);
+  neural.clearGroups();check(neural.label(900,1500),SpeakerTimeline.OVERLAP);
+  neural.clearOverlap();check(neural.label(900,1500),"");
   SpeakerTimeline mixed=new SpeakerTimeline();
   mixed.add(0,700,"falante3");mixed.add(700,800,"falante1");
   mixed.add(800,900,"falante2");mixed.add(900,1000,"falante4");
