@@ -72,6 +72,8 @@ try{
  await page.locator('#ecoAiQuery').fill('Organize o relato e as referências teóricas, sem inferir diagnóstico.');
  await page.evaluate(()=>{window.ecoTestRequests=[];window.NativeVault.analyzeSemantic=raw=>{window.ecoTestRequests.push(JSON.parse(raw));return 'OK';};});
  await page.locator('[data-act="ecoAiStart"]').click();
+ const catalog=await page.evaluate(()=>{const rows=ecoKnowledgeRows(),chunks=ecoLibraryChunks();return {chapters:rows.filter(r=>r.type==='capitulos').length,glossary:rows.filter(r=>r.type==='glossario').length,entries:rows.length,chunks:chunks.length,empty:chunks.filter(r=>!r.text.trim()).length};});
+ assert.equal(catalog.chapters,14);assert.equal(catalog.glossary,61);assert.equal(catalog.entries,117);assert.equal(catalog.chunks,173);assert.equal(catalog.empty,0);
  const first=await page.evaluate(()=>window.ecoTestRequests[0]);
  assert.equal(first.scope,'todos');assert.ok(first.rows.length>0);
  assert.ok(first.rows.every(x=>x.sessionId&&x.text.includes('Nota de teste')));
