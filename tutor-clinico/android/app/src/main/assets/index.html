@@ -586,7 +586,7 @@ function renderRevisions(s){if(!s?.revisoes?.length)return '';
 }
 function agendaScreen(){const arr=getAppointments();return `${head('Agenda','Consultas','Horários, faltas, cancelamentos e conflitos entre atendimentos.')}<div class="actions">${btn('＋ Nova consulta','newAppointment','')}${btn('Hoje','todayAgenda','secondary')}</div>${arr.length?arr.map(a=>{const c=state.cases.find(c=>c.id===a.caseId)||{};return `<div class="card"><div class="titleline"><div><h3>${formatDate(a.data)} · ${esc(a.hora)}</h3><p class="muted small">${caseName(c)} · ${esc(a.duracao)} minutos</p></div><span class="chip ${a.status==='Cancelado'?'gray':a.status==='Falta'?'warn':'good'}">${esc(a.status)}</span></div>${a.notas?`<p>${esc(a.notas)}</p>`:''}<div class="actions">${btn('Editar','editAppointment','secondary',`data-id="${esc(a.id)}"`)}${btn('Abrir caso','openCase','ghost',`data-id="${esc(a.caseId)}"`)}</div></div>`;}).join(''):'<div class="card empty"><strong>Agenda vazia</strong>Cadastre um caso e marque a primeira consulta.</div>'}<p class="notice">Esta versão não envia notificações, mensagens ou lembretes. Nenhum dado é sincronizado com calendários externos.</p>`;}
 function appointmentScreen(){if(!apptDraft)return agendaScreen();const a=apptDraft;
- return `${head('Agenda',editApptId?'Editar consulta':'Nova consulta','Horários são verificados contra outras consultas não canceladas.')}<div class="card">${field('caseId','Caso *','select',{source:a,values:state.cases.map(c=>c.id).length?state.cases.map(c=>c.id):['']}).replace(/<option value="([^"]*)"[^>]*>(.*?)<\/option>/g,(full,id)=>{const c=state.cases.find(c=>c.id===id);return `<option value="${esc(id)}" ${a.caseId===id?'selected':''}>${esc(c?.nome||'Selecione um caso')}</option>`;})}<div class="split">${field('data','Data *','date',{source:a,required:true})}${field('hora','Hora *','time',{source:a,required:true})}</div><div class="split">${field('duracao','Duração em minutos','select',{source:a,values:['25','30','45','50','60','90']})}${field('status','Status','select',{source:a,values:['Agendado','Realizado','Falta','Cancelado']})}</div>${field('notas','Observação administrativa (opcional)','textarea',{source:a})}</div><div class="actions">${btn('Cancelar','nav','ghost','data-id="agenda"')}${btn('Salvar consulta','saveAppointment','')}</div>`;
+ return `${head('Agenda',editApptId?'Editar consulta':'Nova consulta','Horários são verificados contra outras consultas não canceladas.')}<div class="card">${field('caseId','Caso *','select',{source:a,values:state.cases.map(c=>c.id).length?state.cases.map(c=>c.id):['']}).replace(/<option value="([^"]*)"[^>]*>(.*?)<\/option>/g,(full,id)=>{const c=state.cases.find(c=>c.id===id);return `<option value="${esc(id)}" ${a.caseId===id?'selected':''}>${esc(c?.nome||'Selecione um caso')}</option>`;})}<div class="split">${field('data','Data *','date',{source:a,required:true})}${field('hora','Hora *','time',{source:a,required:true})}</div><div class="split">${field('duracao','Duração em minutos','select',{source:a,values:['25','30','45','50','60','90']})}${field('status','Status','select',{source:a,values:['Agendado','Realizado','Falta','Cancelado']})}</div>${field('notas','Observação administrativa (opcional)','textarea',{source:a})}${!editApptId?'<div class="split"><div class="field"><label>Quantidade de consultas</label><input id="ecoApptRepeat" type="number" min="1" max="52" value="1"></div><div class="field"><label>Intervalo</label><select id="ecoApptInterval"><option value="7">Semanal</option><option value="14">Quinzenal</option><option value="28">A cada 4 semanas</option></select></div></div>':''}</div><div class="actions">${btn('Cancelar','nav','ghost','data-id="agenda"')}${btn('Salvar consulta','saveAppointment','')}</div>`;
 }
 function studyScreen(){return `${head('Biblioteca','Estudos e ferramentas','Material introdutório próprio, para consulta e reflexão profissional.')}<div class="tabs">${['tecnicas','duvidas','temas'].map(x=>`<button data-act="studyMode" data-id="${x}" class="${studyMode===x?'active':''}">${{tecnicas:'15 técnicas',duvidas:'Perguntas',temas:'14 temas'}[x]}</button>`).join('')}</div>`+
  (studyMode==='tecnicas'?techniques.map((t,i)=>`<div class="card study"><span class="chip">Técnica ${i+1}</span><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p></div>`).join(''):
@@ -740,7 +740,11 @@ function act(name,id){
   if(!state.cases.some(c=>c.id===a.caseId)||!validDate(a.data)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(a.hora||'')||Number(a.duracao)<=0){notify('Confira o caso, a data, a hora e a duração.','red');return;}
   const match=state.appointments.find(b=>overlaps(a,b));
   if(match){const c=state.cases.find(c=>c.id===match.caseId);notify('Conflito: '+(c?.nome||'outro caso')+' às '+match.hora+' em '+formatDate(match.data),'red');return;}
-  change(()=>{const o={...a,duracao:Number(a.duracao)};const ix=state.appointments.findIndex(v=>v.id===o.id);if(ix>=0)state.appointments[ix]=o;else state.appointments.push(o);});
+  const count=editApptId?1:Math.max(1,Math.min(52,Math.floor(Number(document.getElementById('ecoApptRepeat')?.value)||1)));
+  const interval=Number(document.getElementById('ecoApptInterval')?.value)||7;
+  const proposed=ecoRecurringAppointments(a,count,interval);
+  if(proposed.some((x,i)=>state.appointments.some(b=>overlaps(x,b))||proposed.slice(0,i).some(b=>overlaps(x,b)))){notify('Conflito em uma das datas. Nenhuma consulta foi gravada.','red');return;}
+  if(!change(()=>{for(const o of proposed){const ix=state.appointments.findIndex(v=>v.id===o.id);if(ix>=0)state.appointments[ix]=o;else state.appointments.push(o);}}))return;
   apptDraft=null;editApptId=null;screen='agenda';render();return;
  }
  if(name==='studyMode'){studyMode=id;render();return;}
@@ -757,17 +761,19 @@ function act(name,id){
  }
  if(name==='confirmImport'){
   if(!pendingImport)return;const data=pendingImport;
-  const present=new Set(state.cases.map(c=>c.id));const newCases=data.cases.filter(c=>!present.has(c.id));
+  const plan=ecoPlanBackupMerge(state,data),newCases=plan.newCases;
+  const present=new Set(state.cases.map(c=>c.id));
   const validIds=new Set([...present,...newCases.map(c=>c.id)]);
   const apptIds=new Set(state.appointments.map(a=>a.id));const newAppointments=data.appointments.filter(a=>validIds.has(a.caseId)&&!apptIds.has(a.id));
   const success=change(()=>{
    state.cases.push(...newCases);state.appointments.push(...newAppointments);
+   for(const addition of plan.sessions){const c=state.cases.find(x=>x.id===addition.caseId);c.sessoes=[...(c.sessoes||[]),addition.session];}
    if(!state.mlDraft && data.mlDraft && state.cases.some(c=>c.id===data.mlDraft.caseId))
       state.mlDraft=JSON.parse(JSON.stringify(data.mlDraft));
   });
   if(success&&data.mlDraft&&window.NativeVault.saveDraft&&state.mlDraft?.caseId===data.mlDraft.caseId)
      window.NativeVault.saveDraft(JSON.stringify(data.mlDraft));
-  if(success){pendingImport=null;closeModal();notify(`${newCases.length} caso(s) e ${newAppointments.length} consulta(s adicionados, com dados ML preservados.`);}
+  if(success){pendingImport=null;closeModal();notify(`${newCases.length} caso(s), ${plan.sessions.length} sessão(ões) e ${newAppointments.length} consulta(s) adicionados. ${plan.conflicts} conflito(s) mantidos sem sobrescrever.`);}
   return;
  }
  if(name==='closeModal'){pendingImport=null;closeModal();return;}
@@ -776,8 +782,8 @@ function closeModal(){const el=$('#popup');if(el)el.remove();}
 function openModal(html){closeModal();const node=document.createElement('div');node.id='popup';node.className='app-modal';node.innerHTML=`<div class="modal-content">${html}</div>`;document.body.appendChild(node);}
 window.nativeImportResult = function(content){
  try{const data=normalizeImported(JSON.parse(content));pendingImport=data;
-  const newCount=data.cases.filter(c=>!state.cases.some(x=>x.id===c.id)).length;
-  openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>Registros com o mesmo identificador serão mantidos como estão. Nenhum registro local será apagado ou substituído.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
+  const plan=ecoPlanBackupMerge(state,data),newCount=plan.newCases.length;
+  openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>${plan.sessions.length} sessão(ões) ausentes serão recuperadas em casos existentes. ${plan.conflicts} conflito(s) serão mantidos localmente sem sobrescrever. Nenhum registro local será apagado.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
  }catch(e){pendingImport=null;notify('Não foi possível interpretar o arquivo: '+e.message,'red');}
 };
 document.addEventListener('click',e=>{const button=e.target.closest('[data-act]');if(button){e.preventDefault();act(button.dataset.act,button.dataset.id,button);}});
@@ -4370,4 +4376,29 @@ act=function(name,id,button){
  if(screen==='manualSession'&&['nav','openCase','newCase','newManualSession','saveManualSession','ecoHomeLaunch'].includes(name)&&!ecoManualDraftFlush()){notify('Rascunho não gravado. Não saia antes de salvar ou copiar o texto.','red');return;}
  return ecoDraftPriorAct(name,id,button);
 };
+
+function ecoPlanBackupMerge(local,incoming){
+ const allIds=new Set((local.cases||[]).flatMap(c=>(c.sessoes||[]).map(s=>s.id))),newCases=[],sessions=[];let conflicts=0;
+ const caseIds=new Set(),incomingSessions=new Set();
+ for(const c of incoming.cases||[]){
+  if(caseIds.has(c.id))throw Error('Caso duplicado no backup.');caseIds.add(c.id);
+  for(const x of c.sessoes||[]){if(incomingSessions.has(x.id))throw Error('Sessão duplicada no backup.');incomingSessions.add(x.id);}
+  const old=(local.cases||[]).find(x=>x.id===c.id);
+  if(!old){
+   if((c.sessoes||[]).some(x=>allIds.has(x.id))){conflicts++;continue;}
+   for(const x of c.sessoes||[])allIds.add(x.id);newCases.push(c);continue;
+  }
+  for(const session of c.sessoes||[]){
+   const prior=(old.sessoes||[]).find(x=>x.id===session.id);
+   if(prior){if(JSON.stringify(prior)!==JSON.stringify(session))conflicts++;continue;}
+   if(allIds.has(session.id)){conflicts++;continue;}
+   allIds.add(session.id);sessions.push({caseId:c.id,session});
+  }
+ }
+ return {newCases,sessions,conflicts};
+}
+function ecoRecurringAppointments(a,count,interval){
+ if(!Number.isInteger(count)||count<1||count>52||![7,14,28].includes(interval))throw Error('Recorrência inválida');
+ const out=[];for(let i=0;i<count;i++){const d=new Date(a.data+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i*interval);out.push({...a,id:i?uid():a.id,data:d.toISOString().slice(0,10),duracao:Number(a.duracao)});}return out;
+}
 </script></body></html>
