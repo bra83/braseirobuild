@@ -191,6 +191,7 @@ try{
   saveClinicalDraft:(c,k,raw)=>{journal[c+'|'+k]=raw;return 'OK'},
   clearClinicalDraft:(c,k,id)=>{if(JSON.parse(journal[c+'|'+k]||'{}').id===id)delete journal[c+'|'+k];return 'OK'}
  });act('openCase','browser-a');act('caseTab','enquadre');});
+ await page.locator('#enq_frequencia').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
  await page.locator('#enq_frequencia').fill('Rascunho de frequência fictício');
  await home();
  await page.evaluate(()=>{act('openCase','browser-b');act('caseTab','enquadre');});
@@ -202,6 +203,7 @@ try{
  assert.notEqual(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').enquadre?.frequencia),'Rascunho de frequência fictício');
  await page.locator('[data-act="ecoClinicalDraftResume"]').click();
  assert.equal(await page.locator('#enq_frequencia').inputValue(),'Rascunho de frequência fictício');
+ await page.locator('[data-act="ecoSaveEnquadre"]').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
  await page.locator('[data-act="ecoSaveEnquadre"]').click();
  assert.equal(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-a').enquadre.frequencia),'Rascunho de frequência fictício');
  assert.equal(await page.locator('#ecoClinicalDraftPanel').count(),0);
