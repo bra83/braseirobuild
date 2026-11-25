@@ -400,4 +400,27 @@ public class EcoIntegratedPersistenceTest {
         assertTrue(db.clearJobAudioKey("decoder-job"));assertNull(db.readDecoderCheckpoint("decoder-job","small",audio));
         store.getDbHelper().close();
     }
+
+    @Test public void clinicalDraftsStayIsolatedAndRestoreWithoutChangingApprovedRecord() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        byte[] k=new byte[32];SecureStore store=new SecureStore(context,new SecretKeySpec(k,"AES"));
+        JSONObject a=caseWith("clinical-a","ORIGINAL A"),b=caseWith("clinical-b","ORIGINAL B");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject draft=new JSONObject().put("caseId","clinical-a").put("kind","anamnese").put("id","draft-1")
+            .put("base",new JSONObject().put("padroesSono","ORIGINAL A")).put("fields",new JSONObject().put("padroesSono","NÃO APROVADO"));
+        store.saveClinicalDraft("clinical-a","anamnese",draft.toString());
+        assertEquals("",store.readClinicalDraft("clinical-b","anamnese"));assertEquals("",store.readClinicalDraft("clinical-a","enquadre"));
+        store.getDbHelper().close();store=new SecureStore(context,new SecretKeySpec(k,"AES"));
+        assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
+        assertEquals("ORIGINAL A",byId(new JSONObject(store.read()),"clinical-a").getJSONObject("anamnese").getString("padroesSono"));
+        store.clearClinicalDraft("clinical-a","anamnese","wrong");assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
+        JSONObject portable=store.exportPortableSnapshot(false);assertEquals(1,portable.getJSONObject("nativeRecoveryBundle").getJSONArray("clinical").length());
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));k[0]=11;
+        store=new SecureStore(context,new SecretKeySpec(k,"AES"));store.save(portable.toString());
+        assertEquals(draft.toString(),store.readClinicalDraft("clinical-a","anamnese"));
+        store.clearClinicalDraft("clinical-a","anamnese","draft-1");assertEquals("",store.readClinicalDraft("clinical-a","anamnese"));
+        assertEquals("ORIGINAL B",byId(new JSONObject(store.read()),"clinical-b").getJSONObject("anamnese").getString("padroesSono"));
+        store.getDbHelper().close();
+    }
 }
