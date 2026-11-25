@@ -24,4 +24,23 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     gate=json.loads(z.read("assets/nli/gate.txt"))
     assert gate["model_sha256"]==digest.hexdigest() and sum(gate["correct"])>=8 and all(x>=1 for x in gate["correct"]) and gate["clinical_validation"] is False
     assert z.getinfo("assets/nli/attribution.txt").file_size>0
+    for asset,sha in [("rerank/model.onnx","6e57207c62deb625b5751a376f32ac66109281b0d199a2aec09f2671e066acf5"),("llm/model.gguf","74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db")]:
+        info=z.getinfo("assets/"+asset)
+        assert info.compress_type==zipfile.ZIP_STORED
+        with z.open(info) as f:
+            d=hashlib.sha256()
+            for block in iter(lambda:f.read(1024*1024),b""):d.update(block)
+        assert d.hexdigest()==sha,asset
+    rg=json.loads(z.read("assets/rerank/gate.txt"))
+    assert rg["ranking_correct"]>=5 and rg["clinical_validation"] is False
+    assert rg["sha256"]=="6e57207c62deb625b5751a376f32ac66109281b0d199a2aec09f2671e066acf5"
+    lg=json.loads(z.read("assets/llm/gate.txt"))
+    assert lg["model_sha256"]=="74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db" and lg["clinical_validation"] is False
+    assert z.getinfo("assets/rerank/vocab.txt").file_size>0
+    for name in ["assets/rerank/attribution.txt","assets/llm/attribution.txt","assets/llm/llama-license.txt"]:
+        assert z.getinfo(name).file_size>0
+    exe="lib/arm64-v8a/libeco_generate.so"
+    assert exe in libs
+    with z.open(exe) as f: elf=f.read(64)
+    assert elf[:4]==b"\x7fELF" and elf[4]==2 and elf[5]==1 and int.from_bytes(elf[18:20],"little")==183
     print("PASS APK integrity, ARM64 libraries and all required offline models",flush=True)
