@@ -1893,7 +1893,7 @@ let ecoDocProfContato="";
 let ecoDocSessionId="";
 let ecoDocDateFrom="";
 let ecoDocDateTo="";
-let ecoDocSections={identificacao:true,enquadre:true,anamnese:true,sessoes:true,investigacao:true,hipoteses:true,tecnicas:true,sonhos:true,genograma:true,cronologia:true,seguranca:true,plano:true,bruto:false,revisado:false,falantes:false,graficos:false,rede:false,fechamento:false};
+let ecoDocSections={identificacao:true,enquadre:true,anamnese:true,sessoes:true,investigacao:true,hipoteses:true,tecnicas:true,sonhos:true,genograma:true,cronologia:true,seguranca:true,plano:true,bruto:false,revisado:false,falantes:false,graficos:false,rede:false,fechamento:false,sintesesIA:false};
 let manualSessionDraft=null;
 
 
@@ -2664,6 +2664,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
   }
 
   if(sections.rede&&['ficha','evolucao'].includes(type)&&ecoNetworkRows(c).length){body+='<h2>Rede social e afetiva relatada</h2>'+ecoNetworkSvg(c)+ecoNetworkRows(c).map(x=>'<p><strong>'+esc(x.name)+'</strong> · '+esc(ecoNetworkKinds.find(k=>k[0]===x.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===x.relation)?.[1]||'Não informado')+' · '+esc(ecoNetworkSource(c,x))+'</p>').join('');}
+  if(sections.sintesesIA&&['ficha','sessao','evolucao'].includes(type))body+=ecoAiArchiveDoc(c,opts,type);
   if(sections.fechamento&&['ficha','sessao','evolucao'].includes(type)){const ss=(c.sessoes||[]).filter(s=>(!opts.sessionId||s.id===opts.sessionId)&&(!opts.docDateFrom||s.data>=opts.docDateFrom)&&(!opts.docDateTo||s.data<=opts.docDateTo));body+='<h2>Fechamentos revisados</h2>'+ss.map(s=>{const x=c.ecoVisitClosure?.[s.id];if(x?.status!=='revisado')return '';const valid=(x.sourceIds||[]).every(id=>ecoVisitSourceIds(c,s.id).some(r=>r.id===id));if(!valid)return '<p>'+esc(formatDate(s.data))+' — fontes alteradas, fechamento requer nova revisão.</p>';return '<h3>'+esc(formatDate(s.data))+'</h3><p>'+esc(x.summary)+'</p><p>Intervenções: '+esc(x.interventions||'Não registradas')+'</p><p>Continuidade: '+esc(x.next||'Não registrada')+'</p><p>Incertezas: '+esc(x.uncertainty||'Não registradas')+'</p>';}).join('');}
   if(sections.plano){
     body += '<h2>12. Observações e Plano de Continuidade</h2>';
@@ -2747,6 +2748,7 @@ function ecoRenderDocuments(c){
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="cronologia" '+(ecoDocSections.cronologia?'checked':'')+'> 10. Cronologia biográfica</label>'+
    '<label class="choice"><input type="checkbox" data-eco-doc-sec="seguranca" '+(ecoDocSections.seguranca?'checked':'')+'> 11. Plano de segurança clínica</label>'+
    (['ficha','transcricao','sessao'].includes(ecoDocType)?['bruto','revisado','falantes'].map((k,i)=>'<label class="choice"><input type="checkbox" data-eco-doc-sec="'+k+'" '+(ecoDocSections[k]?'checked':'')+'> '+['Transcrição bruta (sensível)','Transcrição revisada (sensível)','Trechos e falantes (sensível)'][i]+'</label>').join(''):'')+
+    (['ficha','sessao','evolucao'].includes(ecoDocType)?'<label class="choice"><input type="checkbox" data-eco-doc-sec="sintesesIA" '+(ecoDocSections.sintesesIA?'checked':'')+'> Sínteses IA revisadas (interno)</label>':'')+
     (['ficha','sessao','evolucao'].includes(ecoDocType)?'<label class="choice"><input type="checkbox" data-eco-doc-sec="fechamento" '+(ecoDocSections.fechamento?'checked':'')+'> Fechamento pós-sessão revisado (interno)</label>':'')+(['ficha','evolucao'].includes(ecoDocType)?'<label class="choice"><input type="checkbox" data-eco-doc-sec="rede" '+(ecoDocSections.rede?'checked':'')+'> Rede social e afetiva (interna)</label>':'')+
     '<label class="choice"><input type="checkbox" data-eco-doc-sec="graficos" '+(ecoDocSections.graficos?'checked':'')+'> Indicadores e gráficos</label>'+
     '<label class="choice"><input type="checkbox" data-eco-doc-sec="plano" '+(ecoDocSections.plano?'checked':'')+'> 12. Observações e continuidade</label>'+
@@ -3782,8 +3784,8 @@ function ecoVisitPanel(c){
  const ss=ecoVisitSessions(c),selected=ss.find(x=>x.id===ecoVisitSelected)||ss[0],prep=c.ecoPreparation||{},post=selected?(c.ecoVisitClosure||{})[selected.id]||{}:{},qs=(c.ecoQuestions||[]).filter(q=>['aberta','em_curso','adiada'].includes(q.status));
  const attr='data-case="'+esc(c.id)+'"',sources=selected?ecoVisitSourceIds(c,selected.id):[];
  const field=(id,label,value)=>'<div class="field"><label>'+esc(label)+'</label><textarea id="'+id+'" maxlength="8000">'+esc(value||'')+'</textarea></div>';
- return '<section class="card"><h2>Preparação da próxima sessão</h2><p class="small muted">Plano interno do profissional. Prioridades são propostas, não roteiro rígido ou diagnóstico.</p>'+(ss[0]?'<div class="eco-evidence"><strong>Último atendimento · '+esc(formatDate(ss[0].data))+'</strong><p>'+esc((ss[0].texto||'').slice(0,1200))+'</p><p>Continuidade: '+esc(ss[0].plano||'Não registrada')+'</p></div>':'<p>Primeiro atendimento, sem histórico.</p>')+'<h3>Perguntas pendentes</h3>'+(qs.length?qs.map(q=>'<p>• '+esc(q.text)+' · '+esc(ecoQuestionStatus.find(x=>x[0]===q.status)?.[1]||q.status)+'</p>').join(''):'<p>Nenhuma pergunta registrada.</p>')+'<h3>Hipóteses provisórias registradas</h3>'+((c.hipotesesList||[]).length?(c.hipotesesList||[]).map(x=>'<div class="eco-evidence"><strong>'+esc(x.texto)+'</strong><p>Alternativas: '+esc(x.alternativas||'Não registradas')+'</p></div>').join(''):'<p>Nenhuma hipótese registrada.</p>')+field('ecoPrepGoals','Objetivos a retomar',prep.goals)+field('ecoPrepQuestions','Questões e temas para escuta',prep.questions)+field('ecoPrepLogistics','Enquadre, recursos e providências',prep.logistics)+btn('Salvar preparação','ecoPrepSave','',attr)+(prep.updatedAt?'<p class="small">Salva em '+esc(formatDate(prep.updatedAt.slice(0,10)))+'</p>':'')+'<div class="actions">'+btn('Atendimento manual','newManualSession','secondary','data-id="'+esc(c.id)+'" '+attr)+btn('Gravar ou importar sessão','ecoOpen','secondary','data-id="'+esc(c.id)+'" '+attr)+'</div></section>'+
- '<section class="card"><h2>Fechamento e revisão pós-sessão</h2><p class="small muted">Registre uma síntese própria e valide as fontes disponíveis. O fechamento não modifica a transcrição, não produz diagnóstico e não é requisito para excluir áudio.</p>'+(selected?'<div class="field"><label>Sessão</label><select id="ecoVisitSession" data-eco-visit-session>'+ss.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===selected.id?'selected':'')+'>'+esc(formatDate(s.data)+' · '+(s.hora||'')+' · '+(s.origem==='manual'?'Manual':'Áudio')+' · '+s.id.slice(-6))+'</option>').join('')+'</select></div><div class="eco-evidence"><strong>Registro original</strong><p>'+esc((selected.texto||'').slice(0,1500))+'</p><p>'+esc(selected.plano||'')+'</p></div><h3>Fontes confirmadas desta sessão</h3>'+(sources.length?sources.map(x=>'<div class="eco-evidence"><strong>'+esc(x.label)+'</strong><p>'+esc(x.quote)+'</p><small>'+esc(x.source)+'</small></div>').join(''):'<p>Nenhuma fonte neural confirmada.</p>')+field('ecoPostSummary','Síntese profissional',post.summary)+field('ecoPostInterventions','Intervenções e respostas observadas',post.interventions)+field('ecoPostNext','Plano de continuidade',post.next)+field('ecoPostUncertainty','Incertezas e pontos a esclarecer',post.uncertainty)+'<p><strong>Estado:</strong> '+esc(post.status==='revisado'?((post.sourceIds||[]).every(id=>sources.some(r=>r.id===id))?'Revisado':'Revisão necessária: fontes alteradas'):post.status==='rascunho'?'Rascunho':'Não registrado')+'</p><label class="choice"><input type="checkbox" id="ecoPostConfirm">Revisei o conteúdo e as fontes deste fechamento.</label><div class="actions">'+btn('Salvar rascunho','ecoVisitSave','secondary',attr+' data-id="'+esc(selected.id)+'"')+btn('Confirmar revisão','ecoVisitConfirm','',attr+' data-id="'+esc(selected.id)+'"')+'</div><p class="small">'+(post.history?.length||0)+' versão(ões) anteriores preservadas.</p>':'<p>Registre uma sessão antes de produzir o fechamento.</p>')+'</section>';
+ return '<section class="card"><h2>Preparação da próxima sessão</h2><p class="small muted">Plano interno do profissional. Prioridades são propostas, não roteiro rígido ou diagnóstico.</p>'+(ss[0]?'<div class="eco-evidence"><strong>Último atendimento · '+esc(formatDate(ss[0].data))+'</strong><p>'+esc((ss[0].texto||'').slice(0,1200))+'</p><p>Continuidade: '+esc(ss[0].plano||'Não registrada')+'</p></div>':'<p>Primeiro atendimento, sem histórico.</p>')+'<h3>Perguntas pendentes</h3>'+(qs.length?qs.map(q=>'<p>• '+esc(q.text)+' · '+esc(ecoQuestionStatus.find(x=>x[0]===q.status)?.[1]||q.status)+'</p>').join(''):'<p>Nenhuma pergunta registrada.</p>')+'<h3>Hipóteses provisórias registradas</h3>'+((c.hipotesesList||[]).length?(c.hipotesesList||[]).map(x=>'<div class="eco-evidence"><strong>'+esc(x.texto)+'</strong><p>Alternativas: '+esc(x.alternativas||'Não registradas')+'</p></div>').join(''):'<p>Nenhuma hipótese registrada.</p>')+btn('Pesquisar temas para próxima sessão com IA','ecoAiOpenTask','secondary','data-id="2" '+attr)+field('ecoPrepGoals','Objetivos a retomar',prep.goals)+field('ecoPrepQuestions','Questões e temas para escuta',prep.questions)+field('ecoPrepLogistics','Enquadre, recursos e providências',prep.logistics)+btn('Salvar preparação','ecoPrepSave','',attr)+(prep.updatedAt?'<p class="small">Salva em '+esc(formatDate(prep.updatedAt.slice(0,10)))+'</p>':'')+'<div class="actions">'+btn('Atendimento manual','newManualSession','secondary','data-id="'+esc(c.id)+'" '+attr)+btn('Gravar ou importar sessão','ecoOpen','secondary','data-id="'+esc(c.id)+'" '+attr)+'</div></section>'+
+ '<section class="card"><h2>Fechamento e revisão pós-sessão</h2><p class="small muted">Registre uma síntese própria e valide as fontes disponíveis. O fechamento não modifica a transcrição, não produz diagnóstico e não é requisito para excluir áudio.</p>'+(selected?'<div class="field"><label>Sessão</label><select id="ecoVisitSession" data-eco-visit-session>'+ss.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===selected.id?'selected':'')+'>'+esc(formatDate(s.data)+' · '+(s.hora||'')+' · '+(s.origem==='manual'?'Manual':'Áudio')+' · '+s.id.slice(-6))+'</option>').join('')+'</select></div><div class="eco-evidence"><strong>Registro original</strong><p>'+esc((selected.texto||'').slice(0,1500))+'</p><p>'+esc(selected.plano||'')+'</p></div><h3>Fontes confirmadas desta sessão</h3>'+(sources.length?sources.map(x=>'<div class="eco-evidence"><strong>'+esc(x.label)+'</strong><p>'+esc(x.quote)+'</p><small>'+esc(x.source)+'</small></div>').join(''):'<p>Nenhuma fonte neural confirmada.</p>')+btn('Preparar síntese desta sessão com IA','ecoAiOpenTask','secondary','data-id="0" data-session="'+esc(selected.id)+'" '+attr)+field('ecoPostSummary','Síntese profissional',post.summary)+field('ecoPostInterventions','Intervenções e respostas observadas',post.interventions)+field('ecoPostNext','Plano de continuidade',post.next)+field('ecoPostUncertainty','Incertezas e pontos a esclarecer',post.uncertainty)+'<p><strong>Estado:</strong> '+esc(post.status==='revisado'?((post.sourceIds||[]).every(id=>sources.some(r=>r.id===id))?'Revisado':'Revisão necessária: fontes alteradas'):post.status==='rascunho'?'Rascunho':'Não registrado')+'</p><label class="choice"><input type="checkbox" id="ecoPostConfirm">Revisei o conteúdo e as fontes deste fechamento.</label><div class="actions">'+btn('Salvar rascunho','ecoVisitSave','secondary',attr+' data-id="'+esc(selected.id)+'"')+btn('Confirmar revisão','ecoVisitConfirm','',attr+' data-id="'+esc(selected.id)+'"')+'</div><p class="small">'+(post.history?.length||0)+' versão(ões) anteriores preservadas.</p>':'<p>Registre uma sessão antes de produzir o fechamento.</p>')+'</section>';
 }
 function ecoVisitAction(c,name,id){
  const v=k=>String(document.getElementById(k)?.value||'').trim();
@@ -3939,7 +3941,7 @@ act=function(name,id,button){
 
 
 let ecoAiRun=null,ecoAiSerial=0,ecoAiScope='paciente';
-function ecoAiRows(c,scope){return scope==='teoria'?ecoLibraryChunks().map(x=>({...x,text:x.text,speaker:'desconhecido'})):ecoReviewRows(c,scope,'','');}
+function ecoAiRows(c,scope){return scope==='teoria'?ecoLibraryChunks().map(x=>({...x,text:x.text,speaker:'desconhecido'})):ecoReviewRows(c,scope,ecoAiFrom,ecoAiTo).filter(x=>!ecoAiSession||x.sessionId===ecoAiSession);}
 function ecoAiKey(c,scope){return JSON.stringify([c?.id,scope,ecoAiRows(c,scope)]);}
 function ecoAiCurrent(r){return !!r&&screen==='case'&&tab==='assistenteIA'&&r.caseId===openedId&&r.key===ecoAiKey(currentCase(),r.scope);}
 function ecoAiCancel(){if(ecoAiRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoAiRun.id);}catch(e){}ecoAiRun=null;}
@@ -3951,7 +3953,10 @@ function ecoAiSend(r,phase,payload,stage){
 function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
 function ecoAiStart(c){
  if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
- const query=String(document.getElementById('ecoAiQuery')?.value||'').trim(),rows=ecoAiRows(c,ecoAiScope);
+ const from=document.getElementById('ecoAiFrom')?.value||'',to=document.getElementById('ecoAiTo')?.value||'',session=document.getElementById('ecoAiSession')?.value||'';
+ if(ecoAiScope!=='teoria'&&((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)||(session&&!(c.sessoes||[]).some(s=>s.id===session)))){notify('Período ou sessão inválidos.','red');return;}
+ ecoAiFrom=ecoAiScope==='teoria'?'':from;ecoAiTo=ecoAiScope==='teoria'?'':to;ecoAiSession=ecoAiScope==='teoria'?'':session;
+ const query=String(document.getElementById('ecoAiQuery')?.value||'').trim(),rows=ecoAiRows(c,ecoAiScope);ecoAiPrefill=query;
  const scope=ecoAiScope==='paciente'?'paciente':'desconhecido';
  const payload={query,scope,retrievalOnly:true,rows:rows.map(x=>({text:x.text,speaker:x.speaker,sessionId:x.sessionId||'',atMs:x.atMs??null}))};
  if(!query||query.length>500||!rows.length||rows.length>1200||JSON.stringify(payload).length>490000||rows.some(x=>x.text.length>12000)){notify('Consulta ou corpus acima do limite. Use uma consulta de até 500 caracteres e até 1200 trechos.','red');return;}
@@ -3990,12 +3995,12 @@ function ecoAiDraftVerification(r){
 function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(r.scope==='teoria'?(u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
 function ecoAiPanel(c){
  const r=ecoAiCurrent(ecoAiRun)?ecoAiRun:null;
- let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||'')+'</textarea></div>'+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
+ let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||ecoAiPrefill||'')+'</textarea></div>'+ecoAiTaskButtons()+(ecoAiScope==='teoria'?'':ecoAiFilterFields(c))+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
  if(r?.pending)out+='<p id="ecoAiStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoAiCancel','ghost');
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
  else if(r?.phase==='ready'){out+='<h3>Fontes reordenadas pelo cross-encoder</h3><p class="small">Selecione as fontes antes de gerar. Passagens longas não são cortadas silenciosamente.</p>'+r.ranked.map((x,i)=>'<div class="eco-evidence"><label class="choice"><input type="checkbox" id="ecoAiPick_'+i+'" '+(r.rows[x.i].text.length>1800?'disabled':'')+'>Selecionar fonte</label>'+ecoAiSource(r,x)+'</div>').join('')+(r.ranked.length?btn('Gerar minuta local','ecoAiGenerate','','data-case="'+esc(c.id)+'"'):'<p>Nenhuma fonte elegível; não gerar resposta.</p>')+(r.skipped?.length?'<p>'+r.skipped.length+' fonte(s) excederam o limite do reranker.</p>':'');}
- else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+ecoAiDraftVerification(r)+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
- return out+'</section>';
+ else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+ecoAiDraftVerification(r)+(r.scope==='teoria'?'':ecoAiArchiveForm(r))+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
+ return out+'</section>'+ecoAiArchivePanel(c);
 }
 const ecoAiPriorProgress=window.nativeSemanticProgress,ecoAiPriorResult=window.nativeSemanticResult,ecoAiPriorUnlock=window.nativeSemanticUnlocked;
 window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('ai-'))return ecoAiPriorProgress(raw);const r=ecoAiRun;if(!r?.pending||v.id!==r.id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}r.last=Date.now();r.stage=String(v.stage||r.stage);const el=document.getElementById('ecoAiStage');if(el)el.textContent=r.stage;};
@@ -4097,6 +4102,64 @@ act=function(name,id,button){
  }
  if(['nav','openCase','newCase'].includes(name))ecoHomeTarget='';
  return ecoHomePriorAct(name,id,button);
+};
+
+
+
+let ecoAiFrom='',ecoAiTo='',ecoAiSession='',ecoAiPrefill='';
+const ecoAiTasks=[
+ ['Síntese da sessão','Resuma os acontecimentos e dificuldades explicitamente relatados nas fontes, sem inferir causas.'],
+ ['Evolução','Quais mudanças e continuidades foram explicitamente relatadas? Diferencie datas e contextos.'],
+ ['Preparação','Quais assuntos mencionados nas fontes podem ser retomados com perguntas abertas?'],
+ ['Anamnese','Organize as informações biográficas e de saúde explicitamente relatadas, sem completar lacunas.'],
+ ['Sonhos','Organize o conteúdo manifesto e os afetos explicitamente mencionados, sem atribuir significados universais.'],
+ ['Vínculos','Quais pessoas, relações e situações de apoio ou conflito foram explicitamente relatadas?'],
+ ['Investigação','Quais questões abertas permanecem a esclarecer a partir das fontes, sem supor respostas?']
+];
+function ecoAiFilterFields(c){
+ const ss=ecoVisitSessions(c);
+ return '<div class="split"><div class="field"><label>De</label><input type="date" id="ecoAiFrom" value="'+esc(ecoAiFrom)+'"></div><div class="field"><label>Até</label><input type="date" id="ecoAiTo" value="'+esc(ecoAiTo)+'"></div></div><div class="field"><label>Sessão específica (opcional)</label><select id="ecoAiSession"><option value="">Todas no período</option>'+ss.map(s=>'<option value="'+esc(s.id)+'" '+(ecoAiSession===s.id?'selected':'')+'>'+esc(formatDate(s.data)+' · '+(s.hora||'')+' · '+(s.origem==='manual'?'Manual':'Áudio')+' · '+s.id.slice(-6))+'</option>').join('')+'</select></div>';
+}
+function ecoAiTaskButtons(){return '<div class="actions">'+ecoAiTasks.map(([label],i)=>btn(label,'ecoAiTask','secondary','data-id="'+i+'"')).join('')+'</div>';}
+function ecoAiArchiveValid(c,record){
+ return Array.isArray(record.sources)&&record.sources.length>0&&record.sources.every(x=>x.scope==='teoria'?ecoLibraryChunks().some(y=>y.text===x.quote&&y.title===x.title&&y.ref===x.ref):['paciente','manual'].includes(x.scope)&&ecoReviewValid(c,x)&&(c.sessoes||[]).some(s=>s.id===x.sessionId&&s.data===x.sessionDate));
+}
+function ecoAiArchivePanel(c){
+ const records=c.ecoAiArchive||[];
+ return '<section class="card"><h2>Caderno de sínteses revisadas</h2><p class="small muted">Somente revisões confirmadas pelo profissional. As fontes permanecem vinculadas; uma alteração posterior invalida o uso documental até nova revisão.</p>'+(records.length?records.slice().reverse().map(x=>'<details class="card"><summary>'+esc(x.title)+' · '+esc(formatDate(x.createdAt.slice(0,10)))+' · '+(ecoAiArchiveValid(c,x)?'Fontes atuais':'Revisão necessária')+'</summary><p style="white-space:pre-wrap">'+esc(x.text)+'</p><p class="small">Minuta produzida por '+esc(x.model)+'; revisão humana registrada. '+esc(x.scope==='teoria'?'Estudo teórico — não registro clínico':'Registro interno')+'</p>'+x.sources.map((s,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+'] '+esc(s.scope==='teoria'?s.title:formatDate(s.sessionDate))+'</strong><p>'+esc(s.quote)+'</p><small>'+esc(s.scope==='teoria'?s.ref:s.source)+'</small></div>').join('')+btn('Excluir registro','ecoAiArchiveDelete','ghost','data-id="'+esc(x.id)+'" data-case="'+esc(c.id)+'"')+'</details>').join(''):'<p>Nenhuma síntese revisada.</p>')+'</section>';
+}
+function ecoAiArchiveForm(r){
+ return '<section class="card"><h3>Revisar e arquivar</h3><p class="small muted">Edite a minuta, corrija fatos e confira todas as fontes. A conferência NLI não substitui a revisão humana. O texto revisado não altera automaticamente anamnese, sonhos ou sessões.</p><div class="field"><label>Título</label><input id="ecoAiArchiveTitle" maxlength="150" value="'+esc(r.query.slice(0,150))+'"></div><div class="field"><label>Texto revisado pelo profissional</label><textarea id="ecoAiArchiveText" maxlength="8000">'+esc(r.draft)+'</textarea></div><label class="choice"><input type="checkbox" id="ecoAiArchiveConfirm">Li as fontes e revisei o conteúdo; assumo a responsabilidade pelo registro.</label>'+btn('Arquivar síntese revisada','ecoAiArchiveSave','','data-case="'+esc(r.caseId)+'"')+'</section>';
+}
+function ecoAiArchiveSave(c){
+ const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='done'||!r.selected?.length){notify('Minuta ou fontes não disponíveis.','red');return;}
+ const title=String(document.getElementById('ecoAiArchiveTitle')?.value||'').trim(),text=String(document.getElementById('ecoAiArchiveText')?.value||'').trim();
+ if(!title||title.length>150||!text||text.length>8000||!document.getElementById('ecoAiArchiveConfirm')?.checked){notify('Informe título, revise o texto e confirme as fontes.','red');return;}
+ if(r.scope==='teoria'){notify('O estudo teórico fica separado do prontuário. Não arquive neste caso.','red');return;}
+ const sources=r.selected.map(x=>{const u=r.rows[x.i];return {scope:r.scope,quote:u.text,sessionId:u.sessionId,sessionDate:u.sessionDate,atMs:u.atMs??null,source:u.source};});
+ const record={id:uid(),title,text,model:r.model,scope:r.scope,query:r.query,createdAt:new Date().toISOString(),sources,reviewed:true};
+ if(!ecoAiArchiveValid(c,record)){notify('Uma fonte foi alterada. Execute a consulta novamente.','red');return;}
+ if((c.ecoAiArchive||[]).some(x=>x.title===title&&x.text===text&&JSON.stringify(x.sources)===JSON.stringify(sources))){notify('Síntese já arquivada.');return;}
+ if(change(()=>{c.ecoAiArchive=[...(c.ecoAiArchive||[]),record];c.atualizadoEm=record.createdAt;}))notify('Síntese revisada arquivada.');
+}
+function ecoAiArchiveDoc(c,opts,type){
+ const records=(c.ecoAiArchive||[]).filter(x=>x.reviewed&&x.scope!=='teoria'&&ecoAiArchiveValid(c,x)&&x.sources.every(s=>(!opts.sessionId||s.sessionId===opts.sessionId)&&(!opts.docDateFrom||s.sessionDate>=opts.docDateFrom)&&(!opts.docDateTo||s.sessionDate<=opts.docDateTo)));
+ return '<h2>Sínteses revisadas com auxílio de IA</h2>'+(records.length?records.map(x=>'<h3>'+esc(x.title)+'</h3><p>'+esc(x.text)+'</p><p><small>Revisão profissional: '+esc(formatDate(x.createdAt.slice(0,10)))+' · '+esc(x.model)+'</small></p>'+x.sources.map((s,i)=>'<p><small>[S'+(i+1)+'] '+esc(formatDate(s.sessionDate))+' · '+esc(s.source)+'</small></p>').join('')).join(''):'<p>Nenhuma síntese revisada com fontes atuais dentro do filtro.</p>');
+}
+function ecoAiOpenTask(c,id,sessionId){
+ if(!c||!ecoAiTasks[Number(id)])return;
+ act('caseTab','assistenteIA');ecoAiPrefill=ecoAiTasks[Number(id)][1];ecoAiSession=sessionId||'';const s=(c.sessoes||[]).find(x=>x.id===sessionId);ecoAiScope=s?.origem==='manual'?'manual':'paciente';render();
+}
+
+const ecoArchivePriorAct=act;
+act=function(name,id,button){
+ const c=state?.cases?currentCase():null;
+ if(name==='ecoAiTask'){if(ecoAiRun?.pending)return;const q=ecoAiTasks[Number(id)];if(q){const d=document.getElementById('ecoAiQuery');if(d)d.value=q[1];ecoAiPrefill=q[1];}return;}
+ if(name==='ecoAiOpenTask'){if(c&&button?.dataset?.case===c.id)ecoAiOpenTask(c,id,button.dataset.session);return;}
+ if(name==='ecoAiArchiveSave'){if(c&&button?.dataset?.case===c.id)ecoAiArchiveSave(c);return;}
+ if(name==='ecoAiArchiveDelete'){if(c&&button?.dataset?.case===c.id&&window.confirm?.('Excluir a síntese revisada?'))change(()=>{c.ecoAiArchive=(c.ecoAiArchive||[]).filter(x=>x.id!==id);});return;}
+ if(['nav','openCase','caseTab','ecoAtlasTab','ecoAiScope'].includes(name)){ecoAiFrom='';ecoAiTo='';ecoAiSession='';ecoAiPrefill='';}
+ return ecoArchivePriorAct(name,id,button);
 };
 
 </script></body></html>
