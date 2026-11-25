@@ -15,6 +15,7 @@ final class SegmentDiarizer implements AutoCloseable {
     private final SpeakerClusters clusters;
     private NeuralOverlapEngine overlap;
     boolean overlapAvailable(){return overlap!=null;}
+    boolean overlapRequested(){return clusters!=null;}
     SegmentDiarizer(Context c,SpeakerClusters clusters) throws Exception{
         this.clusters=clusters;
         try{
