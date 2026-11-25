@@ -557,6 +557,13 @@ public final class MainActivity extends Activity {
             }
         }
 
+        @JavascriptInterface public boolean parkPausedJob(){
+            if(!unlocked||ml==null)return false;
+            if(!ml.parkPausedJob())return false;
+            activeJobCaseId="";
+            return true;
+        }
+
         @JavascriptInterface public boolean resumeJob(String jobId) {
             if (!unlocked || ml == null || semanticBusy.get()) return false;
             if (ml.isRecording() || ml.isTranscribing() || ml.isPaused()) return false;
