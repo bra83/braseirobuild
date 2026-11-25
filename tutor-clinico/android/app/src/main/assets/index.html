@@ -276,7 +276,7 @@ function persist(){
  const response=window.NativeVault.saveState(JSON.stringify(state));
  if(response!=='OK'){notify('Erro de gravação: '+response,'red');return false;}return true;
 }
-function change(fn){ const before=JSON.stringify(state);fn();if(!persist()){state=JSON.parse(before);return false;}render();return true; }
+function change(fn){ const before=JSON.stringify(state);try{fn();if(!persist()){state=JSON.parse(before);return false;}}catch(e){state=JSON.parse(before);notify('Alteração não gravada. Os registros anteriores foram preservados.','red');return false;}render();return true; }
 function notify(text,kind='blue'){
  const target=$('#app'); if(!target)return;
  const box=document.createElement('div');box.className='alert '+kind;box.textContent=text;
@@ -1228,10 +1228,10 @@ function ecoSourceUnits(session){
  }
  const segments=session?.mlSegments||[];
  if(segments.length)return segments.flatMap(e=>String(e.text||"").split(/(?<=[.!?…])\s+|\n+/u)
-    .filter(x=>x.trim()).map(text=>({text,atMs:e.startMs??null,speaker:e.speaker||"desconhecido",source:"automática"})));
+    .filter(x=>x.trim()).map(text=>({text,atMs:e.startMs??null,speaker:e.speaker||"desconhecido",source:session?.origem==='texto'?'texto importado':"automática"})));
  if(session?.origem==='manual'&&session.texto?.trim()&&!session.mlTranscricao)return String(session.texto).split(/(?<=[.!?…])\s+|\n+/u).filter(x=>x.trim()).map(text=>({text,atMs:null,speaker:'desconhecido',source:'nota clínica manual'}));
  return String(session?.mlTranscricao||"").split(/(?<=[.!?…])\s+|\n+/u)
-    .filter(x=>x.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:"automática"}));
+    .filter(x=>x.trim()).map(text=>({text,atMs:null,speaker:"desconhecido",source:session?.origem==='texto'?'texto importado':"automática"}));
 }
 function ecoStructuredEvents(session){
  const results=[],seen=new Set();
@@ -2791,7 +2791,7 @@ function ecoRenderDocuments(c){
    '</section>';
 }
 function ecoAtlasFiltered(c,from,to,mode){
- return [...(c.sessoes||[])].filter(s=>(!from||s.data>=from)&&(!to||s.data<=to)&&(mode==='todos'||(mode==='manual'?s.origem==='manual':s.origem!=='manual'))).sort((a,b)=>String(b.data||'').localeCompare(String(a.data||''))||String(b.hora||'').localeCompare(String(a.hora||'')));
+ return [...(c.sessoes||[])].filter(s=>(!from||s.data>=from)&&(!to||s.data<=to)&&(mode==='todos'||(mode==='manual'?s.origem==='manual':mode==='texto'?s.origem==='texto':!['manual','texto'].includes(s.origem)))).sort((a,b)=>String(b.data||'').localeCompare(String(a.data||''))||String(b.hora||'').localeCompare(String(a.hora||'')));
 }
 function ecoAtlasScreen(){
  const count=state.cases.reduce((s,c)=>s+(c.sessoes||[]).length,0);
@@ -2818,7 +2818,7 @@ function ecoAtlasScreen(){
  if(ecoAtlasTab==="diario")return out+ecoRenderTherapistDiary(c);
  if(ecoAtlasTab==="seguranca")return out+ecoRenderClinicalSafety(c);
  if(ecoAtlasTab==="documentos")return out+ecoRenderDocuments(c);
- out+='<section class="card"><h2>Filtrar histórico deste caso</h2><div class="split"><div class="field"><label>De</label><input type="date" id="ecoAtlasFrom" value="'+esc(ecoAtlasFrom)+'"></div><div class="field"><label>Até</label><input type="date" id="ecoAtlasTo" value="'+esc(ecoAtlasTo)+'"></div></div><div class="field"><label>Origem</label><select id="ecoAtlasMode">'+[['todos','Todas'],['manual','Manual'],['audio','Áudio/outros']].map(([k,v])=>'<option value="'+k+'" '+(ecoAtlasMode===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>'+btn('Aplicar filtros','ecoAtlasFilter','secondary')+btn('Limpar filtros','ecoAtlasClear','ghost')+'</section>';
+ out+='<section class="card"><h2>Filtrar histórico deste caso</h2><div class="split"><div class="field"><label>De</label><input type="date" id="ecoAtlasFrom" value="'+esc(ecoAtlasFrom)+'"></div><div class="field"><label>Até</label><input type="date" id="ecoAtlasTo" value="'+esc(ecoAtlasTo)+'"></div></div><div class="field"><label>Origem</label><select id="ecoAtlasMode">'+[['todos','Todas'],['manual','Manual'],['texto','Texto importado'],['audio','Áudio/outros']].map(([k,v])=>'<option value="'+k+'" '+(ecoAtlasMode===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>'+btn('Aplicar filtros','ecoAtlasFilter','secondary')+btn('Limpar filtros','ecoAtlasClear','ghost')+'</section>';
  out+=ecoAtlasLongitudinal({...c,sessoes:ss,sonhosList:(c.sonhosList||[]).filter(d=>ecoAtlasMode==='todos'||(d.sessionId&&ss.some(s=>s.id===d.sessionId)))},{docDateFrom:ecoAtlasFrom,docDateTo:ecoAtlasTo});
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
@@ -2904,7 +2904,7 @@ act=function(name,id,button){
   if(name==="ecoAtlasFilter"||name==="ecoAtlasClear"){
    if(screen!=='atlas')return;
    const from=name==='ecoAtlasClear'?'':document.getElementById('ecoAtlasFrom')?.value||'',to=name==='ecoAtlasClear'?'':document.getElementById('ecoAtlasTo')?.value||'',mode=name==='ecoAtlasClear'?'todos':document.getElementById('ecoAtlasMode')?.value||'todos';
-   if((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)||!['todos','manual','audio'].includes(mode)){notify('Filtro inválido.','red');return;}
+   if((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)||!['todos','manual','texto','audio'].includes(mode)){notify('Filtro inválido.','red');return;}
    ecoAtlasFrom=from;ecoAtlasTo=to;ecoAtlasMode=mode;ecoAtlasPage=0;render();return;
   }
   if(name==='ecoAtlasPrev'||name==='ecoAtlasNext'){if(screen!=='atlas')return;const c=state.cases.find(x=>x.id===(ecoOverviewCase||state.cases[0]?.id));if(!c)return;const n=ecoAtlasFiltered(c,ecoAtlasFrom,ecoAtlasTo,ecoAtlasMode).length;ecoAtlasPage=Math.min(Math.max(0,Math.ceil(n/30)-1),Math.max(0,ecoAtlasPage+(name==='ecoAtlasPrev'?-1:1)));render();return;}
@@ -3774,7 +3774,7 @@ function ecoAtlasMonthly(c,opts={}){
  const allowed=d=>/^\d{4}-\d{2}-\d{2}$/.test(String(d||''))&&(!opts.docDateFrom||d>=opts.docDateFrom)&&(!opts.docDateTo||d<=opts.docDateTo);
  const sessions=(c.sessoes||[]).filter(s=>allowed(s.data)&&(!opts.sessionId||s.id===opts.sessionId)),ids=new Set(sessions.map(s=>s.id)),months=new Map();
  const row=d=>{const k=d.slice(0,7);if(!months.has(k))months.set(k,{month:k,sessions:0,manual:0,audio:0,tags:0,dreams:0,evidence:0});return months.get(k);};
- for(const s of sessions){const m=row(s.data);m.sessions++;if(s.origem==='manual')m.manual++;else m.audio++;m.tags+=new Set(s.mlTags||[]).size;m.evidence+=(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).length;}
+ for(const s of sessions){const m=row(s.data);m.sessions++;if(['manual','texto'].includes(s.origem))m.manual++;else m.audio++;m.tags+=new Set(s.mlTags||[]).size;m.evidence+=(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).length;}
  for(const d of c.sonhosList||[]){if(!allowed(d.data)||(opts.sessionId&&d.sessionId!==opts.sessionId)||(d.sessionId&&!ids.has(d.sessionId)))continue;const status=ecoDreamSourceState(c,d);if(status==='Fonte atual'||status==='Registro manual independente')row(d.data).dreams++;}
  return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month));
 }
@@ -3790,7 +3790,7 @@ function ecoEvolutionPanel(c){
  const ss=[...(c.sessoes||[])].sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))),qs=c.ecoQuestions||[],records=(c.ecoReviewRecords||[]).filter(x=>ecoReviewValid(c,x)),stale=(c.ecoReviewRecords||[]).length-records.length;
  const groups=new Map();for(const s of ss){const month=(s.data||'Sem data').slice(0,7);const m=groups.get(month)||{total:0,manual:0,audio:0};m.total++;if(s.origem==='manual')m.manual++;else m.audio++;groups.set(month,m);}
  const max=Math.max(1,...[...groups.values()].map(v=>v.total));
- return '<section class="card"><h2>Painel de acompanhamento</h2><p class="small muted">Indicadores documentais, não escores de saúde mental. Frequência de registros não significa melhora ou piora.</p><div class="split">'+[['Sessões',ss.length],['Fontes válidas',records.length],['Questões abertas',qs.filter(q=>['aberta','em_curso'].includes(q.status)).length],['Fontes a revisar',stale]].map(([l,v])=>'<div class="eco-evidence"><strong>'+v+'</strong><p>'+l+'</p></div>').join('')+'</div><h3>Sessões por mês</h3>'+[...groups].map(([month,m])=>'<div class="eco-evidence"><strong>'+esc(month)+' · '+m.total+'</strong><div style="height:12px;display:flex;overflow:hidden;border-radius:6px;background:var(--border)"><span style="width:'+100*m.manual/max+'%;background:#499a85"></span><span style="width:'+100*m.audio/max+'%;background:#3677a8"></span></div><small>Manuais: '+m.manual+' · Áudio/outros: '+m.audio+'</small></div>').join('')+'<h3>Fontes de evolução por tema</h3>'+ecoReviewQueries('evolucao').map(q=>'<div class="eco-evidence"><strong>'+esc(q.section)+'</strong><p>'+records.filter(x=>x.type==='evolucao'&&x.key===q.key).length+' fonte(s) confirmada(s)</p></div>').join('')+btn('Buscar fontes de evolução','ecoReviewOpenEvolution','secondary','data-case="'+esc(c.id)+'"')+'</section>';
+ return '<section class="card"><h2>Painel de acompanhamento</h2><p class="small muted">Indicadores documentais, não escores de saúde mental. Frequência de registros não significa melhora ou piora.</p><div class="split">'+[['Sessões',ss.length],['Fontes válidas',records.length],['Questões abertas',qs.filter(q=>['aberta','em_curso'].includes(q.status)).length],['Fontes a revisar',stale]].map(([l,v])=>'<div class="eco-evidence"><strong>'+v+'</strong><p>'+l+'</p></div>').join('')+'</div><h3>Sessões por mês</h3>'+[...groups].map(([month,m])=>'<div class="eco-evidence"><strong>'+esc(month)+' · '+m.total+'</strong><div style="height:12px;display:flex;overflow:hidden;border-radius:6px;background:var(--border)"><span style="width:'+100*m.manual/max+'%;background:#499a85"></span><span style="width:'+100*m.audio/max+'%;background:#3677a8"></span></div><small>Sem áudio: '+m.manual+' · Áudio/outros: '+m.audio+'</small></div>').join('')+'<h3>Fontes de evolução por tema</h3>'+ecoReviewQueries('evolucao').map(q=>'<div class="eco-evidence"><strong>'+esc(q.section)+'</strong><p>'+records.filter(x=>x.type==='evolucao'&&x.key===q.key).length+' fonte(s) confirmada(s)</p></div>').join('')+btn('Buscar fontes de evolução','ecoReviewOpenEvolution','secondary','data-case="'+esc(c.id)+'"')+'</section>';
 }
 
 const ecoReviewPrevAct=act;
