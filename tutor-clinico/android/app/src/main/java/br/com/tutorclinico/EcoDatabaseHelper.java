@@ -895,7 +895,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
             cv.put("eof_verified", 1);
             cv.put("updated_at", System.currentTimeMillis());
             int rows = db.update("processamento_jobs", cv,
-                    "job_id = ? AND state IN ('PROCESSING','PAUSED','DECODED_VERIFIED') AND committed_segments = ? AND (SELECT COUNT(*) FROM segmentos WHERE job_id = ?) = ?",
+                    "job_id = ? AND state IN ('PROCESSING','PAUSED','DECODED_VERIFIED') AND committed_segments = ? AND (SELECT COUNT(*) FROM segmentos WHERE job_id = ?) = CAST(? AS INTEGER)",
                     new String[]{jobId.trim(), String.valueOf(finalTotalSegments), jobId.trim(), String.valueOf(finalTotalSegments)});
             return rows == 1;
         } catch (Exception e) {
@@ -993,7 +993,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
     synchronized boolean isJobCommitted(String jobId) {
         if (jobId == null || jobId.trim().isEmpty()) return false;
         SQLiteDatabase db = getReadableDatabase();
-        try (Cursor c = db.rawQuery("SELECT state, total_segments, committed_segments, eof_verified FROM processamento_jobs WHERE job_id = ?",
+        try (Cursor c = db.rawQuery("SELECT state, total_segments, committed_segments, eof_verified, (SELECT COUNT(*) FROM segmentos s WHERE s.job_id=processamento_jobs.job_id) FROM processamento_jobs WHERE job_id = ?",
                 new String[]{jobId.trim()})) {
             if (c.moveToFirst()) {
                 String state = c.getString(0);
@@ -1003,7 +1003,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                 boolean isCommittedState = "COMMITTED".equals(state) || "COMPLETED".equals(state);
                 if (!isCommittedState) return false;
                 if (eofVerified != 1) return false;
-                if (total >= 0 && committed == total) {
+                if (total >= 0 && committed == total && c.getInt(4) == total) {
                     return true;
                 }
                 return false;
@@ -1019,7 +1019,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
-            try (Cursor c = db.rawQuery("SELECT total_segments, committed_segments, state, eof_verified FROM processamento_jobs WHERE job_id = ?",
+            try (Cursor c = db.rawQuery("SELECT total_segments, committed_segments, state, eof_verified, (SELECT COUNT(*) FROM segmentos s WHERE s.job_id=processamento_jobs.job_id) FROM processamento_jobs WHERE job_id = ?",
                     new String[]{jobId.trim()})) {
                 if (c.moveToFirst()) {
                     int total = c.getInt(0);
@@ -1036,7 +1036,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                         android.util.Log.w("EcoDatabaseHelper", "Cannot acknowledge persistence: EOF not verified for job " + jobId);
                         return false;
                     }
-                    if (total < 0 || committed != total) {
+                    if (total < 0 || committed != total || c.getInt(4) != total) {
                         android.util.Log.w("EcoDatabaseHelper", "Cannot acknowledge persistence: committed " + committed + " of " + total + " segments");
                         return false;
                     }

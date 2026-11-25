@@ -429,4 +429,15 @@ public class RobolectricConsecutiveSessionsTest {
 
         spool.delete();
     }
+    @Test public void testAckRejectsMissingActualRowsEvenWhenCountersMatch() throws Exception {
+        insertPatient("P-ack", "Ficticio");
+        dbHelper.createJob("J-ack","P-ack","S-ack","",null);
+        String text="trecho ficticio";
+        assertTrue(dbHelper.commitSegment("J-ack","P-ack","S-ack",0L,1000L,"paciente",text,EcoDatabaseHelper.computeChecksum(text)));
+        assertFalse(dbHelper.markJobDecoded("J-ack",2,1));
+        assertTrue(dbHelper.markJobDecoded("J-ack",1,1));
+        dbHelper.getWritableDatabase().execSQL("DELETE FROM segmentos WHERE job_id='J-ack'");
+        assertFalse(dbHelper.acknowledgePersistence("J-ack"));
+        assertFalse(dbHelper.isJobCommitted("J-ack"));
+    }
 }
