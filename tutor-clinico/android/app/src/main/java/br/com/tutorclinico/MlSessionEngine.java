@@ -110,6 +110,9 @@ final class MlSessionEngine implements RecognitionListener {
                     recordedFile = file;
                     recordedEphemeralKey = ephemeralKey;
                     setActiveEphemeralKey(ephemeralKey);
+                    retainedUri=Uri.fromFile(file);
+                    pendingFile=retainedUri;
+                    beginFile(recorder.boundary);
                 }
             }
             @Override public void acoustic(String json){
@@ -121,7 +124,13 @@ final class MlSessionEngine implements RecognitionListener {
             }
             @Override public void failed(File file, byte[] ephemeralKey, String message){
                 synchronized(MlSessionEngine.this){
-                    recordingRequested=false;recorder=null;wanted=false;
+                    recordingRequested=false;recorder=null;
+                    if(importing && file!=null && file.isFile()){
+                        recoveryMode=true;
+                        events.state("FINALIZANDO GRAVAÇÃO · CAPTURA INTERROMPIDA · RECUPERANDO TRECHOS");
+                        return;
+                    }
+                    wanted=false;
                     if(file!=null && file.isFile()){
                         recordedFile=file;recordedEphemeralKey=ephemeralKey;
                         retainedUri=Uri.fromFile(file);paused=true;recoveryMode=true;
@@ -136,13 +145,18 @@ final class MlSessionEngine implements RecognitionListener {
             @Override public void ready(File file,long durationMs,byte[] ephemeralKey){
                 synchronized(MlSessionEngine.this){
                     recordingRequested=false;recorder=null;
-                    if(userExplicitDiscard){recordedFile=file;recordedEphemeralKey=ephemeralKey;deleteOwnedRecording();wanted=false;return;}
+                    if(userExplicitDiscard){recordedFile=file;recordedEphemeralKey=ephemeralKey;if(!importing){deleteOwnedRecording();wanted=false;}return;}
                     recordedFile=file;
                     recordedEphemeralKey=ephemeralKey;
                     setActiveEphemeralKey(ephemeralKey);
                     // Audio path and key were durably registered before AudioRecord started.
                     retainedUri=Uri.fromFile(file);
                     pendingFile=retainedUri;
+                    if(importing){
+                        events.state("GRAVAÇÃO FINALIZADA · "+(durationMs/1000)+"s · CONCLUINDO TRANSCRIÇÃO");
+                        return;
+                    }
+                    restoreDecoderPrefix();
                     if(deferRecognitionUntilResume || destroyed){
                         paused=true;
                         events.state("PAUSADO · GRAVAÇÃO LOCAL FINALIZADA · RETOME PARA TRANSCREVER");
@@ -230,7 +244,8 @@ final class MlSessionEngine implements RecognitionListener {
         }
     }
 
-    private synchronized void beginFile() {
+    private synchronized void beginFile(){beginFile(null);}
+    private synchronized void beginFile(LiveSpoolInput.Boundary liveBoundary) {
         if (!wanted || retainedUri == null || destroyed || importing) return;
         final Uri selected=retainedUri;
         final String selectedModel=fileModelName;
@@ -250,8 +265,7 @@ final class MlSessionEngine implements RecognitionListener {
         fileWorker=new Thread(() -> {
             boolean success=false;
             try {
-                success=WhisperFileEngine.transcribe(context,selected,
-                        new WhisperFileEngine.Listener() {
+                WhisperFileEngine.Listener callback=new WhisperFileEngine.Listener() {
                             @Override public boolean isActive() {
                                 synchronized(MlSessionEngine.this) {
                                     return wanted && !pauseRequested && !discarding && !destroyed && mine==generation;
@@ -260,7 +274,7 @@ final class MlSessionEngine implements RecognitionListener {
                             @Override public void state(String text) {
                                 synchronized(MlSessionEngine.this) {
                                     if(!destroyed && mine==generation && !discarding)
-                                        events.state(text);
+                                        events.state(recordingRequested?"GRAVANDO · "+text:text);
                                 }
                             }
                             @Override public void segment(String text,long startMs,long endMs) {
@@ -286,7 +300,7 @@ final class MlSessionEngine implements RecognitionListener {
                                 }}
                             }
                             @Override public void acoustic(String json){
-                                if(isActive())events.acoustic(json);
+                                if(isActive()&&liveBoundary==null)events.acoustic(json);
                             }
                             @Override public void chunksProcessed(int count) {
                                 synchronized(MlSessionEngine.this) {
@@ -310,7 +324,10 @@ final class MlSessionEngine implements RecognitionListener {
                                     }
                                 }
                             }
-                        },selectedModel,fromMs,clusters,key,allowInterrupted);
+                        };
+                success=liveBoundary==null
+                    ?WhisperFileEngine.transcribe(context,selected,callback,selectedModel,fromMs,clusters,key,allowInterrupted)
+                    :WhisperFileEngine.transcribeLive(context,selected,callback,selectedModel,clusters,key,liveBoundary);
             } catch(Throwable e) {
                 synchronized(MlSessionEngine.this){
                     if(!destroyed && mine==generation && !pauseRequested && !discarding)
@@ -323,6 +340,13 @@ final class MlSessionEngine implements RecognitionListener {
                         importing=false;fileWorker=null;
                         if(backgroundAllowed)TranscriptionService.end(context);
                         backgroundAllowed=false;
+                        if(recordingRequested&&liveBoundary!=null){
+                            // Capture continues independently after inference failure. The closed
+                            // spool will be replayed from the last verified boundary when ready.
+                            pauseRequested=false;
+                            events.state("GRAVANDO · TRANSCRIÇÃO INCREMENTAL INTERROMPIDA · ÁUDIO PRESERVADO");
+                            return;
+                        }
                         if(pauseRequested && wanted && !discarding && !destroyed) {
                             paused=true;pauseRequested=false;
                             events.state("PAUSADO · "+(resumeFromMs/1000)+"s PROCESSADOS · REVISE OU RETOME");
@@ -362,7 +386,7 @@ final class MlSessionEngine implements RecognitionListener {
                         }
                     }
                 }
-                keepScreen(false);
+                if(!recordingRequested)keepScreen(false);
             }
         },"eco-whisper-transcription");
         fileWorker.start();
@@ -522,7 +546,7 @@ final class MlSessionEngine implements RecognitionListener {
     synchronized void pauseTranscription(){
         if(importing && wanted && !pauseRequested){
             pauseRequested=true;
-            events.state("PAUSANDO · FINALIZANDO TRECHO EM PROCESSAMENTO");
+            events.state(recordingRequested?"GRAVANDO · PAUSANDO TRANSCRIÇÃO INCREMENTAL":"PAUSANDO · FINALIZANDO TRECHO EM PROCESSAMENTO");
         }else if(paused)events.state("PAUSADO · REVISE OS TRECHOS E TOQUE EM RETOMAR");
     }
     synchronized void resumeTranscription(){
@@ -591,6 +615,7 @@ final class MlSessionEngine implements RecognitionListener {
             // behind the lock screen. Preserve the WAV, then require explicit resume.
             deferRecognitionUntilResume=true;
             recorder.finish();
+            if(importing)pauseRequested=true;
             events.state("APP EM SEGUNDO PLANO · FINALIZANDO GRAVAÇÃO");
         }else if(importing && !pauseRequested && !backgroundAllowed){
             // If Android refused foreground processing, preserve the existing pause fallback.
@@ -600,7 +625,7 @@ final class MlSessionEngine implements RecognitionListener {
 
     synchronized void stop() {
         if(recordingRequested && recorder!=null){
-            recorder.finish(); // asynchronous finalize; starts Whisper when WAV is closed
+            recorder.finish(); // seals authenticated EOF; incremental decoder drains remaining frames
             return;
         }
         if(importing){pauseTranscription();return;}
