@@ -1354,3 +1354,58 @@ test('ECO word cloud: frequency determines font size and case word opens exact c
   assert.doesNotMatch(js('ecoCaseAnalysis(state.cases[0])'),/casa · 6 menção/);
  }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoCaseWordSelection=""');}
 });
+
+
+test('ECO dream neural source: prefill, provenance, recurring comparison and invalidation',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'dream-c',nome:'Fictício',sessoes:[{id:'d1',data:'2026-11-25',origem:'manual',texto:'Sonhei com uma casa. Senti medo.'}],ecoReviewRecords:[{id:'dsrc',type:'sonhos',key:'relato',scope:'manual',quote:'Sonhei com uma casa.',sessionId:'d1',sessionDate:'2026-11-25',source:'nota clínica manual',atMs:null}],sonhosList:[{id:'prior',data:'2026-11-20',texto:'Uma casa vazia.',simbolos:['casa'],associacoes:'Outra associação'}]}];openedId='dream-c';screen='case';tab='sonhos';");
+  assert.equal(js("ecoReviewQueries('sonhos').length"),4);
+  js("act('ecoDreamFromReview','dsrc',{dataset:{case:'dream-c'}})");
+  assert.equal(el('#dreamTexto').value,'Sonhei com uma casa.');
+  assert.match(el('#dreamSimbolos').value,/casa/);
+  js("act('ecoSaveDream','dream-c',{dataset:{case:'dream-c'}})");
+  assert.equal(js('state.cases[0].sonhosList.length'),2);
+  assert.equal(js('state.cases[0].sonhosList[1].reviewSourceId'),'dsrc');
+  assert.match(js('ecoDreamLongitudinal(state.cases[0])'),/casa · 2 sonhos/);
+  js("state.cases[0].sessoes[0].texto='Nota corrigida.'");
+  assert.match(js('ecoDreamSourceState(state.cases[0],state.cases[0].sonhosList[1])'),/alterada/);
+  assert.doesNotMatch(js('ecoDreamLongitudinal(state.cases[0])'),/casa · 2 sonhos/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoDreamOrigin=null;ecoDreamEditId=null');}
+});
+test('ECO network: create, edit, escape SVG, duplicate guard and internal-only print',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'net-c',nome:'Fictício',data:'2026-11-25',sessoes:[]}];openedId='net-c';screen='case';tab='rede';ecoNetworkEdit=null;");
+  el('#ecoNetName').value='Amiga <teste>';el('#ecoNetKind').value='amizade';el('#ecoNetRelation').value='apoio';el('#ecoNetSource').value='';el('#ecoNetNotes').value='Nota fictícia';
+  js("act('ecoNetworkSave','',{dataset:{case:'net-c'}})");
+  assert.equal(js('state.cases[0].ecoNetwork.length'),1);
+  assert.match(js('ecoNetworkSvg(state.cases[0])'),/Amiga &lt;teste&gt;/);
+  js("act('ecoNetworkSave','',{dataset:{case:'net-c'}})");
+  assert.equal(js('state.cases[0].ecoNetwork.length'),1);
+  context.netid=js('state.cases[0].ecoNetwork[0].id');
+  js("act('ecoNetworkEdit',netid,{dataset:{case:'net-c'}})");
+  el('#ecoNetRelation').value='misto';js("act('ecoNetworkSave','',{dataset:{case:'net-c'}})");
+  assert.equal(js('state.cases[0].ecoNetwork[0].relation'),'misto');
+  assert.match(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{rede:true},{confirmed:true})"),/Rede social e afetiva relatada/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'supervisao',{rede:true},{confirmed:true})"),/Amiga/);
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoNetworkEdit=null');}
+});
+test('ECO visit: preparation, explicit revision, history, selective internal print and legacy bypass',()=>{
+ const before=js('JSON.stringify(state)');const oldPrint=context.window.NativeVault.printReport;let printed=0;
+ try{
+  context.window.NativeVault.printReport=()=>printed++;
+  js("state.cases=[{id:'visit-c',nome:'Fictício',data:'2026-11-25',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:'Nota fictícia.'}]}];openedId='visit-c';screen='case';tab='atendimento';");
+  el('#ecoPrepGoals').value='Retomar objetivo';el('#ecoPrepQuestions').value='';el('#ecoPrepLogistics').value='';
+  js("act('ecoPrepSave','',{dataset:{case:'visit-c'}})");assert.equal(js('state.cases[0].ecoPreparation.goals'),'Retomar objetivo');
+  el('#ecoVisitSession').value='s1';el('#ecoPostSummary').value='Síntese fictícia revisada';el('#ecoPostInterventions').value='';el('#ecoPostNext').value='';el('#ecoPostUncertainty').value='';el('#ecoPostConfirm').checked=false;
+  js("act('ecoVisitConfirm','s1',{dataset:{case:'visit-c'}})");assert.equal(js('state.cases[0].ecoVisitClosure'),undefined);
+  js("act('ecoVisitSave','s1',{dataset:{case:'visit-c'}})");assert.equal(js('state.cases[0].ecoVisitClosure.s1.status'),'rascunho');
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{fechamento:true},{confirmed:true})"),/Síntese fictícia revisada/);
+  el('#ecoPostConfirm').checked=true;js("act('ecoVisitConfirm','s1',{dataset:{case:'visit-c'}})");
+  assert.equal(js('state.cases[0].ecoVisitClosure.s1.status'),'revisado');assert.equal(js('state.cases[0].ecoVisitClosure.s1.history.length'),1);
+  assert.match(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{fechamento:true},{confirmed:true})"),/Síntese fictícia revisada/);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'supervisao',{fechamento:true},{confirmed:true})"),/Síntese fictícia revisada/);
+  js("act('pdfCase')");assert.equal(printed,0);assert.equal(js('tab'),'documentos');assert.equal(js('ecoDocConfirmed'),false);
+ }finally{context.window.NativeVault.printReport=oldPrint;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoVisitSelected="";ecoVisitCase=""');}
+});
