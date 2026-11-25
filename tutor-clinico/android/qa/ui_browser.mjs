@@ -160,6 +160,31 @@ try{
   }finally{[ecoNliScope,ecoNliFrom,ecoNliTo,ecoNliA,ecoNliB,ecoNliPage]=old;}
  });
  assert.deepEqual(nli,{a:'0',last:true,count:6,page:true});
+ // Real DOM: recover draft from case B without exposing it to case A.
+ await page.evaluate(()=>{window.ecoDraftFixture={};Object.assign(window.NativeVault,{
+  saveFormDraft:(id,raw)=>{window.ecoDraftFixture[id]=raw;return 'OK';},loadFormDraft:id=>window.ecoDraftFixture[id]||'',clearFormDraft:(id,sid)=>{if(JSON.parse(window.ecoDraftFixture[id]||'{}').session?.id===sid)delete window.ecoDraftFixture[id];return 'OK';}
+ });act('nav','home');});
+ await tile('manual').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+ await page.locator('#manualSessTexto').fill('Rascunho fictício não arquivado.');
+ await page.locator('[data-act="openCase"][data-case="browser-b"]').click();
+ await home();await tile('manual').click();await page.locator('.eco-home-pick [data-id="browser-a"]').click();
+ assert.equal(await page.locator('#manualSessTexto').inputValue(),'');
+ await home();await tile('manual').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+ assert.equal(await page.locator('#manualSessTexto').inputValue(),'Rascunho fictício não arquivado.');
+ await page.locator('[data-act="saveManualSession"]').click();
+ assert.ok(await page.evaluate(()=>state.cases.find(c=>c.id==='browser-b').sessoes.some(s=>s.texto==='Rascunho fictício não arquivado.')));
+ assert.equal(await page.evaluate(()=>window.ecoDraftFixture['browser-b']),undefined);
+ await home();await tile('agenda').click();
+ await page.locator('#ecoFinCase').selectOption('browser-b');await page.locator('#ecoFinValue').fill('150,50');await page.locator('#ecoFinRef').fill('Fatura fictícia');
+ await page.locator('[data-act="ecoFinAdd"]').click();assert.equal(await page.evaluate(()=>state.ecoFinance[0].cents),15050);
+ await page.locator('[data-act="ecoFinPaid"]').click();assert.equal(await page.evaluate(()=>state.ecoFinance[0].status),'pago');
+ await page.screenshot({path:path.join(out,'financeiro.png'),fullPage:true});
+ await home();await tile('settings').click();
+ await page.locator('#ecoTemplateTitle').fill('Questionário fictício');await page.locator('#ecoTemplateQuestions').fill('Qual a pergunta?');
+ await page.locator('[data-act="ecoTemplateAdd"]').click();assert.equal(await page.evaluate(()=>state.ecoQuestionTemplates[0].questions[0]),'Qual a pergunta?');
+ await page.evaluate(()=>{window.NativeVault.databaseDiagnostics=()=>JSON.stringify({integrity:'ok',foreignKeysOk:true,_pacientes:2,sessoes:2,segmentos:0,freeBytes:104857600,checkpoints:[{slot:0,date:Date.now(),bytes:2000}]});});
+ await page.locator('[data-act="ecoHealthCheck"]').click();assert.equal(await page.locator('[data-act="ecoCheckpointRestore"]').count(),1);
+ await page.screenshot({path:path.join(out,'integridade.png'),fullPage:true});
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
