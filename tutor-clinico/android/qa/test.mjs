@@ -1633,3 +1633,44 @@ test('ECO TXT: pasted and file-selected transcript, explicit roles, immutable or
   assert.ok(js('ecoParseImportedTranscript("Paciente: Exemplo.",false).every(x=>x.speaker==="desconhecido")'));
  }finally{context.window.NativeVault.selectTranscriptFile=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();manualSessionDraft=null;screen="home"');el('#manualSessTranscript').value='';el('#manualSessRoles').checked=false;}
 });
+
+
+test('ECO recovery merge and recurring appointments: preserve existing records and refuse cross-case source IDs',()=>{
+ context.localRecovery={cases:[{id:'a',sessoes:[{id:'s1',texto:'local'}]},{id:'b',sessoes:[{id:'s2',texto:'outro'}]}]};
+ context.incomingRecovery={cases:[{id:'a',sessoes:[{id:'s1',texto:'antigo'},{id:'s3',texto:'recuperado'},{id:'s2',texto:'conflito'}]},{id:'c',sessoes:[{id:'s4',texto:'novo'}]}]};
+ const plan=js('ecoPlanBackupMerge(localRecovery,incomingRecovery)');
+ assert.equal(plan.conflicts,2);assert.equal(plan.sessions.length,1);assert.equal(plan.sessions[0].session.id,'s3');assert.equal(plan.newCases[0].id,'c');
+ assert.equal(context.localRecovery.cases[0].sessoes.length,1);
+ const dates=js("ecoRecurringAppointments({id:'first',caseId:'a',data:'2026-12-25',hora:'09:00',duracao:'50'},3,7)");
+ assert.deepEqual(Array.from(dates.map(x=>x.data)),['2026-12-25','2027-01-01','2027-01-08']);
+ assert.equal(new Set(dates.map(x=>x.id)).size,3);
+ assert.throws(()=>js("ecoRecurringAppointments({data:'2026-12-25'},3,1)"));
+});
+test('ECO administration: finance is separate from clinical reports and custom templates preserve answers',()=>{
+ const before=js('JSON.stringify(state)');
+ try{
+  js("state.cases=[{id:'admin-a',nome:'Fictício',sessoes:[]}];state.ecoFinance=[];state.ecoQuestionTemplates=[];screen='agenda';");
+  el('#ecoFinCase').value='admin-a';el('#ecoFinDate').value='2026-11-25';el('#ecoFinValue').value='125,50';el('#ecoFinRef').value='MARCADOR_FINANCEIRO';
+  js("act('ecoFinAdd')");assert.equal(js('state.ecoFinance[0].cents'),12550);
+  js("act('ecoFinPaid',state.ecoFinance[0].id)");assert.equal(js("ecoFinanceTotal(state.ecoFinance,'pago')"),12550);
+  assert.doesNotMatch(js("ecoFormatClinicalDoc(state.cases[0],'ficha',{identificacao:true},{confirmed:true})"),/MARCADOR_FINANCEIRO/);
+  js("screen='settings'");el('#ecoTemplateTitle').value='Ficha fictícia';el('#ecoTemplateQuestions').value='Pergunta A\nPergunta B';js("act('ecoTemplateAdd')");
+  const id=js('state.ecoQuestionTemplates[0].id');
+  js("openedId='admin-a';screen='case';tab='anamnese'");
+  el('#ecoCustomAnswer_'+id+'_0').value='Resposta fictícia';el('#ecoCustomAnswer_'+id+'_1').value='';
+  js("act('ecoCustomSave',state.ecoQuestionTemplates[0].id,{dataset:{case:'admin-a'}})");
+  assert.equal(js('state.cases[0].ecoCustomAnswers[0].items[0].answer'),'Resposta fictícia');
+ }finally{context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();screen="home"');}
+});
+test('ECO synthetic laboratory: request never includes patient record',()=>{
+ const before=js('JSON.stringify(state)'),old=context.window.NativeVault.analyzeSemantic;let payload;
+ try{
+  context.window.NativeVault.analyzeSemantic=raw=>{payload=JSON.parse(raw);return 'OK';};
+  js("state.cases=[{id:'secret',nome:'PACIENTE_PRIVADO',sessoes:[{texto:'SEGREDO_CLINICO'}]}];screen='settings';act('ecoLabStart','0')");
+  assert.equal(payload.cacheScope,'lab:synthetic-only');assert.equal(payload.rows.length,3);
+  assert.doesNotMatch(JSON.stringify(payload),/PACIENTE_PRIVADO|SEGREDO_CLINICO/);
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,count:3,scope:'desconhecido',model:'fixture',hits:[{i:0,score:.8}]}));
+  assert.equal(js('ecoLabRun.pending'),false);assert.ok(js('ecoLabRun.elapsed')>=0);
+  js("act('nav','home')");assert.equal(js('ecoLabRun'),null);
+ }finally{context.window.NativeVault.analyzeSemantic=old;context.ecoSavedState=before;js('state=JSON.parse(ecoSavedState);persist();ecoLabCancel()');}
+});
