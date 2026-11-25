@@ -283,7 +283,13 @@ public final class MainActivity extends Activity {
                 try{
                     TagarelaEngine.Companion.releaseCached();
                     System.gc();
-                    if("nli".equals(req.optString("mode"))){
+                    if("generate".equals(req.optString("mode"))){
+                        result=LocalLlmEngine.analyze(getApplicationContext(),req,active,progress);
+                    }else if("rerank".equals(req.optString("mode"))){
+                        int count=req.getJSONArray("rows").length();
+                        progress.report(0,count,"Carregando reranker mMARCO");
+                        try(RerankEngine engine=new RerankEngine(getApplicationContext(),active)){result=engine.analyze(req,active,progress);}
+                    }else if("nli".equals(req.optString("mode"))){
                         int count=req.getJSONArray("pairs").length();
                         if(count<1||count>12)throw new java.io.IOException("Limite NLI");
                         progress.report(0,count,"Carregando BERTimbau NLI");
@@ -400,7 +406,10 @@ public final class MainActivity extends Activity {
                 info.put("nliAvailable", NliEngine.available(getApplicationContext()));
                 info.put("nliModel", NliEngine.MODEL);
                 info.put("nliExperimental", true);
-                info.put("rerankerAvailable", false); // Reranking neural dedicado bloqueado por hardware
+                info.put("rerankerAvailable", RerankEngine.available(getApplicationContext()));
+                info.put("rerankerModel", RerankEngine.MODEL);
+                info.put("llmAvailable", LocalLlmEngine.available(getApplicationContext()));
+                info.put("llmModel", LocalLlmEngine.MODEL);
                 info.put("databaseType", "SQLite-Transactional-AES-GCM-v5");
                 return info.toString();
             } catch (Exception e) {
