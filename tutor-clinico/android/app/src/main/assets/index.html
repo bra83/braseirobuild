@@ -461,6 +461,7 @@ function caseScreen(){
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sessoes"><div class="eco-module-icon">🎙</div><div class="eco-module-title">Sessões Clínicas</div><div class="eco-module-sub">${(c.sessoes||[]).length} registrada(s)</div></button>`+
     `<button type="button" class="eco-module-card" data-act="newManualSession" data-id="${esc(c.id)}" data-case="${esc(c.id)}"><div class="eco-module-icon">✍️</div><div class="eco-module-title">Atend. Manual</div><div class="eco-module-sub">Sem áudio</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="assistenteIA"><div class="eco-module-icon">✦</div><div class="eco-module-title">Assistente IA</div><div class="eco-module-sub">RAG e geração local</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="perspectivas"><div class="eco-module-icon">⇶</div><div class="eco-module-title">Perspectivas Psicanalíticas</div><div class="eco-module-sub">Freud · Klein · Winnicott</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="compararRelatos"><div class="eco-module-icon">⇄</div><div class="eco-module-title">Comparar relatos</div><div class="eco-module-sub">NLI experimental</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="revisaoInteligente"><div class="eco-module-icon">◈</div><div class="eco-module-title">Revisão neural</div><div class="eco-module-sub">Anamnese e evolução</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="analisar"><div class="eco-module-icon">📊</div><div class="eco-module-title">Análise & Ecos</div><div class="eco-module-sub">NLP e recorrências</div></button>`+
@@ -487,7 +488,7 @@ function caseScreen(){
     `</div>`;
   } else {
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
-    if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
+    if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='perspectivas'){content+=ecoPerspectivePanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual / importar texto (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
         (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
@@ -4903,5 +4904,105 @@ act=function(name,id,button){
   }
  }
  return result;
+};
+
+/* Compare three distinct schools against one explicitly selected patient passage.
+   All retrieval/generation occurs through the existing offline native models. */
+const ecoPerspectiveAuthors=['Freud','Klein','Winnicott'];
+let ecoPerspectiveRun=null,ecoPerspectiveSerial=0,ecoPerspectiveSession='',ecoPerspectiveIndex=0;
+function ecoPerspectiveRows(c,session){return ecoReviewRows(c,'paciente','','').filter(x=>x.sessionId===session);}
+function ecoPerspectiveTheory(author){
+ return ecoLibraryChunks().filter(x=>{
+  const name=ecoFoldText(x.author||'').trim();
+  return [ecoFoldText(author),...({Freud:['sigmund freud'],Klein:['melanie klein'],Winnicott:['donald w. winnicott','donald winnicott','d. w. winnicott']}[author]||[])].includes(name)
+   &&x.ref&&x.ref!=='Referência a conferir'&&x.text.length<=1700;
+ });
+}
+function ecoPerspectiveCurrent(r){
+ return !!r&&screen==='case'&&tab==='perspectivas'&&openedId===r.caseId&&ecoPerspectiveRows(currentCase(),r.sessionId).some(x=>x.text===r.original&&x.atMs===r.atMs)&&r.original.includes(r.quote);
+}
+function ecoPerspectiveCancel(){if(ecoPerspectiveRun?.pending)try{window.NativeVault.cancelSemantic?.(ecoPerspectiveRun.id);}catch(e){}ecoPerspectiveRun=null;}
+function ecoPerspectivePanel(c){
+ const sessions=(c.sessoes||[]).filter(s=>ecoPerspectiveRows(c,s.id).length);
+ const selected=sessions.find(s=>s.id===ecoPerspectiveSession)||sessions[0];
+ if(selected&&ecoPerspectiveSession!==selected.id){ecoPerspectiveSession=selected.id;ecoPerspectiveIndex=0;}
+ const rows=selected?ecoPerspectiveRows(c,selected.id):[],u=rows[ecoPerspectiveIndex]||rows[0],r=ecoPerspectiveCurrent(ecoPerspectiveRun)?ecoPerspectiveRun:null;
+ let out='<section class="card"><h2>Perspectivas Psicanalíticas</h2><p>Selecione uma fala atribuída ao paciente. O ECO consulta separadamente a teoria de Freud, Melanie Klein e D. W. Winnicott e gera hipóteses didáticas, justificativa e exemplo de pergunta aberta. Não simula a voz dos autores nem atribui diagnóstico.</p>';
+ if(!rows.length)return out+'<p class="alert">Nenhuma fala atribuída ao paciente. Confirme os falantes na revisão da transcrição; notas profissionais não são usadas como se fossem falas.</p></section>';
+ out+='<div class="field"><label>Sessão</label><select id="ecoPerspectiveSession" '+(r?.pending?'disabled':'')+'>'+sessions.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===selected.id?'selected':'')+'>'+esc(formatDate(s.data)+' '+(s.hora||''))+'</option>').join('')+'</select></div><div class="field"><label>Fala do paciente</label><select id="ecoPerspectivePassage" '+(r?.pending?'disabled':'')+'>'+rows.map((x,i)=>'<option value="'+i+'" '+(x===u?'selected':'')+'>'+esc((i+1)+'. '+x.text.slice(0,130))+'</option>').join('')+'</select></div><label for="ecoPerspectiveQuote">Trecho literal (se longo, selecione até 500 caracteres)</label><textarea id="ecoPerspectiveQuote" readonly rows="5">'+esc(u?.text||'')+'</textarea>';
+ out+=btn('Comparar Freud, Klein e Winnicott','ecoPerspectiveStart','', 'data-case="'+esc(c.id)+'"')+(r?.pending?'<p id="ecoPerspectiveStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoPerspectiveCancel','ghost'):'');
+ if(r){out+='<h3>Fala analisada</h3><blockquote>'+esc(r.quote)+'</blockquote><p class="small">'+esc(formatDate(r.sessionDate))+' · '+(r.atMs==null?'sem minuto registrado':Math.floor(r.atMs/60000)+' min')+'</p>';
+ for(const result of r.results){out+='<article class="eco-evidence"><h3>'+esc(result.author)+'</h3>';
+ if(result.error)out+='<p class="alert">'+esc(result.error)+'</p>';
+ else{out+='<p class="small muted">Minuta gerada · hipótese, justificativa e exemplo de intervenção · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>';
+ if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
+ out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref)+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
+ out+='</article>';}
+ if(!r.pending)out+='<p class="small muted">As três leituras são possibilidades teóricas, não interpretações confirmadas, ranking de autores ou recomendação automática de tratamento. Não incorporadas ao prontuário.</p>';}
+ return out+'</section>';
+}
+function ecoPerspectiveSend(r,mode,payload,stage){
+ r.id='perspectiva-'+(++ecoPerspectiveSerial)+'-'+Date.now();r.mode=mode;r.pending=true;r.stage=stage;r.last=Date.now();
+ try{const status=window.NativeVault?.analyzeSemantic?.(JSON.stringify({...payload,id:r.id,cacheScope:'library'}));if(status!=='OK')throw Error(status||'Motor indisponível');}
+ catch(e){r.pending=false;r.results.push({author:ecoPerspectiveAuthors[r.index],error:String(e.message||'Falha local')});render();return;}
+ render();setTimeout(()=>ecoPerspectiveWatch(r.id),5000);
+}
+function ecoPerspectiveWatch(id){const r=ecoPerspectiveRun;if(!r?.pending||r.id!==id)return;if(!ecoPerspectiveCurrent(r)){ecoPerspectiveCancel();return;}if(Date.now()-r.last>300000){ecoPerspectiveCancel();notify('Consulta interrompida por falta de progresso.','red');render();return;}setTimeout(()=>ecoPerspectiveWatch(id),5000);}
+function ecoPerspectiveNext(r){
+ if(r.index>=ecoPerspectiveAuthors.length){r.pending=false;render();return;}
+ const author=ecoPerspectiveAuthors[r.index];r.theory=ecoPerspectiveTheory(author);
+ if(!r.theory.length){r.results.push({author,error:'Nenhuma fonte exclusiva deste autor disponível. Não gerar por suposição.'});r.index++;ecoPerspectiveNext(r);return;}
+ ecoPerspectiveSend(r,'retrieve',{query:r.quote,scope:'desconhecido',retrievalOnly:true,rows:r.theory.map(x=>({text:x.text,speaker:'desconhecido'}))},author+' · recuperando fontes teóricas com DistilUSE');
+}
+function ecoPerspectiveStart(c){
+ if(ecoPerspectiveRun?.pending||ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
+ const rows=ecoPerspectiveRows(c,ecoPerspectiveSession),u=rows[ecoPerspectiveIndex]||rows[0],el=document.getElementById('ecoPerspectiveQuote');
+ if(!u||!el)return;
+ const quote=(el.selectionEnd>el.selectionStart?el.value.slice(el.selectionStart,el.selectionEnd):u.text).trim();
+ if(!quote||quote.length>500||!u.text.includes(quote)){notify('Selecione um trecho literal de até 500 caracteres.','red');return;}
+ const r=ecoPerspectiveRun={caseId:c.id,sessionId:u.sessionId,sessionDate:u.sessionDate,atMs:u.atMs,original:u.text,quote,index:0,results:[],pending:false};
+ ecoPerspectiveNext(r);
+}
+const ecoPerspectiveProgress=window.nativeSemanticProgress,ecoPerspectiveResult=window.nativeSemanticResult,ecoPerspectiveUnlock=window.nativeSemanticUnlocked;
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('perspectiva-'))return ecoPerspectiveProgress(raw);const r=ecoPerspectiveRun;if(!r?.pending||v.id!==r.id)return;if(!ecoPerspectiveCurrent(r)){ecoPerspectiveCancel();return;}r.last=Date.now();r.stage=ecoPerspectiveAuthors[r.index]+' · '+String(v.stage||'Inferência local');const el=document.getElementById('ecoPerspectiveStage');if(el)el.textContent=r.stage;};
+window.nativeSemanticResult=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}
+ if(!String(v.id||'').startsWith('perspectiva-'))return ecoPerspectiveResult(raw);
+ const r=ecoPerspectiveRun;if(!r?.pending||v.id!==r.id)return;if(!ecoPerspectiveCurrent(r)){ecoPerspectiveCancel();return;}
+ r.pending=false;const author=ecoPerspectiveAuthors[r.index];
+ if(v.error)r.results.push({author,error:String(v.error)});
+ else if(r.mode==='retrieve'){
+  const valid=v.scope==='desconhecido'&&v.count===r.theory.length&&Array.isArray(v.hits)&&v.hits.length<=20&&new Set(v.hits.map(x=>x.i)).size===v.hits.length&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.theory.length&&Number.isFinite(x.score)&&x.score>=-1.001&&x.score<=1.001);
+  if(!valid||!v.hits.length)r.results.push({author,error:'Recuperação teórica insuficiente ou inválida.'});
+  else{
+   r.ranked=v.hits.map(x=>r.theory[x.i]);
+   ecoPerspectiveSend(r,'rerank',{mode:'rerank',query:r.quote,rows:r.ranked.map(x=>({text:x.text}))},author+' · reordenando fontes com mMARCO');return;
+  }
+ }else if(r.mode==='rerank'){
+  const valid=v.count===r.ranked.length&&Array.isArray(v.hits)&&Array.isArray(v.skipped)&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.ranked.length&&Number.isFinite(x.score)&&x.score>=0&&x.score<=1)&&new Set(v.hits.map(x=>x.i)).size===v.hits.length;
+  if(!valid||!v.hits.length)r.results.push({author,error:'Nenhuma passagem utilizável do autor após reranking.'});
+  else{
+   r.sources=v.hits.slice(0,2).map(x=>r.ranked[x.i]);
+   const sources=[{text:'Fala literal atribuída ao paciente: '+r.quote},...r.sources.map(x=>({text:x.author+' · '+x.ref+'\n'+x.text}))].filter(x=>x.text.length<=1800);
+   if(sources.length!==r.sources.length+1||sources.reduce((n,x)=>n+x.text.length,0)>4200){r.results.push({author,error:'Fontes acima do limite do contexto, sem corte silencioso.'});}
+   else{
+    const query='Sob a perspectiva exclusiva de '+author+', em três frases: 1) hipótese teórica provisória; 2) justifique ligando [S1] a [S2] ou [S3]; 3) exemplo original de pergunta aberta não sugestiva. Não invente infância, diagnóstico, citações ou causas; se insuficiente, diga isso. Diferencie exemplo de evidência.';
+    ecoPerspectiveSend(r,'generate',{mode:'generate',query,sources},author+' · gerando leitura didática com Qwen');return;
+   }
+  }
+ }else if(r.mode==='generate'){
+  if(v.sourceCount!==r.sources.length+1||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.results.push({author,error:'Minuta local inválida.'});
+  else{const refs=[...v.draft.matchAll(/\[S(\d+)\]/g)].map(x=>Number(x[1]));r.results.push({author,draft:v.draft,sources:r.sources,refsValid:refs.includes(1)&&refs.some(n=>n>=2)&&refs.every(n=>n>=1&&n<=r.sources.length+1)});}
+ }
+ r.index++;ecoPerspectiveNext(r);
+};
+window.nativeSemanticUnlocked=function(){ecoPerspectiveCancel();return ecoPerspectiveUnlock();};
+document.addEventListener('change',e=>{if(e.target?.id==='ecoPerspectiveSession'){ecoPerspectiveCancel();ecoPerspectiveSession=e.target.value;ecoPerspectiveIndex=0;render();}else if(e.target?.id==='ecoPerspectivePassage'){ecoPerspectiveCancel();ecoPerspectiveIndex=Number(e.target.value);render();}});
+const ecoPerspectivePriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoPerspectiveStart'){const c=currentCase();if(c&&button?.dataset?.case===c.id)ecoPerspectiveStart(c);return;}
+ if(name==='ecoPerspectiveCancel'){ecoPerspectiveCancel();render();return;}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoPerspectiveCancel();if(name==='openCase'||name==='nav'){ecoPerspectiveSession='';ecoPerspectiveIndex=0;}}
+ return ecoPerspectivePriorAct(name,id,button);
 };
 </script></body></html>
