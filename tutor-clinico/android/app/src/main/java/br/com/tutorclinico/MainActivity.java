@@ -68,7 +68,8 @@ public final class MainActivity extends Activity {
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
-    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911;
+    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911, LOCAL_VAULT_EXPORT_CODE=912;
+    private int pendingCheckpointSlot=-1;
     private boolean pendingVaultDiary=false;
     private final java.util.concurrent.atomic.AtomicBoolean archiveBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile java.util.concurrent.atomic.AtomicBoolean archiveCancel;
@@ -80,7 +81,7 @@ public final class MainActivity extends Activity {
     private void clearPendingBackup(){
         if(archiveCancel!=null)archiveCancel.set(true);
         if(pendingExport!=null)java.util.Arrays.fill(pendingExport,(byte)0);
-        pendingExport=null;pendingPassword=null;pendingVaultDiary=false;
+        pendingExport=null;pendingPassword=null;pendingVaultDiary=false;pendingCheckpointSlot=-1;
     }
     private boolean privateOperationAuthorized(){
         if(!unlocked||isFinishing()||isDestroyed())return false;
@@ -636,13 +637,59 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
-            try { return store.read(); }
+            try { if(store.vaultReadBudget().getBoolean("large"))return new JSONObject().put("__loadError","Volume elevado: modo de consulta paginada disponível abaixo. A edição integral permanece indisponível nesta versão.").toString(); return store.read(); }
             catch (Exception e) { return "{\"__loadError\":\"Falha ao abrir dados criptografados. Não sobrescreva o arquivo.\"}"; }
         }
         @JavascriptInterface public String saveState(String json) {
             if (!unlocked||archiveBusy.get()) return "Cofre bloqueado ou backup em andamento";
             try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
+        }
+        @JavascriptInterface public String browseVault(String kind,String caseId,String sessionId,String cursor,String field,int offset){
+            if(!unlocked||archiveBusy.get())return "{\"__loadError\":\"Cofre indisponível\"}";
+            try{
+                switch(kind){
+                    case "cases":return store.casePage(cursor).toString();
+                    case "sessions":return store.sessionPage(caseId,cursor).toString();
+                    case "text":return store.sessionTextPage(caseId,sessionId,field,offset).toString();
+                    case "segments":return store.segmentPage(caseId,sessionId,cursor).toString();
+                    default:throw new IllegalArgumentException("Consulta inválida");
+                }
+            }catch(Exception e){return "{\"__loadError\":\"Consulta indisponível ou registro inválido\"}";}
+        }
+        @JavascriptInterface public String fullRecoveryCheckpoints(){
+            if(!unlocked)return "[]";
+            try{return store.fullCheckpointList().toString();}catch(Exception e){return "[]";}
+        }
+        @JavascriptInterface public void createFullCheckpoint(){
+            main.post(()->{
+                if(!unlocked||archiveBusy.get()||semanticBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()){showToast("Finalize o processamento antes do checkpoint.");return;}
+                reauthenticate("Criar checkpoint integral local",()->{
+                    if(!unlocked||!archiveBusy.compareAndSet(false,true))return;
+                    final java.util.concurrent.atomic.AtomicBoolean cancelled=new java.util.concurrent.atomic.AtomicBoolean(false);
+                    archiveCancel=cancelled;
+                    final AlertDialog progress=new AlertDialog.Builder(MainActivity.this).setTitle("Checkpoint integral")
+                        .setMessage("Salvando cópia local cifrada. O diário privado não será incluído.")
+                        .setCancelable(false).setNegativeButton("Cancelar",(d,w)->cancelled.set(true)).create();
+                    progress.show();progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancelled.set(true);v.setEnabled(false);progress.setMessage("Cancelando…");});
+                    new Thread(()->{
+                        boolean ok=false;try{ok=store.fullCheckpoint(true,()->unlocked&&!cancelled.get());}catch(Exception ignored){}
+                        finally{archiveCancel=null;}
+                        final boolean saved=ok;
+                        main.post(()->{archiveBusy.set(false);if(!isFinishing()&&!isDestroyed()){progress.dismiss();showToast(saved?"Checkpoint integral salvo.":"Checkpoint não criado; cópia anterior preservada.");if(unlocked)jsCallback("nativeFullCheckpointChanged","");}});
+                    },"eco-full-checkpoint").start();
+                });
+            });
+        }
+        @JavascriptInterface public void exportFullRecoveryCheckpoint(int slot,String password){
+            if(!unlocked||slot<2||slot>3||password==null||password.length()<10||archiveBusy.get())return;
+            main.post(()->reauthenticate("Exportar checkpoint integral",()->{
+                if(!unlocked||archiveBusy.get())return;
+                clearPendingBackup();pendingPassword=password;pendingCheckpointSlot=slot;
+                Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/octet-stream");
+                intent.putExtra(Intent.EXTRA_TITLE,"eco-checkpoint-integral-"+slot+".ecobkp");
+                try{startActivityForResult(intent,LOCAL_VAULT_EXPORT_CODE);}catch(Exception e){clearPendingBackup();showToast("Destino indisponível.");}
+            }));
         }
         @JavascriptInterface public String recoveryCheckpoints(){
             if(!unlocked)return "[]";
@@ -857,7 +904,8 @@ public final class MainActivity extends Activity {
         }
     }
     private void runAttachmentArchive(Uri uri,char[] password,boolean export){runArchive(uri,password,export,false,false);}
-    private void runArchive(Uri uri,char[] password,boolean export,boolean full,boolean diary){
+    private void runArchive(Uri uri,char[] password,boolean export,boolean full,boolean diary){runArchive(uri,password,export,full,diary,-1);}
+    private void runArchive(Uri uri,char[] password,boolean export,boolean full,boolean diary,int localSlot){
         if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,(char)0);return;}
         final java.util.concurrent.atomic.AtomicBoolean cancelled=new java.util.concurrent.atomic.AtomicBoolean(false);
         archiveCancel=cancelled;
@@ -877,9 +925,10 @@ public final class MainActivity extends Activity {
                 if(export){
                     try(OutputStream out=getContentResolver().openOutputStream(uri,"wt")){
                         if(out==null)throw new java.io.IOException("Destino indisponível");
-                        count=full?store.exportFullVault(out,password,diary,active):store.exportAttachmentArchive(out,password,active);
+                        if(localSlot>=2){store.exportFullCheckpoint(localSlot,out,password,active);count=0;}
+                        else count=full?store.exportFullVault(out,password,diary,active):store.exportAttachmentArchive(out,password,active);
                     }
-                    message=full?"Backup integral salvo: "+count+" registros.":"Backup de anexos salvo: "+count+" arquivo(s).";
+                    message=localSlot>=2?"Checkpoint integral exportado.":full?"Backup integral salvo: "+count+" registros.":"Backup de anexos salvo: "+count+" arquivo(s).";
                 }else{
                     try(InputStream in=getContentResolver().openInputStream(uri)){
                         if(in==null)throw new java.io.IOException("Arquivo indisponível");
@@ -899,10 +948,15 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
-        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE||code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE)&&!privateOperationAuthorized()){
+        if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE||code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE||code==LOCAL_VAULT_EXPORT_CODE)&&!privateOperationAuthorized()){
             clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
             if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;
             return;
+        }
+        if(code==LOCAL_VAULT_EXPORT_CODE){
+            String pass=pendingPassword;int slot=pendingCheckpointSlot;clearPendingBackup();
+            if(!unlocked||archiveBusy.get()||pass==null||slot<2||slot>3||result!=RESULT_OK||data==null||data.getData()==null)return;
+            runArchive(data.getData(),pass.toCharArray(),true,true,false,slot);return;
         }
         if(code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE){
             String pass=pendingPassword;boolean diary=pendingVaultDiary;clearPendingBackup();
