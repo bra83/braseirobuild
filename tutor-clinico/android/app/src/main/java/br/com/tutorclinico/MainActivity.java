@@ -49,6 +49,17 @@ public final class MainActivity extends Activity {
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile long semanticEpoch=0;
     private final EcoEmbeddingCache embeddingCache=new EcoEmbeddingCache();
+    // Accessed exclusively by semanticWorker. The loaded model contains no patient data.
+    private NeuralSemanticEngine warmSemanticEngine;
+    private long warmSemanticLastUsed;
+    private void closeWarmSemantic(){
+        NeuralSemanticEngine engine=warmSemanticEngine;warmSemanticEngine=null;
+        if(engine!=null)try{engine.close();}catch(Exception ignored){}
+    }
+    private void releaseWarmSemantic(){try{semanticWorker.execute(this::closeWarmSemantic);}catch(java.util.concurrent.RejectedExecutionException ignored){}}
+    private void scheduleWarmRelease(){
+        main.postDelayed(()->{try{semanticWorker.execute(()->{if(android.os.SystemClock.elapsedRealtime()-warmSemanticLastUsed>=30000L)closeWarmSemantic();});}catch(java.util.concurrent.RejectedExecutionException ignored){}},31000L);
+    }
     private volatile String semanticJobId="";
     private String selectedAsrModel="small";
     private String selectedMicEngine="whisper-base";
@@ -142,7 +153,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; semanticEpoch++; embeddingCache.clear(); web.setVisibility(View.INVISIBLE);
+        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -203,10 +214,11 @@ public final class MainActivity extends Activity {
         super.onTrimMemory(level);
         if (level >= TRIM_MEMORY_MODERATE) {
             embeddingCache.clear();
+            releaseWarmSemantic();
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); semanticWorker.shutdownNow(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -287,8 +299,9 @@ public final class MainActivity extends Activity {
                 };
                 try{
                     TagarelaEngine.Companion.releaseCached();
-                    System.gc();
-                    if("generate".equals(req.optString("mode"))){
+                    String mode=req.optString("mode");
+                    if("generate".equals(mode)||"rerank".equals(mode)||"nli".equals(mode)){closeWarmSemantic();System.gc();}
+                    if("generate".equals(mode)){
                         result=LocalLlmEngine.analyze(getApplicationContext(),req,active,progress);
                     }else if("rerank".equals(req.optString("mode"))){
                         int count=req.getJSONArray("rows").length();
@@ -302,13 +315,15 @@ public final class MainActivity extends Activity {
                     }else{
                         int count=req.getJSONArray("rows").length();
                         progress.report(0,count,"Carregando modelo ONNX");
-                        try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
-                            if(active.getAsBoolean())engine.setCache(embeddingCache,embeddingCache.open(req.optString("cacheScope",""),NeuralSemanticEngine.MODEL));
-                            if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
-                            result=engine.analyze(req,active,progress);
-                        }
+                        if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                        if(warmSemanticEngine==null)warmSemanticEngine=new NeuralSemanticEngine(getApplicationContext());
+                        warmSemanticEngine.setCache(embeddingCache,embeddingCache.open(req.optString("cacheScope",""),NeuralSemanticEngine.MODEL));
+                        if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                        result=warmSemanticEngine.analyze(req,active,progress);
+                        warmSemanticLastUsed=android.os.SystemClock.elapsedRealtime();scheduleWarmRelease();
                     }
                 }catch(Throwable e){
+                    closeWarmSemantic();
                     // Only a safe category, never patient text or a stack trace in JS/logs.
                     String detail=e instanceof java.util.concurrent.CancellationException?"Análise cancelada":e instanceof OutOfMemoryError?"Memória insuficiente":e instanceof LinkageError?"Runtime neural incompatível":e instanceof ai.onnxruntime.OrtException?"Falha de inferência ONNX":e instanceof java.io.IOException?"Falha de leitura ou entrada do modelo":"Falha interna do motor";
                     try{result=new JSONObject().put("error",detail+"; nenhuma inferência simulada.");}catch(Exception ignored){}
