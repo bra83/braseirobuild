@@ -1693,3 +1693,33 @@ test('ECO native job reattach preserves raw segments missing from WebView and pr
  const activity=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
  assert.match(service,/static MlSessionEngine engine/);assert.match(engine,/WeakReference<Activity>/);assert.match(activity,/TranscriptionService\.detach\(this\)/);assert.doesNotMatch(activity,/ml\.destroy\(\)/);
 });
+
+
+test('ECO security regression: no network permission, exported clinical service, debug WebView or unsandboxed document preview',()=>{
+ const manifest=fs.readFileSync(new URL('../app/src/main/AndroidManifest.xml',import.meta.url),'utf8');
+ const activity=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ const store=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
+ assert.doesNotMatch(manifest,/android\.permission\.INTERNET/);
+ assert.match(manifest,/android:allowBackup="false"/);
+ assert.match(manifest,/android:usesCleartextTraffic="false"/);
+ assert.match(manifest,/<service[^>]*android:exported="false"/);
+ assert.match(activity,/WebView\.setWebContentsDebuggingEnabled\(false\)/);
+ assert.match(activity,/setBlockNetworkLoads\(true\)/);
+ assert.match(activity,/setAllowFileAccess\(false\)/);
+ assert.match(activity,/setAllowContentAccess\(false\)/);
+ assert.match(html,/Content-Security-Policy[^>]*connect-src 'none'/);
+ assert.match(html,/<iframe id="docPreviewFrame" sandbox=""/);
+ assert.match(store,/clinical_draft:res_diary:[^\n]*!includePrivateDiary/);
+ assert.match(store,/if\(admin!="__eco_admin__"\.equals\(caseId\)\)/);
+ assert.match(store,/if\(!id\.equals\(new JSONObject\(old\)\.getString\("id"\)\)\)throw new SecurityException/);
+ assert.match(activity,/public String saveCaseDraft\(String caseId, String json\) \{\s*if \(!unlocked\) return "Bloqueado"/);
+ assert.match(activity,/reauthenticate\("Importar backup clínico"/);
+ assert.match(activity,/privateOperationAuthorized\(\)/);
+ assert.match(activity,/FLAG_SECURE/);
+});
+test('ECO bibliographic inventory: each author entry has an actual catalogue locator, no fake page proof',()=>{
+ assert.equal(js('ecoPerspectiveCatalogRows().length'),42);
+ assert.equal(js('ecoPerspectiveCatalogRows().filter(x=>ecoBibliographicStatus(x.ref).url.startsWith("https://")).length'),42);
+ assert.equal(js("ecoBibliographicStatus('referência desconhecida').url"),'');
+ assert.equal(js("ecoPerspectiveCatalogRows('Lingiardi').every(x=>x.ref.includes('2026')&&x.ref.includes('40948049'))"),true);
+});
