@@ -495,4 +495,57 @@ public class EcoIntegratedPersistenceTest {
         }
     }
 
+    @Test public void fullVaultArchiveExceeds50MbRestoresAllTablesAndRejectsNonemptyDestination() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        char[] password="eco-fixture-full-vault".toCharArray();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject root=new JSONObject().put("version",1).put("uiTheme","dark")
+            .put("cases",new JSONArray().put(caseWith("full-a","ORIGINAL"))).put("appointments",new JSONArray());
+        store.save(root.toString());
+        store.savePrivateDiary("full-a",new JSONArray().put(new JSONObject().put("id","diary-test").put("data","2026-11-25").put("texto","DIARIO_FICTICIO")).toString());
+        byte[] pdf=new byte[6_100_000];System.arraycopy("%PDF-1.7".getBytes(StandardCharsets.US_ASCII),0,pdf,0,8);
+        JSONObject attachment=null;
+        for(int n=0;n<5;n++){pdf[pdf.length-1]=(byte)n;attachment=store.addAttachment("full-a","Sintético "+n,"Teste",pdf);}
+        final String attachmentId=attachment.getString("id");
+        // Add independent large synthetic sessions without constructing one huge JSON snapshot.
+        SQLiteDatabase db=store.getDbHelper().getWritableDatabase();
+        char[] chars=new char[1_000_000];java.util.Arrays.fill(chars,'x');String text=new String(chars);
+        for(int n=0;n<24;n++){
+            String id="full-large-"+n;
+            JSONObject session=new JSONObject().put("id",id).put("data","2026-11-25").put("texto",text).put("origem","manual");
+            android.content.ContentValues v=new android.content.ContentValues();v.put("id",id);v.put("case_id","full-a");v.put("data","2026-11-25");
+            v.put("origem","manual");v.put("created_at",1);v.put("updated_at",1);v.put("payload_enc",store.getDbHelper().encrypt(session.toString()));
+            db.insertOrThrow("sessoes",null,v);
+        }
+        java.io.File archive=java.io.File.createTempFile("eco-full-vault-test",".bin",context.getCacheDir());
+        try{
+            try(java.io.OutputStream out=new java.io.FileOutputStream(archive)){assertTrue(store.exportFullVault(out,password,false,()->true)>30);}
+            assertTrue(archive.length()>50_000_000);
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){
+                try{store.restoreFullVault(in,password,()->true);fail("populated vault accepted");}catch(SecurityException expected){}
+            }
+            assertEquals(5,store.listAttachments("full-a").length());
+            store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+            byte[] destinationKey=new byte[32];destinationKey[0]=1;
+            store=new SecureStore(context,new SecretKeySpec(destinationKey,"AES"));
+            int original;
+            try(java.io.RandomAccessFile raf=new java.io.RandomAccessFile(archive,"rw")){
+                raf.seek(raf.length()-1);original=raf.read();raf.seek(raf.length()-1);raf.write(original^1);
+            }
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){
+                try{store.restoreFullVault(in,password,()->true);fail("tampered archive accepted");}catch(java.io.IOException expected){}
+            }
+            try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT count(*) FROM _pacientes",null)){assertTrue(c.moveToFirst());assertEquals(0,c.getInt(0));}
+            try(java.io.RandomAccessFile raf=new java.io.RandomAccessFile(archive,"rw")){raf.seek(raf.length()-1);raf.write(original);}
+            try(java.io.InputStream in=new java.io.FileInputStream(archive)){assertTrue(store.restoreFullVault(in,password,()->true)>30);}
+            assertEquals(5,store.listAttachments("full-a").length());
+            assertArrayEquals(pdf,store.attachmentBytes("full-a",attachmentId));
+            assertEquals("[]",store.readPrivateDiary("full-a"));
+            try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT count(*) FROM sessoes WHERE case_id='full-a'",null)){assertTrue(c.moveToFirst());assertEquals(25,c.getInt(0));}
+            try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("SELECT payload_enc FROM sessoes WHERE id='full-large-23'",null)){
+                assertTrue(c.moveToFirst());assertEquals(text,new JSONObject(store.getDbHelper().decrypt(c.getBlob(0))).getString("texto"));
+            }
+        }finally{java.util.Arrays.fill(password,(char)0);java.util.Arrays.fill(pdf,(byte)0);store.getDbHelper().close();archive.delete();}
+    }
+
 }
