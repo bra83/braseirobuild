@@ -419,6 +419,7 @@ function caseScreen(){
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="tecnicas"><div class="eco-module-icon">💡</div><div class="eco-module-title">Técnicas</div><div class="eco-module-sub">Manejo clínico</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="sonhos"><div class="eco-module-icon">🌙</div><div class="eco-module-title">Sonhos</div><div class="eco-module-sub">${(c.sonhosList||[]).length} relato(s)</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="genograma"><div class="eco-module-icon">🌳</div><div class="eco-module-title">Genograma</div><div class="eco-module-sub">${(c.genograma?.membros||[]).length} membro(s)</div></button>`+
+    `<button type="button" class="eco-module-card" data-act="caseTab" data-id="rede"><div class="eco-module-icon">◎</div><div class="eco-module-title">Rede de vínculos</div><div class="eco-module-sub">Mapa social e afetivo</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="cronologia"><div class="eco-module-icon">⏳</div><div class="eco-module-title">Cronologia</div><div class="eco-module-sub">${(c.cronologia||[]).length} marco(s)</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="documentos"><div class="eco-module-icon">🖨</div><div class="eco-module-title">Documentos</div><div class="eco-module-sub">A4 / PDF / Sigilo</div></button>`+
     `<button type="button" class="eco-module-card" data-act="caseTab" data-id="diario"><div class="eco-module-icon">🔒</div><div class="eco-module-title">Diário Privado</div><div class="eco-module-sub">Segregado</div></button>`+
@@ -472,6 +473,7 @@ function caseScreen(){
       content += ecoRenderTechniques(c);
     } else if(tab==='sonhos'){
       content += ecoRenderDreamAtlas(c);
+    } else if(tab==='rede'){content+=ecoNetworkPanel(c);
     } else if(tab==='genograma'||tab==='cronologia'){
       content += ecoRenderGenogram(c,tab);
     } else if(tab==='documentos'){
@@ -2103,14 +2105,14 @@ function ecoRenderDreamAtlas(c){
  const symbols = query ? ecoSymbolDictionary.filter(s=>s.titulo.toLowerCase().includes(query)||s.sentidos.toLowerCase().includes(query)||s.perguntas.toLowerCase().includes(query)) : ecoSymbolDictionary;
  let out = '<section class="eco-outline"><h2>Atlas de Sonhos do Paciente</h2>'+
    '<p class="eco-caption">Registros de produções oníricas manifestas, afetos relatados e associações livres. O ECO não realiza interpretação automática; cada sonho preserva o vínculo com as palavras singulares do paciente.</p>';
- out += ecoDreamSuggestionsHtml(c);
+ out += ecoDreamReviewPanel(c)+ecoDreamSuggestionsHtml(c)+ecoDreamLongitudinal(c);
  if(dreams.length){
    out += '<h3>Sonhos documentados ('+dreams.length+')</h3>';
    out += dreams.map(d=>'<div class="eco-evidence"><strong>'+esc(formatDate(d.data||datestr()))+' · '+(d.recorrente?'<span class="chip warn">Imagem Recorrente</span>':'<span class="chip">Sonho</span>')+'</strong>'+
      '<p><strong>Conteúdo manifesto:</strong> “'+esc(d.texto||'')+'”</p>'+
      (d.personagens?'<p class="small"><strong>Personagens/Figuras:</strong> '+esc(d.personagens)+'</p>':'')+
      (d.lugares?'<p class="small"><strong>Lugares:</strong> '+esc(d.lugares)+'</p>':'')+(d.simbolos?.length?'<p class="small"><strong>Imagens:</strong> '+esc(d.simbolos.join(', '))+'</p>':'')+(d.sessionId?'<p class="small muted">Sessão: '+esc(formatDate(d.data))+' · '+esc(d.source||'relato')+' · '+esc(d.speaker||'não identificado')+' · '+esc(ecoTimecode(d.atMs))+'</p>':'')+(d.afetos?'<p class="small"><strong>Afetos no sonho:</strong> '+esc(d.afetos)+'</p>':'')+
-     (d.associacoes?'<p class="small"><strong>Associações do paciente:</strong> '+esc(d.associacoes)+'</p>':'')+
+     '<p class="small muted">'+esc(ecoDreamSourceState(c,d))+'</p>'+(d.associacoes?'<p class="small"><strong>Associações do paciente:</strong> '+esc(d.associacoes)+'</p>':'')+
      (d.hipotese?'<p class="small"><strong>Hipótese profissional:</strong> '+esc(d.hipotese)+'</p>':'')+
      '<div class="actions">'+btn('Editar sonho','ecoDreamEdit','secondary',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`)+btn('Excluir sonho','ecoDeleteDream','ghost',`data-id="${esc(d.id)}" data-case="${esc(c.id)}"`) +'</div>'+
      '</div>').join('');
@@ -3513,7 +3515,7 @@ act=function(name,id,button){
  if(name==='ecoReadChapter'){ecoChapterOpen=id;render();window.scrollTo(0,0);return;}
  if(name==='ecoCloseChapter'){ecoChapterOpen='';render();return;}
  if(['ecoGenZoomIn','ecoGenZoomOut','ecoGenZoomReset'].includes(name)){ecoGenZoom=name==='ecoGenZoomReset'?.65:Math.min(2,Math.max(.4,ecoGenZoom+(name==='ecoGenZoomIn'?.2:-.2)));render();return;}
- if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
+ if((name==='ecoDreamPrefill'||name==='ecoDreamEdit')&&c){const d=name==='ecoDreamEdit'?(c.sonhosList||[]).find(x=>x.id===id):ecoDreamCandidates(c)[Number(id)];if(!d)return;ecoDreamEditId=name==='ecoDreamEdit'?d.id:null;ecoDreamOrigin={originKey:d.originKey,reviewSourceId:d.reviewSourceId,sessionId:d.sessionId,source:d.source,speaker:d.speaker,atMs:d.atMs,originalQuote:d.originalQuote||d.texto};const vals={dreamData:d.data,dreamTexto:d.texto,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:(d.simbolos||[]).join(', '),dreamAssociacoes:d.associacoes||'',dreamHipotese:d.hipotese||''};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});return;}
  if(name==='ecoDocPreview'){ecoDocConfirmed=false;render();return;}
  if(name==='ecoFamilyEdit'&&c){const m=ecoFamilyMembers(c).find(x=>x.id===id);if(!m)return;ecoFamilyEditId=m.id;const vals={genNome:m.nome,genParentesco:m.parentesco,genGeracao:m.geracao,genVivo:m.vivo,genSexo:m.sexo,genVinculo:m.vinculo,genNotas:m.notas};for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('genNome')?.scrollIntoView?.({block:'center'});return;}
  if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoDreamOrigin=null;ecoDreamEditId=null;ecoFamilyEditId=null;ecoDocSessionId='';ecoDocConfirmed=false;}
@@ -3541,6 +3543,8 @@ let ecoReviewRun=null,ecoReviewSerial=0,ecoReviewType='anamnese',ecoReviewScope=
 function ecoReviewQueries(type){
  if(type==='anamnese')return ecoAnamneseCategories.flatMap(cat=>cat.campos.map(f=>({key:f.k,text:f.label,section:cat.nome})));
  if(type==='investigacao')return ecoInvestigationAxes.map(a=>({key:a.id,text:a.perguntaPadrao,section:a.nome}));
+ if(type==='sonhos')return [{key:'relato',text:'Relato de sonho ou pesadelo durante o sono, narrativa do que aconteceu no sonho',section:'Relato onírico'},{key:'imagens',text:'Imagens, objetos, pessoas e lugares vistos em sonhos',section:'Imagens'},{key:'afetos',text:'Sentimentos experimentados em sonho ou ao despertar',section:'Afetos'},{key:'associacoes',text:'Associações pessoais, lembranças ou pensamentos relacionados a um sonho contado',section:'Associações'}];
+ if(type==='vinculos')return [{key:'familia',text:'Pessoas da família, parentes, parceiros, convivência e história familiar',section:'Família'},{key:'amizade',text:'Amigos, amizades, pessoas próximas e convívio social',section:'Amizades'},{key:'trabalho',text:'Colegas de trabalho, estudos, professores ou chefias',section:'Trabalho e estudo'},{key:'apoio',text:'Pessoas ou grupos que oferecem apoio, cuidado e ajuda',section:'Apoio'},{key:'conflito',text:'Conflitos, afastamento ou dificuldades relatadas em relações interpessoais',section:'Dificuldades'}];
  return [
  {key:'relacoes',text:'Relações importantes, apoio, conflitos e mudanças nas relações',section:'Vínculos'},
  {key:'mudancas',text:'Mudanças relatadas ao longo do acompanhamento, melhorias ou dificuldades recentes',section:'Mudanças relatadas'},
@@ -3604,7 +3608,7 @@ function ecoReviewRecords(c,type){
 }
 function ecoReviewPanel(c){
  const r=ecoReviewCurrent(ecoReviewRun)?ecoReviewRun:null;
- let out='<div class="card"><h2>Revisão inteligente do histórico</h2><p>O modelo DistilUSE procura trechos relacionados a vários temas em uma única execução local. Similaridade não comprova um fato, diagnóstico, contradição ou hipótese. Confirme cada fonte.</p><div class="actions">'+[['anamnese','Anamnese'],['investigacao','Investigação'],['evolucao','Evolução']].map(([k,l])=>btn(l,'ecoReviewType',k===ecoReviewType?'':'secondary','data-id="'+k+'"')).join('')+'</div><div class="actions">'+[['paciente','Falas do paciente'],['manual','Notas manuais']].map(([k,l])=>btn(l,'ecoReviewScope',k===ecoReviewScope?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">'+(ecoReviewScope==='manual'?'Notas do profissional: não são falas literais do paciente.':'Somente trechos identificados como paciente. Falas não identificadas e do terapeuta ficam de fora.')+'</p><div class="split"><div class="field"><label>De</label><input id="ecoReviewFrom" type="date" value="'+esc(ecoReviewFrom)+'"></div><div class="field"><label>Até</label><input id="ecoReviewTo" type="date" value="'+esc(ecoReviewTo)+'"></div></div>'+btn('Executar análise neural','ecoReviewStart','','data-case="'+esc(c.id)+'"')+'</div>';
+ let out='<div class="card"><h2>Revisão inteligente do histórico</h2><p>O modelo DistilUSE procura trechos relacionados a vários temas em uma única execução local. Similaridade não comprova um fato, diagnóstico, contradição ou hipótese. Confirme cada fonte.</p><div class="actions">'+[['anamnese','Anamnese'],['investigacao','Investigação'],['evolucao','Evolução'],['sonhos','Sonhos'],['vinculos','Vínculos']].map(([k,l])=>btn(l,'ecoReviewType',k===ecoReviewType?'':'secondary','data-id="'+k+'"')).join('')+'</div><div class="actions">'+[['paciente','Falas do paciente'],['manual','Notas manuais']].map(([k,l])=>btn(l,'ecoReviewScope',k===ecoReviewScope?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">'+(ecoReviewScope==='manual'?'Notas do profissional: não são falas literais do paciente.':'Somente trechos identificados como paciente. Falas não identificadas e do terapeuta ficam de fora.')+'</p><div class="split"><div class="field"><label>De</label><input id="ecoReviewFrom" type="date" value="'+esc(ecoReviewFrom)+'"></div><div class="field"><label>Até</label><input id="ecoReviewTo" type="date" value="'+esc(ecoReviewTo)+'"></div></div>'+btn('Executar análise neural','ecoReviewStart','','data-case="'+esc(c.id)+'"')+'</div>';
  if(r?.pending)out+='<div class="card"><p id="ecoReviewStage">'+esc(r.stage)+'</p><progress id="ecoReviewProgress" max="'+Math.max(1,r.total)+'" value="'+r.done+'"></progress><p id="ecoReviewCount">'+r.done+' / '+r.total+'</p>'+btn('Cancelar','ecoReviewCancel','secondary')+'</div>';
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
  else if(r?.groups){out+='<div class="card"><h3>Resultados · '+esc(r.model)+'</h3><p>'+r.rows.length+' trechos · '+r.queries.length+' consultas. Pontuação de cosseno experimental, não probabilidade.</p></div>';for(const q of r.queries){const hits=r.groups.find(g=>g.key===q.key)?.hits||[];out+='<details class="card" '+(hits.length?'open':'')+'><summary>'+esc(q.section+' — '+q.text)+' ('+hits.length+')</summary>'+hits.map((hit,i)=>{const u=r.rows[hit.i];if(!u)return '';return '<div class="eco-evidence"><p>'+esc(u.text)+'</p><small>'+esc(formatDate(u.sessionDate))+' · '+esc(u.source)+' · cosseno '+Number(hit.score).toFixed(3)+'</small>'+btn('Confirmar fonte','ecoReviewAccept','secondary','data-case="'+esc(c.id)+'" data-id="'+esc(q.key+'|'+i)+'"')+'</div>';}).join('')+(hits.length?'':'<p>Nenhum candidato acima do limiar.</p>')+'</details>';}}
@@ -3666,17 +3670,78 @@ function ecoEvolutionPanel(c){
 const ecoReviewPrevAct=act;
 act=function(name,id,button){
  const c=state?.cases?currentCase():null;
+ if(name==='ecoReviewOpen'&&c&&button?.dataset?.case===c.id&&ecoReviewTypes.includes(id)){ecoReviewCancel('');ecoReviewType=id;screen='case';tab='revisaoInteligente';render();return;}
+ if(name==='ecoDreamFromReview'&&c&&button?.dataset?.case===c.id){ecoDreamFromReview(c,id);return;}
+ if(['ecoNetworkEdit','ecoNetworkCancel','ecoNetworkDelete','ecoNetworkSave'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoNetworkAction(c,name,id);return;}
  if(name==='ecoCaseWord'){ecoCaseWordSelection=String(id||'');render();return;}
  if(name==='ecoReviewApply'){if(c&&button?.dataset?.case===c.id)ecoReviewApply(c,id);return;}
  if(['ecoQuestionAdd','ecoQuestionUpdate','ecoQuestionDelete'].includes(name)){if(c&&button?.dataset?.case===c.id)ecoQuestionAction(name,c,id);return;}
  if(name==='ecoReviewOpenEvolution'){ecoReviewCancel('');ecoReviewType='evolucao';tab='revisaoInteligente';render();return;}
- if(name==='ecoReviewType'||name==='ecoReviewScope'){ecoReviewCancel('');if(name==='ecoReviewType'&&['anamnese','investigacao','evolucao'].includes(id))ecoReviewType=id;if(name==='ecoReviewScope'&&['paciente','manual'].includes(id))ecoReviewScope=id;render();return;}
+ if(name==='ecoReviewType'||name==='ecoReviewScope'){ecoReviewCancel('');if(name==='ecoReviewType'&&ecoReviewTypes.includes(id))ecoReviewType=id;if(name==='ecoReviewScope'&&['paciente','manual'].includes(id))ecoReviewScope=id;render();return;}
  if(name==='ecoReviewStart'){ecoReviewStart(c);return;}
  if(name==='ecoReviewCancel'){ecoReviewCancel();return;}
  if(name==='ecoReviewAccept'){if(c&&(!button?.dataset?.case||button.dataset.case===c.id)){const [key,i]=String(id||'').split('|');ecoReviewAccept(c,key,Number(i));}return;}
  if(name==='ecoReviewDelete'){if(c&&button?.dataset?.case===c.id)change(()=>{c.ecoReviewRecords=(c.ecoReviewRecords||[]).filter(x=>x.id!==id);});return;}
- if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoCaseWordSelection='';ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
+ if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoCaseWordSelection='';ecoNetworkEdit=null;ecoReviewCancel('');if(name==='openCase'||name==='nav'){ecoReviewFrom='';ecoReviewTo='';ecoReviewScope='paciente';}}
  return ecoReviewPrevAct(name,id,button);
 };
+
+
+const ecoReviewTypes=['anamnese','investigacao','evolucao','sonhos','vinculos'];
+function ecoDreamSourceState(c,d){
+ if(!d.sessionId)return 'Registro manual independente';
+ const s=(c.sessoes||[]).find(x=>x.id===d.sessionId);
+ if(!s)return 'Fonte removida';
+ if(d.reviewSourceId){const x=(c.ecoReviewRecords||[]).find(x=>x.id===d.reviewSourceId);return x&&ecoReviewValid(c,x)?'Fonte atual':'Fonte alterada ou removida';}
+ const units=ecoSourceUnits(s);const source=units.filter(u=>(!d.source||u.source===d.source)&&(!d.speaker||u.speaker===d.speaker)).map(u=>u.text.trim()).join(' ');
+ const original=d.originalQuote||d.texto;
+ return original&&(source.includes(original)||(!units.length&&s.texto?.includes(original)))?'Fonte atual':'Fonte alterada ou removida';
+}
+function ecoDreamReviewPanel(c){
+ const records=(c.ecoReviewRecords||[]).filter(x=>x.type==='sonhos');
+ return '<section class="card"><h3>Localização neural de relatos oníricos</h3><p class="small muted">Busca por significado em falas do paciente ou notas manuais. Um trecho relacionado a sonhos pode não ser um sonho real. Confirme o contexto e o relato antes de preencher.</p>'+btn('Buscar sonhos no histórico','ecoReviewOpen','secondary','data-id="sonhos" data-case="'+esc(c.id)+'"')+records.map(x=>'<div class="eco-evidence"><p>'+esc(x.quote)+'</p><small>'+esc(formatDate(x.sessionDate))+' · '+esc(x.source)+'</small>'+(ecoReviewValid(c,x)?btn('Preencher a partir deste trecho','ecoDreamFromReview','secondary','data-id="'+esc(x.id)+'" data-case="'+esc(c.id)+'"'):'<p class="alert">Fonte alterada ou removida.</p>')+'</div>').join('')+'</section>';
+}
+function ecoDreamFromReview(c,id){
+ const x=(c.ecoReviewRecords||[]).find(r=>r.id===id&&r.type==='sonhos');
+ if(!x||!ecoReviewValid(c,x)){notify('Fonte não disponível.','red');return;}
+ const old=(c.sonhosList||[]).find(d=>d.reviewSourceId===id||d.sessionId===x.sessionId&&d.originalQuote===x.quote);
+ if(old){notify('Já existe um registro para este trecho. Edite o sonho existente.');return;}
+ ecoDreamEditId=null;ecoDreamOrigin={originKey:'review|'+x.id,reviewSourceId:x.id,sessionId:x.sessionId,source:x.source,speaker:x.scope==='manual'?'desconhecido':'paciente',atMs:x.atMs,originalQuote:x.quote};
+ const d=ecoDreamFields(x.quote),vals={dreamData:x.sessionDate,dreamTexto:x.quote,dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', '),dreamAssociacoes:'',dreamHipotese:''};
+ for(const [k,v] of Object.entries(vals)){const e=document.getElementById(k);if(e)e.value=v||'';}document.getElementById('dreamTexto')?.scrollIntoView?.({block:'center'});
+}
+function ecoDreamLongitudinal(c){
+ const dreams=c.sonhosList||[],groups=new Map();
+ for(const d of dreams){if(ecoDreamSourceState(c,d).startsWith('Fonte alterada')||ecoDreamSourceState(c,d)==='Fonte removida')continue;for(const image of new Set((d.simbolos||[]).map(v=>ecoFoldText(v).trim()).filter(Boolean))){if(!groups.has(image))groups.set(image,[]);groups.get(image).push(d);}}
+ const recurring=[...groups].filter(([,ds])=>ds.length>=2).sort((a,b)=>b[1].length-a[1].length);
+ return '<section class="card"><h3>Imagens em diferentes sonhos</h3><p class="small muted">Compare relatos e associações em seu contexto. Frequência não estabelece significado. Fontes alteradas ficam fora da comparação.</p>'+(recurring.length?recurring.map(([image,ds])=>'<details class="card"><summary>'+esc(image)+' · '+ds.length+' sonhos</summary>'+ds.map(d=>'<div class="eco-evidence"><strong>'+esc(formatDate(d.data))+'</strong><p>'+esc(d.texto)+'</p><p>Afetos: '+esc(d.afetos||'Não informados')+'</p><p>Associações: '+esc(d.associacoes||'Não registradas')+'</p></div>').join('')+'</details>').join(''):'<p>Nenhuma imagem recorrente confirmada.</p>')+'</section>';
+}
+const ecoNetworkKinds=[['familia','Família'],['amizade','Amizades'],['trabalho','Trabalho/estudo'],['comunidade','Comunidade'],['cuidado','Cuidado profissional'],['outro','Outros']];
+const ecoNetworkRelations=[['apoio','Apoio relatado'],['conflito','Conflito relatado'],['distante','Distante / pouco contato'],['misto','Misto / ambivalente'],['nao_informado','Não informado']];
+function ecoNetworkRows(c){return Array.isArray(c.ecoNetwork)?c.ecoNetwork:[];}
+function ecoNetworkSource(c,x){if(!x.sourceId)return 'Registro profissional';const source=(c.ecoReviewRecords||[]).find(r=>r.id===x.sourceId);return source&&ecoReviewValid(c,source)?'Fonte atual':'Fonte alterada ou removida';}
+function ecoNetworkSvg(c){
+ const all=ecoNetworkRows(c),items=all.slice(0,48),w=720,h=Math.max(500,Math.ceil(items.length/2)*54+120),cx=w/2,cy=h/2;
+ const pos=items.map((x,i)=>{const left=i%2===0,n=Math.ceil(items.length/2),slot=Math.floor(i/2);return {x,left,y:Math.round(64+(slot+0.5)*(h-128)/Math.max(1,n)),px:left?142:w-142};});
+ const colors={apoio:'#269e79',conflito:'#c94f56',distante:'#8494a6',misto:'#b18440',nao_informado:'#8494a6'};
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="720" height="'+h+'" role="img" aria-label="Mapa de vínculos relatados"><rect x="1" y="1" width="'+(w-2)+'" height="'+(h-2)+'" rx="14" fill="#f4f7f6" stroke="#d5dedb"/>'+pos.map(({x,y,px})=>'<path d="M'+cx+' '+cy+' L'+px+' '+y+'" fill="none" stroke="'+(colors[x.relation]||colors.nao_informado)+'" stroke-width="2" '+(x.relation==='distante'||x.relation==='nao_informado'?'stroke-dasharray="5 4"':'')+'/>').join('')+'<circle cx="'+cx+'" cy="'+cy+'" r="51" fill="#165d52"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" fill="white" font-size="14">Paciente</text>'+pos.map(({x,y,px})=>'<rect x="'+(px-114)+'" y="'+(y-21)+'" width="228" height="42" rx="8" fill="#fff" stroke="'+(colors[x.relation]||colors.nao_informado)+'"/><text x="'+px+'" y="'+(y-3)+'" text-anchor="middle" font-size="13" fill="#182b27">'+esc(String(x.name||'').slice(0,31))+'</text><text x="'+px+'" y="'+(y+12)+'" text-anchor="middle" font-size="10" fill="#465c58">'+esc(ecoNetworkKinds.find(k=>k[0]===x.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===x.relation)?.[1]||'Não informado')+'</text>').join('')+'</svg>';
+}
+let ecoNetworkEdit=null;
+function ecoNetworkPanel(c){
+ const rows=ecoNetworkRows(c),x=ecoNetworkEdit?.caseId===c.id?rows.find(r=>r.id===ecoNetworkEdit.id):null;
+ const opt=(values,selected)=>values.map(([k,l])=>'<option value="'+esc(k)+'" '+(k===selected?'selected':'')+'>'+esc(l)+'</option>').join('');
+ const sources=(c.ecoReviewRecords||[]).filter(r=>r.type==='vinculos'&&ecoReviewValid(c,r));
+ return '<section class="card"><h2>Mapa da rede social e afetiva</h2><p class="small muted">Pessoas, grupos e vínculos relatados, separados do parentesco do genograma. O mapa não mede intensidade psicológica nem presume relações.</p>'+btn('Buscar vínculos com IA local','ecoReviewOpen','secondary','data-id="vinculos" data-case="'+esc(c.id)+'"')+'<div style="overflow:auto;max-height:60vh">'+ecoNetworkSvg(c)+'</div>'+(rows.length>48?'<p>Primeiros 48 vínculos no diagrama; todos na lista.</p>':'')+'<p class="small">Verde: apoio · vermelho: conflito · ocre: misto · cinza tracejado: distante ou desconhecido.</p>'+rows.map(r=>'<div class="eco-evidence"><strong>'+esc(r.name)+'</strong><p>'+esc(ecoNetworkKinds.find(k=>k[0]===r.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===r.relation)?.[1]||'Não informado')+'</p><p>'+esc(r.notes||'')+'</p><small>'+esc(ecoNetworkSource(c,r))+'</small><div class="actions">'+btn('Editar','ecoNetworkEdit','secondary','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+btn('Excluir','ecoNetworkDelete','ghost','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+'</div></div>').join('')+'<h3>'+(x?'Editar vínculo':'Registrar vínculo')+'</h3><div class="field"><label>Nome, iniciais ou grupo</label><input id="ecoNetName" maxlength="150" value="'+esc(x?.name||'')+'"></div><div class="field"><label>Contexto</label><select id="ecoNetKind">'+opt(ecoNetworkKinds,x?.kind)+'</select></div><div class="field"><label>Vínculo relatado</label><select id="ecoNetRelation">'+opt(ecoNetworkRelations,x?.relation||'nao_informado')+'</select></div><div class="field"><label>Fonte confirmada (opcional)</label><select id="ecoNetSource"><option value="">Sem fonte</option>'+sources.map(r=>'<option value="'+esc(r.id)+'" '+(r.id===x?.sourceId?'selected':'')+'>'+esc(formatDate(r.sessionDate)+' · '+r.quote.slice(0,100))+'</option>').join('')+'</select></div><div class="field"><label>Observações profissionais</label><textarea id="ecoNetNotes">'+esc(x?.notes||'')+'</textarea></div>'+btn('Salvar vínculo','ecoNetworkSave','','data-case="'+esc(c.id)+'"')+(x?btn('Cancelar edição','ecoNetworkCancel','secondary','data-case="'+esc(c.id)+'"'):'')+'</section>';
+}
+function ecoNetworkAction(c,name,id){
+ if(name==='ecoNetworkEdit'){ecoNetworkEdit={caseId:c.id,id};render();return;}
+ if(name==='ecoNetworkCancel'){ecoNetworkEdit=null;render();return;}
+ if(name==='ecoNetworkDelete'){if(!window.confirm?.('Excluir este vínculo?'))return;change(()=>{c.ecoNetwork=ecoNetworkRows(c).filter(x=>x.id!==id);});ecoNetworkEdit=null;return;}
+ const value=k=>String(document.getElementById(k)?.value||'').trim(),nameValue=value('ecoNetName'),kind=value('ecoNetKind'),relation=value('ecoNetRelation'),sourceId=value('ecoNetSource'),notes=value('ecoNetNotes');
+ const old=ecoNetworkEdit?.caseId===c.id?ecoNetworkRows(c).find(x=>x.id===ecoNetworkEdit.id):null;
+ if(!nameValue||nameValue.length>150||notes.length>8000||!ecoNetworkKinds.some(x=>x[0]===kind)||!ecoNetworkRelations.some(x=>x[0]===relation)||sourceId&&!(c.ecoReviewRecords||[]).some(x=>x.id===sourceId&&x.type==='vinculos'&&ecoReviewValid(c,x))){notify('Preencha um vínculo válido.','red');return;}
+ if(ecoNetworkRows(c).some(x=>x.id!==old?.id&&ecoFoldText(x.name)===ecoFoldText(nameValue)&&x.kind===kind)){notify('Vínculo já registrado neste contexto.');return;}
+ if(change(()=>{const at=new Date().toISOString(),item={id:old?.id||uid(),name:nameValue,kind,relation,sourceId,notes,createdAt:old?.createdAt||at,updatedAt:at};c.ecoNetwork=old?ecoNetworkRows(c).map(x=>x.id===old.id?item:x):[...ecoNetworkRows(c),item];c.atualizadoEm=at;})){ecoNetworkEdit=null;render();}
+}
 
 </script></body></html>
