@@ -458,6 +458,93 @@ final class SecureStore {
         }
     }
 
+    // Portable backup stores decrypted journal data only inside the password-encrypted envelope.
+    // Device-bound ciphertext must never be exported as a portable record.
+    synchronized JSONObject exportNativeRecovery() throws Exception {
+        SQLiteDatabase db=dbHelper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ensureRevisionTable(db);
+            JSONObject bundle=new JSONObject().put("version",1);
+            JSONArray drafts=new JSONArray(), revisions=new JSONArray();
+            try(Cursor c=db.query("configuracoes",new String[]{"chave",smallBlob("valor_enc")},
+                    "chave LIKE ?",new String[]{"form_draft:%"},null,null,"chave ASC")){
+                while(c.moveToNext()){
+                    String key=c.getString(0),caseId=key.substring("form_draft:".length());
+                    String payload=dbHelper.decrypt(readLargeBlob(db,"configuracoes","valor_enc","chave=?",new String[]{key}));
+                    drafts.put(new JSONObject().put("caseId",caseId).put("payload",new JSONObject(payload)));
+                }
+            }
+            try(Cursor c=db.query("eco_revisions",new String[]{"seq","kind","case_id","entity_id","captured_at",smallBlob("payload_enc")},null,null,null,null,"seq ASC")){
+                while(c.moveToNext()){
+                    String payload=dbHelper.decrypt(readLargeBlob(db,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
+                    revisions.put(new JSONObject().put("kind",c.getString(1)).put("caseId",c.getString(2))
+                        .put("entityId",c.getString(3)).put("capturedAt",c.getLong(4)).put("payload",new JSONObject(payload)));
+                }
+            }
+            bundle.put("drafts",drafts).put("revisions",revisions);
+            db.setTransactionSuccessful();
+            return bundle;
+        }finally{db.endTransaction();}
+    }
+
+    private static boolean caseExists(SQLiteDatabase db,String caseId) {
+        try(Cursor c=db.query("_pacientes",new String[]{"id"},"id=?",new String[]{caseId},null,null,null)){
+            return c.moveToFirst();
+        }
+    }
+
+    // Called inside save()'s transaction, after patient and session rows have been merged.
+    // A conflicting draft aborts the entire import instead of destroying either version.
+    private void restoreNativeRecovery(SQLiteDatabase db,JSONObject bundle) throws Exception {
+        if(bundle==null)return;
+        if(bundle.optInt("version")!=1)throw new IllegalArgumentException("Versão do histórico de recuperação incompatível");
+        JSONArray drafts=bundle.getJSONArray("drafts"), revisions=bundle.getJSONArray("revisions");
+        java.util.Set<String> seenDrafts=new java.util.HashSet<>();
+        for(int i=0;i<drafts.length();i++){
+            JSONObject row=drafts.getJSONObject(i),payload=row.getJSONObject("payload");
+            String caseId=row.getString("caseId"),key="form_draft:"+caseId;
+            if(!seenDrafts.add(caseId)||!caseExists(db,caseId)||!caseId.equals(payload.optString("caseId"))
+                    ||!(payload.opt("session") instanceof JSONObject)||payload.toString().length()>5_000_000)
+                throw new IllegalArgumentException("Rascunho de recuperação inválido");
+            String data=payload.toString();
+            try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{key},null,null,null)){
+                if(c.moveToFirst()){
+                    String old=dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{key}));
+                    if(!old.equals(data))throw new IllegalArgumentException("Há rascunho local diferente. Finalize ou exporte o rascunho antes de mesclar.");
+                    continue;
+                }
+            }
+            ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(data));
+            cv.put("updated_at",System.currentTimeMillis());db.insertOrThrow("configuracoes",null,cv);
+        }
+        for(int i=0;i<revisions.length();i++){
+            JSONObject row=revisions.getJSONObject(i),payload=row.getJSONObject("payload");
+            String kind=row.getString("kind"),caseId=row.getString("caseId"),entityId=row.getString("entityId");
+            long captured=row.getLong("capturedAt");
+            if((!"session".equals(kind)&&!"agenda".equals(kind))||!caseExists(db,caseId)
+                    ||entityId.isEmpty()||!entityId.equals(payload.optString("id"))||captured<=0)
+                throw new IllegalArgumentException("Revisão de recuperação inválida");
+            if("session".equals(kind)){
+                try(Cursor c=db.query("sessoes",new String[]{"case_id"},"id=?",new String[]{entityId},null,null,null)){
+                    if(c.moveToFirst()&&!caseId.equals(c.getString(0)))throw new SecurityException("Histórico de sessão pertence a outro caso");
+                }
+            }else if(!caseId.equals(payload.optString("caseId")))throw new SecurityException("Histórico de agenda pertence a outro caso");
+            String data=payload.toString();boolean exists=false;
+            try(Cursor c=db.query("eco_revisions",new String[]{"seq",smallBlob("payload_enc")},
+                    "kind=? AND case_id=? AND entity_id=? AND captured_at=?",new String[]{kind,caseId,entityId,Long.toString(captured)},null,null,null)){
+                while(c.moveToNext()){
+                    String old=dbHelper.decrypt(readLargeBlob(db,"eco_revisions","payload_enc","seq=?",new String[]{Long.toString(c.getLong(0))}));
+                    if(old.equals(data)){exists=true;break;}
+                }
+            }
+            if(!exists){
+                ContentValues cv=new ContentValues();cv.put("kind",kind);cv.put("case_id",caseId);cv.put("entity_id",entityId);
+                cv.put("captured_at",captured);cv.put("payload_enc",encryptRecord(data));db.insertOrThrow("eco_revisions",null,cv);
+            }
+        }
+    }
+
     private byte[] encryptRecord(String payload) throws Exception {
         byte[] encrypted=dbHelper.encrypt(payload);
         if(encrypted.length>MAX_RECORD_BLOB)throw new java.io.IOException("Registro excede o limite de leitura; alteração não gravada");
@@ -474,6 +561,7 @@ final class SecureStore {
         validateSnapshot(cases, appts);
         if(validated.has("attachmentBundle")&&!(validated.opt("attachmentBundle") instanceof JSONArray))throw new IllegalArgumentException("Anexos inválidos");
 
+        if(validated.has("nativeRecoveryBundle")&&!(validated.opt("nativeRecoveryBundle") instanceof JSONObject))throw new IllegalArgumentException("Histórico de recuperação inválido");
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -483,6 +571,7 @@ final class SecureStore {
             rootMeta.remove("cases");
             rootMeta.remove("appointments");
             rootMeta.remove("attachmentBundle");
+            rootMeta.remove("nativeRecoveryBundle");
             ContentValues cfgCv = new ContentValues();
             cfgCv.put("chave", "app_state_meta");
             cfgCv.put("valor_enc", encryptRecord(rootMeta.toString()));
@@ -589,6 +678,7 @@ final class SecureStore {
             }
 
             restoreAttachments(db,validated.optJSONArray("attachmentBundle"));
+            restoreNativeRecovery(db,validated.optJSONObject("nativeRecoveryBundle"));
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
