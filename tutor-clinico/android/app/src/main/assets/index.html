@@ -491,7 +491,7 @@ function caseScreen(){
         `<div class="actions">${btn('Salvar Enquadre Terapêutico','ecoSaveEnquadre','',`data-case="${esc(c.id)}" data-id="${esc(c.id)}" data-enq="1"`)}</div>`+
         `</div></div>`;
     } else if(tab==='analisar'){
-      content += ecoEvolutionPanel(c)+ecoCaseAnalysis(c);
+      content += ecoEvolutionPanel(c)+ecoAtlasLongitudinal(c)+ecoCaseAnalysis(c);
     } else if(tab==='investigar'){
       content += ecoQuestionsPanel(c)+ecoRenderInvestigation(c);
     } else if(tab==='tecnicas'){
@@ -2611,6 +2611,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
       (sections.revisado?'<h4>Texto revisado</h4><p class="pre">'+esc(s.mlRevisada||'Não revisado')+'</p>':'')+
       (sections.falantes?'<h4>Trechos e falantes</h4>'+(s.mlSegments||[]).map(e=>'<p><strong>'+esc(ecoTimecode(e.startMs))+' · '+esc(e.speaker||'desconhecido')+'</strong> '+esc(e.text||'')+'</p>').join(''):'')+'</section>').join('');
   }
+  if(sections.graficos&&['ficha','evolucao','sessao'].includes(type))body+=ecoAtlasLongitudinal(c,opts,true);
   if(sections.graficos){
     const ss=(c.sessoes||[]).filter(s=>(!opts.sessionId||s.id===opts.sessionId)&&(!opts.docDateFrom||s.data>=opts.docDateFrom)&&(!opts.docDateTo||s.data<=opts.docDateTo)),counts=new Map();
     for(const s of ss)for(const t of new Set(s.mlTags||[]))counts.set(t,(counts.get(t)||0)+1);
@@ -2694,7 +2695,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
     .kv{margin:4px 0}
     .footer{margin-top:35px;border-top:1px solid #ccc;padding-top:10px;font-size:10px;color:#666}
     .alert-draft{background:#fff1f2;color:#991b1b;border:1px solid #fecdd3;padding:8px;border-radius:4px}
-    @page{size:A4;margin:17mm 16mm 19mm} body{overflow-wrap:anywhere} .pre{white-space:pre-wrap} h1,h2,h3,h4{break-after:avoid} .doc-bar{break-inside:avoid;margin:6px 0} p{orphans:3;widows:3} svg{max-width:100%;height:auto} @media print { body{margin:0} }
+    @page{size:A4;margin:17mm 16mm 19mm} body{overflow-wrap:anywhere} .pre{white-space:pre-wrap} h1,h2,h3,h4{break-after:avoid} .doc-bar{break-inside:avoid;margin:6px 0} p{orphans:3;widows:3} svg{max-width:100%;height:auto} .doc-atlas table{border-collapse:collapse;width:100%} .doc-atlas th,.doc-atlas td{border-bottom:1px solid #d6dfdb;padding:5px} thead{display:table-header-group} tr{break-inside:avoid} @media print { body{margin:0} }
   </style></head><body>
     <h1>${title}</h1>
     <div class="doc-sub">ECO · SISTEMA DE REGISTRO CLÍNICO CONFIDENCIAL · Gerado em ${esc(formatDate(datestr()))} · Documento local</div>
@@ -2792,6 +2793,7 @@ function ecoAtlasScreen(){
  if(ecoAtlasTab==="diario")return out+ecoRenderTherapistDiary(c);
  if(ecoAtlasTab==="seguranca")return out+ecoRenderClinicalSafety(c);
  if(ecoAtlasTab==="documentos")return out+ecoRenderDocuments(c);
+ out+=ecoAtlasLongitudinal(c);
  const counts=new Map();for(const s of ss){for(const tag of new Set(s.mlTags||[]))counts.set(tag,(counts.get(tag)||0)+1)}
  const frequent=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,16);
  const verified=ss.flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>({...e,sessionId:s.id,sessionDate:s.data}))).slice(-150);
@@ -2802,7 +2804,7 @@ function ecoAtlasScreen(){
  for(const e of recordedEvents){
     const key=e.kind;
     if(!eventCounts.has(key))eventCounts.set(key,{sessions:new Set(),items:[]});
-    eventCounts.get(key).sessions.add(e.sessionDate);
+    eventCounts.get(key).sessions.add(e.sessionId);
     eventCounts.get(key).items.push(e);
  }
  out+='<div class="eco-outline"><h2>Temas registrados</h2>'+ (frequent.length?frequent.map(([k,n])=>'<span class="chip">'+esc(k)+' · '+n+'</span>').join(''):'<p class="muted">Ainda não existem marcações.</p>')+'<p class="eco-caption">Contagens de marcações manuais, não de sintomas confirmados.</p></div>';
@@ -3698,6 +3700,22 @@ function ecoQuestionAction(name,c,id){
  const status=document.getElementById('eqstatus_'+id)?.value||'',note=String(document.getElementById('eqnote_'+id)?.value||'').trim();
  if(!ecoQuestionStatus.some(x=>x[0]===status)||note.length>8000||(['respondida','descartada','adiada'].includes(status)&&!note)){notify('Informe a resposta ou o motivo antes de concluir a atualização.','red');return;}
  change(()=>{const at=new Date().toISOString();q.history=[...(q.history||[]),{status:q.status,note:q.note||'',at:q.updatedAt||q.createdAt}];q.status=status;q.note=note;q.updatedAt=at;});
+}
+function ecoAtlasMonthly(c,opts={}){
+ const allowed=d=>/^\d{4}-\d{2}-\d{2}$/.test(String(d||''))&&(!opts.docDateFrom||d>=opts.docDateFrom)&&(!opts.docDateTo||d<=opts.docDateTo);
+ const sessions=(c.sessoes||[]).filter(s=>allowed(s.data)&&(!opts.sessionId||s.id===opts.sessionId)),ids=new Set(sessions.map(s=>s.id)),months=new Map();
+ const row=d=>{const k=d.slice(0,7);if(!months.has(k))months.set(k,{month:k,sessions:0,manual:0,audio:0,tags:0,dreams:0,evidence:0});return months.get(k);};
+ for(const s of sessions){const m=row(s.data);m.sessions++;if(s.origem==='manual')m.manual++;else m.audio++;m.tags+=new Set(s.mlTags||[]).size;m.evidence+=(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).length;}
+ for(const d of c.sonhosList||[]){if(!allowed(d.data)||(opts.sessionId&&d.sessionId!==opts.sessionId)||(d.sessionId&&!ids.has(d.sessionId)))continue;const status=ecoDreamSourceState(c,d);if(status==='Fonte atual'||status==='Registro manual independente')row(d.data).dreams++;}
+ return [...months.values()].sort((a,b)=>a.month.localeCompare(b.month));
+}
+function ecoAtlasLongitudinal(c,opts={},print=false){
+ const rows=ecoAtlasMonthly(c,opts),series=[['sessions','Sessões','#337ba5'],['tags','Marcações','#419a83'],['dreams','Sonhos documentados','#9262a9'],['evidence','Evidências válidas','#b18338']];
+ const table='<table class="eco-atlas-table" style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th>Mês</th>'+series.map(x=>'<th>'+x[1]+'</th>').join('')+'</tr></thead><tbody>'+rows.map(m=>'<tr><th scope="row">'+esc(m.month)+'</th>'+series.map(([k])=>'<td style="text-align:right;padding:4px">'+m[k]+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ const max=Math.max(1,...rows.flatMap(m=>series.map(([k])=>m[k])));
+ const chart=rows.map(m=>'<div class="eco-evidence doc-bar"><strong>'+esc(m.month)+'</strong>'+series.map(([k,l,color])=>'<div style="display:grid;grid-template-columns:minmax(100px,1fr) 2fr 30px;align-items:center;gap:6px;font-size:12px"><span>'+l+'</span><div style="background:#e3e9e6;height:9px;border-radius:4px;overflow:hidden"><div style="width:'+(100*m[k]/max)+'%;height:100%;background:'+color+'"></div></div><strong>'+m[k]+'</strong></div>').join('')+'</div>').join('');
+ const content='<h2>Atlas longitudinal · registros por mês</h2><p class="small muted">Contagens documentais, não escores de gravidade, evolução clínica ou melhora. Sonhos com fonte alterada ou removida não entram na série.</p>'+(rows.length?chart+table:'<p>Nenhum registro com data válida no período.</p>');
+ return print?'<section class="doc-atlas">'+content+'</section>':'<section class="card" id="ecoAtlasLongitudinal">'+content+'</section>';
 }
 function ecoEvolutionPanel(c){
  const ss=[...(c.sessoes||[])].sort((a,b)=>String(a.data||'').localeCompare(String(b.data||''))),qs=c.ecoQuestions||[],records=(c.ecoReviewRecords||[]).filter(x=>ecoReviewValid(c,x)),stale=(c.ecoReviewRecords||[]).length-records.length;
