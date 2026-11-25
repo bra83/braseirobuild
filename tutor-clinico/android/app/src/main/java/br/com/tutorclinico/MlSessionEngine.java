@@ -23,8 +23,18 @@ final class MlSessionEngine implements RecognitionListener {
        default void segmentWithSpeaker(String text,long startMs,long endMs,String cluster){segmentDetailed(text,startMs,endMs);}
        void acoustic(String measurementJson);
     }
-    private final Activity activity;
-    private final Events events;
+    private final android.content.Context context;
+    private volatile java.lang.ref.WeakReference<Activity> host=new java.lang.ref.WeakReference<>(null);
+    private volatile Events listener;
+    private volatile String lastState="PARADO";
+    private final Events events=new Events(){
+        public void state(String s){lastState=s;Events e=listener;if(e!=null)e.state(s);}
+        public void segment(String s){Events e=listener;if(e!=null)e.segment(s);}
+        public void partial(String s){Events e=listener;if(e!=null)e.partial(s);}
+        public void segmentDetailed(String s,long start,long end){Events e=listener;if(e!=null)e.segmentDetailed(s,start,end);}
+        public void segmentWithSpeaker(String s,long start,long end,String cluster){Events e=listener;if(e!=null)e.segmentWithSpeaker(s,start,end,cluster);}
+        public void acoustic(String s){Events e=listener;if(e!=null)e.acoustic(s);}
+    };
     private final SecureStore store;
     private final java.util.Set<String> emittedIds = new java.util.HashSet<>();
     private Model model;
@@ -52,8 +62,27 @@ final class MlSessionEngine implements RecognitionListener {
     private int generation;
     private long lastPartialAt;
 
-    MlSessionEngine(Activity activity, Events events) {
-        this.activity=activity;this.events=events;this.store=new SecureStore(activity.getApplicationContext());
+    MlSessionEngine(android.content.Context context) {
+        this.context=context.getApplicationContext();this.store=new SecureStore(this.context);
+    }
+    synchronized void attach(Activity activity,Events events){host=new java.lang.ref.WeakReference<>(activity);listener=events;}
+    synchronized void detach(Activity activity){
+        if(host.get()!=activity)return;
+        onHostPause();listener=null;host.clear();
+    }
+    private void keepScreen(boolean enabled){
+        Activity a=host.get();if(a==null)return;
+        a.runOnUiThread(()->{if(host.get()!=a||a.isDestroyed())return;
+            if(enabled)a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            else a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        });
+    }
+    synchronized String activeSnapshot(){
+        if(!busy()&& !hasPendingAudio())return "{}";
+        try{return new JSONObject().put("jobId",currentJobId).put("caseId",currentCaseId)
+            .put("sessionId",currentSessionId).put("status",lastState).put("processing",importing)
+            .put("paused",paused).put("recording",recordingRequested).put("model",fileModelName).toString();}
+        catch(Exception e){return "{}";}
     }
 
     synchronized void start() { start("whisper-base"); }
@@ -68,7 +97,7 @@ final class MlSessionEngine implements RecognitionListener {
         pauseRequested=false;paused=false;discarding=false;userExplicitDiscard=false;resumeFromMs=0L;
         deferRecognitionUntilResume=false;
         fileModelName="vosk".equals(engine)?"vosk":"tagarela".equals(engine)?"tagarela":"whisper-base".equals(engine)?"base":"small";
-        recorder=new SessionRecorder(activity.getApplicationContext(),new SessionRecorder.Events(){
+        recorder=new SessionRecorder(context,new SessionRecorder.Events(){
             @Override public void status(String s){if(!destroyed)events.state(s);}
             @Override public void onStarted(File file, byte[] ephemeralKey) throws Exception {
                 synchronized(MlSessionEngine.this) {
@@ -124,15 +153,14 @@ final class MlSessionEngine implements RecognitionListener {
                 }
             }
         });
-        activity.runOnUiThread(()->
-            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        keepScreen(true);
         recorder.start();
     }
 
     private synchronized void beginWhisperMicrophone(String modelName) {
         if(!wanted||destroyed)return;
         final WhisperLiveEngine[] holder=new WhisperLiveEngine[1];
-        final WhisperLiveEngine worker=new WhisperLiveEngine(activity.getApplicationContext(),
+        final WhisperLiveEngine worker=new WhisperLiveEngine(context,
                 new WhisperLiveEngine.Listener() {
                     @Override public void state(String text) {
                         if(!destroyed)events.state(text);
@@ -144,14 +172,12 @@ final class MlSessionEngine implements RecognitionListener {
                         synchronized(MlSessionEngine.this) {
                             if(live==holder[0]){live=null;wanted=false;}
                         }
-                        activity.runOnUiThread(() ->
-                            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                        keepScreen(false);
                     }
                 });
         holder[0]=worker;
         live=worker;
-        activity.runOnUiThread(() ->
-                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        keepScreen(true);
         worker.start(modelName);
     }
 
@@ -174,7 +200,7 @@ final class MlSessionEngine implements RecognitionListener {
     private synchronized void prepareModel() {
         preparing=true;
         events.state("PREPARANDO MODELO OFFLINE");
-        StorageService.unpack(activity, "model-pt", "modelo-pt", loaded -> {
+        StorageService.unpack(context, "model-pt", "modelo-pt", loaded -> {
             synchronized (MlSessionEngine.this) {
                 preparing=false;
                 if (!wanted || destroyed) { loaded.close(); return; }
@@ -196,8 +222,7 @@ final class MlSessionEngine implements RecognitionListener {
             speech=new SpeechService(rec,16000.0f);
             if (!speech.startListening(this))
                 throw new IllegalStateException("Falha ao iniciar captura");
-            activity.runOnUiThread(() ->
-                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+            keepScreen(true);
             events.state("CAPTURANDO · VOSK PT-BR");
         } catch (Exception e) {
             stop();
@@ -216,17 +241,16 @@ final class MlSessionEngine implements RecognitionListener {
         paused=false;pauseRequested=false;
         final int mine=++generation;
         importing=true;
-        backgroundAllowed=TranscriptionService.begin(activity.getApplicationContext(),this::pauseTranscription);
+        backgroundAllowed=TranscriptionService.begin(context,this::pauseTranscription);
         final SpeakerClusters clusters=diarizationEnabled?speakerClusters:null;
         events.state(fromMs>0
                 ? "RETOMANDO TRANSCRIÇÃO · A PARTIR DE "+(fromMs/1000)+"s"
                 : "INICIANDO TRANSCRIÇÃO OFFLINE · AGUARDE O PRIMEIRO TRECHO");
-        activity.runOnUiThread(() ->
-                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        keepScreen(true);
         fileWorker=new Thread(() -> {
             boolean success=false;
             try {
-                success=WhisperFileEngine.transcribe(activity.getApplicationContext(),selected,
+                success=WhisperFileEngine.transcribe(context,selected,
                         new WhisperFileEngine.Listener() {
                             @Override public boolean isActive() {
                                 synchronized(MlSessionEngine.this) {
@@ -297,7 +321,7 @@ final class MlSessionEngine implements RecognitionListener {
                 synchronized(MlSessionEngine.this) {
                     if(mine==generation){
                         importing=false;fileWorker=null;
-                        if(backgroundAllowed)TranscriptionService.end(activity.getApplicationContext());
+                        if(backgroundAllowed)TranscriptionService.end(context);
                         backgroundAllowed=false;
                         if(pauseRequested && wanted && !discarding && !destroyed) {
                             paused=true;pauseRequested=false;
@@ -338,8 +362,7 @@ final class MlSessionEngine implements RecognitionListener {
                         }
                     }
                 }
-                activity.runOnUiThread(() ->
-                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+                keepScreen(false);
             }
         },"eco-whisper-transcription");
         fileWorker.start();
@@ -451,7 +474,7 @@ final class MlSessionEngine implements RecognitionListener {
             String path = job.optString("audio_path");
             if (path == null || path.isEmpty()) return false;
             File file = new File(path);
-            if (!SessionRecorder.isOwnedSpool(activity, file) || !file.isFile() || file.length() == 0) return false;
+            if (!SessionRecorder.isOwnedSpool(context, file) || !file.isFile() || file.length() == 0) return false;
             byte[] key = dbHelper.getJobKey(jobId);
             if (key == null) return false;
 
@@ -565,14 +588,13 @@ final class MlSessionEngine implements RecognitionListener {
             try { rec.close(); } catch(Exception ignored) {}
             rec=null;
         }
-        activity.runOnUiThread(() ->
-            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+        keepScreen(false);
         if (wasActive) events.state("PARADO · ÁUDIO NÃO ARMAZENADO");
     }
 
     synchronized void destroy() {
         destroyed=true;
-        if(backgroundAllowed)TranscriptionService.end(activity.getApplicationContext());
+        if(backgroundAllowed)TranscriptionService.end(context);
         backgroundAllowed=false;
         wanted=false;pauseRequested=true;
         if(recorder!=null)recorder.finish();
