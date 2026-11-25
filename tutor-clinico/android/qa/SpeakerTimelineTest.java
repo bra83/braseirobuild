@@ -11,6 +11,14 @@ public final class SpeakerTimelineTest {
   check(c.assign(new double[]{1,0,0}),"falante1");check(c.assign(new double[]{0,1,0}),"falante2");
   check(c.assign(new double[]{1,1,0}),"");check(c.assign(new double[]{0,1,0}),"falante2");
   c.clear();check(c.assign(new double[]{0,1,0}),"falante1");
+  c.clear();
+  check(c.assign(new double[]{1,0,0,0}),"falante1");
+  check(c.assign(new double[]{0,1,0,0}),"falante2");
+  check(c.assign(new double[]{0,0,1,0}),"falante3");
+  check(c.assign(new double[]{0,0,0,1}),"falante4");
+  check(c.assign(new double[]{1,0,1,0}),"");
+  check(c.assign(new double[]{0,0,0,-1}),"");
+  check(c.assign(new double[]{0,0,1,0}),"falante3");
   System.out.println("PASS speaker alignment and anonymous cluster logic (synthetic vectors)");
  }
  static void check(String a,String b){if(!b.equals(a))throw new AssertionError(b+" != "+a);}
