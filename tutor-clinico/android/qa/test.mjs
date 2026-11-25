@@ -1488,6 +1488,11 @@ test('ECO complete RAG flow: retrieval, dedicated reranking, explicit generation
   context.window.nativeSemanticResult(JSON.stringify({id:payload.id,sourceCount:1,clinicalValidation:false,model:'fixture',draft:'Dificuldade para dormir [S1].'}));
   assert.match(js('caseScreen()'),/Minuta não revisada/);assert.match(js('caseScreen()'),/Dificuldade para dormir \[S1\]/);
   assert.doesNotMatch(js('JSON.stringify(state.cases)'),/Dificuldade para dormir \[S1\]/);
+  js("act('ecoAiCheckDraft','',{dataset:{case:'rag-a'}})");
+  assert.equal(payload.mode,'nli');assert.equal(payload.pairs.length,1);assert.equal(payload.pairs[0].a,'Tenho dificuldade para dormir.');
+  context.window.nativeSemanticResult(JSON.stringify({id:payload.id,labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.1,.8,.1],ba:[.1,.8,.1]}]}));
+  assert.match(js('caseScreen()'),/Implicação: 80.0%/);assert.equal(js('ecoAiRun.phase'),'done');
+
   js("state.cases[0].sessoes[0].mlSegments[0].text='Corrigido'");assert.doesNotMatch(js('caseScreen()'),/Minuta não revisada/);
   js("act('ecoAiScope','teoria')");el('#ecoAiQuery').value='repetição';js("act('ecoAiStart','',{dataset:{case:'rag-a'}})");
   assert.equal(payload.scope,'desconhecido');assert.doesNotMatch(JSON.stringify(payload),/OUTRO_CASO|FALA_TERAPEUTA|Corrigido|Gosto de tocar violão/);
