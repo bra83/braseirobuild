@@ -4749,4 +4749,85 @@ act=function(name,id,button){
  }
  return ecoReminderPriorAct(name,id,button);
 };
+
+/* Per-patient draft of edited clinical fields, separate from the approved record. */
+let ecoClinicalDraft=null,ecoClinicalDraftTimer=null,ecoClinicalDraftPending=false,ecoClinicalDraftDirty=false,ecoClinicalDraftBase={};
+function ecoClinicalDraftScope(){
+ if(screen!=='case'||!['anamnese','enquadre'].includes(tab)||!openedId)return null;
+ return {caseId:openedId,kind:tab,prefix:tab==='anamnese'?'ana_':'enq_'};
+}
+function ecoClinicalDraftNodes(scope){return [...document.querySelectorAll('#app [id^="'+scope.prefix+'"]')].filter(e=>e.matches('input,textarea,select'));}
+function ecoClinicalDraftFlush(){
+ if(ecoClinicalDraftTimer){clearTimeout(ecoClinicalDraftTimer);ecoClinicalDraftTimer=null;}
+ if(!ecoClinicalDraftDirty||!ecoClinicalDraft)return true;
+ const d=ecoClinicalDraft;
+ const result=window.NativeVault?.saveClinicalDraft?.(d.caseId,d.kind,JSON.stringify(d));
+ if(result==='OK')ecoClinicalDraftDirty=false;
+ const label=document.getElementById('ecoClinicalDraftStatus');if(label)label.textContent=result==='OK'?'Rascunho cifrado guardado. Salve o formulário para incorporar ao prontuário.':'Falha ao guardar rascunho. Não saia sem copiar ou salvar os campos.';
+ return result==='OK';
+}
+function ecoClinicalDraftBlockFields(scope,disabled){for(const e of ecoClinicalDraftNodes(scope))e.disabled=disabled;}
+function ecoClinicalDraftSetup(){
+ if(!window.NativeVault?.loadClinicalDraft)return;
+ const scope=ecoClinicalDraftScope();ecoClinicalDraft=null;ecoClinicalDraftPending=false;ecoClinicalDraftBase={};
+ if(!scope)return;
+ for(const e of ecoClinicalDraftNodes(scope))ecoClinicalDraftBase[e.id.slice(scope.prefix.length)]=e.value;
+ const app=document.getElementById('app');
+ try{
+  const raw=window.NativeVault.loadClinicalDraft(scope.caseId,scope.kind);if(!raw)return;
+  const d=JSON.parse(raw);if(d.__loadError||d.caseId!==scope.caseId||d.kind!==scope.kind||!d.id||!d.fields||!d.base)throw Error('Rascunho inválido');
+  ecoClinicalDraft=d;ecoClinicalDraftPending=true;ecoClinicalDraftBlockFields(scope,true);
+  const conflicts=Object.keys(d.fields).filter(k=>ecoClinicalDraftBase[k]!==d.base[k]);
+  const note=conflicts.length?'O prontuário mudou desde o rascunho. Confira as diferenças antes de recuperar.':'Há campos editados que ainda não foram incorporados ao prontuário.';
+  app.insertAdjacentHTML('afterbegin','<section class="card" id="ecoClinicalDraftPanel"><h2>Rascunho clínico recuperável</h2><p>'+note+'</p>'+(conflicts.length?'<details><summary>Ver diferenças</summary>'+conflicts.map(k=>'<p><strong>'+esc(k)+'</strong><br>Registro atual: '+esc(ecoClinicalDraftBase[k]||'')+'<br>Rascunho: '+esc(d.fields[k]||'')+'</p>').join('')+'</details>':'')+'<div class="actions">'+btn('Recuperar campos para revisão','ecoClinicalDraftResume','secondary')+btn('Descartar…','ecoClinicalDraftDiscardAsk','ghost')+'</div></section>');
+ }catch(e){ecoClinicalDraftPending=true;ecoClinicalDraftBlockFields(scope,true);app.insertAdjacentHTML('afterbegin','<p class="alert red">Rascunho clínico indisponível. Não sobrescreva os dados antes de avaliar a recuperação.</p>');}
+}
+const ecoClinicalDraftPriorRender=render;
+render=function(){
+ if(ecoClinicalDraftDirty&&!ecoClinicalDraftFlush())return;
+ ecoClinicalDraftPriorRender();
+ if(state&&!errorLocked)ecoClinicalDraftSetup();
+};
+function ecoClinicalDraftInput(e){
+ if(!window.NativeVault?.saveClinicalDraft)return;
+ const scope=ecoClinicalDraftScope(),el=e.target;
+ if(!scope||!el?.id?.startsWith(scope.prefix)||ecoClinicalDraftPending||!el.matches('input,textarea,select'))return;
+ const k=el.id.slice(scope.prefix.length);
+ if(!Object.prototype.hasOwnProperty.call(ecoClinicalDraftBase,k))return;
+ if(!ecoClinicalDraft)ecoClinicalDraft={caseId:scope.caseId,kind:scope.kind,id:uid(),fields:{},base:{}};
+ if(!Object.prototype.hasOwnProperty.call(ecoClinicalDraft.base,k))ecoClinicalDraft.base[k]=ecoClinicalDraftBase[k];
+ ecoClinicalDraft.fields[k]=el.value;ecoClinicalDraftDirty=true;
+ if(ecoClinicalDraftTimer)clearTimeout(ecoClinicalDraftTimer);
+ ecoClinicalDraftTimer=setTimeout(ecoClinicalDraftFlush,300);
+ if(!document.getElementById('ecoClinicalDraftStatus'))document.getElementById('app').insertAdjacentHTML('afterbegin','<p id="ecoClinicalDraftStatus" class="small muted">Guardando rascunho clínico...</p>');
+}
+document.addEventListener('input',ecoClinicalDraftInput);
+document.addEventListener('change',e=>{ecoClinicalDraftInput(e);if(ecoClinicalDraftDirty)ecoClinicalDraftFlush();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')ecoClinicalDraftFlush();});
+const ecoClinicalDraftPriorAct=act;
+act=function(name,id,button){
+ if(ecoClinicalDraftDirty&&!ecoClinicalDraftFlush()){notify('Rascunho clínico não guardado.','red');return;}
+ const scope=ecoClinicalDraftScope(),d=ecoClinicalDraft;
+ if(scope&&['ecoClinicalDraftResume','ecoClinicalDraftDiscardAsk','ecoClinicalDraftDiscard'].includes(name)){
+  if(!d)return;
+  if(name==='ecoClinicalDraftResume'){
+   for(const [k,v] of Object.entries(d.fields)){const e=document.getElementById(scope.prefix+k);if(e)e.value=v;}
+   ecoClinicalDraftPending=false;ecoClinicalDraftBlockFields(scope,false);document.getElementById('ecoClinicalDraftPanel')?.remove();return;
+  }
+  if(name==='ecoClinicalDraftDiscardAsk'){openModal('<h2>Descartar rascunho clínico?</h2><p>O prontuário já salvo permanecerá intacto.</p><div class="actions">'+btn('Cancelar','closeModal','ghost')+btn('Descartar','ecoClinicalDraftDiscard','danger')+'</div>');return;}
+  if(window.NativeVault.clearClinicalDraft(d.caseId,d.kind,d.id)!=='OK'){notify('Não foi possível descartar o rascunho.','red');return;}
+  closeModal();render();return;
+ }
+ const saving=scope&&((scope.kind==='anamnese'&&name==='ecoSaveAnamnese')||(scope.kind==='enquadre'&&name==='ecoSaveEnquadre'));
+ if(saving&&ecoClinicalDraftPending){notify('Recupere ou descarte o rascunho antes de salvar.','red');return;}
+ const result=ecoClinicalDraftPriorAct(name,id,button);
+ if(saving&&d){
+  const stored=state.cases.find(c=>c.id===d.caseId)?.[d.kind]||{};
+  if(Object.entries(d.fields).every(([k,v])=>stored[k]===v)){
+   if(window.NativeVault.clearClinicalDraft(d.caseId,d.kind,d.id)==='OK')render();
+   else notify('Registro salvo, mas o rascunho ainda está disponível.','red');
+  }
+ }
+ return result;
+};
 </script></body></html>
