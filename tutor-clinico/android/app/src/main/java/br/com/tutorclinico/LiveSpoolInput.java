@@ -5,8 +5,8 @@ import java.util.function.BooleanSupplier;
 
 /** Reads only fsynced encrypted frames published by the capture writer.
  * No PCM queue, no duplicate full recording, bounded read-ahead. */
-final class LiveSpoolInput extends InputStream {
-    static final class Boundary {
+public final class LiveSpoolInput extends InputStream {
+    public static final class Boundary {
         private long published;
         private boolean closed;
         synchronized void publish(long bytes,boolean finished){
