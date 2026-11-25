@@ -743,10 +743,17 @@ public final class MainActivity extends Activity {
             if(!unlocked)return;
             main.post(()->reauthenticate("Exportar backup protegido",()->exportBackupAuthorized(password,includePrivateDiary)));
         }
+        @JavascriptInterface public void exportClinicalBackupOnly(String password,boolean includePrivateDiary){
+            if(!unlocked||password==null||password.length()<10)return;
+            main.post(()->reauthenticate("Exportar backup clínico sem anexos",()->exportBackupAuthorized(password,includePrivateDiary,false)));
+        }
         private void exportBackupAuthorized(String password, boolean includePrivateDiary) {
+            exportBackupAuthorized(password,includePrivateDiary,true);
+        }
+        private void exportBackupAuthorized(String password, boolean includePrivateDiary,boolean includeAttachments) {
             if (!unlocked) return;
             try {
-                JSONObject export=store.exportPortableSnapshot(includePrivateDiary);
+                JSONObject export=includeAttachments?store.exportPortableSnapshot(includePrivateDiary):store.exportPortableSnapshot(includePrivateDiary,false);
                 pendingExport = SecureStore.encryptBackup(export.toString(), password);
                 if(pendingExport.length>50_000_000){pendingExport=null;throw new java.io.IOException("Backup acima de 50 MB; não foi criado arquivo incompleto");}
             }
@@ -755,7 +762,7 @@ public final class MainActivity extends Activity {
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("application/json");
-                intent.putExtra(Intent.EXTRA_TITLE, "tutor-clinico-backup.psicbackup");
+                intent.putExtra(Intent.EXTRA_TITLE, includeAttachments?"tutor-clinico-backup.psicbackup":"eco-clinico-sem-anexos.psicbackup");
                 startActivityForResult(intent, EXPORT_CODE);
             });
         }
