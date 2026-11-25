@@ -503,8 +503,20 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String saveState(String json) {
             if (!unlocked) return "Bloqueado";
-            try { store.save(json); return "OK"; }
+            try { store.save(json); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
+        }
+        @JavascriptInterface public String databaseDiagnostics() {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.diagnostics();}catch(Exception e){return "{\"__loadError\":\"Diagnóstico indisponível\"}";}
+        }
+        @JavascriptInterface public String createLocalCheckpoint() {
+            if(!unlocked)return "Bloqueado";
+            try{store.checkpoint(true);return "OK";}catch(Exception e){return "Falha no checkpoint";}
+        }
+        @JavascriptInterface public String loadLocalCheckpoint(String slot) {
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.readCheckpoint(Integer.parseInt(slot));}catch(Exception e){return "{\"__loadError\":\"Checkpoint indisponível ou alterado\"}";}
         }
         @JavascriptInterface public String saveFormDraft(String caseId,String json) {
             if(!unlocked)return "Bloqueado";
