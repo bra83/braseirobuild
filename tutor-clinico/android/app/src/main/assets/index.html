@@ -2521,7 +2521,7 @@ function ecoFormatClinicalDoc(c, type, sections, options){
       '<p><strong>Queixa nas palavras do sujeito:</strong> '+esc(deidentify(c.queixaTexto||c.anamnese?.queixaDetalhada||'Não detalhada'))+'</p>';
     if(c.anamnese){
       const ana = c.anamnese;
-      for(const cat of ecoAnamneseCategories){const fields=cat.campos.filter(f=>['nomeSocial','generoPronomes','profissaoOcupacao','escolaridade','estadoCivil','dificuldadesIntimidade','ambienteTrabalho','rotinaPressao','saudeFisica'].includes(f.k)&&ana[f.k]);if(fields.length)body+='<h3>'+esc(cat.nome)+'</h3>'+fields.map(f=>'<p><strong>'+esc(f.label)+':</strong> '+esc(deidentify(ana[f.k]))+'</p>').join('');}
+      if(['ficha','evolucao','sessao'].includes(type))for(const cat of ecoAnamneseCategories){const fields=cat.campos.filter(f=>['nomeSocial','generoPronomes','profissaoOcupacao','escolaridade','estadoCivil','dificuldadesIntimidade','ambienteTrabalho','rotinaPressao','saudeFisica'].includes(f.k)&&ana[f.k]);if(fields.length)body+='<h3>'+esc(cat.nome)+'</h3>'+fields.map(f=>'<p><strong>'+esc(f.label)+':</strong> '+esc(deidentify(ana[f.k]))+'</p>').join('');}
       if(ana.queixaDetalhada) body += '<p><strong>Queixa detalhada e expectativas:</strong> '+esc(deidentify(ana.queixaDetalhada))+'</p>';
       if(ana.queixa_inicial) body += '<p><strong>Queixa inicial:</strong> '+esc(deidentify(ana.queixa_inicial))+'</p>';
       if(ana.expectativas) body += '<p><strong>Expectativas com o processo:</strong> '+esc(deidentify(ana.expectativas))+'</p>';
