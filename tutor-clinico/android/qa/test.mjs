@@ -1140,3 +1140,17 @@ test('ECO 0.23 diário: append, delete and failure are scoped and durable',()=>{
  js("document.getElementById('diaryTexto').value='Terceira nota'; act('ecoAddDiaryNote',openedId,{dataset:{case:openedId}})");
  assert.equal(notes.length,1);assert.equal(js('currentCase().diarioNotas'),undefined);
 });
+
+test('Ficha evolutiva exige fonte literal, preserva isolamento, sinaliza fonte alterada',()=>{
+ const sample={id:"ficha-a",nome:"Carla fictícia",sessoes:[{id:"fa1",data:"2026-11-01",texto:"Registro manual de sono.",mlSegments:[{speaker:"paciente",text:"Tenho medo de pedir ajuda.",startMs:0},{speaker:"terapeuta",text:"Isso é uma pergunta.",startMs:1000}],mlTranscricao:"Tenho medo de pedir ajuda. Isso é uma pergunta.",mlEvidence:[]}]};
+ context.fichaSample=sample;
+ assert.equal(js('ecoFichaValid(fichaSample,{sessionId:"fa1",origin:"paciente",quote:"Tenho medo de pedir ajuda."})'),true);
+ assert.equal(js('ecoFichaValid(fichaSample,{sessionId:"fa1",origin:"paciente",quote:"Isso é uma pergunta."})'),false);
+ assert.equal(js('ecoFichaValid(fichaSample,{sessionId:"outro",origin:"manual",quote:"Registro manual"})'),false);
+ assert.equal(js('ecoLongRows(fichaSample).length'),1);
+ assert.equal(js('ecoLongRows(fichaSample,"2026-11-02").length'),0);
+ js('fichaSample.fichaEvolutiva=[{id:"obs",kind:"Sono",sessionId:"fa1",origin:"manual",quote:"Registro manual",text:"Relato de sono"}]');
+ assert.match(js('ecoFichaBody(fichaSample)'),/Relato de sono/);
+ js('fichaSample.sessoes[0].texto="Fonte modificada"');
+ assert.match(js('ecoFichaBody(fichaSample)'),/Fonte alterada ou removida/);
+});

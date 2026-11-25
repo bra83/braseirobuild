@@ -156,6 +156,11 @@ html[data-theme="dark"] .eco-caption{color:#c6d0ca}
 .eco-acoustic-chart{display:flex;gap:2px;align-items:end;height:90px;border-bottom:1px solid var(--border);overflow:hidden}
 .eco-acoustic-chart>div{flex:1;min-width:2px;max-width:12px;background:#8abd34;border-radius:2px 2px 0 0}
 .eco-fold-summary{cursor:pointer;font-size:17px;font-weight:700;padding:6px 0;list-style:none;display:flex;justify-content:space-between;gap:10px}.eco-fold-summary::-webkit-details-marker{display:none}.eco-fold-summary::after{content:"+";font-size:22px;color:#8abd34}.eco-fold[open]>.eco-fold-summary::after{content:"−"}.eco-fold[open]>.eco-fold-summary{margin-bottom:10px}
+
+.eco-ficha-sheet{border:1px solid var(--border);border-radius:15px;overflow:hidden;background:var(--paper);color:var(--ink);margin:12px 0}
+.eco-ficha-sheet header{background:#252e26;color:#baff4a;padding:16px}.eco-ficha-sheet header h2{margin:0}.eco-ficha-sheet header p{color:#e0e9de;margin:4px 0}
+.eco-ficha-heading{padding:11px 12px;margin:0;background:var(--light);color:var(--teal);border-top:1px solid var(--border);letter-spacing:.2px}
+.eco-ficha-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:14px}.eco-ficha-table th,.eco-ficha-table td{padding:10px;vertical-align:top;text-align:left;border-bottom:1px solid var(--border);overflow-wrap:anywhere}.eco-ficha-table th{width:30%;background:var(--light);color:var(--teal)}.eco-ficha-table td p{white-space:pre-wrap;margin:6px 0}.eco-ficha-table small{color:var(--muted)}.eco-ficha-empty{padding:12px;margin:0;overflow-wrap:anywhere}
 </style></head><body><div class="top"><div class="brand"><img class="eco-brand-image" src="{{ECO_APP_ICON}}" alt=""/> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
@@ -315,6 +320,71 @@ function ecoCaseAnalysis(c){
  return out;
 }
 
+
+const ecoFichaKinds=["Sono","Corpo","Infância","Família","Relacionamentos","Trabalho","Medo","Sonhos","Na sessão","Mudança observada","Outros"];
+let ecoFichaEdit=null;
+let ecoLongFrom="",ecoLongTo="";
+function ecoFichaSource(session,origin){
+ if(!session)return "";
+ if(origin==="manual")return String(session.texto||"");
+ if(origin==="revisado")return String(session.mlRevisada||"");
+ if(origin==="paciente")return (session.mlSegments||[]).filter(s=>s.speaker==="paciente").map(s=>String(s.text||"")).join("\n");
+ return "";
+}
+function ecoFichaValid(c,item){
+ const session=(c.sessoes||[]).find(s=>s.id===item.sessionId);
+ return !!(session&&item.quote&&ecoFichaSource(session,item.origin).includes(item.quote));
+}
+function ecoFichaRows(c){
+ const manual=(c.fichaEvolutiva||[]).map(x=>({...x,valid:ecoFichaValid(c,x),manual:true}));
+ const automatic=(c.sessoes||[]).flatMap(s=>(s.mlEvidence||[]).filter(e=>ecoEvidenceCurrent(s,e)).map(e=>{
+   const source=ecoFichaSource(s,"paciente");
+   const patient=e.speaker==="paciente"&&source.includes(e.quote);
+   return {id:e.id,sessionId:s.id,kind:e.category||"Escuta",text:e.label,quote:e.quote,origin:patient?"paciente":"revisado",sourceLabel:patient?"Fala do paciente":"Evidência confirmada · falante não verificado",timeMs:patient?e.timeMs:null,valid:true,manual:false};
+ }));
+ return [...manual,...automatic].map(x=>({...x,date:(c.sessoes||[]).find(s=>s.id===x.sessionId)?.data||""})).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function ecoFichaBody(c){
+ const rows=ecoFichaRows(c);
+ const table=(items)=>'<table class="eco-ficha-table"><tbody>'+items.map(x=>'<tr><th scope="row">'+esc(x.kind)+'</th><td><strong>'+esc(x.text)+'</strong><p>'+esc(x.quote)+'</p><small>'+esc(formatDate(x.date))+' · '+esc(x.sourceLabel||(x.origin==="manual"?"Registro manual do profissional":x.origin==="paciente"?"Fala do paciente":"Texto revisado sem falante"))+(Number.isFinite(x.timeMs)?' · '+esc(ecoTimecode(x.timeMs)):'')+'</small>'+(x.valid?'':'<p class="alert">Fonte alterada ou removida. Revisão necessária.</p>')+'</td></tr>').join("")+'</tbody></table>';
+ const good=rows.filter(x=>x.valid),stale=rows.filter(x=>!x.valid);
+ const hypotheses=(c.hipotesesList||[]);
+ return '<div class="eco-ficha-sheet"><header><h2>Ficha clínica evolutiva</h2><p>Registro consolidado · uso interno confidencial</p></header><table class="eco-ficha-table"><tbody><tr><th>Paciente</th><td>'+esc(c.nome)+'</td></tr><tr><th>Idade</th><td>'+esc(c.idade||"Não informada")+'</td></tr><tr><th>Queixa inicial</th><td>'+esc(c.queixaTexto||"Não registrada")+'</td></tr><tr><th>Sessões</th><td>'+((c.sessoes||[]).length)+'</td></tr></tbody></table><h3 class="eco-ficha-heading">Dados descobertos na escuta</h3>'+(good.filter(x=>x.kind!=="Mudança observada").length?table(good.filter(x=>x.kind!=="Mudança observada")):'<p class="eco-ficha-empty">Ainda não há evidências confirmadas ou registros vinculados à fonte.</p>')+'<h3 class="eco-ficha-heading">Evolução observada</h3>'+(good.some(x=>x.kind==="Mudança observada")?table(good.filter(x=>x.kind==="Mudança observada")):'<p class="eco-ficha-empty">Nenhuma mudança registrada pelo profissional.</p>')+'<h3 class="eco-ficha-heading">Hipóteses clínicas provisórias</h3>'+(hypotheses.length?hypotheses.map(x=>'<div class="eco-ficha-empty"><strong>'+esc(x.texto)+'</strong><p>Favoráveis: '+esc(x.favoraveis||"Não documentadas")+'</p><p>Contrárias: '+esc(x.contrarias||"Não documentadas")+'</p><p>Alternativas: '+esc(x.alternativas||"Não documentadas")+'</p></div>').join(""):'<p class="eco-ficha-empty">Nenhuma hipótese registrada. Não inferir diagnóstico automaticamente.</p>')+(stale.length?'<h3 class="eco-ficha-heading">Fontes a revisar (não confirmadas)</h3>'+table(stale):'')+'</div>';
+}
+function ecoFichaPanel(c){
+ const e=ecoFichaEdit?.caseId===c.id?(c.fichaEvolutiva||[]).find(x=>x.id===ecoFichaEdit.id):null;
+ const attrs='data-case="'+esc(c.id)+'"';
+ const opts=(arr,selected)=>arr.map(x=>'<option value="'+esc(x)+'" '+(x===selected?'selected':'')+'>'+esc(x)+'</option>').join("");
+ const sessions=c.sessoes||[];
+ return '<div class="eco-ficha-wrap">'+ecoFichaBody(c)+'<div class="actions">'+btn("Abrir ficha e evidências","caseTab","secondary",'data-id="fichaEvolutiva"')+'</div></div>';
+}
+function ecoFichaEditor(c){
+ const e=ecoFichaEdit?.caseId===c.id?(c.fichaEvolutiva||[]).find(x=>x.id===ecoFichaEdit.id):null;
+ const attrs='data-case="'+esc(c.id)+'"';
+ const sessions=c.sessoes||[];
+ const opts=(arr,selected)=>arr.map(x=>'<option value="'+esc(x)+'" '+(x===selected?'selected':'')+'>'+esc(x)+'</option>').join("");
+ return ecoFichaBody(c)+'<div class="card"><h2>'+ (e?"Editar registro":"Registrar descoberta na escuta")+'</h2><p class="eco-caption">Vincule uma síntese ou observação a um trecho literal de uma sessão já salva. O ECO não presume fatos ou diagnóstico.</p><div class="field"><label>Categoria</label><select id="fichaKind">'+opts(ecoFichaKinds,e?.kind)+'</select></div><div class="field"><label>Sessão de origem</label><select id="fichaSession"><option value="">Selecione</option>'+sessions.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===e?.sessionId?'selected':'')+'>'+esc(formatDate(s.data))+' · '+esc(s.hora||"")+' · '+esc(s.id.slice(-6))+'</option>').join("")+'</select></div><div class="field"><label>Tipo de fonte</label><select id="fichaOrigin">'+[["manual","Registro manual do profissional"],["paciente","Trechos atribuídos ao paciente"],["revisado","Texto revisado sem atribuição de falante"]].map(([v,l])=>'<option value="'+v+'" '+(v===e?.origin?'selected':'')+'>'+l+'</option>').join("")+'</select></div><div class="actions">'+btn("Consultar texto da fonte","ecoFichaInspect","secondary",attrs)+'</div><div id="fichaSourcePreview"></div><div class="field"><label>Trecho literal</label><textarea id="fichaQuote">'+esc(e?.quote||"")+'</textarea></div><div class="field"><label>Síntese / observação profissional</label><textarea id="fichaText">'+esc(e?.text||"")+'</textarea></div><div class="actions">'+btn("Salvar registro","ecoFichaSave","",attrs)+(e?btn("Cancelar edição","ecoFichaCancel","ghost",attrs):"")+'</div></div>'+ (c.fichaEvolutiva||[]).map(x=>'<div class="card"><strong>'+esc(x.kind)+'</strong><p>'+esc(x.text)+'</p><div class="actions">'+btn("Editar","ecoFichaEdit","secondary",attrs+' data-id="'+esc(x.id)+'"')+btn("Excluir","ecoFichaDelete","danger",attrs+' data-id="'+esc(x.id)+'"')+'</div></div>').join("")+'<div class="card"><label class="choice"><input type="checkbox" id="fichaPrintConfirm">Revisei esta ficha e autorizo sua impressão para uso interno confidencial.</label>'+btn("Imprimir ficha evolutiva","ecoFichaPrint","secondary",attrs)+'</div>'+ecoLongPanel(c);
+}
+function ecoLongRows(c,from="",to=""){
+ return (c?.sessoes||[]).filter(s=>(!from||s.data>=from)&&(!to||s.data<=to)).sort((a,b)=>(a.data||"").localeCompare(b.data||"")||(a.hora||"").localeCompare(b.hora||"")).flatMap(s=>ecoAnalysisRows(s,"paciente").map(r=>({...r,sessionId:s.id,sessionDate:s.data})));
+}
+function ecoLongPanel(c){
+ const rows=ecoLongRows(c,ecoLongFrom,ecoLongTo),r=ecoNeuralRun?.longitudinal&&ecoNeuralRun.key===ecoNeuralKey(rows)?ecoNeuralRun:null;
+ let out='<div class="card" id="ecoNeuralPanel"><h2>Busca semântica entre sessões</h2><p class="eco-caption">Inferência DistilUSE local, somente falas identificadas do paciente. A comparação entre sessões não demonstra causalidade nem contradição.</p><div class="split"><div class="field"><label>De</label><input type="date" id="ecoLongFrom" value="'+esc(ecoLongFrom)+'"></div><div class="field"><label>Até</label><input type="date" id="ecoLongTo" value="'+esc(ecoLongTo)+'"></div></div><div class="field"><label>Pesquisar significado (opcional)</label><input id="ecoNeuralQuery" maxlength="500" value="'+esc(r?.query||"")+'"></div>'+btn("Analisar histórico","ecoLongStart","", 'data-case="'+esc(c.id)+'"')+'<p>'+rows.length+' trechos no período selecionado. Limite de 1200 por análise; selecione um período menor se necessário.</p>';
+ if(!r)return out+'</div>';
+ if(r.pending)return out+'<p id="ecoNeuralStage">'+esc(r.stage)+'</p><progress id="ecoNeuralBar" max="'+Math.max(1,r.total)+'" value="'+r.done+'"></progress><p id="ecoNeuralCount">'+r.done+' de '+r.total+'</p>'+btn("Cancelar","ecoNeuralCancel","secondary")+'</div>';
+ if(r.error)return out+'<p class="alert red">'+esc(r.error)+'</p></div>';
+ const quote=i=>{const x=rows[i];return x?'<p>'+esc(x.text)+'</p><small>'+esc(formatDate(x.sessionDate))+' · '+esc(x.atMs==null?"Sem minuto":ecoTimecode(x.atMs))+' · paciente</small>':""};
+ const score=x=>Number(x).toFixed(3);
+ if(r.query)out+='<h3>Trechos relacionados à consulta</h3>'+(r.result.hits.length?r.result.hits.map(x=>'<div class="eco-evidence">Cosseno '+score(x.score)+quote(x.i)+'</div>').join(""):'<p>Sem resultados acima do limiar experimental.</p>');
+ out+='<h3>Possíveis recorrências entre sessões diferentes</h3>'+(r.result.pairs.length?r.result.pairs.map(x=>'<div class="eco-evidence">Cosseno '+score(x.score)+quote(x.j)+'<div class="divider"></div>'+quote(x.i)+'</div>').join(""):'<p>Sem pares relevantes neste período.</p>');
+ return out+'</div>';
+}
+function ecoNeuralContextMatches(r){
+ if(r?.longitudinal)return screen==="case"&&tab==="fichaEvolutiva"&&r.key===ecoNeuralKey(ecoLongRows(currentCase(),ecoLongFrom,ecoLongTo));
+ return screen==="session"&&r.key===ecoNeuralKey(ecoNeuralRows());
+}
+
 function caseScreen(){
   const c=currentCase();
   if(!c)return '<div class="alert red">Caso não encontrado.</div>';
@@ -325,13 +395,13 @@ function caseScreen(){
   let content = '';
 
   if(tab==='sintese'){
-    content = `<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'Não informada')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
+    content = ecoFichaPanel(c)+`<div class="card"><h2>Resumo do caso</h2>${keyval('Apelido',c.nome)}${keyval('Idade',c.idade?c.idade+' anos':'Não informada')}${keyval('Modalidade',c.modalidade)}${keyval('Início',formatDate(c.data))}${keyval('Status',c.status)}${keyval('Queixa',c.queixaTexto)}<h3>Temas</h3>${chips(currentTopics)}<h3>Observações</h3><p>${esc(c.obs||'Não informadas')}</p></div>`+
     `<div class="card"><h2>Enquadre Terapêutico e Contrato (ECO-105)</h2>`+
-    keyval('Frequência acordada', enq.frequencia || 'Semanal (50 min)')+
+    keyval('Frequência acordada', enq.frequencia || 'Não registrada')+
     keyval('Modalidade pactuada', enq.modalidade || c.modalidade || 'Presencial')+
     keyval('Estado do acompanhamento', c.status || 'Em andamento')+
-    keyval('Limites de contato', enq.limites || 'Definidos no enquadre inicial')+
-    keyval('Expectativas acordadas', enq.expectativas || 'Definidas com o paciente')+
+    keyval('Limites de contato', enq.limites || 'Não registrados')+
+    keyval('Expectativas acordadas', enq.expectativas || 'Não registradas')+
     `<div class="actions" style="margin-top:10px">${btn('Editar enquadre completo','caseTab','secondary','data-id="enquadre"')}</div>`+
     `</div>`+
     `<div class="eco-outline"><h2>Grade de Módulos Clínicos (12 Módulos Estruturados)</h2>`+
@@ -353,7 +423,7 @@ function caseScreen(){
     `</div></div>`;
   } else {
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
-    if(tab==='sessoes'){
+    if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)}</div>`+
         (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
@@ -370,8 +440,8 @@ function caseScreen(){
         `<p class="eco-caption">Pactuação explícita de horários, periodicidade, honorários, limites de comunicação e políticas éticas.</p>`+
         `<div class="card">`+
         `<div class="split">`+
-        `<div class="field"><label>Frequência acordada</label><input type="text" id="enq_frequencia" value="${esc(enq.frequencia||'Semanal (50 min)')}" placeholder="Ex.: Semanal (50 min), Bisemanal"></div>`+
-        `<div class="field"><label>Duração da sessão</label><input type="text" id="enq_duracao" value="${esc(enq.duracao||'50 minutos')}" placeholder="Ex.: 50 minutos"></div>`+
+        `<div class="field"><label>Frequência acordada</label><input type="text" id="enq_frequencia" value="${esc(enq.frequencia||'')}" placeholder="Ex.: Semanal (50 min), Bisemanal"></div>`+
+        `<div class="field"><label>Duração da sessão</label><input type="text" id="enq_duracao" value="${esc(enq.duracao||'')}" placeholder="Ex.: 50 minutos"></div>`+
         `</div>`+
         `<div class="split">`+
         `<div class="field"><label>Modalidade acordada</label><select id="enq_modalidade"><option value="Presencial" ${enq.modalidade==='Presencial'?'selected':''}>Presencial</option><option value="Online" ${enq.modalidade==='Online'?'selected':''}>Online</option><option value="Híbrido" ${enq.modalidade==='Híbrido'?'selected':''}>Híbrido</option></select></div>`+
@@ -1188,7 +1258,7 @@ function ecoNeuralPanel(){
  return out+'</section>';
 }
 function ecoNeuralRefresh(){
- if(screen==="session"&&ecoWorkspaceTab==="analise"){
+ if((screen==="session"&&ecoWorkspaceTab==="analise")||(screen==="case"&&tab==="fichaEvolutiva")){
   const y=window.scrollY||0;render();
   const panel=document.getElementById?.("ecoNeuralPanel");
   if(panel){for(const d of panel.querySelectorAll("details"))d.open=true;}
@@ -1208,20 +1278,20 @@ function ecoNeuralWatch(id){
  if(Date.now()-ecoNeuralRun.lastProgress>180000){ecoNeuralCancel("Motor sem progresso por 3 minutos. Tente novamente ou divida a sessão.");return;}
  setTimeout(()=>ecoNeuralWatch(id),5000);
 }
-function ecoNeuralStart(){
+function ecoNeuralStart(longitudinal=false){
  if(ecoIsCapturing()){notify("Conclua ou pause a transcrição antes de executar a análise neural. Evita disputar memória e processador com o motor de voz.","red");return;}
- const rows=ecoNeuralRows(),query=document.getElementById?.("ecoNeuralQuery")?.value?.trim()||"";
+ const rows=longitudinal?ecoLongRows(currentCase(),ecoLongFrom,ecoLongTo):ecoNeuralRows(),query=document.getElementById?.("ecoNeuralQuery")?.value?.trim()||"";
  const id=String(++ecoNeuralSerial),key=ecoNeuralKey(rows);
  if(ecoNeuralRun?.pending&&ecoNeuralRun.key!==key)ecoNeuralCancel("Sessão alterada.");
  if(ecoNeuralRun?.pending){notify("Análise neural em andamento");return;}
- ecoNeuralRun={id,key,query,pending:true,total:rows.length,done:0,stage:"Carregando modelo ONNX",lastProgress:Date.now()};
- if(!rows.length){ecoNeuralRun={id,key,query,error:"Não há falas neste filtro. Confirme os interlocutores ou selecione explicitamente outro discurso."};ecoNeuralRefresh();return;}
- const payload=JSON.stringify({id,query,rows,scope:ecoAnalysisScope});
+ ecoNeuralRun={id,key,query,longitudinal,pending:true,total:rows.length,done:0,stage:"Carregando modelo ONNX",lastProgress:Date.now()};
+ if(!rows.length){ecoNeuralRun={id,key,query,longitudinal,error:"Não há falas neste filtro. Confirme os interlocutores ou selecione explicitamente outro discurso."};ecoNeuralRefresh();return;}
+ const payload=JSON.stringify({id,query,rows,scope:longitudinal?"paciente":ecoAnalysisScope,longitudinal});
  if(!rows.length||rows.length>1200||payload.length>500000||rows.some(r=>r.text.length>12000)){
-   ecoNeuralRun={id,key,query,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};ecoNeuralRefresh();return;
+   ecoNeuralRun={id,key,query,longitudinal,error:"Limite: 1–1200 trechos, 12 mil caracteres por trecho e 500 mil por análise. Divida a sessão."};ecoNeuralRefresh();return;
  }
  if(typeof window.NativeVault?.analyzeSemantic!=="function"){
-   ecoNeuralRun={id,key,query,error:"Modelo neural nativo indisponível nesta versão."};ecoNeuralRefresh();return;
+   ecoNeuralRun={id,key,query,longitudinal,error:"Modelo neural nativo indisponível nesta versão."};ecoNeuralRefresh();return;
  }
  try{
    const status=window.NativeVault.analyzeSemantic(payload);
@@ -1234,7 +1304,7 @@ window.nativeSemanticProgress=function(raw){
  let v;try{v=JSON.parse(raw);}catch(e){return;}
  const r=ecoNeuralRun;
  if(!r?.pending||v.id!==r.id)return;
- if(screen!=="session"||r.key!==ecoNeuralKey(ecoNeuralRows())){ecoNeuralCancel("Sessão alterada.");return;}
+ if(!ecoNeuralContextMatches(r)){ecoNeuralCancel("Sessão alterada.");return;}
  r.stage=String(v.stage||"Analisando trechos");r.done=Number(v.done)||0;r.total=Number(v.total)||r.total;r.lastProgress=Date.now();
  const stage=document.getElementById?.("ecoNeuralStage"),bar=document.getElementById?.("ecoNeuralBar"),count=document.getElementById?.("ecoNeuralCount");
  if(stage)stage.textContent=r.stage;
@@ -1248,7 +1318,7 @@ window.nativeSemanticResult=function(raw){
  let result;try{result=JSON.parse(raw);}catch(e){ecoNeuralCancel("Resposta inválida do motor neural.");return;}
  if(!ecoNeuralRun?.pending||result.id!==ecoNeuralRun.id)return;
  ecoNeuralRun.pending=false;
- if(screen!=="session"||ecoNeuralRun.key!==ecoNeuralKey(ecoNeuralRows())){ecoNeuralRun=null;return;}
+ if(!ecoNeuralContextMatches(ecoNeuralRun)){ecoNeuralRun=null;return;}
  if(result.error)ecoNeuralRun.error=result.error;
  else if(!Array.isArray(result.hits)||!Array.isArray(result.pairs))ecoNeuralRun.error="Resultado incompleto do motor neural.";
  else ecoNeuralRun.result=result;
@@ -2681,6 +2751,46 @@ const ecoRenderBase=render;
 homeScreen=ecoLanding;ecoHubScreen=ecoSessionEntry;sessionScreen=ecoWorkspace;
 const ecoActBase=act;
 act=function(name,id,button){
+
+  if(name.startsWith("ecoFicha")||name==="ecoLongStart"){
+   const caseId=button?.dataset?.case;
+   const c=state.cases.find(x=>x.id===caseId);
+   if(!c||c.id!==openedId||screen!=="case"||tab!=="fichaEvolutiva"){notify("Contexto da ficha inválido.","red");return;}
+   if(name==="ecoLongStart"){
+    if(ecoNeuralRun?.pending){notify("Análise em andamento.");return;}
+    const from=document.getElementById("ecoLongFrom")?.value||"",to=document.getElementById("ecoLongTo")?.value||"";
+    if((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)){notify("Período inválido.","red");return;}
+    ecoLongFrom=from;ecoLongTo=to;ecoNeuralStart(true);return;
+   }
+   if(name==="ecoFichaEdit"){if(!(c.fichaEvolutiva||[]).some(x=>x.id===id))return;ecoFichaEdit={caseId,id};render();return;}
+   if(name==="ecoFichaCancel"){ecoFichaEdit=null;render();return;}
+   if(name==="ecoFichaInspect"){
+    const session=c.sessoes.find(x=>x.id===document.getElementById("fichaSession")?.value);
+    const source=ecoFichaSource(session,document.getElementById("fichaOrigin")?.value);
+    const el=document.getElementById("fichaSourcePreview");
+    if(el)el.textContent=source||"Fonte vazia ou indisponível.";return;
+   }
+   if(name==="ecoFichaSave"){
+    const kind=document.getElementById("fichaKind")?.value,sessionId=document.getElementById("fichaSession")?.value,origin=document.getElementById("fichaOrigin")?.value;
+    const quote=String(document.getElementById("fichaQuote")?.value||"").trim(),text=String(document.getElementById("fichaText")?.value||"").trim();
+    const old=ecoFichaEdit?.caseId===caseId?(c.fichaEvolutiva||[]).find(x=>x.id===ecoFichaEdit.id):null;
+    const item={id:old?.id||uid(),kind,sessionId,origin,quote,text,updatedAt:new Date().toISOString()};
+    if(!ecoFichaKinds.includes(kind)||!text||!quote||!ecoFichaValid(c,item)){notify("Informe categoria, síntese e trecho literal presente na fonte selecionada.","red");return;}
+    const ok=change(()=>{c.fichaEvolutiva=[...(c.fichaEvolutiva||[]).filter(x=>x.id!==item.id),item];c.atualizadoEm=item.updatedAt;});
+    if(!ok){notify("Falha ao salvar ficha. Dados mantidos.","red");return;}ecoFichaEdit=null;render();return;
+   }
+   if(name==="ecoFichaDelete"){
+    if(!(c.fichaEvolutiva||[]).some(x=>x.id===id))return;
+    if(!change(()=>{c.fichaEvolutiva=c.fichaEvolutiva.filter(x=>x.id!==id);})){notify("Falha ao excluir registro.","red");return;}ecoFichaEdit=null;render();return;
+   }
+   if(name==="ecoFichaPrint"){
+    if(!document.getElementById("fichaPrintConfirm")?.checked){notify("Revise e confirme a ficha antes da impressão.","warn");return;}
+    if(!window.NativeVault?.printReport){notify("Impressão disponível no Android.");return;}
+    document.getElementById("fichaPrintConfirm").checked=false;
+    window.NativeVault.printReport('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><style>body{font:12pt sans-serif;color:#111}table{border-collapse:collapse;width:100%}th,td{border:1px solid #aaa;padding:8px;text-align:left;vertical-align:top}th{width:28%;background:#eee}tr{break-inside:avoid}h3{background:#eee;padding:8px}p{white-space:pre-wrap}</style>'+ecoFichaBody(c)+'<p>Documento confidencial de uso interno. Não é laudo diagnóstico.</p></html>');return;
+   }
+  }
+
   if(name==="ecoAtlasTab"){ecoAtlasTab=id;render();return;}
   if(name==="newManualSession"){
     const caseId=button?.dataset?.case||id||openedId;
@@ -2740,8 +2850,8 @@ act=function(name,id,button){
     const targetCase=state.cases.find(x=>x.id===caseId);
     if(!targetCase){notify("Caso não encontrado.",'red');return;}
     const enq={
-      frequencia:document.getElementById("enq_frequencia")?.value||"Semanal (50 min)",
-      duracao:document.getElementById("enq_duracao")?.value||"50 minutos",
+      frequencia:document.getElementById("enq_frequencia")?.value||"",
+      duracao:document.getElementById("enq_duracao")?.value||"",
       modalidade:document.getElementById("enq_modalidade")?.value||"Presencial",
       honorarios:document.getElementById("enq_honorarios")?.value||"",
       limites:document.getElementById("enq_limites")?.value||"",

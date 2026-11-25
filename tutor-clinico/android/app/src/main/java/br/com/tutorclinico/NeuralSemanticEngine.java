@@ -116,8 +116,11 @@ final class NeuralSemanticEngine implements AutoCloseable {
     JSONObject analyze(JSONObject request,BooleanSupplier active,Progress progress) throws Exception{
         JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
         String scope=request.optString("scope","paciente");
+        boolean longitudinal=request.optBoolean("longitudinal",false);
+        if(longitudinal&&!scope.equals("paciente"))throw new IOException("Histórico exige falas do paciente");
         if(!Set.of("paciente","terapeuta","desconhecido","todos","revisado").contains(scope))throw new IOException("Filtro inválido");
         for(int i=0;i<rows.length();i++){
+            if(longitudinal&&rows.getJSONObject(i).optString("sessionId").isEmpty())throw new IOException("Sessão de origem ausente");
             String role=rows.getJSONObject(i).optString("speaker","desconhecido");
             if(!Set.of("paciente","terapeuta","desconhecido").contains(role)||(!scope.equals("todos")&&!role.equals(scope.equals("revisado")?"desconhecido":scope)))throw new IOException("Trecho fora do filtro de falantes");
         }
@@ -138,7 +141,8 @@ final class NeuralSemanticEngine implements AutoCloseable {
             JSONObject row=rows.getJSONObject(i);
             if(SemanticRanking.eligible(text))for(int j=0;j<vs.size();j++){
                 JSONObject prior=rows.getJSONObject(j);
-                if(!SemanticRanking.eligible(prior.getString("text"))||!SemanticRanking.canCompare(row.optString("speaker","desconhecido"),prior.optString("speaker","desconhecido"),row.isNull("atMs")?null:row.optLong("atMs"),prior.isNull("atMs")?null:prior.optLong("atMs"),i,j))continue;
+                if(longitudinal&&row.optString("sessionId").equals(prior.optString("sessionId")))continue;
+                if(!SemanticRanking.eligible(prior.getString("text"))||(!longitudinal&&!SemanticRanking.canCompare(row.optString("speaker","desconhecido"),prior.optString("speaker","desconhecido"),row.isNull("atMs")?null:row.optLong("atMs"),prior.isNull("atMs")?null:prior.optLong("atMs"),i,j)))continue;
                 double score=cosine(v,vs.get(j));if(score>best){best=score;match=j;}
             }
             if(match>=0&&SemanticRanking.relevant(best,false))pairs.add(new JSONObject().put("i",i).put("j",match).put("score",best));
