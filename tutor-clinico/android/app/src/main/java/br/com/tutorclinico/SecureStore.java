@@ -181,7 +181,7 @@ final class SecureStore {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        }
         if (!root.has("version")) root.put("version", 1);
         root.put("cases", casesArray);
         root.put("appointments", apptsArray);
@@ -190,7 +190,7 @@ final class SecureStore {
         boolean migrated = false;
         try (Cursor c = db.query("configuracoes", new String[]{"chave"}, "chave = ?", new String[]{"db_migrated"}, null, null, null)) {
             migrated = c.moveToFirst();
-        } catch (Exception ignored) {}
+        }
         if (!migrated && casesArray.length() == 0) {
             File file = new File(context.getFilesDir(), FILE_NAME);
             if (file.exists() || new File(context.getFilesDir(), FILE_NAME + ".bak").exists()) {
@@ -216,6 +216,29 @@ final class SecureStore {
         return root.toString();
     }
 
+    private static String requiredId(JSONObject object, java.util.Set<String> seen, String kind) throws Exception {
+        Object raw = object.opt("id");
+        if (!(raw instanceof String) || ((String)raw).trim().isEmpty() || !seen.add((String)raw))
+            throw new IllegalArgumentException("Identificador ausente ou duplicado: " + kind);
+        return (String)raw;
+    }
+
+    private static void validateSnapshot(JSONArray cases, JSONArray appts) throws Exception {
+        java.util.Set<String> caseIds = new java.util.HashSet<>();
+        java.util.Set<String> sessionIds = new java.util.HashSet<>();
+        java.util.Set<String> appointmentIds = new java.util.HashSet<>();
+        for (int i=0;i<cases.length();i++) {
+            JSONObject c = cases.getJSONObject(i);
+            requiredId(c,caseIds,"caso");
+            if(c.has("sessoes") && !(c.opt("sessoes") instanceof JSONArray))
+                throw new IllegalArgumentException("Lista de sessões inválida");
+            JSONArray sessions = c.optJSONArray("sessoes");
+            if(sessions != null) for(int j=0;j<sessions.length();j++)
+                requiredId(sessions.getJSONObject(j),sessionIds,"sessão");
+        }
+        for(int i=0;i<appts.length();i++) requiredId(appts.getJSONObject(i),appointmentIds,"agenda");
+    }
+
     synchronized void save(String json) throws Exception {
         JSONObject validated = new JSONObject(json);
         if (validated.optInt("version") < 1 || !(validated.opt("cases") instanceof JSONArray)
@@ -224,6 +247,7 @@ final class SecureStore {
 
         JSONArray cases = validated.getJSONArray("cases");
         JSONArray appts = validated.getJSONArray("appointments");
+        validateSnapshot(cases, appts);
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
@@ -238,7 +262,7 @@ final class SecureStore {
             cfgCv.put("updated_at", System.currentTimeMillis());
             int cfgUpdated = db.update("configuracoes", cfgCv, "chave = ?", new String[]{"app_state_meta"});
             if (cfgUpdated == 0) {
-                db.insertWithOnConflict("configuracoes", null, cfgCv, SQLiteDatabase.CONFLICT_REPLACE);
+                db.insertOrThrow("configuracoes", null, cfgCv);
             }
 
             for (int i = 0; i < cases.length(); i++) {
@@ -281,7 +305,7 @@ final class SecureStore {
                     }
                     for (int s = 0; s < sessoes.length(); s++) {
                         JSONObject sObj = sessoes.getJSONObject(s);
-                        String sId = sObj.optString("id", java.util.UUID.randomUUID().toString());
+                        String sId = sObj.getString("id");
                         String sData = sObj.optString("data", "");
                         String sOrigem = sObj.optString("origem", "audio");
 
@@ -314,13 +338,13 @@ final class SecureStore {
             for (int i = 0; i < appts.length(); i++) {
                 JSONObject aObj = appts.getJSONObject(i);
                 ContentValues acv = new ContentValues();
-                acv.put("id", aObj.optString("id", java.util.UUID.randomUUID().toString()));
+                acv.put("id", aObj.getString("id"));
                 acv.put("case_id", aObj.optString("caseId", ""));
                 acv.put("data", aObj.optString("data", ""));
                 acv.put("hora", aObj.optString("hora", ""));
                 acv.put("created_at", System.currentTimeMillis());
                 acv.put("payload_enc", dbHelper.encrypt(aObj.toString()));
-                db.insertWithOnConflict("agenda", null, acv, SQLiteDatabase.CONFLICT_REPLACE);
+                db.insertOrThrow("agenda", null, acv);
             }
 
             db.setTransactionSuccessful();
