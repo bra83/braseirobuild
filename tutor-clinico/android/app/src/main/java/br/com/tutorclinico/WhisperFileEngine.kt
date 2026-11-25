@@ -69,6 +69,15 @@ object WhisperFileEngine {
     @JvmStatic
     fun transcribe(context: Context, uri: Uri, listener: Listener, requestedModel: String,
                    resumeFromMs: Long, clusters: SpeakerClusters?, key: ByteArray?, allowInterrupted: Boolean): Boolean {
+        return transcribeInternal(context,uri,listener,requestedModel,resumeFromMs,clusters,key,allowInterrupted,null)
+    }
+    @JvmStatic
+    fun transcribeLive(context:Context,uri:Uri,listener:Listener,requestedModel:String,clusters:SpeakerClusters?,key:ByteArray,boundary:LiveSpoolInput.Boundary):Boolean =
+        transcribeInternal(context,uri,listener,requestedModel,0L,clusters,key,true,boundary)
+
+    private fun transcribeInternal(context: Context, uri: Uri, listener: Listener, requestedModel: String,
+                   resumeFromMs: Long, clusters: SpeakerClusters?, key: ByteArray?, allowInterrupted: Boolean,
+                   boundary:LiveSpoolInput.Boundary?): Boolean {
         if (!listener.isActive()) return false
         var model: WhisperModel? = null
         var tagarela: TagarelaEngine? = null
@@ -88,7 +97,12 @@ object WhisperFileEngine {
             if(mode!="vosk"&&clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
             val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela,mode=="vosk")
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
-            val chunksCount = AudioFileTranscriber.streamPcmWithCount(context, uri, object : AudioFileTranscriber.Listener {
+            val chunksCount = if(boundary!=null){
+                require(uri.scheme=="file" && key!=null)
+                LiveSpoolInput(File(requireNotNull(uri.path)),boundary,java.util.function.BooleanSupplier{listener.isActive()}).use { source ->
+                    AuthenticatedSpoolReader.readLive(source,key,java.util.function.BooleanSupplier{listener.isActive()}) { pcm,size -> chunks.accept(pcm,size) }
+                }
+            } else AudioFileTranscriber.streamPcmWithCount(context, uri, object : AudioFileTranscriber.Listener {
                 override fun isActive() = listener.isActive()
                 override fun status(message: String) {
                     if (listener.isActive()) listener.state(modelName+" · DECODIFICANDO ÁUDIO")
