@@ -4728,7 +4728,7 @@ act=function(name,id,button){
  const savedId=value?.id;
  const result=ecoEditorPriorAct(name,id,button);
  if(slot==='wizard'&&['wizardNext','wizardBack'].includes(name)&&screen==='wizard'){ecoEditorDirty=true;ecoEditorFlush();}
- if(savedId&&((name==='saveCase'&&slot==='wizard'&&screen==='case'&&state.cases.some(c=>c.id===savedId))||(name==='saveAppointment'&&slot==='appointment'&&screen==='agenda'&&state.appointments.some(a=>a.id===savedId)))){
+ if(savedId&&((['saveCase','ecoSaveCaseIdentity','ecoSaveCaseStart'].includes(name)&&slot==='wizard'&&screen!=='wizard'&&state.cases.some(c=>c.id===savedId))||(name==='saveAppointment'&&slot==='appointment'&&screen==='agenda'&&state.appointments.some(a=>a.id===savedId)))){
   if(window.NativeVault?.clearEditorDraft?.(slot,savedId)!=='OK')notify('Registro salvo, mas o rascunho ainda pode aparecer na recuperação.','red');
   ecoEditorDirty=false;render();
  }
