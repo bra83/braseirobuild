@@ -870,7 +870,7 @@ public final class MainActivity extends Activity {
             cancelled.set(true);progress.setMessage("Cancelando com segurança…");v.setEnabled(false);
         });
         new Thread(()->{
-            String message;boolean restored=false;
+            String message;boolean restored=false,committed=false;
             java.util.function.BooleanSupplier active=()->unlocked&&!cancelled.get();
             try{
                 int count;
@@ -884,17 +884,17 @@ public final class MainActivity extends Activity {
                     try(InputStream in=getContentResolver().openInputStream(uri)){
                         if(in==null)throw new java.io.IOException("Arquivo indisponível");
                         count=full?store.restoreFullVault(in,password,active):store.restoreAttachmentArchive(in,password,active);
+                        committed=true;restored=full;
                     }
-                    restored=full;
                     message=full?"Cofre restaurado: "+count+" registros. Desbloqueie novamente.":"Restauração concluída: "+count+" anexo(s) novo(s).";
                 }
             }catch(Exception e){
-                message=export?"Backup não concluído; descarte o arquivo incompleto.":full?"Restauração integral recusada: confira senha, integridade e se o cofre está vazio. Nenhum registro foi alterado.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
+                message=committed?"Dados restaurados; houve falha ao fechar o arquivo de origem. Confira os registros.":export?"Backup não concluído; descarte o arquivo incompleto.":full?"Restauração integral recusada: confira senha, integridade e se o cofre está vazio. Nenhum registro foi alterado.":"Restauração não concluída: confira senha, integridade e casos cadastrados. Nenhum anexo foi mesclado.";
             }finally{
-                java.util.Arrays.fill(password,(char)0);archiveCancel=null;archiveBusy.set(false);
+                java.util.Arrays.fill(password,(char)0);archiveCancel=null;
             }
             final String result=message;final boolean reload=restored;
-            main.post(()->{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);if(reload){initialUnlockDone=false;AgendaReminderReceiver.refresh(this);requestUnlock();}}});
+            main.post(()->{try{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);if(reload){initialUnlockDone=false;requestUnlock();AgendaReminderReceiver.refresh(this);}}}finally{archiveBusy.set(false);}});
         },"eco-attachment-archive").start();
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
