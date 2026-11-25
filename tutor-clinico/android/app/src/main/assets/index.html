@@ -4958,8 +4958,13 @@ function ecoBibliographicStatus(ref){
  return entry?{status:'Metadados localizados',url:entry[1],source:entry[2]}:{status:'Referência indicada; metadados a conferir',url:'',source:''};
 }
 function ecoBibliographicPanel(){
- const rows=ecoPerspectiveCatalogRows();
- return '<section class="card"><h2>Rastreabilidade bibliográfica · 21 autores</h2><p class="small muted">Sínteses autorais do ECO, não transcrições de livros. As 42 entradas têm referências bibliográficas localizadas. Metadados localizados não significam conferência integral, validação clínica ou licença para reproduzir o texto. Nenhuma página específica é inventada.</p>'+rows.map(x=>{const b=ecoBibliographicStatus(x.ref);return '<details class="card"><summary>'+esc(x.author+' · '+x.title)+'</summary><p>'+esc(x.ref)+'</p><p>'+esc(b.status+(b.source?' · '+b.source:''))+'</p>'+(b.url?'<p class="small" style="overflow-wrap:anywhere">'+esc(b.url)+'</p>':'')+'<p>'+esc(x.text)+'</p></details>';}).join('')+'</section>';
+ const rows=ecoPerspectiveCatalogRows(),old=[...new Map(ecoLibraryChunks().filter(x=>!x.personalId).map(x=>[JSON.stringify([x.title,x.author,x.ref]),x])).values()];
+ const inventory='<details class="card"><summary>Inventário da biblioteca anterior · '+old.length+' entradas</summary><p class="small">Este inventário não certifica a correção de todas as sínteses. As referências sem localização específica ficam identificadas, inclusive os capítulos com fontes múltiplas.</p>'+old.map(x=>{
+  const checked=ecoBibliographicStatus(x.ref);
+  const status=x.ref.startsWith('Síntese didática original')?'Síntese própria, sem atribuição literal':checked.url?(x.ref.includes(';')?'Localização parcial de referência composta':checked.status):'Metadados e páginas a conferir';
+  return '<div class="eco-evidence"><strong>'+esc(x.title+' · '+x.author)+'</strong><p>'+esc(x.ref||'Referência ausente')+'</p><small>'+esc(status)+'</small>'+(checked.url?'<p class="small" style="overflow-wrap:anywhere">'+esc(checked.url)+'</p>':'')+'</div>';
+ }).join('')+'</details>';
+ return '<section class="card"><h2>Rastreabilidade bibliográfica · 21 autores</h2><p class="small muted">Sínteses autorais do ECO, não transcrições de livros. As 42 entradas têm referências bibliográficas localizadas. Metadados localizados não significam conferência integral, validação clínica ou licença para reproduzir o texto. Nenhuma página específica é inventada.</p>'+rows.map(x=>{const b=ecoBibliographicStatus(x.ref);return '<details class="card"><summary>'+esc(x.author+' · '+x.title)+'</summary><p>'+esc(x.ref)+'</p><p>'+esc(b.status+(b.source?' · '+b.source:''))+'</p>'+(b.url?'<p class="small" style="overflow-wrap:anywhere">'+esc(b.url)+'</p>':'')+'<p>'+esc(x.text)+'</p></details>';}).join('')+inventory+'</section>';
 }
 const ecoBibliographyPriorStudy=studyScreen;studyScreen=function(){return ecoBibliographyPriorStudy()+ecoBibliographicPanel();};
 let ecoPerspectiveSelected=['Freud','Klein','Winnicott'];
