@@ -271,6 +271,7 @@ public final class MainActivity extends Activity {
     }
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] grants){
         super.onRequestPermissionsResult(code,permissions,grants);
+        if(code==608){AgendaReminderReceiver.refresh(this);jsCallback("nativeAgendaReminderChanged","");return;}
         if(code==MIC_PERMISSION){
             if(grants.length>0&&grants[0]==PackageManager.PERMISSION_GRANTED&&unlocked&&!semanticBusy.get()){embeddingCache.clear();releaseWarmSemantic();ml.start(selectedMicEngine);}
             else jsCallback("nativeMlState","MICROFONE NEGADO");
@@ -581,6 +582,16 @@ public final class MainActivity extends Activity {
             catch (Exception e) { return "{\"__loadError\":\"Falha ao ler rascunho.\"}"; }
         }
 
+        @JavascriptInterface public String agendaReminderStatus(){
+            if(!unlocked)return "locked";
+            return !AgendaReminderReceiver.enabled(MainActivity.this)?"off":AgendaReminderReceiver.permitted(MainActivity.this)?"on":"permission";
+        }
+        @JavascriptInterface public void setAgendaReminders(boolean enabled){
+            if(!unlocked)return;
+            main.post(()->{if(!unlocked)return;AgendaReminderReceiver.setEnabled(MainActivity.this,enabled);
+                if(enabled&&android.os.Build.VERSION.SDK_INT>=33&&!AgendaReminderReceiver.permitted(MainActivity.this))requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},608);
+                jsCallback("nativeAgendaReminderChanged","");});
+        }
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
             try { return store.read(); }
@@ -588,7 +599,7 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String saveState(String json) {
             if (!unlocked) return "Bloqueado";
-            try { store.save(json); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
+            try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
         @JavascriptInterface public String recoveryCheckpoints(){
