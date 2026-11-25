@@ -91,7 +91,8 @@ public final class MainActivity extends Activity {
             WhisperLiveEngine.clearStaleFiles(this);
             SessionRecorder.cleanAbandoned(this);
         }
-        ml = new MlSessionEngine(this,new MlSessionEngine.Events(){
+        ml = TranscriptionService.engine(this);
+        ml.attach(this,new MlSessionEngine.Events(){
             @Override public void state(String s){jsCallback("nativeMlState",s);}
             @Override public void segment(String s){jsCallback("nativeMlSegment",s);}
             @Override public void segmentDetailed(String s,long startMs,long endMs){segmentWithSpeaker(s,startMs,endMs,"");}
@@ -265,7 +266,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); if(ml!=null)ml.destroy(); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -536,6 +537,8 @@ public final class MainActivity extends Activity {
                 return "{\"versionName\":\"0.23.0-arm64-beta\",\"versionCode\":28}";
             }
         }
+
+        @JavascriptInterface public String activeAudioJob(){return unlocked&&ml!=null?ml.activeSnapshot():"{}";}
 
         @JavascriptInterface public String listRecoverableJobs() {
             if (!unlocked) return "[]";
