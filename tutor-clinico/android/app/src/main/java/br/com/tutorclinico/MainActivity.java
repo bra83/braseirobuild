@@ -43,6 +43,9 @@ public final class MainActivity extends Activity {
     private static final int MIC_PERMISSION = 903;
     private static final int AUDIO_FILE_CODE = 904;
     private static final int TRANSCRIPT_FILE_CODE = 905;
+    private static final int ATTACHMENT_IMPORT_CODE = 906, ATTACHMENT_EXPORT_CODE = 907;
+    private String pendingAttachmentCase,pendingAttachmentTitle,pendingAttachmentClass;
+    private byte[] pendingAttachmentExport;
     private String pendingTranscriptToken;
     private MlSessionEngine ml;
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
@@ -196,7 +199,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
+        showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -379,6 +382,44 @@ public final class MainActivity extends Activity {
             return "OK";
         }
 
+        @JavascriptInterface public String listAttachments(String caseId){
+            if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
+            try{return store.listAttachments(caseId).toString();}catch(Exception e){return "{\"__loadError\":\"Anexos indisponíveis\"}";}
+        }
+        @JavascriptInterface public void selectAttachment(String caseId,String title,String classification,boolean authorized){
+            if(!unlocked||!authorized||caseId==null||caseId.isEmpty()||title==null||title.trim().isEmpty()||title.length()>200||classification==null||classification.length()>100)return;
+            main.post(()->{
+                if(!unlocked||pendingAttachmentCase!=null)return;
+                pendingAttachmentCase=caseId;pendingAttachmentTitle=title;pendingAttachmentClass=classification;
+                try{
+                    Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/pdf","image/png","image/jpeg"});
+                    startActivityForResult(intent,ATTACHMENT_IMPORT_CODE);
+                }catch(RuntimeException e){pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;showToast("Seletor indisponível");}
+            });
+        }
+        @JavascriptInterface public String previewAttachmentImage(String caseId,String id){
+            if(!unlocked)return "";
+            try{
+                JSONObject meta=store.attachmentMeta(caseId,id);String mime=meta.getString("mime");
+                if(!"image/png".equals(mime)&&!"image/jpeg".equals(mime))return "";
+                byte[] data=store.attachmentBytes(caseId,id);
+                try{return "data:"+mime+";base64,"+android.util.Base64.encodeToString(data,android.util.Base64.NO_WRAP);}finally{java.util.Arrays.fill(data,(byte)0);}
+            }catch(Exception e){return "";}
+        }
+        @JavascriptInterface public void exportAttachment(String caseId,String id){
+            if(!unlocked)return;
+            main.post(()->reauthenticate("Exportar anexo em arquivo não cifrado",()->{
+                try{
+                    if(pendingAttachmentExport!=null)return;
+                    JSONObject meta=store.attachmentMeta(caseId,id);pendingAttachmentExport=store.attachmentBytes(caseId,id);
+                    String mime=meta.getString("mime"),ext="application/pdf".equals(mime)?".pdf":"image/png".equals(mime)?".png":".jpg";
+                    Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(mime);
+                    intent.putExtra(Intent.EXTRA_TITLE,"eco-anexo"+ext);
+                    startActivityForResult(intent,ATTACHMENT_EXPORT_CODE);
+                }catch(Exception e){if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;showToast("Anexo não exportado");}
+            }));
+        }
         @JavascriptInterface public void selectTranscriptFile(String token) {
             if(!unlocked || token == null || token.isEmpty() || token.length() > 200) return;
             main.post(() -> {
@@ -628,7 +669,9 @@ public final class MainActivity extends Activity {
                     JSONObject journal=new JSONObject(draft);
                     if(!journal.has("__loadError"))export.put("mlDraft",journal);
                 }
+                export.put("attachmentBundle",store.exportAttachments());
                 pendingExport = SecureStore.encryptBackup(export.toString(), password);
+                if(pendingExport.length>50_000_000){pendingExport=null;throw new java.io.IOException("Backup acima de 50 MB; não foi criado arquivo incompleto");}
             }
             catch (Exception e) { showToast("Erro no backup: " + e.getMessage()); return; }
             main.post(() -> {
@@ -697,6 +740,31 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
+        if(code==ATTACHMENT_IMPORT_CODE){
+            String caseId=pendingAttachmentCase,title=pendingAttachmentTitle,classification=pendingAttachmentClass;
+            pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
+            if(!unlocked||caseId==null||result!=RESULT_OK||data==null||data.getData()==null)return;
+            byte[] bytes=null;
+            try(InputStream in=getContentResolver().openInputStream(data.getData())){
+                if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                bytes=readLimited(in,8_000_000);store.addAttachment(caseId,title,classification,bytes);
+                jsCallback("nativeAttachmentSaved",caseId);showToast("Anexo armazenado com integridade verificada");
+            }catch(Exception e){showToast("Anexo não importado: confira o formato e o limite de 8 MB.");}
+            finally{if(bytes!=null)java.util.Arrays.fill(bytes,(byte)0);}
+            return;
+        }
+        if(code==ATTACHMENT_EXPORT_CODE){
+            byte[] bytes=pendingAttachmentExport;pendingAttachmentExport=null;
+            if(bytes==null)return;
+            try{
+                if(!unlocked||result!=RESULT_OK||data==null||data.getData()==null)return;
+                try(OutputStream out=getContentResolver().openOutputStream(data.getData())){
+                    if(out==null)throw new java.io.IOException("Destino indisponível");
+                    out.write(bytes);out.flush();
+                }showToast("Anexo exportado fora do cofre. Proteja o arquivo.");
+            }catch(Exception e){showToast("Exportação não concluída; confira o destino.");}
+            finally{java.util.Arrays.fill(bytes,(byte)0);}return;
+        }
         if(code == TRANSCRIPT_FILE_CODE) {
             final String token = pendingTranscriptToken; pendingTranscriptToken = null;
             if(!unlocked || token == null || result != RESULT_OK || data == null || data.getData() == null) return;
