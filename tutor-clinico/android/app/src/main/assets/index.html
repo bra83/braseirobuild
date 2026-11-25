@@ -5144,6 +5144,7 @@ function ecoResidualSetup(){
    const conflict=Object.keys(d.base).some(k=>d.base[k]!==slot.base[k]);
    panel.innerHTML='<p><strong>Rascunho recuperável</strong> · '+(conflict?'O formulário original mudou; confira antes de recuperar.':'Campos ainda não salvos.')+'</p>'+(conflict?'<details><summary>Conferir diferenças</summary>'+Object.keys(d.fields).map(k=>'<p>Atual: '+esc(slot.base[k]||'')+'<br>Rascunho: '+esc(d.fields[k]||'')+'</p>').join('')+'</details>':'')+btn('Recuperar campos','ecoResidualResume','secondary','data-id="'+esc(ecoResidualIdentity(slot))+'"')+btn('Descartar rascunho','ecoResidualDiscard','ghost','data-id="'+esc(ecoResidualIdentity(slot))+'"');
    slot.nodes[0].closest('.field')?.before(panel);slot.panel=panel;
+   for(let n=panel.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;
   }catch(e){
    slot.pending=true;for(const el of slot.nodes)el.disabled=true;
    const panel=document.createElement('p');panel.className='alert red';panel.textContent='Rascunho indisponível ou incompatível. Não sobrescreva o formulário; confira a recuperação.';
