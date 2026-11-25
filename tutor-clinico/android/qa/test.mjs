@@ -274,7 +274,14 @@ test('ECO G5 trechos Whisper conservam posicao temporal e falante desconhecido',
  context.window.NativeVault.saveDraft=(json)=>{captured=json;return 'OK'};
  js("act('ecoOpen',state.cases[0].id)");
  js('ecoAudioSource="arquivo";ecoStatus="WHISPER BASE · TRECHO 1"');
- js('window.nativeMlSegmentDetailed(JSON.stringify({text:"Sonhei com minha mãe",startMs:5000,endMs:8800}))');
+ js('ecoActiveJobId="job-test-g5"');
+ js('window.nativeMlSegmentDetailed(JSON.stringify({id:"wrong",jobId:"wrong-job",caseId:openedId,sessionId:sessionDraft.id,text:"Outro job",startMs:100,endMs:200}))');
+ js('window.nativeMlSegmentDetailed(JSON.stringify({id:"wrong",jobId:ecoActiveJobId,caseId:"other-case",sessionId:sessionDraft.id,text:"Outro paciente",startMs:100,endMs:200}))');
+ js('window.nativeMlSegmentDetailed(JSON.stringify({id:"wrong",jobId:ecoActiveJobId,caseId:openedId,sessionId:"other-session",text:"Outra sessão",startMs:100,endMs:200}))');
+ assert.equal(js('sessionDraft.mlSegments.length'),0);
+ js('window.nativeMlSegmentDetailed(JSON.stringify({id:"job-test-g5_5000_8800",jobId:ecoActiveJobId,caseId:openedId,sessionId:sessionDraft.id,text:"Sonhei com minha mãe",startMs:5000,endMs:8800}))');
+ js('window.nativeMlSegmentDetailed(JSON.stringify({id:"job-test-g5_5000_8800",jobId:ecoActiveJobId,caseId:openedId,sessionId:sessionDraft.id,text:"Sonhei com minha mãe",startMs:5000,endMs:8800}))');
+ assert.equal(js('sessionDraft.mlSegments.length'),1);
  assert.equal(js('sessionDraft.mlSegments[0].startMs'),5000);
  assert.equal(js('sessionDraft.mlSegments[0].endMs'),8800);
  assert.equal(js('sessionDraft.mlSegments[0].speaker'),'desconhecido');
@@ -1117,3 +1124,19 @@ test('ECO 0.17 Arquitetura: Banco de dados relacional cifrado e áudio efêmero'
   assert.match(recorder, /Arrays\.fill\(ephemeralKey/);
 });
 
+
+// Behavioral test: two private diary saves preserve both records; deletion is scoped.
+test('ECO 0.23 diário: append, delete and failure are scoped and durable',()=>{
+ const vault=context.window.NativeVault;
+ let notes=[{id:'existing',texto:'Primeira nota'}];
+ vault.loadPrivateDiary=()=>JSON.stringify(notes);
+ vault.savePrivateDiary=(caseId,raw)=>{notes=JSON.parse(raw);return 'OK'};
+ js("ecoStatus='PARADO'; openedId=state.cases[0].id; screen='case'");
+ js("document.getElementById('diaryTexto').value='Segunda nota'; act('ecoAddDiaryNote',openedId,{dataset:{case:openedId}})");
+ assert.equal(notes.length,2);assert.equal(notes[0].id,'existing');
+ js("act('ecoDeleteDiaryNote','existing',{dataset:{case:openedId,id:'existing'}})");
+ assert.equal(notes.length,1);assert.equal(notes[0].texto,'Segunda nota');
+ vault.savePrivateDiary=()=> 'ERRO: disco cheio';
+ js("document.getElementById('diaryTexto').value='Terceira nota'; act('ecoAddDiaryNote',openedId,{dataset:{case:openedId}})");
+ assert.equal(notes.length,1);assert.equal(js('currentCase().diarioNotas'),undefined);
+});
