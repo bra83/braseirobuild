@@ -221,4 +221,31 @@ public class EcoIntegratedPersistenceTest {
         try(Cursor c=store.getDbHelper().getReadableDatabase().rawQuery("PRAGMA integrity_check",null)){assertTrue(c.moveToFirst());assertEquals("ok",c.getString(0));}
         store.getDbHelper().close();
     }
+
+    @Test public void perCaseDraftAndIncrementalHistorySurviveReopen() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        JSONObject a=caseWith("recover-a","PRIMEIRA"),b=caseWith("recover-b","SEGUNDA");
+        JSONObject root=new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray());
+        store.save(root.toString());
+        JSONObject draftA=new JSONObject().put("caseId","recover-a").put("session",new JSONObject().put("id","draft-a").put("texto","RASCUNHO_A"));
+        JSONObject draftB=new JSONObject().put("caseId","recover-b").put("session",new JSONObject().put("id","draft-b").put("texto","RASCUNHO_B"));
+        store.saveFormDraft("recover-a",draftA.toString());store.saveFormDraft("recover-b",draftB.toString());
+        store.clearFormDraft("recover-a","wrong");
+        assertEquals(draftA.toString(),store.readFormDraft("recover-a"));
+        a.getJSONArray("sessoes").getJSONObject(0).put("texto","ALTERADO");
+        store.save(root.toString());store.getDbHelper().close();
+        store=new SecureStore(context,key);
+        assertEquals(draftA.toString(),store.readFormDraft("recover-a"));assertEquals(draftB.toString(),store.readFormDraft("recover-b"));
+        JSONArray revisions=new JSONArray(store.sessionVersions("recover-a","recover-a-s"));
+        assertEquals(1,revisions.length());
+        long seq=revisions.getJSONObject(0).getLong("id");
+        assertEquals("PRIMEIRA",new JSONObject(store.sessionVersion("recover-a","recover-a-s",seq)).getString("texto"));
+        assertEquals(0,new JSONArray(store.sessionVersions("recover-b","recover-b-s")).length());
+        try{store.sessionVersion("recover-b","recover-a-s",seq);fail("cross-case history");}catch(IllegalArgumentException expected){}
+        store.clearFormDraft("recover-a","draft-a");assertEquals("",store.readFormDraft("recover-a"));assertEquals(draftB.toString(),store.readFormDraft("recover-b"));
+        assertEquals("ALTERADO",byId(new JSONObject(store.read()),"recover-a").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        store.getDbHelper().close();
+    }
 }
