@@ -1025,6 +1025,12 @@ act=function(name,id){
  }
  if(name==="ecoStop"){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();return}
  if(name==="ecoPause"){if(window.NativeVault.pauseMlTranscription)window.NativeVault.pauseMlTranscription();return}
+ if(name==="ecoParkJob"){
+  if(!ecoIsPaused()||!window.NativeVault?.parkPausedJob)return;
+  if(!window.confirm("Guardar esta gravação cifrada na fila para retomar depois? Os trechos confirmados permanecerão no prontuário."))return;
+  if(!window.NativeVault.parkPausedJob()){notify("Não foi possível guardar este áudio na fila. Arquivos externos ou trabalhos ativos não podem ser estacionados.",'red');return;}
+  ecoActiveJobId="";ecoStatus="PARADO · TEXTO PARCIAL PRESERVADO · ÁUDIO GUARDADO NA FILA";render();return;
+ }
  if(name==="ecoResume"){if(window.NativeVault.resumeMlTranscription)window.NativeVault.resumeMlTranscription();return}
  if(name==="ecoDiscard"){if(window.NativeVault.discardMlAudio)window.NativeVault.discardMlAudio();return}
  if(name==="ecoCategory"){ecoCategory=id;render();return}
@@ -1899,7 +1905,7 @@ function ecoWorkspace(){
   ecoIsTranscribing()?btn('Ⅱ PAUSAR TRANSCRIÇÃO E REVISAR','ecoPause','secondary'):
   ecoIsPaused()?btn('▶ RETOMAR DO MINUTO INTERROMPIDO','ecoResume',''):
   '')+
- (ecoIsPaused()||ecoIsTranscribing()?btn('■ ENCERRAR PARCIAL E DESCARTAR ÁUDIO RESTANTE','ecoDiscard','danger'):'')+'</div>';
+ (ecoIsPaused()&&window.NativeVault?.parkPausedJob?btn('Guardar na fila e liberar próxima sessão','ecoParkJob','secondary'):'')+(ecoIsPaused()||ecoIsTranscribing()?btn('■ ENCERRAR PARCIAL E DESCARTAR ÁUDIO RESTANTE','ecoDiscard','danger'):'')+'</div>';
   out+='<p class="eco-caption">Se pausar, o texto obtido continua disponível para análise e o áudio gravado permanece temporariamente até você retomar ou descartar. Depois da conclusão, o WAV gravado é apagado; arquivos que você importou nunca são apagados pelo ECO. Em caso de falha, mantenha o áudio temporário apenas até decidir retomar ou descartá-lo. Para preservar a privacidade, use somente testes fictícios nesta versão.</p>';
   out+='<h3 style="margin-top:18px">Transcrição reconhecida</h3><div class="eco-live" id="ecoTranscript">'+esc(sessionDraft.mlTranscricao||'Nenhum texto ainda. Inicie o microfone ou importe um áudio fictício para testar.')+'</div>';
   out+='<p class="eco-caption">Trecho parcial: <span id="ecoPartial">'+esc(ecoPartial)+'</span></p><p class="eco-mutednote">O texto de cada trecho é salvo em rascunho criptografado, junto aos minutos e à origem do reconhecimento.</p></section>';
