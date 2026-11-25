@@ -283,11 +283,18 @@ public final class MainActivity extends Activity {
                 try{
                     TagarelaEngine.Companion.releaseCached();
                     System.gc();
-                    int count=req.getJSONArray("rows").length();
-                    progress.report(0,count,"Carregando modelo ONNX");
-                    try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
-                        if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
-                        result=engine.analyze(req,active,progress);
+                    if("nli".equals(req.optString("mode"))){
+                        int count=req.getJSONArray("pairs").length();
+                        if(count<1||count>12)throw new java.io.IOException("Limite NLI");
+                        progress.report(0,count,"Carregando BERTimbau NLI");
+                        try(NliEngine engine=new NliEngine(getApplicationContext(),active)){result=engine.analyze(req,active,progress);}
+                    }else{
+                        int count=req.getJSONArray("rows").length();
+                        progress.report(0,count,"Carregando modelo ONNX");
+                        try(NeuralSemanticEngine engine=new NeuralSemanticEngine(getApplicationContext())){
+                            if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                            result=engine.analyze(req,active,progress);
+                        }
                     }
                 }catch(Throwable e){
                     // Only a safe category, never patient text or a stack trace in JS/logs.
@@ -390,7 +397,9 @@ public final class MainActivity extends Activity {
                 info.put("voskAvailable", true);
                 info.put("semanticModel", "DistilUSE-multilingual-cased-v2-U8U8");
                 info.put("semanticAvailable", true);
-                info.put("nliAvailable", false); // Bloqueado por restrição física de hardware/RAM (Galaxy A57)
+                info.put("nliAvailable", NliEngine.available(getApplicationContext()));
+                info.put("nliModel", NliEngine.MODEL);
+                info.put("nliExperimental", true);
                 info.put("rerankerAvailable", false); // Reranking neural dedicado bloqueado por hardware
                 info.put("databaseType", "SQLite-Transactional-AES-GCM-v5");
                 return info.toString();
