@@ -1628,7 +1628,7 @@ function ecoFoldPanels(){
   const details=document.createElement("details"),summary=document.createElement("summary");
   details.className="eco-fold";summary.className="eco-fold-summary";
   summary.textContent=heading.textContent;heading.remove();
-  details.open=ecoFoldState.get(key)??(/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras|Identificação dos falantes|Trechos e falantes/.test(key)||(/Semântica neural/.test(key)&&!!ecoNeuralRun));details.appendChild(summary);
+  details.open=ecoFoldState.get(key)??((/Atlas de Sonhos do Paciente|Genograma Familiar Interativo/.test(key))||/Nuvem de palavras|Transcrição reconhecida|Análise da sessão|lex\|Contagem/.test(key)&&!!ecoSelectedWord||/Nuvem de palavras|Identificação dos falantes|Trechos e falantes/.test(key)||(/Semântica neural/.test(key)&&!!ecoNeuralRun));details.appendChild(summary);
   while(parent.firstChild)details.appendChild(parent.firstChild);
   parent.appendChild(details);
   details.addEventListener("toggle",()=>ecoFoldState.set(key,details.open));
