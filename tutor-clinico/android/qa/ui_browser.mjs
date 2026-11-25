@@ -97,6 +97,27 @@ try{
  await page.locator('[data-act="ecoAiArchiveSave"]').click();
  const result=await page.evaluate(()=>{const c=state.cases.find(x=>x.id==='browser-b'),rec=c.ecoAiArchive.at(-1);return {scope:rec.scope,sources:rec.sources.map(x=>x.scope),valid:ecoAiArchiveValid(c,rec),other:state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0};});
  assert.deepEqual(result,{scope:'integrado',sources:['teoria','manual'],valid:true,other:0});
+ // Monthly atlas and actual browser PDF pagination, exclusively synthetic records.
+ const atlas=await page.evaluate(()=>{
+  const s=(id,data,origem,tags)=>({id,data,origem,mlTags:tags,mlEvidence:[],texto:'Nota fictícia'});
+  const c={id:'atlas-fixture',nome:'Paciente de teste',sessoes:[s('a1','2026-10-12','manual',['sono','sono']),s('a2','2026-10-12','audio',['família']),s('a3','2026-11-01','manual',['sono'])],sonhosList:[{data:'2026-10-12',texto:'Sonho independente'},{data:'2026-10-12',texto:'Fonte ausente',sessionId:'missing'}]};
+  const rows=ecoAtlasMonthly(c),filtered=ecoAtlasMonthly(c,{sessionId:'a1'}),period=ecoAtlasMonthly(c,{docDateFrom:'2026-11-01'});
+  return {rows,filtered,period};
+ });
+ assert.deepEqual(atlas.rows,[{month:'2026-10',sessions:2,manual:1,audio:1,tags:2,dreams:1,evidence:0},{month:'2026-11',sessions:1,manual:1,audio:0,tags:1,dreams:0,evidence:0}]);
+ assert.equal(atlas.filtered[0].sessions,1);assert.equal(atlas.filtered[0].dreams,0);assert.equal(atlas.period.length,1);
+ const htmlDoc=await page.evaluate(()=>{
+  const text=Array.from({length:220},(_,i)=>'Parágrafo fictício '+(i+1)+': atenção, vínculos, revisão, emoções e informações registradas.').join('\n');
+  const c={id:'pdf-fixture',nome:'Paciente Fictício',sessoes:[{id:'s1',data:'2026-11-25',origem:'manual',texto:text,mlTranscricao:text,mlTags:['sono']},{id:'s2',data:'2026-10-25',origem:'manual',texto:'EXCLUIR_PELO_FILTRO'}],diarioNotas:[{texto:'MARCADOR_PRIVADO_NUNCA_IMPRIMIR'}]};
+  return ecoFormatClinicalDoc(c,'ficha',{identificacao:true,sessoes:true,bruto:true,graficos:true},{confirmed:true,sessionId:'s1',profNome:'Profissional fictício'});
+ });
+ assert.ok(htmlDoc.includes('Atlas longitudinal'));assert.ok(htmlDoc.includes('Parágrafo fictício 220'));
+ assert.ok(!htmlDoc.includes('EXCLUIR_PELO_FILTRO')&&!htmlDoc.includes('MARCADOR_PRIVADO_NUNCA_IMPRIMIR'));
+ const printPage=await browser.newPage();await printPage.setContent(htmlDoc);await printPage.emulateMedia({media:'print'});
+ const pdf=await printPage.pdf({path:path.join(out,'documento-ficticio-a4.pdf'),preferCSSPageSize:true,printBackground:true});
+ const pdfText=pdf.toString('latin1');assert.ok(pdfText.startsWith('%PDF-'));
+ assert.ok((pdfText.match(/\/Type\s*\/Page\b/g)||[]).length>=3,'Expected multipage A4 output');
+ await printPage.close();
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
