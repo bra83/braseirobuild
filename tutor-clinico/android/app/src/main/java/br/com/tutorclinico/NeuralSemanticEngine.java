@@ -164,9 +164,13 @@ final class NeuralSemanticEngine implements AutoCloseable {
                     double score=cosine(qv.get(k),v);
                     if(!SemanticRanking.relevant(score,true))continue;
                     List<JSONObject> list=results.get(k);
-                    list.add(new JSONObject().put("i",i).put("score",score));
-                    list.sort(Comparator.comparingDouble((JSONObject o)->o.optDouble("score")).reversed());
-                    if(list.size()>5)list.remove(list.size()-1);
+                    // Rows arrive in index order. Equal scores keep earlier sources.
+                    // Avoid JSON allocation and a full sort for candidates below the current top five.
+                    int position=0;
+                    while(position<list.size() && list.get(position).optDouble("score")>=score)position++;
+                    if(position>=5)continue;
+                    list.add(position,new JSONObject().put("i",i).put("score",score));
+                    if(list.size()>5)list.remove(5);
                 }
                 progress.report(i+1,rows.length(),"Relacionando trechos aos temas");
             }
