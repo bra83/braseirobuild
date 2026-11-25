@@ -1,5 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
-<title>ECO — Atlas da Escuta</title><style>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; frame-src 'self' about:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>ECO — Atlas da Escuta</title><style>
 :root{--ink:#17312f;--muted:#63716f;--teal:#146b64;--light:#e8f2ed;--paper:#fff;--bg:#f4f7f5;--border:#dee7e2;--amber:#875a22;--danger:#ad4141;--radius:17px}*{box-sizing:border-box}
 body{font:15px/1.48 -apple-system,BlinkMacSystemFont,'Roboto','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);margin:0;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:10px 15px;font-weight:650}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #79b7ae;outline-offset:1px}
@@ -2839,7 +2839,7 @@ function ecoRenderDocuments(c){
    '</div>'+
    '<h3>Prévia do documento formatado</h3>'+
    '<div class="card" style="border:1px dashed var(--teal);max-height:400px;overflow-y:auto;background:white;color:#182b27;padding:20px">'+
-   '<iframe id="docPreviewFrame" style="width:100%;height:350px;border:none" srcdoc="'+esc(docHtml)+'"></iframe>'+
+   '<iframe id="docPreviewFrame" sandbox="" style="width:100%;height:350px;border:none" srcdoc="'+esc(docHtml)+'"></iframe>'+
    '</div>'+
    '</section>';
 }
@@ -4662,7 +4662,8 @@ function ecoRevealField(id){const e=document.getElementById(id);for(let p=e?.par
 function ecoDreamAutoFill(){
  const text=document.getElementById('dreamTexto')?.value||'';if(!text.trim())return;
  const d=ecoDreamFields(text),values={dreamPersonagens:d.personagens,dreamLugares:d.lugares,dreamAfetos:d.afetos,dreamSimbolos:d.simbolos.join(', ')};
- for(const [id,value] of Object.entries(values)){const e=document.getElementById(id);if(e&&e!==document.activeElement&&!e.value.trim())e.value=value;}
+ for(const [id,value] of Object.entries(values)){const e=document.getElementById(id);if(e&&e!==document.activeElement&&!e.value.trim()&&!e.disabled)e.value=value;}
+ if(typeof ecoClinicalDraftCollect==='function'){ecoClinicalDraftCollect(ecoClinicalDraftScope());ecoClinicalDraftFlush();}
 }
 let ecoDreamAutoTimer=null;
 document.addEventListener('input',e=>{
