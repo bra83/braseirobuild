@@ -105,6 +105,8 @@ jobs:
           python --version
           python -m pip install --only-binary=:all: --disable-pip-version-check numpy==1.26.4 onnxruntime==1.22.0 onnx==1.17.0 safetensors==0.5.3 tokenizers==0.21.1
           python qa/provision_semantic.py
+      - name: Preparar e testar NLI PT-BR experimental
+        run: python qa/provision_nli.py
       - name: Validar inferência TAGARELA em português
         run: |
           set -euo pipefail
