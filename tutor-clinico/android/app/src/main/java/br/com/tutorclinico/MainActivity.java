@@ -479,6 +479,12 @@ public final class MainActivity extends Activity {
                 return false;
             }
             try {
+                for(JSONObject queued:store.getDbHelper().listRecoverableJobs()){
+                    if(caseId.equals(queued.optString("case_id"))&&sessionId.equals(queued.optString("session_id"))){
+                        jsCallback("nativeMlState","ERRO · EXISTE ÁUDIO PENDENTE PARA ESTA SESSÃO; RETOME A FILA");
+                        return false;
+                    }
+                }
                 store.getDbHelper().createJob(jobId, caseId, sessionId, "", null);
                 activeJobCaseId = caseId;
                 ml.setJobContext(jobId, caseId, sessionId);
