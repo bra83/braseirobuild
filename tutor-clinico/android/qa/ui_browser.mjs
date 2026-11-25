@@ -278,6 +278,37 @@ try{
   state.ecoPersonalLibrary=previous;return result;
  });
  assert.ok(personal.rows>1);assert.equal(personal.exact,true);assert.equal(personal.excluded,true);assert.equal(personal.klein,true);assert.equal(personal.freud,false);
+ // Residual editor tests use the persistent bridge contract with synthetic content.
+ await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','seguranca');});
+ await page.locator('#safePlano').fill('Plano fictício ainda não salvo.');
+ await page.evaluate(()=>{act('openCase','browser-b');act('caseTab','seguranca');});
+ assert.notEqual(await page.locator('#safePlano').inputValue(),'Plano fictício ainda não salvo.');
+ await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','seguranca');});
+ assert.equal(await page.locator('#safePlano').isDisabled(),true);
+ await page.locator('[data-act="ecoResidualResume"][data-id="browser-a|res_safety"]').click();
+ assert.equal(await page.locator('#safePlano').inputValue(),'Plano fictício ainda não salvo.');
+ await page.locator('[data-act="ecoSaveSafety"]').click();
+ assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').seguranca.plano),'Plano fictício ainda não salvo.');
+ assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('browser-a','res_safety')),'');
+ await page.evaluate(()=>{act('caseTab','atendimento');});
+ await page.locator('#ecoPrepGoals').fill('Objetivo sintético recuperável.');
+ await page.evaluate(()=>{act('caseTab','sintese');act('caseTab','atendimento');});
+ await page.locator('[data-act="ecoResidualResume"][data-id="browser-a|res_prep"]').click();
+ assert.equal(await page.locator('#ecoPrepGoals').inputValue(),'Objetivo sintético recuperável.');
+ await page.locator('[data-act="ecoPrepSave"]').click();
+ assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoPreparation.goals),'Objetivo sintético recuperável.');
+ assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('browser-a','res_prep')),'');
+ await page.evaluate(()=>act('nav','settings'));
+ await page.locator('#ecoTemplateTitle').fill('Questionário fictício recuperável');
+ await page.locator('#ecoTemplateQuestions').fill('Pergunta sintética?');
+ await page.evaluate(()=>{act('nav','home');act('nav','settings');});
+ await page.locator('[data-act="ecoResidualResume"][data-id="__eco_admin__|res_template"]').click();
+ assert.equal(await page.locator('#ecoTemplateTitle').inputValue(),'Questionário fictício recuperável');
+ await page.locator('[data-act="ecoTemplateAdd"]').click();
+ assert.equal(await page.evaluate(()=>state.ecoQuestionTemplates.some(t=>t.title==='Questionário fictício recuperável')),true);
+ assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('__eco_admin__','res_template')),'');
+ const bibliography=await page.evaluate(()=>({rows:ecoPerspectiveCatalogRows().length,identified:ecoPerspectiveCatalogRows().filter(x=>ecoBibliographicStatus(x.ref).url).length,pdm:ecoPerspectiveCatalogRows('Lingiardi').every(x=>x.ref.includes('2026')&&x.ref.includes('40948049')),unknown:ecoBibliographicStatus('obra não verificada').url}));
+ assert.equal(bibliography.rows,42);assert.ok(bibliography.identified>=20);assert.equal(bibliography.pdm,true);assert.equal(bibliography.unknown,'');
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
