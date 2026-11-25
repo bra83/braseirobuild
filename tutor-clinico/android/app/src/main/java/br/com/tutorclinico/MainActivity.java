@@ -673,20 +673,7 @@ public final class MainActivity extends Activity {
         private void exportBackupAuthorized(String password, boolean includePrivateDiary) {
             if (!unlocked) return;
             try {
-                JSONObject export=new JSONObject(store.read());
-                JSONArray cases = export.optJSONArray("cases");
-                if (cases != null) for (int i=0; i<cases.length(); i++) {
-                    JSONObject singleCase=cases.getJSONObject(i);
-                    singleCase.remove("diarioNotas");
-                    if (includePrivateDiary) singleCase.put("diarioNotas", new JSONArray(store.readPrivateDiary(singleCase.getString("id"))));
-                }
-                String draft=store.readDraft();
-                if(!draft.isEmpty()){
-                    JSONObject journal=new JSONObject(draft);
-                    if(!journal.has("__loadError"))export.put("mlDraft",journal);
-                }
-                export.put("attachmentBundle",store.exportAttachments());
-                export.put("nativeRecoveryBundle",store.exportNativeRecovery());
+                JSONObject export=store.exportPortableSnapshot(includePrivateDiary);
                 pendingExport = SecureStore.encryptBackup(export.toString(), password);
                 if(pendingExport.length>50_000_000){pendingExport=null;throw new java.io.IOException("Backup acima de 50 MB; não foi criado arquivo incompleto");}
             }
