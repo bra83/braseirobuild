@@ -118,6 +118,29 @@ try{
  const pdfText=pdf.toString('latin1');assert.ok(pdfText.startsWith('%PDF-'));
  assert.ok((pdfText.match(/\/Type\s*\/Page\b/g)||[]).length>=3,'Expected multipage A4 output');
  await printPage.close();
+ // Real Atlas filter, case switch, and source navigation.
+ await page.evaluate(()=>act('nav','atlas'));
+ await page.locator('#ecoAtlasCase').selectOption('browser-b');
+ await page.locator('#ecoAtlasMode').selectOption('audio');
+ await page.locator('[data-act="ecoAtlasFilter"]').click();
+ assert.equal(await page.locator('[data-act="ecoAtlasOpenSession"]').count(),0);
+ await page.locator('#ecoAtlasMode').selectOption('manual');
+ await page.locator('[data-act="ecoAtlasFilter"]').click();
+ assert.equal(await page.locator('[data-act="ecoAtlasOpenSession"]').count(),1);
+ const date=await page.evaluate(()=>state.cases.find(c=>c.id==='browser-b').sessoes[0].data);
+ await page.locator('#ecoAtlasFrom').fill(date);await page.locator('#ecoAtlasTo').fill(date);
+ await page.locator('[data-act="ecoAtlasFilter"]').click();
+ assert.equal(await page.locator('[data-act="ecoAtlasOpenSession"]').count(),1);
+ await page.locator('#ecoAtlasCase').selectOption('browser-a');
+ assert.equal(await page.locator('#ecoAtlasFrom').inputValue(),'');
+ assert.equal(await page.locator('#ecoAtlasMode').inputValue(),'todos');
+ assert.equal(await page.locator('[data-act="ecoAtlasOpenSession"]').count(),0);
+ await page.locator('#ecoAtlasCase').selectOption('browser-b');
+ const sessionButton=page.locator('[data-act="ecoAtlasOpenSession"]');
+ const panel=sessionButton.locator('xpath=ancestor::details[1]');
+ if(!await panel.evaluate(x=>x.open))await panel.locator('summary').click();
+ await sessionButton.click();
+ assert.equal(await page.evaluate(()=>openedId),'browser-b');assert.equal(await page.evaluate(()=>screen),'session');
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
