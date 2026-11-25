@@ -151,6 +151,49 @@ public final class MainActivity extends Activity {
         input.setPadding(d, d, d, d);
         return input;
     }
+    private boolean checkExistingPin(String pin) throws Exception {
+        if(System.currentTimeMillis()<pref.getLong("blocked_until",0))return false;
+        if(!pref.contains("pin_hash")||!pin.matches("[0-9]{6,}"))return false;
+        boolean ok=SecureStore.equalHash(pref.getString("pin_hash",""),SecureStore.hashPin(pin,pref.getString("pin_salt","")));
+        if(ok){pref.edit().putInt("failed",0).putLong("blocked_until",0).apply();return true;}
+        int failures=pref.getInt("failed",0)+1;SharedPreferences.Editor editor=pref.edit().putInt("failed",failures);
+        if(failures>=5)editor.putLong("blocked_until",System.currentTimeMillis()+60000).putInt("failed",0);
+        editor.apply();return false;
+    }
+    private void reauthenticate(String purpose,Runnable authorized){
+        if(!unlocked||isFinishing()||isDestroyed())return;
+        EditText input=passwordInput("PIN do ECO");
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle(purpose).setMessage("Confirme o PIN antes de continuar.").setView(input)
+            .setPositiveButton("Confirmar",null).setNegativeButton("Cancelar",null).create();
+        dialog.setOnShowListener(v->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(b->{
+            try{if(!unlocked||!checkExistingPin(input.getText().toString())){input.setError("PIN inválido ou temporariamente bloqueado");return;}
+                input.setText("");dialog.dismiss();authorized.run();
+            }catch(Exception e){input.setError("Não foi possível autenticar");}
+        }));dialog.show();
+    }
+    private boolean strongBiometricsAvailable(){
+        if(android.os.Build.VERSION.SDK_INT<30)return false;
+        android.hardware.biometrics.BiometricManager manager=getSystemService(android.hardware.biometrics.BiometricManager.class);
+        return manager!=null&&manager.canAuthenticate(android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG)==android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS;
+    }
+    private void finishUnlock(AlertDialog dialog){
+        unlocked=true;journalWhileLocked=false;showingLock=false;backgroundAt=0;
+        web.setVisibility(View.VISIBLE);dialog.dismiss();
+        if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()",null);}
+        else web.evaluateJavascript("window.nativeSemanticUnlocked && window.nativeSemanticUnlocked()",null);
+    }
+    private void authenticateBiometric(AlertDialog dialog){
+        if(!showingLock||!pref.getBoolean("biometric_enabled",false)||!strongBiometricsAvailable())return;
+        android.hardware.biometrics.BiometricPrompt prompt=new android.hardware.biometrics.BiometricPrompt.Builder(this)
+            .setTitle("Desbloquear ECO").setSubtitle("Biometria forte do aparelho")
+            .setAllowedAuthenticators(android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .setNegativeButton("Usar PIN",getMainExecutor(),(d,w)->{}).build();
+        prompt.authenticate(new android.os.CancellationSignal(),getMainExecutor(),new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback(){
+            @Override public void onAuthenticationSucceeded(android.hardware.biometrics.BiometricPrompt.AuthenticationResult result){
+                if(showingLock&&!isFinishing()&&!isDestroyed())finishUnlock(dialog);
+            }
+        });
+    }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
         showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
@@ -161,8 +204,12 @@ public final class MainActivity extends Activity {
             .setMessage(needsCreate ? "Os registros serão criptografados neste aparelho. Guarde seu PIN e faça cópias protegidas." : "Insira o PIN local para abrir os dados clínicos.")
             .setView(input).setCancelable(false)
             .setPositiveButton(needsCreate ? "Criar PIN" : "Desbloquear", null)
-            .setNegativeButton("Fechar", (d,w) -> finish()).create();
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            .setNegativeButton("Fechar", (d,w) -> finish())
+            .setNeutralButton(!needsCreate&&pref.getBoolean("biometric_enabled",false)&&strongBiometricsAvailable()?"Biometria":"",(d,w)->{}).create();
+        dialog.setOnShowListener(d -> {
+            android.widget.Button bio=dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            if(bio!=null){if(!needsCreate&&pref.getBoolean("biometric_enabled",false)&&strongBiometricsAvailable())bio.setOnClickListener(v->authenticateBiometric(dialog));else bio.setVisibility(View.GONE);}
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String pin = input.getText().toString();
             try {
                 if (!pin.matches("[0-9]{6,}")) { input.setError("Use pelo menos 6 dígitos"); return; }
@@ -183,12 +230,9 @@ public final class MainActivity extends Activity {
                     }
                 }
                 pref.edit().putInt("failed",0).putLong("blocked_until",0).apply();
-                unlocked = true; journalWhileLocked=false; showingLock = false; backgroundAt=0;
-                web.setVisibility(View.VISIBLE); dialog.dismiss();
-                if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()", null);}
-                else web.evaluateJavascript("window.nativeSemanticUnlocked && window.nativeSemanticUnlocked()",null);
+                finishUnlock(dialog);
             } catch (Exception e) { showToast("Falha ao verificar PIN"); }
-        }));
+        });});
         dialog.show();
     }
     // Rotation must NOT destroy the WebView, recorder, or transcription worker.
@@ -563,7 +607,13 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void exportBackup(String password) {
             exportBackupWithOptions(password, false);
         }
+        @JavascriptInterface public String biometricStatus(){return unlocked&&strongBiometricsAvailable()?(pref.getBoolean("biometric_enabled",false)?"enabled":"available"):"unavailable";}
+        @JavascriptInterface public void configureBiometric(boolean enabled){if(!unlocked)return;main.post(()->reauthenticate("Configurar biometria",()->{if(enabled&&!strongBiometricsAvailable()){showToast("Biometria forte indisponível");return;}pref.edit().putBoolean("biometric_enabled",enabled).apply();showToast(enabled?"Biometria habilitada":"Biometria desativada");}));}
         @JavascriptInterface public void exportBackupWithOptions(String password, boolean includePrivateDiary) {
+            if(!unlocked)return;
+            main.post(()->reauthenticate("Exportar backup protegido",()->exportBackupAuthorized(password,includePrivateDiary)));
+        }
+        private void exportBackupAuthorized(String password, boolean includePrivateDiary) {
             if (!unlocked) return;
             try {
                 JSONObject export=new JSONObject(store.read());
