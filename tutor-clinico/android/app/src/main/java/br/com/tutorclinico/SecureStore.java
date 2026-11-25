@@ -97,7 +97,12 @@ final class SecureStore {
         byte[] inline=cursor.getBlob(cursor.getColumnIndexOrThrow(column));return inline!=null?inline:readLargeBlob(db,table,column,where,args);
     }
     synchronized String read() throws Exception {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db=dbHelper.getReadableDatabase();
+        if(db.isReadOnly())return readSnapshot(db);
+        db.beginTransactionNonExclusive();
+        try{String data=readSnapshot(db);db.setTransactionSuccessful();return data;}finally{db.endTransaction();}
+    }
+    private String readSnapshot(SQLiteDatabase db) throws Exception {
         JSONArray casesArray = new JSONArray();
 
         try (Cursor c = db.query("_pacientes", new String[]{"id",smallBlob("payload_enc")}, null, null, null, null, "created_at ASC")) {
@@ -453,6 +458,11 @@ final class SecureStore {
         }
     }
 
+    private byte[] encryptRecord(String payload) throws Exception {
+        byte[] encrypted=dbHelper.encrypt(payload);
+        if(encrypted.length>MAX_RECORD_BLOB)throw new java.io.IOException("Registro excede o limite de leitura; alteração não gravada");
+        return encrypted;
+    }
     synchronized void save(String json) throws Exception {
         JSONObject validated = new JSONObject(json);
         if (validated.optInt("version") < 1 || !(validated.opt("cases") instanceof JSONArray)
@@ -475,7 +485,7 @@ final class SecureStore {
             rootMeta.remove("attachmentBundle");
             ContentValues cfgCv = new ContentValues();
             cfgCv.put("chave", "app_state_meta");
-            cfgCv.put("valor_enc", dbHelper.encrypt(rootMeta.toString()));
+            cfgCv.put("valor_enc", encryptRecord(rootMeta.toString()));
             cfgCv.put("updated_at", System.currentTimeMillis());
             int cfgUpdated = db.update("configuracoes", cfgCv, "chave = ?", new String[]{"app_state_meta"});
             if (cfgUpdated == 0) {
@@ -498,7 +508,7 @@ final class SecureStore {
                 cv.put("id", caseId);
                 cv.put("created_at", cObj.optLong("created_at", System.currentTimeMillis()));
                 cv.put("updated_at", System.currentTimeMillis());
-                cv.put("payload_enc", dbHelper.encrypt(payload.toString()));
+                cv.put("payload_enc", encryptRecord(payload.toString()));
 
                 // Atomic update in place to PREVENT cascade wipeout of child entities
                 int updated = db.update("_pacientes", cv, "id = ?", new String[]{caseId});
@@ -542,7 +552,7 @@ final class SecureStore {
                         scv.put("origem", sOrigem);
                         scv.put("created_at", sObj.optLong("created_at", System.currentTimeMillis()));
                         scv.put("updated_at", System.currentTimeMillis());
-                        scv.put("payload_enc", dbHelper.encrypt(sessionPayload));
+                        scv.put("payload_enc", encryptRecord(sessionPayload));
 
                         // Atomic update in place for sessions
                         int sUpdated = db.update("sessoes", scv, "id = ? AND case_id = ?", new String[]{sId, caseId});
@@ -574,7 +584,7 @@ final class SecureStore {
                 acv.put("data", aObj.optString("data", ""));
                 acv.put("hora", aObj.optString("hora", ""));
                 acv.put("created_at", System.currentTimeMillis());
-                acv.put("payload_enc", dbHelper.encrypt(aObj.toString()));
+                acv.put("payload_enc", encryptRecord(aObj.toString()));
                 db.insertOrThrow("agenda", null, acv);
             }
 
