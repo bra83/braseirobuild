@@ -95,6 +95,7 @@ object WhisperFileEngine {
             val skipFromMs = resumeFromMs.coerceAtLeast(0L)
             var toSkipBytes = skipFromMs * PCM_BYTES_PER_SECOND / 1000L
             if(mode!="vosk"&&clusters!=null)try{diarizer=SegmentDiarizer(context,clusters)}catch(e: Exception){listener.state("WHISPER · SEPARAÇÃO DE FALANTES INDISPONÍVEL")}
+            if(clusters!=null)listener.state(modelName+if(diarizer?.overlapAvailable()==true)" · SOBREPOSIÇÃO NEURAL EXPERIMENTAL ATIVA" else " · DETECTOR NEURAL DE SOBREPOSIÇÃO INDISPONÍVEL")
             val chunks = ChunkedPcmTranscriber(context, listener, model, modelName, skipFromMs,diarizer,tagarela,mode=="vosk")
             listener.state(modelName+" · LENDO ÁUDIO · RETOMADA "+(skipFromMs/1000L)+"s")
             val chunksCount = if(boundary!=null){
@@ -149,6 +150,12 @@ object WhisperFileEngine {
         private val pcm = ByteArrayOutputStream(SEGMENT_SIZE + 8192)
         private val acoustic = AcousticMeter(resumeFromMs)
         private var chunkIndex = 0
+        private var overlapFailureReported=false
+        private fun reportOverlapUnavailable(){
+            if(diarizer!=null&&diarizer.overlapRequested()&&!diarizer.overlapAvailable()&&!overlapFailureReported){
+                overlapFailureReported=true;listener.state(modelName+" · DETECTOR NEURAL DE SOBREPOSIÇÃO INDISPONÍVEL")
+            }
+        }
         private val wallStart=android.os.SystemClock.elapsedRealtime()
         private val initialMs=resumeFromMs
         private var processedFrames = resumeFromMs.coerceAtLeast(0L) * SAMPLE_RATE / 1000L
@@ -241,6 +248,7 @@ object WhisperFileEngine {
                         listener.segmentWithSpeaker(text,baseMs+start,baseMs+end,cluster)
                     }
                 }
+                reportOverlapUnavailable()
                 if(listener.isActive()){
                     listener.progress(processedFrames*1000L/SAMPLE_RATE)
                     val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
@@ -252,6 +260,7 @@ object WhisperFileEngine {
             if(tagarela!=null){
                 listener.state("TAGARELA · TRANSCRIBINDO "+(baseMs/1000)+"s")
                 val voice=diarizer?.analyze(bytes,java.util.function.BooleanSupplier { listener.isActive() })
+                reportOverlapUnavailable()
                 if(!listener.isActive())return
                 val spans=tagarela.decode(bytes)
                 if(!listener.isActive())return
@@ -279,6 +288,7 @@ object WhisperFileEngine {
                 }
                 if (!listener.isActive()) return
                 val voiceTimeline=diarizer?.analyze(bytes,java.util.function.BooleanSupplier { listener.isActive() })
+                reportOverlapUnavailable()
                 if (!listener.isActive()) return
                 if (result.segments.isNotEmpty()) {
                     for (seg in result.segments) {
