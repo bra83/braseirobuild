@@ -25,11 +25,13 @@ int main(int argc,char** argv){
  std::unique_ptr<llama_sampler,decltype(&llama_sampler_free)> sampler(llama_sampler_chain_init(llama_sampler_chain_default_params()),llama_sampler_free);if(!sampler)return 8;
  if(structured){
   // Restrict syntax only; no text is supplied by the grammar.
-  const char* grammar=R"GBNF(root ::= "Hipótese: " body "\nJustificativa: " body "\nExemplo: " question "?"
-body ::= ch{12,240}
-question ::= qch{12,160}
-ch ::= [a-zA-ZÀ-ÿ0-9 ,.;'()-]
-qch ::= [a-zA-ZÀ-ÿ0-9 ,;'()-]
+  const char* grammar=R"GBNF(root ::= "Hipótese: " modal body "." "\nJustificativa: " body "." "\nExemplo: " open question "?"
+modal ::= "Pode ser útil investigar " | "Pode ser pertinente explorar " | "Uma possibilidade é explorar "
+open ::= "Como " | "O que " | "Quais " | "Em que situações " | "Quando " | "Que "
+body ::= word (sep word){3,24}
+question ::= word (sep word){3,20}
+word ::= [a-zA-ZÀ-ÿ0-9] [a-zA-ZÀ-ÿ0-9'-]{0,31}
+sep ::= " " | ", " | "; "
 )GBNF";
   auto* constraint=llama_sampler_init_grammar(vocab,grammar,"root");
   if(!constraint)return 8;
