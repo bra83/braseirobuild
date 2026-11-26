@@ -7670,14 +7670,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     // RUN188: A failed Gemini request is not a scene. Preserve exact input, channel and
     // world/scene identity so Retry never silently moves the campaign forward.
     private String geminiRetryIdentity(){
-        JSONObject campaign=db==null?new JSONObject():db.getCampaign();
-        JSONObject scene=db==null?new JSONObject():db.getSceneState();
-        JSONObject story=db==null?new JSONObject():db.getStoryState();
-        // Location labels and campaign display names may be reconciled in the
-        // background before any new scene is confirmed. They must not invalidate
-        // a pending request. An accepted narration changes this fingerprint.
-        return "confirmed-scene-v2|"+activeWorldProfile()+"|"+
-            story.optInt("started",0)+"|"+story.optString("last_narration","").hashCode();
+        return ConfirmedSceneRetryIdentity.of(activeWorldProfile(),
+            db==null?new JSONObject():db.getStoryState());
     }
     private boolean hasFailedGeminiRequest(){
         return prefs!=null&&prefs.getBoolean(RETRY_PREFIX+"pending",false);
