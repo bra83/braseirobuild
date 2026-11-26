@@ -181,13 +181,24 @@ public class BraseiroSideQuestStoreRobolectricTest {
         assertEquals(0,db.listQuests("active",100).size());
     }
 
-    @Test public void independentFaerunModuleDoesNotOverwriteDifferentFaerunPrincipal() throws Exception {
+    @Test public void fugitivesFromStrixhavenAreAlreadyInFaerunAndCanImportOptionalModule() throws Exception {
+        // Campaign TITLE mentions Strixhaven, but the party is already in Faerun.
+        // The main adventure may retain its own original world/timeline identifiers.
         BraseiroAdventureStore main=new BraseiroAdventureStore(db);
-        main.importJson(sample("principal","Principal").put("worldId","faerun-world-x").toString());
+        JSONObject fugitives=sample("quatro.fugitivos","Os Quatro de Strixhaven - Fugitivos")
+            .put("worldId","faerun-fugitivos").put("timelineId","fuga-em-faerun");
+        main.importJson(fugitives.toString());
         BraseiroSideQuestStore side=new BraseiroSideQuestStore(db);
-        assertTrue(side.importJson(sample("secondary","Secundaria").toString()).optBoolean("ok"));
-        assertEquals("principal",main.masterContext().optString("activeId"));
-        assertEquals("faerun-world-x",main.masterContext().optString("worldId"));
+        assertEquals("dnd",db.getActiveMapProfile());
+        JSONObject result=side.importJson(sample("eco.entre.mundos","O Eco entre os Mundos").toString());
+        assertTrue(result.optBoolean("ok"));
+        assertFalse(result.optBoolean("started",true));
+        assertEquals(1,side.listInstalled().length());
+        JSONObject preserved=main.masterContext();
+        assertEquals("quatro.fugitivos",preserved.optString("activeId"));
+        assertEquals("faerun-fugitivos",preserved.optString("worldId"));
+        assertEquals("fuga-em-faerun",preserved.optString("timelineId"));
+        assertEquals(0,db.listQuests("active",100).size());
     }
 
     @Test public void optionalPackageFromAnotherWorldStillRejected() throws Exception {
