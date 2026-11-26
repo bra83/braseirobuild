@@ -262,7 +262,9 @@ try{
   const rerank=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(rerank.mode,'rerank');
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9}],skipped:[]}));});
   const gen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(gen.mode,'generate');assert.equal(gen.profile,'perspective');assert.ok(gen.query.includes(author));assert.equal(gen.sources.length,2);assert.ok(gen.sources[1].text.startsWith(author+' · '));
-  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Possibilidade didática [S1] [S2]. Exemplo de pergunta aberta.',model:'fixture'}));});
+  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Conceito: foco teórico [S2].\nHipótese provisória: possibilidade de explorar a fala [S1].\nJustificativa: relacionar fala [S1] e teoria [S2].\nExemplo: Como vive essa situação?\nInvestigar: outros contextos e alternativas.\nEvitar: certeza ou diagnóstico.',model:'fixture'}));});
+  const verify=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(verify.mode,'nli');assert.equal(verify.pairs.length,1);assert.ok(!verify.pairs[0].a.includes('Quando alguém se aproxima'));
+  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.1,.7,.2],ba:[.1,.2,.7]}]}));});
  }
  assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),perspectives.authors.map(a=>[a,true]));
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0),0);

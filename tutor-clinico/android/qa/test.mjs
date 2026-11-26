@@ -1812,3 +1812,18 @@ test('ECO separated neural candidates stay outside original transcript and anony
  assert.match(html,/Conv-TasNet separa duas trilhas/);
  assert.match(html,/Hipóteses não entram na transcrição original/);
 });
+
+test('ECO perspective audit rejects wrong references, missing fields, certainty and leading example format',()=>{
+ const valid='Conceito: repetição [S2].\nHipótese provisória: pode haver um padrão a explorar [S1].\nJustificativa: relacionar [S1] com o conceito [S2].\nExemplo: Em que situações isso ocorre?\nInvestigar: contexto e exceções.\nEvitar: afirmar uma causa.';
+ context.perspectiveFixture=valid;
+ assert.equal(js('ecoPerspectiveAudit(perspectiveFixture,2).ok'),true);
+ for(const bad of [valid.replace('[S2]','[S99]'),valid.replace('pode haver','com certeza há'),valid.replace('Em que situações isso ocorre?','Isso acontece sempre.'),valid.replace(/\nEvitar:.*/,''),valid.replace('conceito [S2]','conceito'),valid+'\nConceito: repetido [S2].']){
+  context.perspectiveBad=bad;assert.equal(js('ecoPerspectiveAudit(perspectiveBad,2).ok'),false);
+ }
+ assert.equal(js('ecoPerspectiveNliPairs(ecoPerspectiveAudit(perspectiveFixture,2),ecoPerspectiveCatalogRows("Freud")).length'),1);
+ assert.equal(js('ecoPerspectiveAuthors.every(a=>ecoPerspectiveInquiry[a].length===2)'),true);
+ assert.equal(js('new Set(ecoPerspectiveAuthors.flatMap(a=>ecoPerspectiveInquiry[a])).size'),42);
+ assert.equal(js('ecoPerspectiveAuthors.every(a=>ecoPerspectiveFallback(a,[],"Fala fictícia").fallback)'),true);
+ assert.equal(js('ecoLibraryChunks().filter(x=>String(x.entry).startsWith("perspective:")).length'),42);
+ assert.match(js('ecoBibliographicStatus("The Shadow of the Tsunami and the Growth of the Relational Mind (2011)").url'),/9780203834954/);
+});
