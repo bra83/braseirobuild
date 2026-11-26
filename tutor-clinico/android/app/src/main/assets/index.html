@@ -5060,12 +5060,45 @@ const ecoPerspectiveInquiry={
  'Shedler':["Que sentimentos e padrões você reconhece ao refletir sobre o que contou?","Como você vive esse sentimento nas relações atuais?"],
  'Lingiardi':["Como essa experiência afeta seu cotidiano e quais capacidades continuam disponíveis?","Que aspectos do contexto e dos vínculos ajudam a compreender essa experiência?"]
 };
-function ecoPerspectiveQuestion(author){
- return 'Perspectiva de '+author+'. Use termos literais da fala e o foco teórico. Escreva uma hipótese possível, uma justificativa específica e uma pergunta aberta, cada uma em uma frase. Não acrescente fatos.';
+const ecoPerspectiveSensitive=['abuso','violencia','trauma','perda','doenca','medicamento','infancia','depressao'];
+function ecoPerspectiveSensitivePattern(term){return new RegExp('\\b'+term+'(?:s)?\\b','i');}
+function ecoPerspectiveAdversarial(quote){return /\b(?:ignor[ea] (?:as |os )?(?:regras|instrucoes)|desconsidere (?:as |os )?(?:regras|instrucoes)|diga que tenho|finja que|siga (?:as |os )?instrucoes)\b/.test(ecoFoldText(quote));}
+function ecoPerspectiveFocus(source,quote){
+ // Preserve exact source text. Only a contiguous excerpt may be supplied;
+ // never remove negation or splice independent fragments into a new claim.
+ const original=String(source.text||''),newline=original.indexOf('\n');
+ const body=(newline>=0?original.slice(newline+1):original).trim();
+ const observed=ecoFoldText(quote),missing=ecoPerspectiveSensitive.filter(t=>!ecoPerspectiveSensitivePattern(t).test(observed));
+ const unsafe=s=>missing.some(t=>ecoPerspectiveSensitivePattern(t).test(ecoFoldText(s)));
+ // For didactic entries, a first affirmative clause before the caution is enough.
+ const first=body.split(';')[0].trim();
+ if(first.length>=25&&!unsafe(first))return first;
+ // If a compound theme contains an unreported sensitive topic, use only the
+ // intact preceding clause, when it is long enough and not a negative clause.
+ for(const match of first.matchAll(/\s+(?:e|ou)\s+/g)){
+  const prefix=first.slice(0,match.index).trim(),tail=first.slice(match.index+match[0].length);
+  if(prefix.length>=35&&!unsafe(prefix)&&unsafe(tail)&&!/\b(nao|sem|evitar|nunca)\b/.test(ecoFoldText(prefix))&&!/\b(de|da|do|com|para|por|a|o|em)$/.test(ecoFoldText(prefix)))return prefix;
+ }
+ return body; // retain the entire caution if there is no clean contiguous excerpt
 }
+function ecoPerspectiveQuestion(author,rejection=''){
+ return 'Perspectiva de '+author+'. Ligue uma expressão literal da fala a um conceito da referência. Não invente acontecimentos. Faça uma pergunta breve dirigida a você, paciente.'+(rejection?' Corrija a tentativa anterior: '+String(rejection).slice(0,170)+'. Use apenas a fala e o recorte teórico.':'');
+}
+function ecoPerspectiveStem(w){
+ // Conservative inflection families, not arbitrary shared prefixes.
+ if(w.length<5)return w;
+ const s=w.replace(/(?:amentos?|imentos?|acoes|acao|adoras?|adores?|ador|adora|ando|endo|indo|ados?|adas?|idos?|idas?|am|em|as|os|a|e|o|s)$/,'');
+ return s.length>=5?s:w;
+}
+function ecoPerspectiveLexemes(text){
+ const stop=new Set(['paciente','pessoa','pessoas','situacao','situacoes','experiencia','experiencias','sobre','mesma','mesmo','teoria','pergunta','perspectiva','poder','pode','possivel','util','investigar','explorar','considerar','quando','relacao','relacoes','diferentes','compreender','fala']);
+ return new Set((ecoFoldText(text).match(/[a-z]{5,}/g)||[]).filter(w=>!stop.has(w)).map(ecoPerspectiveStem));
+}
+function ecoPerspectiveOverlap(a,b){return [...a].some(w=>b.has(w));}
 function ecoPerspectiveCompose(raw,sources,quote){
  // Concept and limits are editorial; the three middle fields are actual model output.
  // Source labels indicate context supplied, never certify entailment.
+ if(ecoPerspectiveAdversarial(quote))return {error:'Fala contém instrução dirigida ao motor; abstenção de interpretação automática.'};
  const rows=String(raw||'').trim().split(/\r?\n/);
  if(rows.length!==3||!sources?.length)return {error:'Saída neural não contém os três campos.'};
  const match=(row,label)=>row.startsWith(label)?row.slice(label.length).trim():'';
@@ -5079,15 +5112,14 @@ function ecoPerspectiveCompose(raw,sources,quote){
  if(norm.some(x=>/\b(ignore as regras|ignore instrucoes|ignorando as regras|diga que tenho|siga instrucoes|se livrar da responsabilidade|diagnosticar uma doenca|diagnostico de)\b/.test(x)))return {error:'Instrução da fonte reproduzida ou atribuição indevida.'};
  // Conservative check for particularly consequential unsupported claims; not a complete hallucination classifier.
  const observed=ecoFoldText(quote);
- for(const term of ['abuso','violencia','trauma','perda','doenca','medicamento','infancia','depressao']){
-  const pattern=new RegExp('\\b'+term+'(?:s)?\\b','i');
+ for(const term of ecoPerspectiveSensitive){
+  const pattern=ecoPerspectiveSensitivePattern(term);
   if(!pattern.test(observed)&&norm.some(x=>pattern.test(x)))return {error:'Tema sensível não relatado na fala: '+term+'.'};
  }
- const wordset=x=>new Set(ecoFoldText(x).match(/[a-z]{5,}/g)||[]);
- const clinical=wordset(quote),theory=wordset(sources.map(x=>x.text).join(' '));
- const body=wordset(hypothesis+' '+justification+' '+question);
- const shared=(a,b)=>[...a].filter(x=>b.has(x)).length;
- if(!shared(clinical,body)||!shared(theory,body))return {error:'Sem ancoragem lexical mínima na fala e na teoria.'};
+ const clinical=ecoPerspectiveLexemes(quote),theory=ecoPerspectiveLexemes(sources.map(x=>x.generationFocus||ecoPerspectiveFocus(x,quote)).join(' '));
+ const body=ecoPerspectiveLexemes(hypothesis+' '+justification+' '+question);
+ if(!ecoPerspectiveOverlap(clinical,body)||!ecoPerspectiveOverlap(theory,body))return {error:'Sem ancoragem lexical mínima na fala e na teoria.'};
+ if(/(?:[a-z]+-){3,}[a-z]+/i.test(ecoFoldText(question))||/\b(?:o paciente|do paciente|ao paciente)\b/.test(norm[2]))return {error:'Pergunta malformada ou em terceira pessoa.'};
  const refs=sources.map((_,i)=>'[S'+(i+2)+']').join(' ');
  const draft=['Conceito: '+sources[0].title+' [S2].','Hipótese provisória: '+hypothesis+' [S1]','Justificativa: '+justification+' [S1] '+refs,'Exemplo: '+question,'Investigar: contexto, exemplos e alternativas à hipótese.','Evitar: concluir diagnóstico ou causa a partir da fala isolada.'].join('\n');
  const audit=ecoPerspectiveAudit(draft,sources.length+1);
@@ -5209,7 +5241,7 @@ function ecoPerspectivePanel(c){
  else{out+='<p class="small muted">'+esc(result.fallback?'Roteiro didático editorial · geração recusada ou indisponível; não é interpretação do modelo.':(result.structured?'Hipótese, justificativa e pergunta geradas por '+result.model+'; conceito e limites editoriais. · ':'')+(result.verificationStatus||'Minuta neural não validada'))+' · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>'+(result.rejection?.length?'<p class="alert">Minuta neural não exibida: '+esc(result.rejection.join(' '))+'</p>':'')+(result.nli?.length?'<p class="small">NLI textual experimental: '+result.nli.map(x=>esc(x.field||'conceito')+' [S'+x.ref+'] possível incompatibilidade '+(100*x.ab[0]).toFixed(1)+'%, implicação '+(100*x.ab[1]).toFixed(1)+'%, indeterminação '+(100*x.ab[2]).toFixed(1)+'%').join(' · ')+'. Não verifica fatos clínicos.</p>':'');
  if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
  if(!result.formatValid)out+='<p class="alert">A IA não entregou todos os seis campos esperados. Minuta incompleta; revise antes de utilizar.</p>';
- out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':' · '+ecoBibliographicStatus(x.ref).status))+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
+ out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':' · '+ecoBibliographicStatus(x.ref).status))+'<br>'+esc(x.text)+(x.generationFocus?'<br><small>Recorte enviado ao modelo: '+esc(x.generationFocus)+'</small>':'')+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
  out+='</article>';}
  if(!r.pending)out+=ecoPerspectiveComparison(r.results)+'<p class="small muted">As leituras são possibilidades teóricas, não interpretações confirmadas, ranking de autores ou recomendação automática de tratamento. Não incorporadas ao prontuário.</p>';}
  return out+'</section>';
@@ -5264,17 +5296,17 @@ window.nativeSemanticResult=function(raw){
   const valid=v.count===r.ranked.length&&Array.isArray(v.hits)&&Array.isArray(v.skipped)&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.ranked.length&&Number.isFinite(x.score)&&x.score>=0&&x.score<=1)&&new Set(v.hits.map(x=>x.i)).size===v.hits.length;
   if(!valid||!v.hits.length)r.results.push({author,error:'Nenhuma passagem utilizável do autor após reranking.'});
   else{
-   r.sources=v.hits.slice(0,2).map(x=>r.ranked[x.i]);
-   const sources=[{text:'Fala literal atribuída ao paciente: '+r.quote},...r.sources.map(x=>({text:x.author+' · '+x.ref+'\n'+x.text}))].filter(x=>x.text.length<=1800);
+   r.sources=v.hits.slice(0,2).map(x=>{const row=r.ranked[x.i];return {...row,generationFocus:ecoPerspectiveFocus(row,r.quote)};});
+   const sources=[{text:'Fala literal atribuída ao paciente: '+r.quote},...r.sources.map(x=>({text:x.author+' · '+x.ref+'\n'+x.text,focus:x.generationFocus}))].filter(x=>x.text.length<=1800);
    if(sources.length!==r.sources.length+1||sources.reduce((n,x)=>n+x.text.length,0)>4200){r.results.push({author,error:'Fontes acima do limite do contexto, sem corte silencioso.'});}
    else{
-    const query=ecoPerspectiveQuestion(author);
-    ecoPerspectiveSend(r,'generate',{mode:'generate',profile:'perspective',query,sources},author+' · gerando leitura didática com Qwen');return;
+    r.generationInputs=sources;r.generationAttempt=0;
+    ecoPerspectiveSend(r,'generate',{mode:'generate',profile:'perspective',query:ecoPerspectiveQuestion(author),sources},author+' · gerando leitura didática com Qwen');return;
    }
   }
  }else if(r.mode==='generate'){
   if(v.sourceCount!==r.sources.length+1||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.results.push({author,error:'Minuta local inválida.'});
-  else{const composed=v.structured===true?ecoPerspectiveCompose(v.draft,r.sources,r.quote):{draft:v.draft};const audit=composed.error?{ok:false,errors:[composed.error]}:ecoPerspectiveAudit(composed.draft,r.sources.length+1);if(!audit.ok){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=audit.errors;ecoPerspectiveFinishAuthor(r,result);return;}r.audit=audit;r.draft=composed.draft;r.model=String(v.model||'Qwen');r.structured=v.structured===true;r.nliPairs=ecoPerspectiveNliPairs(audit,r.sources,r.quote,r.structured);if(!r.nliPairs.length){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conceito sem par teórico verificável.'];ecoPerspectiveFinishAuthor(r,result);return;}ecoPerspectiveSend(r,'verify',{mode:'nli',pairs:r.nliPairs.map(({a,b})=>({a,b}))},author+' · conferência textual das fontes com NLI');return;}
+  else{const composed=v.structured===true?ecoPerspectiveCompose(v.draft,r.sources,r.quote):{draft:v.draft};const audit=composed.error?{ok:false,errors:[composed.error]}:ecoPerspectiveAudit(composed.draft,r.sources.length+1);if(!audit.ok){if(v.structured===true&&!ecoPerspectiveAdversarial(r.quote)&&r.generationInputs&&r.generationAttempt<1){r.generationAttempt++;ecoPerspectiveSend(r,'generate',{mode:'generate',profile:'perspective',query:ecoPerspectiveQuestion(author,audit.errors.join(' ')),sources:r.generationInputs},author+' · nova tentativa fundamentada');return;}const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=audit.errors;ecoPerspectiveFinishAuthor(r,result);return;}r.audit=audit;r.draft=composed.draft;r.model=String(v.model||'Qwen');r.structured=v.structured===true;r.nliPairs=ecoPerspectiveNliPairs(audit,r.sources,r.quote,r.structured);if(!r.nliPairs.length){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conceito sem par teórico verificável.'];ecoPerspectiveFinishAuthor(r,result);return;}ecoPerspectiveSend(r,'verify',{mode:'nli',pairs:r.nliPairs.map(({a,b})=>({a,b}))},author+' · conferência textual das fontes com NLI');return;}
  }else if(r.mode==='verify'){
   if(!ecoPerspectiveNliValid(v,r.nliPairs.length)||v.comparisons.some(x=>x.ab[0]>=.65)){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conferência NLI inválida ou possível incompatibilidade teórica.'];ecoPerspectiveFinishAuthor(r,result);return;}
   const nli=v.comparisons.map((x,i)=>({...x,ref:r.nliPairs[i].ref,field:r.nliPairs[i].field}));

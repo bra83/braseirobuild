@@ -27,9 +27,9 @@ int main(int argc,char** argv){
   // Restrict syntax only; no text is supplied by the grammar.
   const char* grammar=R"GBNF(root ::= "Hipótese: " modal body "." "\nJustificativa: " body "." "\nExemplo: " open question "?"
 modal ::= "Pode ser útil investigar " | "Pode ser pertinente explorar " | "Uma possibilidade é explorar "
-open ::= "Como " | "O que " | "Quais " | "Em que situações " | "Quando " | "Que "
-body ::= word (sep word){3,24}
-question ::= word (sep word){3,20}
+open ::= "Como você " | "O que você " | "Quais " | "Em que situações você " | "Quando você " | "Que "
+body ::= word (sep word){3,18}
+question ::= word (sep word){3,13}
 word ::= [a-zA-ZÀ-ÿ0-9] [a-zA-ZÀ-ÿ0-9'-]{0,31}
 sep ::= " " | ", " | "; "
 )GBNF";
