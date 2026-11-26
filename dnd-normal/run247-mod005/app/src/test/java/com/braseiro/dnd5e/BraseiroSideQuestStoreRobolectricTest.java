@@ -160,16 +160,47 @@ public class BraseiroSideQuestStoreRobolectricTest {
         assertEquals(1,near.getJSONArray("possible_npcs_NOT_spawned").length());
         assertFalse(near.toString().contains("SEGREDO_QUE_NAO_PODE_VAZAR"));
     }
-    @Test public void incompatibleMainWorldNeverOverwritten() throws Exception {
+    @Test public void legacyStrixhavenPrincipalCannotBlockIndependentFaerunModule() throws Exception {
         BraseiroAdventureStore main=new BraseiroAdventureStore(db);
-        JSONObject principal=sample("principal","Principal").put("worldId","faerun-world-x");
+        JSONObject principal=sample("strixhaven.fugitivos","Os Quatro de Strixhaven - Fugitivos")
+            .put("worldId","arcavios-strixhaven").put("timelineId","academia");
         main.importJson(principal.toString());
+        BraseiroSideQuestStore side=new BraseiroSideQuestStore(db);
+        JSONObject installed=side.importJson(sample("eco.entre.mundos","O Eco entre os Mundos").toString());
+        assertTrue(installed.optBoolean("ok"));
+        assertFalse(installed.optBoolean("started",true));
+        assertEquals(1,side.listInstalled().length());
+        assertEquals("strixhaven.fugitivos",main.masterContext().optString("activeId"));
+        assertEquals("arcavios-strixhaven",main.masterContext().optString("worldId"));
+        assertEquals("academia",main.masterContext().optString("timelineId"));
+        JSONObject row=db.queryOne("SELECT world_id,timeline_id,state FROM braseiro_sidequest_modules WHERE module_id=?",
+            new String[]{"eco.entre.mundos"});
+        assertEquals("faerun-campanha-principal",row.optString("world_id"));
+        assertEquals("principal",row.optString("timeline_id"));
+        assertEquals("unaccepted",row.optString("state"));
+        assertEquals(0,db.listQuests("active",100).size());
+    }
+
+    @Test public void independentFaerunModuleDoesNotOverwriteDifferentFaerunPrincipal() throws Exception {
+        BraseiroAdventureStore main=new BraseiroAdventureStore(db);
+        main.importJson(sample("principal","Principal").put("worldId","faerun-world-x").toString());
+        BraseiroSideQuestStore side=new BraseiroSideQuestStore(db);
+        assertTrue(side.importJson(sample("secondary","Secundaria").toString()).optBoolean("ok"));
+        assertEquals("principal",main.masterContext().optString("activeId"));
+        assertEquals("faerun-world-x",main.masterContext().optString("worldId"));
+    }
+
+    @Test public void optionalPackageFromAnotherWorldStillRejected() throws Exception {
+        BraseiroAdventureStore main=new BraseiroAdventureStore(db);
+        main.importJson(sample("principal","Principal").toString());
+        JSONObject other=sample("eberron.mod","Outro mundo").put("worldId","eberron-campanha");
         try {
-            new BraseiroSideQuestStore(db).importJson(sample("secondary","Secundária").toString());
-            fail("Different main world must be rejected");
+            new BraseiroSideQuestStore(db).importJson(other.toString());
+            fail("Other-world module should never enter the Faerun sidequest library");
         }catch(IllegalArgumentException expected){
-            assertTrue(expected.getMessage().contains("outro mundo"));
+            assertTrue(expected.getMessage().contains("Faerûn"));
         }
+        assertEquals(0,new BraseiroSideQuestStore(db).listInstalled().length());
         assertEquals("principal",main.masterContext().optString("activeId"));
     }
 }
