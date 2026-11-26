@@ -276,10 +276,10 @@ try{
   const body=Array.from({length:135},(_,i)=>'Parágrafo teórico autorizado '+i+' sobre vínculo e escuta. ').join('');
   state.ecoPersonalLibrary=[{id:'p-theory',title:'Notas de estudo',author:'Klein',ref:'Edição declarada',body,semanticConfirmed:true},{id:'not-authorized',title:'NÃO INDEXAR',ref:'Teste',body:'texto excluído'},{id:'archived',title:'ARQUIVADO',ref:'Teste',body:'texto excluído',semanticConfirmed:true,archived:true}];
   const rows=ecoPersonalSemanticChunks(),scope=ecoPerspectiveTheory('Klein');
-  const result={rows:rows.length,exact:rows.map(x=>body.slice(x.offset,x.end)).join('')===body,excluded:!ecoLibraryChunks().some(x=>['not-authorized','archived'].includes(x.personalId)),klein:scope.some(x=>x.personalId==='p-theory'),freud:ecoPerspectiveTheory('Freud').some(x=>x.personalId==='p-theory')};
+  const result={rows:rows.length,exact:rows.map(x=>body.slice(x.offset,x.end)).join('')===body,excluded:!ecoLibraryChunks().some(x=>['not-authorized','archived'].includes(x.personalId)),general:ecoLibraryChunks().some(x=>x.personalId==='p-theory'),klein:scope.some(x=>x.personalId==='p-theory'),freud:ecoPerspectiveTheory('Freud').some(x=>x.personalId==='p-theory'),catalogOnly:scope.length===2&&scope.every(x=>x.author==='Klein'&&!x.personalId)};
   state.ecoPersonalLibrary=previous;return result;
  });
- assert.ok(personal.rows>1);assert.equal(personal.exact,true);assert.equal(personal.excluded,true);assert.equal(personal.klein,true);assert.equal(personal.freud,false);
+ assert.ok(personal.rows>1);assert.equal(personal.exact,true);assert.equal(personal.excluded,true);assert.equal(personal.general,true);assert.equal(personal.klein,false);assert.equal(personal.freud,false);assert.equal(personal.catalogOnly,true);
  // Residual editor tests use the persistent bridge contract with synthetic content.
  await page.evaluate(()=>{act('openCase','browser-a');act('caseTab','seguranca');});
  await page.locator('#safePlano').evaluate(e=>{for(let n=e.parentElement;n;n=n.parentElement)if(n.tagName==='DETAILS')n.open=true;});
