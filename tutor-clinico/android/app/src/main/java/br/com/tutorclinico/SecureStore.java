@@ -280,8 +280,44 @@ final class SecureStore {
             String value=record.optString(field,"");
             int start=Math.min(offset,value.length()),end=Math.min(value.length(),start+TEXT_PAGE);
             if(end<value.length()&&end>start&&Character.isHighSurrogate(value.charAt(end-1)))end--;
-            return new JSONObject().put("text",value.substring(start,end)).put("offset",start).put("next",end<value.length()?end:-1).put("total",value.length());
+            return new JSONObject().put("text",value.substring(start,end)).put("offset",start).put("end",end).put("next",end<value.length()?end:-1).put("total",value.length()).put("revision",EcoDatabaseHelper.computeChecksum(record.toString()));
         }
+    }
+    // Scoped editing of a reviewed text slice, preserving all other fields and
+    // original ASR evidence. Optimistic revision protects against stale pages.
+    synchronized JSONObject editSessionTextPage(String caseId,String sessionId,String field,int start,int end,String revision,String replacement)throws Exception{
+        if(!java.util.Arrays.asList("texto","mlRevisada","intervencoes","plano").contains(field)||
+            start<0||end<start||end-start>TEXT_PAGE||replacement==null||replacement.length()>TEXT_PAGE||
+            revision==null||revision.length()!=64)throw new IllegalArgumentException("Edição inválida");
+        SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
+        try{
+            ensureRevisionTable(db);
+            if(any(db,"processamento_jobs","audio_key_enc IS NOT NULL OR audio_path<>''")||!readDraft().isEmpty())
+                throw new IllegalStateException("Finalize o atendimento pendente antes da edição");
+            byte[] old;
+            try(Cursor c=db.query("sessoes",new String[]{smallBlob("payload_enc")},"case_id=? AND id=?",new String[]{caseId,sessionId},null,null,null)){
+                if(!c.moveToFirst())throw new SecurityException("Sessão não localizada neste caso");
+                old=readBoundedBlob(db,c,"sessoes","payload_enc","case_id=? AND id=?",new String[]{caseId,sessionId});
+            }
+            JSONObject record=new JSONObject(dbHelper.decrypt(old));
+            if(!revision.equals(EcoDatabaseHelper.computeChecksum(record.toString())))throw new SecurityException("Registro alterado; recarregue a página");
+            String value=record.optString(field,"");
+            if(end>value.length()||(start>0&&start<value.length()&&Character.isLowSurrogate(value.charAt(start)))||
+                (end>0&&end<value.length()&&Character.isLowSurrogate(value.charAt(end))))throw new IllegalArgumentException("Limite de texto inválido");
+            for(int i=0;i<replacement.length();i++){
+                char ch=replacement.charAt(i);
+                if(Character.isHighSurrogate(ch)){if(i+1>=replacement.length()||!Character.isLowSurrogate(replacement.charAt(++i)))throw new IllegalArgumentException("Texto Unicode inválido");}
+                else if(Character.isLowSurrogate(ch)||ch==0)throw new IllegalArgumentException("Texto inválido");
+            }
+            String edited=value.substring(0,start)+replacement+value.substring(end);
+            if(!edited.equals(value)){
+                record.put(field,edited);retainRevision(db,"session",caseId,sessionId,old);
+                ContentValues cv=new ContentValues();cv.put("payload_enc",encryptRecord(record.toString()));cv.put("updated_at",System.currentTimeMillis());
+                if(db.update("sessoes",cv,"case_id=? AND id=?",new String[]{caseId,sessionId})!=1)throw new SecurityException("Sessão alterada");
+            }
+            JSONObject result=sessionTextPage(caseId,sessionId,field,start);
+            db.setTransactionSuccessful();return result;
+        }finally{db.endTransaction();}
     }
     synchronized JSONObject segmentPage(String caseId,String sessionId,String after)throws Exception{
         SQLiteDatabase db=dbHelper.getReadableDatabase();
@@ -448,6 +484,10 @@ final class SecureStore {
             if(file.isFile())rows.put(new JSONObject().put("slot",i).put("date",file.lastModified()).put("bytes",file.length()));
         }
         return rows;
+    }
+    boolean fullCheckpointDue(){
+        long last=Math.max(fullCheckpointFile(2).getBaseFile().lastModified(),fullCheckpointFile(3).getBaseFile().lastModified());
+        return last==0||System.currentTimeMillis()-last>=24L*60*60*1000;
     }
     synchronized boolean fullCheckpoint(boolean force,java.util.function.BooleanSupplier active)throws Exception{
         File a=fullCheckpointFile(2).getBaseFile(),b=fullCheckpointFile(3).getBaseFile();
