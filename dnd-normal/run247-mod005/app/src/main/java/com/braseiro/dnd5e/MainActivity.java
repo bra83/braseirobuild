@@ -2099,26 +2099,38 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.VALIDATING,"Validando campanha, banco e Atlas");
         setStatus("Validando a campanha e o Atlas sem bloquear a interface…");
         final boolean strixhaven=isStrixhavenAdventure();
-        AppExecutors.io().execute(new Runnable(){public void run(){
-            int activeCount=0;String packageId="";boolean needsBundledMap=false;boolean databaseOk=true;boolean contractAtlas=false;List<JSONObject> candidates=new ArrayList<JSONObject>();Throwable failure=null;
+        AppExecutors.startup().execute(new Runnable(){public void run(){
+            int activeCount=0;String packageId="";boolean needsBundledMap=false;boolean databaseOk=true;boolean contractAtlas=false;String reuseCurrentHex="";List<JSONObject> candidates=new ArrayList<JSONObject>();Throwable failure=null;
             try{
                 activeCount=db.listActiveCharacters().size();
                 if(activeCount>0&&!strixhaven){
                     JSONObject state=db.getMapState();packageId=state.optString("map_package_id","");
-                    if(packageId.length()==0)needsBundledMap=true;
+                    // Existing, verified location is authoritative. An imported mission
+                    // or a new narrative opening NEVER randomizes the party's position.
+                    String currentHex=state.optString("current_hex_id","").trim();
+                    if(!reset&&packageId.length()>0&&currentHex.length()>0
+                            &&db.getRawMapHex(packageId,currentHex).length()>0){
+                        reuseCurrentHex=currentHex;
+                        contractAtlas=db.hasAtlasContractMetadata(packageId);
+                    }else if(packageId.length()==0)needsBundledMap=true;
                     else if(db.hasAtlasContractMetadata(packageId)&&!isAtlasContractRuntime(packageId))needsBundledMap=true;
                     else{
                         JSONObject startup=adventureStartupCoordinator.preflight(db);databaseOk=startup.optBoolean("database",true);
-                        if(databaseOk){candidates=db.listAdventureStartHexes(packageId,"",1000);contractAtlas=isAtlasContractRuntime(packageId);}
+                        if(databaseOk){candidates=db.listAdventureStartHexes(packageId,"",40);contractAtlas=isAtlasContractRuntime(packageId);}
                     }
                 }
             }catch(Throwable error){failure=error;AppLog.e("AdventureStartup","Falha no preflight assíncrono da aventura.",error);}
-            final int readyActiveCount=activeCount;final String readyPackageId=packageId;final boolean readyNeedsBundledMap=needsBundledMap;final boolean readyDatabaseOk=databaseOk;final boolean readyContractAtlas=contractAtlas;final List<JSONObject> readyCandidates=candidates;final Throwable readyFailure=failure;
+            final int readyActiveCount=activeCount;final String readyPackageId=packageId;final boolean readyNeedsBundledMap=needsBundledMap;final boolean readyDatabaseOk=databaseOk;final boolean readyContractAtlas=contractAtlas;final String readyCurrentHex=reuseCurrentHex;final List<JSONObject> readyCandidates=candidates;final Throwable readyFailure=failure;
             ui.post(new Runnable(){public void run(){
                 adventurePreflightRunning=false;
                 if(readyFailure!=null){adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.BLOCKED,safeMessage(readyFailure));setStatus("Não foi possível validar o início da aventura.");toast("Falha ao validar: "+safeMessage(readyFailure));return;}
                 if(readyActiveCount==0){toast("Crie ou marque ao menos um herói como Em jogo.");navigate("Heróis");return;}
                 if(strixhaven){launchStrixhavenAdventure(reset);return;}
+                if(!reset&&readyCurrentHex.length()>0){
+                    // No extra 2,000+1,000-hex scan or second manual positioning.
+                    launchAdventure(false,readyCurrentHex);
+                    return;
+                }
                 if(readyNeedsBundledMap){pendingAdventureStartFromMap=true;pendingAdventureStartReset=reset;ensureBundledMapForProfileAsync(activeWorldProfile());setStatus("Preparando o Atlas integrado automaticamente; depois toque no hex onde a aventura começará.");navigate("Mapa");return;}
                 if(!readyDatabaseOk){toast("O banco local não passou na verificação de integridade.");return;}
                 if(readyCandidates==null||readyCandidates.isEmpty()){recoverAtlasForAdventureStart(reset,readyPackageId);return;}
@@ -2162,16 +2174,26 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void launchAdventure(final boolean reset,final String requestedHex){
         if(adventureStartRunning){toast("A nova aventura já está sendo preparada.");return;}
         adventureStartRunning=true;adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.LOCATION,"Definindo posição inicial no Atlas");pendingAdventureStartFromMap=false;cancelNarrationAudio();audio.stopSfx();audio.stopAmbience();audio.stopMusic();showAdventureStartingScreen("Definindo o local, consultando regras e preparando a primeira cena…");
-        AppExecutors.io().execute(new Runnable(){public void run(){try{
+        AppExecutors.startup().execute(new Runnable(){public void run(){try{
             if(reset){safety.beforeDestructiveChange("começar uma nova aventura");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);}
-            final JSONObject startingPoint=prepareAdventureStartingPoint(requestedHex);adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Recuperando regras para a abertura");final String startingHex=startingPoint.optString("hex_id","");
+            final JSONObject startingPoint=prepareAdventureStartingPoint(requestedHex,reset);adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Recuperando regras para a abertura");final String startingHex=startingPoint.optString("hex_id","");
             if(reset)resetSceneClock();else initializeSceneClock();
             final JSONObject campaign=db.getCampaign();
             final String openingHistoryKey="recent_opening_archetypes_"+activeWorldProfile();
             final AdventureOpeningPlanner.Plan openingPlan=AdventureOpeningPlanner.choose(activeWorldProfile(),campaign.optString("name"),campaign.optString("tone"),startingHex,prefs.getString(openingHistoryKey,"[]"),prefs.getString("recent_opening_texts_"+activeWorldProfile(),"[]"),System.nanoTime());
             prefs.edit().putString(openingHistoryKey,AdventureOpeningPlanner.remember(prefs.getString(openingHistoryKey,"[]"),openingPlan.id)).apply();
             final String startContext=buildAdventureStartContext(startingPoint);
-            final String opening=(isMystaraWorld()?"MUNDO ATIVO: MYSTARA. SISTEMA ATIVO: D&D Rules Cyclopedia/BECMI. Use CA descendente, cinco Jogadas de Proteção, iniciativa 1d6 por lado, classes clássicas e viagem por terreno. Não use mecânicas de D&D 5e. ":"")+startContext+"FOCO DE REGRAS PARA A ABERTURA: "+openingPlan.rulesFocus+". A CENA DEVE SER ANCORADA NAS PASSAGENS LOCAIS RECUPERADAS, sem impor teste ou consequência antes da primeira ação do jogador. INÍCIO AUTOMÁTICO — ABERTURA DE HISTÓRIA. "+openingPlan.instruction+" Todo personagem ou grupo visível, falante ou agente deve constar em scene_state.present_npcs. NPCs nomeados, persistentes ou individualmente relevantes também devem constar em npc_updates, com name, role, present=true e visual_description concreta. Figurantes sem nome próprio recebem apenas rótulo descritivo de cena, sem identidade inventada, com anonymous=true e transient=true; grupos podem usar count e não entram em npc_updates até se tornarem individualmente relevantes. Nunca deixe pessoas visíveis apenas no texto. As duas opções devem responder diretamente ao conflito, documento, pessoa, ameaça ou objetivo desta cena; nunca proponha travessia, porta, rastros ou investigação genérica se esses elementos não estiverem presentes.";
+            final JSONObject savedOpeningScene=db.getSceneState();
+            final boolean continuingLocalScene=!reset
+                &&savedOpeningScene.optString("location","").trim().length()>0
+                &&"retained_confirmed_position".equals(startingPoint.optString("selection_mode"));
+            final String localSceneOpening=continuingLocalScene
+                ?("CONTINUIDADE OBRIGATÓRIA: a companhia JÁ está em '"+savedOpeningScene.optString("location")
+                  +"', hex "+startingHex+". Esta é a mesma cena, NÃO uma chegada ao povoado, estrada ou apresentação panorâmica. "
+                  +"Respeite os NPCs, nomes, ações, relações e posições persistidos; nunca substitua um estalajadeiro conhecido por figurante novo. "
+                  +"Reaja ao acontecimento imediato com proporção e diálogo natural, sem salto de tempo ou viagem. ")
+                :"";
+            final String opening=(isMystaraWorld()?"MUNDO ATIVO: MYSTARA. SISTEMA ATIVO: D&D Rules Cyclopedia/BECMI. Use CA descendente, cinco Jogadas de Proteção, iniciativa 1d6 por lado, classes clássicas e viagem por terreno. Não use mecânicas de D&D 5e. ":"")+startContext+localSceneOpening+"FOCO DE REGRAS PARA A ABERTURA: "+openingPlan.rulesFocus+". A CENA DEVE SER ANCORADA NAS PASSAGENS LOCAIS RECUPERADAS, sem impor teste ou consequência antes da primeira ação do jogador. INÍCIO AUTOMÁTICO — "+(continuingLocalScene?"CONTINUAÇÃO DA CENA EXISTENTE. ":"ABERTURA DE HISTÓRIA. ")+(continuingLocalScene?"Continue exclusivamente a cena e as relações já persistidas. ":openingPlan.instruction)+" Todo personagem ou grupo visível, falante ou agente deve constar em scene_state.present_npcs. NPCs nomeados, persistentes ou individualmente relevantes também devem constar em npc_updates, com name, role, present=true e visual_description concreta. Figurantes sem nome próprio recebem apenas rótulo descritivo de cena, sem identidade inventada, com anonymous=true e transient=true; grupos podem usar count e não entram em npc_updates até se tornarem individualmente relevantes. Nunca deixe pessoas visíveis apenas no texto. As duas opções devem responder diretamente ao conflito, documento, pessoa, ameaça ou objetivo desta cena; nunca proponha travessia, porta, rastros ou investigação genérica se esses elementos não estiverem presentes.";
             ui.post(new Runnable(){public void run(){adventureStartRunning=false;String label=startingPoint.optString("start_location_name","");updateAdventureStartupMessage((label.length()>0?label+" • ":"")+"hex "+startingHex+" sorteado. Consultando o índice local de regras…");adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Consultando índice local e cache essencial");sendAi("Narrador",opening);}});
         }catch(final Exception e){ui.post(new Runnable(){public void run(){adventureStartRunning=false;adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.BLOCKED,String.valueOf(e.getMessage()));setStatus("Não foi possível preparar a aventura.");toast("Falha ao iniciar: "+String.valueOf(e.getMessage()));showCampaign();}});}}});
     }
@@ -2206,7 +2228,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final boolean contractAtlas=isAtlasContractRuntime(packageId);
             final int seeded=contractAtlas?0:db.applyBundledResolvedLocations(packageId);
             final int migrated=contractAtlas?0:db.migrateConfirmedLocationPlacementsToPackage(packageId);
-            final List<JSONObject> repaired=db.listAdventureStartHexes(packageId,"",1000);
+            final List<JSONObject> repaired=db.listAdventureStartHexes(packageId,"",40);
             ui.post(new Runnable(){public void run(){
                 adventureStartCatalogMigrationRunning=false;
                 db.addAuditEvent("mapa","Recuperação automática do Atlas",seeded+" posições verificadas • "+migrated+" legadas confirmadas • "+repaired.size()+" pontos de abertura","{}","{}",true);
@@ -2263,10 +2285,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         new AlertDialog.Builder(MainActivity.this).setTitle("Iniciar neste ponto do Atlas?").setMessage(message).setNegativeButton("OUTRO PONTO",null).setNeutralButton("CANCELAR INÍCIO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){pendingAdventureStartFromMap=false;pendingAdventureStartReset=false;setStatus("Início da aventura cancelado.");}}).setPositiveButton("CONFIRMAR E INICIAR",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){pendingAdventureStartFromMap=false;pendingAdventureStartReset=false;launchAdventure(resetStart,chosenHex);}}).show();
     }
 
-    private JSONObject prepareAdventureStartingPoint(String requestedHex)throws Exception{
+    private JSONObject prepareAdventureStartingPoint(String requestedHex,boolean reset)throws Exception{
         JSONObject state=db.getMapState();String packageId=state.optString("map_package_id","");if(packageId.length()==0)throw new IllegalStateException("Nenhum pacote de mapa está ativo.");
-        boolean contractAtlas=isAtlasContractRuntime(packageId);int reconciledBundledLocations=contractAtlas?0:db.applyBundledResolvedLocations(packageId);if(reconciledBundledLocations>0)db.addAuditEvent("mapa","Posições canônicas reconciliadas antes da abertura",reconciledBundledLocations+" locais verificados reaplicados","{}","{}",true);
-        String requested=requestedHex==null?"":requestedHex.trim();List<JSONObject> candidates=db.listAdventureStartHexes(packageId,"",1000);
+        String requested=requestedHex==null?"":requestedHex.trim();
+        String previousHex=state.optString("current_hex_id","").trim();
+        if(!reset&&requested.length()>0&&requested.equalsIgnoreCase(previousHex)
+                &&db.getRawMapHex(packageId,previousHex).length()>0){
+            JSONObject existing=db.describeCatalogedAdventureStart(packageId,previousHex);
+            if(existing.length()==0)existing=new JSONObject().put("hex_id",previousHex).put("start_kind","existing_position");
+            existing.put("selection_mode","retained_confirmed_position");
+            // No movement, fog reset, journal entry or route reset.
+            return existing;
+        }
+        boolean contractAtlas=isAtlasContractRuntime(packageId);
+        int reconciledBundledLocations=contractAtlas?0:db.applyBundledResolvedLocations(packageId);
+        if(reconciledBundledLocations>0)db.addAuditEvent("mapa","Posições canônicas reconciliadas antes da abertura",reconciledBundledLocations+" locais verificados reaplicados","{}","{}",true);
+        List<JSONObject> candidates=requested.length()>0?new ArrayList<JSONObject>():db.listAdventureStartHexes(packageId,"",40);
         JSONObject chosen;
         if(requested.length()>0){chosen=db.describeCatalogedAdventureStart(packageId,requested);if(chosen.length()==0)throw new IllegalArgumentException(contractAtlas?"O hex "+requested+" não é um hex válido do Atlas ativo.":"O hex "+requested+" não contém cidade, local nomeado ou terreno catalogado para uma abertura.");try{chosen.put("selection_mode","manual");}catch(Exception ignored){AppLog.ignored("AdventureStart","Falha tolerada ao registrar modo de seleção.",ignored);}}
         else{
@@ -7639,9 +7673,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         JSONObject campaign=db==null?new JSONObject():db.getCampaign();
         JSONObject scene=db==null?new JSONObject():db.getSceneState();
         JSONObject story=db==null?new JSONObject():db.getStoryState();
-        return activeWorldProfile()+"|"+campaign.optString("name","")+"|"+
-            scene.optString("location",scene.optString("location_name",""))+"|"+
-            story.optString("last_narration","").hashCode();
+        // Location labels and campaign display names may be reconciled in the
+        // background before any new scene is confirmed. They must not invalidate
+        // a pending request. An accepted narration changes this fingerprint.
+        return "confirmed-scene-v2|"+activeWorldProfile()+"|"+
+            story.optInt("started",0)+"|"+story.optString("last_narration","").hashCode();
     }
     private boolean hasFailedGeminiRequest(){
         return prefs!=null&&prefs.getBoolean(RETRY_PREFIX+"pending",false);
@@ -7717,7 +7753,18 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(!hasFailedGeminiRequest()){toast("Nenhuma ação pendente do Gemini.");return;}
         String recorded=prefs.getString(RETRY_PREFIX+"scene","");
         if(!recorded.equals(geminiRetryIdentity())){
-            toast("A cena mudou. A ação anterior foi preservada, mas deve ser revisada antes de ser reenviada.");
+            // Legacy identity or a genuinely changed accepted scene: never
+            // silently execute an old action, but offer a one-tap draft recovery.
+            final String draft=prefs.getString(RETRY_PREFIX+"action","");
+            new AlertDialog.Builder(this).setTitle("Revisar ação preservada")
+                .setMessage("A referência da cena mudou ou foi atualizada. A ação não foi executada. "
+                    +"Recupere o texto para revisar e enviar no contexto atual, sem apagar a campanha.")
+                .setNegativeButton("CANCELAR",null)
+                .setPositiveButton("RECUPERAR TEXTO",(d,w)->{
+                    pendingRestoredNarratorDraft=draft;
+                    clearFailedGeminiRequest();
+                    navigate("Mestre IA");
+                }).show();
             return;
         }
         String mode=prefs.getString(RETRY_PREFIX+"mode","Narrador");
