@@ -1,0 +1,10 @@
+# ECO — fechamento de edição segmentada e checkpoint automático — 26/11/2026
+
+Base anterior: execução 45710142916 (4216213), success. Logs confirmam nativeKeysetPagesStayScopedAndBounded, integralLocalCheckpointReexportsExactOldSnapshotAndPreservesPreviousOnCancel, BUILD SUCCESSFUL e integridade APK ARM64. Assinatura permanente ainda ausente.
+
+Novas alterações:
+- 64deacc, 9c08c75, b3ea9a0, 58dc3ae: edição nativa em páginas de texto de até 16.000 caracteres, versão otimista do registro, validação Unicode, propriedade de caso/sessão, histórico cifrado e bloqueio de alteração da transcrição original. Somente no modo de volume elevado, para não tornar obsoleto o estado global da interface normal. Campos disponíveis: texto, mlRevisada, intervencoes e plano. Não substitui todos os módulos normais (agenda, novo cadastro, IA, genograma e demais formulários continuam dependentes do estado global).
+- Checkpoint integral automático diário por tentativa quando a Activity passa a segundo plano em repouso, sem áudio/IA ativos nem seletor de backup. Cancela ao retornar, bloquear ou destruir a Activity. AtomicFile preserva cópia anterior; tentativa novamente na próxima pausa. Não é um serviço de execução garantida se o Android encerrar o processo, nem backup externo. O checkpoint JSON manual legado segue disponível.
+- dc02ee9, bb514b3, 8abab8f: regressões nativas, contrato e Chromium para preservar histórico, original, isolamento, rejeição de concorrência e confirmação do usuário.
+
+Gates: novo CI pendente. Separação neural de sinais simultâneos não implementada (OSD aprovado é detecção, não separação). Revisão de todas as páginas/edições/licenças depende das fontes primárias autorizadas; não substituir referências por páginas inventadas. Assinatura estável exige credenciais ECO_KEYSTORE_B64, ECO_KEYSTORE_PASSWORD, ECO_KEY_PASSWORD fornecidas em GitHub Actions Secrets; não versionar chave. Teste físico e auditoria de segurança independente continuam separados. Não afirmar 100% ou aprovação clínica sem evidências.
