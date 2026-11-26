@@ -109,6 +109,7 @@ public final class MainActivity extends Activity {
         // run again on an Activity recreation while a previous worker is still alive.
         if(audioCleanedThisProcess.compareAndSet(false,true)){
             WhisperFileEngine.cleanupAbandonedAudio(this);
+            LocalLlmEngine.cleanupAbandonedInstall(this);
             WhisperLiveEngine.clearStaleFiles(this);
             SessionRecorder.cleanAbandoned(this);
         }

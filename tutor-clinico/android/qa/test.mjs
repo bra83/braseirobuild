@@ -1837,3 +1837,9 @@ test('ECO structured output preserves genuine neural content and rejects ungroun
  assert.ok(js('ecoPerspectiveCompose(rawBad,[ecoPerspectiveCatalogRows("Klein")[0]],quoteStructured).error'));
  assert.match(html,/Importar modelo GGUF oficial/);
 });
+
+test('ECO checks actual structured justification as well as concept, without assuming clinical truth',()=>{
+ context.structuredExample='Hipótese: Pode ser útil explorar os sentimentos contraditórios de carinho e raiva.\nJustificativa: A ambivalência permite investigar sentimentos diferentes na mesma relação.\nExemplo: Como você vive o carinho e a raiva pela mesma pessoa?';
+ const pairs=js('(()=>{const sources=ecoPerspectiveCatalogRows("Klein").slice(0,1),quote="Sinto carinho e raiva pela mesma pessoa.";const result=ecoPerspectiveCompose(structuredExample,sources,quote);return ecoPerspectiveNliPairs(result.audit,sources,quote,true)})()');
+ assert.equal(pairs.length,2);assert.equal(pairs[1].field,'justificativa');assert.match(pairs[1].a,/Sinto carinho e raiva/);assert.match(pairs[1].b,/ambivalência permite investigar/);
+});

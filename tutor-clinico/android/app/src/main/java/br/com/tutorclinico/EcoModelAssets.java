@@ -19,6 +19,15 @@ final class EcoModelAssets {
   try(InputStream in=new FileInputStream(f)){byte[] b=new byte[262144];int n;while((n=in.read(b))!=-1){if(!active.getAsBoolean())throw new CancellationException();d.update(b,0,n);}}
   StringBuilder s=new StringBuilder();for(byte x:d.digest())s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();
  }
+ static synchronized File verifyInstalled(File file,String sha,BooleanSupplier active)throws Exception{
+  if(!active.getAsBoolean())throw new CancellationException();
+  if(!file.isFile())throw new IOException("Modelo não instalado");
+  String key=file.getCanonicalPath(),before=fingerprint(file,sha);
+  if(before.equals(verified.get(key)))return file;
+  verified.remove(key);
+  if(!sha.equals(digestActive(file,active))||!before.equals(fingerprint(file,sha)))throw new IOException("Integridade de modelo instalado");
+  verified.put(key,before);return file;
+ }
  static synchronized File materialize(Context c,String asset,String name,String sha,BooleanSupplier active)throws Exception{
   long size;try(android.content.res.AssetFileDescriptor fd=c.getAssets().openFd(asset)){size=fd.getLength();}
   if(!active.getAsBoolean())throw new CancellationException();

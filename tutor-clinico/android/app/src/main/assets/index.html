@@ -5131,10 +5131,21 @@ function ecoPerspectiveNliValid(v,n){
  const valid=x=>Array.isArray(x)&&x.length===3&&x.every(y=>Number.isFinite(y)&&y>=0&&y<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;
  return JSON.stringify(v.labels)==='["contradiction","entailment","neutral"]'&&Array.isArray(v.comparisons)&&v.comparisons.length===n&&v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba));
 }
-function ecoPerspectiveNliPairs(audit,sources){
- // NLI assesses ONLY a theoretical assertion against cited theory, not whether the patient has a trait.
+function ecoPerspectiveNliPairs(audit,sources,quote='',structured=false){
  const f=audit.fields.conceito,claim=f.content.replace(/\[S\d+\]/g,'').trim();
- return [...new Set(f.refs.filter(n=>n>=2))].map(n=>({a:sources[n-2].text,b:claim,ref:n})).filter(x=>x.a.length<=1800&&x.b.length<=500);
+ const pairs=[...new Set(f.refs.filter(n=>n>=2))].map(n=>({a:sources[n-2].text,b:claim,ref:n,field:'conceito'})).filter(x=>x.a.length<=1800&&x.b.length<=500);
+ if(structured){
+  // Compare the actual generated justification against the observed speech and
+  // cited theory together. This is a textual contradiction check, not proof of
+  // an interpretation or a finding about the patient.
+  const f=audit.fields.justificativa,b=f.content.replace(/\[S\d+\]/g,'').trim();
+  for(const n of new Set(f.refs.filter(n=>n>=2))){
+   const a='Fala literal: '+quote+'\nReferência didática: '+sources[n-2].text;
+   if(a.length<=1800&&b.length<=500)pairs.push({a,b,ref:n,field:'justificativa'});
+  }
+  if(!pairs.some(x=>x.field==='justificativa'))return [];
+ }
+ return pairs;
 }
 function ecoPerspectiveComparison(results){
  const rows=results.filter(x=>!x.error).map(x=>({author:x.author,concept:ecoPerspectiveAudit(x.draft,x.sources.length+1).fields.conceito?.content||x.sources[0]?.title||'',question:ecoPerspectiveAudit(x.draft,x.sources.length+1).fields.exemplo?.content||'',status:x.fallback?'Roteiro didático':x.verificationStatus||'Minuta'}));
@@ -5189,7 +5200,7 @@ function ecoPerspectivePanel(c){
  if(r){out+='<h3>Fala analisada</h3><blockquote>'+esc(r.quote)+'</blockquote><p class="small">'+esc(formatDate(r.sessionDate))+' · '+(r.atMs==null?'sem minuto registrado':Math.floor(r.atMs/60000)+' min')+'</p>';
  for(const result of r.results){out+='<article class="eco-evidence"><h3>'+esc(result.author)+'</h3>';
  if(result.error)out+='<p class="alert">'+esc(result.error)+'</p>';
- else{out+='<p class="small muted">'+esc(result.fallback?'Roteiro didático editorial · geração recusada ou indisponível; não é interpretação do modelo.':result.verificationStatus||'Minuta neural não validada')+' · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>'+(result.rejection?.length?'<p class="alert">Minuta neural não exibida: '+esc(result.rejection.join(' '))+'</p>':'')+(result.nli?.length?'<p class="small">NLI teórico experimental: '+result.nli.map(x=>'[S'+x.ref+'] possível incompatibilidade '+(100*x.ab[0]).toFixed(1)+'%, implicação '+(100*x.ab[1]).toFixed(1)+'%, indeterminação '+(100*x.ab[2]).toFixed(1)+'%').join(' · ')+'. Não verifica fatos clínicos.</p>':'');
+ else{out+='<p class="small muted">'+esc(result.fallback?'Roteiro didático editorial · geração recusada ou indisponível; não é interpretação do modelo.':(result.structured?'Hipótese, justificativa e pergunta geradas por '+result.model+'; conceito e limites editoriais. · ':'')+(result.verificationStatus||'Minuta neural não validada'))+' · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>'+(result.rejection?.length?'<p class="alert">Minuta neural não exibida: '+esc(result.rejection.join(' '))+'</p>':'')+(result.nli?.length?'<p class="small">NLI textual experimental: '+result.nli.map(x=>esc(x.field||'conceito')+' [S'+x.ref+'] possível incompatibilidade '+(100*x.ab[0]).toFixed(1)+'%, implicação '+(100*x.ab[1]).toFixed(1)+'%, indeterminação '+(100*x.ab[2]).toFixed(1)+'%').join(' · ')+'. Não verifica fatos clínicos.</p>':'');
  if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
  if(!result.formatValid)out+='<p class="alert">A IA não entregou todos os seis campos esperados. Minuta incompleta; revise antes de utilizar.</p>';
  out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':' · '+ecoBibliographicStatus(x.ref).status))+'<br>'+esc(x.text)+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
@@ -5257,11 +5268,11 @@ window.nativeSemanticResult=function(raw){
   }
  }else if(r.mode==='generate'){
   if(v.sourceCount!==r.sources.length+1||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.results.push({author,error:'Minuta local inválida.'});
-  else{const composed=v.structured===true?ecoPerspectiveCompose(v.draft,r.sources,r.quote):{draft:v.draft};const audit=composed.error?{ok:false,errors:[composed.error]}:ecoPerspectiveAudit(composed.draft,r.sources.length+1);if(!audit.ok){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=audit.errors;ecoPerspectiveFinishAuthor(r,result);return;}r.audit=audit;r.draft=composed.draft;r.model=String(v.model||'Qwen');r.structured=v.structured===true;r.nliPairs=ecoPerspectiveNliPairs(audit,r.sources);if(!r.nliPairs.length){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conceito sem par teórico verificável.'];ecoPerspectiveFinishAuthor(r,result);return;}ecoPerspectiveSend(r,'verify',{mode:'nli',pairs:r.nliPairs.map(({a,b})=>({a,b}))},author+' · conferência textual do conceito com NLI');return;}
+  else{const composed=v.structured===true?ecoPerspectiveCompose(v.draft,r.sources,r.quote):{draft:v.draft};const audit=composed.error?{ok:false,errors:[composed.error]}:ecoPerspectiveAudit(composed.draft,r.sources.length+1);if(!audit.ok){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=audit.errors;ecoPerspectiveFinishAuthor(r,result);return;}r.audit=audit;r.draft=composed.draft;r.model=String(v.model||'Qwen');r.structured=v.structured===true;r.nliPairs=ecoPerspectiveNliPairs(audit,r.sources,r.quote,r.structured);if(!r.nliPairs.length){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conceito sem par teórico verificável.'];ecoPerspectiveFinishAuthor(r,result);return;}ecoPerspectiveSend(r,'verify',{mode:'nli',pairs:r.nliPairs.map(({a,b})=>({a,b}))},author+' · conferência textual das fontes com NLI');return;}
  }else if(r.mode==='verify'){
   if(!ecoPerspectiveNliValid(v,r.nliPairs.length)||v.comparisons.some(x=>x.ab[0]>=.65)){const result=ecoPerspectiveFallback(author,r.sources,r.quote);result.rejection=['Conferência NLI inválida ou possível incompatibilidade teórica.'];ecoPerspectiveFinishAuthor(r,result);return;}
-  const nli=v.comparisons.map((x,i)=>({...x,ref:r.nliPairs[i].ref}));
-  ecoPerspectiveFinishAuthor(r,{author,draft:r.draft,sources:r.sources,formatValid:true,refsValid:true,nli,model:r.model,structured:r.structured,verificationStatus:nli.every(x=>x.ab[1]>=.65)?'Minuta com possível sustentação textual do conceito (NLI experimental)':'Minuta com sustentação textual indeterminada (NLI experimental)'});return;
+  const nli=v.comparisons.map((x,i)=>({...x,ref:r.nliPairs[i].ref,field:r.nliPairs[i].field}));
+  ecoPerspectiveFinishAuthor(r,{author,draft:r.draft,sources:r.sources,formatValid:true,refsValid:true,nli,model:r.model,structured:r.structured,verificationStatus:nli.every(x=>x.ab[1]>=.65)?'Minuta com possível sustentação textual das passagens verificadas (NLI experimental)':'Minuta com sustentação textual indeterminada (NLI experimental)'});return;
  }
  r.index++;ecoPerspectiveNext(r);
 };

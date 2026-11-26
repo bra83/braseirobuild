@@ -12,6 +12,7 @@ final class LocalLlmEngine {
  static final String ADVANCED_MODEL="Qwen2.5-1.5B-Instruct-Q4_K_M@dd26da4";
  static final String ADVANCED_SHA="6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e";
  static File advancedFile(Context c){return new File(c.getNoBackupFilesDir(),"eco-qwen-1.5b-6a1a2eb6.gguf");}
+ static void cleanupAbandonedInstall(Context c){File[] files=c.getNoBackupFilesDir().listFiles((dir,name)->name.startsWith("eco-qwen-install-")&&name.endsWith(".tmp"));if(files!=null)for(File file:files)file.delete();}
  static boolean advancedAvailable(Context c){File f=advancedFile(c);return f.isFile()&&f.length()>1000000000L&&f.length()<1200000000L;}
  static void installAdvanced(Context c,InputStream source,BooleanSupplier active)throws Exception{
   File target=advancedFile(c);File temp=File.createTempFile("eco-qwen-install-",".tmp",c.getNoBackupFilesDir());
@@ -53,7 +54,7 @@ final class LocalLlmEngine {
   String prompt=buildPrompt(req);
   progress.report(0,1,"Verificando modelo generativo");
   boolean advanced=advancedAvailable(c);
-  File model=advanced?advancedFile(c):EcoModelAssets.materialize(c,"llm/model.gguf","eco-qwen-6dd44a1.gguf",SHA,active);
+  File model=advanced?EcoModelAssets.verifyInstalled(advancedFile(c),ADVANCED_SHA,active):EcoModelAssets.materialize(c,"llm/model.gguf","eco-qwen-6dd44a1.gguf",SHA,active);
   if(!active.getAsBoolean())throw new CancellationException();
   File exe=new File(c.getApplicationInfo().nativeLibraryDir,"libeco_generate.so");
   ProcessBuilder builder=perspective?new ProcessBuilder(exe.getAbsolutePath(),model.getAbsolutePath(),"structured"):new ProcessBuilder(exe.getAbsolutePath(),model.getAbsolutePath());
