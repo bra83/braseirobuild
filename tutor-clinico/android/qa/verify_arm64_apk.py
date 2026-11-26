@@ -36,6 +36,10 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert rg["sha256"]=="6e57207c62deb625b5751a376f32ac66109281b0d199a2aec09f2671e066acf5"
     lg=json.loads(z.read("assets/llm/gate.txt"))
     assert lg["model_sha256"]=="74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db" and lg["clinical_validation"] is False
+    clinical=lg["clinical_audit"]
+    assert clinical["contract_enforced"] is True and clinical["clinical_validation"] is False
+    assert len(clinical["fixtures"])==3 and clinical["accepted"]+clinical["editorial_fallbacks"]==3
+    assert {x["author"] for x in clinical["fixtures"]}=={"Freud","Klein","Winnicott"}
     assert z.getinfo("assets/rerank/vocab.txt").file_size>0
     for name in ["assets/rerank/attribution.txt","assets/llm/attribution.txt","assets/llm/llama-license.txt"]:
         assert z.getinfo(name).file_size>0

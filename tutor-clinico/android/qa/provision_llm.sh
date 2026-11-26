@@ -22,6 +22,7 @@ out=r.stdout.strip();print("Synthetic generation:",out,flush=True)
 assert len(out)>5 and ("dorm" in out.lower() or "sono" in out.lower()),"Generation smoke gate"
 (root/"gate.txt").write_text(json.dumps({"runtime":"llama.cpp-b5046","model_sha256":"74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db","output":out,"clinical_validation":False},ensure_ascii=False))
 PY
+node qa/audit_clinical_generation.mjs "$tmp/host/eco_generate" "$root"
 ndk="$ANDROID_HOME/ndk/27.2.12479018"
 test -f "$ndk/build/cmake/android.toolchain.cmake"
 cmake -S qa/native -B "$tmp/android" -DLLAMA_SOURCE="$tmp/llama" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ndk/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-28 -DANDROID_STL=c++_static
