@@ -6999,6 +6999,29 @@ public class AppDb extends SQLiteOpenHelper {
         try{if(manifestJson!=null&&manifestJson.trim().length()>0){JSONObject root=new JSONObject(manifestJson);String logical=root.optString("logical_map_id","").trim();if(logical.length()>0)return logical;String id=MapManifestGeometry.parse(manifestJson).getMapId();if(id!=null&&id.trim().length()>0)return id.trim();}}catch(Exception e){AppLog.w("AppDb","Manifesto de mapa sem identidade lógica durante persistência.",e);}
         String value=packageId==null?"":packageId.trim();int at=value.indexOf('@');return at>0?value.substring(0,at):value;
     }
+    /** Restore a lost active-package pointer without reimporting or guessing a position. */
+    public void rebindReadyAtlasPackage(String profile,String packageId) throws Exception {
+        if(!isAtlasContractPackage(packageId))throw new IllegalStateException("Atlas não está indexado.");
+        JSONObject pack=getMapPackageAny(packageId),state=getMapStateForProfile(profile);
+        if(!normalizeMapProfile(profile).equalsIgnoreCase(pack.optString("world_profile")))throw new IllegalArgumentException("Atlas de outro perfil.");
+        String hex=state.optString("current_hex_id","");
+        String oldFrame=state.optString("coordinate_frame_id",""),newFrame=pack.optString("coordinate_frame_id","");
+        boolean sameFrame=!newFrame.isEmpty()&&newFrame.equals(oldFrame);
+        JSONObject row=sameFrame&&isValidMapHex(packageId,hex)?getRawMapHex(packageId,hex):new JSONObject();
+        double u=row.optDouble("center_u",Double.NaN),v=row.optDouble("center_v",Double.NaN);
+        boolean retain=row.length()>0&&Double.isFinite(u)&&Double.isFinite(v);
+        String retainedHex=retain?hex:"";
+        SQLiteDatabase sql=getWritableDatabase();sql.beginTransaction();
+        try{
+            ContentValues values=new ContentValues();
+            values.put("map_package_id",packageId);values.put("logical_map_id",pack.optString("logical_map_id"));
+            values.put("image_uri",pack.optString("image_uri"));values.put("overlay_uri",pack.optString("overlay_uri"));values.put("manifest_json",pack.optString("manifest_json"));
+            updateMapStateForProfile(profile,values);
+            saveAtlasPositionForProfile(profile,packageId,retainedHex,u,v,newFrame,retain?"ready":"unresolved",state.optString("legacy_position_json","{}"));
+            if(!retain)saveMapTravelStateForProfile(profile,false,"","[]","Jogador");
+            sql.setTransactionSuccessful();
+        }finally{sql.endTransaction();}
+    }
     public JSONObject getLatestMapPackageByMapId(String profile,String mapId){if(mapId==null||mapId.trim().length()==0)return new JSONObject();String id=mapId.trim();return queryOne("SELECT * FROM map_packages WHERE ready=1 AND world_profile=? AND (logical_map_id=? OR (COALESCE(logical_map_id,'')='' AND map_id=?)) ORDER BY imported_at DESC LIMIT 1",new String[]{normalizeMapProfile(profile),id,id});}
     public JSONObject getMapPackageAny(String packageId){if(packageId==null||packageId.length()==0)return new JSONObject();return queryOne("SELECT * FROM map_packages WHERE package_id=?",new String[]{packageId});}
     public void markMapPackageUnavailable(String packageId,String reason){

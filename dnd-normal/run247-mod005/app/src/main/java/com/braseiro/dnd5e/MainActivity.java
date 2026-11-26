@@ -207,6 +207,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private volatile boolean adventureStartRunning=false;
     private volatile boolean adventurePreflightRunning=false;
     private boolean resumePrincipalStartAfterAtlas=false;
+    private JSONObject pendingPrincipalStart=new JSONObject();
+    private final AtlasBootstrapGate atlasBootstrapGate=new AtlasBootstrapGate();
     private boolean resumePrincipalReset=false;
     private volatile boolean adventureStartCatalogMigrationRunning=false;
     private TextView adventureStartupMessage;
@@ -2096,7 +2098,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private void beginAdventure(final boolean reset){
-        if(adventureStartRunning||adventurePreflightRunning){toast("A nova aventura já está sendo preparada.");return;}
+        if(adventureStartRunning||adventurePreflightRunning||resumePrincipalStartAfterAtlas){toast("A nova aventura já está sendo preparada.");return;}
         adventurePreflightRunning=true;
         adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.VALIDATING,"Validando campanha, banco e Atlas");
         setStatus("Validando a campanha e o Atlas sem bloquear a interface…");
@@ -2142,7 +2144,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(strixhaven){launchStrixhavenAdventure(reset);return;}
                 if(readyPrincipalStart.length()>0){
                     if(readyNeedsBundledMap){
-                        resumePrincipalStartAfterAtlas=true;resumePrincipalReset=reset;
+                        resumePrincipalStartAfterAtlas=true;resumePrincipalReset=reset;pendingPrincipalStart=readyPrincipalStart;
                         showAdventureStartingScreen("Preparando o Atlas para o hex definido na aventura…");
                         ensureBundledMapForProfileAsync(activeWorldProfile());return;
                     }
@@ -7259,7 +7261,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         LinearLayout mapBox=new LinearLayout(this);mapBox.setOrientation(LinearLayout.VERTICAL);mapBox.setGravity(Gravity.CENTER_HORIZONTAL);mapBox.setPadding(0,dp(8),0,0);
         JSONObject mapState=db.getMapState();String current=mapState.optString("current_hex_id","");
         TextView mapTitle=text(current.length()>0?"POSIÇÃO • HEX "+current:"POSIÇÃO NO ATLAS",10,GOLD,true);mapTitle.setGravity(Gravity.CENTER);mapBox.addView(mapTitle,new LinearLayout.LayoutParams(-1,dp(24)));
-        sceneHexMiniMapView=new SceneHexMiniMapView(this);final SceneHexMiniMapView mini=sceneHexMiniMapView;mini.bind(mapState,mapGeometryFromState(mapState));mini.setContentDescription(current.length()>0?"Hex atual "+current+" e seis hexes ao redor":"Posição no atlas não definida");
+        sceneHexMiniMapView=new SceneHexMiniMapView(this);final SceneHexMiniMapView mini=sceneHexMiniMapView;
+        AppExecutors.io().execute(()->{
+            MapManifestGeometry local=null;
+            try{String packageId=mapState.optString("map_package_id","");JSONObject profile=db.getMapPackageProfile(packageId);
+                if(profile.length()>0&&!current.isEmpty())local=MapManifestGeometry.fromAtlasNeighborhood(db,packageId,AtlasMapProfile.parse(profile.toString()),current);
+            }catch(Exception failure){AppLog.w("SceneHexMiniMap","Prévia local indisponível.",failure);}
+            final MapManifestGeometry ready=local;
+            ui.post(()->{if(sceneHexMiniMapView==mini&&!isFinishing()&&!isDestroyed())mini.bindIndexedNeighborhood(mapState,ready);});
+        });
+        mini.setContentDescription(current.length()>0?"Hex atual "+current+" e seis hexes ao redor":"Posição no atlas não definida");
         mini.setOnClickListener(new View.OnClickListener(){public void onClick(View v){navigate("Mapa");}});
         int screenWidthDp=getResources().getConfiguration().screenWidthDp;
         if(screenWidthDp<600){
@@ -12593,10 +12604,17 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
 
     private void resumePrincipalAfterAtlas(boolean ready){
         if(!resumePrincipalStartAfterAtlas)return;
-        boolean reset=resumePrincipalReset;
-        resumePrincipalStartAfterAtlas=false;
-        if(ready)beginAdventure(reset);
-        else {adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.BLOCKED,"Atlas indisponível");updateAdventureStartupMessage("Não foi possível preparar o Atlas. A aventura e o hex declarado foram preservados.");}
+        final boolean reset=resumePrincipalReset;
+        final JSONObject start=pendingPrincipalStart;
+        resumePrincipalStartAfterAtlas=false;pendingPrincipalStart=new JSONObject();
+        // A completed bootstrap resumes the exact pending request ONCE. Never
+        // re-enter beginAdventure(), which used to request another full import.
+        if(ready&&start.length()>0){
+            launchAdventure(reset,start.optString("hex_id"),start);
+            return;
+        }
+        adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.BLOCKED,"Atlas indisponível");
+        updateAdventureStartupMessage("Atlas indisponível. A aventura e o hex declarado foram preservados. Volte à campanha para tentar novamente após reparar o mapa.");
     }
 
     private void ensureBundledMapForProfileAsync(String profile){
@@ -12611,18 +12629,27 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                 String asset=MapPackageManager.latestBundledFaerunAsset(MainActivity.this);
                 JSONObject active=db.getMapStateForProfile(WORLD_DND);
                 String id=active.optString("map_package_id","");
-                String previousAsset=prefs.getString("bundled_faerun_asset","");
-                // Legacy installations used the app version as their marker. V2
-                // is the existing bundled asset; do not unzip/reindex it on app upgrades.
-                boolean sameAsset=asset.equals(previousAsset)||(previousAsset.isEmpty()&&asset.endsWith("_V2.zip"));
-                if(sameAsset&&!id.isEmpty()&&db.hasAtlasContractMetadata(id)
-                    &&(db.isAtlasContractPackage(id)||db.repairAtlasReadyFromIndexedData(id))
-                    &&db.isMapPackageUsable(id)){
-                    prefs.edit().putString("bundled_faerun_asset",asset).apply();
+                // The installed index, not an application/asset version preference
+                // or an image decode, is authoritative for the narrative.
+                if(!id.isEmpty()&&db.hasAtlasContractMetadata(id)
+                    &&(db.isAtlasContractPackage(id)||db.repairAtlasReadyFromIndexedData(id))){
                     bundledFaerunMapInstalling=false;
                     ui.post(()->resumePrincipalAfterAtlas(true));return;
                 }
-                ui.post(()->setStatus("Preparando o Atlas de Faerûn…"));
+                // If an earlier import succeeded but the active pointer was lost,
+                // recover its ready package rather than extracting the ZIP again.
+                JSONObject installed=db.getLatestMapPackageByMapId(WORLD_DND,FAERUN_LOGICAL_MAP_ID);
+                String installedId=installed.optString("package_id","");
+                if(!installedId.isEmpty()&&db.isAtlasContractPackage(installedId)){
+                    db.rebindReadyAtlasPackage(WORLD_DND,installedId);
+                    bundledFaerunMapInstalling=false;
+                    ui.post(()->resumePrincipalAfterAtlas(true));return;
+                }
+                if(!atlasBootstrapGate.tryAutomaticImport()){
+                    bundledFaerunMapInstalling=false;
+                    ui.post(()->{resumePrincipalAfterAtlas(false);setStatus("Atlas não disponível após a tentativa automática. Reparo explícito necessário; nenhuma nova importação foi iniciada.");});return;
+                }
+                ui.post(()->setStatus("Preparando o Atlas de Faerûn uma única vez…"));
                 installBundledFaerunMapAsync(asset);
             }catch(final Exception e){
                 bundledFaerunMapInstalling=false;
@@ -12639,10 +12666,10 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                 InputStream in=getAssets().open(assetPath);FileOutputStream out=new FileOutputStream(temp,false);byte[] buffer=new byte[131072];int n;while((n=in.read(buffer))>0)out.write(buffer,0,n);out.flush();out.getFD().sync();in.close();out.close();
                 final File finalTemp=temp;mapPackageManager.importZip(Uri.fromFile(finalTemp),new MapPackageManager.Callback(){
                     public void onProgress(final String stage,final int current,final int total){ui.post(new Runnable(){public void run(){if(!isMystaraWorld())setStatus("Faerûn 2025 • "+stage);}});}
-                    public void onSuccess(final MapPackageManager.ImportResult result){if(finalTemp.exists())finalTemp.delete();bundledFaerunMapInstalling=false;prefs.edit().putString("bundled_faerun_asset",selectedAsset).putString("bundled_faerun_map_version",APP_VERSION).putBoolean("map_vector_grid_visible_dnd",true).apply();ui.post(new Runnable(){public void run(){screenCache.remove("Mapa");screenCacheTime.remove("Mapa");setStatus("Atlas de Faerûn pronto: "+result.hexCount+" hexes • "+result.locationCount+" locais canônicos • posição e câmera separadas.");if(resumePrincipalStartAfterAtlas)resumePrincipalAfterAtlas(true);else if(!isMystaraWorld()&&"Mapa".equals(currentScreen))showMap();}});}
-                    public void onError(final String error){if(finalTemp.exists())finalTemp.delete();bundledFaerunMapInstalling=false;ui.post(new Runnable(){public void run(){resumePrincipalAfterAtlas(false);setStatus("O Atlas integrado de Faerûn não pôde ser preparado; nenhuma migração geográfica foi inventada.");if(!isMystaraWorld())toast("Atlas Faerûn: "+error);}});}
+                    public void onSuccess(final MapPackageManager.ImportResult result){if(finalTemp.exists())finalTemp.delete();bundledFaerunMapInstalling=false;atlasBootstrapGate.finish();prefs.edit().putString("bundled_faerun_asset",selectedAsset).putString("bundled_faerun_map_version",APP_VERSION).putBoolean("map_vector_grid_visible_dnd",true).apply();ui.post(new Runnable(){public void run(){screenCache.remove("Mapa");screenCacheTime.remove("Mapa");setStatus("Atlas de Faerûn pronto: "+result.hexCount+" hexes • "+result.locationCount+" locais canônicos • posição e câmera separadas.");if(resumePrincipalStartAfterAtlas)resumePrincipalAfterAtlas(true);else if(!isMystaraWorld()&&"Mapa".equals(currentScreen))showMap();}});}
+                    public void onError(final String error){if(finalTemp.exists())finalTemp.delete();bundledFaerunMapInstalling=false;atlasBootstrapGate.finish();ui.post(new Runnable(){public void run(){resumePrincipalAfterAtlas(false);setStatus("O Atlas integrado de Faerûn não pôde ser preparado; nenhuma migração geográfica foi inventada.");if(!isMystaraWorld())toast("Atlas Faerûn: "+error);}});}
                 });
-            }catch(final Exception e){if(temp.exists())temp.delete();bundledFaerunMapInstalling=false;ui.post(new Runnable(){public void run(){resumePrincipalAfterAtlas(false);setStatus("O Atlas integrado será tentado novamente ao abrir Faerûn.");if(!isMystaraWorld())toast("Atlas Faerûn: "+String.valueOf(e.getMessage()));}});}
+            }catch(final Exception e){if(temp.exists())temp.delete();bundledFaerunMapInstalling=false;atlasBootstrapGate.finish();ui.post(new Runnable(){public void run(){resumePrincipalAfterAtlas(false);setStatus("O Atlas integrado será tentado novamente ao abrir Faerûn.");if(!isMystaraWorld())toast("Atlas Faerûn: "+String.valueOf(e.getMessage()));}});}
         }});
     }
 
