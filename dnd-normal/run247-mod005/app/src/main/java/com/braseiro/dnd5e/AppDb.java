@@ -2339,6 +2339,25 @@ public class AppDb extends SQLiteOpenHelper {
         return getWritableDatabase().insert("journal",null,v);
     }
     public List<JSONObject> listJournal() { return queryList("SELECT * FROM journal WHERE world_profile=? ORDER BY created_at DESC",new String[]{getActiveMapProfile()}); }
+    /**
+     * Bounded pre-Gemini context, not bounded persistence. The COMPLETE journal
+     * stays in SQLite/Chronicles forever. Older named milestones are fetched
+     * separately to preserve established campaign facts without reading every
+     * narrative paragraph on each turn.
+     */
+    public List<JSONObject> listJournalForMasterContext(){
+        String[] world={getActiveMapProfile()};
+        List<JSONObject> recent=queryList(
+            "SELECT * FROM journal WHERE world_profile=? ORDER BY created_at DESC,id DESC LIMIT 120",world);
+        List<JSONObject> milestones=queryList(
+            "SELECT * FROM journal WHERE world_profile=? AND COALESCE(event_key,'')<>'' ORDER BY created_at DESC,id DESC LIMIT 40",world);
+        java.util.HashSet<Long> seen=new java.util.HashSet<Long>();
+        java.util.ArrayList<JSONObject> out=new java.util.ArrayList<JSONObject>();
+        for(JSONObject event:recent){if(seen.add(event.optLong("id",0)))out.add(event);}
+        for(JSONObject event:milestones){if(seen.add(event.optLong("id",0)))out.add(event);}
+        return out;
+    }
+
     public void deleteJournal(long id) { getWritableDatabase().delete("journal","id=?",new String[]{String.valueOf(id)}); }
 
     public long addCombatant(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player) {
