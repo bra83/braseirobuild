@@ -11,8 +11,13 @@ public final class AdventureStartupCoordinator {
     public JSONObject preflight(AppDb db){/*BR_JSON_WRAP*/try{JSONObject r=new JSONObject();try{
         phase(Phase.VALIDATING,"Validando campanha e Atlas");
         List<JSONObject> heroes=db.listActiveCharacters();JSONObject map=db.getMapState();String pkg=map.optString("map_package_id");
-        boolean heroesOk=heroes!=null&&!heroes.isEmpty(),mapOk=!pkg.isEmpty()&&db.isMapPackageUsable(pkg),dbOk=db.quickIntegrityCheck();
-        int candidates=mapOk?db.listAdventureStartHexes(pkg,"",2000).size():0;
+        // PRAGMA quick_check scans the entire large Atlas database and is already
+        // performed by CampaignSafetyManager on its separate startup safety path.
+        // A scene opening only needs a readable database + a usable Atlas.
+        boolean heroesOk=heroes!=null&&!heroes.isEmpty(),
+            mapOk=!pkg.isEmpty()&&db.isMapPackageUsable(pkg),
+            dbOk=db.getReadableDatabase().isOpen();
+        int candidates=mapOk?db.listAdventureStartHexes(pkg,"",20).size():0;
         r.put("heroes",heroesOk).put("map",mapOk).put("database",dbOk).put("cataloged_starts",candidates).put("package_id",pkg);
         if(!heroesOk)phase(Phase.BLOCKED,"Ative ao menos um herói.");else if(!dbOk)phase(Phase.BLOCKED,"Banco local precisa de reparo.");else if(!mapOk)phase(Phase.BLOCKED,"Atlas ativo indisponível.");else if(candidates<=0)phase(Phase.BLOCKED,"Atlas sem pontos catalogados posicionados. Use Reparar Atlas.");else phase(Phase.LOCATION,"Escolha ou sorteie um ponto catalogado.");
         r.put("ok",phase!=Phase.BLOCKED).put("startup",snapshot());
