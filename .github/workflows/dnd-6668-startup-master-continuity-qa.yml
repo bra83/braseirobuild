@@ -1,4 +1,4 @@
-name: DnD 6.6.71 Atlas Single Import QA
+name: DnD 6.6.72 Atlas Installation QA
 on:
   push:
     branches:
@@ -40,6 +40,7 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest \
             --tests com.braseiro.dnd5e.DndStartupContinuityPerformanceRobolectricTest \
+            --tests com.braseiro.dnd5e.AtlasBundledImportRobolectricTest \
             --tests com.braseiro.dnd5e.AtlasBootstrapGateTest \
             --tests com.braseiro.dnd5e.ImportedPrincipalStartRegressionTest \
             --tests com.braseiro.dnd5e.CanonicalSceneAudioRegressionTest \
@@ -57,14 +58,14 @@ jobs:
           set -euo pipefail
           ./gradlew :app:assembleDebug --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
-          grep -q '^VERSION_CODE=203900634$' version.properties
+          grep -q '^VERSION_CODE=203900635$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
           grep -q '^BACKUP_FORMAT=21$' version.properties
       - name: Upload Android QA build
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6.6.71_ATLAS_SINGLE_IMPORT_QA
+          name: BRASEIRO_DND_6.6.72_ATLAS_INSTALLATION_QA
           path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error

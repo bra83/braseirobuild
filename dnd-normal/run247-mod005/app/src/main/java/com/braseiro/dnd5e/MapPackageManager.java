@@ -116,6 +116,8 @@ public final class MapPackageManager {
                 File staging = null;
                 File finalDirectory = null;
                 String packageId = "";
+                boolean createdPackage=false;
+                boolean verifiedPackage=false;
                 String stage = "abrir o ZIP";
                 try {
                     progress(callback, "Abrindo pacote ZIP", 0, 8);
@@ -178,7 +180,17 @@ public final class MapPackageManager {
                             || (atlasProfile != null && AtlasMigrationEngine.sourceDeclaredForTarget(migrationProfiles, previousPackage.optString("map_package_id",previousPackage.optString("package_id",previous.optString("map_package_id",""))), previous.optString("coordinate_frame_id",previousPackage.optString("coordinate_frame_id","")), atlasProfile.mapPackageId, atlasProfile.coordinateFrameId))
                             || (previous.optString("current_hex_id", "").trim().length() > 0 && geometry != null && geometry.byId(previous.optString("current_hex_id")) != null);
                     packageId = atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis();
-                    if (atlasProfile != null && appDb.getMapPackageAny(packageId).length() > 0) appDb.deleteMapPackage(packageId);
+                    if (atlasProfile != null && appDb.getMapPackageAny(packageId).length() > 0) {
+                        if(appDb.isAtlasContractPackage(packageId)&&appDb.isMapPackageUsable(packageId)){
+                            JSONObject ready=appDb.getMapPackageAny(packageId);
+                            if(!packageId.equals(previous.optString("map_package_id")))appDb.rebindReadyAtlasPackage(worldProfile,packageId);
+                            JSONObject active=appDb.getMapStateForProfile(worldProfile);
+                            deleteDirectory(staging);staging=null;
+                            if(callback!=null)callback.onSuccess(new ImportResult(packageId,mapId,worldProfile,ready.optString("label"),ready.optString("image_uri"),ready.optString("overlay_uri"),ready.optString("vector_overlay_uri",ready.optString("vector_overlay_gzip_uri")),ready.optString("hex_index_uri"),ready.optString("overlay_mode","dynamic"),ready.optString("manifest_json"),active.optString("current_hex_id"),(float)active.optDouble("token_x",.5),(float)active.optDouble("token_y",.5),ready.optInt("hex_count"),ready.optInt("location_count")));
+                            return;
+                        }
+                        appDb.deleteMapPackage(packageId);
+                    }
                     finalDirectory = new File(context.getFilesDir(), "maps/" + safeName(packageId) + "_" + System.currentTimeMillis());
                     if (finalDirectory.exists()) deleteDirectory(finalDirectory);
                     if (!staging.renameTo(finalDirectory)) {
@@ -232,6 +244,7 @@ public final class MapPackageManager {
                     packageValues.put("imported_at", System.currentTimeMillis());
                     packageValues.put("ready", 0);
                     db.insertOrThrow("map_packages", null, packageValues);
+                    createdPackage=true;
 
                     stage = "importar o atlas de hexes";
                     progress(callback, "Importando atlas de hexes", 4, 8);
@@ -240,9 +253,10 @@ public final class MapPackageManager {
                     int hexCount = importAtlas(spec.atlasFile, packageId, expectedHexCount, callback);
                     if (hexCount != expectedHexCount) throw new Exception("Atlas incompleto: " + hexCount + " de " + expectedHexCount + " hexes.");
                     if (atlasProfile != null) {
+                        stage = "validar geometria indexada";
                         geometry = MapManifestGeometry.fromAtlasDatabase(appDb, packageId, atlasProfile);
                         verifyGeometry(geometry);
-                        if (spec.hexIndexFile != null) { requireFile(spec.hexIndexFile, spec.hexIndexFile.getName()); validateHexIndex(spec.hexIndexFile, geometry, callback); }
+                        if (spec.hexIndexFile != null) { stage = "validar identidade e centros do índice"; requireFile(spec.hexIndexFile, spec.hexIndexFile.getName()); validateHexIndex(spec.hexIndexFile, geometry, callback, atlasProfile, manifestRoot.optString("mapId","")); }
                     }
 
                     stage = "importar o catálogo de locais";
@@ -267,8 +281,15 @@ public final class MapPackageManager {
                     ready.put("ready", 1);
                     ready.put("atlas_ready", atlasProfile == null ? 0 : 1);
                     db.update("map_packages", ready, "package_id=?", new String[]{packageId});
-
-                    AtlasMigrationEngine.PositionResolution resolved = atlasProfile == null ? null : AtlasMigrationEngine.resolveCampaignPosition(appDb, previous, previousPackage, atlasProfile, migrationProfiles, packageId, geometry);
+                    verifiedPackage=true;
+                    stage="ativar pacote validado";
+                    AtlasMigrationEngine.PositionResolution resolved = null;
+                    if(atlasProfile!=null)try{
+                        resolved=AtlasMigrationEngine.resolveCampaignPosition(appDb,previous,previousPackage,atlasProfile,migrationProfiles,packageId,geometry);
+                    }catch(Exception migrationError){
+                        AppLog.e("MapPackage","Posição legada pendente; o índice validado não será descartado.",migrationError);
+                        resolved=new AtlasMigrationEngine.PositionResolution("",.5,.5,false,"migration_pending",previous.toString());
+                    }
                     MapManifestGeometry.ManifestHex initial = null;
                     if (atlasProfile == null) {
                         String prevHex = previous.optString("current_hex_id", "").trim();
@@ -293,8 +314,10 @@ public final class MapPackageManager {
                             tokenX, tokenY, savedScale, savedOx, savedOy);
                     if (atlasProfile != null) {
                         appDb.saveAtlasPositionForProfile(worldProfile, packageId, currentHexId, tokenX, tokenY, atlasProfile.coordinateFrameId, resolved == null ? "ready" : resolved.status, resolved == null ? "{}" : resolved.legacyJson);
-                        JSONObject poiMigration = AtlasMigrationEngine.migrateCampaignPois(appDb, atlasProfile, migrationProfiles, packageId);
-                        appDb.addAuditEvent("atlas_migration", "CampaignPoi reconciliados pelo contrato do pacote", poiMigration.toString(), "{}", poiMigration.toString(), true);
+                        try{
+                            JSONObject poiMigration = AtlasMigrationEngine.migrateCampaignPois(appDb, atlasProfile, migrationProfiles, packageId);
+                            appDb.addAuditEvent("atlas_migration", "CampaignPoi reconciliados pelo contrato do pacote", poiMigration.toString(), "{}", poiMigration.toString(), true);
+                        }catch(Exception migrationError){AppLog.e("MapPackage","Migração de POIs pendente; Atlas válido mantido.",migrationError);}
                     }
                     if(sameMap && (resolved == null || "ready".equals(resolved.status) || "ready_identity_reconciled".equals(resolved.status))){String destination=atlasProfile==null&&geometry.byId(previous.optString("destination_hex_id"))!=null?previous.optString("destination_hex_id"):"";appDb.saveMapTravelStateForProfile(worldProfile,previous.optInt("position_locked",0)==1&&currentHexId.length()>0,destination,previous.optString("route_json","[]"),previous.optString("route_owner","Jogador"));}
                     else appDb.saveMapTravelStateForProfile(worldProfile,false,"","[]","Jogador");
@@ -330,9 +353,9 @@ public final class MapPackageManager {
                             manifestJson, currentHexId, tokenX, tokenY, hexCount, locationCount));
                 } catch (Exception e) {
                     AppLog.e("MapPackage", "Falha ao " + stage + ".", e);
-                    if (packageId.length() > 0) try { appDb.deleteMapPackage(packageId); } catch (Exception cleanupError) { AppLog.w("MapPackage", "Falha ao remover pacote incompleto.", cleanupError); }
+                    if (createdPackage&&!verifiedPackage&&packageId.length()>0) try { appDb.deleteMapPackage(packageId); } catch (Exception cleanupError) { AppLog.w("MapPackage", "Falha ao remover pacote incompleto.", cleanupError); }
                     if (staging != null) deleteDirectory(staging);
-                    if (finalDirectory != null) deleteDirectory(finalDirectory);
+                    if (finalDirectory != null&&!verifiedPackage) deleteDirectory(finalDirectory);
                     String detail = e.getMessage() == null ? e.toString() : e.getMessage();
                     if (callback != null) callback.onError("Falha ao " + stage + ": " + detail);
                 }
@@ -410,6 +433,12 @@ public final class MapPackageManager {
     }
 
     private void validateHexIndex(File file, MapManifestGeometry geometry, Callback callback) throws Exception {
+        validateHexIndex(file,geometry,callback,null,"");
+    }
+    static boolean indexIdentityMatches(String actual,String logical,String packageId,String manifestAlias){
+        return actual.isEmpty()||actual.equals(logical)||(!packageId.isEmpty()&&actual.equals(packageId))||(!manifestAlias.isEmpty()&&actual.equals(manifestAlias));
+    }
+    private void validateHexIndex(File file, MapManifestGeometry geometry, Callback callback,AtlasMapProfile profile,String manifestAlias) throws Exception {
         JsonReader reader = new JsonReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8));
         reader.setLenient(true);
         int count = 0;
@@ -444,7 +473,7 @@ public final class MapPackageManager {
         }
         reader.endObject();
         reader.close();
-        if (mapId.length() > 0 && geometry.getMapId().length() > 0 && !mapId.equals(geometry.getMapId())) throw new Exception("hex_index pertence ao mapa " + mapId + ".");
+        if (!indexIdentityMatches(mapId,geometry.getMapId(),profile==null?"":profile.mapPackageId,profile==null?"":manifestAlias)) throw new Exception("hex_index pertence ao mapa " + mapId + "; esperado "+geometry.getMapId()+".");
         if (count != geometry.size()) throw new Exception("hex_index incompleto: " + count + " de " + geometry.size() + " hexes.");
     }
 
