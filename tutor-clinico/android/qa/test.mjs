@@ -1932,3 +1932,5 @@ test('ECO print export requires PIN and current access epoch; private WebViews r
  assert.match(activity,/MIXED_CONTENT_NEVER_ALLOW/);
  assert.match(activity,/hardenPrivateWebView\(printView\)/);
 });
+
+test('ECO responsive network contains all links, complete escaped names and edit scopes',()=>{context.networkResponsiveFixture={id:'resp',ecoNetwork:Array.from({length:55},(_,i)=>({id:'n'+i,name:'Nome <&> '+i+' completo sem truncar',kind:'amizade',relation:'apoio'}))};const markup=js('ecoNetworkResponsiveMap(networkResponsiveFixture)');assert.equal((markup.match(/class="eco-network-node"/g)||[]).length,55);assert.match(markup,/Nome &lt;&amp;&gt; 54 completo sem truncar/);assert.match(markup,/data-id="n54" data-case="resp"/);assert.doesNotMatch(markup,/<svg/);});

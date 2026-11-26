@@ -193,6 +193,36 @@ html[data-theme="dark"] .eco-home-tile:not(.primary) .eco-home-icon{background:#
 @media(max-width:355px){.eco-home-grid{gap:8px}.eco-home-tile{border-radius:17px;padding:8px 5px;gap:4px}.eco-home-icon{width:38px;height:38px}.eco-home-icon svg{width:23px;height:23px}.eco-home-title{font-size:13px}.eco-home-sub{font-size:10px}}
 @media print{.eco-home-grid,.eco-home-pick{display:none}}
 
+
+/* Portrait and landscape: intrinsic widths must never force the app viewport wider. */
+main,#app,.card,.eco-outline,.eco-evidence,.field,.split>*,.row>*,.actions>*,.titleline>*,.eco-case-heading>*,.eco-quickcase>*,.eco-headrow>*,.checklist>*,.modal-content{min-width:0}
+.card,.eco-outline,.eco-evidence,.modal-content,.choice,.chip,.kv,button,summary{overflow-wrap:anywhere}
+input:not([type=checkbox]):not([type=radio]),select,textarea,iframe,img{max-width:100%;min-width:0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+.nav button{min-width:0}
+.tabs button{flex:0 0 auto;overflow-wrap:normal}
+.top-controls{flex-shrink:0}.brand{min-width:0}
+.modal-content{max-height:85vh;max-height:85dvh}
+.eco-network-map{container-type:inline-size;min-width:0;width:100%;margin:14px 0;border:1px solid var(--border);border-radius:14px;padding:12px;background:var(--bg)}
+.eco-network-center{width:max-content;max-width:100%;margin:0 auto;padding:9px 20px;border-radius:999px;background:#165d52;color:#fff;text-align:center;font-weight:750}
+.eco-network-branches{display:grid;grid-template-columns:minmax(0,1fr);gap:0 16px;margin:0;list-style:none;padding:0}
+.eco-network-branch{min-width:0;display:flex;flex-direction:column;align-items:stretch}
+.eco-network-line{height:18px;width:0;border-left:2px solid var(--network-line);align-self:center}
+.eco-network-node{width:100%;min-width:0;max-width:100%;border:2px solid var(--network-line);border-radius:10px;background:var(--paper);color:var(--ink);text-align:left;padding:10px 12px;display:block;white-space:normal}
+.eco-network-node strong,.eco-network-node small{display:block;overflow-wrap:anywhere;white-space:normal}
+.eco-network-node strong{font-size:14px;line-height:1.3}.eco-network-node small{font-size:12px;font-weight:500;color:var(--muted);margin-top:4px}
+.eco-network-branch[data-relation="apoio"]{--network-line:#269e79}
+.eco-network-branch[data-relation="conflito"]{--network-line:#c94f56}
+.eco-network-branch[data-relation="misto"]{--network-line:#b18440}
+.eco-network-branch[data-relation="distante"],.eco-network-branch[data-relation="nao_informado"]{--network-line:#8494a6}
+.eco-network-branch[data-relation="distante"] .eco-network-line,.eco-network-branch[data-relation="nao_informado"] .eco-network-line{border-left-style:dashed}
+@container (min-width:520px){.eco-network-branches{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.eco-genogram-viewport{max-width:100%;min-width:0;overflow:auto;max-height:65vh;border:1px solid var(--border);border-radius:10px}
+.eco-genogram-viewport.fit .eco-genogram-svg{display:block;width:100%;height:auto}
+@media(max-width:430px){.row,.eco-quickcase,.titleline{flex-wrap:wrap}.eco-keyrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 30px;gap:6px}.checklist{grid-template-columns:minmax(0,1fr)}.top{gap:6px}.top-pill{display:none}}
+@media(max-width:355px){.eco-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nav button{font-size:9px}.nav .symbol{font-size:18px}.brand small{letter-spacing:.5px}}
+@media(max-height:480px) and (orientation:landscape){.top{position:relative}.modal-content{padding:14px}.nav{padding-top:3px;padding-bottom:4px}}
+
 </style></head><body><div class="top"><div class="brand"><img class="eco-brand-image" src="{{ECO_APP_ICON}}" alt=""/> ECO<small>Atlas da Escuta · Android</small></div><div class="top-controls"><span class="top-pill">● Offline</span><button type="button" id="themeToggle" data-act="toggleTheme" class="theme-toggle" aria-label="Alternar tema">☾ Escuro</button></div></div><main id="app"><div class="empty"><strong>Protegendo seus registros</strong>Desbloqueie o aplicativo para continuar.</div></main><nav class="nav" id="bottom" aria-label="Navegação"></nav>
 <script>
 'use strict';
@@ -2452,7 +2482,7 @@ function ecoRenderGenogram(c,only='both'){
 
  let out = '<section class="eco-outline"><h2>Genograma Familiar Interativo</h2>'+
    '<p class="eco-caption">Mapeamento visual da dinâmica transgeracional e laços afetivos em grafo real. Nós representam os sujeitos (homem: quadrado; mulher: círculo; sujeito: verde neon) e arestas conectam as relações e vínculos relatados pelo paciente.</p>'+
-   '<div class="actions">'+btn("−","ecoGenZoomOut","secondary")+btn("＋","ecoGenZoomIn","secondary")+btn("Ajustar","ecoGenZoomReset","ghost")+'</div><div style="overflow:auto;max-height:65vh;border:1px solid var(--line);border-radius:10px">'+svgContent+'</div><p class="small muted">□ Masculino · ○ Feminino · símbolo neutro: não informado. Filiação por linhas ortogonais; vínculos afetivos por cores e traços.</p>';
+   '<div class="actions">'+btn("−","ecoGenZoomOut","secondary")+btn("＋","ecoGenZoomIn","secondary")+btn("Ajustar","ecoGenZoomReset","ghost")+'</div><div class="eco-genogram-viewport'+(ecoGenZoom===1?' fit':'')+'">'+svgContent+'</div><p class="small muted">□ Masculino · ○ Feminino · símbolo neutro: não informado. Filiação por linhas ortogonais; vínculos afetivos por cores e traços.</p>';
 
  if(members.length){
    out += '<h3>Membros cadastrados ('+members.length+')</h3><div class="checklist">';
@@ -3960,12 +3990,22 @@ function ecoNetworkSvg(c){
  const colors={apoio:'#269e79',conflito:'#c94f56',distante:'#8494a6',misto:'#b18440',nao_informado:'#8494a6'};
  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="720" height="'+h+'" role="img" aria-label="Mapa de vínculos relatados"><rect x="1" y="1" width="'+(w-2)+'" height="'+(h-2)+'" rx="14" fill="#f4f7f6" stroke="#d5dedb"/>'+pos.map(({x,y,px})=>'<path d="M'+cx+' '+cy+' L'+px+' '+y+'" fill="none" stroke="'+(colors[x.relation]||colors.nao_informado)+'" stroke-width="2" '+(x.relation==='distante'||x.relation==='nao_informado'?'stroke-dasharray="5 4"':'')+'/>').join('')+'<circle cx="'+cx+'" cy="'+cy+'" r="51" fill="#165d52"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" fill="white" font-size="14">Paciente</text>'+pos.map(({x,y,px})=>'<rect x="'+(px-114)+'" y="'+(y-21)+'" width="228" height="42" rx="8" fill="#fff" stroke="'+(colors[x.relation]||colors.nao_informado)+'"/><text x="'+px+'" y="'+(y-3)+'" text-anchor="middle" font-size="13" fill="#182b27">'+esc(String(x.name||'').slice(0,31))+'</text><text x="'+px+'" y="'+(y+12)+'" text-anchor="middle" font-size="10" fill="#465c58">'+esc(ecoNetworkKinds.find(k=>k[0]===x.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===x.relation)?.[1]||'Não informado')+'</text>').join('')+'</svg>';
 }
+// Screen layout is fluid; the existing SVG remains the print representation.
+function ecoNetworkResponsiveMap(c){
+ const rows=ecoNetworkRows(c);
+ if(!rows.length)return '<div class="eco-network-map"><div class="eco-network-center">Paciente</div><p class="small muted" style="text-align:center">Nenhum vínculo registrado. Adicione uma pessoa ou grupo abaixo.</p></div>';
+ return '<div class="eco-network-map" role="group" aria-label="Mapa de vínculos relatados"><div class="eco-network-center">Paciente</div><ul class="eco-network-branches">'+rows.map(x=>{
+  const relation=ecoNetworkRelations.some(k=>k[0]===x.relation)?x.relation:'nao_informado';
+  const kind=ecoNetworkKinds.find(k=>k[0]===x.kind)?.[1]||'Outros',label=ecoNetworkRelations.find(k=>k[0]===relation)[1];
+  return '<li class="eco-network-branch" data-relation="'+esc(relation)+'"><span class="eco-network-line" aria-hidden="true"></span><button type="button" class="eco-network-node" data-act="ecoNetworkEdit" data-id="'+esc(x.id)+'" data-case="'+esc(c.id)+'"><strong>'+esc(x.name||'Sem nome')+'</strong><small>'+esc(kind+' · '+label)+'</small></button></li>';
+ }).join('')+'</ul></div>';
+}
 let ecoNetworkEdit=null;
 function ecoNetworkPanel(c){
  const rows=ecoNetworkRows(c),x=ecoNetworkEdit?.caseId===c.id?rows.find(r=>r.id===ecoNetworkEdit.id):null;
  const opt=(values,selected)=>values.map(([k,l])=>'<option value="'+esc(k)+'" '+(k===selected?'selected':'')+'>'+esc(l)+'</option>').join('');
  const sources=(c.ecoReviewRecords||[]).filter(r=>r.type==='vinculos'&&ecoReviewValid(c,r));
- return '<section class="card"><h2>Mapa da rede social e afetiva</h2><p class="small muted">Pessoas, grupos e vínculos relatados, separados do parentesco do genograma. O mapa não mede intensidade psicológica nem presume relações.</p>'+btn('Buscar vínculos com IA local','ecoReviewOpen','secondary','data-id="vinculos" data-case="'+esc(c.id)+'"')+'<div style="overflow:auto;max-height:60vh">'+ecoNetworkSvg(c)+'</div>'+(rows.length>48?'<p>Primeiros 48 vínculos no diagrama; todos na lista.</p>':'')+'<p class="small">Verde: apoio · vermelho: conflito · ocre: misto · cinza tracejado: distante ou desconhecido.</p>'+rows.map(r=>'<div class="eco-evidence"><strong>'+esc(r.name)+'</strong><p>'+esc(ecoNetworkKinds.find(k=>k[0]===r.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===r.relation)?.[1]||'Não informado')+'</p><p>'+esc(r.notes||'')+'</p><small>'+esc(ecoNetworkSource(c,r))+'</small><div class="actions">'+btn('Editar','ecoNetworkEdit','secondary','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+btn('Excluir','ecoNetworkDelete','ghost','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+'</div></div>').join('')+'<h3>'+(x?'Editar vínculo':'Registrar vínculo')+'</h3><div class="field"><label>Nome, iniciais ou grupo</label><input id="ecoNetName" maxlength="150" value="'+esc(x?.name||'')+'"></div><div class="field"><label>Contexto</label><select id="ecoNetKind">'+opt(ecoNetworkKinds,x?.kind)+'</select></div><div class="field"><label>Vínculo relatado</label><select id="ecoNetRelation">'+opt(ecoNetworkRelations,x?.relation||'nao_informado')+'</select></div><div class="field"><label>Fonte confirmada (opcional)</label><select id="ecoNetSource"><option value="">Sem fonte</option>'+sources.map(r=>'<option value="'+esc(r.id)+'" '+(r.id===x?.sourceId?'selected':'')+'>'+esc(formatDate(r.sessionDate)+' · '+r.quote.slice(0,100))+'</option>').join('')+'</select></div><div class="field"><label>Observações profissionais</label><textarea id="ecoNetNotes">'+esc(x?.notes||'')+'</textarea></div>'+btn('Salvar vínculo','ecoNetworkSave','','data-case="'+esc(c.id)+'"')+(x?btn('Cancelar edição','ecoNetworkCancel','secondary','data-case="'+esc(c.id)+'"'):'')+'</section>';
+ return '<section class="card"><h2>Mapa da rede social e afetiva</h2><p class="small muted">Pessoas, grupos e vínculos relatados, separados do parentesco do genograma. O mapa não mede intensidade psicológica nem presume relações.</p>'+btn('Buscar vínculos com IA local','ecoReviewOpen','secondary','data-id="vinculos" data-case="'+esc(c.id)+'"')+ecoNetworkResponsiveMap(c)+'<p class="small muted">Toque em qualquer vínculo para editar. O mapa apresenta todos os '+rows.length+' vínculos cadastrados.</p>'+'<p class="small">Verde: apoio · vermelho: conflito · ocre: misto · cinza tracejado: distante ou desconhecido.</p>'+rows.map(r=>'<div class="eco-evidence"><strong>'+esc(r.name)+'</strong><p>'+esc(ecoNetworkKinds.find(k=>k[0]===r.kind)?.[1]||'Outros')+' · '+esc(ecoNetworkRelations.find(k=>k[0]===r.relation)?.[1]||'Não informado')+'</p><p>'+esc(r.notes||'')+'</p><small>'+esc(ecoNetworkSource(c,r))+'</small><div class="actions">'+btn('Editar','ecoNetworkEdit','secondary','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+btn('Excluir','ecoNetworkDelete','ghost','data-id="'+esc(r.id)+'" data-case="'+esc(c.id)+'"')+'</div></div>').join('')+'<h3>'+(x?'Editar vínculo':'Registrar vínculo')+'</h3><div class="field"><label>Nome, iniciais ou grupo</label><input id="ecoNetName" maxlength="150" value="'+esc(x?.name||'')+'"></div><div class="field"><label>Contexto</label><select id="ecoNetKind">'+opt(ecoNetworkKinds,x?.kind)+'</select></div><div class="field"><label>Vínculo relatado</label><select id="ecoNetRelation">'+opt(ecoNetworkRelations,x?.relation||'nao_informado')+'</select></div><div class="field"><label>Fonte confirmada (opcional)</label><select id="ecoNetSource"><option value="">Sem fonte</option>'+sources.map(r=>'<option value="'+esc(r.id)+'" '+(r.id===x?.sourceId?'selected':'')+'>'+esc(formatDate(r.sessionDate)+' · '+r.quote.slice(0,100))+'</option>').join('')+'</select></div><div class="field"><label>Observações profissionais</label><textarea id="ecoNetNotes">'+esc(x?.notes||'')+'</textarea></div>'+btn('Salvar vínculo','ecoNetworkSave','','data-case="'+esc(c.id)+'"')+(x?btn('Cancelar edição','ecoNetworkCancel','secondary','data-case="'+esc(c.id)+'"'):'')+'</section>';
 }
 function ecoNetworkAction(c,name,id){
  if(name==='ecoNetworkEdit'){ecoNetworkEdit={caseId:c.id,id};render();return;}

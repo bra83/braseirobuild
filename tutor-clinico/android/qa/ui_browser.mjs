@@ -333,6 +333,54 @@ try{
  await page.evaluate(()=>{ecoPagedField='mlTranscricao';ecoPagedShow('text');});
  assert.equal(await page.locator('#ecoPagedEdit').count(),0);
  await page.evaluate(()=>{ecoLargeVaultMode=false;closeModal();});
+ // Responsive audit: actual DOM across every home destination and every case module.
+ const layoutReport=[];
+ const routes=await page.evaluate(()=>({home:ecoHomeModules.map(x=>[x[0],x[4]]),case:["sintese","atendimento","fichaEvolutiva","sessoes","assistenteIA","perspectivas","compararRelatos","revisaoInteligente","analisar","anamnese","enquadre","investigar","tecnicas","sonhos","genograma","rede","cronologia","documentos","diario","seguranca"]}));
+ const fixtureNames=Array.from({length:54},(_,i)=>'Vínculo fictício '+(i+1)+' — '+(i===0?'NomeComComprimentoExtremo'.repeat(4):'contexto relatado em atendimento'));
+ await page.evaluate(names=>{const c=state.cases.find(x=>x.id==='browser-b');c.ecoNetwork=names.map((name,i)=>({id:'responsive-net-'+i,name,kind:['familia','amizade','trabalho','comunidade','cuidado','outro'][i%6],relation:['apoio','conflito','misto','distante','nao_informado'][i%5],notes:'Observação sintética.'}));},fixtureNames);
+ const measure=async(label)=>{
+  const m=await page.evaluate(()=>{
+   const root=document.documentElement;
+   const overflow=[];
+   for(const el of document.querySelectorAll('#app input:not([type=checkbox]):not([type=radio]),#app select,#app textarea,#app .eco-network-node,#app .eco-module-card,#app .eco-home-tile')){
+    if(!el.getClientRects().length)continue;
+    const r=el.getBoundingClientRect();
+    if(r.width>0&&(r.left<-2||r.right>innerWidth+2))overflow.push({id:el.id||el.className,left:Math.round(r.left),right:Math.round(r.right)});
+   }
+   return {width:innerWidth,documentWidth:root.scrollWidth,overflow};
+  });
+  layoutReport.push({label,...m});
+  assert.ok(m.documentWidth<=m.width+2,label+' document horizontal overflow: '+JSON.stringify(m));
+  assert.deepEqual(m.overflow,[],label+' off-screen controls');
+ };
+ for(const [width,height] of [[320,740],[360,800],[393,852],[415,915],[852,393]]){
+  await page.setViewportSize({width,height});
+  for(const theme of ['light','dark']){
+   if(await page.locator('html').getAttribute('data-theme')!==theme)await page.locator('#themeToggle').click();
+   for(const [id,route] of routes.home){
+    await page.evaluate(()=>act('nav','home'));await tile(id).click();
+    if(route==='case'||route==='manual')await page.locator('.eco-home-pick [data-id="browser-b"]').click();
+    await measure(width+'x'+height+'/'+theme+'/home:'+id);
+   }
+   for(const id of routes.case){
+    await page.evaluate(id=>{act('openCase','browser-b');act('caseTab',id);},id);
+    await measure(width+'x'+height+'/'+theme+'/case:'+id);
+    if(id==='rede'){
+     const nodes=page.locator('.eco-network-node');assert.equal(await nodes.count(),54);
+     assert.equal(await nodes.first().locator('strong').textContent(),fixtureNames[0]);
+     const clipping=await nodes.evaluateAll(ns=>ns.filter(n=>n.scrollWidth>n.clientWidth+2||n.scrollHeight>n.clientHeight+2).length);assert.equal(clipping,0);
+     const branches=await page.locator('.eco-network-branches').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
+     assert.equal(branches,width>=852?2:1);
+     if(width===393||width===852)await page.screenshot({path:path.join(out,'rede-'+width+'-'+theme+'.png')});
+    }
+   }
+  }
+ }
+ await page.evaluate(()=>{act('openCase','browser-b');act('caseTab','rede');});
+ await page.locator('.eco-network-node').first().click();
+ assert.equal(await page.locator('#ecoNetName').inputValue(),fixtureNames[0]); // full label preserved in the map
+ fs.writeFileSync(path.join(out,'responsive-audit.json'),JSON.stringify(layoutReport,null,2));
+ console.log('PASS responsive audit: '+layoutReport.length+' route/viewport/theme checks');
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
