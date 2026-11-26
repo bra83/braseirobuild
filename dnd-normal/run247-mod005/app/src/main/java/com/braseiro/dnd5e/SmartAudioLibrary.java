@@ -665,10 +665,13 @@ public final class SmartAudioLibrary {
     public synchronized JSONObject resolveClimateForWeather(String weather,String environment){
         String kind=canonicalClimateKind(weather);
         if(kind.isEmpty())return null;
-        return resolveClimate(kind+" "+(environment==null?"":environment));
+        String safeEnvironment=normalize(environment==null?"":environment);
+        // Reject any weather vocabulary in a proposed environment; it cannot override the canonical kind.
+        if(!canonicalClimateKind(safeEnvironment).isEmpty())safeEnvironment="";
+        return resolveClimate(kind+" "+safeEnvironment);
     }
 
-    private static boolean climateCompatible(JSONObject sound,String query){
+    private boolean climateCompatible(JSONObject sound,String query){
         String required=canonicalClimateKind(query);
         String actual=canonicalClimateKind(sound.optString("weather",""));
         if(actual.isEmpty())actual=canonicalClimateKind(soundCorpus(sound));
