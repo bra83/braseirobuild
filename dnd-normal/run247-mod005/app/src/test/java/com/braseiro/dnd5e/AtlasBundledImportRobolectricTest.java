@@ -23,6 +23,16 @@ public final class AtlasBundledImportRobolectricTest {
         assertTrue(MapPackageManager.indexIdentityMatches("legacy-index","forgotten_realms:faerun","faerun-v2","legacy-index"));
         assertFalse(MapPackageManager.indexIdentityMatches("mystara","forgotten_realms:faerun","faerun-v2","legacy-index"));
     }
+    @Test public void profileReferenceMatchesFlattenedZipExtraction() throws Exception {
+        File dir=java.nio.file.Files.createTempDirectory("atlas-profile").toFile();
+        File profile=new File(dir,"atlas_map_profile_v1.json");
+        try {
+            assertTrue(profile.createNewFile());
+            org.json.JSONObject root=new org.json.JSONObject().put("dataFiles",
+                new org.json.JSONObject().put("atlasMapProfile","metadata/atlas_map_profile_v1.json"));
+            assertEquals(profile,MapPackageManager.resolveAtlasProfileFile(dir,root));
+        } finally { profile.delete();dir.delete(); }
+    }
     @Test public void realBundledAtlasImportsAndReopens() throws Exception {
         Context ctx=RuntimeEnvironment.getApplication();
         String dbName="atlas-real-"+System.nanoTime()+".db";
@@ -48,7 +58,7 @@ public final class AtlasBundledImportRobolectricTest {
             assertNull(failure.get(),failure.get());
             assertNotNull(result.get());
             String id=result.get().packageId;
-            assertTrue(db.isAtlasContractPackage(id));
+            assertTrue("Atlas ausente ou não reconhecido: "+id+" / "+db.getMapPackageAny(id).optInt("atlas_ready",-1),db.isAtlasContractPackage(id));
             assertEquals(id,db.getMapState().optString("map_package_id"));
             assertTrue(db.isValidMapHex(id,"DO40"));
             db.close();

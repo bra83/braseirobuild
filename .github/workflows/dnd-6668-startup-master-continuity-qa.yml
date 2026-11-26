@@ -51,6 +51,20 @@ jobs:
             --tests com.braseiro.dnd5e.AdventureContinuityPersistenceTest \
             --tests com.braseiro.dnd5e.IndependentOfflineRecoveryRobolectricTest \
             --no-daemon --console=plain
+      - name: Show failed regression details
+        if: failure()
+        working-directory: dnd-normal/run247-mod005
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          for file in glob.glob('app/build/test-results/testDebugUnitTest/TEST-*.xml'):
+              for case in ET.parse(file).iter('testcase'):
+                  failure = case.find('failure')
+                  if failure is not None:
+                      print(case.attrib.get('classname'), case.attrib.get('name'))
+                      print(failure.attrib.get('message', ''), (failure.text or '')[:6000])
+          PY
       - name: Assemble Android candidate
         working-directory: dnd-normal/run247-mod005
         shell: bash
