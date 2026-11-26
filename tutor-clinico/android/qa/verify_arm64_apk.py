@@ -51,6 +51,16 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert osd_gate["fixtures"]["silence"]["frames_at_065"]==0
     assert b"MIT License" in z.read("assets/overlap/license.txt")
     assert z.getinfo("assets/overlap/attribution.txt").file_size>0
+    sep=z.getinfo("assets/separation/model.onnx")
+    assert sep.compress_type==zipfile.ZIP_STORED
+    assert hashlib.sha256(z.read(sep)).hexdigest()=="3fa85c7bb2537ced4bb7acb2ea91255c7d6b222fd3d0fae5088e8a3999a963fd"
+    sg=json.loads(z.read("assets/separation/gate.txt"))
+    assert sg["sha256"]=="3fa85c7bb2537ced4bb7acb2ea91255c7d6b222fd3d0fae5088e8a3999a963fd"
+    assert sg["synthetic_separation_gate"] is True and sg["clinical_validation"] is False
+    assert len(sg["fixtures"])>=2 and all(min(f["improvement_db"])>0 and sum(f["improvement_db"])/2>=2 for f in sg["fixtures"])
+    assert sg["distinct_asr_pairs"]>=1
+    assert b"Attribution-ShareAlike 4.0" in z.read("assets/separation/license.txt")
+    assert z.getinfo("assets/separation/attribution.txt").file_size>0
     exe="lib/arm64-v8a/libeco_generate.so"
     assert exe in libs
     with z.open(exe) as f: elf=f.read(64)

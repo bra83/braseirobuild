@@ -1804,3 +1804,11 @@ test('ECO large-vault edits require exact scope and explicit confirmation',()=>{
  assert.match(store,/retainRevision\(db,"session",caseId,sessionId,old\)/);
  assert.match(store,/revision\.equals\(EcoDatabaseHelper\.computeChecksum/);
 });
+
+test('ECO separated neural candidates stay outside original transcript and anonymous in review',()=>{
+ const result=js("ecoMergeNativeAudio({mlSegments:[{id:'raw',text:'MISTURA',speaker:'desconhecido'}],mlSeparatedCandidates:[{id:'raw_separada_a',text:'A',cluster:'separada_a'}]},{mlSegments:[],mlSeparatedCandidates:[{id:'raw_separada_b',text:'B',cluster:'separada_b'}]})");
+ assert.equal(result.mlTranscricao,'MISTURA');
+ assert.equal(result.mlSegments.length,1);assert.equal(result.mlSeparatedCandidates.length,2);
+ assert.match(html,/Conv-TasNet separa duas trilhas/);
+ assert.match(html,/Hipóteses não entram na transcrição original/);
+});

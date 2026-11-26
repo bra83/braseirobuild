@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib,json,subprocess,tempfile,wave,itertools
 import numpy as np
 import onnxruntime as ort
+from vosk import Model, KaldiRecognizer, SetLogLevel
 ROOT=Path("app/src/main/assets/separation")
 ROOT.mkdir(parents=True,exist_ok=True)
 SHA="3fa85c7bb2537ced4bb7acb2ea91255c7d6b222fd3d0fae5088e8a3999a963fd"
@@ -36,7 +37,22 @@ def predict(x):
     y=session.run(None,{"mixture":x.astype(np.float32)[None,:]})[0]
     assert y.shape[:2]==(1,2) and y.shape[2]>=len(x) and np.isfinite(y).all()
     return y[0,:,:len(x)]
+SetLogLevel(-1)
+asr=Model("app/src/main/assets/model-pt")
+def transcribe(track):
+    rms=float(np.sqrt(np.mean(track**2)))
+    peak=float(np.max(np.abs(track)))
+    if rms<0.001 or peak<0.005:return ""
+    gain=min(4,0.95/peak)
+    pcm=(np.clip(track*gain,-1,0.99997)*32768).astype("<i2").tobytes()
+    rec=KaldiRecognizer(asr,16000)
+    pieces=[]
+    for i in range(0,len(pcm),8000):
+        if rec.AcceptWaveform(pcm[i:i+8000]):pieces.append(json.loads(rec.Result()).get("text",""))
+    pieces.append(json.loads(rec.FinalResult()).get("text",""))
+    return " ".join(p for p in pieces if p).strip()
 metrics=[]
+distinct_pairs=0
 for voice_a,voice_b,text_a,text_b,n in [
     ("pt-br+m3","pt-br+f3","Hoje eu trouxe um texto para testar a separação de vozes.","A segunda voz fala junto durante este teste de áudio.",80000),
     ("pt-br+m2","pt-br+f2","O livro está sobre a mesa da sala.","A janela está aberta e o vento sopra.",64000)]:
@@ -47,9 +63,14 @@ for voice_a,voice_b,text_a,text_b,n in [
     scores=max(([sisdr(y[i],a),sisdr(y[j],b)] for i,j in [(0,1),(1,0)]),key=sum)
     improvement=[scores[k]-baseline[k] for k in range(2)]
     metrics.append({"samples":n,"mixture_si_sdr":baseline,"separated_si_sdr":scores,"improvement_db":improvement})
+    transcripts=[transcribe(track) for track in y]
+    metrics[-1]["separated_asr"]=transcripts
+    metrics[-1]["mixture_asr"]=transcribe(x)
+    if all(transcripts) and transcripts[0]!=transcripts[1]:distinct_pairs+=1
     assert not np.allclose(y[0],y[1]),"Duplicated tracks"
     assert min(improvement)>0 and sum(improvement)/2>=2.0,("Separation did not improve both clean references",metrics[-1])
 assert np.isfinite(predict(np.zeros(16000,np.float32))).all()
-gate={"sha256":SHA,"contract":"1xT -> 1x2xT","fixtures":metrics,"synthetic_separation_gate":True,"clinical_validation":False}
+assert distinct_pairs>=1, "No distinct nonempty Vosk transcripts from separated tracks"
+gate={"distinct_asr_pairs":distinct_pairs,"sha256":SHA,"contract":"1xT -> 1x2xT","fixtures":metrics,"synthetic_separation_gate":True,"clinical_validation":False}
 (ROOT/"gate.txt").write_text(json.dumps(gate,indent=2))
 print("PASS Conv-TasNet actual two-source inference and SI-SDR improvement:",json.dumps(metrics),flush=True)

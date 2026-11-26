@@ -647,4 +647,36 @@ public class EcoIntegratedPersistenceTest {
         store.getDbHelper().close();
     }
 
+    @Test public void simultaneousNeuralTracksStayDistinctAndOutsideOriginalClinicalTranscript() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject a=caseWith("sep-a",""),b=caseWith("sep-b","OUTRO");
+        store.save(new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray()).toString());
+        EcoDatabaseHelper db=store.getDbHelper();
+        db.createJob("sep-job","sep-a","sep-a-s","",null);
+        assertTrue(db.commitSegment("sep-job","sep-a","sep-a-s",0,4000,"sobreposicao","MISTURA ORIGINAL",null));
+        assertTrue(db.commitSegment("sep-job","sep-a","sep-a-s",0,4000,"separada_a","HIPOTESE A",null));
+        assertTrue(db.commitSegment("sep-job","sep-a","sep-a-s",0,4000,"separada_b","HIPOTESE B",null));
+        assertTrue(db.commitSegment("sep-job","sep-a","sep-a-s",0,4000,"separada_a","HIPOTESE A",null));
+        assertFalse(db.commitSegment("sep-job","sep-a","sep-a-s",0,4000,"separada_a","TEXTO DIFERENTE",null));
+        assertFalse(db.confirmSpeaker("sep-job_0_4000_separada_a","sep-a","sep-a-s","paciente"));
+        assertEquals(3,db.verifiedPrefixIds("sep-job",4000).size());
+        assertTrue(db.markJobDecoded("sep-job",3,1));assertTrue(db.acknowledgePersistence("sep-job"));
+        JSONObject current=byId(new JSONObject(store.read()),"sep-a").getJSONArray("sessoes").getJSONObject(0);
+        assertEquals("MISTURA ORIGINAL",current.getString("mlTranscricao"));
+        assertEquals(1,current.getJSONArray("mlSegments").length());
+        JSONArray candidates=current.getJSONArray("mlSeparatedCandidates");assertEquals(2,candidates.length());
+        assertEquals("desconhecido",candidates.getJSONObject(0).getString("speaker"));
+        assertFalse(byId(new JSONObject(store.read()),"sep-b").getJSONArray("sessoes").getJSONObject(0).has("mlSeparatedCandidates"));
+        java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();char[] pass="sep-fixture-123456".toCharArray();
+        store.exportFullVault(out,pass,false,()->true);
+        db.close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        byte[] secondKey=new byte[32];secondKey[0]=1;
+        store=new SecureStore(context,new SecretKeySpec(secondKey,"AES"));
+        store.restoreFullVault(new java.io.ByteArrayInputStream(out.toByteArray()),pass,()->true);
+        JSONObject restored=byId(new JSONObject(store.read()),"sep-a").getJSONArray("sessoes").getJSONObject(0);
+        assertEquals("MISTURA ORIGINAL",restored.getString("mlTranscricao"));assertEquals(2,restored.getJSONArray("mlSeparatedCandidates").length());
+        store.getDbHelper().close();java.util.Arrays.fill(pass,(char)0);
+    }
+
 }
