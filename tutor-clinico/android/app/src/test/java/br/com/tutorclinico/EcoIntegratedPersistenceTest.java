@@ -663,6 +663,33 @@ public class EcoIntegratedPersistenceTest {
         store.getDbHelper().close();
     }
 
+    @Test public void pagedRecordsRetainSourceAndBlockConflictingDrafts() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject a=caseWith("record-a","A"),b=caseWith("record-b","B");
+        JSONArray dreams=new JSONArray();
+        for(int i=0;i<23;i++)dreams.put(new JSONObject().put("id","dream-"+i).put("texto","FONTE "+i).put("associacoes","ANTES").put("originalQuote","LITERAL "+i).put("sessionId","record-a-s"));
+        a.put("sonhosList",dreams);
+        b.put("sonhosList",new JSONArray().put(new JSONObject().put("id","other-dream").put("associacoes","OUTRO")));
+        store.save(new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray()).toString());
+        JSONObject list=store.caseModulePage("record-a","sonhosList",0);
+        assertEquals(20,list.getJSONArray("records").length());assertEquals(20,list.getInt("next"));
+        assertEquals(3,store.caseModulePage("record-a","sonhosList",20).getJSONArray("records").length());
+        JSONObject page=store.caseModulePage("record-a","sonhosList.dream-0.associacoes",0);
+        store.editCaseModulePage("record-a","sonhosList.dream-0.associacoes",0,5,page.getString("revision"),"NOVO");
+        JSONObject saved=new JSONObject(store.caseModulePage("record-a","sonhosList.dream-0",0).getString("text"));
+        assertEquals("NOVO",saved.getString("associacoes"));assertEquals("FONTE 0",saved.getString("texto"));assertEquals("LITERAL 0",saved.getString("originalQuote"));
+        try{store.caseModulePage("record-b","sonhosList.dream-0.associacoes",0);fail("cross case");}catch(SecurityException expected){}
+        try{store.caseModulePage("record-a","sonhosList.dream-0.originalQuote",0);fail("source field");}catch(SecurityException expected){}
+        JSONObject safety=store.caseModulePage("record-a","seguranca.plano",0);
+        store.editCaseModulePage("record-a","seguranca.plano",0,0,safety.getString("revision"),"PLANO FICTÍCIO");
+        assertEquals("PLANO FICTÍCIO",store.caseModulePage("record-a","seguranca.plano",0).getString("text"));
+        store.saveClinicalDraft("record-a","sonhos",new JSONObject().put("caseId","record-a").put("kind","sonhos").put("id","draft-1").put("fields",new JSONObject().put("texto","novo")).put("base",new JSONObject().put("texto","antigo")).toString());
+        page=store.caseModulePage("record-a","sonhosList.dream-0.associacoes",0);
+        try{store.editCaseModulePage("record-a","sonhosList.dream-0.associacoes",0,4,page.getString("revision"),"NÃO");fail("draft conflict");}catch(IllegalStateException expected){}
+        store.getDbHelper().close();
+    }
+
     @Test public void scopedPageEditingPreservesOriginalAndHistoryAndRejectsStaleWrites() throws Exception {
         Context context=RuntimeEnvironment.getApplication();
         SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));

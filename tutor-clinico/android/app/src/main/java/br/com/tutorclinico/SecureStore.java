@@ -268,7 +268,47 @@ final class SecureStore {
     private static final java.util.Set<String> ANAMNESE_FIELDS=new java.util.HashSet<>(java.util.Arrays.asList("nomeSocial","generoPronomes","profissaoOcupacao","escolaridade","estadoCivil","queixaDetalhada","expectativas","experienciasAnteriores","nascimentoPrimeirosAnos","infanciaEscola","adolescenciaCrises","figuraMaterna","figuraPaterna","irmaosParentes","mitosSegredos","parceriasAfetivas","amizadesConvivio","padroesVinculo","sexualidadeRelatada","dificuldadesIntimidade","ambienteTrabalho","rotinaPressao","saudeFisica","medicacoesUso","substanciasUso","padroesSono","apetiteRitmos","sintomasSomaticos","lutosSignificativos","recursosEnfrentamento","redeApoioEfetiva"));
     private static final java.util.Set<String> ENQUADRE_FIELDS=new java.util.HashSet<>(java.util.Arrays.asList("frequencia","duracao","modalidade","honorarios","limites","ferias","expectativas"));
     private static boolean editableCaseField(String module,String key){
+         if("seguranca".equals(module))return java.util.Arrays.asList("preocupacoes","avaliacao","plano","contatos","encaminhamentos").contains(key);
+        if("ecoPreparation".equals(module))return java.util.Arrays.asList("goals","questions","logistics").contains(key);
         return ("anamnese".equals(module)&&ANAMNESE_FIELDS.contains(key))||("enquadre".equals(module)&&ENQUADRE_FIELDS.contains(key));
+    }
+    private static boolean recordModule(String module){
+        return java.util.Arrays.asList("sonhosList","cronologia","hipotesesList","intervencoesList","ecoNetwork").contains(module);
+    }
+    private static boolean editableRecordField(String module,String key){
+        if("sonhosList".equals(module))return java.util.Arrays.asList("lugares","personagens","afetos","associacoes","hipotese").contains(key);
+        if("cronologia".equals(module))return java.util.Arrays.asList("descricao","envolvidos","impacto").contains(key);
+        if("hipotesesList".equals(module))return java.util.Arrays.asList("favoraveis","contrarias","alternativas").contains(key);
+        if("intervencoesList".equals(module))return java.util.Arrays.asList("contexto","resposta","efeito").contains(key);
+        if("ecoNetwork".equals(module))return java.util.Arrays.asList("notes").contains(key);
+        return false;
+    }
+    private static JSONArray recordRows(JSONObject record,String module)throws Exception{
+        Object raw=record.opt(module);
+        if(raw==null||raw==JSONObject.NULL)return new JSONArray();
+        if(!(raw instanceof JSONArray))throw new SecurityException("Coleção inválida");
+        return (JSONArray)raw;
+    }
+    private static JSONObject findModuleRecord(JSONObject record,String module,String id)throws Exception{
+        if(!recordModule(module)||id.isEmpty()||id.length()>200)throw new SecurityException("Registro inválido");
+        JSONObject found=null;JSONArray rows=recordRows(record,module);
+        for(int i=0;i<rows.length();i++){
+            JSONObject row=rows.getJSONObject(i);
+            if(id.equals(row.optString("id"))){if(found!=null)throw new SecurityException("Identificador duplicado");found=row;}
+        }
+        if(found==null)throw new SecurityException("Registro não localizado neste caso");
+        return found;
+    }
+    private static String textField(JSONObject form,String key)throws Exception{
+        Object item=form.opt(key);
+        if(item!=null&&item!=JSONObject.NULL&&!(item instanceof String))throw new SecurityException("Campo não textual");
+        return item==null||item==JSONObject.NULL?"":(String)item;
+    }
+    // Block an edit if any durable clinical draft for this case is waiting.
+    private boolean caseHasClinicalDraft(SQLiteDatabase db,String caseId){
+        try(Cursor c=db.query("configuracoes",new String[]{"chave"},"substr(chave,1,15)='clinical_draft:' AND substr(chave,-?)=?",new String[]{Integer.toString(caseId.length()+1),":"+caseId},null,null,null,"1")){
+            return c.moveToFirst();
+        }
     }
     private byte[] casePayload(SQLiteDatabase db,String caseId)throws Exception{
         try(Cursor c=db.query("_pacientes",new String[]{smallBlob("payload_enc")},"id=?",new String[]{caseId},null,null,null)){
@@ -288,11 +328,31 @@ final class SecureStore {
     // global snapshot, identity keys, or arbitrary JSON traversal crosses the bridge.
     synchronized JSONObject caseModulePage(String caseId,String field,int offset)throws Exception{
         String[] parts=field.split("\\.",-1);
-        if(parts.length>2||!CASE_MODULES.contains(parts[0])||(parts.length==2&&!editableCaseField(parts[0],parts[1])))
+        if(parts.length>3||!CASE_MODULES.contains(parts[0])||
+                (parts.length==2&&!editableCaseField(parts[0],parts[1])&&!recordModule(parts[0]))||
+                (parts.length==3&&(!recordModule(parts[0])||!editableRecordField(parts[0],parts[2]))))
             throw new SecurityException("Módulo não autorizado");
         SQLiteDatabase db=dbHelper.getReadableDatabase();
         JSONObject record=new JSONObject(dbHelper.decrypt(casePayload(db,caseId)));
         Object value=record.opt(parts[0]);
+        if(recordModule(parts[0])&&parts.length==1){
+            if(offset<0)throw new IllegalArgumentException("Posição inválida");
+            JSONArray rows=recordRows(record,parts[0]),list=new JSONArray();
+            int from=Math.min(offset,rows.length()),end=Math.min(rows.length(),from+PAGE_LIMIT);
+            for(int i=from;i<end;i++){
+                JSONObject row=rows.getJSONObject(i);String id=row.optString("id");
+                if(id.isEmpty()||id.length()>200||id.contains("."))throw new SecurityException("Identificador de registro incompatível");
+                String label=row.optString("titulo",row.optString("name",row.optString("tecnica",row.optString("texto","Registro"))));
+                int labelEnd=Math.min(label.length(),180);if(labelEnd>0&&labelEnd<label.length()&&Character.isHighSurrogate(label.charAt(labelEnd-1)))labelEnd--;
+                list.put(new JSONObject().put("id",id).put("label",label.substring(0,labelEnd)));
+            }
+            return new JSONObject().put("records",list).put("offset",from).put("end",end).put("next",end<rows.length()?end:-1).put("total",rows.length()).put("editable",false);
+        }
+        if(recordModule(parts[0])&&parts.length>=2){
+            JSONObject item=findModuleRecord(record,parts[0],parts[1]);
+            if(parts.length==2)return boundedTextPage(item.toString(2),offset).put("editable",false);
+            return boundedTextPage(textField(item,parts[2]),offset).put("revision",EcoDatabaseHelper.computeChecksum(record.toString())).put("editable",true);
+        }
         if(parts.length==2){
             if(value!=null&&value!=JSONObject.NULL&&!(value instanceof JSONObject))throw new SecurityException("Formulário inválido");
             JSONObject obj=value instanceof JSONObject?(JSONObject)value:new JSONObject();
@@ -306,20 +366,20 @@ final class SecureStore {
     }
     synchronized JSONObject editCaseModulePage(String caseId,String field,int start,int end,String revision,String replacement)throws Exception{
         String[] parts=field.split("\\.",-1);
-        if(parts.length!=2||!editableCaseField(parts[0],parts[1])||start<0||end<start||end-start>TEXT_PAGE||replacement==null||replacement.length()>TEXT_PAGE||revision==null||revision.length()!=64)
+        boolean arrayEdit=parts.length==3&&recordModule(parts[0])&&editableRecordField(parts[0],parts[2]);
+        boolean formEdit=parts.length==2&&editableCaseField(parts[0],parts[1]);
+        if((!arrayEdit&&!formEdit)||start<0||end<start||end-start>TEXT_PAGE||replacement==null||replacement.length()>TEXT_PAGE||revision==null||revision.length()!=64)
             throw new IllegalArgumentException("Edição inválida");
         SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
         try{
-            if(any(db,"processamento_jobs","audio_key_enc IS NOT NULL OR audio_path<>''")||!readDraft().isEmpty()||!readClinicalDraft(caseId,parts[0]).isEmpty())
+            if(any(db,"processamento_jobs","audio_key_enc IS NOT NULL OR audio_path<>''")||!readDraft().isEmpty()||caseHasClinicalDraft(db,caseId))
                 throw new IllegalStateException("Finalize os rascunhos e atendimentos pendentes antes da edição");
             JSONObject record=new JSONObject(dbHelper.decrypt(casePayload(db,caseId)));
             if(!revision.equals(EcoDatabaseHelper.computeChecksum(record.toString())))throw new SecurityException("Registro alterado; recarregue");
             Object raw=record.opt(parts[0]);
-            if(raw!=null&&raw!=JSONObject.NULL&&!(raw instanceof JSONObject))throw new SecurityException("Formulário inválido");
-            JSONObject form=raw instanceof JSONObject?(JSONObject)raw:new JSONObject();
-            Object item=form.opt(parts[1]);
-            if(item!=null&&item!=JSONObject.NULL&&!(item instanceof String))throw new SecurityException("Campo não textual");
-            String value=item==null||item==JSONObject.NULL?"":(String)item;
+            if(!arrayEdit&&raw!=null&&raw!=JSONObject.NULL&&!(raw instanceof JSONObject))throw new SecurityException("Formulário inválido");
+            JSONObject form=arrayEdit?findModuleRecord(record,parts[0],parts[1]):raw instanceof JSONObject?(JSONObject)raw:new JSONObject();
+            String key=arrayEdit?parts[2]:parts[1],value=textField(form,key);
             if(end>value.length()||(start>0&&start<value.length()&&Character.isLowSurrogate(value.charAt(start)))||(end>0&&end<value.length()&&Character.isLowSurrogate(value.charAt(end))))throw new IllegalArgumentException("Limites inválidos");
             for(int i=0;i<replacement.length();i++){
                 char ch=replacement.charAt(i);
@@ -333,7 +393,13 @@ final class SecureStore {
                 if(record.has("ecoClinicalHistory")&&history==null)throw new SecurityException("Histórico inválido");
                 if(history==null)history=new JSONArray();
                 if(previous.length()>0)history.put(new JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("kind",parts[0]).put("at",java.time.Instant.now().toString()).put("previous",previous));
-                form.put(parts[1],edited);record.put(parts[0],form).put("ecoClinicalHistory",history).put("atualizadoEm",java.time.Instant.now().toString());
+                if(("ecoPreparation".equals(parts[0])||"ecoNetwork".equals(parts[0]))&&edited.length()>8000)throw new IllegalArgumentException("Campo acima do limite");
+                form.put(key,edited);
+                String now=java.time.Instant.now().toString();
+                if("ecoPreparation".equals(parts[0])||"ecoNetwork".equals(parts[0]))form.put("updatedAt",now);
+                if("seguranca".equals(parts[0])||"enquadre".equals(parts[0]))form.put("atualizadoEm",now);
+                if(!arrayEdit)record.put(parts[0],form);
+                record.put("ecoClinicalHistory",history).put("atualizadoEm",now);
                 ContentValues cv=new ContentValues();cv.put("payload_enc",encryptRecord(record.toString()));cv.put("updated_at",System.currentTimeMillis());
                 if(db.update("_pacientes",cv,"id=?",new String[]{caseId})!=1)throw new SecurityException("Caso alterado");
             }

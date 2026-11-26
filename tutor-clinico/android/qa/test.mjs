@@ -1912,3 +1912,5 @@ test('ECO large vault clinical module menu and scoped bridge read',()=>{
  assert.equal(js('ecoPagedRead("module","module-a","","","sonhosList",0).text'),'FICTÍCIO');
  assert.deepEqual(calls[0],['module','module-a','','','sonhosList',0]);
 });
+
+test('ECO paged clinical record editing preserves immutable source field contract',()=>{assert.equal(js('Object.keys(ecoPagedRecordFields).length'),5);assert.ok(js('ecoPagedEditableFields.seguranca.some(x=>x[0]==="plano")'));assert.ok(js('!ecoPagedRecordFields.sonhosList.some(x=>x[0]==="originalQuote"||x[0]==="texto")'));});
