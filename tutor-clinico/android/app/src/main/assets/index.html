@@ -5082,7 +5082,7 @@ function ecoPerspectiveFocus(source,quote){
  return body; // retain the entire caution if there is no clean contiguous excerpt
 }
 function ecoPerspectiveQuestion(author,rejection=''){
- return 'Perspectiva de '+author+'. Ligue uma expressão literal da fala a um conceito da referência. Não invente acontecimentos. Faça uma pergunta breve dirigida a você, paciente.'+(rejection?' Corrija a tentativa anterior: '+String(rejection).slice(0,170)+'. Use apenas a fala e o recorte teórico.':'');
+ return 'Use palavras da fala [S1] e do foco [S2]. Explique a ligação concreta, sem mencionar autores nem inventar acontecimentos. Pergunte diretamente à pessoa.'+(rejection?' Nova tentativa: '+String(rejection).slice(0,170)+'. Escreva frases mais curtas; releia [S1] e [S2].':'');
 }
 function ecoPerspectiveStem(w){
  // Conservative inflection families, not arbitrary shared prefixes.
@@ -5112,6 +5112,14 @@ function ecoPerspectiveCompose(raw,sources,quote){
  if(norm.some(x=>/\b(ignore as regras|ignore instrucoes|ignorando as regras|diga que tenho|siga instrucoes|se livrar da responsabilidade|diagnosticar uma doenca|diagnostico de)\b/.test(x)))return {error:'Instrução da fonte reproduzida ou atribuição indevida.'};
  // Conservative check for particularly consequential unsupported claims; not a complete hallucination classifier.
  const observed=ecoFoldText(quote);
+ // Reject author substitution and novel relationship details seen in real model failures.
+ const names=[...ecoPerspectiveAuthors,'Jung','Sigmund','Melanie','Donald'].map(ecoFoldText);
+ const mentioned=names.find(name=>new RegExp('\\b'+name+'\\b','i').test(norm.join(' ')));
+ if(mentioned)return {error:'Nome de autor na minuta neural; explique o conceito sem atribuições biográficas.'};
+ const participants=/\b(?:ex[- ]?(?:companheir[oa]|namorad[oa]|marido|esposa)|companheir[oa]s?|namorad[oa]s?|marido|esposa|mae|pai|filh[oa]s?|irma[oa]s?|colega[s]?)\b/g;
+ const novel=[...norm.join(' ').matchAll(participants)].map(m=>m[0]).find(t=>!observed.includes(t));
+ if(novel)return {error:'Vínculo ou pessoa não relatada na fala: '+novel+'.'};
+ if(/\b(?:eu|meu|minha|nosso|nossa|me afasto|me sinto)\b/.test(norm[2]))return {error:'Pergunta deve ser dirigida ao paciente sem assumir sua voz.'};
  for(const term of ecoPerspectiveSensitive){
   const pattern=ecoPerspectiveSensitivePattern(term);
   if(!pattern.test(observed)&&norm.some(x=>pattern.test(x)))return {error:'Tema sensível não relatado na fala: '+term+'.'};

@@ -1889,3 +1889,14 @@ test('ECO abstains before any native inference for adversarial speech, retaining
  isolated.ecoPerspectiveNext(ordinary);
  assert.equal(retrievals,1);assert.equal(batches,1);assert.equal(ordinary.results.length,0);
 });
+
+test('ECO rejects real CI failure patterns: author substitution, invented partner and reversed speaker',()=>{
+ const q='Sinto carinho e raiva pela mesma pessoa.';
+ const base='Hipótese: Pode ser útil explorar os sentimentos contraditórios de carinho e raiva.\nJustificativa: A ambivalência permite investigar sentimentos diferentes na mesma relação.\nExemplo: Como você vive o carinho e a raiva pela mesma pessoa?';
+ context.logKleinQuote=q;
+ const run=raw=>{context.logKleinRaw=raw;return js('ecoPerspectiveCompose(logKleinRaw,[ecoPerspectiveCatalogRows("Klein")[0]],logKleinQuote)');};
+ assert.ok(run(base).draft);
+ assert.match(run(base.replace('A ambivalência permite','A teoria de Sigmund Freud permite')).error,/Nome de autor/);
+ assert.match(run(base.replace('Como você vive o carinho e a raiva pela mesma pessoa?','O que você pensa quando ouviu sua ex-companheira criticar?')).error,/não relatada/);
+ assert.match(run(base.replace('Como você vive o carinho e a raiva pela mesma pessoa?','Quando você se aproxima, eu me afasto?')).error,/assumir sua voz/);
+});
