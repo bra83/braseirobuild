@@ -1790,6 +1790,9 @@ test('ECO native paged consultation and integral checkpoint are available withou
  js("act('ecoFullCheckpointExport','2')");
  assert.deepEqual(calls.at(-1),[2,'eco-fixture-password']);
  assert.equal(elems['#ecoFullCheckpointPass'].value,'');
+ elems['#ecoFullCheckpointPass'].value='eco-fixture-password';
+ js("act('ecoFullCheckpointExport','8')");assert.deepEqual(calls.at(-1),[8,'eco-fixture-password']);
+ const count=calls.length;js("act('ecoFullCheckpointExport','9')");assert.equal(calls.length,count);
 });
 
 

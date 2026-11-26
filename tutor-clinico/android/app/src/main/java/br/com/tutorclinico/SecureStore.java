@@ -475,38 +475,72 @@ final class SecureStore {
         for(int i=0;i<2;i++){File f=checkpointFile(i).getBaseFile();if(f.exists())checkpoints.put(new JSONObject().put("slot",i).put("date",f.lastModified()).put("bytes",f.length()));}
         return checkpoints;
     }
-    // Two independent rotating integral recovery files. Each has its own random
-    // passphrase wrapped by the Android Keystore; no plaintext intermediate file.
+    // Seven independent integral snapshots, compatible with the original slots 2 and 3.
+    // Each passphrase is wrapped by the device key; no plaintext intermediate.
     private static final int LOCAL_CHECKPOINT_MAGIC=0x45434c31;
+    static final int FULL_CHECKPOINT_FIRST=2,FULL_CHECKPOINT_LAST=8;
+    static final long FULL_CHECKPOINT_RESERVE=256L*1024*1024;
+    static boolean validFullCheckpointSlot(int slot){return slot>=FULL_CHECKPOINT_FIRST&&slot<=FULL_CHECKPOINT_LAST;}
     private AtomicFile fullCheckpointFile(int slot){
-        if(slot<2||slot>3)throw new IllegalArgumentException("Checkpoint integral inválido");
+        if(!validFullCheckpointSlot(slot))throw new IllegalArgumentException("Checkpoint integral inválido");
         return new AtomicFile(new File(context.getFilesDir(),"eco-full-checkpoint-"+slot+".aes"));
     }
     synchronized JSONArray fullCheckpointList() throws Exception {
         JSONArray rows=new JSONArray();
-        for(int i=2;i<=3;i++){
+        java.util.List<Integer> slots=new java.util.ArrayList<>();
+        for(int i=FULL_CHECKPOINT_FIRST;i<=FULL_CHECKPOINT_LAST;i++)if(fullCheckpointFile(i).getBaseFile().isFile())slots.add(i);
+        slots.sort((a,b)->{int cmp=Long.compare(fullCheckpointFile(b).getBaseFile().lastModified(),fullCheckpointFile(a).getBaseFile().lastModified());return cmp!=0?cmp:Integer.compare(b,a);});
+        for(int i:slots){
             File file=fullCheckpointFile(i).getBaseFile();
-            if(file.isFile())rows.put(new JSONObject().put("slot",i).put("date",file.lastModified()).put("bytes",file.length()));
+            rows.put(new JSONObject().put("slot",i).put("date",file.lastModified()).put("bytes",file.length()));
         }
         return rows;
     }
+    private long latestFullCheckpoint(){
+        long last=0;
+        for(int i=FULL_CHECKPOINT_FIRST;i<=FULL_CHECKPOINT_LAST;i++)last=Math.max(last,fullCheckpointFile(i).getBaseFile().lastModified());
+        return last;
+    }
     boolean fullCheckpointDue(){
-        long last=Math.max(fullCheckpointFile(2).getBaseFile().lastModified(),fullCheckpointFile(3).getBaseFile().lastModified());
+        long last=latestFullCheckpoint();
         return last==0||System.currentTimeMillis()-last>=24L*60*60*1000;
     }
+    // Missing slots are preferred, then the oldest snapshot. Never delete a
+    // valid older copy to make room for a new, not yet authenticated one.
+    static int selectFullCheckpointSlot(long[] dates){
+        if(dates==null||dates.length!=FULL_CHECKPOINT_LAST-FULL_CHECKPOINT_FIRST+1)throw new IllegalArgumentException("Slots inválidos");
+        int oldest=0;
+        for(int i=0;i<dates.length;i++){if(dates[i]==0)return FULL_CHECKPOINT_FIRST+i;if(dates[i]<dates[oldest])oldest=i;}
+        return FULL_CHECKPOINT_FIRST+oldest;
+    }
+    // Check actual filesystem free space before each ciphertext write. If
+    // storage is exhausted or the operation is cancelled, AtomicFile rolls back.
+    static java.io.OutputStream guardedCheckpointOutput(java.io.OutputStream out,java.util.function.LongSupplier free,java.util.function.BooleanSupplier active){
+        return new java.io.OutputStream(){
+            private void guard(int n)throws java.io.IOException{
+                checkArchiveActive(active);
+                if(free.getAsLong()<FULL_CHECKPOINT_RESERVE+(long)n)throw new java.io.IOException("Espaço insuficiente para checkpoint; cópias anteriores preservadas");
+            }
+            @Override public void write(int b)throws java.io.IOException{guard(1);out.write(b);}
+            @Override public void write(byte[] b,int off,int len)throws java.io.IOException{guard(len);out.write(b,off,len);}
+            @Override public void flush()throws java.io.IOException{out.flush();}
+        };
+    }
     synchronized boolean fullCheckpoint(boolean force,java.util.function.BooleanSupplier active)throws Exception{
-        File a=fullCheckpointFile(2).getBaseFile(),b=fullCheckpointFile(3).getBaseFile();
-        long now=System.currentTimeMillis(),last=Math.max(a.lastModified(),b.lastModified());
+        long now=System.currentTimeMillis(),last=latestFullCheckpoint();
         if(!force&&last>0&&now-last<24L*60*60*1000)return false;
         checkArchiveActive(active);
-        int slot=a.lastModified()<=b.lastModified()?2:3;
+        if(context.getFilesDir().getUsableSpace()<FULL_CHECKPOINT_RESERVE)throw new java.io.IOException("Espaço insuficiente para checkpoint");
+        long[] dates=new long[FULL_CHECKPOINT_LAST-FULL_CHECKPOINT_FIRST+1];
+        for(int i=0;i<dates.length;i++)dates[i]=fullCheckpointFile(FULL_CHECKPOINT_FIRST+i).getBaseFile().lastModified();
+        int slot=selectFullCheckpointSlot(dates);
         byte[] secret=new byte[32];RNG.nextBytes(secret);
         char[] password=Base64.encodeToString(secret,Base64.NO_WRAP).toCharArray();Arrays.fill(secret,(byte)0);
         AtomicFile file=fullCheckpointFile(slot);FileOutputStream raw=null;
         try{
             byte[] wrapped=dbHelper.encrypt(new String(password));
             raw=file.startWrite();
-            java.io.DataOutputStream out=new java.io.DataOutputStream(raw);
+            java.io.DataOutputStream out=new java.io.DataOutputStream(guardedCheckpointOutput(raw,()->context.getFilesDir().getUsableSpace(),active));
             out.writeInt(LOCAL_CHECKPOINT_MAGIC);out.writeInt(wrapped.length);out.write(wrapped);
             exportFullVault(out,password,false,active);
             checkArchiveActive(active);out.flush();file.finishWrite(raw);raw=null;return true;

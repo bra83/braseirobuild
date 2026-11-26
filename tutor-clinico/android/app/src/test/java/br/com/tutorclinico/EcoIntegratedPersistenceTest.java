@@ -619,7 +619,25 @@ public class EcoIntegratedPersistenceTest {
         assertArrayEquals(pdf,store.attachmentBytes("local-full",meta.getString("id")));
         assertEquals("[]",store.readPrivateDiary("local-full"));
         store.getDbHelper().close();java.util.Arrays.fill(password,(char)0);
-        for(int localSlot=2;localSlot<=3;localSlot++)new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+localSlot+".aes").delete();
+        for(int localSlot=SecureStore.FULL_CHECKPOINT_FIRST;localSlot<=SecureStore.FULL_CHECKPOINT_LAST;localSlot++)new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+localSlot+".aes").delete();
+    }
+
+    @Test public void integralCheckpointRotationAndSpaceGuardPreserveExistingCopies() throws Exception {
+        assertEquals(2,SecureStore.selectFullCheckpointSlot(new long[]{0,0,0,0,0,0,0}));
+        assertEquals(8,SecureStore.selectFullCheckpointSlot(new long[]{100,200,300,400,500,600,0}));
+        assertEquals(4,SecureStore.selectFullCheckpointSlot(new long[]{300,200,100,400,500,600,700}));
+        assertTrue(SecureStore.validFullCheckpointSlot(8));assertFalse(SecureStore.validFullCheckpointSlot(9));
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        java.util.concurrent.atomic.AtomicLong free=new java.util.concurrent.atomic.AtomicLong(SecureStore.FULL_CHECKPOINT_RESERVE+10);
+        java.util.concurrent.atomic.AtomicBoolean active=new java.util.concurrent.atomic.AtomicBoolean(true);
+        java.io.OutputStream guarded=SecureStore.guardedCheckpointOutput(bytes,free::get,active::get);
+        guarded.write(new byte[]{1,2,3});assertEquals(3,bytes.size());
+        free.set(SecureStore.FULL_CHECKPOINT_RESERVE);
+        try{guarded.write(4);fail("space reserve bypassed");}catch(java.io.IOException expected){}
+        assertArrayEquals(new byte[]{1,2,3},bytes.toByteArray());
+        free.set(Long.MAX_VALUE);active.set(false);
+        try{guarded.write(4);fail("cancel bypassed");}catch(java.io.IOException expected){}
+        assertEquals(3,bytes.size());
     }
 
     @Test public void scopedPageEditingPreservesOriginalAndHistoryAndRejectsStaleWrites() throws Exception {

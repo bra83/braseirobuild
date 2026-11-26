@@ -717,7 +717,7 @@ public final class MainActivity extends Activity {
             });
         }
         @JavascriptInterface public void exportFullRecoveryCheckpoint(int slot,String password){
-            if(!unlocked||slot<2||slot>3||password==null||password.length()<10||archiveBusy.get())return;
+            if(!unlocked||!SecureStore.validFullCheckpointSlot(slot)||password==null||password.length()<10||archiveBusy.get())return;
             main.post(()->reauthenticate("Exportar checkpoint integral",()->{
                 if(!unlocked||archiveBusy.get())return;
                 clearPendingBackup();pendingPassword=password;pendingCheckpointSlot=slot;
