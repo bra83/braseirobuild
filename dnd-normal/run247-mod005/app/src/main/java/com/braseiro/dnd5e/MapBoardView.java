@@ -275,7 +275,9 @@ public class MapBoardView extends View {
         in.close();
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) throw new Exception("Imagem inválida.");
         int sample = 1;
-        while (bounds.outWidth / sample > 4096 || bounds.outHeight / sample > 4096) sample *= 2;
+        // Fast first paint on mobile; high-resolution tiles are rendered lazily
+        // by LargeImageTileSource instead of decoding a full 4096px preview.
+        while (bounds.outWidth / sample > 2048 || bounds.outHeight / sample > 2048) sample *= 2;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = sample;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
