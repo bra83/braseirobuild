@@ -100,6 +100,24 @@ public final class MasterGameContext {
                 "scene_npcs e scene.present_npcs_json são o elenco persistente prioritário. "+
                 "Listas resumidas de memória não autorizam substituir NPC, nome, idade, "+
                 "história ou relação já estabelecidos; nenhuma missão opcional altera a cena.");
+            // Reference the established proprietor when the verified current
+            // scene is INSIDE the Waystone Inn. This is background identity,
+            // not evidence that Kote is currently onstage. Secrets excluded.
+            JSONObject liveMap=root.optJSONObject("map"),liveScene=root.optJSONObject("scene");
+            String liveHex=liveMap==null?"":liveMap.optString("current_hex_id","");
+            String livePlace=liveScene==null?"":liveScene.optString("location","");
+            if("dnd".equalsIgnoreCase(db.getActiveMapProfile())
+                &&NewarreAndWaystoneEngine.HEX_ID.equalsIgnoreCase(liveHex)
+                &&livePlace.toLowerCase(java.util.Locale.ROOT).contains("pousada marco do percurso")){
+                JSONObject knownHost=db.findNpcMemoryByName("Kote");
+                if(knownHost.length()>0)
+                    root.put("local_establishment_reference",new JSONObject()
+                        .put("name",knownHost.optString("name"))
+                        .put("summary",knownHost.optString("summary"))
+                        .put("visual_description",knownHost.optString("visual_description"))
+                        .put("hex_id",knownHost.optString("hex_id"))
+                        .put("presence_must_be_confirmed_by_scene",true));
+            }
             root.put("world_active_npcs",limitArray(db.listWorldActiveNpcs(40),40));
             root.put("npc_cognition",WorldContextSelector.select(db.listNpcCognitiveStates(450),contextFocus,50,"npc_name","current_location","next_action","beliefs_json","faction","last_interaction_summary"));
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(50)));
