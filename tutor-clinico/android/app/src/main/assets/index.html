@@ -5254,6 +5254,8 @@ function ecoPerspectiveSend(r,mode,payload,stage){
 }
 function ecoPerspectiveWatch(id){const r=ecoPerspectiveRun;if(!r?.pending||r.id!==id)return;if(!ecoPerspectiveCurrent(r)){ecoPerspectiveCancel();return;}if(Date.now()-r.last>300000){ecoPerspectiveCancel();notify('Consulta interrompida por falta de progresso.','red');render();return;}setTimeout(()=>ecoPerspectiveWatch(id),5000);}
 function ecoPerspectiveNext(r){
+ // Abstain before retrieval, reranking or generation; no editorial reading of an injected instruction.
+ if(ecoPerspectiveAdversarial(r.quote)){r.results=r.authors.map(author=>({author,error:'Fala contém instrução dirigida ao motor; abstenção de interpretação automática. Revise o trecho selecionado.'}));r.index=r.authors.length;r.pending=false;render();return;}
  if(r.index>=r.authors.length){r.pending=false;render();return;}
  const author=r.authors[r.index];r.sources=[];r.audit=null;r.draft='';r.theory=ecoPerspectiveTheory(author);
  if(!r.theory.length){r.results.push({author,error:'Nenhuma fonte exclusiva deste autor disponível. Não gerar por suposição.'});r.index++;ecoPerspectiveNext(r);return;}
