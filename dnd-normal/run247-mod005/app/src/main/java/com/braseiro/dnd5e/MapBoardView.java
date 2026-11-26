@@ -839,14 +839,24 @@ public class MapBoardView extends View {
                     invalidate();
                 }
                 return true;
-            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(false);
+                dragToken=false;
+                invalidate();
+                return true;
+            case MotionEvent.ACTION_UP:
                 if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(false);
                 if (dragToken) {
                     snapToken(bx, by, true);
                 } else if (!moved && !scaleDetector.isInProgress()) {
                     if (revealMode) revealAt(bx, by);
-                    else selectHex(bx, by);
+                    else {
+                        // Selection is not movement or a fog change. Avoid redundant
+                        // serialization and database callbacks for each map tap.
+                        selectHex(bx, by);
+                        dragToken=false;
+                        return true;
+                    }
                 }
                 dragToken = false;
                 notifyState();

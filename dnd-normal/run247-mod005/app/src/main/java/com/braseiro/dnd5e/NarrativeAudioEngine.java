@@ -154,9 +154,9 @@ public final class NarrativeAudioEngine {
 
     private PreparedScene computePreparedScene(String narration,ScenePlan plan){
         String preview=safe(narration);if(preview.length()>900)preview=preview.substring(0,900);
-        String query=plan.environment+" "+plan.weather+" "+plan.location+" "+plan.timeOfDay+" "+plan.mood+" "+plan.soundscapeHints+" "+preview;
-        JSONObject ambience=catalog.resolveAmbience(query);
-        JSONObject climate=catalog.resolveClimate(query);
+        String query=plan.environment+" "+plan.location+" "+plan.timeOfDay+" "+plan.mood+" "+plan.soundscapeHints+" "+preview;
+        JSONObject ambience=catalog.resolveAmbience(plan.environment+" "+plan.location+" "+plan.timeOfDay);
+        JSONObject climate=catalog.resolveClimateForWeather(plan.weather,plan.environment);
         JSONObject music="none".equals(plan.mood)?null:catalog.resolveMusic(query,plan.mood);
         int cueCount=detectCues(safe(narration),plan.explicitCues).size();
         return new PreparedScene(plan,ambience,climate,music,cueCount);
@@ -343,7 +343,6 @@ public final class NarrativeAudioEngine {
         if(has(n,"pantano","pântano","swamp"))return "pântano";
         if(has(n,"deserto","desert"))return "deserto";
         if(has(n,"montanha","mountain"))return "montanhas";
-        if(has(n,"chuva","tempestade"))return "exterior sob chuva";
         return null;
     }
 
@@ -426,7 +425,7 @@ public final class NarrativeAudioEngine {
         JSONObject plan=aiPlan==null?new JSONObject():aiPlan;JSONObject state=scene==null?new JSONObject():scene;
         String combined=safe(narration)+" "+state.optString("location")+" "+state.optString("weather")+" "+state.optString("time_of_day")+" "+state.optString("danger");
         String environment=clean(plan.optString("environment"));if(environment.length()==0)environment=inferEnvironment(combined);
-        String weather=clean(plan.optString("weather",state.optString("weather")));if(weather.length()==0)weather="clima neutro";
+        String weather=clean(state.optString("weather",""));if(weather.length()==0)weather="clima neutro";
         String location=clean(plan.optString("location",state.optString("location")));if(location.length()==0)location=environment;
         String time=clean(plan.optString("time_of_day",state.optString("time_of_day")));if(time.length()==0)time="horário indefinido";
         String mood=normalizeMood(plan.optString("music_mood",plan.optString("mood")),combined);

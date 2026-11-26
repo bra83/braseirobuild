@@ -651,6 +651,30 @@ public final class SmartAudioLibrary {
         }catch(Exception ignored){return null;}
     }
 
+    // Weather is a closed set derived from the persisted scene, never from prose.
+    static String canonicalClimateKind(String weather){
+        String n=normalize(weather==null?"":weather);
+        if(containsAny(n,"sem chuva,sem tempestade,no rain,not raining"))return "";
+        if(containsAny(n,"tempestade,storm,trovao,thunder"))return "storm";
+        if(containsAny(n,"chuva,rain,garoa,drizzle,downpour"))return "rain";
+        if(containsAny(n,"neve,snow,nevasca,blizzard"))return "snow";
+        if(containsAny(n,"vento,wind,vendaval,gust"))return "wind";
+        return "";
+    }
+
+    public synchronized JSONObject resolveClimateForWeather(String weather,String environment){
+        String kind=canonicalClimateKind(weather);
+        if(kind.isEmpty())return null;
+        return resolveClimate(kind+" "+(environment==null?"":environment));
+    }
+
+    private static boolean climateCompatible(JSONObject sound,String query){
+        String required=canonicalClimateKind(query);
+        String actual=canonicalClimateKind(sound.optString("weather",""));
+        if(actual.isEmpty())actual=canonicalClimateKind(soundCorpus(sound));
+        return !required.isEmpty()&&(required.equals(actual)||("storm".equals(required)&&"rain".equals(actual)));
+    }
+
     /** Camada climática independente: chuva, vento, tempestade ou neve. */
     public synchronized JSONObject resolveClimate(String query){
         try{
@@ -738,6 +762,8 @@ public final class SmartAudioLibrary {
             if(!requestedType.equals(actual)||isContinuousCandidateBlocked(sound,requestedType))continue;
             String role=sound.optString("catalog_role",actual.equals("music")?"music":"base");
             if(!requestedRole.equals(role))continue;
+            if("climate".equals(requestedRole)&&!climateCompatible(sound,normalizedQuery))continue;
+            if("base".equals(requestedRole)&&containsAny(soundCorpus(sound),"rain,chuva,drizzle,garoa,downpour,tempestade,storm,thunder,trovao,neve,snow"))continue;
             int score="ambience".equals(requestedType)?scoreAmbienceScene(sound,normalizedQuery):scoreMusicScene(sound,normalizedQuery,mood);
             candidates.add(new Scored(sound,score));
         }
@@ -755,6 +781,8 @@ public final class SmartAudioLibrary {
             if(!requestedType.equals(actual)||isContinuousCandidateBlocked(sound,requestedType))continue;
             String role=sound.optString("catalog_role",actual.equals("music")?"music":"base");
             if(!requestedRole.equals(role))continue;
+            if("climate".equals(requestedRole)&&!climateCompatible(sound,normalizedQuery))continue;
+            if("base".equals(requestedRole)&&containsAny(soundCorpus(sound),"rain,chuva,drizzle,garoa,downpour,tempestade,storm,thunder,trovao,neve,snow"))continue;
             String corpus=soundCorpus(sound);int score=0;
             if("ambience".equals(requestedType)){
                 if("climate".equals(requestedRole)){
