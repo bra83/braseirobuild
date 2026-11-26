@@ -17,6 +17,8 @@ public final class AppExecutors {
     private static final ExecutorService IO = Executors.newFixedThreadPool(4, namedFactory("braseiro-io"));
     // Never queue launch/preflight behind background indexing, RAG or map imports.
     private static final ExecutorService STARTUP = Executors.newSingleThreadExecutor(namedFactory("braseiro-startup"));
+    // Chaquopy boot must not block launch or the general RAG/image I/O pool.
+    private static final ExecutorService BARBARA_BOOT = Executors.newSingleThreadExecutor(namedFactory("braseiro-barbara-boot"));
     private static final ExecutorService NETWORK = Executors.newFixedThreadPool(4, namedFactory("braseiro-network"));
     private static final ExecutorService SERIAL = Executors.newSingleThreadExecutor(namedFactory("braseiro-serial"));
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
@@ -29,6 +31,7 @@ public final class AppExecutors {
 
     public static ExecutorService io() { return IO; }
     public static ExecutorService startup() { return STARTUP; }
+    public static ExecutorService barbaraBoot() { return BARBARA_BOOT; }
     public static ExecutorService network() { return NETWORK; }
     public static ExecutorService serial() { return SERIAL; }
     public static ExecutorService indexing() { return INDEXING; }
