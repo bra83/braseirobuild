@@ -40,6 +40,8 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest \
             --tests com.braseiro.dnd5e.DndStartupContinuityPerformanceRobolectricTest \
+            --tests com.braseiro.dnd5e.BarbaraStartupLazyTest \
+            --tests com.braseiro.dnd5e.BarbaraColdStartValidationRegressionTest \
             --tests com.braseiro.dnd5e.BraseiroSideQuestStoreRobolectricTest \
             --tests com.braseiro.dnd5e.MasterPreparationExecutorRecoveryRobolectricTest \
             --tests com.braseiro.dnd5e.AdventureContinuityPersistenceTest \
