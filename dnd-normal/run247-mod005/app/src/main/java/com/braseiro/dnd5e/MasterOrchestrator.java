@@ -98,20 +98,31 @@ public final class MasterOrchestrator {
 
     public Plan prepare(String mode,String rawAction,String mapContext,JSONObject audio,JSONObject ruleRetrieval){return prepare(mode,rawAction,mapContext,audio,ruleRetrieval,null);}
     public Plan prepare(String mode,String rawAction,String mapContext,JSONObject audio,JSONObject ruleRetrieval,String inputChannel){
+        final long preparationNanos=System.nanoTime();
+        final boolean cleanOpening=RuleRetrievalEngine.isNarrativeOpeningRequest(rawAction);
         // Antes de qualquer cognição/tempo/NPC, elimina drift legado entre cena e Atlas.
         // Assim nenhum subsistema recebe uma cidade antiga associada ao hex atual.
         final boolean strixhavenActive=strixhavenProfile!=null&&strixhavenProfile.isActive();
         if(!strixhavenActive)try{AtlasScenePositionReconciler.reconcilePersistedScene(db,"preflight do Mestre");}catch(Exception failure){AppLog.e("MasterOrchestrator","Falha ao reconciliar Atlas antes do planejamento.",failure);}
         final String effectiveMapContext=strixhavenActive?strixhavenProfile.narrativeMapContext():mapContext;
-        boolean narrative="Narrador".equals(mode);boolean explicitAction="PLAYER_ACTION".equals(inputChannel);boolean explicitHelp="GM_HELP".equals(inputChannel);BraseiroNarrativeDirector.Intent routedIntent=BraseiroNarrativeDirector.classify(rawAction);FictionTurnIntent.Kind fictionKind=FictionTurnIntent.classify(rawAction);boolean nonAdvancing=narrative&&(explicitHelp||FictionTurnIntent.freezesWorld(fictionKind,rawAction,db.getSceneState()));boolean queued=narrative&&!nonAdvancing&&!StoryMomentumAction.isRequest(rawAction)&&party.hasQueuedActions();JSONArray frozenActionIds=queued?party.queuedActionIds():new JSONArray();String action=queued?party.buildActionBatch(rawAction):(rawAction==null?"":rawAction.trim());JSONObject tick=narrative&&!nonAdvancing?world.preview(action):new JSONObject();
+        boolean narrative="Narrador".equals(mode);boolean explicitAction="PLAYER_ACTION".equals(inputChannel);boolean explicitHelp="GM_HELP".equals(inputChannel);BraseiroNarrativeDirector.Intent routedIntent=BraseiroNarrativeDirector.classify(rawAction);FictionTurnIntent.Kind fictionKind=FictionTurnIntent.classify(rawAction);boolean nonAdvancing=narrative&&(explicitHelp||FictionTurnIntent.freezesWorld(fictionKind,rawAction,db.getSceneState()));boolean queued=narrative&&!nonAdvancing&&!StoryMomentumAction.isRequest(rawAction)&&party.hasQueuedActions();JSONArray frozenActionIds=queued?party.queuedActionIds():new JSONArray();String action=queued?party.buildActionBatch(rawAction):(rawAction==null?"":rawAction.trim());// The first scene is a read-only presentation, NOT a world tick or NPC
+        // offscreen turn. Existing facts are read from game_bus and SQLite.
+        JSONObject tick=narrative&&!nonAdvancing&&!cleanOpening?world.preview(action):new JSONObject();
         JSONObject effectiveRuleRetrieval=mergeRuleRetrieval(ruleRetrieval,worldRuleRetrieval(tick));
         rules.setActiveRuleRetrieval(effectiveRuleRetrieval);
-        JSONObject environmental=narrative&&!nonAdvancing?environmentalDirector.preview(action):new JSONObject();JSONObject environmentalPrompt=narrative&&!nonAdvancing?environmentalDirector.promptView(environmental):new JSONObject();try{if(narrative&&!nonAdvancing)tick.put("environmental_director",environmentalPrompt);}catch(Exception failure){AppLog.e("MasterOrchestrator","Falha ao anexar o plano ambiental.",failure);}JSONObject cognitive=narrative&&!nonAdvancing?cognition.plan(action,tick):new JSONObject();JSONObject npcTick=narrative&&!nonAdvancing?npcAgency.previewOffscreenTick(tick):new JSONObject();JSONObject root=new JSONObject();boolean contextReady=true;String contextError="";String barbaraLocation="",barbaraImprint="",barbaraOccasion="continuation";JSONObject discoveryDecision=new JSONObject();JSONObject groundingEnvelope=new JSONObject();
+        JSONObject environmental=narrative&&!nonAdvancing&&!cleanOpening?environmentalDirector.preview(action):new JSONObject();
+        JSONObject environmentalPrompt=narrative&&!nonAdvancing&&!cleanOpening?environmentalDirector.promptView(environmental):new JSONObject();
+        try{if(narrative&&!nonAdvancing&&!cleanOpening)tick.put("environmental_director",environmentalPrompt);}catch(Exception failure){AppLog.e("MasterOrchestrator","Falha ao anexar o plano ambiental.",failure);}
+        JSONObject cognitive=narrative&&!nonAdvancing&&!cleanOpening?cognition.plan(action,tick):new JSONObject();
+        JSONObject npcTick=narrative&&!nonAdvancing&&!cleanOpening?npcAgency.previewOffscreenTick(tick):new JSONObject();
+        AppLog.i("MasterPrepPerf","PREVIEWS_MS="+((System.nanoTime()-preparationNanos)/1000000L));JSONObject root=new JSONObject();boolean contextReady=true;String contextError="";String barbaraLocation="",barbaraImprint="",barbaraOccasion="continuation";JSONObject discoveryDecision=new JSONObject();JSONObject groundingEnvelope=new JSONObject();
         try{
             root.put("campaign",compact(db.getCampaign(),new String[]{"name","rules_profile","tone","feats","multiclass","flanking","notes"}));
-            JSONObject bus=gameContext.narratorSnapshot(effectiveMapContext,audio);if(strixhavenActive)bus=strixhavenProfile.sanitizeNarratorBus(bus);bus.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));JSONObject supplementCapabilities=SupplementContentRegistry.matchAction(action);bus.put("supplement_capabilities",supplementCapabilities);root.put("game_bus",bus).put("human_master_profile",HumanMasterNarrativeProfile.contract());
+            JSONObject bus=gameContext.narratorSnapshot(effectiveMapContext,audio);
+            AppLog.i("MasterPrepPerf","GAME_BUS_MS="+((System.nanoTime()-preparationNanos)/1000000L));
+            if(strixhavenActive)bus=strixhavenProfile.sanitizeNarratorBus(bus);bus.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));JSONObject supplementCapabilities=SupplementContentRegistry.matchAction(action);bus.put("supplement_capabilities",supplementCapabilities);root.put("game_bus",bus).put("human_master_profile",HumanMasterNarrativeProfile.contract());
             root.put("rule_retrieval",compactRuleRetrieval(effectiveRuleRetrieval));root.put("supplement_capabilities",supplementCapabilities);
-            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);root.put("canonical_chronology",CampaignContinuityGate.promptContext(db.listJournal()));
+            JSONObject storyState=db.getStoryState();JSONObject story=compact(storyState,new String[]{"pending_test_json","last_action","updated_at"});story.put("last_narration",tail(storyState.optString("last_narration"),quota.economyMode()?850:1400));story.put("avoid_options",firstJson(parseArray(storyState.optString("options_json","[]")),4));root.put("story",story);root.put("canonical_chronology",CampaignContinuityGate.promptContext(db.listJournalForMasterContext()));
             if(narrative){root.put("narrative_intent",explicitHelp?"ajuda do Mestre":(explicitAction?fictionKind.name():BraseiroNarrativeDirector.intentLabel(routedIntent)));root.put("input_channel",inputChannel==null?"":inputChannel);root.put("fiction_frozen",nonAdvancing);}
             JSONObject sourceScene=AtlasScenePositionReconciler.authoritativeSceneSnapshot(db);if(strixhavenActive)sourceScene=strixhavenProfile.sceneProjection(sourceScene);JSONObject compactSceneState=compactScene(sourceScene);
             // Observation requests cannot carry internal GM-only NPC knowledge
@@ -153,6 +164,7 @@ public final class MasterOrchestrator {
             groundingEnvelope=GroundingEnvelope.build(compactRuleRetrieval(effectiveRuleRetrieval),knowledgeView,campaignGrounding,inferenceGrounding);
             root.put("grounding_envelope",groundingEnvelope);root.put("barbara_host_contract",BarbaraHostContractV1.descriptor());
             String barbaraSystem="mystara".equalsIgnoreCase(db.getActiveMapProfile())?"mystara":"dnd";
+            AppLog.i("MasterPrepPerf","BEFORE_BARBARA_MS="+((System.nanoTime()-preparationNanos)/1000000L));
             JSONObject bPlan=barbara==null?new JSONObject().put("story_occasion",barbaraOccasion).put("available",false).put("host_world_authority",true).put("fallback_java_policy",true):barbara.plan(action,"normal",narrative,nonAdvancing,barbaraOccasion,inputChannel,barbaraSystem);
             root.put("world_discovery",discoveryDecision).put("barbara",bPlan).put("barbara_system_contract",barbara==null?new JSONObject().put("available",false):barbara.systemContract(barbaraSystem));
             if(barbara!=null&&barbara.isAvailable()){
@@ -173,12 +185,26 @@ public final class MasterOrchestrator {
         if(narrative)prompt=FictionTurnDirective.forTurn(rawAction,db.getSceneState(),inputChannel)+"\n\n"+HumanMasterNarrativeProfile.systemInstruction()+"\n\n"
                 +HumanMasterNarrativeProfile.turnInstruction(action,!nonAdvancing)+"\n\n"+prompt;
         if(strixhavenActive)prompt=strixhavenProfile.masterInstruction()+"\n\n"+prompt;
+        if(narrative&&!cleanOpening){
+            // The imported sidequest never commands a cut to a new scene.
+            // Only accepted player travel/host position can change location.
+            prompt="CONTINUIDADE CANÔNICA OBRIGATÓRIA: responda à AÇÃO DECLARADA agora, "
+                +"na cena salva em game_bus. Mantenha nomes dos heróis e NPCs conhecidos, "
+                +"posições, história e relações reais. Uma ação breve (bocejo, caneca, "
+                +"pergunta, espera) recebe reação local proporcional; não faça tomada "
+                +"panorâmica, chegada a outra cidade, viagem, nova abertura ou salto de tempo. "
+                +"O JSON opcional é somente uma fonte de oportunidades condicionais; "
+                +"não pode substituir a missão principal, seu elenco ou sua cronologia. "
+                +"Se precisar de geografia, faça referência apenas aos locais observáveis "
+                +"sem mudar a cena.\n\n"+prompt;
+        }
         // This is a voluntary player action (not GM_HELP); it must actually
         // move one causal beat while leaving all PC choices under player control.
         if(narrative&&!nonAdvancing&&StoryMomentumAction.isRequest(action))
             prompt=StoryMomentumAction.instruction(strixhavenActive,action)+"\n\n"+prompt;
         Plan prepared=new Plan(prompt,context,tick,cognitive,npcTick,environmental,effectiveRuleRetrieval,groundingEnvelope,queued,quota.economyMode(),narrative,nonAdvancing,(explicitHelp?"GM_HELP":(explicitAction?"PLAYER_ACTION":routedIntent.name())),actionHash,stateHash,cacheKey,contextReady,contextError,barbaraOccasion,barbaraLocation,barbaraImprint,inputChannel,discoveryDecision,frozenActionIds);
         prepared.declaredAction=action;
+        AppLog.i("MasterPrepPerf","PLAN_READY_MS="+((System.nanoTime()-preparationNanos)/1000000L));
         return prepared;
     }
 
