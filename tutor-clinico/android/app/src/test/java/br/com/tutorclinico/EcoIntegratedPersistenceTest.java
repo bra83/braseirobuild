@@ -622,4 +622,29 @@ public class EcoIntegratedPersistenceTest {
         for(int localSlot=2;localSlot<=3;localSlot++)new java.io.File(context.getFilesDir(),"eco-full-checkpoint-"+localSlot+".aes").delete();
     }
 
+    @Test public void scopedPageEditingPreservesOriginalAndHistoryAndRejectsStaleWrites() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject a=caseWith("edit-page-a","ANTES"),b=caseWith("edit-page-b","OUTRO");
+        JSONObject session=a.getJSONArray("sessoes").getJSONObject(0);
+        char[] chars=new char[32001];java.util.Arrays.fill(chars,'x');String original=new String(chars);
+        session.put("texto",original).put("mlTranscricao","ORIGINAL IMUTAVEL").put("mlRevisada","REVISADA");
+        store.save(new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray()).toString());
+        JSONObject page=store.sessionTextPage("edit-page-a","edit-page-a-s","texto",16000);
+        String rev=page.getString("revision");
+        JSONObject updated=store.editSessionTextPage("edit-page-a","edit-page-a-s","texto",16000,page.getInt("end"),rev,"NOVO");
+        assertNotEquals(rev,updated.getString("revision"));
+        JSONObject result=byId(new JSONObject(store.read()),"edit-page-a").getJSONArray("sessoes").getJSONObject(0);
+        assertEquals(original.substring(0,16000)+"NOVO"+original.substring(32000),result.getString("texto"));
+        assertEquals("ORIGINAL IMUTAVEL",result.getString("mlTranscricao"));assertEquals("REVISADA",result.getString("mlRevisada"));
+        assertEquals("OUTRO",byId(new JSONObject(store.read()),"edit-page-b").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        try{store.editSessionTextPage("edit-page-a","edit-page-a-s","texto",0,1,rev,"X");fail("stale edit accepted");}catch(SecurityException expected){}
+        try{store.editSessionTextPage("edit-page-b","edit-page-a-s","texto",0,1,updated.getString("revision"),"X");fail("cross-case edit accepted");}catch(SecurityException expected){}
+        try{store.editSessionTextPage("edit-page-a","edit-page-a-s","mlTranscricao",0,1,updated.getString("revision"),"X");fail("raw transcript changed");}catch(IllegalArgumentException expected){}
+        JSONArray versions=new JSONArray(store.sessionVersions("edit-page-a","edit-page-a-s"));
+        assertEquals(1,versions.length());
+        assertEquals(original,new JSONObject(store.sessionVersion("edit-page-a","edit-page-a-s",versions.getJSONObject(0).getLong("id"))).getString("texto"));
+        store.getDbHelper().close();
+    }
+
 }
