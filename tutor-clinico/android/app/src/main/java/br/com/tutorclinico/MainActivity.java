@@ -90,6 +90,9 @@ public final class MainActivity extends Activity {
         }
         return true;
     }
+    private final java.util.concurrent.atomic.AtomicBoolean automaticCheckpointRunning=new java.util.concurrent.atomic.AtomicBoolean(false);
+    private volatile java.util.concurrent.atomic.AtomicBoolean automaticCheckpointCancel;
+    private volatile boolean foreground=true;
     private volatile boolean unlocked = false;
     private boolean showingLock = false;
     private long backgroundAt = 0;
@@ -218,7 +221,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        clearPendingBackup(); showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
+        stopAutomaticCheckpoint();clearPendingBackup(); showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -265,15 +268,27 @@ public final class MainActivity extends Activity {
         if(web!=null)web.requestLayout();
     }
 
+    private void stopAutomaticCheckpoint(){if(automaticCheckpointCancel!=null)automaticCheckpointCancel.set(true);}
+    private void maybeAutomaticCheckpoint(){
+        if(!unlocked||archiveBusy.get()||semanticBusy.get()||ml==null||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()||!store.fullCheckpointDue())return;
+        if(!automaticCheckpointRunning.compareAndSet(false,true))return;
+        final java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);automaticCheckpointCancel=cancel;
+        new Thread(()->{
+            try{store.fullCheckpoint(false,()->unlocked&&!foreground&&!cancel.get());}
+            catch(Exception ignored){/* AtomicFile retains the previous completed snapshot; retry on next pause. */}
+            finally{automaticCheckpointCancel=null;automaticCheckpointRunning.set(false);}
+        },"eco-auto-checkpoint").start();
+    }
     @Override protected void onPause() {
         // A system file picker, permissions dialog or app switch invokes onPause.
         // Do not cancel a Whisper decoder or release a microphone from the UI thread.
         if(ml!=null)ml.onHostPause();
-        backgroundAt = System.currentTimeMillis();
+        backgroundAt = System.currentTimeMillis();foreground=false;
+        if(pendingPassword==null&&pendingExport==null)maybeAutomaticCheckpoint();
         super.onPause();
     }
     @Override protected void onResume() {
-        super.onResume();
+        super.onResume();foreground=true;stopAutomaticCheckpoint();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
         else backgroundAt=0;
     }
@@ -285,7 +300,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { stopAutomaticCheckpoint();semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -637,12 +652,12 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
-            try { if(store.vaultReadBudget().getBoolean("large"))return new JSONObject().put("__loadError","Volume elevado: modo de consulta paginada disponível abaixo. A edição integral permanece indisponível nesta versão.").toString(); return store.read(); }
+            try { if(store.vaultReadBudget().getBoolean("large"))return new JSONObject().put("__loadError","Volume elevado: consulta paginada e edição de textos revisados disponíveis abaixo.").toString(); return store.read(); }
             catch (Exception e) { return "{\"__loadError\":\"Falha ao abrir dados criptografados. Não sobrescreva o arquivo.\"}"; }
         }
         @JavascriptInterface public String saveState(String json) {
             if (!unlocked||archiveBusy.get()) return "Cofre bloqueado ou backup em andamento";
-            try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); try{store.checkpoint(false);}catch(Exception e){/* committed database remains valid; checkpoint can be retried */} return "OK"; }
+            try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
         @JavascriptInterface public String browseVault(String kind,String caseId,String sessionId,String cursor,String field,int offset){
@@ -656,6 +671,16 @@ public final class MainActivity extends Activity {
                     default:throw new IllegalArgumentException("Consulta inválida");
                 }
             }catch(Exception e){return "{\"__loadError\":\"Consulta indisponível ou registro inválido\"}";}
+        }
+        @JavascriptInterface public String editVaultPage(String caseId,String sessionId,String field,int start,int end,String revision,String replacement){
+            if(!unlocked||archiveBusy.get()||automaticCheckpointRunning.get()||semanticBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio())
+                return "{\"__loadError\":\"Cofre ocupado\"}";
+            try{
+                // Normal workspace keeps a global snapshot; do not let a parallel
+                // editor make it stale. Scoped writes are restricted to large mode.
+                if(!store.vaultReadBudget().getBoolean("large"))throw new SecurityException("Use a edição normal do prontuário");
+                return store.editSessionTextPage(caseId,sessionId,field,start,end,revision,replacement).toString();
+            }catch(Exception e){return "{\"__loadError\":\"Edição recusada; recarregue a página ou confira o atendimento pendente\"}";}
         }
         @JavascriptInterface public String fullRecoveryCheckpoints(){
             if(!unlocked)return "[]";
