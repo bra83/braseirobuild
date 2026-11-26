@@ -312,6 +312,25 @@ try{
  assert.equal(await page.evaluate(()=>window.NativeVault.loadClinicalDraft('__eco_admin__','res_template')),'');
  const bibliography=await page.evaluate(()=>({rows:ecoPerspectiveCatalogRows().length,identified:ecoPerspectiveCatalogRows().filter(x=>ecoBibliographicStatus(x.ref).url).length,pdm:ecoPerspectiveCatalogRows('Lingiardi').every(x=>x.ref.includes('2026')&&x.ref.includes('40948049')),unknown:ecoBibliographicStatus('obra não verificada').url}));
  assert.equal(bibliography.rows,42);assert.ok(bibliography.identified>=20);assert.equal(bibliography.pdm,true);assert.equal(bibliography.unknown,'');
+
+ // Exercise the scoped editor in a real DOM, using only simulated records.
+ await page.evaluate(()=>{
+  ecoLargeVaultMode=true;ecoPagedCase='browser-a';ecoPagedSession='scoped-session';ecoPagedField='texto';
+  window.scopedWrites=[];
+  window.NativeVault.browseVault=()=>JSON.stringify({text:'Texto sintético anterior',offset:0,end:24,total:24,next:-1,revision:'a'.repeat(64)});
+  window.NativeVault.editVaultPage=(...args)=>{window.scopedWrites.push(args);return JSON.stringify({text:args[6],offset:0,end:args[6].length,total:args[6].length,next:-1,revision:'b'.repeat(64)});};
+  ecoPagedShow('text');
+ });
+ await page.locator('#ecoPagedEdit').fill('Trecho sintético revisado');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('[data-act="ecoPagedSave"]').click();
+ assert.equal(await page.evaluate(()=>window.scopedWrites.length),0);
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-act="ecoPagedSave"]').click();
+ assert.deepEqual(await page.evaluate(()=>window.scopedWrites[0]),['browser-a','scoped-session','texto',0,24,'a'.repeat(64),'Trecho sintético revisado']);
+ await page.evaluate(()=>{ecoPagedField='mlTranscricao';ecoPagedShow('text');});
+ assert.equal(await page.locator('#ecoPagedEdit').count(),0);
+ await page.evaluate(()=>{ecoLargeVaultMode=false;closeModal();});
  assert.deepEqual(errors,[]);
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
