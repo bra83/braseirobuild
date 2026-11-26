@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** Isolated app workers. The Master must never inherit a permanently saturated pool. */
 public final class AppExecutors {
     private static final ExecutorService IO = Executors.newFixedThreadPool(4, namedFactory("braseiro-io"));
+    // Never queue launch/preflight behind background indexing, RAG or map imports.
+    private static final ExecutorService STARTUP = Executors.newSingleThreadExecutor(namedFactory("braseiro-startup"));
     private static final ExecutorService NETWORK = Executors.newFixedThreadPool(4, namedFactory("braseiro-network"));
     private static final ExecutorService SERIAL = Executors.newSingleThreadExecutor(namedFactory("braseiro-serial"));
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
@@ -26,6 +28,7 @@ public final class AppExecutors {
     private AppExecutors() {}
 
     public static ExecutorService io() { return IO; }
+    public static ExecutorService startup() { return STARTUP; }
     public static ExecutorService network() { return NETWORK; }
     public static ExecutorService serial() { return SERIAL; }
     public static ExecutorService indexing() { return INDEXING; }
