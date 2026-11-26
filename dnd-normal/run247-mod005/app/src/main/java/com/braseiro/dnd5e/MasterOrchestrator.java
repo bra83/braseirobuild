@@ -155,6 +155,12 @@ public final class MasterOrchestrator {
             barbaraLocation=discoverySignals==null?(bScene==null?"":bScene.optString("location","")):discoverySignals.optString("location_label",bScene==null?"":bScene.optString("location",""));
             barbaraImprint=discoverySignals==null?"":discoverySignals.optString("location_imprint","");
             barbaraOccasion=discoveryDecision.optString("occasion","continuation");
+            // A declaration inside an existing scene is NOT a fresh arrival.
+            // A background atlas migration or a secondary JSON cannot turn
+            // Kvothe's small tavern gesture into a panorama of a new city.
+            if(narrative&&!cleanOpening&&bScene!=null
+                &&bScene.optString("location","").trim().length()>0)
+                barbaraOccasion="continuation";
             String atlasHex=bMap==null?"":bMap.optString("current_hex_id","").trim();String atlasPackage=bMap==null?"":bMap.optString("map_package_id","").trim();String atlasLogical=bMap==null?"":bMap.optString("logical_map_id","").trim();String atlasFrame=bMap==null?"":bMap.optString("coordinate_frame_id","").trim();String sceneLocation=bScene==null?"":bScene.optString("location","").trim();boolean atlasCanonical=atlasPackage.length()>0&&atlasHex.length()>0;
             JSONObject canonicalPosition=new JSONObject().put("source",atlasCanonical?"atlas":"scene").put("location_id",atlasCanonical?atlasHex:sceneLocation).put("logical_map_id",atlasLogical).put("map_package_id",atlasPackage).put("coordinate_frame_id",atlasFrame).put("hex_id",atlasHex).put("scene_location",sceneLocation);if(bMap!=null&&bMap.has("position_u")&&!bMap.isNull("position_u")&&bMap.has("position_v")&&!bMap.isNull("position_v"))canonicalPosition.put("u",bMap.optDouble("position_u")).put("v",bMap.optDouble("position_v"));root.put("canonical_position",canonicalPosition);
             JSONObject campaignGrounding=new JSONObject().put("campaign",root.optJSONObject("campaign")).put("scene",compactSceneState).put("party",compactPartyState).put("map",root.optJSONObject("map")).put("atlas_public",root.optJSONObject("atlas_public")).put("canonical_position",canonicalPosition).put("living_world",root.optJSONObject("living_world")).put("environmental_director",environmentalPrompt);
