@@ -166,6 +166,14 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
       - name: Preparar e testar geração local Qwen e compilar ARM64
         run: bash qa/provision_llm.sh
+      - name: Publicar avaliação neural dos 21 autores
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECO-neural-author-benchmark
+          path: tutor-clinico/android/build/eco-neural-audit/author-benchmark.json
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Publicar pacote offline de IA avançada
         uses: actions/upload-artifact@v4
         with:

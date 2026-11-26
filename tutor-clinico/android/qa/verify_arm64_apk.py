@@ -41,6 +41,13 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert len(clinical["fixtures"])==3 and clinical["accepted"]+clinical["editorial_fallbacks"]==3
     assert {x["author"] for x in clinical["fixtures"]}=={"Freud","Klein","Winnicott"}
     advanced=lg["advanced_audit"]
+    expanded=lg["author_benchmark"]
+    assert expanded["clinical_validation"] is False
+    for model in ("light","advanced"):
+        summary=expanded[model]
+        assert summary["tested"]==24 and summary["ordinary"]==21 and summary["adversarial_total"]==3
+        assert summary["runtime_errors"]==0 and summary["abstention_correct"]==3
+        assert 0<=summary["accepted"]<=21 and abs(summary["acceptance_rate"]-summary["accepted"]/21)<1e-8
     assert advanced["model_sha256"]=="6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
     assert advanced["contract_enforced"] is True and advanced["clinical_validation"] is False
     assert len(advanced["fixtures"])==3 and advanced["accepted"]>=2 and advanced["accepted"]+advanced["editorial_fallbacks"]==3
