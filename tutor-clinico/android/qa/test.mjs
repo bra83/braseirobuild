@@ -1846,8 +1846,10 @@ test('ECO checks actual structured justification as well as concept, without ass
 
 test('ECO generation audit uses a unique actual-output binding; rejects truncated sentences and unsupported loss',()=>{
  const auditScript=fs.readFileSync(new URL('./audit_clinical_generation.mjs',import.meta.url),'utf8');
- assert.match(auditScript,/ecoPerspectiveCompose\(globalThis\.ecoAuditRawOutput,\[globalThis\.ecoAuditSourceRow\]/);
- assert.doesNotMatch(auditScript,/ecoPerspectiveCompose\(draft,\[source\]/);
+ assert.match(auditScript,/const composed=compose\(raw,\[source\],fixture\.quote\)/);
+ assert.match(auditScript,/fallback\(fixture\.author,\[source\],fixture\.quote\)/);
+ assert.match(auditScript,/evaluateOutput\(raw,source,fixture\)/);
+ assert.doesNotMatch(auditScript,/js\('ecoPerspective/);
  context.actualOutputFixture='Hipótese: Pode ser útil explorar os sentimentos contraditórios de carinho e raiva.\nJustificativa: A ambivalência permite investigar sentimentos diferentes na mesma relação.\nExemplo: Como você vive o carinho e a raiva pela mesma pessoa?';
  assert.ok(js('ecoPerspectiveCompose(actualOutputFixture,[ecoPerspectiveCatalogRows("Klein")[0]],"Sinto carinho e raiva pela mesma pessoa.").draft'));
  context.actualOutputFixture=context.actualOutputFixture.replace('mesma relação.','mesma relação');
