@@ -333,6 +333,23 @@ try{
  await page.evaluate(()=>{ecoPagedField='mlTranscricao';ecoPagedShow('text');});
  assert.equal(await page.locator('#ecoPagedEdit').count(),0);
  await page.evaluate(()=>{ecoLargeVaultMode=false;closeModal();});
+ // Help is reachable without choosing a patient, and shortcuts explicitly require a selection.
+ await page.evaluate(()=>act('nav','home'));
+ await page.locator('.eco-help-entry').click();
+ assert.equal(await page.evaluate(()=>screen),'help');
+ assert.equal(await page.locator('.eco-help-step').count(),7);
+ assert.equal(await page.locator('#ecoHelpResults details').count(),28);
+ await page.locator('#ecoHelpSearch').fill('sonhos');
+ assert.ok(await page.locator('#ecoHelpResults details').count()>0);
+ assert.ok(await page.locator('#ecoHelpResults details').count()<28);
+ await page.locator('#ecoHelpSearch').fill('');
+ const selected=await page.evaluate(()=>openedId);
+ await page.locator('[data-act="ecoHelpGo"][data-id="perspectivas"]').first().click();
+ assert.equal(await page.evaluate(()=>screen),'help');assert.equal(await page.evaluate(()=>openedId),selected);
+ await page.locator('[data-act="ecoHelpCase"][data-id="browser-b"]').click();
+ assert.equal(await page.evaluate(()=>screen),'case');assert.equal(await page.evaluate(()=>tab),'perspectivas');assert.equal(await page.evaluate(()=>openedId),'browser-b');
+ await page.evaluate(()=>act('nav','home'));await page.locator('.eco-help-entry').click();
+ await page.screenshot({path:path.join(out,'central-ajuda.png'),fullPage:false});
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
  const routes=await page.evaluate(()=>({home:ecoHomeModules.map(x=>[x[0],x[4]]),case:["sintese","atendimento","fichaEvolutiva","sessoes","assistenteIA","perspectivas","compararRelatos","revisaoInteligente","analisar","anamnese","enquadre","investigar","tecnicas","sonhos","genograma","rede","cronologia","documentos","diario","seguranca"]}));
@@ -357,6 +374,7 @@ try{
   await page.setViewportSize({width,height});
   for(const theme of ['light','dark']){
    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.locator('#themeToggle').click();
+   await page.evaluate(()=>act('nav','help'));await measure(width+'x'+height+'/'+theme+'/help');
    for(const [id,route] of routes.home){
     await page.evaluate(()=>act('nav','home'));await tile(id).click();
     if(route==='case'||route==='manual')await page.locator('.eco-home-pick [data-id="browser-b"]').click();
