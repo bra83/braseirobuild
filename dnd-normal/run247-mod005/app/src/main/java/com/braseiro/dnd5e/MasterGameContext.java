@@ -91,21 +91,25 @@ public final class MasterGameContext {
             root.put("map",compactMap(db.getMapState()));
             root.put("map_context",tail(mapNarrativeContext,6500));
             root.put("tactical_tokens",new JSONArray(db.listTacticalTokens()));
-            root.put("recent_journal",compactRows(db.listJournal(),8,new String[]{"title","body","kind","created_at"},1000));
+            root.put("recent_journal",compactRows(db.listJournalForMasterContext(),8,new String[]{"title","body","kind","created_at"},1000));
             root.put("recent_dice",compactRows(db.listDiceHistory(),12,new String[]{"formula","detail","total","mode","created_at"},500));
-            root.put("npcs",WorldContextSelector.select(db.listNpcMemories(5000),contextFocus,50,"name","summary","goals","relationship","knowledge","last_seen","hex_id"));
-            root.put("known_npcs",WorldContextSelector.select(db.listKnownNpcs(5000),contextFocus,50,"name","summary","goals","relationship","knowledge","last_seen","hex_id"));
+            root.put("npcs",WorldContextSelector.select(db.listNpcMemories(450),contextFocus,50,"name","summary","goals","relationship","knowledge","last_seen","hex_id"));
+            root.put("known_npcs",WorldContextSelector.select(db.listKnownNpcs(450),contextFocus,50,"name","summary","goals","relationship","knowledge","last_seen","hex_id"));
             root.put("scene_npcs",limitArray(db.listSceneNpcs(30),30));
+            root.put("scene_cast_priority",
+                "scene_npcs e scene.present_npcs_json são o elenco persistente prioritário. "+
+                "Listas resumidas de memória não autorizam substituir NPC, nome, idade, "+
+                "história ou relação já estabelecidos; nenhuma missão opcional altera a cena.");
             root.put("world_active_npcs",limitArray(db.listWorldActiveNpcs(40),40));
-            root.put("npc_cognition",WorldContextSelector.select(db.listNpcCognitiveStates(5000),contextFocus,50,"npc_name","current_location","next_action","beliefs_json","faction","last_interaction_summary"));
+            root.put("npc_cognition",WorldContextSelector.select(db.listNpcCognitiveStates(450),contextFocus,50,"npc_name","current_location","next_action","beliefs_json","faction","last_interaction_summary"));
             root.put("knowledge_facts",new JSONArray(db.listKnowledgeFacts(50)));
             root.put("present_npc_adventure_memory",new AdventureContinuityEngine(db).sceneContext());
             root.put("kvothe_strixhaven_party_policy",new KvotheCampaignPartyBridge(db).context());
-            root.put("quests",WorldContextSelector.select(db.listQuests("active",1000),contextFocus,30,"title","objective","stage","stakes"));
-            root.put("factions",WorldContextSelector.select(db.listFactions(1000),contextFocus,30,"name","agenda","current_plan","location"));
+            root.put("quests",WorldContextSelector.select(db.listQuests("active",120),contextFocus,30,"title","objective","stage","stakes"));
+            root.put("factions",WorldContextSelector.select(db.listFactions(120),contextFocus,30,"name","agenda","current_plan","location"));
             root.put("guilds",new GuildEngine(db).promptView(contextFocus,30));
-            root.put("world_clocks",WorldContextSelector.select(db.listWorldClocks(true,1000),contextFocus,30,"name","consequence","owner_entity","trigger_condition"));
-            root.put("world_events",WorldContextSelector.select(db.listWorldEventsForMaster(1000),contextFocus,24,"title","description","event_key"));
+            root.put("world_clocks",WorldContextSelector.select(db.listWorldClocks(true,120),contextFocus,30,"name","consequence","owner_entity","trigger_condition"));
+            root.put("world_events",WorldContextSelector.select(db.listWorldEventsForMaster(120),contextFocus,24,"title","description","event_key"));
             root.put("pending_transactions",new JSONArray(db.listPendingTransactions("pending",20)));
             root.put("pending_actions",db.listPendingActions("pending",40));
             root.put("living_world",new JSONObject(new LivingWorldEngine(db).compactContext()));
