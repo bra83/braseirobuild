@@ -640,6 +640,29 @@ public class EcoIntegratedPersistenceTest {
         assertEquals(3,bytes.size());
     }
 
+    @Test public void scopedClinicalModulesPreserveIsolationAndHistory() throws Exception {
+        Context context=RuntimeEnvironment.getApplication();
+        SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));
+        JSONObject a=caseWith("module-a","A"),b=caseWith("module-b","B");
+        a.put("anamnese",new JSONObject().put("queixaDetalhada","ANTES").put("expectativas","PRESERVAR"));
+        b.put("anamnese",new JSONObject().put("queixaDetalhada","OUTRO"));
+        store.save(new JSONObject().put("version",1).put("cases",new JSONArray().put(a).put(b)).put("appointments",new JSONArray()).toString());
+        JSONObject page=store.caseModulePage("module-a","anamnese.queixaDetalhada",0);
+        assertEquals("ANTES",page.getString("text"));assertTrue(page.getBoolean("editable"));
+        String rev=page.getString("revision");
+        store.editCaseModulePage("module-a","anamnese.queixaDetalhada",0,5,rev,"NOVO");
+        assertEquals("NOVO",store.caseModulePage("module-a","anamnese.queixaDetalhada",0).getString("text"));
+        assertEquals("PRESERVAR",store.caseModulePage("module-a","anamnese.expectativas",0).getString("text"));
+        assertEquals("OUTRO",store.caseModulePage("module-b","anamnese.queixaDetalhada",0).getString("text"));
+        assertTrue(store.caseModulePage("module-a","ecoClinicalHistory",0).getString("text").contains("ANTES"));
+        try{store.editCaseModulePage("module-a","anamnese.queixaDetalhada",0,4,rev,"FALHA");fail("stale revision");}catch(SecurityException expected){}
+        try{store.caseModulePage("module-a","diarioNotas",0);fail("private field");}catch(SecurityException expected){}
+        try{store.editCaseModulePage("module-a","genograma",0,0,rev,"FALHA");fail("unauthorized edit");}catch(IllegalArgumentException expected){}
+        assertEquals(0,store.appointmentPage("module-a","").getJSONArray("rows").length());
+        assertEquals("A",byId(new JSONObject(store.read()),"module-a").getJSONArray("sessoes").getJSONObject(0).getString("texto"));
+        store.getDbHelper().close();
+    }
+
     @Test public void scopedPageEditingPreservesOriginalAndHistoryAndRejectsStaleWrites() throws Exception {
         Context context=RuntimeEnvironment.getApplication();
         SecureStore store=new SecureStore(context,new SecretKeySpec(new byte[32],"AES"));

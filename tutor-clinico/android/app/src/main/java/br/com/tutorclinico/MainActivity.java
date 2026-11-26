@@ -678,6 +678,9 @@ public final class MainActivity extends Activity {
                     case "sessions":return store.sessionPage(caseId,cursor).toString();
                     case "text":return store.sessionTextPage(caseId,sessionId,field,offset).toString();
                     case "segments":return store.segmentPage(caseId,sessionId,cursor).toString();
+                    case "module":return store.caseModulePage(caseId,field,offset).toString();
+                    case "appointments":return store.appointmentPage(caseId,cursor).toString();
+                    case "segmentText":return store.segmentTextPage(caseId,sessionId,field,offset).toString();
                     default:throw new IllegalArgumentException("Consulta inválida");
                 }
             }catch(Exception e){return "{\"__loadError\":\"Consulta indisponível ou registro inválido\"}";}
@@ -689,6 +692,7 @@ public final class MainActivity extends Activity {
                 // Normal workspace keeps a global snapshot; do not let a parallel
                 // editor make it stale. Scoped writes are restricted to large mode.
                 if(!largeVaultMode||!store.vaultReadBudget().getBoolean("large"))throw new SecurityException("Use a edição normal do prontuário");
+                if(sessionId.isEmpty())return store.editCaseModulePage(caseId,field,start,end,revision,replacement).toString();
                 return store.editSessionTextPage(caseId,sessionId,field,start,end,revision,replacement).toString();
             }catch(Exception e){return "{\"__loadError\":\"Edição recusada; recarregue a página ou confira o atendimento pendente\"}";}
         }

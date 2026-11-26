@@ -1903,3 +1903,12 @@ test('ECO rejects real CI failure patterns: author substitution, invented partne
  assert.match(run(base.replace('Como você vive o carinho e a raiva pela mesma pessoa?','O que você pensa quando ouviu sua ex-companheira criticar?')).error,/não relatada/);
  assert.match(run(base.replace('Como você vive o carinho e a raiva pela mesma pessoa?','Quando você se aproxima, eu me afasto?')).error,/assumir sua voz/);
 });
+
+test('ECO large vault clinical module menu and scoped bridge read',()=>{
+ assert.equal(js('Object.keys(ecoPagedModules).length'),24);
+ assert.ok(js('!Object.hasOwn(ecoPagedModules,"diarioNotas")'));
+ assert.equal(js('ecoPagedEditableFields.anamnese.length'),31);
+ const calls=[];context.window.NativeVault.browseVault=(...args)=>{calls.push(args);return JSON.stringify({text:'FICTÍCIO',offset:0,end:8,next:-1,total:8,editable:false});};
+ assert.equal(js('ecoPagedRead("module","module-a","","","sonhosList",0).text'),'FICTÍCIO');
+ assert.deepEqual(calls[0],['module','module-a','','','sonhosList',0]);
+});
