@@ -44,16 +44,14 @@ public final class BraseiroSideQuestStore {
             throw new IllegalArgumentException("Missões JSON disponíveis apenas no mundo D&D.");
         SQLiteDatabase sql = db.getWritableDatabase();
         ensureSchema(sql);
-        // If there is a main imported package, the optional package must share
-        // its world and timeline. Otherwise the host map position remains authority.
-        JSONObject hasMain = db.queryOne("SELECT name FROM sqlite_master WHERE type='table' AND name='braseiro_adventure_packages'", null);
-        if (hasMain.length() > 0) {
-            JSONObject main = db.queryOne("SELECT world_id,timeline_id,active_json FROM braseiro_adventure_packages WHERE scope=?",
-                    new String[]{scope()});
-            if (main.length() > 0 && new JSONObject(main.optString("active_json","{}")).length() > 0
-                    && (!world.equals(main.optString("world_id")) || !timeline.equals(main.optString("timeline_id"))))
-                throw new IllegalArgumentException("A missão secundária pertence a outro mundo ou cronologia.");
-        }
+        // Independent optional library: the principal package's worldId/timelineId
+        // describe THAT adventure, not the live D&D atlas or all future modules.
+        // A Strixhaven principal may remain active while the same campaign
+        // continues in Faerûn. Comparing its identifiers here incorrectly
+        // rejects a valid Faerûn module. The current D&D profile and the
+        // module's Faerûn world guard are checked below; geography is checked
+        // at RUMOR/SCENE exposure, never by mutating the main adventure.
+        // Preserve the module's own world/timeline metadata for backup/restore.
         if (!world.toLowerCase(Locale.ROOT).contains("faerun"))
             throw new IllegalArgumentException("Este pacote não é uma aventura do mundo atual de Faerûn.");
         JSONObject previous = db.queryOne("SELECT package_json FROM braseiro_sidequest_modules WHERE scope=? AND module_id=?",
