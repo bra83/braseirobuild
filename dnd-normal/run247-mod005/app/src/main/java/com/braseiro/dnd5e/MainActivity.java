@@ -2182,13 +2182,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final String openingHistoryKey="recent_opening_archetypes_"+activeWorldProfile();
             final AdventureOpeningPlanner.Plan openingPlan=AdventureOpeningPlanner.choose(activeWorldProfile(),campaign.optString("name"),campaign.optString("tone"),startingHex,prefs.getString(openingHistoryKey,"[]"),prefs.getString("recent_opening_texts_"+activeWorldProfile(),"[]"),System.nanoTime());
             prefs.edit().putString(openingHistoryKey,AdventureOpeningPlanner.remember(prefs.getString(openingHistoryKey,"[]"),openingPlan.id)).apply();
-            final String startContext=buildAdventureStartContext(startingPoint);
             final JSONObject savedOpeningScene=db.getSceneState();
             final boolean continuingLocalScene=!reset
                 &&savedOpeningScene.optString("location","").trim().length()>0
                 &&"retained_confirmed_position".equals(startingPoint.optString("selection_mode"));
+            final String startContext=continuingLocalScene?"POSIÇÃO ATUAL CONFIRMADA: hex "+startingHex+". Use a cena persistida, sem nova busca panorâmica de geografia. ":buildAdventureStartContext(startingPoint);
             final String localSceneOpening=continuingLocalScene
-                ?("CONTINUIDADE OBRIGATÓRIA: a companhia JÁ está em '"+savedOpeningScene.optString("location")
+                ?("CONTINUIDADE OBRIGATÓRIA: vocês JÁ estão em '"+savedOpeningScene.optString("location")
                   +"', hex "+startingHex+". Esta é a mesma cena, NÃO uma chegada ao povoado, estrada ou apresentação panorâmica. "
                   +"Respeite os NPCs, nomes, ações, relações e posições persistidos; nunca substitua um estalajadeiro conhecido por figurante novo. "
                   +"Reaja ao acontecimento imediato com proporção e diálogo natural, sem salto de tempo ou viagem. ")
@@ -2276,8 +2276,38 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(type.length()>0&&name.length()>0)label+=" — "+type;return label;
     }
 
-    private void confirmCatalogedAdventureStart(final String chosenHex,final String touchedHex,final boolean resetStart){
-        String packageId=db.getMapState().optString("map_package_id","");final boolean contractAtlas=isAtlasContractRuntime(packageId);final JSONObject point=db.describeCatalogedAdventureStart(packageId,chosenHex);if(point.length()==0){toast(contractAtlas?"O Atlas mudou; escolha outro hex.":"O catálogo mudou; escolha outro ponto.");return;}
+    private volatile long adventureMapSelectionGeneration=0L;
+    private void selectAdventureStartHexAsync(final String touchedHex,final boolean resetStart){
+        final long generation=++adventureMapSelectionGeneration;
+        setStatus("Consultando o ponto escolhido no Atlas…");
+        AppExecutors.io().execute(new Runnable(){public void run(){
+            if(generation!=adventureMapSelectionGeneration)return;
+            try{
+                final JSONObject state=db.getMapState();
+                final String packageId=state.optString("map_package_id","");
+                final boolean contractAtlas=db.hasAtlasContractMetadata(packageId);
+                final boolean eligible=contractAtlas?db.isValidMapHex(packageId,touchedHex):db.isCatalogedAdventureStartHex(packageId,touchedHex);
+                String target=touchedHex;
+                if(!eligible&&!contractAtlas){
+                    List<JSONObject> nearest=db.findNearestAdventureStartCandidates(packageId,touchedHex,1);
+                    target=nearest.isEmpty()?"":nearest.get(0).optString("hex_id","");
+                }else if(!eligible)target="";
+                final String chosenHex=target;
+                final JSONObject point=chosenHex.length()==0?new JSONObject():db.describeCatalogedAdventureStart(packageId,chosenHex);
+                ui.post(new Runnable(){public void run(){
+                    if(generation!=adventureMapSelectionGeneration||!pendingAdventureStartFromMap||!"Mapa".equals(currentScreen)||!canShowDialog())return;
+                    if(chosenHex.length()==0||point.length()==0){toast(contractAtlas?"O ponto ainda não está disponível no índice do Atlas.":"Nenhum ponto catalogado válido.");return;}
+                    if(!chosenHex.equalsIgnoreCase(touchedHex)&&mapView!=null)mapView.focusHexId(chosenHex,Math.max(1.55f,mapView.getScaleValue()));
+                    confirmCatalogedAdventureStart(chosenHex,touchedHex,resetStart,contractAtlas,point);
+                }});
+            }catch(final Throwable failure){
+                AppLog.e("AdventureStart","Falha na consulta assíncrona do ponto inicial.",failure);
+                ui.post(new Runnable(){public void run(){if(generation==adventureMapSelectionGeneration&&pendingAdventureStartFromMap)toast("Não foi possível consultar este hex: "+safeMessage(failure));}});
+            }
+        }});
+    }
+
+    private void confirmCatalogedAdventureStart(final String chosenHex,final String touchedHex,final boolean resetStart,final boolean contractAtlas,final JSONObject point){
         String label=adventureStartPointLabel(point);String message;
         if(contractAtlas)message=label+" • hex "+chosenHex+". Este hex existente no dataset será fixado como posição inicial, mesmo que não contenha cidade ou POI. Em seguida o aplicativo consultará as regras e escreverá a primeira cena ancorada na região/terreno realmente conhecidos.";
         else if(touchedHex!=null&&touchedHex.length()>0&&!touchedHex.equalsIgnoreCase(chosenHex))message="O hex "+touchedHex+" não possui conteúdo catalogado para uma abertura. O ponto catalogado mais próximo é "+label+", no hex "+chosenHex+". Iniciar ali?";
@@ -2291,8 +2321,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String previousHex=state.optString("current_hex_id","").trim();
         if(!reset&&requested.length()>0&&requested.equalsIgnoreCase(previousHex)
                 &&db.getRawMapHex(packageId,previousHex).length()>0){
-            JSONObject existing=db.describeCatalogedAdventureStart(packageId,previousHex);
-            if(existing.length()==0)existing=new JSONObject().put("hex_id",previousHex).put("start_kind","existing_position");
+            JSONObject existing=new JSONObject().put("hex_id",previousHex).put("start_kind","existing_position").put("start_location_name",db.getSceneState().optString("location",""));
             existing.put("selection_mode","retained_confirmed_position");
             // No movement, fog reset, journal entry or route reset.
             return existing;
@@ -12358,7 +12387,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
         final boolean[] annotatingHex={false};
         mapView.setListener(new MapBoardView.Listener(){
             public void onStateChanged(float tx,float ty,float sc,float ox,float oy,String hexId,String revealsJson){JSONObject st=db.getMapState();String packageId=st.optString("map_package_id","");if(db.hasAtlasContractMetadata(packageId)){String current=st.optString("current_hex_id","");db.saveMapCameraStateForProfile(activeWorldProfile(),sc,ox,oy);db.saveMapViewExtras(current,mapView.isOverlayVisible(),revealsJson);if(current.length()>0)currentHexInfo.setText("Hex atual: "+current+briefHexLabel(packageId,current));}else{db.saveMapPackageState(st.optString("image_uri"),st.optString("overlay_uri"),st.optString("manifest_json"),packageId,hexId,mapView.isOverlayVisible(),revealsJson,effectiveMapGridType(grid),effectiveMapGridSize(size),st.optInt("fog_enabled")==1,tx,ty,sc,ox,oy);if(hexId.length()>0)currentHexInfo.setText("Hex atual: "+hexId+briefHexLabel(packageId,hexId));}}
-            public void onHexSelected(final String hexId){final JSONObject st=db.getMapState();if(pendingAdventureStartFromMap){final boolean resetStart=pendingAdventureStartReset;if(isEligibleAdventureStartHex(hexId)){confirmCatalogedAdventureStart(hexId,hexId,resetStart);return;}JSONObject nearest=nearestCatalogedAdventureStart(hexId);if(nearest.length()==0){String pid=st.optString("map_package_id","");if(db.hasAtlasContractMetadata(pid))toast("O índice oficial ainda está sendo restaurado automaticamente. Nenhuma reimportação ou alinhamento manual é necessário.");else toast("Nenhum ponto catalogado posicionado perto deste toque.");return;}String targetHex=nearest.optString("hex_id","");if(targetHex.length()==0){toast("O catálogo não devolveu um hex utilizável.");return;}mapView.focusHexId(targetHex,Math.max(1.55f,mapView.getScaleValue()));confirmCatalogedAdventureStart(targetHex,hexId,resetStart);return;}if(annotatingHex[0]){if(!mapView.isMasterView()&&!mapView.isHexRevealed(hexId)){toast("Esse hex ainda está sob a névoa. Explore-o antes de registrar uma lembrança.");return;}annotatingHex[0]=false;noteAnyHex.setText("ANOTAR NO MAPA");editHexNoteDialog(st.optString("map_package_id"),hexId);return;}if(mapView.isMasterView()){showHexDetails(st.optString("map_package_id"),hexId);return;}if(!mapView.isPositionLocked()){new AlertDialog.Builder(MainActivity.this).setTitle("Confirmar posição inicial").setMessage("Fixar o herói no hex "+hexId+"? Depois, tocar no mapa apenas escolherá destinos; o movimento ocorrerá somente por AVANÇAR 1 HEX.").setNegativeButton("Cancelar",null).setPositiveButton("FIXAR POSIÇÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if(isAtlasContractRuntime(st.optString("map_package_id",""))&&!commitAtlasCurrentHex(st.optString("map_package_id",""),hexId,"posição inicial confirmada")){toast("Não foi possível fixar esse hex como posição do grupo.");return;}mapView.setCurrentHexId(hexId);mapView.setPositionLocked(true);db.saveMapTravelState(true,"","[]",routeOwner.getSelectedItem().toString());db.addAuditEvent("mapa","Posição inicial fixada",hexId,"{}",db.getMapState().toString(),true);currentHexInfo.setText("Hex atual: "+hexId+briefHexLabel(st.optString("map_package_id"),hexId));updateRouteInfo(routeInfo,mapView);toast("Posição fixada. Toques no mapa não movem mais o herói.");}}).show();return;}if(editingRoute[0]){ArrayList<String> route=new ArrayList<String>(mapView.getRouteHexIds());String previous=route.isEmpty()?mapView.getCurrentHexId():route.get(route.size()-1);int existing=route.indexOf(hexId);if(existing>=0){while(route.size()>existing+1)route.remove(route.size()-1);}else if(areMapNeighbors(previous,hexId,st)){route.add(hexId);}else{toast("A rota só pode avançar para um hex adjacente. A distância é estimada continuamente entre os pontos da rota.");return;}mapView.setRoute(route);if(!route.isEmpty())mapView.setDestination(route.get(route.size()-1));saveTravel(mapView,routeOwner);updateRouteInfo(routeInfo,mapView);return;}mapView.setDestination(hexId);mapView.setRoute(new ArrayList<String>());saveTravel(mapView,routeOwner);updateRouteInfo(routeInfo,mapView);toast("Destino "+hexId+" marcado em amarelo. Escolha rota automática ou edite a rota.");}
+            public void onHexSelected(final String hexId){if(pendingAdventureStartFromMap){selectAdventureStartHexAsync(hexId,pendingAdventureStartReset);return;}final JSONObject st=db.getMapState();if(annotatingHex[0]){if(!mapView.isMasterView()&&!mapView.isHexRevealed(hexId)){toast("Esse hex ainda está sob a névoa. Explore-o antes de registrar uma lembrança.");return;}annotatingHex[0]=false;noteAnyHex.setText("ANOTAR NO MAPA");editHexNoteDialog(st.optString("map_package_id"),hexId);return;}if(mapView.isMasterView()){showHexDetails(st.optString("map_package_id"),hexId);return;}if(!mapView.isPositionLocked()){new AlertDialog.Builder(MainActivity.this).setTitle("Confirmar posição inicial").setMessage("Fixar o herói no hex "+hexId+"? Depois, tocar no mapa apenas escolherá destinos; o movimento ocorrerá somente por AVANÇAR 1 HEX.").setNegativeButton("Cancelar",null).setPositiveButton("FIXAR POSIÇÃO",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int w){if(isAtlasContractRuntime(st.optString("map_package_id",""))&&!commitAtlasCurrentHex(st.optString("map_package_id",""),hexId,"posição inicial confirmada")){toast("Não foi possível fixar esse hex como posição do grupo.");return;}mapView.setCurrentHexId(hexId);mapView.setPositionLocked(true);db.saveMapTravelState(true,"","[]",routeOwner.getSelectedItem().toString());db.addAuditEvent("mapa","Posição inicial fixada",hexId,"{}",db.getMapState().toString(),true);currentHexInfo.setText("Hex atual: "+hexId+briefHexLabel(st.optString("map_package_id"),hexId));updateRouteInfo(routeInfo,mapView);toast("Posição fixada. Toques no mapa não movem mais o herói.");}}).show();return;}if(editingRoute[0]){ArrayList<String> route=new ArrayList<String>(mapView.getRouteHexIds());String previous=route.isEmpty()?mapView.getCurrentHexId():route.get(route.size()-1);int existing=route.indexOf(hexId);if(existing>=0){while(route.size()>existing+1)route.remove(route.size()-1);}else if(areMapNeighbors(previous,hexId,st)){route.add(hexId);}else{toast("A rota só pode avançar para um hex adjacente. A distância é estimada continuamente entre os pontos da rota.");return;}mapView.setRoute(route);if(!route.isEmpty())mapView.setDestination(route.get(route.size()-1));saveTravel(mapView,routeOwner);updateRouteInfo(routeInfo,mapView);return;}mapView.setDestination(hexId);mapView.setRoute(new ArrayList<String>());saveTravel(mapView,routeOwner);updateRouteInfo(routeInfo,mapView);toast("Destino "+hexId+" marcado em amarelo. Escolha rota automática ou edite a rota.");}
         });
         mapSearchButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchMapLocation(mapSearch);}});
         autoRoute.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!mapView.isPositionLocked()){toast("Defina e confirme primeiro a posição inicial.");return;}String target=mapView.getDestinationHexId();if(target.length()==0){toast("Toque em um hex para marcar o destino amarelo.");return;}List<String> route=mapRouteList(mapView.getCurrentHexId(),target,500,mapGeometryFromState(db.getMapState()));mapView.setRoute(route);editingRoute[0]=false;manualRoute.setText("EDITAR ROTA");saveTravel(mapView,routeOwner);updateRouteInfo(routeInfo,mapView);}});
