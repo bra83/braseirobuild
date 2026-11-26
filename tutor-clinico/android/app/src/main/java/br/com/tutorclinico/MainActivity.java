@@ -93,6 +93,7 @@ public final class MainActivity extends Activity {
     private final java.util.concurrent.atomic.AtomicBoolean automaticCheckpointRunning=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile java.util.concurrent.atomic.AtomicBoolean automaticCheckpointCancel;
     private volatile boolean foreground=true;
+    private volatile boolean largeVaultMode=false;
     private volatile boolean unlocked = false;
     private boolean showingLock = false;
     private long backgroundAt = 0;
@@ -652,11 +653,11 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public String loadState() {
             if (!unlocked) return "{\"__loadError\":\"Bloqueado\"}";
-            try { if(store.vaultReadBudget().getBoolean("large"))return new JSONObject().put("__loadError","Volume elevado: consulta paginada e edição de textos revisados disponíveis abaixo.").toString(); return store.read(); }
+            try { largeVaultMode=store.vaultReadBudget().getBoolean("large"); if(largeVaultMode)return new JSONObject().put("__loadError","Volume elevado: consulta paginada e edição de textos revisados disponíveis abaixo.").put("largeVault",true).toString(); return store.read(); }
             catch (Exception e) { return "{\"__loadError\":\"Falha ao abrir dados criptografados. Não sobrescreva o arquivo.\"}"; }
         }
         @JavascriptInterface public String saveState(String json) {
-            if (!unlocked||archiveBusy.get()) return "Cofre bloqueado ou backup em andamento";
+            if (!unlocked||archiveBusy.get()||largeVaultMode) return "Cofre bloqueado, backup em andamento ou modo paginado";
             try { store.save(json); AgendaReminderReceiver.refresh(MainActivity.this); return "OK"; }
             catch (Exception e) { return "ERRO: " + e.getMessage(); }
         }
@@ -678,7 +679,7 @@ public final class MainActivity extends Activity {
             try{
                 // Normal workspace keeps a global snapshot; do not let a parallel
                 // editor make it stale. Scoped writes are restricted to large mode.
-                if(!store.vaultReadBudget().getBoolean("large"))throw new SecurityException("Use a edição normal do prontuário");
+                if(!largeVaultMode||!store.vaultReadBudget().getBoolean("large"))throw new SecurityException("Use a edição normal do prontuário");
                 return store.editSessionTextPage(caseId,sessionId,field,start,end,revision,replacement).toString();
             }catch(Exception e){return "{\"__loadError\":\"Edição recusada; recarregue a página ou confira o atendimento pendente\"}";}
         }
