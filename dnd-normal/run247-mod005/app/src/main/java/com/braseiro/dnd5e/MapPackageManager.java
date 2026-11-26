@@ -140,7 +140,8 @@ public final class MapPackageManager {
                     JSONObject atlasContract = contractFile.isFile() ? new JSONObject(readText(contractFile)) : new JSONObject();
                     JSONObject canonicalIndex = indexContractFile.isFile() ? new JSONObject(readText(indexContractFile)) : new JSONObject();
                     JSONObject migrationProfiles = migrationsFile.isFile() ? new JSONObject(readText(migrationsFile)) : new JSONObject();
-                    if (atlasProfile == null && (bundledAtlas || contractFile.isFile() || manifestRoot.has("coordinate_frame_id"))) {
+                    boolean legacyV2 = atlasProfile == null && "PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip".equals(inputName) && LegacyFaerunV2Atlas.matchesSource(uri);
+                    if (atlasProfile == null && !legacyV2 && (bundledAtlas || contractFile.isFile() || manifestRoot.has("coordinate_frame_id"))) {
                         throw new Exception("Atlas Contract sem perfil reconhecido: " + profileFile.getName() + "; arquivos extraídos: " + extracted);
                     }
                     if (atlasProfile != null) atlasProfile.validateAgainst(manifestRoot, canonicalIndex, atlasContract);
@@ -184,8 +185,8 @@ public final class MapPackageManager {
                             || (isFaerunMap && isPrevFaerun)
                             || (atlasProfile != null && AtlasMigrationEngine.sourceDeclaredForTarget(migrationProfiles, previousPackage.optString("map_package_id",previousPackage.optString("package_id",previous.optString("map_package_id",""))), previous.optString("coordinate_frame_id",previousPackage.optString("coordinate_frame_id","")), atlasProfile.mapPackageId, atlasProfile.coordinateFrameId))
                             || (previous.optString("current_hex_id", "").trim().length() > 0 && geometry != null && geometry.byId(previous.optString("current_hex_id")) != null);
-                    packageId = atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis();
-                    if (atlasProfile != null && appDb.getMapPackageAny(packageId).length() > 0) {
+                    packageId = legacyV2 ? LegacyFaerunV2Atlas.PACKAGE_ID : (atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis());
+                    if ((atlasProfile != null || legacyV2) && appDb.getMapPackageAny(packageId).length() > 0) {
                         if(appDb.isAtlasContractPackage(packageId)&&appDb.isMapPackageUsable(packageId)){
                             JSONObject ready=appDb.getMapPackageAny(packageId);
                             if(!packageId.equals(previous.optString("map_package_id")))appDb.rebindReadyAtlasPackage(worldProfile,packageId);
@@ -280,6 +281,13 @@ public final class MapPackageManager {
                     stage = "cruzar atlas, índice e locais";
                     progress(callback, "Validando cruzamento por hexId", 6, 8);
                     validateDatabaseSamples(packageId, geometry);
+                    if (legacyV2) {
+                        stage = "migrar o Atlas V2 embarcado para o contrato indexado";
+                        atlasProfile = LegacyFaerunV2Atlas.adapt(db, packageId, manifestRoot, geometry, spec.mapFile.getName(), hexCount);
+                        manifestJson = manifestRoot.toString();
+                        geometry = MapManifestGeometry.fromAtlasDatabase(appDb, packageId, atlasProfile);
+                        verifyGeometry(geometry);
+                    }
                     ContentValues ready = new ContentValues();
                     ready.put("hex_count", hexCount);
                     ready.put("location_count", locationCount);
