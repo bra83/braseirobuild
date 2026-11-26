@@ -68,7 +68,7 @@ public final class MainActivity extends Activity {
     private String selectedMicEngine="whisper-base";
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
-    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911, LOCAL_VAULT_EXPORT_CODE=912;
+    private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911, LOCAL_VAULT_EXPORT_CODE=912, ADVANCED_LLM_CODE=913;
     private int pendingCheckpointSlot=-1;
     private boolean pendingVaultDiary=false;
     private final java.util.concurrent.atomic.AtomicBoolean archiveBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -355,6 +355,13 @@ public final class MainActivity extends Activity {
             if(id!=null&&id.equals(semanticJobId)){semanticEpoch++;embeddingCache.clear();return "OK";}
             return "INATIVO";
         }
+        @JavascriptInterface public void installAdvancedLlm(){
+            main.post(()->reauthenticate("Importar modelo de IA offline",()->{
+                if(!unlocked||archiveBusy.get()||semanticBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()){showToast("Finalize o processamento atual.");return;}
+                Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
+                try{startActivityForResult(picker,ADVANCED_LLM_CODE);}catch(Exception e){showToast("Seletor indisponível.");}
+            }));
+        }
         @JavascriptInterface public String analyzeSemantic(String json){
             if(!unlocked)return "ECO bloqueado";
             if(ml.isRecording()||ml.isTranscribing())return "Motor de áudio ocupado";
@@ -574,7 +581,8 @@ public final class MainActivity extends Activity {
                 info.put("rerankerAvailable", RerankEngine.available(getApplicationContext()));
                 info.put("rerankerModel", RerankEngine.MODEL);
                 info.put("llmAvailable", LocalLlmEngine.available(getApplicationContext()));
-                info.put("llmModel", LocalLlmEngine.MODEL);
+                info.put("llmAdvancedAvailable",LocalLlmEngine.advancedAvailable(getApplicationContext()));
+                info.put("llmModel", LocalLlmEngine.advancedAvailable(getApplicationContext())?LocalLlmEngine.ADVANCED_MODEL:LocalLlmEngine.MODEL);
                 info.put("databaseType", "SQLite-Transactional-AES-GCM-v5");
                 return info.toString();
             } catch (Exception e) {
@@ -974,6 +982,22 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
+        if(code==ADVANCED_LLM_CODE){
+            if(!privateOperationAuthorized()||result!=RESULT_OK||data==null||data.getData()==null||archiveBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()||!semanticBusy.compareAndSet(false,true))return;
+            Uri uri=data.getData();final long epoch=semanticEpoch;
+            java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);
+            AlertDialog progress=new AlertDialog.Builder(this).setTitle("Instalando modelo offline").setMessage("Verificando integridade do pacote.").setCancelable(false).setNegativeButton("Cancelar",(d,w)->cancel.set(true)).create();progress.show();
+            progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancel.set(true);v.setEnabled(false);});
+            new Thread(()->{
+                boolean ok=false;
+                try(InputStream input=getContentResolver().openInputStream(uri)){
+                    if(input==null)throw new java.io.IOException("Modelo indisponível");
+                    LocalLlmEngine.installAdvanced(getApplicationContext(),input,()->unlocked&&semanticEpoch==epoch&&!cancel.get());ok=true;
+                }catch(Exception ignored){}finally{semanticBusy.set(false);}
+                final boolean installed=ok;
+                main.post(()->{if(!isFinishing()&&!isDestroyed()){progress.dismiss();showToast(installed?"Modelo avançado instalado.":"Importação recusada ou cancelada; modelo anterior preservado.");if(unlocked)jsCallback("nativeFullCheckpointChanged","");}});
+            },"eco-install-advanced-llm").start();return;
+        }
         if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE||code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE||code==LOCAL_VAULT_EXPORT_CODE)&&!privateOperationAuthorized()){
             clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
             if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;

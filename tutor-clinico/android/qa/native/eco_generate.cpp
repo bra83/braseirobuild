@@ -8,8 +8,9 @@
 static void silent(enum ggml_log_level,const char*,void*){}
 int main(int argc,char** argv){
  if(argc!=2&&argc!=3)return 2;
- const int budget=argc==3&&std::string(argv[2])=="384"?384:192;
- if(argc==3&&budget!=384)return 2;
+ const bool structured=argc==3&&std::string(argv[2])=="structured";
+ const int budget=structured?256:argc==3&&std::string(argv[2])=="384"?384:192;
+ if(argc==3&&!structured&&budget!=384)return 2;
  std::string prompt((std::istreambuf_iterator<char>(std::cin)),{});if(prompt.empty()||prompt.size()>24000)return 3;
  llama_log_set(silent,nullptr);llama_backend_init();
  auto mp=llama_model_default_params();mp.n_gpu_layers=0;mp.use_mmap=true;
@@ -21,7 +22,21 @@ int main(int argc,char** argv){
  auto cp=llama_context_default_params();cp.n_ctx=2048;cp.n_batch=512;cp.n_ubatch=256;cp.n_threads=2;cp.n_threads_batch=2;
  std::unique_ptr<llama_context,decltype(&llama_free)> ctx(llama_init_from_model(model.get(),cp),llama_free);if(!ctx)return 6;
  for(int i=0;i<n;i+=512){int count=std::min(512,n-i);if(llama_decode(ctx.get(),llama_batch_get_one(tokens.data()+i,count)))return 7;}
- std::unique_ptr<llama_sampler,decltype(&llama_sampler_free)> sampler(llama_sampler_init_greedy(),llama_sampler_free);if(!sampler)return 8;
+ std::unique_ptr<llama_sampler,decltype(&llama_sampler_free)> sampler(llama_sampler_chain_init(llama_sampler_chain_default_params()),llama_sampler_free);if(!sampler)return 8;
+ if(structured){
+  // Restrict syntax only; no text is supplied by the grammar.
+  const char* grammar=R"GBNF(root ::= "Hipótese: " body "\nJustificativa: " body "\nExemplo: " question "?"
+body ::= ch{12,240}
+question ::= qch{12,160}
+ch ::= [a-zA-ZÀ-ÿ0-9 ,.;'()-]
+qch ::= [a-zA-ZÀ-ÿ0-9 ,;'()-]
+)GBNF";
+  auto* constraint=llama_sampler_init_grammar(vocab,grammar,"root");
+  if(!constraint)return 8;
+  llama_sampler_chain_add(sampler.get(),constraint);
+  llama_sampler_chain_add(sampler.get(),llama_sampler_init_penalties(64,1.12f,0.0f,0.0f));
+ }
+ llama_sampler_chain_add(sampler.get(),llama_sampler_init_greedy());
  for(int i=0;i<budget;i++){llama_token t=llama_sampler_sample(sampler.get(),ctx.get(),-1);if(llama_vocab_is_eog(vocab,t))break;
  char b[1024];int k=llama_token_to_piece(vocab,t,b,sizeof b,0,false);if(k<0)return 9;if(k>0){std::cout.write(b,k);std::cout.flush();}
  if(llama_decode(ctx.get(),llama_batch_get_one(&t,1)))return 10;}
