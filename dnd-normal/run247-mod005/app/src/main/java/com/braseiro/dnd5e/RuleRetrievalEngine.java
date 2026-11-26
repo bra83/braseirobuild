@@ -273,7 +273,14 @@ public final class RuleRetrievalEngine {
     private static IntentSpec findIntent(String id){for(IntentSpec spec:INTENTS)if(spec.id.equals(id))return spec;return null;}
     private static boolean looksMechanical(String value){String n=norm(value);String[] tokens={"tento","rolar","teste","ataco","dano","cura","magia","movimento","descanso","viajo","comprar","vender","construir","treinar","cacar","pescar","faccao","npc","evento","combate"};for(String token:tokens)if(n.contains(norm(token)))return true;return false;}
 
-    static boolean isNarrativeOpeningRequest(String value){String n=norm(value);return n.contains("inicio automatico")&&(n.contains("abertura de historia")||n.contains("primeira cena"));}
+    static boolean isNarrativeOpeningRequest(String value){
+        String n=norm(value);
+        // Continuing an already-confirmed inn/scene still uses the safe,
+        // read-only first-narration path, without generating a new geography.
+        return n.contains("inicio automatico")&&
+            (n.contains("abertura de historia")||n.contains("primeira cena")
+             ||n.contains("continuacao da cena existente"));
+    }
 
     static String openingRuleFocus(String value){
         String source=value==null?"":value;
