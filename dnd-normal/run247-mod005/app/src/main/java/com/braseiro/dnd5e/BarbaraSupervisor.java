@@ -23,6 +23,7 @@ public final class BarbaraSupervisor {
     private PyObject module;
     private volatile boolean available;
     private volatile boolean initialized;
+    private final java.util.concurrent.atomic.AtomicBoolean warmScheduled=new java.util.concurrent.atomic.AtomicBoolean(false);
     private String lastError="",motorVersion="";
     private JSONObject requiredContract=new JSONObject();
     private JSONObject deviceProfile=new JSONObject();
@@ -33,9 +34,12 @@ public final class BarbaraSupervisor {
     public BarbaraSupervisor(Context ctx){context=ctx==null?null:ctx.getApplicationContext();}
 
     /** Non-blocking warm-up; never launched from Activity.onCreate on the UI thread. */
-    public void warmUpAsync(){if(context!=null&&!initialized)AppExecutors.io().execute(new Runnable(){
-        @Override public void run(){initialize();}
-    });}
+    public void warmUpAsync(){
+        if(context==null||initialized||!warmScheduled.compareAndSet(false,true))return;
+        AppExecutors.barbaraBoot().execute(new Runnable(){
+            @Override public void run(){initialize();}
+        });
+    }
 
     private synchronized void initialize(){
         if(initialized)return;
@@ -137,10 +141,20 @@ public final class BarbaraSupervisor {
         return plan(action,importance,narrative,nonAdvancing,occasion,null,"dnd");
     }
     public JSONObject plan(String action,String importance,boolean narrative,boolean nonAdvancing,String occasion,String inputChannel,String requestedSystem){/*BR_JSON_WRAP*/try{
-        // MainActivity prepares the game bus with AppExecutors.io(), never the UI.
-        // Do not silently drop Barbara policy while its prewarm is still pending.
-        initialize();
-        String storyOccasion=occasion==null||occasion.trim().isEmpty()?"continuation":occasion.trim();String sid=systemId(requestedSystem);JSONObject fallback=new JSONObject();
+        // Do NOT wait on the synchronized Chaquopy initialize() from a game
+        // turn. Android's private Python boot can take longer than the 30s
+        // pre-Gemini watchdog. Java authority remains active until it is ready.
+        String storyOccasion=occasion==null||occasion.trim().isEmpty()?"continuation":occasion.trim();
+        String sid=systemId(requestedSystem);JSONObject fallback=new JSONObject();
+        if(!initialized){
+            warmUpAsync();
+            return fallback.put("available",false).put("story_occasion",storyOccasion)
+                .put("system_id",sid).put("input_channel",inputChannel==null?"":inputChannel)
+                .put("host_world_authority",true).put("duplicate_gemini_call",false)
+                .put("fallback_java_policy",true).put("reason","python_preparing")
+                .put("host_contract",BarbaraHostContractV1.descriptor());
+        }
+        initialize(); // already completed: returns without Python initialization.
         try{
             fallback.put("available",available).put("story_occasion",storyOccasion).put("system_id",sid).put("input_channel",inputChannel==null?"":inputChannel).put("host_world_authority",true).put("duplicate_gemini_call",false).put("fallback_java_policy",true).put("host_contract",BarbaraHostContractV1.descriptor());
             String cp=liveContractProblem();if(cp.length()>0){available=false;lastError="host_contract_mismatch: "+cp;return fallback.put("available",false).put("host_contract_problem",cp);}
