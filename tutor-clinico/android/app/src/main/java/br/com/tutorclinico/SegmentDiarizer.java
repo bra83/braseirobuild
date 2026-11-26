@@ -76,6 +76,7 @@ final class SegmentDiarizer implements AutoCloseable {
             if(!active.getAsBoolean())return;
             byte[] input=Arrays.copyOfRange(pcm,(int)(window[0]*32),(int)(window[1]*32));byte[][] tracks=null;String[] text=new String[2];
             try{
+                if(!NeuralVoiceSeparator.usableInput(input))continue;
                 if(separator==null)separator=new NeuralVoiceSeparator(context);
                 tracks=separator.separate(input,active);
                 for(int k=0;k<2;k++){if(!active.getAsBoolean())return;if(tracks[k]!=null)text[k]=decodeSeparated(tracks[k],active);}

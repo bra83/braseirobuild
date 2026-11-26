@@ -22,15 +22,27 @@ final class NeuralVoiceSeparator implements AutoCloseable {
         }
         if(!session.getInputNames().equals(Collections.singleton("mixture"))||session.getOutputNames().size()!=1){close();throw new IOException("Contrato de separação inválido");}
     }
+    // Reject zero-variance, nearly silent and constant DC input before ONNX.
+    static boolean usableInput(byte[] pcm){
+        if(pcm==null||pcm.length<3200||(pcm.length&1)!=0||pcm.length>160000)return false;
+        double sum=0,squares=0;int n=pcm.length/2;
+        for(int i=0;i<n;i++){
+            double v=(short)((pcm[2*i]&255)|(pcm[2*i+1]<<8))/32768.0;
+            sum+=v;squares+=v*v;
+        }
+        return Math.max(0,squares/n-(sum/n)*(sum/n))>=1e-6;
+    }
     byte[][] separate(byte[] pcm,BooleanSupplier active)throws Exception{
         if(!active.getAsBoolean())throw new CancellationException();
         if(pcm.length<3200||(pcm.length&1)!=0||pcm.length>160000)throw new IOException("Janela inválida");
-        int n=pcm.length/2;float[] x=new float[n];byte[][] output=new byte[2][];
+        byte[][] output=new byte[2][];
+        if(!usableInput(pcm))return output;
+        int n=pcm.length/2,padded=((n+319)/320)*320;float[] x=new float[padded];
         try{
             for(int i=0;i<n;i++)x[i]=(short)((pcm[2*i]&255)|(pcm[2*i+1]<<8))/32768f;
-            try(OnnxTensor tensor=OnnxTensor.createTensor(env,FloatBuffer.wrap(x),new long[]{1,n});OrtSession.Result result=session.run(Collections.singletonMap("mixture",tensor))){
+            try(OnnxTensor tensor=OnnxTensor.createTensor(env,FloatBuffer.wrap(x),new long[]{1,padded});OrtSession.Result result=session.run(Collections.singletonMap("mixture",tensor))){
                 float[][][] y=(float[][][])result.get(0).getValue();
-                if(y.length!=1||y[0].length!=2||y[0][0].length<n||y[0][1].length<n)throw new IOException("Saída incompatível");
+                if(y.length!=1||y[0].length!=2||y[0][0].length<padded||y[0][1].length<padded)throw new IOException("Saída incompatível");
                 try{
                     for(int k=0;k<2;k++){
                         double energy=0;float peak=0;

@@ -679,4 +679,21 @@ public class EcoIntegratedPersistenceTest {
         store.getDbHelper().close();java.util.Arrays.fill(pass,(char)0);
     }
 
+    @Test public void neuralSeparatorRejectsSilentConstantAndNearSilentInputBeforeInference(){
+        assertFalse(NeuralVoiceSeparator.usableInput(new byte[32000]));
+        byte[] dc=new byte[32000],quiet=new byte[32000],voice=new byte[32000];
+        for(int i=0;i<16000;i++){
+            short constant=3200;
+            short tiny=(short)(i%2==0?1:-1);
+            short signal=(short)(8000*Math.sin(2*Math.PI*173*i/16000.0));
+            dc[2*i]=(byte)constant;dc[2*i+1]=(byte)(constant>>8);
+            quiet[2*i]=(byte)tiny;quiet[2*i+1]=(byte)(tiny>>8);
+            voice[2*i]=(byte)signal;voice[2*i+1]=(byte)(signal>>8);
+        }
+        assertFalse(NeuralVoiceSeparator.usableInput(dc));
+        assertFalse(NeuralVoiceSeparator.usableInput(quiet));
+        assertTrue(NeuralVoiceSeparator.usableInput(voice));
+        assertFalse(NeuralVoiceSeparator.usableInput(new byte[3199]));
+    }
+
 }

@@ -34,9 +34,16 @@ def sisdr(s,t):
     projected=np.dot(s,t)/(np.dot(t,t)+1e-12)*t
     return float(10*np.log10((np.dot(projected,projected)+1e-12)/(np.dot(s-projected,s-projected)+1e-12)))
 def predict(x):
-    y=session.run(None,{"mixture":x.astype(np.float32)[None,:]})[0]
-    assert y.shape[:2]==(1,2) and y.shape[2]>=len(x) and np.isfinite(y).all()
-    return y[0,:,:len(x)]
+    # Match the Android PCM16 quantization and variance guard.
+    pcm=np.round(np.clip(x,-1,0.99997)*32768).astype("<i2")
+    signal=pcm.astype(np.float64)/32768.0
+    if float(np.var(signal))<1e-6:
+        return None
+    n=len(signal)
+    padded=((n+319)//320)*320
+    y=session.run(None,{"mixture":np.pad(signal,(0,padded-n)).astype(np.float32)[None,:]})[0]
+    assert y.shape[:2]==(1,2) and y.shape[2]>=padded and np.isfinite(y).all(), ("Invalid separator output",y.shape,padded)
+    return y[0,:,:n]
 SetLogLevel(-1)
 asr=Model("app/src/main/assets/model-pt")
 def transcribe(track):
@@ -59,6 +66,7 @@ for voice_a,voice_b,text_a,text_b,n in [
     a=speech(voice_a,text_a,n);b=speech(voice_b,text_b,n)
     x=a+b;assert np.max(np.abs(x))<1
     y=predict(x)
+    assert y is not None
     baseline=[sisdr(x,a),sisdr(x,b)]
     scores=max(([sisdr(y[i],a),sisdr(y[j],b)] for i,j in [(0,1),(1,0)]),key=sum)
     improvement=[scores[k]-baseline[k] for k in range(2)]
@@ -69,8 +77,17 @@ for voice_a,voice_b,text_a,text_b,n in [
     if all(transcripts) and transcripts[0]!=transcripts[1]:distinct_pairs+=1
     assert not np.allclose(y[0],y[1]),"Duplicated tracks"
     assert min(improvement)>0 and sum(improvement)/2>=2.0,("Separation did not improve both clean references",metrics[-1])
-assert np.isfinite(predict(np.zeros(16000,np.float32))).all()
+    print("PASS separation fixture:",json.dumps(metrics[-1]),flush=True)
+# Regression: silent/constant inputs must never enter the neural model.
+assert predict(np.zeros(16000,np.float32)) is None
+assert predict(np.full(16000,0.1,np.float32)) is None
+assert predict(np.tile(np.array([-1,1],np.float32)/32768,8000)) is None
+# Actual variable-length inference with padded tail; crop to original size.
+odd=speech("pt-br+m3","Teste de duração não múltipla.",16017)
+odd_y=predict(odd)
+assert odd_y is not None and odd_y.shape==(2,16017) and np.isfinite(odd_y).all()
+print("PASS silence, constant DC, near-silence abstention and irregular-length inference",flush=True)
 assert distinct_pairs>=1, "No distinct nonempty Vosk transcripts from separated tracks"
-gate={"distinct_asr_pairs":distinct_pairs,"sha256":SHA,"contract":"1xT -> 1x2xT","fixtures":metrics,"synthetic_separation_gate":True,"clinical_validation":False}
+gate={"silence_guard":True,"irregular_length_gate":True,"distinct_asr_pairs":distinct_pairs,"sha256":SHA,"contract":"1xT -> 1x2xT","fixtures":metrics,"synthetic_separation_gate":True,"clinical_validation":False}
 (ROOT/"gate.txt").write_text(json.dumps(gate,indent=2))
 print("PASS Conv-TasNet actual two-source inference and SI-SDR improvement:",json.dumps(metrics),flush=True)

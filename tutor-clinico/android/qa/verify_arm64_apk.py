@@ -59,6 +59,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert sg["synthetic_separation_gate"] is True and sg["clinical_validation"] is False
     assert len(sg["fixtures"])>=2 and all(min(f["improvement_db"])>0 and sum(f["improvement_db"])/2>=2 for f in sg["fixtures"])
     assert sg["distinct_asr_pairs"]>=1
+    assert sg["silence_guard"] is True and sg["irregular_length_gate"] is True
     assert b"Attribution-ShareAlike 4.0" in z.read("assets/separation/license.txt")
     assert z.getinfo("assets/separation/attribution.txt").file_size>0
     exe="lib/arm64-v8a/libeco_generate.so"
