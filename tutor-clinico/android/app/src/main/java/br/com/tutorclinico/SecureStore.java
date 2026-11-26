@@ -117,6 +117,7 @@ final class SecureStore {
                 // Scope the segment lookup to this patient, including the session
                 // identifier in the grouping so no other patient can contribute text.
                 java.util.Map<String, JSONArray> segmentsBySession = new java.util.HashMap<>();
+                java.util.Map<String, JSONArray> separatedBySession = new java.util.HashMap<>();
                 try (Cursor segCursor = db.query("segmentos", null, "case_id = ?",
                         new String[]{caseId}, null, null, "session_id ASC, start_ms ASC, id ASC")) {
                     while (segCursor.moveToNext()) {
@@ -126,15 +127,17 @@ final class SecureStore {
                         seg.put("startMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("start_ms")));
                         seg.put("endMs", segCursor.getLong(segCursor.getColumnIndexOrThrow("end_ms")));
                         String role = segCursor.getString(segCursor.getColumnIndexOrThrow("speaker"));
-                        boolean anonymous=role.matches("falante[1-4]")||SpeakerTimeline.OVERLAP.equals(role);
+                        boolean candidate=SeparatedVoiceEvidence.isCandidate(role);
+                        boolean anonymous=role.matches("falante[1-4]")||SpeakerTimeline.OVERLAP.equals(role)||candidate;
                         seg.put("cluster", anonymous ? role : "");
                         seg.put("speaker", anonymous ? "desconhecido" : role);
                         seg.put("manualSpeaker", segCursor.getInt(segCursor.getColumnIndexOrThrow("speaker_confirmed")) == 1);
                         seg.put("text", dbHelper.decrypt(segCursor.getBlob(segCursor.getColumnIndexOrThrow("text_enc"))));
-                        JSONArray sessionSegments = segmentsBySession.get(sessionId);
+                        java.util.Map<String,JSONArray> destination=candidate?separatedBySession:segmentsBySession;
+                        JSONArray sessionSegments = destination.get(sessionId);
                         if (sessionSegments == null) {
                             sessionSegments = new JSONArray();
-                            segmentsBySession.put(sessionId, sessionSegments);
+                            destination.put(sessionId, sessionSegments);
                         }
                         sessionSegments.put(seg);
                     }
@@ -175,6 +178,8 @@ final class SecureStore {
                                 sObj.put("texto", fullText.toString());
                             }
                         }
+                        JSONArray candidates=separatedBySession.get(sId);
+                        if(candidates!=null)sObj.put("mlSeparatedCandidates",candidates);
                         sessoes.put(sObj);
                     }
                 }

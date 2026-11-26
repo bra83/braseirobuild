@@ -151,6 +151,12 @@ object WhisperFileEngine {
         private val acoustic = AcousticMeter(resumeFromMs)
         private var chunkIndex = 0
         private var overlapFailureReported=false
+        private fun separated(bytes:ByteArray,voice:SpeakerTimeline?,baseMs:Long){
+            diarizer?.separateCandidates(bytes,voice,java.util.function.BooleanSupplier{listener.isActive()}) { text,start,end,cluster ->
+                if(listener.isActive()){recognizedCount++;listener.segmentWithSpeaker(text,baseMs+start,baseMs+end,cluster)}
+            }
+            if(diarizer?.separationUnavailable()==true&&listener.isActive())listener.state(modelName+" · SEPARADOR INDISPONÍVEL; MISTURA PRESERVADA")
+        }
         private fun reportOverlapUnavailable(){
             if(diarizer!=null&&diarizer.overlapRequested()&&!diarizer.overlapAvailable()&&!overlapFailureReported){
                 overlapFailureReported=true;listener.state(modelName+" · DETECTOR NEURAL DE SOBREPOSIÇÃO INDISPONÍVEL")
@@ -249,6 +255,7 @@ object WhisperFileEngine {
                     }
                 }
                 reportOverlapUnavailable()
+                if(diarizer?.separationUnavailable()==true)listener.state(modelName+" · SEPARADOR INDISPONÍVEL; MISTURA PRESERVADA")
                 if(listener.isActive()){
                     listener.progress(processedFrames*1000L/SAMPLE_RATE)
                     val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
@@ -268,6 +275,7 @@ object WhisperFileEngine {
                     recognizedCount++
                     listener.segmentWithSpeaker(s.text,baseMs+s.start,baseMs+s.end,voice?.label(s.start,s.end)?:"")
                 }
+                separated(bytes,voice,baseMs)
                 listener.progress(processedFrames*1000L/SAMPLE_RATE)
                 val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)
                 val speed=(processedFrames*1000L/SAMPLE_RATE-initialMs).toDouble()/elapsed
@@ -306,6 +314,7 @@ object WhisperFileEngine {
                     val end=baseMs + bytes.size * 1000L / PCM_BYTES_PER_SECOND
                     listener.segmentWithSpeaker(result.text.trim(),baseMs,end,voiceTimeline?.label(0L,end-baseMs)?:"")
                 }
+                separated(bytes,voiceTimeline,baseMs)
                 if (listener.isActive()) {
                     listener.progress(processedFrames * 1000L / SAMPLE_RATE)
                     val elapsed=(android.os.SystemClock.elapsedRealtime()-wallStart).coerceAtLeast(1L)

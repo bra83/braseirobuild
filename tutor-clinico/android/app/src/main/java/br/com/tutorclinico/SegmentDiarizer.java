@@ -10,6 +10,10 @@ import java.util.Arrays;
 
 /** Real Vosk x-vector model; groups only within one session, no voiceprint persistence. */
 final class SegmentDiarizer implements AutoCloseable {
+    private final Context context;
+    private NeuralVoiceSeparator separator;
+    private boolean separationFailed;
+    boolean separationUnavailable(){return separationFailed;}
     private Model asr;
     private SpeakerModel speaker;
     private final SpeakerClusters clusters;
@@ -17,7 +21,7 @@ final class SegmentDiarizer implements AutoCloseable {
     boolean overlapAvailable(){return overlap!=null;}
     boolean overlapRequested(){return clusters!=null;}
     SegmentDiarizer(Context c,SpeakerClusters clusters) throws Exception{
-        this.clusters=clusters;
+        this.context=c.getApplicationContext();this.clusters=clusters;
         try{
             File root=new File(c.getNoBackupFilesDir(),"eco-speaker-v1");
             File ready=new File(root,"ready");
@@ -66,6 +70,36 @@ final class SegmentDiarizer implements AutoCloseable {
         return result;
     }
     interface SpeechConsumer {void accept(String text,long startMs,long endMs,String cluster);}
+    void separateCandidates(byte[] pcm,SpeakerTimeline timeline,java.util.function.BooleanSupplier active,SpeechConsumer consumer){
+        if(timeline==null||separationFailed)return;
+        for(long[] window:timeline.separationWindows(pcm.length/32L)){
+            if(!active.getAsBoolean())return;
+            byte[] input=Arrays.copyOfRange(pcm,(int)(window[0]*32),(int)(window[1]*32));byte[][] tracks=null;String[] text=new String[2];
+            try{
+                if(separator==null)separator=new NeuralVoiceSeparator(context);
+                tracks=separator.separate(input,active);
+                for(int k=0;k<2;k++){if(!active.getAsBoolean())return;if(tracks[k]!=null)text[k]=decodeSeparated(tracks[k],active);}
+            }catch(Exception|LinkageError e){if(active.getAsBoolean())separationFailed=true;return;}
+            finally{Arrays.fill(input,(byte)0);if(tracks!=null)for(byte[] t:tracks)if(t!=null)Arrays.fill(t,(byte)0);}
+            if(!active.getAsBoolean())return;
+            if(text[0]==null||text[1]==null||text[0].isEmpty()||text[1].isEmpty()||text[0].equalsIgnoreCase(text[1]))continue;
+            consumer.accept(text[0],window[0],window[1],"separada_a");
+            consumer.accept(text[1],window[0],window[1],"separada_b");
+        }
+    }
+    private String decodeSeparated(byte[] pcm,java.util.function.BooleanSupplier active)throws Exception{
+        StringBuilder out=new StringBuilder();
+        try(Recognizer rec=new Recognizer(asr,16000f)){
+            for(int i=0;i<pcm.length&&active.getAsBoolean();i+=8000){
+                byte[] block=Arrays.copyOfRange(pcm,i,Math.min(i+8000,pcm.length));
+                try{if(rec.acceptWaveForm(block,block.length))appendText(out,new JSONObject(rec.getResult()));}finally{Arrays.fill(block,(byte)0);}
+            }
+            if(active.getAsBoolean())appendText(out,new JSONObject(rec.getFinalResult()));
+        }
+        return out.toString().trim();
+    }
+    private static void appendText(StringBuilder out,JSONObject result){String t=result.optString("text","").trim();if(!t.isEmpty()){if(out.length()>0)out.append(' ');out.append(t);}}
+
     /** Fast alternative: the same Vosk pass produces text, timestamps and optional x-vectors. */
     void transcribe(byte[] pcm,java.util.function.BooleanSupplier active,SpeechConsumer consumer) throws Exception {
         SpeakerTimeline neural=new SpeakerTimeline();detectOverlap(pcm,neural,active);
@@ -78,6 +112,7 @@ final class SegmentDiarizer implements AutoCloseable {
             }
             if(active.getAsBoolean())emitSpeech(new JSONObject(rec.getFinalResult()),pcm.length/32L,consumer,neural);
         }
+        separateCandidates(pcm,neural,active,consumer);
     }
     private void emitSpeech(JSONObject v,long maxMs,SpeechConsumer consumer,SpeakerTimeline neural)throws JSONException{
         String text=v.optString("text","").trim();
@@ -107,5 +142,5 @@ final class SegmentDiarizer implements AutoCloseable {
         if(end<=start)return;
         result.add(start,end,result.hasOverlap(start,end)?"":clusterFor(v,end-start));
     }
-    @Override public void close(){if(overlap!=null){try{overlap.close();}catch(Exception ignored){}overlap=null;}if(speaker!=null){speaker.close();speaker=null;}if(asr!=null){asr.close();asr=null;}}
+    @Override public void close(){if(separator!=null){try{separator.close();}catch(Exception ignored){}separator=null;}if(overlap!=null){try{overlap.close();}catch(Exception ignored){}overlap=null;}if(speaker!=null){speaker.close();speaker=null;}if(asr!=null){asr.close();asr=null;}}
 }

@@ -427,7 +427,7 @@ final class MlSessionEngine implements RecognitionListener {
             String checksum = EcoDatabaseHelper.computeChecksum(text);
             boolean ok = dbHelper.commitSegment(currentJobId, currentCaseId, currentSessionId, startMs, endMs, speaker, text, checksum);
             if (ok) {
-                emittedIds.add(currentJobId + "_" + startMs + "_" + endMs);
+                emittedIds.add(SeparatedVoiceEvidence.segmentId(currentJobId,startMs,endMs,speaker));
                 sessionEmittedSegments = emittedIds.size();
             }
             return ok;

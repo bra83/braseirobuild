@@ -123,7 +123,7 @@ public final class MainActivity extends Activity {
                     v.put("text",s);v.put("startMs",startMs);v.put("endMs",endMs);v.put("cluster",cluster);
                     String jobId = ml.getCurrentJobId();
                     v.put("jobId", jobId);v.put("caseId", ml.getCurrentCaseId());v.put("sessionId", ml.getCurrentSessionId());
-                    v.put("id", (jobId != null && !jobId.isEmpty()) ? (jobId + "_" + startMs + "_" + endMs) : "");
+                    v.put("id", (jobId != null && !jobId.isEmpty()) ? SeparatedVoiceEvidence.segmentId(jobId,startMs,endMs,cluster) : "");
                     jsCallback("nativeMlSegmentDetailed",v.toString());
                 }catch(Exception e){jsCallback("nativeMlState","ERRO METADADOS DO TRECHO");}
             }

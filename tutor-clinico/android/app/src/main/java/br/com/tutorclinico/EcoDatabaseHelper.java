@@ -619,7 +619,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
                 }
             }
 
-            String segId = jobId + "_" + startMs + "_" + endMs;
+            String segId = SeparatedVoiceEvidence.segmentId(jobId,startMs,endMs,safeSpeaker);
             int finalSpeakerConfirmed = 0;
 
             // 3. Idempotent verification & preserve manual speaker correction permanently
@@ -672,6 +672,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
      * Preserves manual speaker assignment permanently with scope validation.
      */
     synchronized boolean confirmSpeaker(String segmentId, String caseId, String sessionId, String newSpeaker) {
+        if(SeparatedVoiceEvidence.candidateId(segmentId))return false;
         if (segmentId == null || caseId == null || sessionId == null) return false;
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -683,6 +684,7 @@ final class EcoDatabaseHelper extends SQLiteOpenHelper {
     }
 
     synchronized boolean confirmSpeaker(String segmentId, String newSpeaker) {
+        if(SeparatedVoiceEvidence.candidateId(segmentId))return false;
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("speaker", newSpeaker == null ? "desconhecido" : newSpeaker);

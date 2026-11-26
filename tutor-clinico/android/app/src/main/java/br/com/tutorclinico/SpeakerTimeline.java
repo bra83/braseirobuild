@@ -16,6 +16,20 @@ public final class SpeakerTimeline {
  public void addOverlap(long s,long e){
   if(s>=0&&e>s)overlap.add(new Span(s,e,0));
  }
+ public List<long[]> separationWindows(long duration){
+  List<long[]> result=new ArrayList<>();long a=-1,b=-1;
+  for(Span span:overlap){
+   long start=Math.max(0,span.start-350),end=Math.min(duration,span.end+350);
+   if(end<=start)continue;
+   if(a>=0&&start<=b){b=Math.max(b,end);continue;}
+   if(a>=0)splitWindows(result,a,b);a=start;b=end;
+  }
+  if(a>=0)splitWindows(result,a,b);return result;
+ }
+ private static void splitWindows(List<long[]> result,long a,long b){
+  while(b-a>5000){result.add(new long[]{a,a+5000});a+=5000;}
+  if(b-a>=100)result.add(new long[]{a,b});
+ }
  public void clearOverlap(){overlap.clear();}
  public void clearGroups(){spans.clear();uncertain.clear();}
  public boolean hasOverlap(long s,long e){
