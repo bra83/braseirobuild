@@ -1,4 +1,4 @@
-name: DnD 6.6.69 Canonical Scene Audio QA
+name: DnD 6.6.70 Imported Adventure Start QA
 on:
   push:
     branches:
@@ -40,6 +40,7 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:testDebugUnitTest \
             --tests com.braseiro.dnd5e.DndStartupContinuityPerformanceRobolectricTest \
+            --tests com.braseiro.dnd5e.ImportedPrincipalStartRegressionTest \
             --tests com.braseiro.dnd5e.CanonicalSceneAudioRegressionTest \
             --tests com.braseiro.dnd5e.BarbaraStartupLazyTest \
             --tests com.braseiro.dnd5e.BarbaraColdStartValidationRegressionTest \
@@ -55,14 +56,14 @@ jobs:
           set -euo pipefail
           ./gradlew :app:assembleDebug --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
-          grep -q '^VERSION_CODE=203900632$' version.properties
+          grep -q '^VERSION_CODE=203900633$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
           grep -q '^BACKUP_FORMAT=21$' version.properties
       - name: Upload Android QA build
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6.6.69_CANONICAL_SCENE_AUDIO_QA
+          name: BRASEIRO_DND_6.6.70_IMPORTED_ADVENTURE_START_QA
           path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error

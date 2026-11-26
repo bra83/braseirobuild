@@ -46,6 +46,42 @@ public final class BraseiroAdventureStore {
         }finally{sql.endTransaction();}
         return new JSONObject().put("ok",true).put("id",id).put("title",pkg.optString("title"));
     }
+    /** Only the principal import owns the initial location. Optional modules never enter this query. */
+    public JSONObject principalStart() throws Exception {
+        ensureSchema(db.getWritableDatabase());
+        JSONObject row=db.queryOne("SELECT active_json FROM braseiro_adventure_packages WHERE scope=?",new String[]{scope()});
+        return resolvePrincipalStart(new JSONObject(row.optString("active_json","{}")));
+    }
+
+    static JSONObject resolvePrincipalStart(JSONObject pkg) throws Exception {
+        if(pkg==null||pkg.length()==0)return new JSONObject();
+        JSONObject start=pkg.optJSONObject("start");
+        if(start==null)throw new IllegalArgumentException("A aventura principal não tem start.");
+        String id=start.optString("locationId","");
+        JSONArray locations=pkg.optJSONArray("locations");
+        java.util.HashMap<String,JSONObject> byId=new java.util.HashMap<>();
+        for(int i=0;locations!=null&&i<locations.length();i++){
+            JSONObject loc=locations.optJSONObject(i);
+            if(loc!=null)byId.put(loc.optString("id"),loc);
+        }
+        JSONObject local=byId.get(id);
+        if(local==null)throw new IllegalArgumentException("O local inicial da aventura não existe.");
+        String hex="";
+        java.util.HashSet<String> visited=new java.util.HashSet<>();
+        for(JSONObject node=local;node!=null&&visited.add(node.optString("id"));node=byId.get(node.optString("parentPlaceId"))){
+            if(node.isNull("atlasHex"))continue;
+            String value=node.optString("atlasHex","").trim().toUpperCase(java.util.Locale.ROOT);
+            if(!value.isEmpty()&&!"NULL".equals(value)){
+                if(!value.matches("[A-Z]{1,4}[0-9]{1,4}"))throw new IllegalArgumentException("Hex inicial inválido no JSON: "+value);
+                hex=value;break;
+            }
+        }
+        return new JSONObject().put("adventure_id",pkg.optString("id"))
+            .put("location_id",id).put("location_name",local.optString("name",id))
+            .put("hex_id",hex).put("location_type",local.optString("locationType",""))
+            .put("hook",start.optString("hook",""));
+    }
+
     /** Confere o pacote v1 sem executar nenhuma regra ou alterar o banco.
      * Paridade com BRASEIRO_CONTRATO_AVENTURA_V1_CORRIGIDO.schema.json.
      */
