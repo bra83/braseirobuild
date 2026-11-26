@@ -246,11 +246,12 @@ function ecoMergeNativeAudio(native,journal){
  const merged=JSON.parse(JSON.stringify({...native,...journal}));
  const nativeRows=Array.isArray(native?.mlSegments)?native.mlSegments:[];
  const journalRows=Array.isArray(journal?.mlSegments)?journal.mlSegments:[];
- if(!nativeRows.length)return merged;
+ if(!nativeRows.length){const separated=new Map([...(journal?.mlSeparatedCandidates||[]),...(native?.mlSeparatedCandidates||[])].filter(x=>x?.id).map(x=>[x.id,x]));merged.mlSeparatedCandidates=[...separated.values()];return merged;}
  const rows=new Map(journalRows.filter(x=>x?.id).map(x=>[x.id,x]));
  for(const n of nativeRows){const prior=rows.get(n.id);rows.set(n.id,{...prior,...n,cluster:n.cluster||prior?.cluster||'',speaker:n.manualSpeaker?n.speaker:prior?.speaker||n.speaker||'desconhecido'});}
  merged.mlSegments=[...rows.values()].sort((a,b)=>(a.startMs??0)-(b.startMs??0)||(a.endMs??0)-(b.endMs??0)||String(a.id).localeCompare(String(b.id)));
  merged.mlTranscricao=merged.mlSegments.map(x=>x.text||'').join(' ').trim();
+ const separated=new Map([...(journal?.mlSeparatedCandidates||[]),...(native?.mlSeparatedCandidates||[])].filter(x=>x?.id).map(x=>[x.id,x]));merged.mlSeparatedCandidates=[...separated.values()];
  return merged;
 }
 function appUnlock(){
@@ -891,6 +892,13 @@ window.nativeMlPartial=function(s){ecoPartial=String(s||"");ecoDisplay()};
 function ecoAddSegment(value,meta={}){
  const text=String(value||"").trim();if(!text||screen!=="session"||!sessionDraft)return;
  ecoEnsure();
+ if(/^separada_[ab]$/.test(String(meta.cluster||''))){
+  const rows=sessionDraft.mlSeparatedCandidates||(sessionDraft.mlSeparatedCandidates=[]);
+  if(!meta.id||rows.some(x=>x.id===meta.id))return;
+  rows.push({id:meta.id,text,startMs:meta.startMs,endMs:meta.endMs,cluster:meta.cluster,speaker:'desconhecido',origem:'Conv-TasNet + Vosk PT-BR · hipótese independente'});
+  if(state){const fresh={caseId:openedId,session:JSON.parse(JSON.stringify(sessionDraft))};state.mlDraft=fresh;if(window.NativeVault.saveDraft)window.NativeVault.saveDraft(JSON.stringify(fresh));}
+  ecoDisplay();return;
+ }
  if(sessionDraft.mlTranscricao.length>450000){if(window.NativeVault.stopMlCapture)window.NativeVault.stopMlCapture();notify("Limite de transcrição atingido",'red');return}
  const segment={
   id:meta.id||uid(),text,at:new Date().toISOString(),startMs:Number.isFinite(meta.startMs)?meta.startMs:null,
@@ -1762,6 +1770,13 @@ function ecoSpeakerRows(ss,filter="todos",query=""){
   return !query||norm(s.text).includes(norm(query))||ecoTimecode(s.startMs).includes(query);
  });
 }
+function ecoSeparatedReview(){
+ const rows=sessionDraft?.mlSeparatedCandidates||[];
+ if(!rows.length)return '';
+ const pairs=new Map();
+ for(const r of rows){const key=r.startMs+'|'+r.endMs;if(!pairs.has(key))pairs.set(key,[]);pairs.get(key).push(r);}
+ return '<section class="eco-outline"><h3>Vozes simultâneas separadas ('+pairs.size+' intervalos)</h3><p class="eco-caption">Conv-TasNet separa duas trilhas e Vosk transcreve cada uma. A/B valem somente neste intervalo, não identificam pessoas. Hipóteses não entram na transcrição original, métricas ou análise clínica. Compare com o registro misturado antes de corrigir manualmente.</p>'+[...pairs.values()].map(pair=>'<div class="eco-evidence"><strong>'+esc(ecoTimecode(pair[0].startMs))+' – '+esc(ecoTimecode(pair[0].endMs))+'</strong>'+pair.map(r=>'<p><b>Trilha '+(r.cluster==='separada_a'?'A':'B')+'</b> · '+esc(r.text)+'</p>').join('')+'</div>').join('')+'</section>';
+}
 function ecoSegmentReview(){
  ecoEnsure();const ss=sessionDraft.mlSegments||[],ctx=openedId+"|"+sessionDraft.id;
  if(ecoSpeakerContext!==ctx){ecoSpeakerContext=ctx;ecoSpeakerFilter="todos";ecoSpeakerSearch="";ecoSpeakerPage=0;}
@@ -1769,7 +1784,7 @@ function ecoSegmentReview(){
  ecoSpeakerPage=Math.max(0,Math.min(pages-1,ecoSpeakerPage));
  const page=rows.slice(ecoSpeakerPage*ECO_SPEAKER_PAGE_SIZE,(ecoSpeakerPage+1)*ECO_SPEAKER_PAGE_SIZE);
  const nav='<div class="actions">'+(ecoSpeakerPage>0?btn("← Anterior","ecoSpeakerPage","secondary",'data-id="-1"'):"")+(ecoSpeakerPage+1<pages?btn("Próxima →","ecoSpeakerPage","secondary",'data-id="1"'):"")+'</div>';
- return '<section class="eco-outline" id="ecoSegmentReviewPanel"><h3>Trechos e falantes ('+ss.length+')</h3>'+
+ return ecoSeparatedReview()+'<section class="eco-outline" id="ecoSegmentReviewPanel"><h3>Trechos e falantes ('+ss.length+')</h3>'+
  '<p class="eco-caption">Atribua os grupos em lote primeiro. Corrija apenas as exceções ou falas não determinadas.</p>'+ecoSpeakerGroups(ss)+
  '<label class="field">Exibir <select data-eco-speaker-filter>'+
  [["todos","Todos os trechos"],["pendentes","Sem papel confirmado"],["falante1","Falante 1"],["falante2","Falante 2"],["falante3","Falante 3"],["falante4","Falante 4"],["sobreposicao","Possível fala sobreposta"],["paciente","Paciente"],["terapeuta","Terapeuta"],["manuais","Corrigidos manualmente"]].map(([v,l])=>'<option value="'+v+'" '+(ecoSpeakerFilter===v?"selected":"")+'>'+l+'</option>').join("")+'</select></label>'+

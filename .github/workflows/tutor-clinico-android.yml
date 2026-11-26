@@ -148,6 +148,9 @@ jobs:
           python qa/provision_tagarela.py
       - name: Validar detector neural de sobreposição de falas
         run: python qa/provision_overlap.py
+      - name: Validar separação neural real de duas vozes
+        run: python qa/provision_separation.py
+
       - name: Configurar Android SDK existente do runner
         run: |
           echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
