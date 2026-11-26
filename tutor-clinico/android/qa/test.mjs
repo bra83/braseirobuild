@@ -1791,3 +1791,16 @@ test('ECO native paged consultation and integral checkpoint are available withou
  assert.deepEqual(calls.at(-1),[2,'eco-fixture-password']);
  assert.equal(elems['#ecoFullCheckpointPass'].value,'');
 });
+
+
+test('ECO large-vault edits require exact scope and explicit confirmation',()=>{
+ assert.match(html,/ecoPagedRevision/);
+ assert.match(html,/A versão anterior fica no histórico/);
+ const activity=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(activity,/largeVaultMode\|\|!store\.vaultReadBudget/);
+ assert.match(activity,/stopAutomaticCheckpoint\(\);/);
+ assert.match(activity,/store\.fullCheckpoint\(false,/);
+ const store=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/SecureStore.java',import.meta.url),'utf8');
+ assert.match(store,/retainRevision\(db,"session",caseId,sessionId,old\)/);
+ assert.match(store,/revision\.equals\(EcoDatabaseHelper\.computeChecksum/);
+});
