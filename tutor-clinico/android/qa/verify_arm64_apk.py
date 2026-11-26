@@ -40,6 +40,10 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     assert clinical["contract_enforced"] is True and clinical["clinical_validation"] is False
     assert len(clinical["fixtures"])==3 and clinical["accepted"]+clinical["editorial_fallbacks"]==3
     assert {x["author"] for x in clinical["fixtures"]}=={"Freud","Klein","Winnicott"}
+    advanced=lg["advanced_audit"]
+    assert advanced["model_sha256"]=="6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
+    assert advanced["contract_enforced"] is True and advanced["clinical_validation"] is False
+    assert len(advanced["fixtures"])==3 and advanced["accepted"]>=2 and advanced["accepted"]+advanced["editorial_fallbacks"]==3
     assert z.getinfo("assets/rerank/vocab.txt").file_size>0
     for name in ["assets/rerank/attribution.txt","assets/llm/attribution.txt","assets/llm/llama-license.txt"]:
         assert z.getinfo(name).file_size>0

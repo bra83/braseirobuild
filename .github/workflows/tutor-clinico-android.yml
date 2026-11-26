@@ -165,6 +165,14 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
       - name: Preparar e testar geração local Qwen e compilar ARM64
         run: bash qa/provision_llm.sh
+      - name: Publicar pacote offline de IA avançada
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECO-Qwen-1.5B-Q4-offline
+          path: tutor-clinico/android/build/eco-advanced-model/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
       - name: Configurar Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:

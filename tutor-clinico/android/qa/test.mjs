@@ -1827,3 +1827,13 @@ test('ECO perspective audit rejects wrong references, missing fields, certainty 
  assert.equal(js('ecoLibraryChunks().filter(x=>String(x.entry).startsWith("perspective:")).length'),42);
  assert.match(js('ecoBibliographicStatus("The Shadow of the Tsunami and the Growth of the Relational Mind (2011)").url'),/9780203834954/);
 });
+
+test('ECO structured output preserves genuine neural content and rejects ungrounded drafts',()=>{
+ context.rawStructured='Hipótese: Pode ser útil explorar os sentimentos contraditórios de carinho e raiva.\nJustificativa: A ambivalência permite investigar sentimentos diferentes na mesma relação.\nExemplo: Como você vive o carinho e a raiva pela mesma pessoa?';
+ context.quoteStructured='Sinto carinho e raiva pela mesma pessoa.';
+ assert.equal(js('!!ecoPerspectiveCompose(rawStructured,[ecoPerspectiveCatalogRows("Klein")[0]],quoteStructured).draft'),true);
+ assert.match(js('ecoPerspectiveCompose(rawStructured,[ecoPerspectiveCatalogRows("Klein")[0]],quoteStructured).draft'),/carinho e raiva/);
+ context.rawBad='Hipótese: Pode ser útil investigar o contexto.\nJustificativa: A situação merece uma análise cuidadosa.\nExemplo: Como você vive essa experiência?';
+ assert.ok(js('ecoPerspectiveCompose(rawBad,[ecoPerspectiveCatalogRows("Klein")[0]],quoteStructured).error'));
+ assert.match(html,/Importar modelo GGUF oficial/);
+});
