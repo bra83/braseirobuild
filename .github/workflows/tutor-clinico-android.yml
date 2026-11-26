@@ -195,8 +195,20 @@ jobs:
           set -euo pipefail
           test -s app/build/outputs/apk/debug/app-debug.apk
           python qa/verify_arm64_apk.py app/build/outputs/apk/debug/app-debug.apk
+          mkdir -p build/eco-security-evidence
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging app/build/outputs/apk/debug/app-debug.apk > build/eco-security-evidence/apk-badging.txt
+          python qa/eco_security_policy.py build/eco-security-evidence/apk-badging.txt
+          gradle :app:dependencies --configuration debugRuntimeClasspath --no-daemon > build/eco-security-evidence/runtime-dependencies.txt
+          test -s build/eco-security-evidence/runtime-dependencies.txt
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk
           sha256sum app/build/outputs/apk/debug/app-debug.apk
+      - name: Publicar inventário de dependências e permissões do APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECO-security-evidence
+          path: tutor-clinico/android/build/eco-security-evidence/
+          if-no-files-found: ignore
       - name: Assinar APK com chave permanente se configurada
         id: signing
         env:

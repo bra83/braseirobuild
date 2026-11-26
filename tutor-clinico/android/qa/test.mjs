@@ -1914,3 +1914,21 @@ test('ECO large vault clinical module menu and scoped bridge read',()=>{
 });
 
 test('ECO paged clinical record editing preserves immutable source field contract',()=>{assert.equal(js('Object.keys(ecoPagedRecordFields).length'),5);assert.ok(js('ecoPagedEditableFields.seguranca.some(x=>x[0]==="plano")'));assert.ok(js('!ecoPagedRecordFields.sonhosList.some(x=>x[0]==="originalQuote"||x[0]==="texto")'));});
+
+test('ECO bibliography status and bounded author corpus never imply primary or license verification',()=>{
+ assert.equal(js('ecoBibliographicRechecked.size'),8);
+ assert.ok(js('ecoPerspectiveCatalogRows().every(x=>!ecoBibliographicStatus(x.ref).primaryVerified&&!ecoBibliographicStatus(x.ref).licenseVerified)'));
+ assert.ok(js('ecoPerspectiveAuthors.every(a=>ecoPerspectiveTheory(a).length===2&&ecoPerspectiveTheory(a).every(x=>x.author===a&&!x.personalId))'));
+ assert.match(js('ecoBibliographicStatus("The Analysis of the Self (1971)").url'),/bo8324792/);
+ assert.match(js('ecoBibliographicStatus("The Restoration of the Self (1977)").url'),/bo8324789/);
+ assert.ok(js('ecoBibliographicStatus("ISBN 9781462558711; outra referência").compound'));
+});
+test('ECO print export requires PIN and current access epoch; private WebViews reject autofill',()=>{
+ const activity=fs.readFileSync(new URL('../app/src/main/java/br/com/tutorclinico/MainActivity.java',import.meta.url),'utf8');
+ assert.match(activity,/reauthenticate\("Imprimir documento fora do cofre"/);
+ assert.match(activity,/accessEpoch!=printEpoch/);
+ assert.match(activity,/accessEpoch!=authorizationEpoch/);
+ assert.match(activity,/IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS/);
+ assert.match(activity,/MIXED_CONTENT_NEVER_ALLOW/);
+ assert.match(activity,/hardenPrivateWebView\(printView\)/);
+});

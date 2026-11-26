@@ -1,6 +1,7 @@
 """Fail closed on accidental changes to the ECO Android privacy policy."""
 from pathlib import Path
 import xml.etree.ElementTree as ET
+import sys
 
 ROOT = Path(__file__).resolve().parents[1] / "app" / "src" / "main"
 A = "{http://schemas.android.com/apk/res/android}"
@@ -47,5 +48,17 @@ def validate_rules(rules):
 
 
 validate_manifest(ET.parse(ROOT / "AndroidManifest.xml").getroot())
+if len(sys.argv)>1:
+    # Validate permissions and component visibility in the real merged APK,
+    # not just the project's own manifest before dependencies are merged.
+    import re
+    from pathlib import Path
+    badging=Path(sys.argv[1]).read_text()
+    permissions=set(re.findall(r"uses-permission(?:-sdk-23)?: name='([^']+)'",badging))
+    allowed={"android.permission.RECORD_AUDIO","android.permission.USE_BIOMETRIC","android.permission.USE_FINGERPRINT","android.permission.FOREGROUND_SERVICE","android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING","android.permission.FOREGROUND_SERVICE_DATA_SYNC","android.permission.WAKE_LOCK","android.permission.POST_NOTIFICATIONS","android.permission.RECEIVE_BOOT_COMPLETED"}
+    unexpected={p for p in permissions if p.startswith("android.permission.") and p not in allowed}
+    require(not unexpected, "unexpected platform permission in APK: "+str(sorted(unexpected)))
+    require("android.permission.RECORD_AUDIO" in permissions,"APK permissions not parsed")
+    print("PASS: packaged APK platform permission allowlist")
 validate_rules(ET.parse(ROOT / "res/xml/eco_data_extraction_rules.xml").getroot())
 print("PASS: no automatic cloud/device transfer, no network permission, explicit component policy")

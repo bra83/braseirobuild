@@ -51,6 +51,7 @@ public final class MainActivity extends Activity {
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
     private volatile long semanticEpoch=0;
+    private volatile long accessEpoch=0;
     private final EcoEmbeddingCache embeddingCache=new EcoEmbeddingCache();
     // Accessed exclusively by semanticWorker. The loaded model contains no patient data.
     private NeuralSemanticEngine warmSemanticEngine;
@@ -140,9 +141,10 @@ public final class MainActivity extends Activity {
         web.getSettings().setAllowFileAccess(false);
         web.getSettings().setAllowContentAccess(false);
         web.getSettings().setBlockNetworkLoads(true);
+        hardenPrivateWebView(web);
         web.setWebViewClient(new WebViewClient() {
             @Override public void onPageFinished(WebView view, String url) {
-                if (unlocked) view.evaluateJavascript("window.appUnlock && window.appUnlock()", null);
+                if (unlocked && "https://app.local/".equals(url)) view.evaluateJavascript("window.appUnlock && window.appUnlock()", null);
             }
             @Override public boolean shouldOverrideUrlLoading(WebView view, String url) { return true; }
             @Override public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) { return true; }
@@ -159,6 +161,17 @@ public final class MainActivity extends Activity {
             web.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
         } catch (Exception e) { showToast("Falha ao carregar aplicativo"); }
         requestUnlock();
+    }
+    private static void hardenPrivateWebView(WebView view){
+        android.webkit.WebSettings settings=view.getSettings();
+        settings.setSaveFormData(false);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setSupportMultipleWindows(false);
+        view.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
+        if(android.os.Build.VERSION.SDK_INT>=29)view.setImportantForContentCapture(View.IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS);
     }
     private static byte[] readLimited(InputStream in, int max) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -189,11 +202,12 @@ public final class MainActivity extends Activity {
     }
     private void reauthenticate(String purpose,Runnable authorized){
         if(!unlocked||isFinishing()||isDestroyed())return;
+        final long authorizationEpoch=accessEpoch;
         EditText input=passwordInput("PIN do ECO");
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle(purpose).setMessage("Confirme o PIN antes de continuar.").setView(input)
             .setPositiveButton("Confirmar",null).setNegativeButton("Cancelar",null).create();
         dialog.setOnShowListener(v->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(b->{
-            try{if(!unlocked||!checkExistingPin(input.getText().toString())){input.setError("PIN inválido ou temporariamente bloqueado");return;}
+            try{if(!unlocked||accessEpoch!=authorizationEpoch||!checkExistingPin(input.getText().toString())){input.setError("PIN inválido ou temporariamente bloqueado");return;}
                 input.setText("");dialog.dismiss();authorized.run();
             }catch(Exception e){input.setError("Não foi possível autenticar");}
         }));dialog.show();
@@ -223,7 +237,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        stopAutomaticCheckpoint();clearPendingBackup(); showingLock = true; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
+        stopAutomaticCheckpoint();clearPendingBackup(); showingLock = true; accessEpoch++; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -302,7 +316,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { stopAutomaticCheckpoint();semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -898,20 +912,24 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public void printReport(String html) {
             if (!unlocked || html == null || html.trim().isEmpty()) return;
-            main.post(() -> {
-                if (!unlocked || isFinishing() || isDestroyed()) return;
+            final long printEpoch=accessEpoch;
+            main.post(() -> reauthenticate("Imprimir documento fora do cofre",()->{
+                if (!unlocked || accessEpoch!=printEpoch || isFinishing() || isDestroyed()) return;
                 WebView printView = new WebView(MainActivity.this);
                 printView.getSettings().setBlockNetworkLoads(true);
                 printView.getSettings().setJavaScriptEnabled(false);
                 printView.getSettings().setAllowFileAccess(false);
                 printView.getSettings().setAllowContentAccess(false);
+                hardenPrivateWebView(printView);
                 printView.setWebViewClient(new WebViewClient() {
                     private boolean submitted = false;
+                    @Override public boolean shouldOverrideUrlLoading(WebView view,String url){return true;}
+                    @Override public boolean shouldOverrideUrlLoading(WebView view,android.webkit.WebResourceRequest request){return true;}
                     @Override public void onPageFinished(WebView view, String url) {
                         if (submitted) return;
                         submitted = true;
                         PrintManager manager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
-                        if (!unlocked || manager == null || isFinishing() || isDestroyed()) { view.destroy(); return; }
+                        if (!unlocked || accessEpoch!=printEpoch || !"https://app.local/".equals(url) || manager == null || isFinishing() || isDestroyed()) { view.destroy(); return; }
                         PrintAttributes attrs = new PrintAttributes.Builder()
                             .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
                             .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
@@ -939,7 +957,7 @@ public final class MainActivity extends Activity {
                     }
                 });
                 printView.loadDataWithBaseURL("https://app.local/", html, "text/html", "UTF-8", null);
-            });
+            }));
         }
     }
     private void runAttachmentArchive(Uri uri,char[] password,boolean export){runArchive(uri,password,export,false,false);}
