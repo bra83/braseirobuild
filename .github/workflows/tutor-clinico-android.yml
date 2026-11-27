@@ -50,6 +50,8 @@ jobs:
           mkdir -p /tmp/eco-gguf-import-tests
           javac -d /tmp/eco-gguf-import-tests app/src/main/java/br/com/tutorclinico/EcoGgufImport.java qa/EcoGgufImportTest.java
           java -cp /tmp/eco-gguf-import-tests br.com.tutorclinico.EcoGgufImportTest
+          javac -d /tmp/eco-gguf-import-tests app/src/main/java/br/com/tutorclinico/EcoBackupStream.java app/src/main/java/br/com/tutorclinico/EcoBackupImportFormat.java qa/EcoBackupImportFormatTest.java
+          java -cp /tmp/eco-gguf-import-tests br.com.tutorclinico.EcoBackupImportFormatTest
           mkdir -p /tmp/eco-backup-stream-tests
           javac -d /tmp/eco-backup-stream-tests app/src/main/java/br/com/tutorclinico/EcoBackupStream.java qa/EcoBackupStreamTest.java
           java -Xmx32m -cp /tmp/eco-backup-stream-tests br.com.tutorclinico.EcoBackupStreamTest

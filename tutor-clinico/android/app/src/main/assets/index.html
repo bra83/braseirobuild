@@ -691,7 +691,7 @@ function settingsScreen(){
  `<option value="base" ${asrMod==="base"?"selected":""}>Whisper Base · mais rápido</option>`+
  `</select></div>`+
  `</div>`+
- `<div class="card"><h2>Cópia de segurança</h2><p>Exporta casos, sessões e agenda em um único arquivo <span class="kbd">.psicbackup</span>, protegido por senha independente do PIN.</p><div class="field"><label for="backupPass">Senha original do backup protegido (exportação: mínimo 10 caracteres)</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar cofre integral','ecoFullVaultExport','')}${btn('Restaurar cofre integral','ecoFullVaultImport','secondary')}</div><label class="field"><input id="ecoFullVaultDiary" type="checkbox"> Incluir diário privado (opcional)</label><p class="small muted">Cópia única cifrada de casos, sessões, agenda, históricos, rascunhos e anexos, até 8 GiB. Não inclui gravações temporárias, PIN ou chaves do aparelho. Finalize o processamento de áudio antes de exportar. Restaure somente em um cofre vazio.</p><div class="actions">${btn('Exportar backup JSON (legado)','exportBackup','secondary')}${btn('Mesclar backup JSON','importBackup','secondary')}</div><div class="actions">${btn('Exportar backup clínico sem anexos','ecoClinicalBackupOnly','secondary')}${btn('Exportar anexos em grande volume','ecoArchiveExport','secondary')}${btn('Restaurar arquivo de anexos','ecoArchiveImport','secondary')}</div><p class="small muted">Arquivo complementar cifrado de anexos (até 8 GiB; cada arquivo até 8 MB). Para recuperar o consultório, restaure primeiro os casos do backup clínico e depois os anexos. Nenhum anexo local é substituído; arquivo incompleto ou conflitante cancela toda a restauração.</p><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
+ `<div class="card"><h2>Cópia de segurança</h2><p>Exporte uma cópia protegida ou importe um backup existente. A importação identifica o formato e solicita a senha original depois de selecionar o arquivo.</p><div class="field"><label for="backupPass">Senha para exportação (mínimo 10 caracteres)</label><input id="backupPass" type="password" autocomplete="new-password" placeholder="Crie uma senha forte"></div><div class="actions">${btn('Exportar cofre integral','ecoFullVaultExport','')}${btn('Importar backup (qualquer formato)','ecoFullVaultImport','secondary')}</div><label class="field"><input id="ecoFullVaultDiary" type="checkbox"> Incluir diário privado (opcional)</label><p class="small muted">Cópia única cifrada de casos, sessões, agenda, históricos, rascunhos e anexos, até 8 GiB. Não inclui gravações temporárias, PIN ou chaves do aparelho. Finalize o processamento de áudio antes de exportar. Restaurar cofre integral exige um cofre vazio. Arquivos antigos .psicbackup ou .json são mesclados sem sobrescrever.</p><div class="actions">${btn('Exportar backup JSON (legado)','exportBackup','secondary')}${btn('Importar backup antigo (.psicbackup / .json)','importBackup','secondary')}</div><div class="actions">${btn('Exportar backup clínico sem anexos','ecoClinicalBackupOnly','secondary')}${btn('Exportar anexos em grande volume','ecoArchiveExport','secondary')}${btn('Restaurar arquivo de anexos','ecoArchiveImport','secondary')}</div><p class="small muted">Arquivo complementar cifrado de anexos (até 8 GiB; cada arquivo até 8 MB). Para recuperar o consultório, restaure primeiro os casos do backup clínico e depois os anexos. Nenhum anexo local é substituído; arquivo incompleto ou conflitante cancela toda a restauração.</p><p class="notice">Você precisa lembrar a senha: ela não pode ser recuperada pelo aplicativo. A importação adiciona somente casos ainda não presentes, sem substituir registros existentes.</p></div>`+
  `<div class="card"><h2>Privacidade e Segurança Operacional</h2><p>● Não há permissão de internet no aplicativo (android.permission.INTERNET ausente).</p><p>● O arquivo interno é criptografado com AES-256-GCM com chave do Android Keystore.</p><p>● O aplicativo exige PIN local e bloqueia capturas de tela via FLAG_SECURE.</p><p>● O backup externo usa AES-256-GCM e chave derivada com PBKDF2 (240.000 iterações).</p><p class="muted small">O PIN controla o acesso à interface; a criptografia interna utiliza uma chave protegida por hardware do dispositivo.</p></div>`+
  `<div class="card"><h2>Compatibilidade</h2><p>Permite importar o backup JSON simples do Tutor Clínico original. Como ele não possui criptografia, trate esse arquivo com cuidado. O aplicativo converte registros de sessão para o formato ECO com identificadores imutáveis.</p></div>`+
  `<p class="notice">Ambiente de homologação e certificação ECO v0.24.0-arm64-beta. Utilize somente dados simulados/fictícios até aprovação da auditoria de conformidade.</p>`;}
@@ -815,7 +815,7 @@ function act(name,id){
  if(name==='pdfCase'){const c=currentCase();if(c){ecoDocConfirmed=false;ecoDocType='ficha';ecoDocSections=Object.fromEntries(Object.keys(ecoDocSections).map(k=>[k,ecoDocPreset('ficha').includes(k)]));tab='documentos';render();}return;}
  if(name==='ecoFullVaultExport'||name==='ecoFullVaultImport'){
   const input=$('#backupPass'),pass=input?.value||'',exporting=name==='ecoFullVaultExport';
-  if(pass.length<10){notify('Senha do cofre: use pelo menos 10 caracteres.','red');return;}
+  if(exporting&&pass.length<10){notify('Senha do cofre: use pelo menos 10 caracteres.','red');return;}
   if(typeof window.NativeVault?.fullVaultArchive!=='function'){notify('Backup integral indisponível nesta versão.','red');return;}
   const diary=exporting&&!!$('#ecoFullVaultDiary')?.checked;
   window.NativeVault.fullVaultArchive(pass,exporting,diary);if(input)input.value='';return;
@@ -840,6 +840,7 @@ function act(name,id){
  if(name==='importBackup'){
   const input=$('#backupPass');const pass=input?.value||'';window.NativeVault.importBackup(pass);if(input)input.value='';return;
  }
+ if(name==='ecoBackupOpenCases'){closeModal();screen='cases';render();return;}
  if(name==='confirmImport'){
   if(!pendingImport)return;const data=pendingImport;
   const plan=ecoPlanBackupMerge(state,data),newCases=plan.newCases;
@@ -855,10 +856,11 @@ function act(name,id){
    if(!state.mlDraft && data.mlDraft && state.cases.some(c=>c.id===data.mlDraft.caseId))
       state.mlDraft=JSON.parse(JSON.stringify(data.mlDraft));
   });
+  if(!success){openModal('<h2>Importação não concluída</h2><p>Falha ao gravar os registros. Os dados anteriores foram preservados. Selecione novamente o backup depois de conferir espaço livre, volume e rascunhos pendentes.</p>'+btn('Fechar','closeModal','ghost'));return;}
   if(success){delete state.attachmentBundle;delete state.nativeRecoveryBundle;}
   if(success&&data.mlDraft&&window.NativeVault.saveDraft&&state.mlDraft?.caseId===data.mlDraft.caseId)
      window.NativeVault.saveDraft(JSON.stringify(data.mlDraft));
-  if(success){pendingImport=null;closeModal();notify(`${newCases.length} caso(s), ${plan.sessions.length} sessão(ões) e ${newAppointments.length} consulta(s) adicionados. ${plan.conflicts} conflito(s) mantidos sem sobrescrever.`);}
+  if(success){pendingImport=null;closeModal();const newSessionCount=plan.sessions.length+newCases.reduce((n,c)=>n+(c.sessoes||[]).length,0);openModal('<h2>Importação concluída</h2><p>'+newCases.length+' caso(s), '+newSessionCount+' sessão(ões) e '+newAppointments.length+' consulta(s) adicionados. '+plan.conflicts+' conflito(s) mantidos sem sobrescrever.</p><p>Se nenhum caso ou sessão foi acrescentado, os identificadores já estavam presentes ou havia conflitos. Confira a lista de casos.</p>'+btn('Abrir casos','ecoBackupOpenCases','secondary')+btn('Fechar','closeModal','ghost'));}
   return;
  }
  if(name==='closeModal'){pendingImport=null;closeModal();return;}
@@ -869,7 +871,7 @@ window.nativeImportResult = function(content){
  try{const data=normalizeImported(JSON.parse(content));pendingImport=data;
   const plan=ecoPlanBackupMerge(state,data),newCount=plan.newCases.length;
   openModal(`<h2>Revisar importação</h2><p>${data.legacy?'Arquivo JSON legado sem criptografia.':'Backup protegido aberto com sucesso.'}</p><p><strong>${data.cases.length}</strong> caso(s) no arquivo, <strong>${newCount}</strong> ainda não existente(s) neste aparelho.</p><p>${plan.sessions.length} sessão(ões) ausentes serão recuperadas em casos existentes. ${plan.conflicts} conflito(s) serão mantidos localmente sem sobrescrever. ${data.attachmentBundle.length} anexo(s) cifrados no pacote. Nenhum registro local será apagado. Histórico nativo e rascunhos incluídos no pacote serão mesclados; um rascunho divergente interrompe a importação sem gravar alterações.</p><div class="actions">${btn('Cancelar','closeModal','ghost')}${btn('Mesclar dados','confirmImport','')}</div>`);
- }catch(e){pendingImport=null;notify('Não foi possível interpretar o arquivo: '+e.message,'red');}
+ }catch(e){pendingImport=null;openModal('<h2>Backup não importado</h2><p>'+esc(e.message)+'</p><p>Nenhum registro foi alterado.</p>'+btn('Fechar','closeModal','ghost'));}
 };
 document.addEventListener('click',e=>{const button=e.target.closest('[data-act]');if(button){e.preventDefault();act(button.dataset.act,button.dataset.id,button);}});
 document.addEventListener('input',e=>{

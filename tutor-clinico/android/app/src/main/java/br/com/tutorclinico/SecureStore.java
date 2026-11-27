@@ -1684,6 +1684,7 @@ final class SecureStore {
 
     static String decryptBackup(byte[] bytes, String pass) throws Exception {
         String input = new String(bytes, StandardCharsets.UTF_8).trim();
+        if(input.startsWith("\uFEFF"))input=input.substring(1).trim();
         if (input.startsWith("[")) return input; // Legacy backup
         JSONObject pkg = new JSONObject(input);
         if (pkg.optInt("version") == 1 && pkg.opt("cases") instanceof JSONArray && !pkg.has("format")) return input;

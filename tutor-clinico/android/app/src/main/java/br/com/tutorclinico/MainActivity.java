@@ -70,6 +70,8 @@ public final class MainActivity extends Activity {
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
     private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911, LOCAL_VAULT_EXPORT_CODE=912, ADVANCED_LLM_CODE=913;
+    private boolean backupPickerPending=false;
+    private Uri pendingBackupUri;
     private boolean modelPickerPending=false;
     private Uri pendingModelUri;
     private int pendingCheckpointSlot=-1;
@@ -224,7 +226,7 @@ public final class MainActivity extends Activity {
         web.setVisibility(View.VISIBLE);dialog.dismiss();
         if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()",null);}
         else web.evaluateJavascript("window.nativeSemanticUnlocked && window.nativeSemanticUnlocked()",null);
-        resumeSelectedModelImport();
+        resumeSelectedModelImport();resumeSelectedBackupImport();
     }
     private void authenticateBiometric(AlertDialog dialog){
         if(!showingLock||!pref.getBoolean("biometric_enabled",false)||!strongBiometricsAvailable())return;
@@ -303,13 +305,13 @@ public final class MainActivity extends Activity {
         // Do not cancel a Whisper decoder or release a microphone from the UI thread.
         if(ml!=null)ml.onHostPause();
         backgroundAt = System.currentTimeMillis();foreground=false;
-        if(pendingPassword==null&&pendingExport==null&&!modelPickerPending&&pendingModelUri==null)maybeAutomaticCheckpoint();
+        if(pendingPassword==null&&pendingExport==null&&!modelPickerPending&&pendingModelUri==null&&!backupPickerPending&&pendingBackupUri==null)maybeAutomaticCheckpoint();
         super.onPause();
     }
     @Override protected void onResume() {
         super.onResume();foreground=true;stopAutomaticCheckpoint();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
-        else {backgroundAt=0;resumeSelectedModelImport();}
+        else {backgroundAt=0;resumeSelectedModelImport();resumeSelectedBackupImport();}
     }
     @Override public void onTrimMemory(int level) {
         super.onTrimMemory(level);
@@ -319,7 +321,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { modelPickerPending=false;pendingModelUri=null;stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { backupPickerPending=false;pendingBackupUri=null;modelPickerPending=false;pendingModelUri=null;stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -877,6 +879,7 @@ public final class MainActivity extends Activity {
             return unlocked&&!archiveBusy.get()&&!semanticBusy.get()&&ml!=null&&!ml.isRecording()&&!ml.isTranscribing()&&!ml.isPaused()&&!ml.hasPendingAudio();
         }
         @JavascriptInterface public void fullVaultArchive(String password,boolean export,boolean diary){
+            if(!export){main.post(()->selectBackupImport());return;}
             if(password==null||password.length()<10)return;
             main.post(()->{
                 if(!archiveIdle()){showToast("Finalize o atendimento ou processamento antes do backup integral.");return;}
@@ -903,15 +906,7 @@ public final class MainActivity extends Activity {
             }));
         }
         @JavascriptInterface public void importBackup(String password) {
-            if (!unlocked) return;
-            main.post(() -> reauthenticate("Importar backup clínico",()->{
-                if(!unlocked)return;
-                clearPendingBackup();pendingPassword=password;
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                startActivityForResult(intent, IMPORT_CODE);
-            }));
+            main.post(()->selectBackupImport());
         }
         @JavascriptInterface public void printReport(String html) {
             if (!unlocked || html == null || html.trim().isEmpty()) return;
@@ -1006,6 +1001,101 @@ public final class MainActivity extends Activity {
             main.post(()->{try{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);if(reload){initialUnlockDone=false;requestUnlock();AgendaReminderReceiver.refresh(this);}}}finally{archiveBusy.set(false);}});
         },"eco-attachment-archive").start();
     }
+    private boolean backupImportIdle(){
+        return unlocked&&!archiveBusy.get()&&!semanticBusy.get()&&ml!=null&&!ml.isRecording()&&!ml.isTranscribing()&&!ml.isPaused()&&!ml.hasPendingAudio();
+    }
+    private void selectBackupImport(){
+        if(!backupImportIdle()){showToast("Finalize o atendimento ou processamento antes de importar.");return;}
+        if(backupPickerPending||pendingBackupUri!=null)return;
+        reauthenticate("Importar backup ECO",()->{
+            if(!backupImportIdle())return;
+            clearPendingBackup();
+            Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
+            try{backupPickerPending=true;startActivityForResult(intent,IMPORT_CODE);}
+            catch(Exception e){backupPickerPending=false;showToast("Seletor de arquivos indisponível.");}
+        });
+    }
+    private void resumeSelectedBackupImport(){
+        if(pendingBackupUri==null||!foreground||!unlocked||isFinishing()||isDestroyed())return;
+        if(!privateOperationAuthorized())return;
+        final Uri uri=pendingBackupUri;pendingBackupUri=null;
+        if(!backupImportIdle()){showToast("Finalize o processamento e selecione o backup novamente.");return;}
+        final long epoch=accessEpoch;
+        EditText input=new EditText(this);input.setSingleLine(true);
+        input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setHint("Senha original do backup");
+        input.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Abrir backup selecionado")
+            .setMessage("Digite a senha original do backup, não o PIN. Deixe em branco apenas para JSON sem criptografia. O ECO detecta o formato automaticamente. O cofre integral exige destino vazio; backups antigos são mesclados sem sobrescrever.")
+            .setView(input).setNegativeButton("Cancelar",null).setPositiveButton("Verificar e importar",null).create();
+        dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
+            if(!backupImportIdle()||accessEpoch!=epoch||!foreground){dialog.dismiss();showToast("Importação interrompida. Selecione novamente.");return;}
+            char[] password=input.getText().toString().toCharArray();input.setText("");dialog.dismiss();runSelectedBackupImport(uri,password,epoch);
+        }));
+        dialog.setOnDismissListener(d->input.setText(""));dialog.show();
+    }
+    private static String backupImportFailure(Exception e){
+        if(e instanceof java.util.concurrent.CancellationException)return "Importação cancelada ou interrompida pelo bloqueio do ECO.";
+        String message=e.getMessage();
+        if(message!=null){
+            if(message.contains("cofre vazio")||message.contains("Cofre contém"))return "O cofre atual contém registros ou rascunhos. O backup integral exige um destino vazio. Não apague os dados atuais.";
+            if(message.contains("senha")||message.contains("Senha"))return "Confira a senha original do backup. O arquivo também pode estar incompleto ou corrompido.";
+            if(message.contains("grande demais"))return "Backup JSON acima do limite de 50 MB. A importação deste formato não foi concluída.";
+            if(message.contains("Formato")||message.contains("não reconhecido"))return "Formato não reconhecido. Selecione um backup ECO (.ecobkp, .psicbackup ou .json).";
+            if(message.contains("Arquivo indisponível")||message.contains("Arquivo inacessível"))return "Arquivo inacessível. Copie o backup para o armazenamento local e tente novamente.";
+        }
+        return "Não foi possível validar o backup. Verifique a integridade do arquivo e a compatibilidade com o ECO.";
+    }
+    private void runSelectedBackupImport(Uri uri,char[] password,long epoch){
+        if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,(char)0);showToast("Operação em andamento.");return;}
+        final java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);archiveCancel=cancel;
+        final AlertDialog progress=new AlertDialog.Builder(this).setTitle("Verificando backup").setMessage("Identificando formato e autenticando o arquivo. Nenhum registro existente será sobrescrito.").setCancelable(false).setNegativeButton("Cancelar",null).create();
+        progress.show();progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancel.set(true);v.setEnabled(false);progress.setMessage("Cancelando…");});
+        new Thread(()->{
+            String content=null,message=null;boolean restored=false;int count=0;
+            java.util.function.BooleanSupplier active=()->unlocked&&accessEpoch==epoch&&!cancel.get()&&!Thread.currentThread().isInterrupted();
+            try{
+                EcoBackupImportFormat.Kind kind;
+                try(InputStream in=getContentResolver().openInputStream(uri)){
+                    if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                    kind=EcoBackupImportFormat.detect(in,password);
+                }
+                if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                if(kind==EcoBackupImportFormat.Kind.ATTACHMENTS)throw new java.io.IOException("Arquivo de anexos");
+                if(kind==EcoBackupImportFormat.Kind.INTEGRAL){
+                    main.post(()->{if(!isFinishing()&&!isDestroyed())progress.setMessage("Restaurando cofre integral em transação segura…");});
+                    try(InputStream in=getContentResolver().openInputStream(uri)){
+                        if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                        count=store.restoreFullVault(in,password,active);restored=true;
+                    }
+                }else{
+                    if(largeVaultMode)throw new java.io.IOException("Modo paginado");
+                    try(InputStream in=getContentResolver().openInputStream(uri)){
+                        if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                        byte[] bytes=readLimited(in,50_000_000);
+                        try{content=SecureStore.decryptBackup(bytes,new String(password));}finally{java.util.Arrays.fill(bytes,(byte)0);}
+                    }
+                    if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                }
+            }catch(Exception e){
+                if(restored)message="Cofre restaurado; confira os registros.";
+                else if(cancel.get()||!active.getAsBoolean())message="Importação interrompida. Nenhum registro foi alterado.";
+                else if("Arquivo de anexos".equals(e.getMessage()))message="Este arquivo contém somente anexos. Use Restaurar anexos em Configurações.";
+                else if("Modo paginado".equals(e.getMessage()))message="O volume do cofre atual exige acesso paginado; a mesclagem JSON não está disponível neste modo.";
+                else message=backupImportFailure(e);
+            }finally{java.util.Arrays.fill(password,(char)0);archiveCancel=null;}
+            final String decoded=content,notice=message;final boolean done=restored;final int restoredCount=count;
+            main.post(()->{
+                archiveBusy.set(false);
+                if(isDestroyed()||isFinishing())return;
+                progress.dismiss();
+                if(done){initialUnlockDone=false;requestUnlock();AgendaReminderReceiver.refresh(this);showToast("Cofre restaurado: "+restoredCount+" registros. Desbloqueie o ECO.");return;}
+                if(!unlocked||accessEpoch!=epoch)return;
+                if(notice!=null){new AlertDialog.Builder(this).setTitle("Importação não concluída").setMessage(notice+" Os dados atuais foram preservados.").setPositiveButton("OK",null).show();return;}
+                if(decoded!=null&&!cancel.get())web.evaluateJavascript("window.nativeImportResult("+JSONObject.quote(decoded)+")",null);
+            });
+        },"eco-backup-import").start();
+    }
     private void resumeSelectedModelImport(){
         if(pendingModelUri==null||!foreground||!unlocked||isFinishing()||isDestroyed())return;
         if(!privateOperationAuthorized())return;
@@ -1038,6 +1128,11 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
+        if(code==IMPORT_CODE){
+            boolean expected=backupPickerPending;backupPickerPending=false;
+            if(!expected||result!=RESULT_OK||data==null||data.getData()==null)return;
+            pendingBackupUri=data.getData();main.post(this::resumeSelectedBackupImport);return;
+        }
         if(code==ADVANCED_LLM_CODE){
             boolean expected=modelPickerPending;modelPickerPending=false;
             if(!expected||result!=RESULT_OK||data==null||data.getData()==null)return;
@@ -1053,7 +1148,7 @@ public final class MainActivity extends Activity {
         }
         if(code==LOCAL_VAULT_EXPORT_CODE){
             String pass=pendingPassword;int slot=pendingCheckpointSlot;clearPendingBackup();
-            if(!unlocked||archiveBusy.get()||pass==null||slot<2||slot>3||result!=RESULT_OK||data==null||data.getData()==null)return;
+            if(!unlocked||archiveBusy.get()||pass==null||!SecureStore.validFullCheckpointSlot(slot)||result!=RESULT_OK||data==null||data.getData()==null)return;
             runArchive(data.getData(),pass.toCharArray(),true,true,false,slot);return;
         }
         if(code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE){
