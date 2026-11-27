@@ -1471,7 +1471,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // ANR 2026-11-01: compilation of all Strixhaven statblocks must never run in Looper.
             final JSONObject compiledBestiary=StrixhavenBestiaryRuntimeEngine.install(getApplicationContext());
             if(compiledBestiary.optInt("registered",0)==0)AppLog.w("StrixhavenBestiary","Nenhum bloco foi registrado; verificar diagnostico de fontes.");
-            if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
+            if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");clearFailedGeminiRequest();db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
             if(reset)resetSceneClock();else initializeSceneClock();
             final String opening="INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+
                     profile.year()+", semestre "+profile.semester()+", mapa atual "+
@@ -2206,9 +2206,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 String packageId=db.getMapState().optString("map_package_id","");
                 if(!isAtlasContractRuntime(packageId)||!db.isValidMapHex(packageId,requestedHex))throw new IllegalStateException("O hex declarado deixou de estar disponível. A campanha foi preservada.");
             }
-            if(reset){safety.beforeDestructiveChange("começar uma nova aventura");db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);}
+            if(reset){safety.beforeDestructiveChange("começar uma nova aventura");clearFailedGeminiRequest();db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);}
             final JSONObject startingPoint=principalStart.length()>0?preparePrincipalAdventureStart(principalStart):prepareAdventureStartingPoint(requestedHex,reset);adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Recuperando regras para a abertura");final String startingHex=startingPoint.optString("hex_id","");
-            if(reset)resetSceneClock();else initializeSceneClock();
+            if(reset)resetSceneClock(principalStart.length()>0?principalStart:startingPoint);else initializeSceneClock();
             if(principalStart.length()>0){JSONObject anchored=db.getSceneState();anchored.put("location",principalStart.optString("location_name")).put("hex_id",startingHex);db.saveSceneStateChecked(anchored);}
             final JSONObject campaign=db.getCampaign();
             final String openingHistoryKey="recent_opening_archetypes_"+activeWorldProfile();
@@ -7192,19 +7192,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
     }
 
-    private void resetSceneClock(){
+    private void resetSceneClock(){resetSceneClock(new JSONObject());}
+    private void resetSceneClock(JSONObject opening){
         JSONObject scene=new JSONObject();
         try{
             scene.put("day_number",1);
-            scene.put("time_of_day","Manhã");
-            scene.put("clock_hour",9d);
+            JSONObject mapForClimate=db.getMapState();
+            JSONObject terrain=db.getRawMapHex(mapForClimate.optString("map_package_id"),mapForClimate.optString("current_hex_id"));
+            JSONObject initial=AdventureInitialEnvironment.choose(opening,terrain,System.nanoTime());
+            scene.put("time_of_day",initial.optString("time_of_day"));
+            scene.put("clock_hour",initial.optDouble("clock_hour"));
             scene.put("elapsed_minutes_total",0);
             scene.put("last_travel_minutes",0);
-            scene.put("weather","Céu limpo");
+            scene.put("weather",initial.optString("weather"));
             JSONObject map=db.getMapState();
             scene.put("hex_id",map.optString("current_hex_id"));
             scene.put("location","");
-            scene.put("lighting","Luz da manhã");
+            scene.put("lighting",initial.optString("lighting"));
             scene.put("danger","");
             scene.put("objective","");
             scene.put("present_npcs",new JSONArray());
@@ -7212,6 +7216,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             scene.put("clues",new JSONArray());
             scene.put("pending_consequences",new JSONArray());
             db.saveSceneState(scene);
+            db.saveEnvironmentalDirectorState(new JSONObject());
         }catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
     }
 
@@ -7309,7 +7314,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private void mergeExplicitlyNamedNpcHints(JSONArray out,String narration){
         if(out==null||narration==null||narration.trim().length()==0)return;
         HashSet<String> seen=new HashSet<String>();for(int i=0;i<out.length();i++){JSONObject npc=out.optJSONObject(i);if(npc!=null)seen.add(normalizeForNameMatch(npc.optString("name","")));}
-        JSONArray extracted=NarratedNpcExtractor.extract(narration,12);for(int i=0;i<extracted.length();i++){JSONObject npc=extracted.optJSONObject(i);if(npc==null)continue;String key=normalizeForNameMatch(npc.optString("name",""));if(key.length()<2||seen.contains(key))continue;try{appendPreviewNpc(out,seen,npc);}catch(Exception error){AppLog.w("SceneCast","Falha ao registrar NPC explícito da narração.",error);}}
+        JSONArray extracted=NarratedNpcExtractor.extract(narration,12);for(int i=0;i<extracted.length();i++){JSONObject npc=extracted.optJSONObject(i);if(npc==null)continue;if(SceneNpcRoleAliases.isKnownRoleAlias(npc,out,db.getSceneState()))continue;String key=normalizeForNameMatch(npc.optString("name",""));if(key.length()<2||seen.contains(key))continue;try{appendPreviewNpc(out,seen,npc);}catch(Exception error){AppLog.w("SceneCast","Falha ao registrar NPC explícito da narração.",error);}}
     }
 
     private void synchronizeVisualSceneCast(){synchronizeVisualSceneCastWith(currentSceneCastPreview);}
@@ -7318,6 +7323,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         try{
             JSONObject scene=db.getSceneState();JSONArray merged=new JSONArray();HashSet<String> seen=new HashSet<String>();appendPersistentSceneNpcs(merged,seen,scene.opt("present_npcs"));appendPersistentSceneNpcs(merged,seen,scene.opt("present_npcs_json"));
             for(int i=0;i<castPreview.length();i++){JSONObject npc=castPreview.optJSONObject(i);if(npc!=null)appendPreviewNpc(merged,seen,npc);}
+            merged=SceneNpcRoleAliases.reconcileCast(merged,scene);
             scene.put("present_npcs",merged);if(scene.optString("hex_id","").length()==0)scene.put("hex_id",db.getMapState().optString("current_hex_id",""));db.saveSceneState(scene);
             String where=scene.optString("location",NarrativeLocationNaturalizer.currentNarrativeLabel(db));String hex=scene.optString("hex_id","");
             for(int i=0;i<castPreview.length();i++){
@@ -7762,13 +7768,36 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         return ConfirmedSceneRetryIdentity.of(activeWorldProfile(),
             db==null?new JSONObject():db.getStoryState());
     }
+    private boolean persistMasterActionBeforeSend(String mode,String action,String channel){
+        if(prefs==null)return false;
+        String scene=geminiRetryIdentity();
+        boolean same=hasFailedGeminiRequest()&&scene.equals(prefs.getString(RETRY_PREFIX+"scene",""))
+            &&action.equals(prefs.getString(RETRY_PREFIX+"action",""))
+            &&String.valueOf(mode).equals(prefs.getString(RETRY_PREFIX+"mode",""))
+            &&String.valueOf(channel).equals(prefs.getString(RETRY_PREFIX+"channel",""));
+        if(hasFailedGeminiRequest()&&!same&&scene.equals(prefs.getString(RETRY_PREFIX+"scene",""))){
+            toast("Há uma ação preservada. Retome-a antes de enviar outra.");
+            return false;
+        }
+        SharedPreferences.Editor e=prefs.edit();
+        if(!same){
+            if(hasFailedGeminiRequest())e.putString(RETRY_PREFIX+"archived_action",prefs.getString(RETRY_PREFIX+"action",""));
+            e.remove(RETRY_PREFIX+"checkpoint");
+        }
+        boolean saved=e.putBoolean(RETRY_PREFIX+"pending",true).putString(RETRY_PREFIX+"mode",mode)
+            .putString(RETRY_PREFIX+"action",action).putString(RETRY_PREFIX+"channel",channel)
+            .putString(RETRY_PREFIX+"scene",scene).putString(RETRY_PREFIX+"error","Ação salva antes da execução; pode ser retomada se o app fechar.")
+            .putBoolean(RETRY_PREFIX+"context_failure",true).putBoolean(RETRY_PREFIX+"api_failure",false).commit();
+        if(!saved)toast("Não foi possível salvar a ação; nenhum processamento foi iniciado.");
+        return saved;
+    }
     private boolean hasFailedGeminiRequest(){
         return prefs!=null&&prefs.getBoolean(RETRY_PREFIX+"pending",false);
     }
     private void clearFailedGeminiRequest(){
         if(prefs!=null)prefs.edit().remove(RETRY_PREFIX+"pending").remove(RETRY_PREFIX+"mode")
           .remove(RETRY_PREFIX+"action").remove(RETRY_PREFIX+"channel")
-          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").remove(RETRY_PREFIX+"api_failure").remove(RETRY_PREFIX+"context_failure").apply();
+          .remove(RETRY_PREFIX+"scene").remove(RETRY_PREFIX+"error").remove(RETRY_PREFIX+"api_failure").remove(RETRY_PREFIX+"context_failure").remove(RETRY_PREFIX+"checkpoint").commit();
     }
     private void markMasterPreparationFailed(final String mode,final String action,
             final String channel,final String explanation){
@@ -7856,7 +7885,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String channel=prefs.getString(RETRY_PREFIX+"channel","PLAYER_ACTION");
         if(action.trim().isEmpty()){toast("A ação pendente está vazia.");return;}
         manualOfflineNextRequest=false;
-        clearFailedGeminiRequest();
         sendAi(mode,action,channel);
     }
     private void runExplicitOfflineMaster(){
@@ -8004,6 +8032,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(aiBusy){toast("Aguarde a resposta atual.");return;}
         final String requestedText=augmentStrixhavenOfficialPrompt(mode,inputChannel,userText==null?"":userText);
         final boolean openingRequest=RuleRetrievalEngine.isNarrativeOpeningRequest(requestedText);
+        if(!persistMasterActionBeforeSend(mode,requestedText,inputChannel)){pendingRestoredNarratorDraft=requestedText;if("Mestre IA".equals(currentScreen))showNarrator();return;}
         final long pipelineId=++aiPipelineGeneration;
         if(FictionTurnTrace.isEnabled(prefs))try{
             FictionTurnTrace.append(this,prefs,"request",new JSONObject()
@@ -8034,7 +8063,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 mapContext=openingRequest?buildOpeningMapAiContext():buildMapAiContext(requestedText);
                 AppLog.i("AdventureStartPerf","MAP_CONTEXT_MS="+(android.os.SystemClock.elapsedRealtime()-mapStarted));
 
-                RuleRetrievalEngine.Result cached=cachedRuleRetrieval(decision);
+                RuleRetrievalEngine.Result cached=loadMasterRuleCheckpoint(requestedText,decision);
+                if(cached==null)cached=cachedRuleRetrieval(decision);
                 if(cached!=null){
                     retrieval=cached;
                     final String readyMapContext=mapContext;final RuleRetrievalEngine.Result readyRetrieval=retrieval;
@@ -8097,8 +8127,34 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         return count+", porém nenhum trecho atingiu a pertinência mínima para o foco desta abertura.";
     }
 
+    private void saveMasterRuleCheckpoint(String action,String mapContext,RuleRetrievalEngine.Result retrieval){
+        if(prefs==null||retrieval==null||!action.equals(prefs.getString(RETRY_PREFIX+"action","")))return;
+        if(retrieval.bundle.optInt("evidence_count",0)<=0)return;
+        String status=retrieval.bundle.optString("status","");
+        if(status.contains("timeout")||status.contains("error")||status.contains("incomplete")||status.contains("unavailable"))return;
+        try{
+            JSONArray hits=new JSONArray();if(retrieval.hits!=null)for(JSONObject hit:retrieval.hits)hits.put(hit);
+            JSONObject checkpoint=new JSONObject().put("scene",geminiRetryIdentity()).put("action",action)
+                .put("bundle",retrieval.bundle).put("hits",hits);
+            prefs.edit().putString(RETRY_PREFIX+"checkpoint",checkpoint.toString()).commit();
+        }catch(Exception e){AppLog.w("MasterCheckpoint","Não foi possível salvar regras recuperadas.",e);}
+    }
+    private RuleRetrievalEngine.Result loadMasterRuleCheckpoint(String action,RuleRetrievalPolicy.Decision decision){
+        try{
+            JSONObject c=new JSONObject(prefs.getString(RETRY_PREFIX+"checkpoint","{}"));
+            if(!action.equals(c.optString("action"))||!geminiRetryIdentity().equals(c.optString("scene")))return null;
+            JSONObject bundle=c.optJSONObject("bundle");
+            if(bundle==null||!decision.cacheKey.equals(bundle.optString("cache_key")))return null;
+            JSONArray a=c.optJSONArray("hits");ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
+            if(a!=null)for(int i=0;i<a.length();i++){JSONObject h=a.optJSONObject(i);if(h!=null)hits.add(h);}
+            if(hits.isEmpty())return null;
+            return new RuleRetrievalEngine.Result(bundle,hits);
+        }catch(Exception e){return null;}
+    }
+
     private void deliverAiRuleSearch(final long pipelineId,final String mode,final String requestedText,final String mapContext,final RuleRetrievalEngine.Result retrieval,MasterOrchestrator.Plan ignoredPlan,final String inputChannel){
         if(!claimAiRuleSearch(pipelineId))return;
+        saveMasterRuleCheckpoint(requestedText,mapContext,retrieval);
         String status=retrieval==null?"":retrieval.bundle.optString("status");
         boolean opening=RuleRetrievalEngine.isNarrativeOpeningRequest(requestedText)||(retrieval!=null&&retrieval.bundle.optBoolean("opening_narrative",false));
         int evidence=retrieval==null?0:retrieval.bundle.optInt("evidence_count",retrieval.hits==null?0:retrieval.hits.size());
@@ -8150,7 +8206,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(!aiBusy||pipelineId!=aiPipelineGeneration)return;
                 ++aiPipelineGeneration; // invalidate every late callback from this turn
                 markMasterPreparationFailed(mode,requestedText,inputChannel,
-                    "A montagem do estado da campanha excedeu 30 segundos. "+
+                    "A preparação do contexto não concluiu dentro do limite de segurança. "+
                     "A tarefa anterior foi cancelada; nenhuma nova cena foi confirmada.");
             }
         });
@@ -8797,6 +8853,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 newCast = buildSceneCastPreview(env);
                 mergeNarratedKnownNpcs(newCast, calculatedNarration);
                 mergeExplicitlyNamedNpcHints(newCast, calculatedNarration);
+                newCast = SceneNpcRoleAliases.reconcileCast(newCast,db.getSceneState());
                 newVisualPrompt = SceneVisualPromptGuard.choose(env.optString("visual_prompt", ""), previousVisual, calculatedNarration);
                 if (newVisualPrompt.length() == 0) newVisualPrompt = sanitizeVisualSource(calculatedNarration);
                 invalidateVisual = true;
@@ -9044,7 +9101,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         if (requestGen != aiRequestGeneration || payload == null) return;
         if(!payload.masterEnvelopeValid){
-            clearFailedGeminiRequest();
+            // Preserve the original action and the completed rule checkpoint on rejection.
             setStatus("A resposta não passou na arbitragem. A cena anterior permanece canônica.");
             if(isStrixhavenAdventure())showStrixhavenSession();
             else if("Mestre IA".equals(currentScreen))showNarrator();
@@ -13635,10 +13692,10 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
             .putString("pending_image_target_name",name==null?"":name);
         if("NPC".equals(type))e.putLong("pending_npc_portrait_id",id).putString("pending_npc_portrait_stable_id",stable==null?"":stable).putString("pending_npc_portrait_name",name==null?"":name);
         else e.remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name");
-        e.apply();
+        e.commit();
     }
     private String circularTokenPortraitRules(){
-        return "FORMATO OBRIGATÓRIO: retrato quadrado 1:1 para TOKEN CIRCULAR de VTT; enquadramento EXCLUSIVAMENTE dos ombros para cima; rosto centralizado; cabeça inteira visível; cabelo, orelhas, chifres, capuz ou elmo totalmente dentro do quadro; margem de segurança generosa em todos os lados; olhos próximos ao centro; todos os traços importantes dentro dos 70% centrais para sobreviver ao recorte redondo. Fundo simples, discreto e de baixo contraste. Sem texto, nome, moldura, ficha, corpo inteiro, pose aberta ou cenário dominante. Não cortar topo da cabeça, queixo ou ombros. Equipamentos/armas só podem aparecer parcialmente se couberem naturalmente no enquadramento sem empurrar o rosto para fora do centro.";
+        return "ESTILO OBRIGATÓRIO: fotografia cinematográfica fotorrealista de fantasia medieval live-action, textura natural de pele e cabelo, iluminação real, nunca pintura, desenho, ilustração, anime ou render estilizado. FORMATO OBRIGATÓRIO: retrato quadrado 1:1 para TOKEN CIRCULAR de VTT; enquadramento EXCLUSIVAMENTE dos ombros para cima; rosto centralizado; cabeça inteira visível; cabelo, orelhas, chifres, capuz ou elmo totalmente dentro do quadro; margem de segurança generosa em todos os lados; olhos próximos ao centro; todos os traços importantes dentro dos 70% centrais para sobreviver ao recorte redondo. Fundo simples, discreto e de baixo contraste. Sem texto, nome, moldura, ficha, corpo inteiro, pose aberta ou cenário dominante. Não cortar topo da cabeça, queixo ou ombros. Equipamentos/armas só podem aparecer parcialmente se couberem naturalmente no enquadramento sem empurrar o rosto para fora do centro.";
     }
     private void sharePortraitPromptWithGemini(String prompt,String name){
         Intent share=new Intent(Intent.ACTION_SEND);share.setType("text/plain");share.putExtra(Intent.EXTRA_TEXT,prompt);share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -13668,6 +13725,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
     private void beginNpcPortrait(JSONObject entry){
         try{
             String name=entry==null?"":entry.optString("name","").trim();if(name.length()==0)return;
+            name=SceneNpcRoleAliases.canonicalName(name,db.getSceneState());
             JSONObject npc=db.findNpcMemoryByName(name);
             if(npc.length()==0){db.upsertNpcMemory(new JSONObject().put("name",name).put("stable_id",NpcIdentityNormalizer.stableId(activeWorldProfile(),name)).put("visual_description",entry.optString("hint","")).put("active",1));npc=db.findNpcMemoryByName(name);}
             if(npc.length()==0){toast("Não foi possível criar a identidade persistente deste NPC.");return;}
@@ -14113,9 +14171,10 @@ if(request==REQ_TOKEN&&(result!=RESULT_OK||data==null||data.getData()==null)){cl
         if(intent==null)return;
         String type=intent.getType();if(!Intent.ACTION_SEND.equals(action)||type==null||!type.startsWith("image/"))return;
         final Uri source=incomingImageUri(intent);consumeIncomingIntent(intent);if(source==null)return;
+        // Portraits belong to a stable identity, not to the scene fingerprint.
+        if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}
         SceneImageImportPolicy.Result admission=SceneImageImportPolicy.validate(action,type,true,prefs.getString(PREF_PENDING_IMAGE_FINGERPRINT,""),currentSceneVisualFingerprint());
         if(!admission.accepted){setStatus("A imagem recebida não foi importada.");toast(admission.message);return;}
-        if(hasPendingPortraitTarget()){importReceivedPortraitAsync(source);return;}
         // Compatibilidade com remetentes que contornam a Activity dedicada.
         setStatus("Validando e salvando a imagem recebida…");AppExecutors.io().execute(new Runnable(){public void run(){try{final Uri stored=ImageStorageManager.importImage(MainActivity.this,source,"scene_images","shared_scene",12);ui.post(new Runnable(){public void run(){applyReceivedSceneImage(stored);}});}catch(final Exception e){AppLog.e("ImageImport","Imagem compartilhada rejeitada.",e);ui.post(new Runnable(){public void run(){setStatus("A imagem recebida não foi importada.");toast(e.getMessage()==null?"Imagem inválida.":e.getMessage());}});}}});
     }

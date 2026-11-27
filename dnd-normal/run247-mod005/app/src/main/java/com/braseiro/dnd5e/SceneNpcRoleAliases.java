@@ -22,6 +22,24 @@ final class SceneNpcRoleAliases {
   if(cast!=null)scene.put("present_npcs",merge(cast,names));
   if(updates!=null)envelope.put("npc_updates",merge(updates,names));
  }
+ static String canonicalName(String name,JSONObject scene){
+  return keeper(name)&&LiveMasterAcceptance.waystone(scene,"")?"Kote":name;
+ }
+ static boolean isKnownRoleAlias(JSONObject npc,JSONArray cast,JSONObject scene){
+  if(npc==null||npc.optBoolean("group")||npc.optInt("count",1)>1)return false;
+  String name=npc.optString("name"),canonical=canonicalName(name,scene);
+  Map<String,String> names=new LinkedHashMap<String,String>();collect(names,cast);
+  String known=names.get(role(name));
+  if(!canonical.equals(name))known=canonical;
+  if(known==null||known.isEmpty())return false;
+  for(int i=0;i<cast.length();i++){JSONObject n=cast.optJSONObject(i);if(n!=null&&fold(known).equals(fold(n.optString("name"))))return true;}
+  return false;
+ }
+ static JSONArray reconcileCast(JSONArray cast,JSONObject prior)throws Exception{
+  JSONObject env=new JSONObject().put("scene_state",new JSONObject().put("present_npcs",cast));
+  reconcile(env,prior);
+  return env.getJSONObject("scene_state").getJSONArray("present_npcs");
+ }
  private static void collect(Map<String,String> names,JSONArray list){
   if(list==null)return;
   for(int i=0;i<list.length();i++){

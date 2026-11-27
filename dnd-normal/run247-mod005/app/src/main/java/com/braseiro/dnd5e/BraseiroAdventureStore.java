@@ -93,10 +93,12 @@ public final class BraseiroAdventureStore {
                 hex=value;break;
             }
         }
-        return new JSONObject().put("adventure_id",pkg.optString("id"))
+        JSONObject result=new JSONObject().put("adventure_id",pkg.optString("id"))
             .put("location_id",id).put("location_name",local.optString("name",id))
             .put("hex_id",hex).put("location_type",local.optString("locationType",""))
             .put("hook",start.optString("hook",""));
+        for(String key:new String[]{"clock_hour","time_of_day","weather","lighting","season","terrain"})if(start.has(key)&&!start.isNull(key))result.put(key,start.opt(key));
+        return result;
     }
 
     /** Confere o pacote v1 sem executar nenhuma regra ou alterar o banco.

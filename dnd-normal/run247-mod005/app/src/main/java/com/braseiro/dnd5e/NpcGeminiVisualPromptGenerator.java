@@ -24,7 +24,7 @@ public final class NpcGeminiVisualPromptGenerator {
     public static String buildPrompt(String name, String ancestry, String socialClass,
                                      String profession, String quirks, String additionalDetails) {
         StringBuilder sb = new StringBuilder();
-        sb.append("A photorealistic cinematic live-action medieval fantasy character portrait bust of a ");
+        sb.append("A photorealistic cinematic live-action medieval fantasy character token portrait bust of a ");
 
         if (ancestry != null && !ancestry.trim().isEmpty()) {
             sb.append(ancestry.trim()).append(" ");

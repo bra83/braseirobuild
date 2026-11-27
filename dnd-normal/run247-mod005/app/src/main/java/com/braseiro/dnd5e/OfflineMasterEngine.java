@@ -119,7 +119,13 @@ public final class OfflineMasterEngine {
     public static String completePresentationWithBarbara(String existingNarration,String occasion,MasterOrchestrator.Plan plan,JSONObject sceneState){
         // A valid beat is never extended using a second, unrelated story.
         // No local source can invent the missing hook or new surroundings.
-        return existingNarration==null?"":existingNarration.trim();
+        String text=existingNarration==null?"":existingNarration.trim();
+        if(!"first_arrival".equals(occasion)||sceneState==null||text.isEmpty()||WorldOnboardingNarrativeGuard.problem(text,occasion).isEmpty())return text;
+        String location=sceneState.optString("location","").trim(),region=sceneState.optString("region","").trim(),geography=sceneState.optString("geography","").trim();
+        if(location.isEmpty()||region.isEmpty()||geography.isEmpty())return text;
+        // Reuse only confirmed scene facts; never create people, events or travel.
+        String candidate=text+"\n\nA chegada a "+location+", na região de "+region+", tem esta referência geográfica: "+geography+".";
+        return WorldOnboardingNarrativeGuard.problem(candidate,occasion).isEmpty()?candidate:text;
     }
 
     private static boolean isOpeningDirective(String action){String n=action==null?"":action.toUpperCase(new Locale("pt","BR"));return n.contains("INÍCIO AUTOMÁTICO")||n.contains("INICIO AUTOMATICO")||n.contains("PONTO INICIAL CATALOGADO DESTA AVENTURA");}
