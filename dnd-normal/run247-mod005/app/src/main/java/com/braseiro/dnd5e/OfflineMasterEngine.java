@@ -51,7 +51,8 @@ public final class OfflineMasterEngine {
         String previous=clean(story.optString("last_narration",""),480);
         String declared=playerFacingAction(action);
         JSONObject hero0=heroes.length()>0?heroes.optJSONObject(0):null;
-        String actor=hero0!=null?clean(hero0.optString("name","A companhia"),70):"A companhia";
+        String actor=hero0!=null?clean(hero0.optString("name",""),70):"";
+        String address=heroes.length()==1?"você":"vocês";
         String heroArmor=hero0!=null?clean(hero0.optString("visual_description",hero0.optString("armor","")),90):"";
         String heroEquip=hero0!=null?clean(hero0.optString("equipment",hero0.optString("weapons","")),90):"";
         String npc=presentNpcName(scene);
@@ -63,29 +64,25 @@ public final class OfflineMasterEngine {
 
         StringBuilder text=new StringBuilder();
         if(presentation){
-            if(opening)text.append("A chegada a ").append(location).append(" ganha forma pela luz e pelo relevo ao redor. ");
-            else text.append("Ao alcançar ").append(location).append(", a companhia encontra o lugar já em movimento contínuo. ");
-            if(weather.length()>0)text.append("O tempo está ").append(lowerFirst(weather)).append(", com o vento batendo no rosto e alterando o uso do espaço sob as botas. ");
+            text.append(heroes.length()==1?"Você está em ":"Vocês estão em ").append(location).append(". ");
+            if(weather.length()>0)text.append("O tempo está ").append(lowerFirst(weather)).append(". ");
             if(catalog.length()>0){String fact=naturalizeCatalog(catalog,localWater);if(fact.length()>0)text.append(clean(fact,320)).append(' ');}
             if(hero0!=null){
-                text.append(actor);
-                if(heroArmor.length()>0)text.append(", vestindo ").append(lowerFirst(heroArmor));
-                if(heroEquip.length()>0)text.append(", sente o peso de ").append(lowerFirst(heroEquip)).append(" ao alcance das mãos");
-                text.append(", mantendo a postura firme na marcha. ");
+                if(!actor.isEmpty()&&heroArmor.length()>0)text.append(actor).append(", você veste ").append(lowerFirst(heroArmor)).append(". ");
             }
-            if(npc.length()>0)text.append(npc).append(" está em plena atividade e pode ser individualizado na cena. ");
+            if(npc.length()>0)text.append(npc).append(" está presente. ");
             if(danger.length()>0)text.append("Há um sinal concreto de perigo: ").append(lowerFirst(danger)).append(". ");
             if(objective.length()>0)text.append("O objetivo já estabelecido continua sendo ").append(lowerFirst(objective)).append(". ");
-            text.append("O caminho à frente se abre para as escolhas da companhia.");
+            text.append(heroes.length()==1?"O que você faz?":"O que vocês fazem?");
         }else{
             text.append("Em ").append(location).append(", ");
             if(weather.length()>0)text.append("sob o tempo ").append(lowerFirst(weather)).append(", ");
             if(declared.length()>0)text.append(lowerFirst(declared)).append(". ");
-            else text.append(actor).append(" observa por um instante antes de escolher o próximo gesto. ");
+            else text.append(address).append(" permanece").append(heroes.length()==1?"":"m").append(" no local. ");
             if(hero0!=null&&declared.length()>0&&heroEquip.length()>0){
-                text.append(actor).append(" firma ").append(lowerFirst(heroEquip)).append(" enquanto o vento move a barra das roupas. ");
+                // No additional movement, grip or weather is inferred from equipment.
             }
-            if(npc.length()>0)text.append(npc).append(" está em atividade no local, percebe o movimento e reage com naturalidade. ");
+            if(npc.length()>0)text.append(npc).append(" está presente. ");
             String speaking=situatedSocialReply(declared,npc,danger);
             if(speaking.length()>0)text.append("\n\n").append(speaking).append("\n\n");
             if(verified.length()>0){
@@ -95,7 +92,7 @@ public final class OfflineMasterEngine {
             }else if(danger.length()>0)text.append("A ameaça continua presente: ").append(lowerFirst(danger)).append(". ");
             if(previous.length()>0)text.append("A atenção se volta para os detalhes imediatos ao redor. ");
             if(objective.length()>0)text.append("Adiante, a busca por ").append(lowerFirst(objective)).append(" continua no horizonte. ");
-            text.append("Os arredores apresentam oportunidades para observar, dialogar com os presentes ou agir diretamente.");
+            text.append(heroes.length()==1?"O que você faz?":"O que vocês fazem?");
         }
 
         JSONObject out=emptyEnvelope();
@@ -120,102 +117,9 @@ public final class OfflineMasterEngine {
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
     public static String completePresentationWithBarbara(String existingNarration,String occasion,MasterOrchestrator.Plan plan,JSONObject sceneState){
-        String occ=occasion==null||occasion.trim().length()==0?(plan!=null&&plan.barbaraStoryOccasion!=null&&plan.barbaraStoryOccasion.trim().length()>0?plan.barbaraStoryOccasion.trim():"first_arrival"):occasion.trim();
-        String draft=existingNarration==null?"":existingNarration.trim();
-        if(WorldOnboardingNarrativeGuard.problem(draft,occ,null).length()==0)return draft;
-        String loc=sceneState==null?"":sceneState.optString("location","");
-        String reg=sceneState==null?"":sceneState.optString("region","");
-        String geo=sceneState==null?"":sceneState.optString("geography","");
-        String poi=sceneState==null?"":sceneState.optString("poi","");
-        String weather=sceneState==null?"":sceneState.optString("weather_description","");
-        String danger=sceneState==null?"":sceneState.optString("danger_description","");
-        String obj=sceneState==null?"":sceneState.optString("objective","");
-        String actor="A companhia";
-        if(plan!=null&&plan.compactContext!=null){
-            try{
-                JSONObject root=new JSONObject(plan.compactContext);
-                JSONObject bus=root.optJSONObject("game_bus");
-                if(bus!=null){
-                    JSONArray heroes=bus.optJSONArray("active_heroes_full");
-                    if(heroes!=null&&heroes.length()>0&&heroes.optJSONObject(0)!=null){
-                        String heroName=heroes.optJSONObject(0).optString("name","").trim();
-                        if(heroName.length()>0)actor=heroName;
-                    }
-                }
-            }catch(Exception ignored){}
-        }
-        String npc="";
-        if(sceneState!=null){
-            JSONArray npcs=sceneState.optJSONArray("present_npcs");
-            if(npcs!=null&&npcs.length()>0&&npcs.optJSONObject(0)!=null)npc=npcs.optJSONObject(0).optString("name","");
-        }
-        String supplement="campaign_opening".equals(occ)
-            ?buildOpeningNarration(loc.length()>0?loc:"esta região","",reg,"",weather,danger,obj,actor,npc)
-            :buildDiscoveryNarration(occ,loc,reg,geo,poi,weather,danger,obj,actor,npc);
-        String combined=draft.length()>0?(draft+"\n\n"+supplement):supplement;
-        return ensurePresentationMinimum(combined,occ,loc,geo,weather,obj);
-    }
-
-    private static String buildDiscoveryNarration(String occasion,String location,String region,String geography,String poi,String weather,String danger,String objective,String actor,String npc){
-        String place=location.length()>0?location:"esta região",geo=geography.length()>0?geography:"o terreno ao redor",climate=weather.length()>0?weather:"o tempo atual";
-        StringBuilder out=new StringBuilder();
-        if("first_arrival".equals(occasion)){
-            out.append("A aproximação de ").append(place).append(" começa pelo contorno da paisagem. ").append(region.length()>0?place+" ergue-se como marco dentro de "+region+", onde ":place+" surge na distância, onde ").append(geo).append(" dita o ritmo dos passos, a inclinação das encostas e a linha do horizonte. A estrada e as primeiras trilhas revelam a transição entre o terreno aberto e as primeiras construções, oferecendo uma visão clara das distâncias e das rotas de entrada.\n\n");
-            out.append("Ao alcançar o limiar de ").append(place).append(", a circulação cotidiana torna-se perceptível. Moradores cuidam de seus afazeres, carroças avançam com rangidos de rodas sobre o piso e o comércio local movimenta portas e balcões. ").append(npc.length()>0?npc+" encontra-se entre as figuras visíveis, ocupada com suas próprias tarefas.":"Viajantes e locais compartilham os acessos principais, ocupando o espaço com naturalidade.").append("\n\n");
-            out.append("O ambiente acompanha essa recepção. ").append(weather.length()>0?"Sob o tempo "+lowerFirst(climate)+", a luz e o vento tocam a fachada dos edifícios e o chão sob as botas.":"A atmosfera ao redor transmite a temperatura e os sons característicos deste trecho da jornada.").append(" A arquitetura ao redor reflete o uso do espaço, com passagens transitadas, praças de parada e caminhos que seguem adiante entre áreas públicas e de trabalho.\n\n");
-            out.append("A atividade e o movimento local mostram como a comunidade se organiza, com pontos de encontro, oficinas e locais de descanso. ").append(danger.length()>0?"Há uma tensão perceptível na cena: "+lowerFirst(danger)+". Ela se manifesta na cautela de certos olhares e na postura dos presentes. ":"O ritmo segue com a normalidade esperada para este horário. ").append(objective.length()>0?"O objetivo que trouxe a companhia continua sendo "+lowerFirst(objective)+", agora situado dentro do espaço observável.":"").append("\n\n");
-            out.append("Com o limiar atravessado, ").append(actor).append(" e os demais podem avaliar o que está diante dos olhos. As vias abrem-se em direções claras: aproximar-se da praça, dirigir a palavra a quem estiver por perto ou avançar em direção aos bairros centrais.");
-        }else if("poi_discovery".equals(occasion)){
-            String landmark=poi.length()>0?poi:place;
-            out.append("O marco de ").append(landmark).append(" destaca-se da paisagem ao redor de ").append(place).append(". Seus contornos erguem-se contra o relevo de ").append(geo).append(", com passagens e acessos claramente delimitados pela alvenaria, pelas cercas ou pelas pedras gastas pelo uso.\n\n");
-            out.append("Diante da entrada, o movimento de pessoas revela a utilidade do local. Portas, janelas, balcões e áreas de carga mostram o fluxo habitual. ").append(npc.length()>0?npc+" permanece por perto, atenta ao que se desenrola nas imediações. ":"Quem passa por ali demonstra familiaridade com a rota. ").append(weather.length()>0?"O clima atual — "+lowerFirst(climate)+" — confere textura às superfícies e projeta sombras sobre os acessos visíveis.\n\n":"A iluminação natural define os detalhes da fachada e das aberturas.\n\n");
-            out.append(objective.length()>0?"O propósito em torno de "+lowerFirst(objective)+" encontra neste ponto novas referências visíveis. ":"As passagens observáveis convidam à exploração. ").append("Resta decidir se o melhor caminho é aproximar-se para examinar de perto, sondar quem estiver ao redor ou manter distância prudente.");
-        }else if("geography_discovery".equals(occasion)){
-            out.append("O terreno muda à medida que a marcha avança por ").append(geo).append(". A elevação do solo, as curvas da encosta e a densidade da vegetação impõem um novo ritmo aos passos, delimitando com clareza o que está ao alcance da vista e o que se estende pelo horizonte.\n\n");
-            out.append("O chão sob as botas revela a consistência da terra, das pedras e da trilha percorrida. O relevo desenha desvios naturais, zonas de sombra e pontos de visibilidade aberta. ").append(weather.length()>0?"Com "+lowerFirst(climate)+", a marcha exige atenção ao equilíbrio e ao terreno à frente.":"A visibilidade permite avaliar desvios, áreas de abrigo e a continuidade da passagem.").append("\n\n");
-            out.append(actor).append(" e os companheiros conseguem medir as opções da marcha: seguir pela trilha principal mais exposta, contornar pela elevação ou buscar um ponto elevado para estudar a extensão do caminho adiante.");
-        }else if("weather_transition".equals(occasion)){
-            out.append("O ar transforma-se rapidamente sobre ").append(place).append(". As nuvens fecham-se no alto e ").append(lowerFirst(climate)).append(" altera de imediato o som, a sensação na pele e a visibilidade dos contornos mais distantes.\n\n");
-            out.append("Pelo caminho, poeira assenta ou a umidade ganha força sobre a terra batida e a pedra. ").append(npc.length()>0?npc+" recolhe pertences ou ajusta o capuz contra a virada do tempo. ":"Moradores e transeuntes apressam o passo em busca de beirais e abrigos. ").append("A mudança traz novas condições físicas para a marcha, exigindo atenção às pegadas, ao atrito do piso e à escolha entre seguir adiante ou buscar abrigo imediato.");
-        }else{ // changed_return
-            out.append("A aproximação de ").append(place).append(" devolve contornos familiares aos olhos da companhia. As silhuetas de ").append(geo).append(" e as construções conhecidas reencontram o horizonte, permitindo reconhecer a geometria do lugar.\n\n");
-            out.append("No entanto, pequenos sinais revelam o tempo transcorrido: a disposição de barracas, novas marcas no piso ou o vaivém de quem agora ocupa os portões. ").append(npc.length()>0?npc+" segue presente no cenário, envolvida em nova atividade. ":"As movimentações mostram a rotina em andamento nas praças e oficinas. ").append(weather.length()>0?"O clima — "+lowerFirst(climate)+" — envolve as ruas em uma atmosfera diferente da última passagem.\n\n":"\n\n");
-            out.append(objective.length()>0?"A atenção continua voltada para "+lowerFirst(objective)+", agora sob a perspectiva do que mudou desde a última visita. ":"Diante das ruas e acessos que se abrem, ").append(danger.length()>0?"A tensão com "+lowerFirst(danger)+" pode ser percebida na postura de quem observa a entrada. ":"").append("O momento permite retomar contatos conhecidos, buscar abrigo ou investigar os novos movimentos observados.");
-        }
-        return out.toString();
-    }
-
-    private static String ensurePresentationMinimum(String text,String occasion,String location,String geography,String weather,String objective){
-        String out=text==null?"":text.trim();
-        int words=WorldOnboardingNarrativeGuard.countWords(out);
-        int paras=WorldOnboardingNarrativeGuard.countParagraphs(out);
-        int minWords=WorldOnboardingNarrativeGuard.minWords(occasion);
-        int minParas=WorldOnboardingNarrativeGuard.minParagraphs(occasion);
-        if(words>=minWords&&paras>=minParas)return out;
-        String place=location.length()>0?location:"esta região";
-        String geo=geography.length()>0?geography:"o relevo circundante";
-        String climate=weather.length()>0?lowerFirst(weather):"o clima característico";
-        String extra="O ar em "+place+" preserva os sons e as texturas do entorno, onde "+geo+" emoldura o horizonte sob "+climate+". Os detalhes observáveis abrem espaço para os próximos passos, permitindo que cada ação seja guiada pelo que se apresenta diante dos olhos.";
-        if(!out.contains(extra))out+=(out.length()>0?"\n\n":"")+extra;
-        return out;
-    }
-
-    private static String buildOpeningNarration(String location,String category,String region,String placeFact,String weather,String danger,String objective,String actor,String npc){
-        StringBuilder out=new StringBuilder();
-        String scale=(category.length()>0?"Trata-se de "+lowerFirst(category):"Trata-se de um lugar habitado e percorrido")+(region.length()>0?" dentro de "+region:"")+". ";
-        String climate=weather.length()>0?weatherSentence(weather)+" ":"";
-        out.append("A paisagem abre-se em grande escala diante da estrada batida que conduz a ").append(location).append(". O território estende-se como parte viva e percorrida de ").append(region.length()>0?region:"Faerûn").append(", onde montanhas distantes, colinas onduladas e linhas de mata antiga desenham a transição do relevo sob a luz do céu. ").append(scale).append("A aproximação revela a extensão das terras ao redor, onde o relevo, a vegetação e o traçado das rotas marcam o avanço da jornada. ").append(placeFact.length()>0?placeFact+" ":"").append(climate).append("Ao longe, os primeiros telhados de telha cozida, muralhas de cantaria e colunas de fumaça subindo das chaminés destacam-se contra o horizonte, anunciando a chegada a um destino vivo, denso e em pleno movimento.\n\n");
-        out.append("À medida que a aproximação se consolida e a poeira da estrada assenta sobre as pedras do calçamento, os sons do trânsito local começam a sobrepor-se ao silêncio da marcha. Carroças pesadas de mercadorias deixam sulcos na terra batida com o rangido ritmado de rodas e arreios de couro, montarias cruzam os acostamentos entre saudações breves e trabalhadores cuidam da manutenção de cercas, pontes de madeira e pórticos de acesso. A arquitetura ao redor ganha contornos definidos e ricos em história: vigas de carvalho escurecidas pelo tempo e pela chuva, alvenaria firme assentada sobre fundações de pedra sólida, e portas de tavernas, oficinas e entrepostos abertas para a luz do dia. O ar carrega o cheiro de palha seca, fogueiras de bétula e ferro forjado, envolvendo o ambiente em atividade ininterrupta.\n\n");
-        out.append("Entre os que alcançam o limiar das primeiras edificações, ").append(actor).append(" avança com passos firmes e olhar atento, sentindo o peso familiar do equipamento nas costas, o atrito das correias da armadura e a fina camada de poeira da viagem assentada sobre o couro das botas. O olhar percorre os primeiros pontos de confluência da praça e dos acessos principais: vielas estreitas que contornam armazéns com sacarias de grãos, arcos que conduzem aos mercados abertos e balcões de madeira onde viajantes consultam rotas e trocam informações. ");
-        if(npc.length()>0)out.append(npc).append(" destaca-se entre as presenças visíveis, acompanhando a movimentação de cargas e dialogando com viajantes que cruzam a entrada. ");
-        else out.append("Diversos transeuntes movimentam a entrada: negociantes trocam saudações, viajantes ajustam suas bagagens e guardas observam com atenção a circulação pelas portas principais. ");
-        out.append("A atmosfera do lugar reflete a convivência cotidiana entre quem habita a região e quem acabou de chegar.\n\n");
-        if(danger.length()>0)out.append("Há, contudo, sinais de cautela perceptíveis na conduta de quem transita pelas imediações: ").append(lowerFirst(danger)).append(". Essa presença transparece em conversas interrompidas sob os beirais, olhares enviesados dirigidos a estranhos recém-chegados e no cuidado redobrado com trincos, grades e animais de carga. ");
-        else out.append("O ritmo das ruas mantém a normalidade esperada para este horário, com mercadores apregoando produtos, artesãos trabalhando em suas bancadas e moradores cuidando de suas rotinas com serenidade. ");
-        if(objective.length()>0)out.append("O propósito que impulsiona esta jornada permanece firme e bem delimitado: ").append(lowerFirst(objective)).append(". Ele oferece um rumo tangível em meio à multiplicidade de vias, becos e construções que se desdobram adiante.\n\n");
-        else out.append("A primeira impressão convida a conhecer os arredores, observar o movimento das ruas e identificar os pontos de interesse que despontam no centro da localidade.\n\n");
-        out.append("Com os passos estabelecidos dentro de ").append(location).append(", o cenário abre-se de forma concreta diante de ").append(actor).append(" e de seus companheiros. As escolhas imediatas apresentam-se com total clareza no ambiente: aproximar-se para iniciar um diálogo com quem conhece as notícias locais, examinar a arquitetura e as rotas que partem dos portões ou avançar decididamente em direção às praças centrais e bairros de comércio para cumprir os planos da jornada.");
-        return out.toString();
+        // A valid beat is never extended using a second, unrelated story.
+        // No local source can invent the missing hook or new surroundings.
+        return existingNarration==null?"":existingNarration.trim();
     }
 
     private static boolean isOpeningDirective(String action){String n=action==null?"":action.toUpperCase(new Locale("pt","BR"));return n.contains("INÍCIO AUTOMÁTICO")||n.contains("INICIO AUTOMATICO")||n.contains("PONTO INICIAL CATALOGADO DESTA AVENTURA");}

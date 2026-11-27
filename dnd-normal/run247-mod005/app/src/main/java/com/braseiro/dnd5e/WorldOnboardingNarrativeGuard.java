@@ -26,10 +26,8 @@ public final class WorldOnboardingNarrativeGuard {
     public static String problem(String narration,String occasion,JSONObject discovery){
         if(!isPresentation(occasion))return "";
         String text=narration==null?"":narration.trim();
-        int words=countWords(text),paragraphs=countParagraphs(text);
-        int minWords=minWords(occasion),minParagraphs=minParagraphs(occasion);
-        if(paragraphs<minParagraphs)return "a apresentação veio em "+paragraphs+" parágrafo(s); "+occasion+" exige pelo menos "+minParagraphs+" parágrafos narrativos";
-        if(words<minWords)return "a apresentação tem apenas "+words+" palavras; "+occasion+" exige pelo menos "+minWords+" palavras de cena contextualizada";
+        if(text.isEmpty())return "apresentação vazia";
+        // Word count is telemetry, never authority to fabricate another scene.
 
         String low=text.toLowerCase(new Locale("pt","BR"));
         String[] preknowledge={"como você já sabe","como voce ja sabe","como vocês já sabem","como voces ja sabem","vocês sabem que","voces sabem que","como todos sabem","é claro que vocês conhecem","e claro que voces conhecem"};
@@ -40,7 +38,7 @@ public final class WorldOnboardingNarrativeGuard {
         String head=text.substring(0,window).toLowerCase(new Locale("pt","BR"));
         if("campaign_opening".equals(occasion)){
             boolean scale=containsAny(head,"mundo","continente","região","regiao","reino","território","territorio","fronteira","província","provincia","costa","vale","planície","planicie","montanha","floresta","deserto","cidade","vila","terras de","parte de");
-            boolean approach=containsAny(head,"estrada","caminho","rota","viagem","jornada","chegada","aproxima","ao norte","ao sul","a leste","a oeste","entre ","dentro de","fica ","situa","distância","distancia","dias de","horas de","através","atraves");
+            boolean approach=containsAny(head,"vocês estão","você está","salão","interior","estalagem","pousada","estrada","caminho","rota","viagem","jornada","chegada","aproxima","ao norte","ao sul","a leste","a oeste","entre ","dentro de","fica ","situa","distância","distancia","dias de","horas de","através","atraves");
             if(!scale||!approach)return "a abertura pulou a orientação de mundo/região e fechou a câmera cedo demais; situe escala e aproximação antes do conflito local";
         }else if("first_arrival".equals(occasion)){
             boolean place=containsAny(head,"cidade","vila","bairro","porto","fortaleza","templo","ruína","ruina","aldeia","acampamento","região","regiao","entrada","muralha","estrada","trilha","ponte","praça","praca");

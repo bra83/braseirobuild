@@ -1471,7 +1471,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             // ANR 2026-11-01: compilation of all Strixhaven statblocks must never run in Looper.
             final JSONObject compiledBestiary=StrixhavenBestiaryRuntimeEngine.install(getApplicationContext());
             if(compiledBestiary.optInt("registered",0)==0)AppLog.w("StrixhavenBestiary","Nenhum bloco foi registrado; verificar diagnostico de fontes.");
-            if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
+            if(reset){safety.beforeDestructiveChange("começar uma nova aventura em Strixhaven");db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura de Strixhaven iniciada","História anterior preservada em snapshot; Atlas de Faerûn mantido intacto","{}","{}",true);}
             if(reset)resetSceneClock();else initializeSceneClock();
             final String opening="INÍCIO AUTOMÁTICO — PRIMEIRA CENA DO SEMESTRE. Ano "+
                     profile.year()+", semestre "+profile.semester()+", mapa atual "+
@@ -2206,7 +2206,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 String packageId=db.getMapState().optString("map_package_id","");
                 if(!isAtlasContractRuntime(packageId)||!db.isValidMapHex(packageId,requestedHex))throw new IllegalStateException("O hex declarado deixou de estar disponível. A campanha foi preservada.");
             }
-            if(reset){safety.beforeDestructiveChange("começar uma nova aventura");db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);}
+            if(reset){safety.beforeDestructiveChange("começar uma nova aventura");db.archiveActiveAdventureJournal();db.clearStoryState();lastNarration="";lastVisualPrompt="";currentOptions=new JSONArray();pendingTest=new JSONObject();lastMasterSupport=new JSONObject();sharedImageUri=null;prefs.edit().remove(PREF_SCENE_IMAGE_URI).remove(PREF_SCENE_IMAGE_FINGERPRINT).remove(PREF_PENDING_IMAGE_FINGERPRINT).remove(PREF_RECENT_SCENE_OPTIONS).remove("last_master_support_json").apply();db.saveSceneOptionHistory("[]");db.addAuditEvent("campanha","Nova aventura iniciada","História anterior preservada em snapshot","{}","{}",true);}
             final JSONObject startingPoint=principalStart.length()>0?preparePrincipalAdventureStart(principalStart):prepareAdventureStartingPoint(requestedHex,reset);adventureStartupCoordinator.phase(AdventureStartupCoordinator.Phase.RULES,"Recuperando regras para a abertura");final String startingHex=startingPoint.optString("hex_id","");
             if(reset)resetSceneClock();else initializeSceneClock();
             if(principalStart.length()>0){JSONObject anchored=db.getSceneState();anchored.put("location",principalStart.optString("location_name")).put("hex_id",startingHex);db.saveSceneStateChecked(anchored);}
@@ -8411,9 +8411,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             final boolean nonAdvancingRepair=activeTurnNonAdvancing(originalUserText);
             final String repairOccasion=storyPresentationOccasion(originalUserText);
             final boolean fullPresentationRepair=isFullStoryPresentation(repairOccasion);
-            final int repairMinLength=nonAdvancingRepair?8:240;
+            final int repairMinLength=1;
             final int maxRepairAttempts=1;
-            if(draft.length()<repairMinLength){
+            if(draft.trim().isEmpty()){
                 if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(pendingAiInputChars,raw==null?0:raw.length());
                 aiBusy=false;streamingNarration="";
                 markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"O Gemini retornou uma resposta incompleta. Nenhum turno foi confirmado.");
@@ -8426,7 +8426,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     :(fullPresentationRepair?
                     "BRAS_LONG_STORY BRAS_NARRATIVE_EDITOR. Você é editor de uma grande apresentação de RPG para jogador que NÃO conhece o cenário. Reescreva usando somente fatos já presentes na narração e no contexto de grounding. Expanda percepção, orientação espacial, relações visíveis, atividade cotidiana, transições e significado imediato dos nomes próprios sem criar novo lore, NPC, item, pista, número, regra ou consequência. Não presuma conhecimento prévio. Preserve agência e termine no mesmo ponto de decisão. Use parágrafos reais separados por linha em branco. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}."
                     :"BRAS_NARRATIVE_EDITOR. Você é somente editor de prosa. Reescreva a narração fornecida sem mudar nenhum fato, personagem, fala necessária, resultado, posição, item, regra, número, consequência ou estado. Corrija exclusivamente o problema de qualidade indicado. Use português do Brasil, espacialidade clara, ação concreta, poucos detalhes que trabalham, variedade sintática e uma abertura estruturalmente diferente das cenas anteriores. Não acrescente opções, pistas, NPCs nem mecânicas. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}.");
-                final String repairPrompt="PROBLEMA DETECTADO: "+problem+"\nALVO DE FORMA: "+narrationQualityTarget(originalUserText)+(fullPresentationRepair?"\n\nCONTEXTO AUTORITATIVO PARA GROUNDING (não exponha como relatório):\n"+repairGroundingContext():"")+"\n\nNARRAÇÃO A REESCREVER SEM ALTERAR FATOS:\n"+draft;
+                final String repairPrompt=HumanMasterNarrativeProfile.systemInstruction()+"\n\nPROBLEMA DETECTADO: "+problem+"\nALVO DE FORMA: "+narrationQualityTarget(originalUserText)+(fullPresentationRepair?"\n\nCONTEXTO AUTORITATIVO PARA GROUNDING (não exponha como relatório):\n"+repairGroundingContext():"")+"\n\nNARRAÇÃO A REESCREVER SEM ALTERAR FATOS:\n"+draft;
                 final int repairInputChars=repairSystem.length()+repairPrompt.length();
                 if(aiQuotaGovernor==null||aiQuotaGovernor.canCall(repairInputChars)){
                     setStatus(nonAdvancingRepair?"A direção narrativa está corrigindo o esclarecimento sem avançar a cena…":(fullPresentationRepair?"A apresentação precisa de mais contexto; expandindo a mesma resposta remota sem trocar de Mestre…":"A direção narrativa detectou repetição/forma fraca; revisando somente a prosa uma única vez…"));
@@ -8438,25 +8438,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 }
             }
             if(hasInternalNarrationLeak(draft)){aiBusy=false;streamingNarration="";markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"A resposta continha instruções internas e foi bloqueada. Nada foi aplicado.");return;}
-            if(fullPresentationRepair){
-                String completed=draft;
-                try{
-                    completed=OfflineMasterEngine.completePresentationWithBarbara(draft,repairOccasion,activeMasterPlan,db.getSceneState());
-                }catch(Exception failure){
-                    AppLog.w("NarrativeDirector","Falha ao completar apresentação com Motor Bárbara.",failure);
-                }
-                try{
-                    envelope.put("narration",completed);
-                    envelope.put("presentation_quality_unmet",problem);
-                    envelope.put("remote_narration_preserved",true);
-                    envelope.put("barbara_completed",true);
-                }catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao marcar apresentação remota preservada.",ignored);}
+            String remainingProseProblem=nonAdvancingRepair?"":LiveMasterProseGate.problem(draft,envelope,db.getSceneState(),originalUserText);
+            if(!remainingProseProblem.isEmpty()){
                 aiBusy=false;streamingNarration="";
-                if(masterOrchestrator!=null)masterOrchestrator.cacheResponse(activeMasterPlan,pendingAiModel,mode,envelope.toString());
-                handleAiResponse(envelope.toString(),originalUserText);
-                setStatus("Cena pronta • completada com o Motor Bárbara • "+textModelStatus());
+                markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"Narração incompatível com a mesa: "+remainingProseProblem+". Nenhum turno foi confirmado.");
                 return;
             }
+            // Keep the single remote beat. Never append a second story to meet a length target.
             try{envelope.put("narration",draft);envelope.put("quality_recovered_locally",problem);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
             aiBusy=false;streamingNarration="";
             if(masterOrchestrator!=null)masterOrchestrator.cacheResponse(activeMasterPlan,pendingAiModel,mode,envelope.toString());
@@ -8477,6 +8465,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(env.optBoolean("_narration_leak_detected",false)||hasInternalNarrationLeak(narration))return "vazamento de instruções internas do motor na narração";
         String directed=BraseiroNarrativeDirector.qualityProblem(narration,recentNarrativeTexts(),userText,activeInputChannel());
         if(activeTurnNonAdvancing(userText))return directed;
+        String proseProblem=LiveMasterProseGate.problem(narration,env,db.getSceneState(),userText);if(!proseProblem.isEmpty())return proseProblem;
         String tableDirected=LiveTableNarrativeDirector.qualityProblem(narration,braseiroNarrativeMemory(),db.getSceneState(),userText);
         if(tableDirected.length()>0)return tableDirected;
         String storyOccasion=storyPresentationOccasion(userText);String presentationProblem=storyPresentationQualityProblem(narration,storyOccasion);if(presentationProblem.length()>0)return presentationProblem;
@@ -10251,12 +10240,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
     private boolean isFullStoryPresentation(String occasion){return "campaign_opening".equals(occasion)||"first_arrival".equals(occasion)||"changed_return".equals(occasion)||"poi_discovery".equals(occasion)||"geography_discovery".equals(occasion)||"weather_transition".equals(occasion);}
     private String storyPresentationInstruction(String occasion){
-        if("first_arrival".equals(occasion))return "PRIMEIRA CHEGADA — APRESENTAÇÃO GIGANTE OBRIGATÓRIA: o jogador ainda não conhece este lugar. Escreva 8 a 14 parágrafos substanciais e normalmente 850 a 1.600 palavras. Construa orientação geográfica e social antes de exigir decisão: panorama e relação com a região maior → aproximação/limiar → atividade cotidiana → arquitetura, economia e sinais culturais perceptíveis → pessoas em ação → problema atual → ponto claro de decisão. Todo nome próprio novo deve vir ancorado pelo que ele é e por que importa nesta cena. Na primeira menção relevante, também deixe claro em linguagem de cena ONDE esse elemento se encaixa na escala atual (mundo/região/cidade/local) e não encadeie nomes próprios que o jogador ainda não teve oportunidade de aprender. Não faça guia turístico, lista de lore, briefing ou catálogo.\n";
-        if("changed_return".equals(occasion))return "RETORNO A UM LUGAR MUDADO — APRESENTAÇÃO AMPLA OBRIGATÓRIA: recupere em 6 a 12 parágrafos, normalmente 600 a 1.200 palavras, apenas a geometria e fatos que o grupo realmente conhecia e dramatize o que mudou desde a última visita. Reoriente o jogador antes do novo conflito; não suponha memória enciclopédica. Diferencie claramente lembrança estabelecida de novidade perceptível.\n";
-        if("poi_discovery".equals(occasion))return "NOVO PONTO DE INTERESSE — APRESENTAÇÃO AMPLA OBRIGATÓRIA: escreva 6 a 12 parágrafos e normalmente 600 a 1.200 palavras. Apresente o marco como espaço concreto: relação com o entorno, aproximação, forma/escala, entradas e limites visíveis, atividade atual, pessoas presentes, sinais de história ou função que possam ser percebidos e possibilidades reais de interação. Não despeje lore invisível e não trate o nome do lugar como autoexplicativo. Termine no primeiro ponto de decisão dentro ou diante desse lugar.\n";
-        if("geography_discovery".equals(occasion))return "NOVA GEOGRAFIA — APRESENTAÇÃO ESPACIAL OBRIGATÓRIA: escreva 5 a 10 parágrafos e normalmente 500 a 1.000 palavras. O jogador precisa conseguir imaginar onde está sem ler o Atlas: relevo, solo/vegetação, horizonte, direção de deslocamento, obstáculos, rotas, distâncias relativas e como esse terreno muda viagem, visibilidade, recursos ou risco. Só mencione rios, lagos, pontes ou travessias confirmados pelo Atlas/contexto. Converta geografia em experiência física, não em verbete.\n";
-        if("weather_transition".equals(occasion))return "MUDANÇA RELEVANTE DE CLIMA — APRESENTAÇÃO CAUSAL OBRIGATÓRIA: escreva 4 a 8 parágrafos e normalmente 350 a 800 palavras. Mostre a transição pelos sentidos e, na mesma cena, pelo menos uma consequência concreta sobre terreno, deslocamento, visibilidade, comércio, patrulhas, NPCs, pistas, viagem ou agenda do Mundo Vivo. Preserve rescaldo existente. Não invente hidrologia, enchente ou curso d'água onde o Atlas não confirma água.\n";
-        return "ABERTURA GIGANTE DO MESTRE — REQUISITO CENTRAL DE JOGO: esta é a apresentação inicial da campanha para uma pessoa que pode não conhecer absolutamente nada do cenário. Escreva 10 a 18 parágrafos substanciais, normalmente 1.200 a 2.200 palavras; se o mundo exigir mais contexto para ficar compreensível, prefira contexto vivido a uma abertura curta. Comece com escala suficiente para situar o mundo/região e então aproxime a câmera até o lugar, o grupo e o acontecimento imediato. Explique naturalmente o que são os nomes, povos, regiões, instituições, tensões e costumes que realmente importam agora; nunca presuma Forgotten Realms, Mystara, facções, deuses, geografia ou história prévias do jogador. Mostre o mundo já funcionando — trabalho, comércio, trânsito, clima, relações, sinais de poder e cultura — e só depois concentre a cena no conflito ou oportunidade concreta. Termine quando houver uma decisão real, não depois de um resumo. Proibido: um único parágrafo, 3–8 parágrafos, menos de 1.200 palavras, lore dump, ficha de cenário, tutorial técnico, lista de opções substituindo história ou começar com nomes próprios sem contexto.\n";
+        String common="MESTRE DE MESA: dirija-se diretamente aos heróis, use nomes em vocativos e fale como quem conduz uma sessão. Se houver NPCs em interação, encene falas diretas identificadas. Preserve local, posição, hora, clima, elenco e gancho do JSON. Não invente viagem, cidade, NPC ou decisão. Sem cota de palavras: use o espaço necessário, pare na vez dos jogadores e pergunte o que fazem quando apropriado. ";
+        if("weather_transition".equals(occasion))return common+"Mostre a mudança de clima e sua consequência concreta comprovada.";
+        if("geography_discovery".equals(occasion))return common+"Mostre apenas terreno, orientação e relações espaciais verificáveis.";
+        if("poi_discovery".equals(occasion)||"first_arrival".equals(occasion)||"changed_return".equals(occasion))return common+"Apresente somente a localização e a mudança realmente observáveis.";
+        return common+"Abra no ponto inicial declarado, sem reencenar uma chegada quando os heróis já estão dentro. Apresente o acontecimento e o gancho, não um panorama genérico.";
     }
 
     private String narrationPaceInstruction(){String mode=currentMasterSceneMode();boolean economy=masterOrchestrator!=null&&masterOrchestrator.economyMode();if("conversa".equals(mode))return "DIÁLOGO: curto e encenado; responda ao que foi dito, mostre reação/subtexto e pare assim que a réplica devolver uma decisão. Normalmente 25 a 140 palavras; não use a faixa como meta.";if("combate".equals(mode))return "COMBATE: 35 a 160 palavras; ORIGEM → TRAJETÓRIA → CONTATO → RESULTADO, posição final clara e nada de recontar o turno inteiro.";if("viagem".equals(mode))return "VIAGEM: comprima quilômetros sem evento. Expanda somente descoberta, custo, transição espacial ou decisão; normalmente 40 a 180 palavras.";if("descanso".equals(mode)||"tempo_livre".equals(mode))return "INTERLÚDIO: comprima rotina e dê espaço apenas a relação, projeto, consequência ou risco; pare quando houver escolha real.";if(economy)return "EXPLORAÇÃO ECONÔMICA: preserve atmosfera e atividade do lugar, mas não recapitule nem catalogue; encerre no primeiro ponto de decisão.";String pace=prefs.getString("master_pace","balanced");if("fast".equals(pace))return "EXPLORAÇÃO ÁGIL: poucas batidas e detalhe forte; em geral até 170 palavras e sempre pare antes se a decisão já estiver clara.";if("cinematic".equals(pace))return "EXPLORAÇÃO CINEMATOGRÁFICA: permita 1 a 4 batidas, mais espaço em abertura ou revelação; normalmente até 320 palavras, sem preencher por quota.";return "EXPLORAÇÃO EQUILIBRADA: 1 a 3 batidas, normalmente até 240 palavras; comprimento segue importância, não uma meta fixa.";}
@@ -11790,8 +11778,9 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
     private static String truthStatus(String label){String n=label.toLowerCase(Locale.ROOT);if(n.startsWith("rumor"))return "rumor";if(n.startsWith("mentira"))return "mentira";if(n.startsWith("interpre"))return "equivoco";return "verdade";}
 
     /** Read-only sanitation: preserve the original backup/DB rows untouched. */
-    private List<JSONObject> visibleJournalEntries(){
-        List<JSONObject> rows=db.listJournal();
+    private List<JSONObject> visibleJournalEntries(){return visibleJournalEntries(false);}
+    private List<JSONObject> visibleJournalEntries(boolean includeArchived){
+        List<JSONObject> rows=includeArchived?db.listJournal():db.listActiveAdventureJournal();
         ArrayList<JSONObject> visible=new ArrayList<JSONObject>();
         for(JSONObject row:rows){
             if(row==null)continue;
@@ -11922,7 +11911,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
         backToSession.setTextColor(Color.BLACK);
         backToSession.setOnClickListener(new View.OnClickListener(){public void onClick(View v){returnToActiveSession();}});
         b.addView(backToSession);
-        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("LOCALIZAR CENA ANTIGA",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=visibleJournalEntries();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
+        Button add=button("+ NOVA ANOTAÇÃO",GREEN);add.setOnClickListener(new View.OnClickListener(){public void onClick(View v){journalDialog();}});b.addView(add);Button locate=button("BUSCAR NO DIÁRIO E NO ARQUIVO",PANEL2);locate.setOnClickListener(new View.OnClickListener(){public void onClick(View v){searchJournalEntries();}});b.addView(locate);List<JSONObject> list=visibleJournalEntries();if(list.size()==0)b.addView(empty("O diário ainda está vazio."));for(int i=0;i<list.size();i++){final JSONObject j=list.get(i);LinearLayout c=card();c.addView(text(j.optString("title"),19,GOLD,true));c.addView(text(j.optString("kind")+" • "+formatDate(j.optLong("created_at")),12,MUTED,false));TextView body=text(j.optString("body"),15,TEXT,false);body.setMaxLines(12);c.addView(body);Button read=smallButton("LER REGISTRO COMPLETO",PANEL2);read.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showFullJournalEntry(j);}});c.addView(read);Button del=smallButton("EXCLUIR",RED);del.setOnClickListener(new View.OnClickListener(){public void onClick(View v){db.deleteJournal(j.optLong("id"));showJournal();}});c.addView(del);b.addView(c);}
         Button export=button("EXPORTAR DIÁRIO COMO TEXTO",PANEL2);export.setOnClickListener(new View.OnClickListener(){public void onClick(View v){StringBuilder text=new StringBuilder();List<JSONObject> list=visibleJournalEntries();for(int i=list.size()-1;i>=0;i--){JSONObject j=list.get(i);text.append("# ").append(j.optString("title")).append("\n").append(j.optString("body")).append("\n\n");}Intent x=new Intent(Intent.ACTION_SEND);x.setType("text/plain");x.putExtra(Intent.EXTRA_TEXT,text.toString());startActivity(Intent.createChooser(x,"Exportar diário"));}});b.addView(export);
         Button bard=button("EXPORTAR COMO CRÔNICA DE BARDO (PDF)",GREEN);bard.setOnClickListener(new View.OnClickListener(){public void onClick(View v){bardChronicleDialog();}});b.addView(bard);
         Button pdf=button("EXPORTAR AVENTURA COMO LIVRO PDF",GOLD);pdf.setTextColor(Color.BLACK);pdf.setOnClickListener(new View.OnClickListener(){public void onClick(View v){prepareLiteralAdventurePdf();}});b.addView(pdf);
@@ -11945,14 +11934,14 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                     String needle=query.getText().toString().trim().toLowerCase(Locale.ROOT);
                     if(needle.isEmpty()){toast("Digite o termo que deseja encontrar.");return;}
                     final ArrayList<JSONObject> hits=new ArrayList<JSONObject>();
-                    for(JSONObject entry:visibleJournalEntries()){
+                    for(JSONObject entry:visibleJournalEntries(true)){
                         if(entry==null)continue;
                         String haystack=(entry.optString("title")+" "+entry.optString("body")+" "+entry.optString("kind")).toLowerCase(Locale.ROOT);
                         if(haystack.contains(needle)){hits.add(entry);if(hits.size()>=100)break;}
                     }
                     if(hits.isEmpty()){toast("Nenhum registro encontrado.");return;}
                     String[] labels=new String[hits.size()];
-                    for(int i=0;i<hits.size();i++){JSONObject entry=hits.get(i);labels[i]=entry.optString("title","Cena")+" • "+entry.optString("kind","");}
+                    for(int i=0;i<hits.size();i++){JSONObject entry=hits.get(i);labels[i]=(entry.optString("adventure_archive_key","").isEmpty()?"":"[ARQUIVO] ")+entry.optString("title","Cena")+" • "+entry.optString("kind","");}
                     new AlertDialog.Builder(MainActivity.this).setTitle("Cenas encontradas ("+hits.size()+")")
                         .setItems(labels,new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
                             if(which>=0&&which<hits.size())showFullJournalEntry(hits.get(which));
