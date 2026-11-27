@@ -1205,9 +1205,23 @@ final class SecureStore {
         for(int i=0;i<entries.length();i++){
             JSONObject entry=entries.getJSONObject(i);
             String id=entry.getString("id"),date=entry.getString("date"),topic=entry.getString("topic");
-            if(entry.length()!=6||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
+            if((entry.length()!=6&&!(entry.length()==7&&entry.has("dreamWork")))||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
             java.time.LocalDate.parse(date);
             if(!(entry.opt("context") instanceof String)||!(entry.opt("reflection") instanceof String)||!(entry.opt("next") instanceof String)||entry.getString("context").length()>4000||entry.getString("reflection").length()>12000||entry.getString("next").length()>4000)throw new IllegalArgumentException("Texto pessoal inválido");
+            if(entry.has("dreamWork")){
+                if(!"sonhos".equals(topic))throw new IllegalArgumentException("Trabalho de sonho fora do eixo");
+                JSONObject work=entry.getJSONObject("dreamWork");
+                if(work.length()!=7)throw new IllegalArgumentException("Trabalho de sonho inválido");
+                for(String field:new String[]{"source","title","insight","alternative","action","followup"}){
+                    if(!(work.opt(field) instanceof String)||work.getString(field).length()>("source".equals(field)?12000:"title".equals(field)?200:4000))throw new IllegalArgumentException("Campo de sonho inválido");
+                }
+                JSONArray images=work.getJSONArray("images");if(images.length()>5)throw new IllegalArgumentException("Limite de elementos");
+                for(int k=0;k<images.length();k++){
+                    JSONObject image=images.getJSONObject(k);if(image.length()!=5)throw new IllegalArgumentException("Elemento inválido");
+                    for(String field:new String[]{"element","description","affect","association","waking"})if(!(image.opt(field) instanceof String)||image.getString(field).length()>("element".equals(field)?250:2000))throw new IllegalArgumentException("Campo de elemento inválido");
+                    if(image.getString("element").trim().isEmpty())throw new IllegalArgumentException("Elemento vazio");
+                }
+            }
         }
         return value;
     }

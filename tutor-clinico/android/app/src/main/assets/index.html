@@ -5668,7 +5668,7 @@ act=function(name,id,button){
 
 
 /* Personal reflection: no patient corpus, clinical inference or clinical report. */
-const ecoSelfTopics=[["livre","Livre associação","Freud · Sobre o início do tratamento (1913)","https://stage.pep-web.org/content/SE.012.0000A","Escreva o que lhe ocorre sem exigir uma conclusão.","O que me veio à mente? Que assunto mudou? O que ainda não consigo nomear?"],["afetos","Afetos e experiências","Fonagy, Gergely, Jurist e Target · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Diferencie acontecimentos, sensações, afetos percebidos e significados atribuídos.","O que aconteceu? O que senti? O que ainda não sei sobre a experiência?"],["repeticao","Repetições e escolhas","Freud · Recordar, repetir e elaborar (1914)","https://stage.pep-web.org/content/SE.012.0000A","Examine situações semelhantes sem assumir uma causa única.","Em que situações isso aconteceu antes? O que se assemelha? O que mudou? Que outras explicações cabem?"],["vinculos","Vínculos e expectativas","Fonagy et al. · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Observe expectativas, necessidades e apoio.","O que eu esperava? O que a pessoa realmente disse ou fez? O que posso perguntar sem pressupor intenções?"],["ambivalencia","Ambivalência","Klein · Notes on Some Schizoid Mechanisms (1946)","https://stage.pep-web.org/content/IJP.027.0099A","Considere sentimentos coexistentes sem rotular a personalidade.","Que sentimentos coexistem? Em que circunstâncias aparecem? Consigo considerar aspectos positivos e difíceis?"],["autenticidade","Autenticidade e adaptação","Winnicott · Ego Distortion in Terms of True and False Self (1960)","https://academic.oup.com/book/1192/chapter-abstract/140028848","Reflita sobre espontaneidade e adaptação social, sem converter conceitos em rótulos.","Quando me sinto espontâneo? Quando me adapto? Essa adaptação me ajuda ou me custa algo?"],["sonhos","Sonhos e associações","Freud · The Handling of Dream-Interpretation in Psycho-Analysis (1911)","https://stage.pep-web.org/content/SE.012.0000A","Registre o sonho lembrado e associações pessoais. Não há significado obrigatório.","O que lembro literalmente? Que afetos recordo? Que associações surgem? O que não lembro?"],["mentalizacao","Mentalização","Fonagy et al. · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Diferencie fatos, pensamentos, sentimentos e hipóteses sobre estados mentais.","O que sei? O que estou supondo? Que outra leitura cabe? O que mudaria minha compreensão?"],["integracao","Síntese e continuidade","Integração didática: Freud, Winnicott e Fonagy; referências nos exercícios anteriores","https://academic.oup.com/book/1192/chapter-abstract/140028848","Releia registros e selecione questões que queira explorar, sem produzir diagnóstico.","O que aprendi sobre minha experiência? O que permanece incerto? O que gostaria de conversar em análise pessoal?"]];
+const ecoSelfTopics=[["livre","Livre associação","Freud · Sobre o início do tratamento (1913)","https://stage.pep-web.org/content/SE.012.0000A","Escreva o que lhe ocorre sem exigir uma conclusão.","O que me veio à mente? Que assunto mudou? O que ainda não consigo nomear?"],["afetos","Afetos e experiências","Fonagy, Gergely, Jurist e Target · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Diferencie acontecimentos, sensações, afetos percebidos e significados atribuídos.","O que aconteceu? O que senti? O que ainda não sei sobre a experiência?"],["repeticao","Repetições e escolhas","Karen Horney · Autoanálise (1942), cap. 7–10; Freud · Recordar, repetir e elaborar (1914)","https://www.routledge.com/Self-Analysis/Horney-Karen/p/book/9780415210997","Examine situações semelhantes sem assumir uma causa única.","Em que situações isso aconteceu antes? O que se assemelha? O que mudou? Que outras explicações cabem?"],["vinculos","Vínculos e expectativas","Fonagy et al. · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Observe expectativas, necessidades e apoio.","O que eu esperava? O que a pessoa realmente disse ou fez? O que posso perguntar sem pressupor intenções?"],["ambivalencia","Ambivalência","Klein · Notes on Some Schizoid Mechanisms (1946)","https://stage.pep-web.org/content/IJP.027.0099A","Considere sentimentos coexistentes sem rotular a personalidade.","Que sentimentos coexistem? Em que circunstâncias aparecem? Consigo considerar aspectos positivos e difíceis?"],["autenticidade","Autenticidade e adaptação","Winnicott · Ego Distortion in Terms of True and False Self (1960)","https://academic.oup.com/book/1192/chapter-abstract/140028848","Reflita sobre espontaneidade e adaptação social, sem converter conceitos em rótulos.","Quando me sinto espontâneo? Quando me adapto? Essa adaptação me ajuda ou me custa algo?"],["sonhos","Sonhos e associações","Freud · The Handling of Dream-Interpretation in Psycho-Analysis (1911)","https://stage.pep-web.org/content/SE.012.0000A","Registre o sonho lembrado e associações pessoais. Não há significado obrigatório.","O que lembro literalmente? Que afetos recordo? Que associações surgem? O que não lembro?"],["mentalizacao","Mentalização","Fonagy et al. · Affect Regulation, Mentalization and the Development of the Self (2002)","https://www.routledge.com/Affect-Regulation-Mentalization-and-the-Development-of-the-Self/Fonagy-Gergely-Jurist/p/book/9780429471643","Diferencie fatos, pensamentos, sentimentos e hipóteses sobre estados mentais.","O que sei? O que estou supondo? Que outra leitura cabe? O que mudaria minha compreensão?"],["integracao","Síntese e continuidade","Integração didática: Freud, Winnicott e Fonagy; referências nos exercícios anteriores","https://academic.oup.com/book/1192/chapter-abstract/140028848","Releia registros e selecione questões que queira explorar, sem produzir diagnóstico.","O que aprendi sobre minha experiência? O que permanece incerto? O que gostaria de conversar em análise pessoal?"]];
 let ecoSelfTopic='livre',ecoSelfEdit='',ecoSelfData=null,ecoSelfFilter='todos',ecoSelfDraft=null;
 function ecoSelfLoad(){
  try{const x=JSON.parse(window.NativeVault.readSelfAnalysis());if(x.__loadError||!Array.isArray(x.entries)||typeof x.revision!=='string')throw Error();ecoSelfData=x;return true;}catch(e){ecoSelfData=null;return false;}
@@ -5679,11 +5679,12 @@ function ecoSelfScreen(){
  const rows=ecoSelfData.entries,topic=ecoSelfTopics.find(t=>t[0]===ecoSelfTopic)||ecoSelfTopics[0],old=rows.find(x=>x.id===ecoSelfEdit),draft=ecoSelfDraft||old||{},filtered=rows.filter(x=>ecoSelfFilter==='todos'||x.topic===ecoSelfFilter).slice().sort((a,b)=>b.date.localeCompare(a.date));
  let out=btn('← Tela inicial','nav','ghost','data-id="home"')+head('Espaço pessoal · separado dos casos','Autoanálise','Reflexão guiada e diário privado, sem interpretação diagnóstica.');
  out+='<div class="alert">Exercícios didáticos inspirados na literatura psicanalítica. Não constituem tratamento, análise pessoal com analista ou supervisão. Você pode pular qualquer pergunta; se algo provocar sofrimento intenso, interrompa e procure apoio profissional.</div>';
+ out+=ecoDreamWorkPanel(rows);
  out+='<section class="card"><h2>Trilha de reflexão</h2><p>Escolha livremente um eixo. Para se aperfeiçoar, comece com uma situação concreta, escreva sua experiência, faça a sessão de autoanálise guiada, formule uma pergunta ou ação e retome em outro registro. Não há pontuação, diagnóstico ou obrigação de completar etapas.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfTopic',t[0]===topic[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div></section>';
  out+='<section class="card"><h2>'+esc(topic[1])+'</h2><p>'+esc(topic[4])+'</p><div class="eco-help-example">'+esc(topic[5])+'</div><details class="eco-help-topic"><summary>Fundamentação e limites</summary><p>'+esc(topic[2])+'</p><p class="small muted">Localizador bibliográfico (consulta externa manual): '+esc(topic[3])+'. Exercício autoral adaptado, não citação nem protocolo clínico validado.</p></details><h3>'+(old?'Editar registro':'Novo registro')+'</h3><div class="field"><label for="ecoSelfDate">Data</label><input id="ecoSelfDate" type="date" value="'+esc(draft.date||datestr())+'"></div>'+ecoSelfField('ecoSelfContext','Situação, fato ou lembrança (opcional)',draft.context,4000)+ecoSelfField('ecoSelfReflection','Reflexão ou livre associação',draft.reflection,12000)+ecoSelfField('ecoSelfNext','Questões abertas e próximos passos (opcional)',draft.next,4000)+'<p class="small muted">Salve antes de sair. Rascunho não salvo não é recuperável após fechar ou bloquear o ECO.</p><div class="actions">'+btn('Salvar registro pessoal','ecoSelfSave','')+btn('Limpar / novo registro','ecoSelfNew','ghost')+'</div></section>';
  out+=ecoSelfReviewPanel(rows);
  out+='<section class="card"><h2>Acompanhamento pessoal</h2><p>'+rows.length+' registro(s) salvos. As contagens mostram somente suas escolhas de tema, não saúde mental.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>'<div class="eco-evidence"><strong>'+esc(t[1])+'</strong><p>'+rows.filter(x=>x.topic===t[0]).length+' registro(s)</p></div>').join('')+'</div><p>Para revisar repetições, filtre um eixo e compare o contexto e as associações registrados em datas diferentes. Use Síntese e continuidade para formular suas próprias perguntas.</p></section>';
- out+='<section class="card"><h2>Histórico privado</h2><div class="actions">'+btn('Todos','ecoSelfFilter',ecoSelfFilter==='todos'?'':'secondary','data-id="todos"')+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfFilter',ecoSelfFilter===t[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div>'+filtered.map(x=>'<details class="eco-help-topic"><summary>'+esc(formatDate(x.date))+' · '+esc(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+'</summary><p style="white-space:pre-wrap">'+esc(x.context)+'</p><p style="white-space:pre-wrap">'+esc(x.reflection)+'</p><p style="white-space:pre-wrap">'+esc(x.next)+'</p><div class="actions">'+btn('Editar','ecoSelfEdit','secondary','data-id="'+esc(x.id)+'"')+btn('Excluir','ecoSelfDelete','danger','data-id="'+esc(x.id)+'"')+'</div></details>').join('')+(filtered.length?'':'<p class="muted">Nenhum registro neste filtro.</p>')+'</section><p class="small muted">Registros cifrados no cofre, separados dos pacientes. Apenas backup integral com a opção de diário privado e autoanálise inclui este conteúdo. Limite: 500 entradas e 2 milhões de caracteres.</p>';
+ out+='<section class="card"><h2>Histórico privado</h2><div class="actions">'+btn('Todos','ecoSelfFilter',ecoSelfFilter==='todos'?'':'secondary','data-id="todos"')+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfFilter',ecoSelfFilter===t[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div>'+filtered.map(x=>'<details class="eco-help-topic"><summary>'+esc(formatDate(x.date))+' · '+esc(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+'</summary><p style="white-space:pre-wrap">'+esc(x.context)+'</p><p style="white-space:pre-wrap">'+esc(x.reflection)+'</p><p style="white-space:pre-wrap">'+esc(x.next)+'</p><div class="actions">'+(x.topic==='sonhos'?btn('Trabalhar este sonho','ecoDreamWorkOpen','','data-id="'+esc(x.id)+'"'):'')+btn('Editar','ecoSelfEdit','secondary','data-id="'+esc(x.id)+'"')+btn('Excluir','ecoSelfDelete','danger','data-id="'+esc(x.id)+'"')+'</div></details>').join('')+(filtered.length?'':'<p class="muted">Nenhum registro neste filtro.</p>')+'</section><p class="small muted">Registros cifrados no cofre, separados dos pacientes. Apenas backup integral com a opção de diário privado e autoanálise inclui este conteúdo. Limite: 500 entradas e 2 milhões de caracteres.</p>';
  return out;
 }
 
@@ -5753,7 +5754,7 @@ act=function(name,id,button){
   if(name==='ecoSelfSave'){
    const x=ecoSelfCapture();if(!x||!validDate(x.date)||!x.reflection.trim()){notify('Preencha uma data válida e a reflexão.','red');return;}
    const row={id:ecoSelfEdit||uid(),date:x.date,topic:ecoSelfTopic,context:x.context,reflection:x.reflection,next:x.next};
-   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else rows[index]=row;
+   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else{if(rows[index].dreamWork){if(row.topic!=='sonhos'){notify('Preserve o eixo Sonhos para não perder o trabalho já salvo.','red');return;}row.dreamWork=rows[index].dreamWork;}rows[index]=row;}
    if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;render();notify('Registro pessoal salvo.');}return;
   }
   if(name==='ecoSelfDelete'){if(!ecoSelfAllowLeave()||!window.confirm('Excluir este registro pessoal? A exclusão não remove cópias já exportadas.'))return;const rows=ecoSelfData.entries.filter(x=>x.id!==id);if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;render();}return;}
@@ -5764,5 +5765,145 @@ act=function(name,id,button){
 };
 const ecoSelfPriorUnlock=window.nativeSemanticUnlocked;
 window.nativeSemanticUnlocked=function(){ecoSelfPriorUnlock();ecoSelfData=null;ecoSelfEdit='';ecoSelfDraft=null;if(screen==='selfAnalysis')render();};
+
+
+/* Self-guided dream work. Freud, Horney and the cognitive-experiential
+   approach are distinct theoretical sources. No patient data or cloud calls. */
+const ecoDreamWorkRefs=[
+ ['Karen Horney, Self-Analysis (1942), caps. 6–11','https://www.routledge.com/Self-Analysis/Horney-Karen/p/book/9780415210997'],
+ ['Sigmund Freud, A interpretação dos sonhos (1900) — método de associação','https://www.freud.org.uk/schools/resources/the-interpretation-of-dreams/'],
+ ['Clara E. Hill, Working with Dreams in Psychotherapy (1996), apêndice autodirigido','https://www.guilford.com/books/Working-with-Dreams-in-Psychotherapy/Clara-Hill/9781572300927/contents'],
+ ['Clara E. Hill, Dream Work in Therapy (2004), exploração, compreensão e ação','https://www.apa.org/pubs/books/4317015']
+];
+let ecoDreamWorkRun=null;
+function ecoDreamWorkRows(rows=ecoSelfData?.entries||[]){return rows.filter(x=>x.topic==='sonhos').slice().sort((a,b)=>b.date.localeCompare(a.date));}
+function ecoDreamWorkEvidence(row){
+ const text=String(row.reflection||''),fields=ecoDreamFields(text),words=ecoSelfReviewWords(text),byKey=new Map();
+ for(const t of words){const old=byKey.get(t.key)||{term:t.raw,count:0};old.count++;byKey.set(t.key,old);}
+ const known=[...fields.personagens.split(', '),...fields.lugares.split(', '),...fields.simbolos].filter(Boolean);
+ const sorted=[...byKey.values()].sort((a,b)=>b.count-a.count);
+ const candidates=[],seen=new Set(),sentences=text.split(/(?<=[.!?…])\s+|\n+/u).filter(Boolean);
+ for(const term of [...known,...sorted.map(x=>x.term)]){
+  const key=ecoFoldText(term);if(seen.has(key))continue;
+  const literal=words.find(x=>x.key===key)?.raw||text.match(new RegExp('(^|[^\\p{L}])('+term+')(?!\\p{L})','iu'))?.[2];
+  if(!literal)continue;seen.add(key);
+  const quote=sentences.find(p=>ecoFoldText(p).includes(key))||text;
+  candidates.push({term:literal,quote,count:byKey.get(key)?.count||1});
+  if(candidates.length>=12)break;
+ }
+ return {fields,candidates};
+}
+function ecoDreamWorkCompare(a,b){
+ const one=ecoDreamWorkEvidence(a),two=b?ecoDreamWorkEvidence(b):null;
+ const shared=b?ecoSelfReviewCompare({...a,context:'',next:''},{...b,context:'',next:''}).shared.map(x=>({...x,aQuote:ecoDreamWorkEvidenceQuote(a,x.word),bQuote:ecoDreamWorkEvidenceQuote(b,x.word)})):[];
+ return {one,two,shared};
+}
+function ecoDreamWorkEvidenceQuote(row,word){const k=ecoFoldText(word);return row.reflection.split(/(?<=[.!?…])\s+|\n+/u).find(p=>ecoSelfReviewWords(p).some(t=>t.key===k))||row.reflection;}
+function ecoDreamWorkBlank(row){
+ const evidence=ecoDreamWorkEvidence(row);
+ return {source:row.reflection,title:'',images:Array.from({length:3},(_,i)=>({element:evidence.candidates[i]?.term||'',description:'',affect:'',association:'',waking:''})),insight:'',alternative:'',action:'',followup:''};
+}
+function ecoDreamWorkValue(row){const work=row.dreamWork?JSON.parse(JSON.stringify(row.dreamWork)):ecoDreamWorkBlank(row);while(work.images.length<3)work.images.push({element:'',description:'',affect:'',association:'',waking:''});return work;}
+function ecoDreamWorkPanel(rows){
+ const dreams=ecoDreamWorkRows(rows);
+ if(!dreams.length)return '<section class="card"><h2>Autoanálise de sonhos</h2><p>Registre um sonho no eixo Sonhos para trabalhar o relato em três etapas: exploração, compreensão e continuidade.</p>'+btn('Registrar sonho','ecoSelfTopic','secondary','data-id="sonhos"')+'</section>';
+ const a=dreams.find(x=>x.id===ecoDreamWorkRun?.a?.id)||dreams[0],b=dreams.find(x=>x.id===ecoDreamWorkRun?.b?.id)||dreams.find(x=>x.id!==a.id);
+ const options=(selected)=>dreams.map(x=>'<option value="'+esc(x.id)+'" '+(x.id===selected?'selected':'')+'>'+esc(formatDate(x.date)+' · '+(x.dreamWork?.title||x.reflection.replace(/\s+/g,' ').slice(0,90))+(x.dreamWork?' · trabalhado':''))+'</option>').join('');
+ return '<section class="card" id="ecoDreamWorkPanel"><h2>Autoanálise dos meus sonhos</h2><p>'+dreams.length+' sonho(s) salvos · '+dreams.filter(x=>x.dreamWork).length+' com trabalho pessoal registrado. Selecione o sonho. O relato original não será alterado.</p><div class="field"><label for="ecoDreamWorkA">Sonho principal</label><select id="ecoDreamWorkA">'+options(a.id)+'</select></div><div class="field"><label for="ecoDreamWorkB">Segundo sonho (comparação)</label><select id="ecoDreamWorkB"><option value="">Sem comparação</option>'+options(b?.id||'')+'</select></div><div class="actions">'+btn('Analisar sonho','ecoDreamWorkStart','','data-id="single"')+(dreams.length>1?btn('Comparar os dois sonhos','ecoDreamWorkStart','secondary','data-id="pair"'):'')+'</div><div id="ecoDreamWorkArea">'+(ecoDreamWorkRun?ecoDreamWorkMarkup(ecoDreamWorkRun):'<p class="muted">Abra um sonho para começar sua autoanálise. Você pode retomar todos os sonhos anteriores.</p>')+'</div></section>';
+}
+function ecoDreamWorkField(id,label,value,max=2000){return ecoSelfField(id,label,value,max);}
+function ecoDreamWorkMarkup(run){
+ const a=run.a,b=run.b,r=ecoDreamWorkCompare(a,b),work=run.draft||ecoDreamWorkValue(a);
+ const dream=(row,d,label)=>'<details class="eco-help-topic" open><summary>'+esc(label+' · '+formatDate(row.date))+'</summary><p style="white-space:pre-wrap">'+esc(row.reflection)+'</p><div class="kv"><strong>Personagens mencionados</strong><span>'+esc(d.fields.personagens||'Não encontrados no vocabulário')+'</span></div><div class="kv"><strong>Cenários mencionados</strong><span>'+esc(d.fields.lugares||'Não encontrados no vocabulário')+'</span></div><div class="kv"><strong>Afetos expressamente relatados</strong><span>'+esc(d.fields.afetos||'Não localizados; descreva você mesmo')+'</span></div><h4>Trechos para exploração</h4>'+d.candidates.map(x=>'<details class="eco-help-topic"><summary>'+esc(x.term)+'</summary><p>'+esc(x.quote)+'</p><p>O que esse elemento lhe faz lembrar?</p></details>').join('')+'</details>';
+ let out='<h3>1 · Exploração do material manifesto</h3>'+dream(a,r.one,'Sonho principal')+(b?dream(b,r.two,'Segundo sonho'):'');
+ if(b)out+='<h3>Comparação dos relatos</h3>'+(r.shared.length?r.shared.map(x=>'<div class="eco-evidence"><strong>'+esc(x.word)+' · '+x.a+' / '+x.b+'</strong><p>A: '+esc(x.aQuote)+'</p><p>B: '+esc(x.bQuote)+'</p></div>').join(''):'<p>Nenhuma correspondência lexical relevante encontrada; isso não exclui conexões de sentido.</p>')+'<p>O que se repete? O que muda? Se os afetos ou os contextos diferem, que importância você lhes atribui?</p>'+(b.dreamWork?'<details class="eco-help-topic"><summary>Compreensão registrada do segundo sonho</summary><p>'+esc(b.dreamWork.insight)+'</p><p>'+esc(b.dreamWork.alternative)+'</p><p>'+esc(b.dreamWork.followup)+'</p></details>':'');
+ if(work.source!==a.reflection)out+='<div class="alert">O relato foi editado depois deste trabalho. Revise as associações antes de salvar uma nova versão do trabalho. <details><summary>Relato anterior</summary><p>'+esc(work.source)+'</p></details></div>';
+ out+='<h3>2 · Associações pessoais</h3><p>Escolha três imagens, acontecimentos ou pessoas que chamaram sua atenção. As sugestões iniciais são apenas palavras localizadas no relato; troque-as livremente. Explore somente o que deseja.</p>'+work.images.map((x,i)=>'<details class="eco-help-topic" '+(i===0?'open':'')+'><summary>Elemento '+(i+1)+(x.element?' · '+esc(x.element):'')+'</summary>'+ecoDreamWorkField('ecoDWElement'+i,'Imagem ou elemento escolhido',x.element,250)+ecoDreamWorkField('ecoDWDescription'+i,'Como era esse elemento no sonho?',x.description)+ecoDreamWorkField('ecoDWAffect'+i,'O que senti nesse momento e ao acordar?',x.affect)+ecoDreamWorkField('ecoDWAssociation'+i,'Que lembranças, pensamentos ou associações espontâneas me ocorrem?',x.association)+ecoDreamWorkField('ecoDWWaking'+i,'Há alguma relação percebida por mim com a vida desperta?',x.waking)+'</details>').join('');
+ out+='<h3>3 · Compreensão provisória</h3>'+ecoDreamWorkField('ecoDWTitle','Título que escolho para o sonho',work.title,200)+ecoDreamWorkField('ecoDWInsight','Que compreensão pessoal emerge das minhas associações?',work.insight,4000)+ecoDreamWorkField('ecoDWAlternative','Que outra compreensão seria possível? O que não sei ou não se encaixa?',work.alternative,4000)+'<h3>4 · Continuidade</h3>'+ecoDreamWorkField('ecoDWAction','Que questão ou pequena ação desejo explorar na vida desperta?',work.action,4000)+ecoDreamWorkField('ecoDWFollowup','Ao retomar depois: o que observei, mudou ou continua em aberto?',work.followup,4000)+btn('Salvar trabalho do sonho','ecoDreamWorkSave','')+'<p class="small muted">Salve antes de sair. O trabalho é cifrado e vinculado ao sonho principal. Não altera o sonho original.</p>';
+ out+='<section class="eco-evidence"><h3>Perguntas personalizadas · IA local</h3><p>O modelo utiliza apenas os trechos pessoais que você selecionar. Pode recusar a geração; as etapas de reflexão continuam utilizáveis. Não é uma interpretação do inconsciente nem diagnóstico.</p><div id="ecoDreamWorkAi">'+ecoDreamWorkAiMarkup(run)+'</div></section>';
+ out+='<details class="eco-help-topic"><summary>Fundamentação, método e limites</summary><p>Freud: associação por elementos do sonho. Horney: autoexame sistemático, retomada de questões e reconhecimento dos limites. Hill: exploração, compreensão e continuidade, adaptação didática do modelo cognitivo-experiencial, que não é uma escola psicanalítica. Nenhum símbolo tem sentido universal.</p>'+ecoDreamWorkRefs.map(x=>'<p><strong>'+esc(x[0])+'</strong><br><small>'+esc(x[1])+'</small></p>').join('')+'</details>';
+ return out;
+}
+function ecoDreamWorkAiMarkup(run){
+ if(run.pending)return '<p id="ecoDWStage">'+esc(run.stage||'Gerando perguntas…')+'</p>'+btn('Cancelar IA','ecoDreamWorkCancel','ghost');
+ let out='<p class="small">Cada recorte pode ter até 1.800 caracteres; se o relato for maior, o campo inicia com os primeiros 1.800, que você pode substituir por outro trecho literal.</p>'+ecoDreamWorkField('ecoDWQuoteA','Trecho literal do sonho principal',run.quotes?.[0]||run.a.reflection.slice(0,1800),1800)+(run.b?ecoDreamWorkField('ecoDWQuoteB','Trecho literal do segundo sonho',run.quotes?.[1]||run.b.reflection.slice(0,1800),1800):'')+btn('Gerar perguntas com Qwen','ecoDreamWorkNeural','secondary');
+ if(run.error)out+='<p class="alert red">'+esc(run.error)+'</p>';
+ if(run.questions?.length)out+='<h4>Perguntas propostas · '+esc(run.model||'modelo local')+'</h4>'+run.questions.map(x=>'<p>'+esc(x)+'</p>').join('')+'<p class="small muted">Confira a pertinência; perguntas não são conclusões e não são salvas automaticamente.</p>';
+ return out;
+}
+function ecoDreamWorkCapture(){
+ const r=ecoDreamWorkRun;if(!r||!document.getElementById('ecoDWTitle'))return null;
+ const get=id=>String(document.getElementById(id)?.value||'');
+ const images=(r.draft||ecoDreamWorkValue(r.a)).images.map((x,i)=>({element:get('ecoDWElement'+i),description:get('ecoDWDescription'+i),affect:get('ecoDWAffect'+i),association:get('ecoDWAssociation'+i),waking:get('ecoDWWaking'+i)}));
+ return {source:r.a.reflection,title:get('ecoDWTitle'),images,insight:get('ecoDWInsight'),alternative:get('ecoDWAlternative'),action:get('ecoDWAction'),followup:get('ecoDWFollowup')};
+}
+function ecoDreamWorkDirty(){
+ const r=ecoDreamWorkRun,x=ecoDreamWorkCapture();if(!r||!x)return false;
+ const baseline=ecoDreamWorkValue(r.a);return JSON.stringify({...x,source:baseline.source})!==JSON.stringify(baseline);
+}
+function ecoDreamWorkAllowLeave(){return !ecoDreamWorkDirty()||window.confirm('Há trabalho de sonho não salvo. Descartar as alterações?');}
+function ecoDreamWorkRenderAi(){const el=document.getElementById('ecoDreamWorkAi');if(el&&ecoDreamWorkRun)el.innerHTML=ecoDreamWorkAiMarkup(ecoDreamWorkRun);}
+function ecoDreamWorkStop(clear=false){
+ const r=ecoDreamWorkRun;if(r?.pending){try{window.NativeVault.cancelSemantic?.(r.id);}catch(e){}r.pending=false;r.error='Geração cancelada.';}
+ if(clear)ecoDreamWorkRun=null;else ecoDreamWorkRenderAi();
+}
+function ecoDreamWorkOpen(a,b){
+ ecoDreamWorkStop(true);ecoDreamWorkRun={a,b,pending:false,questions:[]};
+ const el=document.getElementById('ecoDreamWorkArea');if(el){el.innerHTML=ecoDreamWorkMarkup(ecoDreamWorkRun);el.scrollIntoView?.({block:'start'});}
+}
+function ecoDreamWorkQuestionGate(raw,sources){
+ const lines=String(raw||'').trim().split(/\n+/).map(x=>x.replace(/^\s*(?:[-*]|\d+[.)])\s*/,'').trim()).filter(Boolean);
+ const bad=/\b(?:diagn[oó]stic\w*|transtorno\w*|reprimid\w*|recalcad\w*|trauma\w*|abuso\w*|psicose\w*|suic[ií]d\w*|medicamento\w*|culpado\w*|desejo\s+inconsciente|significa\s+que|prova\s+que|revela\s+que|verdadeiro\s+significado)\b/iu;
+ const words=new Set(sources.flatMap(s=>ecoSelfReviewWords(s).map(x=>x.key)));
+ return lines.length>=1&&lines.length<=3&&lines.every(x=>x.length>=12&&x.length<=280&&/^(?:o que|como|qual|quais|que|em que|de que|quando|onde)\b/iu.test(x)&&x.endsWith('?')&&(x.match(/\?/g)||[]).length===1&&!bad.test(x)&&!/[<>]/.test(x)&&ecoSelfReviewWords(x).some(t=>words.has(t.key)))?lines:[];
+}
+const ecoDreamWorkPreviousProgress=window.nativeSemanticProgress,ecoDreamWorkPreviousResult=window.nativeSemanticResult;
+window.nativeSemanticProgress=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('selfdream-'))return ecoDreamWorkPreviousProgress(raw);
+ const r=ecoDreamWorkRun;if(screen!=='selfAnalysis'||!r?.pending||v.id!==r.id)return;r.stage=String(v.stage||'Inferência local');const el=document.getElementById('ecoDWStage');if(el)el.textContent=r.stage;
+};
+window.nativeSemanticResult=function(raw){
+ let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('selfdream-'))return ecoDreamWorkPreviousResult(raw);
+ const r=ecoDreamWorkRun;if(screen!=='selfAnalysis'||!r?.pending||v.id!==r.id)return;r.pending=false;r.questions=ecoDreamWorkQuestionGate(v.draft,r.sources||[]);r.model=v.model;r.error=v.error||(!r.questions.length?'O modelo não produziu perguntas abertas ancoradas no relato. Continue com o roteiro de reflexão.':'');ecoDreamWorkRenderAi();
+};
+const ecoDreamWorkPreviousAct=act;
+act=function(name,id,button){
+ if(screen==='selfAnalysis'){
+  if(name==='ecoDreamWorkStart'||name==='ecoDreamWorkOpen'){
+   if(!ecoDreamWorkAllowLeave())return;
+   const rows=ecoDreamWorkRows(),a=rows.find(x=>x.id===(name==='ecoDreamWorkOpen'?id:document.getElementById('ecoDreamWorkA')?.value)),b=name==='ecoDreamWorkStart'&&id==='pair'?rows.find(x=>x.id===document.getElementById('ecoDreamWorkB')?.value):null;
+   if(!a||(name==='ecoDreamWorkStart'&&id==='pair'&&(!b||a.id===b.id))){notify('Escolha sonhos diferentes para comparar.','red');return;}
+   ecoDreamWorkOpen(a,b);return;
+  }
+  if(name==='ecoDreamWorkSave'){
+   const r=ecoDreamWorkRun,work=ecoDreamWorkCapture();if(!r||!work)return;
+   const current=ecoSelfData?.entries?.find(x=>x.id===r.a.id&&x.topic==='sonhos');if(!current||current.reflection!==r.a.reflection){notify('O sonho mudou. Reabra o relato.','red');return;}
+   if(work.images.some(x=>!x.element.trim()&&['description','affect','association','waking'].some(k=>x[k].trim()))){notify('Identifique cada elemento com associações preenchidas.','red');return;}
+   if(current.dreamWork&&current.dreamWork.source!==current.reflection&&!window.confirm('Vincular o trabalho revisado ao relato atual?'))return;
+   work.images=work.images.filter(x=>x.element.trim());
+   if(!ecoSelfWrite(ecoSelfData.entries.map(x=>x.id===current.id?{...x,dreamWork:work}:x)))return;
+   r.a=ecoSelfData.entries.find(x=>x.id===current.id);r.draft=null;
+   const el=document.getElementById('ecoDreamWorkArea');if(el){el.innerHTML=ecoDreamWorkMarkup(r);const msg=document.createElement('p');msg.className='alert good';msg.textContent='Trabalho do sonho salvo. Relato original preservado.';el.prepend(msg);}return;
+  }
+  if(name==='ecoDreamWorkNeural'){
+   const r=ecoDreamWorkRun;if(!r||r.pending)return;
+   const quotes=[String(document.getElementById('ecoDWQuoteA')?.value||'').trim(),...(r.b?[String(document.getElementById('ecoDWQuoteB')?.value||'').trim()]:[])];
+   r.quotes=quotes;
+   if(quotes.some((x,i)=>!x||x.length>1800||!(i===0?r.a:r.b).reflection.includes(x))){r.error='Selecione recortes literais dos relatos.';ecoDreamWorkRenderAi();return;}
+   if(quotes.some(x=>ecoPerspectiveAdversarial(x))){r.error='Retire instruções dirigidas ao motor; use somente relatos.';ecoDreamWorkRenderAi();return;}
+   r.id='selfdream-'+uid();r.pending=true;r.error='';r.questions=[];r.sources=quotes;r.stage='Carregando modelo local…';
+   try{const result=window.NativeVault.analyzeSemantic(JSON.stringify({id:r.id,mode:'generate',profile:'selfDream',query:'Formule perguntas abertas sobre as associações pessoais às imagens explicitamente relatadas.',sources:quotes.map(text=>({text}))}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Motor local indisponível.';}
+   ecoDreamWorkRenderAi();return;
+  }
+  if(name==='ecoDreamWorkCancel'){ecoDreamWorkStop();return;}
+  // Preserve the current worksheet against operations which rerender the screen.
+  if(ecoDreamWorkRun&&['nav','openCase','newCase','ecoSelfReload','ecoSelfTopic','ecoSelfNew','ecoSelfEdit','ecoSelfSave','ecoSelfDelete','ecoSelfFilter','ecoSelfReviewNext','toggleTheme'].includes(name)){
+   if(!ecoDreamWorkAllowLeave())return;ecoDreamWorkStop(true);
+  }
+ }
+ return ecoDreamWorkPreviousAct(name,id,button);
+};
+const ecoDreamWorkPreviousUnlock=window.nativeSemanticUnlocked;
+window.nativeSemanticUnlocked=function(){ecoDreamWorkStop(true);ecoDreamWorkPreviousUnlock();};
 
 </script></body></html>

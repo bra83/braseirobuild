@@ -786,6 +786,9 @@ public class EcoIntegratedPersistenceTest {
         store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
         store=new SecureStore(context,key);store.restoreFullVault(new java.io.ByteArrayInputStream(yes.toByteArray()),pass,()->true);
         assertEquals("PERSONAL_SYNTHETIC_0193",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(0).getString("reflection"));
+        JSONObject journal=store.readSelfAnalysis();JSONObject dream=new JSONObject().put("id","dream-1").put("date","2026-11-27").put("topic","sonhos").put("context","").put("reflection","SONHO SINTÉTICO").put("next","");
+        dream.put("dreamWork",new JSONObject().put("source","SONHO SINTÉTICO").put("title","Título").put("images",new JSONArray().put(new JSONObject().put("element","sonho").put("description","descrição").put("affect","").put("association","associação").put("waking",""))).put("insight","compreensão").put("alternative","").put("action","").put("followup",""));
+        journal.getJSONArray("entries").put(dream);String revision=journal.getString("revision");journal.remove("revision");store.saveSelfAnalysis(revision,journal.toString());assertEquals("compreensão",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONObject("dreamWork").getString("insight"));assertFalse(store.read().contains("SONHO SINTÉTICO"));
         store.getDbHelper().close();
     }
 

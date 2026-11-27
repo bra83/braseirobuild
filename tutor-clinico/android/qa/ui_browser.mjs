@@ -364,6 +364,13 @@ try{
  await page.locator('[data-act="ecoSelfReview"]').click();
  assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
  assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/Transforme a reflexão em aprendizado/);
+ // Open an already stored dream and save distinct dream work without modifying the text.
+ await page.locator('[data-act="ecoDreamWorkStart"][data-id="single"]').click();
+ await page.locator('#ecoDWInsight').fill('COMPREENSÃO PESSOAL SINTÉTICA');
+ await page.locator('[data-act="ecoDreamWorkSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].reflection),'REGISTRO PESSOAL FICTÍCIO');
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
+ assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('COMPREENSÃO PESSOAL SINTÉTICA')));
  await page.screenshot({path:path.join(out,'autoanalise.png')});
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
