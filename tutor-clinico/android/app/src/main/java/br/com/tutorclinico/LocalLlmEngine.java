@@ -14,18 +14,15 @@ final class LocalLlmEngine {
  static File advancedFile(Context c){return new File(c.getNoBackupFilesDir(),"eco-qwen-1.5b-6a1a2eb6.gguf");}
  static void cleanupAbandonedInstall(Context c){File[] files=c.getNoBackupFilesDir().listFiles((dir,name)->name.startsWith("eco-qwen-install-")&&name.endsWith(".tmp"));if(files!=null)for(File file:files)file.delete();}
  static boolean advancedAvailable(Context c){File f=advancedFile(c);return f.isFile()&&f.length()>1000000000L&&f.length()<1200000000L;}
- static void installAdvanced(Context c,InputStream source,BooleanSupplier active)throws Exception{
-  File target=advancedFile(c);File temp=File.createTempFile("eco-qwen-install-",".tmp",c.getNoBackupFilesDir());
+ static void installAdvanced(Context c,InputStream source,BooleanSupplier active,java.util.function.LongConsumer progress)throws Exception{
+  File target=advancedFile(c);File dir=c.getNoBackupFilesDir();
+  File temp=File.createTempFile("eco-qwen-install-",".tmp",dir);
   try{
-   java.security.MessageDigest md=java.security.MessageDigest.getInstance("SHA-256");long count=0;byte[] buffer=new byte[1024*1024];
    try(FileOutputStream out=new FileOutputStream(temp)){
-    int n;while((n=source.read(buffer))!=-1){if(!active.getAsBoolean())throw new CancellationException();count+=n;if(count>1200000000L)throw new IOException("Pacote acima do limite");md.update(buffer,0,n);out.write(buffer,0,n);}
+    EcoGgufImport.copy(source,out,ADVANCED_SHA,EcoGgufImport.MIN,EcoGgufImport.MAX,EcoGgufImport.RESERVE,dir::getUsableSpace,active,progress);
     out.getFD().sync();
    }
-   StringBuilder hex=new StringBuilder();for(byte b:md.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",b&255));
-   if(count<=1000000000L||!ADVANCED_SHA.equals(hex.toString()))throw new SecurityException("Modelo não corresponde ao pacote oficial");
    if(!active.getAsBoolean())throw new CancellationException();
-   // Same-directory rename is atomic; the installed model survives failed imports.
    android.system.Os.rename(temp.getAbsolutePath(),target.getAbsolutePath());
   }finally{if(temp.exists())temp.delete();}
  }

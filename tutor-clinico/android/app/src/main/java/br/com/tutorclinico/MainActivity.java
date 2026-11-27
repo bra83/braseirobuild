@@ -70,6 +70,8 @@ public final class MainActivity extends Activity {
     private static final int EXPORT_CODE = 901;
     private static final int IMPORT_CODE = 902;
     private static final int ARCHIVE_EXPORT_CODE=908, ARCHIVE_IMPORT_CODE=909, VAULT_EXPORT_CODE=910, VAULT_IMPORT_CODE=911, LOCAL_VAULT_EXPORT_CODE=912, ADVANCED_LLM_CODE=913;
+    private boolean modelPickerPending=false;
+    private Uri pendingModelUri;
     private int pendingCheckpointSlot=-1;
     private boolean pendingVaultDiary=false;
     private final java.util.concurrent.atomic.AtomicBoolean archiveBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -222,6 +224,7 @@ public final class MainActivity extends Activity {
         web.setVisibility(View.VISIBLE);dialog.dismiss();
         if(!initialUnlockDone){initialUnlockDone=true;web.evaluateJavascript("window.appUnlock && window.appUnlock()",null);}
         else web.evaluateJavascript("window.nativeSemanticUnlocked && window.nativeSemanticUnlocked()",null);
+        resumeSelectedModelImport();
     }
     private void authenticateBiometric(AlertDialog dialog){
         if(!showingLock||!pref.getBoolean("biometric_enabled",false)||!strongBiometricsAvailable())return;
@@ -300,13 +303,13 @@ public final class MainActivity extends Activity {
         // Do not cancel a Whisper decoder or release a microphone from the UI thread.
         if(ml!=null)ml.onHostPause();
         backgroundAt = System.currentTimeMillis();foreground=false;
-        if(pendingPassword==null&&pendingExport==null)maybeAutomaticCheckpoint();
+        if(pendingPassword==null&&pendingExport==null&&!modelPickerPending&&pendingModelUri==null)maybeAutomaticCheckpoint();
         super.onPause();
     }
     @Override protected void onResume() {
         super.onResume();foreground=true;stopAutomaticCheckpoint();
         if (unlocked && backgroundAt > 0 && System.currentTimeMillis()-backgroundAt > 120000) requestUnlock();
-        else backgroundAt=0;
+        else {backgroundAt=0;resumeSelectedModelImport();}
     }
     @Override public void onTrimMemory(int level) {
         super.onTrimMemory(level);
@@ -316,7 +319,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { modelPickerPending=false;pendingModelUri=null;stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -374,7 +377,7 @@ public final class MainActivity extends Activity {
             main.post(()->reauthenticate("Importar modelo de IA offline",()->{
                 if(!unlocked||archiveBusy.get()||semanticBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()){showToast("Finalize o processamento atual.");return;}
                 Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
-                try{startActivityForResult(picker,ADVANCED_LLM_CODE);}catch(Exception e){showToast("Seletor indisponível.");}
+                try{modelPickerPending=true;startActivityForResult(picker,ADVANCED_LLM_CODE);}catch(Exception e){modelPickerPending=false;showToast("Seletor indisponível.");}
             }));
         }
         @JavascriptInterface public String analyzeSemantic(String json){
@@ -1003,23 +1006,45 @@ public final class MainActivity extends Activity {
             main.post(()->{try{if(!isDestroyed()&&!isFinishing()){progress.dismiss();showToast(result);if(reload){initialUnlockDone=false;requestUnlock();AgendaReminderReceiver.refresh(this);}}}finally{archiveBusy.set(false);}});
         },"eco-attachment-archive").start();
     }
+    private void resumeSelectedModelImport(){
+        if(pendingModelUri==null||!foreground||!unlocked||isFinishing()||isDestroyed())return;
+        if(!privateOperationAuthorized())return;
+        final Uri uri=pendingModelUri;pendingModelUri=null;
+        if(archiveBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()||!semanticBusy.compareAndSet(false,true)){
+            showToast("Finalize o processamento e selecione o modelo novamente.");return;
+        }
+        final long epoch=accessEpoch;
+        final java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);
+        final AlertDialog progress=new AlertDialog.Builder(this).setTitle("Instalando modelo offline").setMessage("Abrindo GGUF ou ZIP oficial…").setCancelable(false).setNegativeButton("Cancelar",(d,w)->cancel.set(true)).create();
+        progress.show();progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancel.set(true);v.setEnabled(false);progress.setMessage("Cancelando; modelo anterior preservado…");});
+        new Thread(()->{
+            String message;boolean success=false;final long[] last={0};
+            try(InputStream input=getContentResolver().openInputStream(uri)){
+                if(input==null)throw new EcoGgufImport.Refused("Arquivo indisponível. Copie o download para o armazenamento local.");
+                LocalLlmEngine.installAdvanced(getApplicationContext(),input,()->unlocked&&accessEpoch==epoch&&!cancel.get(),bytes->{
+                    long now=android.os.SystemClock.elapsedRealtime();if(now-last[0]<500)return;last[0]=now;
+                    main.post(()->{if(!isFinishing()&&!isDestroyed()&&!cancel.get())progress.setMessage("Copiando e verificando: "+(bytes/1_000_000L)+" MB de aproximadamente 1.120 MB.");});
+                });
+                success=true;message="Modelo Qwen 1.5B instalado e selecionado automaticamente.";
+            }catch(EcoGgufImport.Refused e){message=e.getMessage();}
+            catch(java.util.concurrent.CancellationException e){message=cancel.get()?"Importação cancelada.":"Importação interrompida pelo bloqueio do ECO. Desbloqueie e tente novamente.";}
+            catch(SecurityException e){message="Sem acesso ao arquivo selecionado. Baixe o pacote localmente e selecione novamente.";}
+            catch(java.io.IOException e){message="Falha de leitura ou gravação. Verifique o download e o espaço interno livre.";}
+            catch(Exception e){message="Não foi possível instalar o modelo. Verifique o armazenamento e tente novamente.";}
+            finally{semanticBusy.set(false);}
+            final boolean installed=success;final String result=message;
+            main.post(()->{if(!isFinishing()&&!isDestroyed()){progress.dismiss();if(unlocked){new AlertDialog.Builder(this).setTitle(installed?"Modelo instalado":"Importação não concluída").setMessage(result+(installed?"":" O modelo anterior permanece intacto.")).setPositiveButton("OK",null).show();jsCallback("nativeFullCheckpointChanged","");}}});
+        },"eco-install-advanced-llm").start();
+    }
     @Override protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code,result,data);
         if(code==ADVANCED_LLM_CODE){
-            if(!privateOperationAuthorized()||result!=RESULT_OK||data==null||data.getData()==null||archiveBusy.get()||ml.isRecording()||ml.isTranscribing()||ml.isPaused()||ml.hasPendingAudio()||!semanticBusy.compareAndSet(false,true))return;
-            Uri uri=data.getData();final long epoch=semanticEpoch;
-            java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);
-            AlertDialog progress=new AlertDialog.Builder(this).setTitle("Instalando modelo offline").setMessage("Verificando integridade do pacote.").setCancelable(false).setNegativeButton("Cancelar",(d,w)->cancel.set(true)).create();progress.show();
-            progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancel.set(true);v.setEnabled(false);});
-            new Thread(()->{
-                boolean ok=false;
-                try(InputStream input=getContentResolver().openInputStream(uri)){
-                    if(input==null)throw new java.io.IOException("Modelo indisponível");
-                    LocalLlmEngine.installAdvanced(getApplicationContext(),input,()->unlocked&&semanticEpoch==epoch&&!cancel.get());ok=true;
-                }catch(Exception ignored){}finally{semanticBusy.set(false);}
-                final boolean installed=ok;
-                main.post(()->{if(!isFinishing()&&!isDestroyed()){progress.dismiss();showToast(installed?"Modelo avançado instalado.":"Importação recusada ou cancelada; modelo anterior preservado.");if(unlocked)jsCallback("nativeFullCheckpointChanged","");}});
-            },"eco-install-advanced-llm").start();return;
+            boolean expected=modelPickerPending;modelPickerPending=false;
+            if(!expected||result!=RESULT_OK||data==null||data.getData()==null)return;
+            // The chosen URI contains model data, not clinical records. Hold only in
+            // memory until foreground and PIN unlock; never bypass the vault lock.
+            pendingModelUri=data.getData();
+            main.post(this::resumeSelectedModelImport);return;
         }
         if((code==EXPORT_CODE||code==IMPORT_CODE||code==ATTACHMENT_IMPORT_CODE||code==ATTACHMENT_EXPORT_CODE||code==TRANSCRIPT_FILE_CODE||code==AUDIO_FILE_CODE||code==ARCHIVE_EXPORT_CODE||code==ARCHIVE_IMPORT_CODE||code==VAULT_EXPORT_CODE||code==VAULT_IMPORT_CODE||code==LOCAL_VAULT_EXPORT_CODE)&&!privateOperationAuthorized()){
             clearPendingBackup();pendingTranscriptToken=null;pendingAttachmentCase=null;pendingAttachmentTitle=null;pendingAttachmentClass=null;
