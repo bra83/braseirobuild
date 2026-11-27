@@ -121,6 +121,10 @@ public final class OfflineMasterEngine {
         // No local source can invent the missing hook or new surroundings.
         String text=existingNarration==null?"":existingNarration.trim();
         if(!"first_arrival".equals(occasion)||sceneState==null||text.isEmpty()||WorldOnboardingNarrativeGuard.problem(text,occasion).isEmpty())return text;
+        // Do not append anything after a completed beat with dialogue or an offered decision.
+        // Only an explicitly incomplete arrival draft may be oriented from confirmed geography.
+        String folded=NpcIdentityNormalizer.key(text);
+        if(text.contains("?")||text.contains("—")||!folded.matches(".*\\b(chegou|chegam|chegamos|chegada|aproxima|aproximam|entrada)\\b.*"))return text;
         String location=sceneState.optString("location","").trim(),region=sceneState.optString("region","").trim(),geography=sceneState.optString("geography","").trim();
         if(location.isEmpty()||region.isEmpty()||geography.isEmpty())return text;
         // Reuse only confirmed scene facts; never create people, events or travel.

@@ -1,7 +1,7 @@
 name: D&D 2024 Inventory and Scene Reliability APK — gated RC
 on:
   push:
-    branches: [fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101, fix/dnd-6644-narrative-time-action-20261101]
+    branches: [fix/dnd-6668-startup-master-continuity-20261126, fix/dnd-6639-inventory-integrated-20261101, fix/dnd-6641-scene-options-ui-stalls-20261101, fix/dnd-6642-actions-android-gemini-dialogue-20261101, fix/dnd-6643-anr-bugreport-a57-20261101, fix/dnd-6644-narrative-time-action-20261101]
   pull_request:
     paths:
       - 'dnd-normal/run247-mod005/app/src/main/java/com/braseiro/dnd5e/Character2024SheetReconciler.java'
@@ -95,7 +95,14 @@ jobs:
           ./gradlew :app:testDebugUnitTest \
             --tests 'com.braseiro.dnd5e.Bastion2024PersistentFlowRobolectricTest' \
             -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain
-      - name: Full D&D JVM regression (Bastion separately verified; two real-map tests separate)
+      - name: Backup21 F18 isolated snapshot and restore (mandatory)
+        working-directory: dnd-normal/run247-mod005
+        timeout-minutes: 12
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest.testF18ConsistentSnapshotAndRemapping' \
+            -Pbraseiro.qaLiteAssets=true --no-daemon --console=plain --info
+      - name: Full D&D JVM regression (Bastion, F18 and real-map checks separately required)
         working-directory: dnd-normal/run247-mod005
         timeout-minutes: 25
         run: |
@@ -111,6 +118,7 @@ jobs:
                       testTask.forkEvery = 25L
                       // Executed in its own mandatory step above, never omitted.
                       testTask.filter.excludeTestsMatching('com.braseiro.dnd5e.Bastion2024PersistentFlowRobolectricTest')
+                      testTask.filter.excludeTestsMatching('com.braseiro.dnd5e.e2e.E2ETier1FeatureCoverageRobolectricTest.testF18ConsistentSnapshotAndRemapping')
                       testTask.testLogging {
                           events 'started', 'passed', 'failed', 'skipped'
                           exceptionFormat 'full'
