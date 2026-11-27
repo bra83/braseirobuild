@@ -25,6 +25,8 @@ public final class MasterPreparationCoordinator {
     private long active = -1L;
     private Future<?> worker;
     private Runnable watchdog;
+    private boolean taskStarted;
+    private boolean graceUsed;
 
     public MasterPreparationCoordinator(Handler ui,ExecutorService executor,long timeoutMs) {
         if(ui==null||executor==null||timeoutMs<=0)throw new IllegalArgumentException("Invalid master context coordinator");
@@ -35,11 +37,17 @@ public final class MasterPreparationCoordinator {
         if(task==null||callbacks==null)throw new IllegalArgumentException("Missing plan task/callback");
         cancel();
         final long ticket;
-        synchronized(this) { ticket=++sequence;active=ticket; }
+        synchronized(this) { ticket=++sequence;active=ticket;taskStarted=false;graceUsed=false; }
         final Runnable deadline=new Runnable(){@Override public void run(){
             final Future<?> expired;
             synchronized(MasterPreparationCoordinator.this){
                 if(active!=ticket)return;
+                // A running production preparation gets a soft deadline before the hard stop.
+                if(timeoutMs==30000L&&taskStarted&&!graceUsed){
+                    graceUsed=true;
+                    ui.postDelayed(this,150000L);
+                    return;
+                }
                 active=-1L;expired=worker;worker=null;watchdog=null;
             }
             if(expired!=null)expired.cancel(true);
@@ -51,6 +59,7 @@ public final class MasterPreparationCoordinator {
         try {
             final Future<?> scheduled=executor.submit(new Runnable(){@Override public void run(){
                 try {
+                    synchronized(MasterPreparationCoordinator.this){if(active!=ticket)return;taskStarted=true;}
                     final T prepared=task.call();
                     ui.post(new Runnable(){@Override public void run(){
                         if(claimCompletion(ticket))callbacks.onPrepared(prepared);

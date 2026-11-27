@@ -75,6 +75,21 @@ public final class MasterPreparationExecutorRecoveryRobolectricTest {
         }
     }
 
+    @Test public void runningPreparationSurvivesThirtySecondSoftDeadline() throws Exception {
+        ExecutorService pool=AppExecutors.isolatedMasterPreparationForTest();
+        MasterPreparationCoordinator c=new MasterPreparationCoordinator(new Handler(Looper.getMainLooper()),pool,30000);
+        CountDownLatch entered=new CountDownLatch(1), release=new CountDownLatch(1);
+        Recorder cb=new Recorder();
+        try{
+            c.prepare(()->{entered.countDown();release.await();return "REGRAS E CONTEXTO PRONTOS";},cb);
+            assertTrue(entered.await(3,TimeUnit.SECONDS));
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(31));
+            assertTrue(c.isPreparing());assertEquals(0,cb.timeouts.get());
+            release.countDown();drainUiUntilSuccess(cb);
+            assertEquals(1,cb.successes.get());assertEquals(0,cb.timeouts.get());
+        }finally{release.countDown();c.cancel();pool.shutdownNow();}
+    }
+
     @Test public void deadlineRetiresUninterruptibleWorkerAndRetrySucceeds() throws Exception {
         ExecutorService pool=AppExecutors.isolatedMasterPreparationForTest();
         MasterPreparationCoordinator c=new MasterPreparationCoordinator(new Handler(Looper.getMainLooper()),pool,60);

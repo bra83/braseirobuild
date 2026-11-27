@@ -24,7 +24,7 @@ public final class NpcGeminiVisualPromptGenerator {
     public static String buildPrompt(String name, String ancestry, String socialClass,
                                      String profession, String quirks, String additionalDetails) {
         StringBuilder sb = new StringBuilder();
-        sb.append("A detailed, high quality fantasy RPG character token portrait bust of a ");
+        sb.append("A photorealistic cinematic live-action medieval fantasy character portrait bust of a ");
 
         if (ancestry != null && !ancestry.trim().isEmpty()) {
             sb.append(ancestry.trim()).append(" ");
@@ -50,7 +50,7 @@ public final class NpcGeminiVisualPromptGenerator {
             sb.append("Details: ").append(additionalDetails.trim()).append(". ");
         }
 
-        sb.append("Centered circular composition, fantasy character artbook style, official D&D 5e fantasy illustration, dramatic studio lighting, painted digital portrait, clean dark background, high resolution, masterpiece.");
+        sb.append("Centered circular-token-compatible composition, realistic skin and hair texture, practical medieval clothing, natural photographic depth of field, cinematic lighting, clean dark background. A real actor photographed on a medieval fantasy film set. No illustration, painting, cartoon, anime, digital art or stylized rendering.");
         return sb.toString();
     }
 
@@ -73,8 +73,8 @@ public final class NpcGeminiVisualPromptGenerator {
             @Override
             public void onSuccess(File file, String mime) {
                 try {
-                    Uri fileUri = Uri.fromFile(file);
-                    Uri stored = ImageStorageManager.importImage(context, fileUri, "npc_avatars", "npc_gemini_" + npcId, 100);
+                    Uri stored = ImageStorageManager.importImage(context, new java.io.FileInputStream(file), mime, "npc_avatars", "npc_gemini_" + npcId, Integer.MAX_VALUE);
+                    if (!ImageStorageManager.isReadable(context, stored)) throw new java.io.IOException("Retrato armazenado não pôde ser lido.");
                     if (callback != null) {
                         callback.onSuccess(stored, prompt);
                     }

@@ -48,7 +48,7 @@ final class LiveMasterAcceptance {
             String name=FictionTurnIntent.fold(n.optString("name"));
             String role=FictionTurnIntent.fold(n.optString("role")+" "+n.optString("summary"));
             if((role.contains("estalajadeiro")||role.contains("dono da pousada")||role.contains("proprietario da pousada"))
-                &&!role.contains("assistente")&&!name.isEmpty()&&!name.equals("kote"))return true;
+                &&!role.contains("assistente")&&!name.isEmpty()&&!name.equals("kote")&&!name.matches("(?:o )?estalajadeiro|(?:o )?dono da pousada|(?:o )?proprietario da pousada"))return true;
         }
         return false;
     }
