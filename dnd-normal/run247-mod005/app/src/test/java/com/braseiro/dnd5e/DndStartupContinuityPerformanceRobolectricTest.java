@@ -68,4 +68,22 @@ public class DndStartupContinuityPerformanceRobolectricTest {
             .optString("title","").contains("144"));
         assertEquals(145,db.listJournal().size());
     }
+    @Test public void newAdventureArchivesDiaryWithoutErasingPermanentHistory(){
+        db.addJournal("Primeira aventura","Cena anterior","Cena");
+        assertEquals(1,db.listActiveAdventureJournal().size());
+        db.archiveActiveAdventureJournal();
+        assertEquals(0,db.listActiveAdventureJournal().size());
+        assertEquals(1,db.listJournal().size());
+        String archived=db.listJournal().get(0).optString("adventure_archive_key");
+        assertFalse(archived.isEmpty());
+        db.addJournal("Nova aventura","Cena atual","Cena");
+        db.close();db=new AppDb(ctx,filename);db.setActiveMapProfile("dnd");
+        assertEquals(2,db.listJournal().size());
+        assertEquals(1,db.listActiveAdventureJournal().size());
+        assertEquals("Nova aventura",db.listActiveAdventureJournal().get(0).optString("title"));
+        db.archiveActiveAdventureJournal();
+        assertEquals(0,db.listActiveAdventureJournal().size());
+        assertEquals(2,db.listJournal().size());
+        assertNotEquals(db.listJournal().get(0).optString("adventure_archive_key"),db.listJournal().get(1).optString("adventure_archive_key"));
+    }
 }
