@@ -81,7 +81,7 @@ public final class FictionTurnIntent {
         if(starts(q,"voce e ","voce tem ","voce sabe ","voce viu ","voce conhece ","voce pode ",
                 "voces sao ","voces tem ","voces sabem ","voces viram ","o senhor ","a senhora ",
                 "me diga ","me conte ","quanto custa ","quanto cobra ","qual seu nome","qual e seu nome",
-                "qual o seu nome","e voce o dono","e o senhor o dono","bom dia","boa tarde","boa noite"))
+                "qual o seu nome","e voce o dono","e o senhor o dono","e o dono","e a dona","tem quartos","tem quarto","tem comida","pode me dizer","pode nos dizer","bom dia","boa tarde","boa noite"))
             return Kind.CHARACTER_SPEECH;
         if(q.matches("^(ola |ei )?(estalajadeiro|taberneiro|hospedeiro|taverneiro) .+"))
             return Kind.CHARACTER_SPEECH;

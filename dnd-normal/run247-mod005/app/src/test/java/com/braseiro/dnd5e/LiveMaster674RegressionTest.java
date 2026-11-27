@@ -7,7 +7,7 @@ public final class LiveMaster674RegressionTest{
     private JSONObject scene()throws Exception{return new JSONObject().put("location","Pousada Marco do Percurso").put("present_npcs",new JSONArray().put(new JSONObject().put("name","Kote").put("role","estalajadeiro")));}
     @Test public void dialogueInMainComposerNeverBecomesObservation()throws Exception{
         JSONObject s=scene();
-        for(String q:new String[]{"Você é o dono?","Kote, é você o dono?","O senhor tem quartos?","Quanto custa a cama?","Perguntar ao estalajadeiro o preço"}){
+        for(String q:new String[]{"Você é o dono?","Kote, é você o dono?","O senhor tem quartos?","Quanto custa a cama?","É o dono?","Tem quartos?","Perguntar ao estalajadeiro o preço"}){
             assertEquals(q,FictionTurnIntent.Kind.CHARACTER_SPEECH,FictionTurnIntent.classify(q,s,"PLAYER_ACTION"));
             assertFalse(FictionTurnIntent.freezesWorld(FictionTurnIntent.classify(q,s,"PLAYER_ACTION"),q,s));
         }
@@ -18,6 +18,7 @@ public final class LiveMaster674RegressionTest{
         String a="ABERTURA DA AVENTURA PRINCIPAL IMPORTADA: Pousada Marco do Percurso";
         assertTrue(LiveMasterAcceptance.problem("Barl limpa a caneca.",new JSONObject(),scene(),a).contains("Kote"));
         assertTrue(LiveMasterAcceptance.problem("Vocês veem Kote.",new JSONObject(),scene(),a).contains("insuficiente"));
+        assertFalse(LiveMasterProseGate.problem("O bafo morno da estalagem recebe o grupo.",new JSONObject(),scene(),"Entro na estalagem").isEmpty());
         JSONObject bad=new JSONObject().put("npc_updates",new JSONArray().put(new JSONObject().put("name","Outro").put("role","estalajadeiro")));
         assertTrue(LiveMasterAcceptance.problem("Vocês veem um homem.",bad,scene(),a).contains("identidade"));
         assertEquals("",LiveMasterAcceptance.problem("Kote: — Tenho quartos. Vocês querem jantar?",new JSONObject(),scene(),"Você tem quartos?"));

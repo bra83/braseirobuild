@@ -19,7 +19,7 @@ final class LiveMasterProseGate {
             if(trimmed.contains("—")||trimmed.contains("“"))speech=true;
             prose.append(trimmed).append(' ');
         }
-        if(THIRD_PERSON.matcher(prose).find()||prose.toString().toLowerCase(Locale.ROOT).contains("diante de a companhia"))
+        if(THIRD_PERSON.matcher(prose).find()||prose.toString().toLowerCase(Locale.ROOT).contains("diante de a companhia")||prose.toString().toLowerCase(Locale.ROOT).contains("recebe o grupo")||prose.toString().toLowerCase(Locale.ROOT).contains("recebe a companhia"))
             return "voz em terceira pessoa para os heróis; dirija-se a vocês ou ao personagem pelo nome";
         JSONObject next=envelope==null?null:envelope.optJSONObject("scene_state");
         String loc=(prior==null?"":prior.optString("location",""))+" "+(next==null?"":next.optString("location",""));
