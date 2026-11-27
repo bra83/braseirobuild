@@ -1,4 +1,4 @@
-name: DnD 6.6.74 Live Master and Adventure Journal QA
+name: DnD 6.6.75 Live Master and Adventure Journal QA
 on:
   push:
     branches:
@@ -75,14 +75,14 @@ jobs:
           set -euo pipefail
           ./gradlew :app:assembleDebug --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
-          grep -q '^VERSION_CODE=203900637$' version.properties
+          grep -q '^VERSION_CODE=203900638$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
           grep -q '^BACKUP_FORMAT=21$' version.properties
       - name: Upload Android QA build
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6.6.74_LIVE_MASTER_JOURNAL_QA
+          name: BRASEIRO_DND_6.6.75_LIVE_MASTER_JOURNAL_QA
           path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error

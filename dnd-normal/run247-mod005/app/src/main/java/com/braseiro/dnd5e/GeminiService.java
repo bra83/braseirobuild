@@ -112,14 +112,18 @@ public class GeminiService {
             try{
                 ensureKey(apiKey);final JSONObject body=buildTextBody(system,prompt,fileUris);final boolean singleBudgetCall=isSingleBudgetCall(system);
                 List<String> candidates=budgetCandidates(resolveCandidates(apiKey,model,Kind.TEXT),singleBudgetCall);ArrayList<String> errors=new ArrayList<String>();
+                final boolean bounded=system!=null&&(system.contains("BRAS_BOUNDED_OPENING")||system.contains("BRAS_BOUNDED_REPAIR"));
+                if(bounded&&candidates.size()>2)candidates=new ArrayList<String>(candidates.subList(0,2));
+                final boolean[] received={false};
+                final StreamingTextCallback tracking=new StreamingTextCallback(){public void onPartial(String value){if(value!=null&&!value.isEmpty())received[0]=true;cb.onPartial(value);}public void onSuccess(String value){}public void onError(String error){}};
                 for(int i=0;i<candidates.size();i++){
                     String candidate=candidates.get(i);
                     try{
-                        String text=streamTextWithRetry(candidate,apiKey,body,cb,singleBudgetCall?1:2);
+                        String text=streamTextWithRetry(candidate,apiKey,body,tracking,bounded?0:(singleBudgetCall?1:2));
                         if(text.length()==0)throw new Exception("A IA não retornou texto.");
                         rememberWorkingModel("last_text_model_ok",candidate);cb.onSuccess(text);return;
                     }catch(AuthException e){errors.add(candidate+": "+shortError(e));}
-                    catch(Exception e){errors.add(candidate+": "+shortError(e));}
+                    catch(Exception e){errors.add(candidate+": "+shortError(e));if(bounded&&received[0])throw e;}
                 }
                 throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
             }catch(Exception e){cb.onError(clean(e));}

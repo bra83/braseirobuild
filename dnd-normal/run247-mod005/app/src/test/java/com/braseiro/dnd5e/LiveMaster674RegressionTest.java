@@ -35,4 +35,14 @@ public final class LiveMaster674RegressionTest{
         assertEquals("Kote",source.getJSONArray("npcs").getJSONObject(0).getString("name"));
         assertFalse(source.has("sideQuestLibrary"));
     }
+    @Test public void dedicatedOpeningIncludesCanonicalSourceAndAvoidsTurnMechanics()throws Exception{
+        JSONObject source=new JSONObject().put("story",new JSONObject().put("playerIntroduction","Introdução integral"))
+            .put("start",new JSONObject().put("hook","Gancho exclusivo"));
+        String prompt=LiveMasterOpeningPolicy.prompt(source,scene(),java.util.Arrays.asList(new JSONObject().put("name","Kvothe"),new JSONObject().put("name","Auri")),"Regra local","ABERTURA DA AVENTURA PRINCIPAL IMPORTADA");
+        assertTrue(prompt.contains("Introdução integral"));assertTrue(prompt.contains("Gancho exclusivo"));
+        assertTrue(prompt.contains("Kvothe"));assertTrue(prompt.contains("Auri"));
+        assertTrue(prompt.contains("Kote"));assertTrue(prompt.contains("350 palavras"));
+        assertTrue(prompt.contains("BRAS_BOUNDED_OPENING"));assertTrue(prompt.contains("pending_test=null"));
+        assertFalse(prompt.contains("BRAS_MASTER_COGNITIVE_340"));
+    }
 }

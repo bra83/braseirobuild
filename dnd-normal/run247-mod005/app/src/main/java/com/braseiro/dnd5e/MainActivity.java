@@ -7790,6 +7790,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         aiBusy=false;streamingNarration="";
         final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");
         final boolean choicesFailure=!apiFailure&&error!=null&&error.startsWith("ESCOLHAS:");
+        final boolean narrativeFailure=!apiFailure&&error!=null&&error.startsWith("NARRATIVA:");
         if(masterSideQueryActive)restoreAfterMasterSideQuery();
         if(activeMasterPromotionTurnId!=null&&activeMasterPromotionTurnId.length()>0){
             updateMasterConversationTurn(activeMasterPromotionTurnId,"cancelled",new JSONObject());
@@ -7808,7 +7809,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 .putBoolean(RETRY_PREFIX+"context_failure",contextFailure).commit();
         }
         final boolean chronologyFailure=!apiFailure&&error!=null&&error.startsWith("CONTINUIDADE:");
-        setStatus(choicesFailure?"A cena não foi aceita: faltaram escolhas válidas. A ação continua pendente.":
+        setStatus(narrativeFailure?"Resposta não confirmada: "+error:choicesFailure?"A cena não foi aceita: faltaram escolhas válidas. A ação continua pendente.":
             (contextFailure?"O contexto do Mestre não ficou pronto. A ação continua pendente; tente novamente.":(
             apiFailure?"GEMINI INDISPONÍVEL. A ação não foi concluída.":
             (chronologyFailure?"CONTRADIÇÃO NA CONTINUIDADE. A cena foi preservada e a nova resposta não foi aplicada.":
@@ -7817,8 +7818,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(isStrixhavenAdventure())showStrixhavenSession();else if("Mestre IA".equals(currentScreen))showNarrator();
         if(!showingGeminiFailureDialog&&canShowDialog()){
             showingGeminiFailureDialog=true;
-            new AlertDialog.Builder(this).setTitle(choicesFailure?"A cena não apresentou quatro ações úteis":(contextFailure?"A preparação do Mestre foi interrompida":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))))
-                .setMessage((choicesFailure?"As opções não passaram pelo critério de quatro ações válidas. Nenhuma cena nova foi confirmada. ":
+            new AlertDialog.Builder(this).setTitle(narrativeFailure?"Resposta narrativa não confirmada":choicesFailure?"A cena não apresentou quatro ações úteis":(contextFailure?"A preparação do Mestre foi interrompida":(apiFailure?"Gemini não conseguiu responder":(chronologyFailure?"Contradição de continuidade bloqueada":"O Mestre não conseguiu preparar o teste"))))
+                .setMessage((narrativeFailure?"A resposta não satisfez os requisitos da aventura. Nenhuma cena foi confirmada. ":choicesFailure?"As opções não passaram pelo critério de quatro ações válidas. Nenhuma cena nova foi confirmada. ":
                     (contextFailure?"O contexto operacional não ficou pronto. A jogada não foi concluída e nenhuma cena nova foi confirmada. ":
                     (apiFailure?"Nenhuma resposta offline será gerada automaticamente. ":
                     (chronologyFailure?"A nova narração contradiz registros canônicos. ":"A proposta mecânica não passou na validação. "))))+
@@ -7855,6 +7856,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String channel=prefs.getString(RETRY_PREFIX+"channel","PLAYER_ACTION");
         if(action.trim().isEmpty()){toast("A ação pendente está vazia.");return;}
         manualOfflineNextRequest=false;
+        clearFailedGeminiRequest();
         sendAi(mode,action,channel);
     }
     private void runExplicitOfflineMaster(){
@@ -7974,10 +7976,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(parent==null)return;
         LinearLayout panel=card();
         panel.addView(text("MESTRE: GEMINI POR PADRÃO",12,GOLD,true));
-        if(hasFailedGeminiRequest()){
+        if(aiBusy){panel.addView(text("O Mestre está preparando a resposta atual. Nenhuma ação foi confirmada ainda.",12,MUTED,false));}
+        else if(hasFailedGeminiRequest()){
             panel.addView(text(prefs.getBoolean(RETRY_PREFIX+"context_failure",false)?"Preparação do Mestre interrompida. A ação foi preservada sem avançar a cena.":(prefs.getBoolean(RETRY_PREFIX+"api_failure",true)?"O Gemini falhou. A ação continua pendente e NÃO foi resolvida pelo Mestre offline.":"O Mestre gerou uma proposta inválida de teste. A ação continua pendente, sem rolagem e sem avançar a cena."),11,RED,false));
             Button retry=button(prefs.getBoolean(RETRY_PREFIX+"context_failure",false)?
                 "TENTAR NOVAMENTE":"TENTAR NOVAMENTE (GEMINI)",GREEN);
+            panel.addView(text(prefs.getString(RETRY_PREFIX+"error","Motivo não registrado"),12,TEXT,false));
             retry.setEnabled(!aiBusy);
             retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
             panel.addView(retry);
@@ -8015,6 +8019,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         manualOfflinePipelineId=manualOfflineNextRequest?pipelineId:-1L;
         manualOfflineNextRequest=false;
         aiBusy=true;streamingNarration="";
+        if("Narrador".equals(mode)&&"Mestre IA".equals(currentScreen)&&!isStrixhavenAdventure())showNarrator();
         updateAdventureStartupMessage(openingRequest?"Preparando a abertura e verificando se ela precisa de regras…":"Preparando contexto; o índice de regras só será consultado se houver necessidade mecânica nova…");
         updateNarratorBusyUi();
         AppExecutors.io().execute(new Runnable(){public void run(){
@@ -8245,6 +8250,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     String writingStatus=ruleCacheHit?"Regra reutilizada do cache; o Mestre está escrevendo sem nova pesquisa…":(skippedSearch?"Contexto local suficiente; o Mestre está escrevendo sem pesquisar manuais…":(lastAiUsedRag?"Manuais consultados; o Mestre está escrevendo em uma única chamada…":"Consulta concluída sem prova suficiente; o Mestre continuará somente a ficção… "+(masterOrchestrator==null?"":masterOrchestrator.quotaStatus())));
                     updateAdventureStartupMessage(writingStatus);updateNarratorBusyUi();
                     final ArrayList<String> noRemoteFiles=new ArrayList<String>();
+                    ui.postDelayed(new Runnable(){public void run(){if(requestId!=aiRequestGeneration||!aiBusy)return;++aiRequestGeneration;markGeminiRequestFailed(mode,userText,inputChannel,"Tempo limite da geração do Mestre. Nenhuma cena foi confirmada.");}},LiveMasterOpeningPolicy.REQUEST_DEADLINE_MS);
                     gemini.generateTextWithFilesStreaming(key,model,sys,effectiveUserText,noRemoteFiles,new GeminiService.StreamingTextCallback(){
                         public void onPartial(String rawPartial){streamNarrationPartial(requestId,rawPartial);}
                         public void onSuccess(final String text){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();acceptOrRepairNarration(mode,userText,text,sys,key,model,requestId,0);}});}
@@ -8252,7 +8258,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                             if(requestId!=aiRequestGeneration)return;
                             prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();
                             if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(pendingAiInputChars,streamingNarration.length());
-                            if(streamingNarration!=null&&streamingNarration.trim().length()>=160){
+                            if(!"Narrador".equals(mode)&&streamingNarration!=null&&streamingNarration.trim().length()>=160){
                                 String salvaged=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(streamingNarration));
                                 JSONObject salvagedEnvelope=new JSONObject();
                                 try{salvagedEnvelope.put("narration",salvaged);salvagedEnvelope.put("stream_salvaged",true);}catch(Exception ignored){}
@@ -8422,7 +8428,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if(repairAttempt<maxRepairAttempts&&key!=null&&key.trim().length()>=20){
                 final JSONObject stableEnvelope=copyJsonObject(envelope);
                 final boolean rebuildEnvelope=!nonAdvancingRepair&&!LiveMasterAcceptance.problem(draft,envelope,db.getSceneState(),originalUserText).isEmpty();
-                final String repairSystem=rebuildEnvelope?systemPrompt+"\nREGENERE O ENVELOPE COMPLETO. Corrija o erro de identidade, estilo ou cobertura, mantendo a verdade do JSON e a agência. Não preserve dados estruturados incorretos.":nonAdvancingRepair?
+                final String repairSystem=rebuildEnvelope?systemPrompt+"\nBRAS_BOUNDED_REPAIR\nREGENERE O ENVELOPE COMPLETO. Corrija o erro de identidade, estilo ou cobertura, mantendo a verdade do JSON e a agência. Não preserve dados estruturados incorretos.":nonAdvancingRepair?
                     "BRAS_CONTEXT_EDITOR. Você é somente editor de resposta do Mestre. Reescreva a resposta para esclarecer a dúvida do jogador SEM fazer o tempo passar, SEM mover NPCs, SEM introduzir acontecimento novo, SEM transformar a pergunta em fala do personagem e SEM acrescentar ação, opção ou mecânica. Preserve somente os fatos já contidos na resposta. Seja direto e natural em português do Brasil. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}."
                     :(fullPresentationRepair?
                     "BRAS_LONG_STORY BRAS_NARRATIVE_EDITOR. Você é editor de uma grande apresentação de RPG para jogador que NÃO conhece o cenário. Reescreva usando somente fatos já presentes na narração e no contexto de grounding. Expanda percepção, orientação espacial, relações visíveis, atividade cotidiana, transições e significado imediato dos nomes próprios sem criar novo lore, NPC, item, pista, número, regra ou consequência. Não presuma conhecimento prévio. Preserve agência e termine no mesmo ponto de decisão. Use parágrafos reais separados por linha em branco. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}."
@@ -8430,19 +8436,20 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 final String repairPrompt=rebuildEnvelope?originalUserText+"\nCORREÇÃO OBRIGATÓRIA: "+problem+"\nEntregue um JSON completo, com narrativa, elenco e estado coerentes.":HumanMasterNarrativeProfile.systemInstruction()+"\n\nPROBLEMA DETECTADO: "+problem+"\nALVO DE FORMA: "+narrationQualityTarget(originalUserText)+(fullPresentationRepair?"\n\nCONTEXTO AUTORITATIVO PARA GROUNDING (não exponha como relatório):\n"+repairGroundingContext():"")+"\n\nNARRAÇÃO A REESCREVER SEM ALTERAR FATOS:\n"+draft;
                 final int repairInputChars=repairSystem.length()+repairPrompt.length();
                 if(aiQuotaGovernor==null||aiQuotaGovernor.canCall(repairInputChars)){
-                    setStatus(nonAdvancingRepair?"A direção narrativa está corrigindo o esclarecimento sem avançar a cena…":(fullPresentationRepair?"A apresentação precisa de mais contexto; expandindo a mesma resposta remota sem trocar de Mestre…":"A direção narrativa detectou repetição/forma fraca; revisando somente a prosa uma única vez…"));
-                    gemini.generateText(key,model,repairSystem,repairPrompt,new GeminiService.TextCallback(){
+                    setStatus("Revisão única do Mestre: "+problem);streamingNarration="";lastStreamUiLength=0;lastStreamUiAt=0L;lastStreamPostAt=0L;
+                    gemini.generateTextWithFilesStreaming(key,model,"BRAS_SINGLE_CALL BRAS_BOUNDED_REPAIR "+repairSystem,repairPrompt,new ArrayList<String>(),new GeminiService.StreamingTextCallback(){
+                        public void onPartial(String partial){streamNarrationPartial(requestId,partial);}
                         public void onSuccess(final String repairedRaw){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;if(rebuildEnvelope){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());acceptOrRepairNarration(mode,originalUserText,repairedRaw,systemPrompt,key,model,requestId,repairAttempt+1);return;}String repaired="";try{JSONObject rep=parseAiEnvelope(repairedRaw);repaired=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(rep.optString("narration",repairedRaw)));}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao interpretar revisão narrativa; preservando a cena original.",ignored);}if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());try{if(repaired.length()>=repairMinLength)stableEnvelope.put("narration",repaired);stableEnvelope.put("narrative_quality_repair",problem);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao registrar revisão narrativa.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                         public void onError(final String error){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;try{stableEnvelope.put("narration",draft);stableEnvelope.put("narrative_quality_repair_failed",error);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao registrar revisão indisponível.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                     });
                     return;
                 }
             }
-            if(hasInternalNarrationLeak(draft)){aiBusy=false;streamingNarration="";markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"A resposta continha instruções internas e foi bloqueada. Nada foi aplicado.");return;}
+            if(hasInternalNarrationLeak(draft)){aiBusy=false;streamingNarration="";markMasterRequestFailed(mode,originalUserText,activeInputChannel(),"NARRATIVA: instruções internas na resposta. Nada foi aplicado.",false);return;}
             String remainingProseProblem=nonAdvancingRepair?"":LiveMasterAcceptance.problem(draft,envelope,db.getSceneState(),originalUserText);
             if(!remainingProseProblem.isEmpty()){
                 aiBusy=false;streamingNarration="";
-                markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"Narração incompatível com a mesa: "+remainingProseProblem+". Nenhum turno foi confirmado.");
+                markMasterRequestFailed(mode,originalUserText,activeInputChannel(),"NARRATIVA: "+remainingProseProblem+". Nenhum turno foi confirmado.",false);
                 return;
             }
             // Keep the single remote beat. Never append a second story to meet a length target.
@@ -8588,7 +8595,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 final String rejection=LiveMasterAcceptance.problem(rawAgencyEnvelope.optString("narration",""),rawAgencyEnvelope,db.getSceneState(),action);
                 if(!rejection.isEmpty()){
                     ui.post(new Runnable(){public void run(){if(requestGen!=aiRequestGeneration)return;aiBusy=false;streamingNarration="";
-                        markGeminiRequestFailed("Narrador",action,activeInputChannel(),"Cena não confirmada: "+rejection);
+                        markMasterRequestFailed("Narrador",action,activeInputChannel(),"NARRATIVA: "+rejection,false);
                     }});return;
                 }
             }
@@ -10205,7 +10212,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     private String buildSystemPrompt(String mode,String userText,String manualSummary){
-        if("Narrador".equals(mode))return buildFastNarratorPrompt(userText,manualSummary);
+        if("Narrador".equals(mode)){
+            if(LiveMasterAcceptance.isOpening(userText)&&!isMystaraWorld()&&!isStrixhavenAdventure()){
+                try{JSONObject principal=new BraseiroAdventureStore(db).principalNarrativeSource();if(principal.length()>0)return LiveMasterOpeningPolicy.prompt(principal,db.getSceneState(),safeActiveCharacters(),manualSummary,userText);}
+                catch(Exception failure){throw new IllegalStateException("A abertura não pôde carregar a aventura principal.",failure);}
+            }
+            return buildFastNarratorPrompt(userText,manualSummary);
+        }
         JSONObject c=db.getCampaign();StringBuilder heroes=new StringBuilder();List<JSONObject> list=partyDirector.activeHeroRoster();for(int i=0;i<list.size();i++){JSONObject h=list.get(i);if(i>0)heroes.append("\n");heroes.append(buildHeroAiContext(h));}
         String profile=c.optString("rules_profile",DndRulesEngine.PROFILE_2024);StringBuilder p=new StringBuilder();p.append(isMystaraWorld()?mystaraMasterPrimer():"Você é o Mestre do aplicativo Braseiro D&D. ");p.append("IDIOMA OBRIGATÓRIO: português do Brasil em TODO conteúdo visível ao usuário, mesmo quando os PDFs recuperados pela Biblioteca RAG estiverem em inglês. Traduza nomes comuns, regras, ações, condições, itens, tabelas e resultados para PT-BR. Preserve em inglês somente nomes próprios ou o nome original de um termo quando indispensável; nesse caso, apresente imediatamente a tradução ou explicação em PT-BR. Nunca devolva parágrafos, listas ou resultados de oráculo em inglês. Retorne SOMENTE um objeto JSON válido, sem cercas de código e sem texto fora do JSON. Emita as chaves nesta ordem: protocol_version, narration, visual_prompt, options, pending_test, state_updates, combat, scene_state, npc_updates, npc_cognition_updates, knowledge_updates, quest_updates, faction_updates, guild_updates, clock_updates, world_events, event_resolutions, map_updates, tactical_updates, journal_updates, audio_plan, narrative_state, sources, rules_verified. protocol_version deve ser exatamente 1; canal estrutural desconhecido será rejeitado. Escreva e CONCLUA narration antes dos outros campos; nunca termine no meio de uma frase. Revise ortografia e espaçamento antes de responder; nunca cole palavras como “deuma”, “demadeira”, “osperigos” ou “homemveste”. Na prosa de narration, nunca diga hex, hexágono, célula, grade nem um código cartográfico como EH92. Use nome confirmado, região/reino confirmado, terreno confirmado ou “esta região”; códigos de hex pertencem somente aos campos técnicos de estado e rota. Referência narrativa do local atual: ").append(NarrativeLocationNaturalizer.currentNarrativeLabel(db)).append(".\n");if(isMystaraWorld())p.append("PERFIL DE REGRAS: D&D Rules Cyclopedia/BECMI. Nunca use bônus de proficiência, vantagem/desvantagem, ação bônus, reação por rodada, salvaguardas por atributo, CD de perícia da 5e, CA crescente, subclasses, talentos ou espaços de magia da 5e.\n");else p.append("PERFIL DE REGRAS: ").append(profile).append(". ").append(rulesEngine.rulesGuard(profile)).append(" Toda rolagem, bônus de proficiência, PV, CA, CD, espaço de magia, condição e recurso deve respeitar esse perfil. Conteúdo de ambientação não altera regra mecânica por conta própria.\n");if(isMystaraWorld())p.append("CRÔNICA: ").append(c.optString("name")).append(". Tom: ").append(c.optString("tone")).append(". Perícias gerais: ").append(prefs.getBoolean("mystara_optional_skills",true)?"ativas":"inativas").append(". Especialização em armas: ").append(prefs.getBoolean("mystara_weapon_mastery",true)?"ativa":"inativa").append(". Moral: ").append(prefs.getBoolean("mystara_morale",true)?"ativa":"inativa").append(". Diretrizes: ").append(c.optString("notes")).append(".\nAVENTUREIROS E ESTADO ATUAL:\n").append(heroes.length()==0?"nenhum":heroes.toString()).append("\n");else p.append("CAMPANHA: ").append(c.optString("name")).append(". Tom: ").append(c.optString("tone")).append(". Talentos: ").append(c.optInt("feats")==1?"sim":"não").append(". Multiclasse: ").append(c.optInt("multiclass")==1?"sim":"não").append(". Flanqueamento: ").append(c.optInt("flanking")==1?"sim":"não").append(". Diretrizes: ").append(c.optString("notes")).append(".\nHERÓIS E ESTADO ATUAL:\n").append(heroes.length()==0?"nenhum":heroes.toString()).append("\n");
         if(lastNarration.length()>0)p.append("CENA ANTERIOR, apenas para continuidade: ").append(promptTail(stripMarkdown(lastNarration),1600)).append("\n");
