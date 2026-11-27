@@ -5679,12 +5679,12 @@ function ecoSelfScreen(){
  const rows=ecoSelfData.entries,topic=ecoSelfTopics.find(t=>t[0]===ecoSelfTopic)||ecoSelfTopics[0],old=rows.find(x=>x.id===ecoSelfEdit),draft=ecoSelfDraft||old||{},filtered=rows.filter(x=>ecoSelfFilter==='todos'||x.topic===ecoSelfFilter).slice().sort((a,b)=>b.date.localeCompare(a.date));
  let out=btn('← Tela inicial','nav','ghost','data-id="home"')+head('Espaço pessoal · separado dos casos','Autoanálise','Reflexão guiada e diário privado, sem interpretação diagnóstica.');
  out+='<div class="alert">Exercícios didáticos inspirados na literatura psicanalítica. Não constituem tratamento, análise pessoal com analista ou supervisão. Você pode pular qualquer pergunta; se algo provocar sofrimento intenso, interrompa e procure apoio profissional.</div>';
- out+=ecoDreamWorkPanel(rows);
+ out+=ecoPersonalWorkPanel(rows)+ecoDreamWorkPanel(rows);
  out+='<section class="card"><h2>Trilha de reflexão</h2><p>Escolha livremente um eixo. Para se aperfeiçoar, comece com uma situação concreta, escreva sua experiência, faça a sessão de autoanálise guiada, formule uma pergunta ou ação e retome em outro registro. Não há pontuação, diagnóstico ou obrigação de completar etapas.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfTopic',t[0]===topic[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div></section>';
  out+='<section class="card"><h2>'+esc(topic[1])+'</h2><p>'+esc(topic[4])+'</p><div class="eco-help-example">'+esc(topic[5])+'</div><details class="eco-help-topic"><summary>Fundamentação e limites</summary><p>'+esc(topic[2])+'</p><p class="small muted">Localizador bibliográfico (consulta externa manual): '+esc(topic[3])+'. Exercício autoral adaptado, não citação nem protocolo clínico validado.</p></details><h3>'+(old?'Editar registro':'Novo registro')+'</h3><div class="field"><label for="ecoSelfDate">Data</label><input id="ecoSelfDate" type="date" value="'+esc(draft.date||datestr())+'"></div>'+ecoSelfField('ecoSelfContext','Situação, fato ou lembrança (opcional)',draft.context,4000)+ecoSelfField('ecoSelfReflection','Reflexão ou livre associação',draft.reflection,12000)+ecoSelfField('ecoSelfNext','Questões abertas e próximos passos (opcional)',draft.next,4000)+'<p class="small muted">Salve antes de sair. Rascunho não salvo não é recuperável após fechar ou bloquear o ECO.</p><div class="actions">'+btn('Salvar registro pessoal','ecoSelfSave','')+btn('Limpar / novo registro','ecoSelfNew','ghost')+'</div></section>';
  out+=ecoSelfReviewPanel(rows);
  out+='<section class="card"><h2>Acompanhamento pessoal</h2><p>'+rows.length+' registro(s) salvos. As contagens mostram somente suas escolhas de tema, não saúde mental.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>'<div class="eco-evidence"><strong>'+esc(t[1])+'</strong><p>'+rows.filter(x=>x.topic===t[0]).length+' registro(s)</p></div>').join('')+'</div><p>Para revisar repetições, filtre um eixo e compare o contexto e as associações registrados em datas diferentes. Use Síntese e continuidade para formular suas próprias perguntas.</p></section>';
- out+='<section class="card"><h2>Histórico privado</h2><div class="actions">'+btn('Todos','ecoSelfFilter',ecoSelfFilter==='todos'?'':'secondary','data-id="todos"')+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfFilter',ecoSelfFilter===t[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div>'+filtered.map(x=>'<details class="eco-help-topic"><summary>'+esc(formatDate(x.date))+' · '+esc(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+'</summary><p style="white-space:pre-wrap">'+esc(x.context)+'</p><p style="white-space:pre-wrap">'+esc(x.reflection)+'</p><p style="white-space:pre-wrap">'+esc(x.next)+'</p><div class="actions">'+(x.topic==='sonhos'?btn('Trabalhar este sonho','ecoDreamWorkOpen','','data-id="'+esc(x.id)+'"'):'')+btn('Editar','ecoSelfEdit','secondary','data-id="'+esc(x.id)+'"')+btn('Excluir','ecoSelfDelete','danger','data-id="'+esc(x.id)+'"')+'</div></details>').join('')+(filtered.length?'':'<p class="muted">Nenhum registro neste filtro.</p>')+'</section><p class="small muted">Registros cifrados no cofre, separados dos pacientes. Apenas backup integral com a opção de diário privado e autoanálise inclui este conteúdo. Limite: 500 entradas e 2 milhões de caracteres.</p>';
+ out+='<section class="card"><h2>Histórico privado</h2><div class="actions">'+btn('Todos','ecoSelfFilter',ecoSelfFilter==='todos'?'':'secondary','data-id="todos"')+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfFilter',ecoSelfFilter===t[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div>'+filtered.map(x=>'<details class="eco-help-topic"><summary>'+esc(formatDate(x.date))+' · '+esc(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+'</summary><p style="white-space:pre-wrap">'+esc(x.context)+'</p><p style="white-space:pre-wrap">'+esc(x.reflection)+'</p><p style="white-space:pre-wrap">'+esc(x.next)+'</p><div class="actions">'+btn('Analisar este registro','ecoPersonalWorkOpen','','data-id="'+esc(x.id)+'"')+(x.topic==='sonhos'?btn('Trabalhar este sonho','ecoDreamWorkOpen','','data-id="'+esc(x.id)+'"'):'')+btn('Editar','ecoSelfEdit','secondary','data-id="'+esc(x.id)+'"')+btn('Excluir','ecoSelfDelete','danger','data-id="'+esc(x.id)+'"')+'</div></details>').join('')+(filtered.length?'':'<p class="muted">Nenhum registro neste filtro.</p>')+'</section><p class="small muted">Registros cifrados no cofre, separados dos pacientes. Apenas backup integral com a opção de diário privado e autoanálise inclui este conteúdo. Antes de atualizar, exporte um arquivo novo, marque essa opção e use Importar backup → Só verificar. Não desinstale nem apague os dados. Limite: 500 entradas e 2 milhões de caracteres.</p>';
  return out;
 }
 
@@ -5754,7 +5754,7 @@ act=function(name,id,button){
   if(name==='ecoSelfSave'){
    const x=ecoSelfCapture();if(!x||!validDate(x.date)||!x.reflection.trim()){notify('Preencha uma data válida e a reflexão.','red');return;}
    const row={id:ecoSelfEdit||uid(),date:x.date,topic:ecoSelfTopic,context:x.context,reflection:x.reflection,next:x.next};
-   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else{if(rows[index].dreamWork){if(row.topic!=='sonhos'){notify('Preserve o eixo Sonhos para não perder o trabalho já salvo.','red');return;}row.dreamWork=rows[index].dreamWork;}rows[index]=row;}
+   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else{if(rows[index].dreamWork){if(row.topic!=='sonhos'){notify('Preserve o eixo Sonhos para não perder o trabalho já salvo.','red');return;}row.dreamWork=rows[index].dreamWork;}if(rows[index].reflectionWork)row.reflectionWork=rows[index].reflectionWork;rows[index]=row;}
    if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;render();notify('Registro pessoal salvo.');}return;
   }
   if(name==='ecoSelfDelete'){if(!ecoSelfAllowLeave()||!window.confirm('Excluir este registro pessoal? A exclusão não remove cópias já exportadas.'))return;const rows=ecoSelfData.entries.filter(x=>x.id!==id);if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;render();}return;}
@@ -5905,5 +5905,95 @@ act=function(name,id,button){
 };
 const ecoDreamWorkPreviousUnlock=window.nativeSemanticUnlocked;
 window.nativeSemanticUnlocked=function(){ecoDreamWorkStop(true);ecoDreamWorkPreviousUnlock();};
+
+
+/* All nine personal axes: record-specific work, Horney's systematic self-examination,
+   author-specific prompts, personal synthesis and follow-up. No patient input. */
+const ecoPersonalFields=[
+ ['association','Associação livre: o que surge ao reler o trecho?'],
+ ['affect','Afetos e contexto: o que senti, percebi e fiz?'],
+ ['pattern','Padrões, conflitos ou necessidades que reconheço'],
+ ['alternative','Outra leitura possível e evidência contrária'],
+ ['insight','Minha compreensão provisória'],
+ ['action','Próxima questão ou ação pequena e observável'],
+ ['followup','Retomada: o que ocorreu depois?']
+];
+const ecoPersonalAxis={
+ livre:['Associação livre','Freud (1913); Horney (1942)','Que associações surgem a partir deste trecho? O que muda quando retomo o assunto?'],
+ afetos:['Afetos','Fonagy et al. (2002)','Que afeto reconheço? Qual a diferença entre o que ocorreu, o que senti e o que interpretei?'],
+ repeticao:['Repetição','Horney (1942); Freud (1914)','Onde reconheço situações semelhantes? Quais exceções contrariam essa leitura?'],
+ vinculos:['Vínculos','Fonagy et al. (2002); Horney (1942)','Que expectativas e necessidades reconheço? O que realmente foi comunicado?'],
+ ambivalencia:['Ambivalência','Klein (1946)','Quais afetos coexistem? Que aspectos bons e difíceis consigo reconhecer sem me rotular?'],
+ autenticidade:['Autenticidade','Winnicott (1960)','Em que momento fui espontâneo? Quando me adaptei e como vivi essa escolha?'],
+ sonhos:['Sonhos','Freud (1900); Hill (2004)','Que associação pessoal faço às imagens? O que relaciono à vida desperta? Use também o trabalho específico de sonhos.'],
+ mentalizacao:['Mentalização','Fonagy et al. (2002)','O que sei, sinto e suponho? Que outra explicação poderia existir?'],
+ integracao:['Integração','Horney (1942); Freud (1914)','O que compreendi provisoriamente? O que permaneceu em aberto e como posso retomar?']
+};
+let ecoPersonalRun=null;
+function ecoPersonalBlank(row){return {source:row.reflection,focus:row.reflection.slice(0,1800),association:'',affect:'',pattern:'',alternative:'',insight:'',action:'',followup:''};}
+function ecoPersonalValue(row){return row.reflectionWork?JSON.parse(JSON.stringify(row.reflectionWork)):ecoPersonalBlank(row);}
+function ecoPersonalWorkPanel(rows){
+ const ordered=rows.slice().sort((a,b)=>b.date.localeCompare(a.date));
+ const options=ordered.map(x=>'<option value="'+esc(x.id)+'">'+esc(formatDate(x.date)+' · '+(ecoPersonalAxis[x.topic]?.[0]||x.topic)+' · '+x.reflection.replace(/\s+/g,' ').slice(0,70)+(x.reflectionWork?' · analisado':''))+'</option>').join('');
+ return '<section class="card" id="ecoPersonalPanel"><h2>Autoanálise sistemática · todos os eixos</h2><p>'+rows.length+' registros pessoais · '+rows.filter(x=>x.reflectionWork).length+' com análise salva. Escolha qualquer registro, explore associações e compare com outro. Base: Karen Horney, Autoanálise (1942), e a teoria específica do eixo.</p>'+(rows.length?'<div class="field"><label for="ecoPersonalA">Registro principal</label><select id="ecoPersonalA">'+options+'</select></div><div class="field"><label for="ecoPersonalB">Registro para comparar (opcional)</label><select id="ecoPersonalB"><option value="">Sem comparação</option>'+options+'</select></div>'+btn('Analisar registro','ecoPersonalWorkStart','')+'<div id="ecoPersonalArea">'+(ecoPersonalRun?ecoPersonalMarkup(ecoPersonalRun):'')+'</div>':'<p>Crie um registro pessoal abaixo para iniciar.</p>')+'</section>';
+}
+function ecoPersonalMarkup(r){
+ const a=r.a,b=r.b,w=ecoPersonalValue(a),axis=ecoPersonalAxis[a.topic]||ecoPersonalAxis.integracao;
+ const evidence=ecoSelfReviewCompare({...a,context:'',next:''},b?{...b,context:'',next:''}:null);
+ const excerpt=(row,word)=>row.reflection.split(/(?<=[.!?…])\s+|\n+/u).find(p=>ecoSelfReviewWords(p).some(t=>t.key===ecoFoldText(word)))||row.reflection;
+ let out='<h3>'+esc(axis[0])+' · '+esc(axis[1])+'</h3><p>'+esc(axis[2])+'</p><details class="eco-help-topic" open><summary>Relato original · '+esc(formatDate(a.date))+'</summary><p style="white-space:pre-wrap">'+esc(a.reflection)+'</p><p>'+esc(a.context)+'</p></details>';
+ if(b)out+='<details class="eco-help-topic" open><summary>Registro comparado · '+esc(formatDate(b.date))+'</summary><p>'+esc(b.reflection)+'</p></details><h4>Recorrências textuais</h4>'+(evidence.shared.length?evidence.shared.map(x=>'<div class="eco-evidence"><strong>'+esc(x.word)+'</strong><p>A: '+esc(excerpt(a,x.word))+'</p><p>B: '+esc(excerpt(b,x.word))+'</p></div>').join(''):'<p>Não foram localizadas correspondências lexicais relevantes.</p>')+'<p>Compare também diferenças, contextos e exceções. As palavras em comum não demonstram um conflito psíquico.</p>';
+ if(w.source!==a.reflection)out+='<div class="alert">O relato mudou desde o último trabalho. Revise a análise e selecione um trecho do relato atual antes de salvar.<details><summary>Relato anterior</summary><p>'+esc(w.source)+'</p></details></div>';
+ out+=ecoSelfField('ecoPersonalFocus','Trecho literal que quero explorar (até 1.800 caracteres)',a.reflection.includes(w.focus)?w.focus:a.reflection.slice(0,1800),1800);
+ out+='<section class="eco-evidence"><h3>Perguntas personalizadas · Qwen offline</h3><p>Usa somente o trecho selecionado, sem consultar prontuários. As perguntas são sugestões, não interpretações conclusivas.</p><div id="ecoPersonalAi">'+ecoPersonalAiMarkup(r)+'</div></section>';
+ out+=ecoPersonalFields.map(([key,label])=>ecoSelfField('ecoPersonal_'+key,label,w[key],4000)).join('')+btn('Salvar minha autoanálise','ecoPersonalWorkSave','')+'<p class="small">Seu relato original permanece intacto. As respostas e a revisão ficam vinculadas ao registro pessoal.</p>';
+ return out;
+}
+function ecoPersonalAiMarkup(r){return r.pending?'<p id="ecoPersonalStage">'+esc(r.stage||'Gerando perguntas…')+'</p>'+btn('Cancelar','ecoPersonalCancel','ghost'):btn('Gerar perguntas individualizadas','ecoPersonalNeural','secondary')+(r.error?'<p class="alert red">'+esc(r.error)+'</p>':'')+(r.questions||[]).map(x=>'<p>'+esc(x)+'</p>').join('');}
+function ecoPersonalCapture(){
+ if(!ecoPersonalRun||!document.getElementById('ecoPersonalFocus'))return null;
+ return {source:ecoPersonalRun.a.reflection,focus:document.getElementById('ecoPersonalFocus').value,...Object.fromEntries(ecoPersonalFields.map(([k])=>[k,document.getElementById('ecoPersonal_'+k)?.value||'']))};
+}
+function ecoPersonalDirty(){const w=ecoPersonalCapture(),r=ecoPersonalRun;if(!w||!r)return false;const base=ecoPersonalValue(r.a);return JSON.stringify({...w,source:base.source})!==JSON.stringify(base);}
+function ecoPersonalAllowLeave(){return !ecoPersonalDirty()||window.confirm('Há uma autoanálise não salva. Descartar alterações?');}
+function ecoPersonalAiRefresh(){const el=document.getElementById('ecoPersonalAi');if(el&&ecoPersonalRun)el.innerHTML=ecoPersonalAiMarkup(ecoPersonalRun);}
+function ecoPersonalStop(clear=false){const r=ecoPersonalRun;if(r?.pending){try{window.NativeVault.cancelSemantic?.(r.id);}catch(e){}r.pending=false;r.error='Geração cancelada.';}if(clear)ecoPersonalRun=null;else ecoPersonalAiRefresh();}
+function ecoPersonalOpen(a,b){ecoPersonalStop(true);ecoPersonalRun={a,b,questions:[],pending:false};const el=document.getElementById('ecoPersonalArea');if(el){el.innerHTML=ecoPersonalMarkup(ecoPersonalRun);el.scrollIntoView?.({block:'start'});}}
+const ecoPersonalPriorProgress=window.nativeSemanticProgress,ecoPersonalPriorResult=window.nativeSemanticResult;
+window.nativeSemanticProgress=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('selfreflect-'))return ecoPersonalPriorProgress(raw);const r=ecoPersonalRun;if(screen!=='selfAnalysis'||!r?.pending||r.id!==v.id)return;r.stage=String(v.stage||'Inferência local');const el=document.getElementById('ecoPersonalStage');if(el)el.textContent=r.stage;};
+window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){return;}if(!String(v.id||'').startsWith('selfreflect-'))return ecoPersonalPriorResult(raw);const r=ecoPersonalRun;if(screen!=='selfAnalysis'||!r?.pending||r.id!==v.id)return;r.pending=false;r.questions=ecoDreamWorkQuestionGate(v.draft,r.sources||[]);r.error=v.error||(!r.questions.length?'O modelo não produziu perguntas abertas suficientemente ligadas ao trecho. Use as questões fundamentadas do eixo.':'');ecoPersonalAiRefresh();};
+const ecoPersonalPriorAct=act;
+act=function(name,id,button){
+ if(screen==='selfAnalysis'){
+  if(name==='ecoPersonalWorkStart'||name==='ecoPersonalWorkOpen'){
+   if(!ecoPersonalAllowLeave()||!ecoDreamWorkAllowLeave())return;
+   const rows=ecoSelfData?.entries||[],a=rows.find(x=>x.id===(name==='ecoPersonalWorkOpen'?id:document.getElementById('ecoPersonalA')?.value)),bid=name==='ecoPersonalWorkStart'?document.getElementById('ecoPersonalB')?.value:'',b=rows.find(x=>x.id===bid);
+   if(!a||(bid&&(!b||a.id===b.id))){notify('Selecione registros diferentes.','red');return;}
+   ecoDreamWorkStop(true);const old=document.getElementById('ecoDreamWorkArea');if(old)old.innerHTML='<p>Selecione um sonho para trabalhar.</p>';ecoPersonalOpen(a,b);return;
+  }
+  if(name==='ecoPersonalWorkSave'){
+   const r=ecoPersonalRun,w=ecoPersonalCapture();if(!r||!w)return;
+   const row=ecoSelfData?.entries?.find(x=>x.id===r.a.id);
+   if(!row||row.reflection!==r.a.reflection||!w.focus.trim()||!row.reflection.includes(w.focus)){notify('Selecione um trecho literal do registro atual.','red');return;}
+   if(row.reflectionWork&&row.reflectionWork.source!==row.reflection&&!window.confirm('Vincular a revisão ao relato atualizado?'))return;
+   if(!ecoSelfWrite(ecoSelfData.entries.map(x=>x.id===row.id?{...x,reflectionWork:w}:x)))return;
+   r.a=ecoSelfData.entries.find(x=>x.id===row.id);const el=document.getElementById('ecoPersonalArea');if(el){el.innerHTML=ecoPersonalMarkup(r);const msg=document.createElement('p');msg.className='alert good';msg.textContent='Autoanálise salva; relato original preservado.';el.prepend(msg);}return;
+  }
+  if(name==='ecoPersonalNeural'){
+   const r=ecoPersonalRun,w=ecoPersonalCapture();if(!r||!w||r.pending)return;
+   if(!w.focus.trim()||w.focus.length>1800||!r.a.reflection.includes(w.focus)||ecoPerspectiveAdversarial(w.focus)){r.error='Selecione um trecho literal, sem instruções para o motor.';ecoPersonalAiRefresh();return;}
+   r.id='selfreflect-'+uid();r.pending=true;r.questions=[];r.error='';r.sources=[w.focus];r.stage='Carregando Qwen…';
+   try{const result=window.NativeVault.analyzeSemantic(JSON.stringify({id:r.id,mode:'generate',profile:'selfReflect',query:(ecoPersonalAxis[r.a.topic]||ecoPersonalAxis.integracao)[2],sources:[{text:w.focus}]}));if(result!=='OK'){r.pending=false;r.error=String(result||'Motor indisponível');}}catch(e){r.pending=false;r.error='Motor indisponível.';}
+   ecoPersonalAiRefresh();return;
+  }
+  if(name==='ecoPersonalCancel'){ecoPersonalStop();return;}
+  if(ecoPersonalRun&&['nav','openCase','newCase','ecoSelfReload','ecoSelfTopic','ecoSelfNew','ecoSelfEdit','ecoSelfSave','ecoSelfDelete','ecoSelfFilter','ecoSelfReviewNext','ecoDreamWorkStart','ecoDreamWorkOpen','toggleTheme'].includes(name)){
+   if(!ecoPersonalAllowLeave())return;ecoPersonalStop(true);const el=document.getElementById('ecoPersonalArea');if(el)el.innerHTML='';
+  }
+ }
+ return ecoPersonalPriorAct(name,id,button);
+};
+const ecoPersonalPriorUnlock=window.nativeSemanticUnlocked;
+window.nativeSemanticUnlocked=function(){ecoPersonalStop(true);ecoPersonalPriorUnlock();};
 
 </script></body></html>

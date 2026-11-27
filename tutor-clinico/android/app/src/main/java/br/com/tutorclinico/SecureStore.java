@@ -936,7 +936,7 @@ final class SecureStore {
         requireNoPendingAudio(db);
         for(VaultTable t:VAULT_TABLES){
             if(t.table.equals("configuracoes")){
-                if(any(db,t.table,"chave<>'db_migrated' AND chave<>'app_state_meta'"))
+                if(any(db,t.table,"chave<>'db_migrated' AND chave<>'app_state_meta' AND chave<>'self_analysis_v1'"))
                     throw new SecurityException("Cofre contém rascunhos ou configurações existentes");
                 try(Cursor c=db.query(t.table,new String[]{smallBlob("valor_enc")},"chave='app_state_meta'",null,null,null,null)){
                     if(c.moveToFirst()){
@@ -1046,7 +1046,11 @@ final class SecureStore {
                     }
                     if(t.table.equals("processamento_jobs")&&!"".equals(values.getAsString("audio_path")))throw new SecurityException("Caminho de áudio não portátil");
                     validatePortableRow(db,t,values,clear,diary);
-                    db.insertOrThrow(t.table,null,values);
+                    if(t.table.equals("configuracoes")&&SELF_ANALYSIS_KEY.equals(values.getAsString("chave"))){
+                        JSONObject merged=mergeSelfAnalysis(readSelfAnalysisRaw(db),clear);
+                        values.put(t.encrypted,encryptRecord(merged.toString()));
+                        if(db.update(t.table,values,"chave=?",new String[]{SELF_ANALYSIS_KEY})==0)db.insertOrThrow(t.table,null,values);
+                    }else db.insertOrThrow(t.table,null,values);
                     count=Math.addExact(count,1);
                 }
             }
@@ -1205,9 +1209,16 @@ final class SecureStore {
         for(int i=0;i<entries.length();i++){
             JSONObject entry=entries.getJSONObject(i);
             String id=entry.getString("id"),date=entry.getString("date"),topic=entry.getString("topic");
-            if((entry.length()!=6&&!(entry.length()==7&&entry.has("dreamWork")))||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
+            if((entry.length()!=6+(entry.has("dreamWork")?1:0)+(entry.has("reflectionWork")?1:0))||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
             java.time.LocalDate.parse(date);
             if(!(entry.opt("context") instanceof String)||!(entry.opt("reflection") instanceof String)||!(entry.opt("next") instanceof String)||entry.getString("context").length()>4000||entry.getString("reflection").length()>12000||entry.getString("next").length()>4000)throw new IllegalArgumentException("Texto pessoal inválido");
+            if(entry.has("reflectionWork")){
+                JSONObject work=entry.getJSONObject("reflectionWork");
+                if(work.length()!=9)throw new IllegalArgumentException("Trabalho pessoal inválido");
+                for(String field:new String[]{"source","focus","association","affect","pattern","alternative","insight","action","followup"}){
+                    if(!(work.opt(field) instanceof String)||work.getString(field).length()>("source".equals(field)?12000:"focus".equals(field)?1800:4000))throw new IllegalArgumentException("Campo pessoal inválido");
+                }
+            }
             if(entry.has("dreamWork")){
                 if(!"sonhos".equals(topic))throw new IllegalArgumentException("Trabalho de sonho fora do eixo");
                 JSONObject work=entry.getJSONObject("dreamWork");
@@ -1224,6 +1235,18 @@ final class SecureStore {
             }
         }
         return value;
+    }
+    private static JSONObject mergeSelfAnalysis(String local,String incoming)throws Exception{
+        JSONObject result=validateSelfAnalysis(local),other=validateSelfAnalysis(incoming);
+        JSONArray rows=result.getJSONArray("entries"),next=other.getJSONArray("entries");
+        java.util.Map<String,JSONObject> seen=new java.util.HashMap<>();
+        for(int i=0;i<rows.length();i++)seen.put(rows.getJSONObject(i).getString("id"),rows.getJSONObject(i));
+        for(int i=0;i<next.length();i++){
+            JSONObject row=next.getJSONObject(i),prior=seen.get(row.getString("id"));
+            if(prior!=null){if(!prior.toString().equals(row.toString()))throw new SecurityException("Conflito entre registros pessoais; nenhum dado foi alterado.");}
+            else{rows.put(row);seen.put(row.getString("id"),row);}
+        }
+        return validateSelfAnalysis(result.toString());
     }
     private String readSelfAnalysisRaw(SQLiteDatabase db)throws Exception{
         try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{SELF_ANALYSIS_KEY},null,null,null)){

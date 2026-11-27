@@ -789,6 +789,12 @@ public class EcoIntegratedPersistenceTest {
         JSONObject journal=store.readSelfAnalysis();JSONObject dream=new JSONObject().put("id","dream-1").put("date","2026-11-27").put("topic","sonhos").put("context","").put("reflection","SONHO SINTÉTICO").put("next","");
         dream.put("dreamWork",new JSONObject().put("source","SONHO SINTÉTICO").put("title","Título").put("images",new JSONArray().put(new JSONObject().put("element","sonho").put("description","descrição").put("affect","").put("association","associação").put("waking",""))).put("insight","compreensão").put("alternative","").put("action","").put("followup",""));
         journal.getJSONArray("entries").put(dream);String revision=journal.getString("revision");journal.remove("revision");store.saveSelfAnalysis(revision,journal.toString());assertEquals("compreensão",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONObject("dreamWork").getString("insight"));assertFalse(store.read().contains("SONHO SINTÉTICO"));
+        JSONObject withWork=store.readSelfAnalysis();JSONObject work=new JSONObject().put("source","SONHO SINTÉTICO").put("focus","SONHO").put("association","associação").put("affect","").put("pattern","").put("alternative","").put("insight","síntese pessoal").put("action","").put("followup","");
+        withWork.getJSONArray("entries").getJSONObject(1).put("reflectionWork",work);String rev=withWork.getString("revision");withWork.remove("revision");store.saveSelfAnalysis(rev,withWork.toString());
+        assertEquals("síntese pessoal",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONObject("reflectionWork").getString("insight"));
+        // Restore a prior archive without personal data into a personal-only vault; keep both works.
+        store.restoreFullVault(new java.io.ByteArrayInputStream(no.toByteArray()),pass,()->true);
+        assertEquals(2,store.readSelfAnalysis().getJSONArray("entries").length());
         store.getDbHelper().close();
     }
 

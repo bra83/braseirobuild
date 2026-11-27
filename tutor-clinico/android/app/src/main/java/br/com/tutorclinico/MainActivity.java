@@ -896,7 +896,7 @@ public final class MainActivity extends Activity {
                     clearPendingBackup();pendingPassword=password;pendingVaultDiary=export&&diary;
                     Intent intent=new Intent(export?Intent.ACTION_CREATE_DOCUMENT:Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);intent.setType(export?"application/octet-stream":"*/*");
-                    if(export)intent.putExtra(Intent.EXTRA_TITLE,"eco-cofre-integral.ecobkp");
+                    if(export)intent.putExtra(Intent.EXTRA_TITLE,"eco-cofre-integral-"+new java.text.SimpleDateFormat("yyyyMMdd-HHmmss",java.util.Locale.ROOT).format(new java.util.Date())+".ecobkp");
                     try{startActivityForResult(intent,export?VAULT_EXPORT_CODE:VAULT_IMPORT_CODE);}
                     catch(Exception e){clearPendingBackup();showToast("Seletor de arquivos indisponível.");}
                 });
@@ -1035,17 +1035,22 @@ public final class MainActivity extends Activity {
         input.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Abrir backup selecionado")
             .setMessage("Digite a senha original do backup, não o PIN. Deixe em branco apenas para JSON sem criptografia. O ECO detecta o formato automaticamente. O cofre integral exige destino vazio; backups antigos são mesclados sem sobrescrever.")
-            .setView(input).setNegativeButton("Cancelar",null).setPositiveButton("Verificar e importar",null).create();
-        dialog.setOnShowListener(d->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
-            if(!backupImportIdle()||accessEpoch!=epoch||!foreground){dialog.dismiss();showToast("Importação interrompida. Selecione novamente.");return;}
-            char[] password=input.getText().toString().toCharArray();input.setText("");dialog.dismiss();runSelectedBackupImport(uri,password,epoch);
-        }));
+            .setView(input).setNegativeButton("Cancelar",null).setNeutralButton("Só verificar",null).setPositiveButton("Verificar e importar",null).create();
+        dialog.setOnShowListener(d->{
+            for(int which:new int[]{AlertDialog.BUTTON_POSITIVE,AlertDialog.BUTTON_NEUTRAL}){
+                dialog.getButton(which).setOnClickListener(v->{
+                    if(!backupImportIdle()||accessEpoch!=epoch||!foreground){dialog.dismiss();showToast("Importação interrompida. Selecione novamente.");return;}
+                    char[] password=input.getText().toString().toCharArray();input.setText("");dialog.dismiss();runSelectedBackupImport(uri,password,epoch,which==AlertDialog.BUTTON_NEUTRAL);
+                });
+            }
+        });
         dialog.setOnDismissListener(d->input.setText(""));dialog.show();
     }
     private static String backupImportFailure(Exception e){
         if(e instanceof java.util.concurrent.CancellationException)return "Importação cancelada ou interrompida pelo bloqueio do ECO.";
         String message=e.getMessage();
         if(message!=null){
+            if(message.contains("Conflito entre registros pessoais"))return "O arquivo contém uma versão divergente de um registro pessoal. Nenhum dado foi substituído. Preserve ambos os backups.";
             if(message.contains("cofre vazio")||message.contains("Cofre contém"))return "O cofre atual contém registros ou rascunhos. O backup integral exige um destino vazio. Não apague os dados atuais.";
             if(message.contains("senha")||message.contains("Senha"))return "Confira a senha original do backup. O arquivo também pode estar incompleto ou corrompido.";
             if(message.contains("grande demais"))return "Backup JSON acima do limite de 50 MB. A importação deste formato não foi concluída.";
@@ -1054,13 +1059,13 @@ public final class MainActivity extends Activity {
         }
         return "Não foi possível validar o backup. Verifique a integridade do arquivo e a compatibilidade com o ECO.";
     }
-    private void runSelectedBackupImport(Uri uri,char[] password,long epoch){
+    private void runSelectedBackupImport(Uri uri,char[] password,long epoch,boolean verifyOnly){
         if(!archiveBusy.compareAndSet(false,true)){java.util.Arrays.fill(password,(char)0);showToast("Operação em andamento.");return;}
         final java.util.concurrent.atomic.AtomicBoolean cancel=new java.util.concurrent.atomic.AtomicBoolean(false);archiveCancel=cancel;
         final AlertDialog progress=new AlertDialog.Builder(this).setTitle("Verificando backup").setMessage("Identificando formato e autenticando o arquivo. Nenhum registro existente será sobrescrito.").setCancelable(false).setNegativeButton("Cancelar",null).create();
         progress.show();progress.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v->{cancel.set(true);v.setEnabled(false);progress.setMessage("Cancelando…");});
         new Thread(()->{
-            String content=null,message=null;boolean restored=false;int count=0;
+            String content=null,message=null;boolean restored=false,verified=false;int count=0;
             java.util.function.BooleanSupplier active=()->unlocked&&accessEpoch==epoch&&!cancel.get()&&!Thread.currentThread().isInterrupted();
             try{
                 EcoBackupImportFormat.Kind kind;
@@ -1069,8 +1074,28 @@ public final class MainActivity extends Activity {
                     kind=EcoBackupImportFormat.detect(in,password);
                 }
                 if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
-                if(kind==EcoBackupImportFormat.Kind.ATTACHMENTS)throw new java.io.IOException("Arquivo de anexos");
-                if(kind==EcoBackupImportFormat.Kind.INTEGRAL){
+                if(verifyOnly){
+                    try(InputStream in=getContentResolver().openInputStream(uri)){
+                        if(in==null)throw new java.io.IOException("Arquivo indisponível");
+                        if(kind==EcoBackupImportFormat.Kind.LEGACY_JSON){
+                            byte[] bytes=readLimited(in,50_000_000);
+                            try{
+                                String text=SecureStore.decryptBackup(bytes,new String(password)).trim();
+                                if(text.startsWith("["))new JSONArray(text);
+                                else {JSONObject obj=new JSONObject(text);if(obj.optInt("version")!=1||!(obj.opt("cases") instanceof JSONArray))throw new java.io.IOException("Formato não reconhecido");}
+                            }finally{java.util.Arrays.fill(bytes,(byte)0);}
+                        }else{
+                            try(EcoBackupStream.Reader reader=new EcoBackupStream.Reader(in,password,8L*1024*1024*1024)){
+                                byte[] buffer=new byte[EcoBackupStream.FRAME_BYTES];
+                                try{while(reader.read(buffer)!=-1){if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();}}
+                                finally{java.util.Arrays.fill(buffer,(byte)0);}
+                            }
+                        }
+                    }
+                    if(!active.getAsBoolean())throw new java.util.concurrent.CancellationException();
+                    verified=true;
+                }else if(kind==EcoBackupImportFormat.Kind.ATTACHMENTS)throw new java.io.IOException("Arquivo de anexos");
+                else if(kind==EcoBackupImportFormat.Kind.INTEGRAL){
                     main.post(()->{if(!isFinishing()&&!isDestroyed())progress.setMessage("Restaurando cofre integral em transação segura…");});
                     try(InputStream in=getContentResolver().openInputStream(uri)){
                         if(in==null)throw new java.io.IOException("Arquivo indisponível");
@@ -1092,13 +1117,14 @@ public final class MainActivity extends Activity {
                 else if("Modo paginado".equals(e.getMessage()))message="O volume do cofre atual exige acesso paginado; a mesclagem JSON não está disponível neste modo.";
                 else message=backupImportFailure(e);
             }finally{java.util.Arrays.fill(password,(char)0);archiveCancel=null;}
-            final String decoded=content,notice=message;final boolean done=restored;final int restoredCount=count;
+            final String decoded=content,notice=message;final boolean done=restored,checked=verified;final int restoredCount=count;
             main.post(()->{
                 archiveBusy.set(false);
                 if(isDestroyed()||isFinishing())return;
                 progress.dismiss();
                 if(done){initialUnlockDone=false;requestUnlock();AgendaReminderReceiver.refresh(this);showToast("Cofre restaurado: "+restoredCount+" registros. Desbloqueie o ECO.");return;}
                 if(!unlocked||accessEpoch!=epoch)return;
+                if(checked){new AlertDialog.Builder(this).setTitle("Verificação concluída").setMessage("Arquivo lido até o final; senha e autenticação conferidas quando cifrado. Nenhum registro foi alterado. Esta verificação não substitui um teste de restauração.").setPositiveButton("OK",null).show();return;}
                 if(notice!=null){new AlertDialog.Builder(this).setTitle("Importação não concluída").setMessage(notice+" Os dados atuais foram preservados.").setPositiveButton("OK",null).show();return;}
                 if(decoded!=null&&!cancel.get())web.evaluateJavascript("window.nativeImportResult("+JSONObject.quote(decoded)+")",null);
             });

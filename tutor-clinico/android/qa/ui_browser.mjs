@@ -353,8 +353,8 @@ try{
  // Personal module uses only dedicated bridge, never case state.
  await page.evaluate(()=>{let record={version:1,entries:[],revision:'rev0'};window.NativeVault.readSelfAnalysis=()=>JSON.stringify(record);window.NativeVault.saveSelfAnalysis=(revision,raw)=>{if(revision!==record.revision)return 'CONFLICT';record={...JSON.parse(raw),revision:'rev'+Date.now()};return 'OK';};act('nav','home');});
  await page.locator('[data-act="nav"][data-id="selfAnalysis"]').click();
- assert.equal(await page.locator('[data-act="ecoSelfTopic"]').count(),9);
- await page.locator('[data-act="ecoSelfTopic"][data-id="sonhos"]').click();
+ assert.equal(await page.locator('.eco-self-topics [data-act="ecoSelfTopic"]').count(),9);
+ await page.locator('.eco-self-topics [data-act="ecoSelfTopic"][data-id="sonhos"]').click();
  await page.locator('#ecoSelfReflection').fill('REGISTRO PESSOAL FICTÍCIO');
  await page.locator('[data-act="ecoSelfSave"]').click();
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries.length),1);
@@ -371,6 +371,12 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].reflection),'REGISTRO PESSOAL FICTÍCIO');
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('COMPREENSÃO PESSOAL SINTÉTICA')));
+ await page.locator('[data-act="ecoPersonalWorkStart"]').click();
+ await page.locator('#ecoPersonal_insight').fill('SÍNTESE PESSOAL FICTÍCIA');
+ await page.locator('[data-act="ecoPersonalWorkSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].reflectionWork.insight),'SÍNTESE PESSOAL FICTÍCIA');
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
+ assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('SÍNTESE PESSOAL FICTÍCIA')));
  await page.screenshot({path:path.join(out,'autoanalise.png')});
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
