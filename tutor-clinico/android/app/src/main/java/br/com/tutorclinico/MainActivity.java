@@ -781,6 +781,14 @@ public final class MainActivity extends Activity {
             if(!unlocked)return "Bloqueado";
             try{store.saveClinicalDraft(caseId,kind,json);return "OK";}catch(Exception e){return "Falha ao gravar rascunho clínico";}
         }
+        @JavascriptInterface public String readSelfAnalysis(){
+            if(!unlocked||archiveBusy.get())return "{\"__loadError\":\"Registro pessoal indisponível\"}";
+            try{return store.readSelfAnalysis().toString();}catch(Exception e){return "{\"__loadError\":\"Não foi possível abrir o registro pessoal\"}";}
+        }
+        @JavascriptInterface public String saveSelfAnalysis(String revision,String json){
+            if(!unlocked||archiveBusy.get()||automaticCheckpointRunning.get())return "Registro pessoal indisponível; tente novamente.";
+            try{store.saveSelfAnalysis(revision,json);return "OK";}catch(Exception e){return "Não foi possível salvar. Confira o limite ou recarregue; registros anteriores preservados.";}
+        }
         @JavascriptInterface public String loadClinicalDraft(String caseId,String kind) {
             if(!unlocked)return "{\"__loadError\":\"Bloqueado\"}";
             try{return store.readClinicalDraft(caseId,kind);}catch(Exception e){return "{\"__loadError\":\"Rascunho clínico indisponível\"}";}
@@ -1007,7 +1015,7 @@ public final class MainActivity extends Activity {
     private void selectBackupImport(){
         if(!backupImportIdle()){showToast("Finalize o atendimento ou processamento antes de importar.");return;}
         if(backupPickerPending||pendingBackupUri!=null)return;
-        reauthenticate("Importar backup ECO",()->{
+        reauthenticate("Importar backup clínico",()->{
             if(!backupImportIdle())return;
             clearPendingBackup();
             Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");

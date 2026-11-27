@@ -764,4 +764,29 @@ public class EcoIntegratedPersistenceTest {
         assertFalse(NeuralVoiceSeparator.usableInput(new byte[3199]));
     }
 
+
+    @Test public void personalJournalIsIsolatedAndOnlyIncludedInOptInIntegralBackup()throws Exception{
+        Context context=RuntimeEnvironment.getApplication();
+        SecretKeySpec key=new SecretKeySpec(new byte[32],"AES");
+        SecureStore store=new SecureStore(context,key);
+        JSONObject initial=store.readSelfAnalysis();
+        JSONObject entry=new JSONObject().put("id","personal-1").put("date","2026-11-27").put("topic","livre").put("context","").put("reflection","PERSONAL_SYNTHETIC_0193").put("next","");
+        String raw=new JSONObject().put("version",1).put("entries",new JSONArray().put(entry)).toString();
+        store.saveSelfAnalysis(initial.getString("revision"),raw);
+        try{store.saveSelfAnalysis(initial.getString("revision"),raw);fail("stale revision");}catch(SecurityException expected){}
+        assertFalse(store.read().contains("PERSONAL_SYNTHETIC_0193"));
+        assertFalse(store.exportPortableSnapshot(true).toString().contains("PERSONAL_SYNTHETIC_0193"));
+        char[] pass="personal-test-password".toCharArray();
+        java.io.ByteArrayOutputStream no=new java.io.ByteArrayOutputStream(),yes=new java.io.ByteArrayOutputStream();
+        store.exportFullVault(no,pass,false,()->true);
+        store.exportFullVault(yes,pass,true,()->true);
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        store=new SecureStore(context,key);store.restoreFullVault(new java.io.ByteArrayInputStream(no.toByteArray()),pass,()->true);
+        assertEquals(0,store.readSelfAnalysis().getJSONArray("entries").length());
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        store=new SecureStore(context,key);store.restoreFullVault(new java.io.ByteArrayInputStream(yes.toByteArray()),pass,()->true);
+        assertEquals("PERSONAL_SYNTHETIC_0193",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(0).getString("reflection"));
+        store.getDbHelper().close();
+    }
+
 }

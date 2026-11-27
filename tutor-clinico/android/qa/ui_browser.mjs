@@ -350,6 +350,18 @@ try{
  assert.equal(await page.evaluate(()=>screen),'case');assert.equal(await page.evaluate(()=>tab),'perspectivas');assert.equal(await page.evaluate(()=>openedId),'browser-b');
  await page.evaluate(()=>act('nav','home'));await page.locator('.eco-help-entry').click();
  await page.screenshot({path:path.join(out,'central-ajuda.png'),fullPage:false});
+ // Personal module uses only dedicated bridge, never case state.
+ await page.evaluate(()=>{let record={version:1,entries:[],revision:'rev0'};window.NativeVault.readSelfAnalysis=()=>JSON.stringify(record);window.NativeVault.saveSelfAnalysis=(revision,raw)=>{if(revision!==record.revision)return 'CONFLICT';record={...JSON.parse(raw),revision:'rev'+Date.now()};return 'OK';};act('nav','home');});
+ await page.locator('[data-act="nav"][data-id="selfAnalysis"]').click();
+ assert.equal(await page.locator('[data-act="ecoSelfTopic"]').count(),9);
+ await page.locator('[data-act="ecoSelfTopic"][data-id="sonhos"]').click();
+ await page.locator('#ecoSelfReflection').fill('REGISTRO PESSOAL FICTÍCIO');
+ await page.locator('[data-act="ecoSelfSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries.length),1);
+ assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('REGISTRO PESSOAL FICTÍCIO')));
+ await page.evaluate(()=>{act('nav','home');act('nav','selfAnalysis');});
+ assert.match(await page.locator('#app').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
+ await page.screenshot({path:path.join(out,'autoanalise.png')});
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
  const routes=await page.evaluate(()=>({home:ecoHomeModules.map(x=>[x[0],x[4]]),case:["sintese","atendimento","fichaEvolutiva","sessoes","assistenteIA","perspectivas","compararRelatos","revisaoInteligente","analisar","anamnese","enquadre","investigar","tecnicas","sonhos","genograma","rede","cronologia","documentos","diario","seguranca"]}));
@@ -375,6 +387,7 @@ try{
   for(const theme of ['light','dark']){
    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.locator('#themeToggle').click();
    await page.evaluate(()=>act('nav','help'));await measure(width+'x'+height+'/'+theme+'/help');
+   await page.evaluate(()=>act('nav','selfAnalysis'));await measure(width+'x'+height+'/'+theme+'/selfAnalysis');
    for(const [id,route] of routes.home){
     await page.evaluate(()=>act('nav','home'));await tile(id).click();
     if(route==='case'||route==='manual')await page.locator('.eco-home-pick [data-id="browser-b"]').click();

@@ -854,13 +854,13 @@ final class SecureStore {
         new VaultTable("agenda","payload_enc",null,"id","id,case_id,data,hora,created_at,payload_enc","id"),
         new VaultTable("rascunhos","draft_enc",null,"case_id","case_id,session_id,updated_at,draft_enc","case_id"),
         new VaultTable("diario_privado","entry_enc",null,"id","id,case_id,data,categoria,created_at,entry_enc","id"),
-        new VaultTable("configuracoes","valor_enc","chave='app_state_meta' OR chave GLOB 'form_draft:*' OR chave GLOB 'editor_draft:*' OR chave GLOB 'clinical_draft:*' OR chave GLOB 'asr:*'","chave","chave,valor_enc,updated_at","chave"),
+        new VaultTable("configuracoes","valor_enc","chave='app_state_meta' OR chave GLOB 'form_draft:*' OR chave GLOB 'editor_draft:*' OR chave GLOB 'clinical_draft:*' OR chave GLOB 'asr:*' OR chave='self_analysis_v1'","chave","chave,valor_enc,updated_at","chave"),
         new VaultTable("eco_revisions","payload_enc",null,"seq","seq,kind,case_id,entity_id,captured_at,payload_enc","seq"),
         new VaultTable("eco_attachments","meta_enc",null,"id","id,case_id,meta_enc,created_at","id"),
         new VaultTable("eco_attachment_chunks","data_enc",null,"id,part","id,part,data_enc","id,part")
     };
     private static boolean portableConfig(String key,boolean diary){
-        return "app_state_meta".equals(key)||key.startsWith("form_draft:")||
+        return (diary&&"self_analysis_v1".equals(key))||"app_state_meta".equals(key)||key.startsWith("form_draft:")||
             key.equals("editor_draft:wizard")||key.equals("editor_draft:appointment")||
             (key.startsWith("clinical_draft:")&&(diary||!key.startsWith("clinical_draft:res_diary:")))||
             key.startsWith("asr:");
@@ -993,6 +993,8 @@ final class SecureStore {
                     JSONObject data=new JSONObject(clear);
                     if(data.has("cases")||data.has("appointments")||data.has("attachmentBundle")||data.has("nativeRecoveryBundle"))
                         throw new SecurityException("Metadados de raiz inválidos");
+                }else if(key.equals("self_analysis_v1")){
+                    validateSelfAnalysis(clear);
                 }else if(key.startsWith("form_draft:")){
                     JSONObject data=new JSONObject(clear);String id=data.getString("caseId");
                     if(!key.equals("form_draft:"+id)||!caseExists(db,id)||!(data.opt("session") instanceof JSONObject))
@@ -1188,6 +1190,47 @@ final class SecureStore {
             ContentValues cv=new ContentValues();cv.put("chave",key);cv.put("valor_enc",encryptRecord(json));
             cv.put("updated_at",System.currentTimeMillis());
             if(db.update("configuracoes",cv,"chave=?",new String[]{key})==0)db.insertOrThrow("configuracoes",null,cv);
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+    private static final String SELF_ANALYSIS_KEY="self_analysis_v1";
+    private static final String EMPTY_SELF="{\"version\":1,\"entries\":[]}";
+    private static JSONObject validateSelfAnalysis(String raw)throws Exception{
+        if(raw==null||raw.length()>2_000_000)throw new IllegalArgumentException("Limite pessoal atingido.");
+        JSONObject value=new JSONObject(raw);
+        if(value.optInt("version")!=1||value.length()!=2)throw new IllegalArgumentException("Formato pessoal inválido");
+        JSONArray entries=value.getJSONArray("entries");
+        if(entries.length()>500)throw new IllegalArgumentException("Limite de 500 registros pessoais.");
+        java.util.HashSet<String> ids=new java.util.HashSet<>();
+        for(int i=0;i<entries.length();i++){
+            JSONObject entry=entries.getJSONObject(i);
+            String id=entry.getString("id"),date=entry.getString("date"),topic=entry.getString("topic");
+            if(entry.length()!=6||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
+            java.time.LocalDate.parse(date);
+            if(!(entry.opt("context") instanceof String)||!(entry.opt("reflection") instanceof String)||!(entry.opt("next") instanceof String)||entry.getString("context").length()>4000||entry.getString("reflection").length()>12000||entry.getString("next").length()>4000)throw new IllegalArgumentException("Texto pessoal inválido");
+        }
+        return value;
+    }
+    private String readSelfAnalysisRaw(SQLiteDatabase db)throws Exception{
+        try(Cursor c=db.query("configuracoes",new String[]{smallBlob("valor_enc")},"chave=?",new String[]{SELF_ANALYSIS_KEY},null,null,null)){
+            return c.moveToFirst()?dbHelper.decrypt(readBoundedBlob(db,c,"configuracoes","valor_enc","chave=?",new String[]{SELF_ANALYSIS_KEY})):EMPTY_SELF;
+        }
+    }
+    synchronized JSONObject readSelfAnalysis()throws Exception{
+        String raw=readSelfAnalysisRaw(dbHelper.getReadableDatabase());
+        return validateSelfAnalysis(raw).put("revision",EcoDatabaseHelper.computeChecksum(raw));
+    }
+    synchronized void saveSelfAnalysis(String expected,String raw)throws Exception{
+        JSONObject value=validateSelfAnalysis(raw);
+        SQLiteDatabase db=dbHelper.getWritableDatabase();db.beginTransaction();
+        try{
+            String prior=readSelfAnalysisRaw(db);
+            if(!EcoDatabaseHelper.computeChecksum(prior).equals(expected))throw new SecurityException("Registro pessoal alterado; recarregue.");
+            if(value.getJSONArray("entries").length()==0)db.delete("configuracoes","chave=?",new String[]{SELF_ANALYSIS_KEY});
+            else{
+                ContentValues cv=new ContentValues();cv.put("chave",SELF_ANALYSIS_KEY);cv.put("valor_enc",encryptRecord(raw));cv.put("updated_at",System.currentTimeMillis());
+                if(db.update("configuracoes",cv,"chave=?",new String[]{SELF_ANALYSIS_KEY})==0)db.insertOrThrow("configuracoes",null,cv);
+            }
             db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }
