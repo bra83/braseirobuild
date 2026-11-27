@@ -30,8 +30,8 @@ final class LiveMasterProseGate {
         JSONArray cast=next==null?null:next.optJSONArray("present_npcs");
         if(cast==null&&prior!=null)cast=prior.optJSONArray("present_npcs");
         if(cast==null&&prior!=null)try{cast=new JSONArray(prior.optString("present_npcs_json","[]"));}catch(Exception ignored){}
-        boolean opening=input.contains("abertura da aventura principal importada")||input.contains("início automático");
-        boolean social=input.matches("(?s).*\\b(pergunto|perguntar|converso|conversar|cumprimento|cumprimentar|abordo|falo com|dialogar)\\b.*");
+        boolean opening=LiveMasterAcceptance.isOpening(action);
+        boolean social=FictionTurnIntent.classify(action,prior,"PLAYER_ACTION")==FictionTurnIntent.Kind.CHARACTER_SPEECH;
         if(!speech&&cast!=null&&cast.length()>0&&(opening||social))return "interação com NPC presente sem nenhuma fala direta; encene o interlocutor sem escrever a resposta do herói";
         return "";
     }

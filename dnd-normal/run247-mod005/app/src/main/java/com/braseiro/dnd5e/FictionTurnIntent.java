@@ -57,6 +57,37 @@ public final class FictionTurnIntent {
         return Kind.CHARACTER_ACTION;
     }
 
+    /** Main composer: direct address of a present NPC is dialogue, not observation. */
+    public static Kind classify(String raw,JSONObject scene,String channel){
+        if("GM_HELP".equals(channel))return Kind.RULES_HELP;
+        Kind base=classify(raw);
+        if(base==Kind.RULES_HELP||base==Kind.CHARACTER_SPEECH)return base;
+        String q=fold(raw);
+        if(q.isEmpty())return base;
+        if(starts(q,"perguntar ","pergunta ao ","pergunta a ","pergunto ao ","pergunto a ",
+                "conversar com ","falar com ","cumprimentar ","digo ao ","diga ao "))return Kind.CHARACTER_SPEECH;
+        JSONArray cast=present(scene);
+        if(cast.length()==0)return base;
+        String original=raw==null?"":raw.trim();
+        for(int i=0;i<cast.length();i++){
+            JSONObject n=cast.optJSONObject(i);
+            String name=fold(n==null?cast.optString(i,""):n.optString("name",""));
+            if(name.isEmpty())continue;
+            if(q.startsWith(name+" ")&&(original.regionMatches(true,0,name+",",0,name.length()+1)
+                    || original.contains("?")))return Kind.CHARACTER_SPEECH;
+        }
+        // The player speaking in second person to somebody visible is distinct
+        // from asking what the player can see or asking for a game rule.
+        if(starts(q,"voce e ","voce tem ","voce sabe ","voce viu ","voce conhece ","voce pode ",
+                "voces sao ","voces tem ","voces sabem ","voces viram ","o senhor ","a senhora ",
+                "me diga ","me conte ","quanto custa ","quanto cobra ","qual seu nome","qual e seu nome",
+                "qual o seu nome","e voce o dono","e o senhor o dono","bom dia","boa tarde","boa noite"))
+            return Kind.CHARACTER_SPEECH;
+        if(q.matches("^(ola |ei )?(estalajadeiro|taberneiro|hospedeiro|taverneiro) .+"))
+            return Kind.CHARACTER_SPEECH;
+        return base;
+    }
+
     public static boolean freezesWorld(Kind kind, String raw, JSONObject scene) {
         if(kind==Kind.RULES_HELP||kind==Kind.FICTION_OBSERVATION
                 ||kind==Kind.AMBIGUOUS_REFERENCE)return true;
@@ -121,8 +152,7 @@ public final class FictionTurnIntent {
     public static JSONObject contract(String raw,JSONObject scene,String inputChannel){
         JSONObject result=new JSONObject();
         try{
-            Kind kind=classify(raw);
-            if("GM_HELP".equals(inputChannel))kind=Kind.RULES_HELP;
+            Kind kind=classify(raw,scene,inputChannel);
             JSONObject referent=resolveReferent(raw,scene);
             if(kind==Kind.FICTION_OBSERVATION&&referent.optBoolean("ambiguous",false))
                 kind=Kind.AMBIGUOUS_REFERENCE;

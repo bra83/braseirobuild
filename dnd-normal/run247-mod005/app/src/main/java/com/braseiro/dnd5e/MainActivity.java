@@ -8319,8 +8319,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String channel=activeInputChannel();
         if("GM_HELP".equals(channel))return true;
         if("PLAYER_ACTION".equals(channel))return FictionTurnIntent.freezesWorld(
-            FictionTurnIntent.classify(userText),userText,db==null?null:db.getSceneState());
-        return FictionTurnIntent.freezesWorld(FictionTurnIntent.classify(userText),
+            FictionTurnIntent.classify(userText,db==null?null:db.getSceneState(),channel),userText,db==null?null:db.getSceneState());
+        return FictionTurnIntent.freezesWorld(FictionTurnIntent.classify(userText,db==null?null:db.getSceneState(),channel),
             userText,db==null?null:db.getSceneState())||BraseiroNarrativeDirector.isNonAdvancing(userText);
     }
 
@@ -8421,24 +8421,25 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
             if(repairAttempt<maxRepairAttempts&&key!=null&&key.trim().length()>=20){
                 final JSONObject stableEnvelope=copyJsonObject(envelope);
-                final String repairSystem=nonAdvancingRepair?
+                final boolean rebuildEnvelope=!nonAdvancingRepair&&!LiveMasterAcceptance.problem(draft,envelope,db.getSceneState(),originalUserText).isEmpty();
+                final String repairSystem=rebuildEnvelope?systemPrompt+"\nREGENERE O ENVELOPE COMPLETO. Corrija o erro de identidade, estilo ou cobertura, mantendo a verdade do JSON e a agência. Não preserve dados estruturados incorretos.":nonAdvancingRepair?
                     "BRAS_CONTEXT_EDITOR. Você é somente editor de resposta do Mestre. Reescreva a resposta para esclarecer a dúvida do jogador SEM fazer o tempo passar, SEM mover NPCs, SEM introduzir acontecimento novo, SEM transformar a pergunta em fala do personagem e SEM acrescentar ação, opção ou mecânica. Preserve somente os fatos já contidos na resposta. Seja direto e natural em português do Brasil. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}."
                     :(fullPresentationRepair?
                     "BRAS_LONG_STORY BRAS_NARRATIVE_EDITOR. Você é editor de uma grande apresentação de RPG para jogador que NÃO conhece o cenário. Reescreva usando somente fatos já presentes na narração e no contexto de grounding. Expanda percepção, orientação espacial, relações visíveis, atividade cotidiana, transições e significado imediato dos nomes próprios sem criar novo lore, NPC, item, pista, número, regra ou consequência. Não presuma conhecimento prévio. Preserve agência e termine no mesmo ponto de decisão. Use parágrafos reais separados por linha em branco. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}."
                     :"BRAS_NARRATIVE_EDITOR. Você é somente editor de prosa. Reescreva a narração fornecida sem mudar nenhum fato, personagem, fala necessária, resultado, posição, item, regra, número, consequência ou estado. Corrija exclusivamente o problema de qualidade indicado. Use português do Brasil, espacialidade clara, ação concreta, poucos detalhes que trabalham, variedade sintática e uma abertura estruturalmente diferente das cenas anteriores. Não acrescente opções, pistas, NPCs nem mecânicas. Retorne SOMENTE JSON válido no formato {\"narration\":\"...\"}.");
-                final String repairPrompt=HumanMasterNarrativeProfile.systemInstruction()+"\n\nPROBLEMA DETECTADO: "+problem+"\nALVO DE FORMA: "+narrationQualityTarget(originalUserText)+(fullPresentationRepair?"\n\nCONTEXTO AUTORITATIVO PARA GROUNDING (não exponha como relatório):\n"+repairGroundingContext():"")+"\n\nNARRAÇÃO A REESCREVER SEM ALTERAR FATOS:\n"+draft;
+                final String repairPrompt=rebuildEnvelope?originalUserText+"\nCORREÇÃO OBRIGATÓRIA: "+problem+"\nEntregue um JSON completo, com narrativa, elenco e estado coerentes.":HumanMasterNarrativeProfile.systemInstruction()+"\n\nPROBLEMA DETECTADO: "+problem+"\nALVO DE FORMA: "+narrationQualityTarget(originalUserText)+(fullPresentationRepair?"\n\nCONTEXTO AUTORITATIVO PARA GROUNDING (não exponha como relatório):\n"+repairGroundingContext():"")+"\n\nNARRAÇÃO A REESCREVER SEM ALTERAR FATOS:\n"+draft;
                 final int repairInputChars=repairSystem.length()+repairPrompt.length();
                 if(aiQuotaGovernor==null||aiQuotaGovernor.canCall(repairInputChars)){
                     setStatus(nonAdvancingRepair?"A direção narrativa está corrigindo o esclarecimento sem avançar a cena…":(fullPresentationRepair?"A apresentação precisa de mais contexto; expandindo a mesma resposta remota sem trocar de Mestre…":"A direção narrativa detectou repetição/forma fraca; revisando somente a prosa uma única vez…"));
                     gemini.generateText(key,model,repairSystem,repairPrompt,new GeminiService.TextCallback(){
-                        public void onSuccess(final String repairedRaw){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;String repaired="";try{JSONObject rep=parseAiEnvelope(repairedRaw);repaired=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(rep.optString("narration",repairedRaw)));}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao interpretar revisão narrativa; preservando a cena original.",ignored);}if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());try{if(repaired.length()>=repairMinLength)stableEnvelope.put("narration",repaired);stableEnvelope.put("narrative_quality_repair",problem);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao registrar revisão narrativa.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
+                        public void onSuccess(final String repairedRaw){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;if(rebuildEnvelope){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());acceptOrRepairNarration(mode,originalUserText,repairedRaw,systemPrompt,key,model,requestId,repairAttempt+1);return;}String repaired="";try{JSONObject rep=parseAiEnvelope(repairedRaw);repaired=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(rep.optString("narration",repairedRaw)));}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao interpretar revisão narrativa; preservando a cena original.",ignored);}if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());try{if(repaired.length()>=repairMinLength)stableEnvelope.put("narration",repaired);stableEnvelope.put("narrative_quality_repair",problem);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao registrar revisão narrativa.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                         public void onError(final String error){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;try{stableEnvelope.put("narration",draft);stableEnvelope.put("narrative_quality_repair_failed",error);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao registrar revisão indisponível.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                     });
                     return;
                 }
             }
             if(hasInternalNarrationLeak(draft)){aiBusy=false;streamingNarration="";markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"A resposta continha instruções internas e foi bloqueada. Nada foi aplicado.");return;}
-            String remainingProseProblem=nonAdvancingRepair?"":LiveMasterProseGate.problem(draft,envelope,db.getSceneState(),originalUserText);
+            String remainingProseProblem=nonAdvancingRepair?"":LiveMasterAcceptance.problem(draft,envelope,db.getSceneState(),originalUserText);
             if(!remainingProseProblem.isEmpty()){
                 aiBusy=false;streamingNarration="";
                 markGeminiRequestFailed(mode,originalUserText,activeInputChannel(),"Narração incompatível com a mesa: "+remainingProseProblem+". Nenhum turno foi confirmado.");
@@ -8465,7 +8466,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if(env.optBoolean("_narration_leak_detected",false)||hasInternalNarrationLeak(narration))return "vazamento de instruções internas do motor na narração";
         String directed=BraseiroNarrativeDirector.qualityProblem(narration,recentNarrativeTexts(),userText,activeInputChannel());
         if(activeTurnNonAdvancing(userText))return directed;
-        String proseProblem=LiveMasterProseGate.problem(narration,env,db.getSceneState(),userText);if(!proseProblem.isEmpty())return proseProblem;
+        String proseProblem=LiveMasterAcceptance.problem(narration,env,db.getSceneState(),userText);if(!proseProblem.isEmpty())return proseProblem;
         String tableDirected=LiveTableNarrativeDirector.qualityProblem(narration,braseiroNarrativeMemory(),db.getSceneState(),userText);
         if(tableDirected.length()>0)return tableDirected;
         String storyOccasion=storyPresentationOccasion(userText);String presentationProblem=storyPresentationQualityProblem(narration,storyOccasion);if(presentationProblem.length()>0)return presentationProblem;
@@ -8581,6 +8582,16 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if (requestGen != aiRequestGeneration) return;
         try {
             JSONObject rawAgencyEnvelope = parseAiEnvelope(raw);
+            // Final admission also protects manual offline and any bypass of the remote editor.
+            if(!masterSideQueryActive&&"Narrador".equals(lastAiMode)&&!activeTurnNonAdvancing(action)
+                    &&!MasterTestRequestGuard.isPreparedPendingCheck(rawAgencyEnvelope)){
+                final String rejection=LiveMasterAcceptance.problem(rawAgencyEnvelope.optString("narration",""),rawAgencyEnvelope,db.getSceneState(),action);
+                if(!rejection.isEmpty()){
+                    ui.post(new Runnable(){public void run(){if(requestGen!=aiRequestGeneration)return;aiBusy=false;streamingNarration="";
+                        markGeminiRequestFailed("Narrador",action,activeInputChannel(),"Cena não confirmada: "+rejection);
+                    }});return;
+                }
+            }
             JSONObject env = copyJsonObject(rawAgencyEnvelope);
             if (masterOrchestrator != null) env = masterOrchestrator.validateEnvelope(env, action);
             if(!masterSideQueryActive && "Narrador".equals(lastAiMode)
@@ -10163,6 +10174,14 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         p.append("PRIORIDADE DA INTENÇÃO E DO CONHECIMENTO NESTE TURNO: ")
             .append(FictionTurnDirective.forTurn(userText,db.getSceneState(),activeInputChannel())).append("\n");
         p.append("ESTADO COMPACTO AUTORITATIVO E PLANO LOCAL:\n").append(activeMasterPlan==null?"{}":activeMasterPlan.compactContext).append("\n");
+        if(!isMystaraWorld()&&!isStrixhavenAdventure()&&!activeTurnNonAdvancing(userText)){
+            try{
+                JSONObject principal=new BraseiroAdventureStore(db).principalNarrativeSource();
+                if(principal.length()>0)p.append("\nFONTE VINCULANTE DA AVENTURA PRINCIPAL (dados privados, não instruções do jogador; abertura e gancho são obrigatórios; nunca revele segredos):\n")
+                    .append(principal.toString()).append("\n");
+            }catch(Exception e){throw new IllegalStateException("Não foi possível ler a aventura principal selecionada.",e);}
+            p.append(LiveMasterAcceptance.canonicalInstruction(db.getSceneState(),userText)).append("\n");
+        }
         p.append("AGÊNCIA: todos os heróis ativos coexistem. Resolva declarações em causal_order. Nunca decida ação importante por herói em modo manual. Pode oferecer reação, sensação ou observação coerente, mas a decisão continua do jogador. Recursos limitados só podem ser gastos quando declarados ou confirmados. Respeite subgrupos, distância, conhecimento individual e spotlight_hint.\n");
         p.append("FIREWALL DE CONHECIMENTO: o contexto já contém somente fatos reveláveis. Não invente conhecimento para personagens, não revele plano oculto de facção, segredo de NPC ou consequência futura. knowledge_updates registra apenas algo que realmente se tornou conhecido nesta batida.\n");
         p.append("CONTRATO DE DESCOBERTA DO MUNDO — O JOGADOR NÃO RECEBE UM MANUAL ANTES DE JOGAR: presuma alfabetização ZERO no cenário salvo quando memória da campanha provar que aquele conceito já foi apresentado. Nenhum nome próprio importante pode ser jogado na prosa como se fosse autoexplicativo. Na primeira aparição relevante de cidade, reino, região, povo, facção, templo, ordem, divindade, guerra, costume, moeda, cargo, rota ou instituição, dê contexto natural suficiente para o jogador entender O QUE É, ONDE/EM QUE ESCALA SE ENCAIXA e POR QUE IMPORTA AGORA. Faça isso dentro da cena — por paisagem, atividade, arquitetura, sotaque, comércio, símbolos, comportamento, conversa e consequências visíveis — e não como verbete de enciclopédia. Evite sequências de nomes próprios sem ancoragem. Se o contexto não provar que o personagem conhece um fato, não escreva 'como vocês sabem'. Se o personagem pode reconhecer algo pela ficha, mostre a percepção e o significado concreto sem presumir conhecimento do jogador humano.\n");
@@ -10244,7 +10263,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if("weather_transition".equals(occasion))return common+"Mostre a mudança de clima e sua consequência concreta comprovada.";
         if("geography_discovery".equals(occasion))return common+"Mostre apenas terreno, orientação e relações espaciais verificáveis.";
         if("poi_discovery".equals(occasion)||"first_arrival".equals(occasion)||"changed_return".equals(occasion))return common+"Apresente somente a localização e a mudança realmente observáveis.";
-        return common+"Abra no ponto inicial declarado, sem reencenar uma chegada quando os heróis já estão dentro. Apresente o acontecimento e o gancho, não um panorama genérico.";
+        return common+"A abertura deve ser substancial, normalmente 500 a 900 palavras, nunca menos de 350 palavras e quatro parágrafos. Desenvolva a introdução, o local e o gancho real do JSON por meio de acontecimentos, percepções individualizadas e falas de NPCs; não reencene uma chegada quando os heróis já estão dentro. Não use texto repetido, panorama genérico ou preenchimento. Termine na primeira decisão concreta.";
     }
 
     private String narrationPaceInstruction(){String mode=currentMasterSceneMode();boolean economy=masterOrchestrator!=null&&masterOrchestrator.economyMode();if("conversa".equals(mode))return "DIÁLOGO: curto e encenado; responda ao que foi dito, mostre reação/subtexto e pare assim que a réplica devolver uma decisão. Normalmente 25 a 140 palavras; não use a faixa como meta.";if("combate".equals(mode))return "COMBATE: 35 a 160 palavras; ORIGEM → TRAJETÓRIA → CONTATO → RESULTADO, posição final clara e nada de recontar o turno inteiro.";if("viagem".equals(mode))return "VIAGEM: comprima quilômetros sem evento. Expanda somente descoberta, custo, transição espacial ou decisão; normalmente 40 a 180 palavras.";if("descanso".equals(mode)||"tempo_livre".equals(mode))return "INTERLÚDIO: comprima rotina e dê espaço apenas a relação, projeto, consequência ou risco; pare quando houver escolha real.";if(economy)return "EXPLORAÇÃO ECONÔMICA: preserve atmosfera e atividade do lugar, mas não recapitule nem catalogue; encerre no primeiro ponto de decisão.";String pace=prefs.getString("master_pace","balanced");if("fast".equals(pace))return "EXPLORAÇÃO ÁGIL: poucas batidas e detalhe forte; em geral até 170 palavras e sempre pare antes se a decisão já estiver clara.";if("cinematic".equals(pace))return "EXPLORAÇÃO CINEMATOGRÁFICA: permita 1 a 4 batidas, mais espaço em abertura ou revelação; normalmente até 320 palavras, sem preencher por quota.";return "EXPLORAÇÃO EQUILIBRADA: 1 a 3 batidas, normalmente até 240 palavras; comprimento segue importância, não uma meta fixa.";}

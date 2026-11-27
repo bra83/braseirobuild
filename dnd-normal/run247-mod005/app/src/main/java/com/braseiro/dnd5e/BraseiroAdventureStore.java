@@ -53,6 +53,23 @@ public final class BraseiroAdventureStore {
         return resolvePrincipalStart(new JSONObject(row.optString("active_json","{}")));
     }
 
+    /** Dedicated source for the actual fast narrator. Never mixes optional modules into the principal opening. */
+    public JSONObject principalNarrativeSource() throws Exception {
+        ensureSchema(db.getWritableDatabase());
+        JSONObject row=db.queryOne("SELECT active_json FROM braseiro_adventure_packages WHERE scope=?",new String[]{scope()});
+        return principalNarrativeSource(new JSONObject(row.optString("active_json","{}")));
+    }
+    static JSONObject principalNarrativeSource(JSONObject active) throws Exception {
+        if(active==null||active.length()==0)return new JSONObject();
+        JSONObject out=new JSONObject().put("adventure_id",active.optString("id")).put("title",active.optString("title"));
+        JSONObject start=active.optJSONObject("start"),story=active.optJSONObject("story");
+        if(start!=null)out.put("start",start);
+        if(story!=null)out.put("story",story);
+        for(String key:new String[]{"locations","npcs","encounters","objectives","clues","secrets"})
+            if(active.optJSONArray(key)!=null)out.put(key,active.optJSONArray(key));
+        return out;
+    }
+
     static JSONObject resolvePrincipalStart(JSONObject pkg) throws Exception {
         if(pkg==null||pkg.length()==0)return new JSONObject();
         JSONObject start=pkg.optJSONObject("start");
