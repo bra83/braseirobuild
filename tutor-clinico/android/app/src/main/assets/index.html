@@ -5679,12 +5679,51 @@ function ecoSelfScreen(){
  const rows=ecoSelfData.entries,topic=ecoSelfTopics.find(t=>t[0]===ecoSelfTopic)||ecoSelfTopics[0],old=rows.find(x=>x.id===ecoSelfEdit),draft=ecoSelfDraft||old||{},filtered=rows.filter(x=>ecoSelfFilter==='todos'||x.topic===ecoSelfFilter).slice().sort((a,b)=>b.date.localeCompare(a.date));
  let out=btn('← Tela inicial','nav','ghost','data-id="home"')+head('Espaço pessoal · separado dos casos','Autoanálise','Reflexão guiada e diário privado, sem interpretação diagnóstica.');
  out+='<div class="alert">Exercícios didáticos inspirados na literatura psicanalítica. Não constituem tratamento, análise pessoal com analista ou supervisão. Você pode pular qualquer pergunta; se algo provocar sofrimento intenso, interrompa e procure apoio profissional.</div>';
- out+='<section class="card"><h2>Trilha de reflexão</h2><p>Escolha livremente um eixo. Não há pontuação, diagnóstico ou obrigação de completar etapas.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfTopic',t[0]===topic[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div></section>';
+ out+='<section class="card"><h2>Trilha de reflexão</h2><p>Escolha livremente um eixo. Para se aperfeiçoar, comece com uma situação concreta, escreva sua experiência, faça a sessão de autoanálise guiada, formule uma pergunta ou ação e retome em outro registro. Não há pontuação, diagnóstico ou obrigação de completar etapas.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfTopic',t[0]===topic[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div></section>';
  out+='<section class="card"><h2>'+esc(topic[1])+'</h2><p>'+esc(topic[4])+'</p><div class="eco-help-example">'+esc(topic[5])+'</div><details class="eco-help-topic"><summary>Fundamentação e limites</summary><p>'+esc(topic[2])+'</p><p class="small muted">Localizador bibliográfico (consulta externa manual): '+esc(topic[3])+'. Exercício autoral adaptado, não citação nem protocolo clínico validado.</p></details><h3>'+(old?'Editar registro':'Novo registro')+'</h3><div class="field"><label for="ecoSelfDate">Data</label><input id="ecoSelfDate" type="date" value="'+esc(draft.date||datestr())+'"></div>'+ecoSelfField('ecoSelfContext','Situação, fato ou lembrança (opcional)',draft.context,4000)+ecoSelfField('ecoSelfReflection','Reflexão ou livre associação',draft.reflection,12000)+ecoSelfField('ecoSelfNext','Questões abertas e próximos passos (opcional)',draft.next,4000)+'<p class="small muted">Salve antes de sair. Rascunho não salvo não é recuperável após fechar ou bloquear o ECO.</p><div class="actions">'+btn('Salvar registro pessoal','ecoSelfSave','')+btn('Limpar / novo registro','ecoSelfNew','ghost')+'</div></section>';
+ out+=ecoSelfReviewPanel(rows);
  out+='<section class="card"><h2>Acompanhamento pessoal</h2><p>'+rows.length+' registro(s) salvos. As contagens mostram somente suas escolhas de tema, não saúde mental.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>'<div class="eco-evidence"><strong>'+esc(t[1])+'</strong><p>'+rows.filter(x=>x.topic===t[0]).length+' registro(s)</p></div>').join('')+'</div><p>Para revisar repetições, filtre um eixo e compare o contexto e as associações registrados em datas diferentes. Use Síntese e continuidade para formular suas próprias perguntas.</p></section>';
  out+='<section class="card"><h2>Histórico privado</h2><div class="actions">'+btn('Todos','ecoSelfFilter',ecoSelfFilter==='todos'?'':'secondary','data-id="todos"')+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfFilter',ecoSelfFilter===t[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div>'+filtered.map(x=>'<details class="eco-help-topic"><summary>'+esc(formatDate(x.date))+' · '+esc(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+'</summary><p style="white-space:pre-wrap">'+esc(x.context)+'</p><p style="white-space:pre-wrap">'+esc(x.reflection)+'</p><p style="white-space:pre-wrap">'+esc(x.next)+'</p><div class="actions">'+btn('Editar','ecoSelfEdit','secondary','data-id="'+esc(x.id)+'"')+btn('Excluir','ecoSelfDelete','danger','data-id="'+esc(x.id)+'"')+'</div></details>').join('')+(filtered.length?'':'<p class="muted">Nenhum registro neste filtro.</p>')+'</section><p class="small muted">Registros cifrados no cofre, separados dos pacientes. Apenas backup integral com a opção de diário privado e autoanálise inclui este conteúdo. Limite: 500 entradas e 2 milhões de caracteres.</p>';
  return out;
 }
+
+/* Personal reflection review: only exact passages from explicitly chosen personal entries.
+   Lexical intersections are descriptive, not latent meanings or clinical classifications. */
+const ecoSelfReviewPrompts={
+ livre:['Que associação surge ao reler essas palavras?','O que ainda não foi dito ou não está claro?'],
+ afetos:['Que afetos você próprio reconhece nessa situação?','O que distingue o acontecimento da sua interpretação?'],
+ repeticao:['Em que outras situações você percebe algo semelhante?','Que diferenças ou exceções contrariam essa impressão?'],
+ vinculos:['O que você esperava e o que a outra pessoa efetivamente comunicou?','Que necessidade você gostaria de expressar de outro modo?'],
+ ambivalencia:['Quais sentimentos diferentes você reconhece ao mesmo tempo?','Que aspectos da situação ficaram fora da primeira leitura?'],
+ autenticidade:['Que aspectos da sua resposta parecem espontâneos ou adaptados ao contexto?','O que ajudaria a expressar sua experiência sem desconsiderar limites?'],
+ sonhos:['Que associações pessoais você faz ao trecho do sonho?','Que partes são lembranças, associações posteriores ou lacunas?'],
+ mentalizacao:['O que você sabe, sente e supõe?','Que perspectiva alternativa seria possível, sem presumir a mente de outra pessoa?'],
+ integracao:['Que pergunta anterior continua relevante?','Que ação pequena e observável você quer experimentar?']
+};
+function ecoSelfReviewWords(text){
+ const stop=new Set(('a o as os um uma uns umas de do da dos das e em no na nos nas pra pro para por com ao aos pela pelo que quem qual quais como quando onde porque pois mas ou se eu me voce você ele ela eles elas meu minha meus minhas seu sua seus suas nosso nossa nos nós ser estar ter tinha tenho tem foi era estava estavam sao são sou mais menos mesmo ainda entao então aqui ali la lá isso isto aquele aquela muito muita muitas muitos sobre entre depois antes durante sempre nunca tudo nada tambem também algum alguma cada fui vou achei penso sinto acho quero posso podia pode poderia disse dizer fazer fiz faz fica fiquei tenho tinha').split(/\s+/).map(w=>ecoFoldText(w)));
+ return (String(text||'').match(/[\p{L}\p{M}]+/gu)||[]).map(raw=>({raw,key:ecoFoldText(raw)})).filter(x=>x.key.length>=4&&!stop.has(x.key));
+}
+function ecoSelfReviewCompare(a,b){
+ if(!a)return null;
+ const collect=r=>{const map=new Map();for(const token of ecoSelfReviewWords([r.context,r.reflection,r.next].join(' '))){const x=map.get(token.key)||{word:token.raw,count:0};x.count++;map.set(token.key,x);}return map;};
+ const left=collect(a),right=b?collect(b):null;
+ const shared=right?[...left].filter(([k])=>right.has(k)).map(([k,v])=>({word:v.word,a:v.count,b:right.get(k).count})).sort((x,y)=>(y.a+y.b)-(x.a+x.b)||x.word.localeCompare(y.word)).slice(0,15):[];
+ const topic=ecoSelfTopics.find(t=>t[0]===a.topic);
+ return {a,b,shared,topic,prompts:ecoSelfReviewPrompts[a.topic]||ecoSelfReviewPrompts.integracao};
+}
+function ecoSelfReviewPanel(rows){
+ const opts=rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>'<option value="'+esc(x.id)+'">'+esc(formatDate(x.date)+' · '+(ecoSelfTopics.find(t=>t[0]===x.topic)?.[1]||x.topic)+' · '+x.reflection.replace(/\s+/g,' ').slice(0,65))+'</option>').join('');
+ return '<section class="card"><h2>Sessão de autoanálise guiada</h2><p>Escolha uma experiência que deseja compreender. Se quiser, confronte-a com outra experiência. O ECO mostra o material escrito por você e perguntas de aprofundamento fundamentadas no eixo escolhido.</p>'+(rows.length?'<div class="field"><label for="ecoSelfReviewA">Registro principal</label><select id="ecoSelfReviewA">'+opts+'</select></div><div class="field"><label for="ecoSelfReviewB">Comparar com outro registro (opcional)</label><select id="ecoSelfReviewB"><option value="">Sem comparação</option>'+opts+'</select></div>'+btn('Iniciar autoanálise','ecoSelfReview','')+'<div id="ecoSelfReviewResult" aria-live="polite"></div>':'<p class="muted">Salve uma reflexão acima para iniciar. Dois registros permitem comparar experiências.</p>')+'</section>';
+}
+function ecoSelfReviewMarkup(r){
+ const quote=(x,title)=>'<details class="eco-help-topic" open><summary>'+esc(title+' · '+formatDate(x.date))+'</summary><p><strong>Situação:</strong> '+esc(x.context||'Não registrada')+'</p><p style="white-space:pre-wrap"><strong>Reflexão escrita:</strong> '+esc(x.reflection)+'</p><p><strong>Próximos passos registrados:</strong> '+esc(x.next||'Não registrados')+'</p></details>';
+ return '<h3>1. Releia seu próprio material</h3>'+quote(r.a,'Registro principal')+(r.b?quote(r.b,'Registro comparado'):'')+
+ '<h3>2. Observe sem concluir antecipadamente</h3>'+(r.b?(r.shared.length?'<p>Palavras presentes nos dois registros (correspondência lexical, não evidência de um mecanismo psíquico):</p>'+r.shared.map(x=>'<span class="chip">'+esc(x.word)+' · '+x.a+' / '+x.b+'</span>').join(''):'<p>Nenhuma palavra relevante em comum foi encontrada. Isso não exclui semelhanças de sentido.</p>'):'<p>Repare em palavras, associações e mudanças de assunto que você considera relevantes. A escolha do que explorar é sua.</p>')+
+ '<h3>3. Aprofunde a reflexão</h3><p><strong>'+esc(r.topic?.[1]||'Reflexão')+'</strong> · '+esc(r.topic?.[2]||'')+'</p>'+r.prompts.map(x=>'<p>'+esc(x)+'</p>').join('')+(r.b?'<p>O que se repete? O que é diferente? Que exemplo poderia contrariar a hipótese de repetição?</p>':'')+
+ '<h3>4. Transforme a reflexão em aprendizado</h3><p>Escreva no campo de questões abertas e próximos passos: uma compreensão provisória, uma dúvida que permaneceu e uma ação pequena que possa observar. Em um novo registro, retome a experiência e descreva o que realmente aconteceu.</p><p class="small muted">Aperfeiçoamento da escuta: se desejar, reflita sobre suas expectativas, reações pessoais, limites e tolerância à incerteza. Não inclua dados de pacientes. Questões de contratransferência e manejo clínico devem ser trabalhadas em análise pessoal ou supervisão.</p>'+btn('Registrar minha síntese','ecoSelfReviewNext','secondary','data-id="'+esc(r.a.id)+'"');
+}
+
 function ecoSelfCapture(){if(screen!=='selfAnalysis'||!document.getElementById('ecoSelfReflection'))return null;return {date:$('#ecoSelfDate').value,context:$('#ecoSelfContext').value,reflection:$('#ecoSelfReflection').value,next:$('#ecoSelfNext').value};}
 function ecoSelfDirty(){const x=ecoSelfCapture();if(!x)return false;const old=ecoSelfData?.entries?.find(x=>x.id===ecoSelfEdit);return ['context','reflection','next'].some(k=>x[k]!==String(old?.[k]||''))||!!old&&x.date!==old.date;}
 function ecoSelfAllowLeave(){return !ecoSelfDirty()||window.confirm('Há alterações pessoais não salvas. Descartar?');}
@@ -5696,6 +5735,12 @@ function ecoSelfWrite(entries){
 const ecoSelfPriorAct=act;
 act=function(name,id,button){
  if(screen==='selfAnalysis'){
+  if(name==='ecoSelfReview'){
+   const a=ecoSelfData?.entries?.find(x=>x.id===$('#ecoSelfReviewA')?.value),bid=$('#ecoSelfReviewB')?.value,b=ecoSelfData?.entries?.find(x=>x.id===bid);const box=$('#ecoSelfReviewResult');if(!box||!a)return;if(bid&&(!b||a.id===b.id)){box.innerHTML='<p class="alert red">Selecione dois registros diferentes.</p>';return;}box.innerHTML=ecoSelfReviewMarkup(ecoSelfReviewCompare(a,b));return;
+  }
+  if(name==='ecoSelfReviewNext'){
+   if(!ecoSelfAllowLeave())return;const x=ecoSelfData?.entries?.find(x=>x.id===id);if(!x)return;ecoSelfEdit=x.id;ecoSelfTopic=x.topic;ecoSelfDraft=null;render();document.getElementById('ecoSelfNext')?.scrollIntoView?.({block:'center'});document.getElementById('ecoSelfNext')?.focus?.();return;
+  }
   if(name==='ecoSelfReload'){if(ecoSelfAllowLeave()){ecoSelfData=null;ecoSelfDraft=null;ecoSelfEdit='';render();}return;}
   if(name==='ecoSelfTopic'||name==='ecoSelfNew'||name==='ecoSelfEdit'){
    if(!ecoSelfAllowLeave())return;

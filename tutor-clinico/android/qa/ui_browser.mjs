@@ -335,7 +335,7 @@ try{
  await page.evaluate(()=>{ecoLargeVaultMode=false;closeModal();});
  // Help is reachable without choosing a patient, and shortcuts explicitly require a selection.
  await page.evaluate(()=>act('nav','home'));
- await page.locator('.eco-help-entry').click();
+ await page.locator('[data-act="nav"][data-id="help"]').click();
  assert.equal(await page.evaluate(()=>screen),'help');
  assert.equal(await page.locator('.eco-help-step').count(),7);
  assert.equal(await page.locator('#ecoHelpResults details').count(),28);
@@ -348,7 +348,7 @@ try{
  assert.equal(await page.evaluate(()=>screen),'help');assert.equal(await page.evaluate(()=>openedId),selected);
  await page.locator('[data-act="ecoHelpCase"][data-id="browser-b"]').click();
  assert.equal(await page.evaluate(()=>screen),'case');assert.equal(await page.evaluate(()=>tab),'perspectivas');assert.equal(await page.evaluate(()=>openedId),'browser-b');
- await page.evaluate(()=>act('nav','home'));await page.locator('.eco-help-entry').click();
+ await page.evaluate(()=>act('nav','home'));await page.locator('[data-act="nav"][data-id="help"]').click();
  await page.screenshot({path:path.join(out,'central-ajuda.png'),fullPage:false});
  // Personal module uses only dedicated bridge, never case state.
  await page.evaluate(()=>{let record={version:1,entries:[],revision:'rev0'};window.NativeVault.readSelfAnalysis=()=>JSON.stringify(record);window.NativeVault.saveSelfAnalysis=(revision,raw)=>{if(revision!==record.revision)return 'CONFLICT';record={...JSON.parse(raw),revision:'rev'+Date.now()};return 'OK';};act('nav','home');});
@@ -361,6 +361,9 @@ try{
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('REGISTRO PESSOAL FICTÍCIO')));
  await page.evaluate(()=>{act('nav','home');act('nav','selfAnalysis');});
  assert.match(await page.locator('#app').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
+ await page.locator('[data-act="ecoSelfReview"]').click();
+ assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
+ assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/Transforme a reflexão em aprendizado/);
  await page.screenshot({path:path.join(out,'autoanalise.png')});
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
