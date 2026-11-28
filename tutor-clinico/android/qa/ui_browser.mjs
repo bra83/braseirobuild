@@ -103,6 +103,22 @@ try{
  await page.locator('[data-act="ecoAiArchiveSave"]').click();
  const result=await page.evaluate(()=>{const c=state.cases.find(x=>x.id==='browser-b'),rec=c.ecoAiArchive.at(-1);return {scope:rec.scope,sources:rec.sources.map(x=>x.scope),valid:ecoAiArchiveValid(c,rec),other:state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0};});
  assert.deepEqual(result,{scope:'integrado',sources:['teoria','manual'],valid:true,other:0});
+ // Full automatic pipeline, still requires human approval to archive.
+ await page.evaluate(()=>{window.confirm=()=>true;act('caseTab','sessoes');});
+ await page.locator('[data-act="ecoAiSessionIntegrated"]').first().click();
+ assert.equal(await page.evaluate(()=>ecoAiScope),'integrado');
+ assert.ok(await page.locator('#ecoAiSession').inputValue());
+ await page.locator('[data-act="ecoAiAutomatic"]').click();
+ const autoClinical=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(autoClinical.scope,'todos');
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i:0,score:.75}]}));});
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);const i=x.rows.findIndex(z=>z.text.length<1000);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i,score:.8}]}));});
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9},{i:1,score:.8}],skipped:[]}));});
+ const autoGen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(autoGen.mode,'generate');assert.equal(autoGen.sources.length,2);
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Relato registrado [S1]. Referência teórica [S2].',model:'fixture'}));});
+ assert.equal(await page.evaluate(()=>window.ecoTestRequests.at(-1).mode),'nli');
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,labels:['contradiction','entailment','neutral'],comparisons:x.pairs.map((_,i)=>({i,ab:[.1,.7,.2],ba:[.1,.2,.7]}))}));});
+ assert.equal(await page.evaluate(()=>ecoAiRun.phase),'done');
+ assert.equal(await page.evaluate(()=>currentCase().ecoAiArchive.length),1);
  // Monthly atlas and actual browser PDF pagination, exclusively synthetic records.
  const atlas=await page.evaluate(()=>{
   const s=(id,data,origem,tags)=>({id,data,origem,mlTags:tags,mlEvidence:[],texto:'Nota fictícia'});

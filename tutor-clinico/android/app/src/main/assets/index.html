@@ -527,7 +527,7 @@ function caseScreen(){
     if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='perspectivas'){content+=ecoPerspectivePanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
       content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('Importar texto / TXT (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
-        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${ecoTranscriptPdfButtons(s,c.id,false)}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
+        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${ecoTranscriptPdfButtons(s,c.id,false)}${btn('Analisar sessão com IA','ecoAiSessionIntegrated','secondary',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
     } else if(tab==='anamnese'){
       content += `<div class="eco-outline"><h2>Anamnese Clínica em 10 Categorias Estruturadas (ECO-014)</h2>`+
         `<p class="eco-caption">Registro abrangente da história de vida e da dinâmica subjetiva. Preenchimento gradual ao longo dos atendimentos, sem antecipar conclusões.</p>`+btn("Buscar fontes com IA local","caseTab","secondary",'data-id="revisaoInteligente"')+
@@ -4307,7 +4307,7 @@ document.addEventListener('change',e=>{
  const el=document.getElementById('ecoAiInventory');
  if(el)el.textContent=ecoAiInventoryText(ecoAiSourceInventory(currentCase(),document.getElementById('ecoAiFrom')?.value||'',document.getElementById('ecoAiTo')?.value||'',document.getElementById('ecoAiSession')?.value||''));
 });
-function ecoAiStart(c){
+function ecoAiStart(c,automatic=false){
  if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const from=document.getElementById('ecoAiFrom')?.value||'',to=document.getElementById('ecoAiTo')?.value||'',session=document.getElementById('ecoAiSession')?.value||'';
  if(ecoAiScope!=='teoria'&&((from&&!validDate(from))||(to&&!validDate(to))||(from&&to&&from>to)||(session&&!(c.sessoes||[]).some(s=>s.id===session)))){notify('Período ou sessão inválidos.','red');return;}
@@ -4319,7 +4319,8 @@ function ecoAiStart(c){
  const inventory=ecoAiSourceInventory(c,ecoAiFrom,ecoAiTo,ecoAiSession);
  if(!rows.length||ecoAiScope==='integrado'&&(!inventory.patient&&!inventory.manual||!inventory.theory)){const el=document.getElementById('ecoAiInventory');if(el)el.textContent=ecoAiInventoryText(inventory);notify(ecoAiScope==='integrado'?'Caso + teoria precisa de ao menos uma fala do paciente ou nota manual e uma fonte teórica. Confira a contagem abaixo.':'Nenhuma fonte no escopo escolhido. Confira os filtros e os papéis dos falantes.','red');return;}
  if(rows.some(x=>x.text.length>12000)){notify('Há trecho acima de 12 mil caracteres. Reduza o escopo ou revise a divisão da fonte; nenhum texto foi truncado.','red');return;}
- const r=ecoAiRun={caseId:c.id,scope:ecoAiScope,nativeScope:scope,key:ecoAiKey(c,ecoAiScope),rows,query};
+ const r=ecoAiRun={caseId:c.id,scope:ecoAiScope,nativeScope:scope,key:ecoAiKey(c,ecoAiScope),rows,query,automatic:automatic&&ecoAiScope==='integrado'};
+ if(r.automatic){const lexical=new Map();for(const row of rows.filter(x=>x.sourceScope!=='teoria'))for(const w of ecoSelfReviewWords(row.text)){const n=lexical.get(w.key)||{word:w.raw,count:0};n.count++;lexical.set(w.key,n);}r.lexical=[...lexical.values()].sort((a,b)=>b.count-a.count||a.word.localeCompare(b.word)).slice(0,12);}
  const batches=ecoAiBatchPlan(rows,r.scope);
  if(batches.length>1){r.batches=batches;r.batchIndex=0;r.covered=0;r.hits=[];ecoAiBatchNext(r);return;}
  if(r.scope==='integrado'){r.hits=[];ecoAiRetrieveGroup(r,'clinico');return;}
@@ -4329,12 +4330,31 @@ function ecoAiRerank(r){
  const rows=r.hits.map(x=>({text:r.rows[x.i].text}));
  ecoAiSend(r,'rerank',{mode:'rerank',query:r.query,rows},r.scope==='integrado'?'3/4 · Reordenando fontes com mMARCO':'2/3 · Reordenando fontes com mMARCO');
 }
-function ecoAiGenerate(c){
+function ecoAiSourcePayload(r,x){
+ const u=r.rows[x.i];return {text:r.scope==='integrado'?({teoria:'REFERÊNCIA TEÓRICA (não é fato sobre o paciente)',manual:'NOTA PROFISSIONAL (não é fala literal)',paciente:'RELATO ATRIBUÍDO AO PACIENTE'}[u.sourceScope]+'\n'+u.text):u.text};
+}
+function ecoAiAutomaticSelection(r){
+ // Choose both source groups before filling remaining slots. Exact whole passages only.
+ const eligible=r.ranked.filter(x=>ecoAiSourcePayload(r,x).text.length<=1800);
+ const a=eligible.filter(x=>r.rows[x.i].sourceScope!=='teoria'),b=eligible.filter(x=>r.rows[x.i].sourceScope==='teoria');
+ let chosen=[];
+ outer:for(const x of a)for(const y of b){if(ecoAiSourcePayload(r,x).text.length+ecoAiSourcePayload(r,y).text.length<=4200){chosen=[x,y];break outer;}}
+ if(!chosen.length)return [];
+ for(const x of eligible)if(chosen.length<5&&!chosen.includes(x)&&[...chosen,x].reduce((n,y)=>n+ecoAiSourcePayload(r,y).text.length,0)<=4200)chosen.push(x);
+ return chosen;
+}
+function ecoAiAutoContinue(r){
+ if(!r.automatic||r.pending||r.phase!=='ready')return false;
+ const selected=ecoAiAutomaticSelection(r);
+ if(!selected.length){r.autoNotice='Não foi possível selecionar fontes inteiras dos dois grupos dentro do contexto. Revise a consulta e as fontes manualmente.';r.automatic=false;return false;}
+ ecoAiGenerate(currentCase(),selected);return r.pending;
+}
+function ecoAiGenerate(c,autoSelected=null){
  const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='ready')return;
- const selected=r.ranked.filter((x,i)=>document.getElementById('ecoAiPick_'+i)?.checked);
+ const selected=autoSelected||r.ranked.filter((x,i)=>document.getElementById('ecoAiPick_'+i)?.checked);
  if(!selected.length||selected.length>5||selected.some(x=>r.rows[x.i].text.length>1800)||selected.reduce((n,x)=>n+r.rows[x.i].text.length,0)>4200){notify('Selecione 1 a 5 fontes inteiras, até 4200 caracteres no total.','red');return;}
  if(r.scope==='integrado'&&(!selected.some(x=>r.rows[x.i].sourceScope==='teoria')||!selected.some(x=>r.rows[x.i].sourceScope!=='teoria'))){notify('Selecione ao menos uma fonte clínica e uma teórica.','red');return;}
- const sources=selected.map(x=>{const u=r.rows[x.i];return {text:r.scope==='integrado'?({teoria:'REFERÊNCIA TEÓRICA (não é fato sobre o paciente)',manual:'NOTA PROFISSIONAL (não é fala literal)',paciente:'RELATO ATRIBUÍDO AO PACIENTE'}[u.sourceScope]+'\n'+u.text):u.text};});
+ const sources=selected.map(x=>ecoAiSourcePayload(r,x));
  const query=r.scope==='integrado'?('Separe relatos/notas de teoria; não deduza diagnóstico. '+r.query):r.query;
  if(query.length>500||sources.some(x=>x.text.length>1800)){notify('Consulta ou fonte com identificadores excede o limite do modelo. Reduza sem cortar o texto silenciosamente.','red');return;}
  if(sources.reduce((n,x)=>n+x.text.length,0)>4200){notify('As fontes e seus identificadores excedem 4200 caracteres. Reduza a seleção.','red');return;}
@@ -4351,7 +4371,7 @@ function ecoAiCheckDraft(c){
  const r=ecoAiRun;if(!ecoAiCurrent(r)||r.pending||r.phase!=='done')return;
  const lines=ecoAiCitations(r),pairs=[];
  for(const line of lines){if(line.unresolved)continue;for(const n of line.valid){const source=r.rows[r.selected[n-1].i].text,claim=line.line.replace(/\[S\d+\]/g,'').trim();if(claim&&claim.length<=500&&source.length<=1800)pairs.push({a:source,b:claim,ref:n});}}
- if(!pairs.length){notify('A minuta não possui referências verificáveis. Revise manualmente.','red');return;} if(pairs.length>12){notify('Mais de 12 pares: conferindo os primeiros 12; os demais exigem revisão manual.');pairs.splice(12);}
+ if(!pairs.length){r.verificationError='A minuta não possui referências verificáveis. Revise manualmente.';notify(r.verificationError,'red');return;} if(pairs.length>12){notify('Mais de 12 pares: conferindo os primeiros 12; os demais exigem revisão manual.');pairs.splice(12);}
  r.verificationPairs=pairs;r.verification=null;r.verificationError='';ecoAiSend(r,'verify',{mode:'nli',pairs:pairs.map(({a,b})=>({a,b}))},'4/4 · Conferindo relações textuais com NLI');
 }
 function ecoAiDraftVerification(r){
@@ -4362,7 +4382,9 @@ function ecoAiDraftVerification(r){
 function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(u.sourceScope==='teoria'?('Teoria · '+u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
 function ecoAiPanel(c){
  const r=ecoAiCurrent(ecoAiRun)?ecoAiRun:null;
- let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica'],['integrado','Caso + teoria']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':ecoAiScope==='integrado'?'Relatos, notas e teoria em fontes separadas. Teoria não comprova fatos clínicos.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||ecoAiPrefill||'')+'</textarea></div>'+ecoAiTaskButtons()+(ecoAiScope==='teoria'?'':ecoAiFilterFields(c))+'<p id="ecoAiInventory" class="small" role="status">'+esc(ecoAiScope==='teoria'?'Passagens teóricas disponíveis: '+ecoLibraryChunks().length:ecoAiInventoryText(ecoAiSourceInventory(c,ecoAiFrom,ecoAiTo,ecoAiSession)))+'</p>'+ecoQwenStatusMarkup()+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
+ let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica'],['integrado','Caso + teoria']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':ecoAiScope==='integrado'?'Relatos, notas e teoria em fontes separadas. Teoria não comprova fatos clínicos.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||ecoAiPrefill||'')+'</textarea></div>'+ecoAiTaskButtons()+(ecoAiScope==='teoria'?'':ecoAiFilterFields(c))+'<p id="ecoAiInventory" class="small" role="status">'+esc(ecoAiScope==='teoria'?'Passagens teóricas disponíveis: '+ecoLibraryChunks().length:ecoAiInventoryText(ecoAiSourceInventory(c,ecoAiFrom,ecoAiTo,ecoAiSession)))+'</p>'+ecoQwenStatusMarkup()+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"')+(ecoAiScope==='integrado'?btn('Executar análise integrada','ecoAiAutomatic','','data-case="'+esc(c.id)+'"')+'<p class="small muted">Pesquisa clínica e teórica, seleção automática de fontes inteiras, Qwen e conferência NLI. Minuta não arquivada sem revisão humana.</p>':'');
+ if(r?.lexical?.length)out+='<h3>Termos frequentes no corpus clínico filtrado</h3><p class="small muted">Contagem lexical descritiva, não diagnóstico.</p>'+r.lexical.map(x=>'<span class="chip">'+esc(x.word)+' · '+x.count+'</span>').join('');
+ if(r?.autoNotice)out+='<p class="alert">'+esc(r.autoNotice)+'</p>';
  if(r?.phase==='ready'&&r.scope==='integrado'&&(!r.ranked.some(x=>r.rows[x.i].sourceScope==='teoria')||!r.ranked.some(x=>r.rows[x.i].sourceScope!=='teoria')))out+='<p class="alert">A busca não encontrou candidatos dos dois grupos (clínico e teoria). Reformule a consulta ou altere o período; a geração integrada não pode prosseguir sem ambos.</p>';
  if(r?.batches)out+='<p class="small">Cobertura da recuperação: '+r.covered+' / '+r.rows.length+' trechos · '+r.batches.length+' lotes. Nenhuma conclusão antes da busca completa.</p>';
  if(r?.pending)out+='<p id="ecoAiStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoAiCancel','ghost');
@@ -4383,14 +4405,14 @@ window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){
   else {r.hits.push(...v.hits.slice(0,10).map(x=>({...x,i:r.groupIndices[x.i]})));if(r.phase==='retrieveClinical'){ecoAiRetrieveGroup(r,'teoria');return;}if(!r.hits.length){r.ranked=[];r.phase='ready';}else{ecoAiRerank(r);return;}}
  }
  else if(r.phase==='retrieve'){if(v.count!==r.rows.length||v.scope!==r.nativeScope||!hitsValid(v.hits,r.rows.length,-1.001,1.001,20))r.error='Retorno de recuperação inválido.';else if(!v.hits.length){r.ranked=[];r.phase='ready';}else{r.hits=v.hits;ecoAiRerank(r);return;}}
- else if(r.phase==='rerank'){if(v.count!==r.hits.length||!hitsValid(v.hits,r.hits.length,0,1,20)||!Array.isArray(v.skipped)||v.skipped.some(i=>!Number.isInteger(i)||i<0||i>=r.hits.length)||new Set([...v.hits.map(x=>x.i),...v.skipped]).size!==r.hits.length||v.hits.length+v.skipped.length!==r.hits.length)r.error='Retorno de reranking inválido.';else{r.ranked=v.hits.map(x=>({...r.hits[x.i],rank:x.score}));r.skipped=v.skipped;r.phase='ready';}}
+ else if(r.phase==='rerank'){if(v.count!==r.hits.length||!hitsValid(v.hits,r.hits.length,0,1,20)||!Array.isArray(v.skipped)||v.skipped.some(i=>!Number.isInteger(i)||i<0||i>=r.hits.length)||new Set([...v.hits.map(x=>x.i),...v.skipped]).size!==r.hits.length||v.hits.length+v.skipped.length!==r.hits.length)r.error='Retorno de reranking inválido.';else{r.ranked=v.hits.map(x=>({...r.hits[x.i],rank:x.score}));r.skipped=v.skipped;r.phase='ready';if(ecoAiAutoContinue(r))return;}}
  else if(r.phase==='verify'){const valid=x=>Array.isArray(x)&&x.length===3&&x.every(n=>Number.isFinite(n)&&n>=0&&n<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;if(JSON.stringify(v.labels)!=='["contradiction","entailment","neutral"]'||!Array.isArray(v.comparisons)||v.comparisons.length!==r.verificationPairs.length||!v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba))){r.verificationError='Retorno NLI inválido.';r.phase='done';}else{r.verificationError='';r.verification=v.comparisons;r.phase='done';}}
- else if(r.phase==='generate'){if(v.sourceCount!==r.selected.length||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.error='Minuta inválida.';else{r.draft=v.draft;r.model=String(v.model||'Qwen');r.phase='done';}}
+ else if(r.phase==='generate'){if(v.sourceCount!==r.selected.length||v.clinicalValidation!==false||typeof v.draft!=='string'||!v.draft.trim()||v.draft.length>16000)r.error='Minuta inválida.';else{r.draft=v.draft;r.model=String(v.model||'Qwen');r.phase='done';if(r.automatic){ecoAiCheckDraft(currentCase());if(r.pending)return;}}}
  render();
 };
 window.nativeSemanticUnlocked=function(){ecoAiCancel();return ecoAiPriorUnlock();};
 const ecoAiPriorAct=act;
-act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria','integrado'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'){if(c&&button?.dataset?.case===c.id)ecoAiStart(c);return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCheckDraft'){if(c&&button?.dataset?.case===c.id)ecoAiCheckDraft(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
+act=function(name,id,button){const c=state?.cases?currentCase():null;if(name==='ecoAiScope'){if(['paciente','manual','teoria','integrado'].includes(id)){ecoAiCancel();ecoAiScope=id;render();}return;}if(name==='ecoAiStart'||name==='ecoAiAutomatic'){if(c&&button?.dataset?.case===c.id){if(name==='ecoAiAutomatic'){if(ecoAiScope!=='integrado'||!window.confirm('Executar análise integrada offline com seleção automática de fontes deste caso e da biblioteca? O resultado será uma minuta para sua revisão.'))return;}ecoAiStart(c,name==='ecoAiAutomatic');}return;}if(name==='ecoAiGenerate'){if(c&&button?.dataset?.case===c.id)ecoAiGenerate(c);return;}if(name==='ecoAiCheckDraft'){if(c&&button?.dataset?.case===c.id)ecoAiCheckDraft(c);return;}if(name==='ecoAiCancel'){ecoAiCancel();render();return;}if(['nav','openCase','caseTab','ecoAtlasTab'].includes(name)){ecoAiCancel();ecoAiScope='paciente';}return ecoAiPriorAct(name,id,button);};
 
 
 function ecoAiEngineStatus(){
@@ -4535,6 +4557,7 @@ const ecoArchivePriorAct=act;
 act=function(name,id,button){
  const c=state?.cases?currentCase():null;
  if(name==='ecoAiTask'){if(ecoAiRun?.pending)return;const q=ecoAiTasks[Number(id)];if(q){const d=document.getElementById('ecoAiQuery');if(d)d.value=q[1];ecoAiPrefill=q[1];}return;}
+ if(name==='ecoAiSessionIntegrated'){if(c&&button?.dataset?.case===c.id&&(c.sessoes||[]).some(s=>s.id===id)){act('caseTab','assistenteIA');ecoAiScope='integrado';ecoAiSession=id;ecoAiPrefill='Sintetize os temas explicitamente relatados nesta sessão, relacione com a teoria selecionada e proponha perguntas abertas, sem inferir causas.';render();}return;}
  if(name==='ecoAiOpenTask'){if(c&&button?.dataset?.case===c.id)ecoAiOpenTask(c,id,button.dataset.session);return;}
  if(name==='ecoAiArchiveSave'){if(c&&button?.dataset?.case===c.id)ecoAiArchiveSave(c);return;}
  if(name==='ecoAiArchiveDelete'){if(c&&button?.dataset?.case===c.id&&window.confirm?.('Excluir a síntese revisada?'))change(()=>{c.ecoAiArchive=(c.ecoAiArchive||[]).filter(x=>x.id!==id);});return;}
