@@ -390,6 +390,7 @@ try{
  await page.screenshot({path:path.join(out,'autoanalise.png')});
  // Verify new tools using controlled bridge responses; real inference is covered separately.
  await personalMenu('history');
+ await page.locator('details').filter({has:page.locator('[data-act="ecoSelfHubOpen"]')}).locator('summary').click();
  await page.locator('[data-act="ecoSelfHubOpen"]').click();
  assert.match(await page.locator('#app').textContent(),/Nuvem de palavras/);
  assert.equal(await page.locator('[data-act="ecoSelfToolTab"]').count(),5);
