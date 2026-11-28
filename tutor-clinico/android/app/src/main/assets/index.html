@@ -526,8 +526,8 @@ function caseScreen(){
     content = `<div class="actions" style="margin-bottom:12px">${btn('← Voltar à Grade de Módulos','caseTab','ghost','data-id="sintese"')}</div>`;
     if(tab==='assistenteIA'){content+=ecoAiPanel(c);} else if(tab==='perspectivas'){content+=ecoPerspectivePanel(c);} else if(tab==='compararRelatos'){content+=ecoNliPanel(c);} else if(tab==='atendimento'){content+=ecoVisitPanel(c);} else if(tab==='revisaoInteligente'){content+=ecoReviewPanel(c);} else if(tab==='fichaEvolutiva'){content+=ecoFichaEditor(c);} else if(tab==='sessoes'){
       const sessions=[...(c.sessoes||[])].sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.criadoEm||'').localeCompare(a.criadoEm||''));
-      content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('✍️ Atendimento manual / importar texto (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
-        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
+      content += `<div class="actions" style="margin-bottom:14px">${btn('🎙 Gravar ou importar sessão (com áudio)','ecoOpen','',`data-id="${esc(c.id)}"`)} ${btn('Importar texto / TXT (sem áudio)','newManualSession','secondary',`data-id="${esc(c.id)}" data-case="${esc(c.id)}"`)} ${btn('Análise & Ecos','caseTab','secondary','data-id="analisar"')} ${btn('Sonhos','caseTab','secondary','data-id="sonhos"')} ${btn('Imprimir / PDF','caseTab','secondary','data-id="documentos"')}</div><h2>Registros para análise</h2>`+
+        (sessions.length?'<div class="timeline">'+sessions.map(s=>`<div class="card entry"><div class="titleline"><h3>${formatDate(s.data)} ${s.hora?'· '+esc(s.hora):''}</h3><span class="chip ${s.origem==='manual'?'good':'gray'}">${s.origem==='manual'?'Manual (sem áudio)':(s.revisoes||[]).length?'Retificado':'Original'}</span></div><p>${esc(s.texto||'').replace(/\n/g,'<br>')}</p>${s.intervencoes?`<p class="small"><strong>Intervenções:</strong> ${esc(s.intervencoes)}</p>`:''}${s.plano?`<p class="small"><strong>Próximos passos:</strong> ${esc(s.plano)}</p>`:''}${s.origem!=='manual'?btn('Abrir revisão e NLP','editSession','secondary',`data-id="${esc(s.id)}"`):''}${ecoTranscriptPdfButtons(s,c.id,false)}${btn('Versões salvas','ecoVersionList','ghost',`data-id="${esc(s.id)}" data-case="${esc(c.id)}"`)}</div>`).join('')+'</div>':'<div class="card empty">Nenhuma sessão registrada. Escolha entre gravação de voz ou atendimento manual sem áudio.</div>');
     } else if(tab==='anamnese'){
       content += `<div class="eco-outline"><h2>Anamnese Clínica em 10 Categorias Estruturadas (ECO-014)</h2>`+
         `<p class="eco-caption">Registro abrangente da história de vida e da dinâmica subjetiva. Preenchimento gradual ao longo dos atendimentos, sem antecipar conclusões.</p>`+btn("Buscar fontes com IA local","caseTab","secondary",'data-id="revisaoInteligente"')+
@@ -614,7 +614,7 @@ window.nativeTranscriptImport=function(raw){
  const input=document.getElementById('manualSessTranscript');
  if(screen!=='manualSession'||!manualSessionDraft||v.token!==openedId+'|'+manualSessionDraft.id||!input||typeof v.text!=='string'||v.text.length>1000000)return;
  if(input.value.trim()&&!window.confirm('Substituir o texto que está no formulário?'))return;
- input.value=v.text;const roles=document.getElementById('manualSessRoles');if(roles)roles.checked=false;ecoManualDraftFlush();
+ input.value=v.text;manualSessionDraft.importSource='arquivo TXT';const roles=document.getElementById('manualSessRoles');if(roles)roles.checked=false;ecoManualDraftFlush();
  notify('Texto importado. Revise e salve para registrar a sessão.');
 };
 function manualSessionScreen(){
@@ -630,7 +630,7 @@ function manualSessionScreen(){
     `</div>`+
     `<div class="field"><label>Síntese e relato clínico da sessão *</label><textarea id="manualSessTexto" rows="6" placeholder="Anotações do atendimento, falas marcantes do paciente, relato do processo...">${esc(s.texto||'')}</textarea></div>`+
     `<div class="field"><label>Importar transcrição em texto (opcional)</label><textarea id="manualSessTranscript" rows="8" placeholder="Cole a transcrição integral, sem áudio.">${esc(s.mlTranscricao||'')}</textarea></div>`+
-    btn('Importar arquivo TXT','ecoImportTranscript','secondary','data-case="'+esc(c.id)+'"')+
+    btn('Importar arquivo TXT','ecoImportTranscript','','data-case="'+esc(c.id)+'"')+btn('Exportar transcrição em PDF','ecoTranscriptPdf','secondary','data-id="manual"')+
     `<label class="choice"><input type="checkbox" id="manualSessRoles" ${s.importRolesConfirmed?'checked':''}>Confirmei os rótulos explícitos Paciente: e Terapeuta: neste texto.</label><p class="small muted">Sem confirmação, os falantes ficam não identificados. O original é preservado e não são inventados horários.</p>`+
     `<div class="field"><label>Intervenções e observações técnicas</label><textarea id="manualSessInterv" rows="3" placeholder="Interpretações pontuadas, manejo de resistência, clarificações...">${esc(s.intervencoes||'')}</textarea></div>`+
     `<div class="field"><label>Encaminhamentos e pontos a acompanhar</label><textarea id="manualSessPlano" rows="3" placeholder="Próximos passos combinados para o encontro seguinte...">${esc(s.plano||'')}</textarea></div>`+
@@ -1951,7 +1951,7 @@ function ecoSessionEntry(){
  const intro=head("Sessões / ECO","Iniciar escuta","Escolha um caso de teste. O ECO processa áudio temporariamente e salva apenas o texto revisável.");
  if(!state.cases.length)return intro+'<div class="eco-welcome"><h2>Comece a testar sem preencher fichas</h2><p>O ECO gera um código fictício e abre a captação. Sintomas, tempo de queixa e história de vida ficam para depois.</p>'+btn("● CRIAR TESTE E ABRIR CAPTAÇÃO","ecoQuickTest","")+'</div><div class="actions">'+btn("Criar caso por código ou apelido","newCase","secondary")+'</div>';
  return intro+'<div class="eco-welcome"><div class="eyebrow">● RECONHECIMENTO DE VOZ OFFLINE</div><h2>Uma sessão. Quatro etapas.</h2><p>01 Captar · 02 Marcar · 03 Revisar · 04 Encontrar ecos</p></div>'+
- '<div class="eco-headrow"><h2>Selecionar caso</h2>'+btn('＋ Novo caso','newCase','secondary')+'</div><div class="actions">'+btn("● Teste rápido sem preencher ficha","ecoQuickTest","secondary")+'</div><div class="eco-quickcases">'+state.cases.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+ecoSummary(c).sessions+' sessões · '+esc(c.status||'Em andamento')+'</span></div>'+btn("● Começar","ecoOpen","","data-id='"+esc(c.id)+"'")+'</div>').join('')+'</div>'+
+ '<div class="eco-headrow"><h2>Selecionar caso</h2>'+btn('＋ Novo caso','newCase','secondary')+'</div><div class="actions">'+btn("● Teste rápido sem preencher ficha","ecoQuickTest","secondary")+'</div><div class="eco-quickcases">'+state.cases.map(c=>'<div class="eco-quickcase"><div><strong>'+caseName(c)+'</strong><span class="muted small">'+ecoSummary(c).sessions+' sessões · '+esc(c.status||'Em andamento')+'</span></div>'+'<div class="actions">'+btn("Gravar / importar áudio","ecoOpen","","data-id='"+esc(c.id)+"'")+btn("Importar texto / TXT","newManualSession","secondary","data-case='"+esc(c.id)+"'")+'</div>'+'</div>').join('')+'</div>'+
  '<p class="eco-caption">Ao iniciar, confirme a simulação. Permissão de microfone é solicitada somente quando a captação começar.</p>';
 }
 function ecoWorkspace(){
@@ -1973,7 +1973,7 @@ function ecoWorkspace(){
   out+='<label class="field">Qualidade de transcrição de arquivos <select data-eco-asr-model><option value="vosk" '+(ecoChosenAsr==="vosk"?"selected":"")+'>Vosk PT-BR · rápido experimental</option><option value="tagarela" '+(ecoChosenAsr==="tagarela"?"selected":"")+' >TAGARELA PT-BR INT8 · experimental</option><option value="small" '+(ecoChosenAsr==="small"?"selected":"")+'>Whisper Small Q5 · maior qualidade esperada (mais lento)</option><option value="base" '+(ecoChosenAsr==="base"?"selected":"")+'>Whisper Base · mais rápido (menos preciso)</option></select></label>';
   out+='<label class="choice"><input type="checkbox" data-eco-diarization="1" '+(ecoDiarization?"checked":"")+' > Separar falantes automaticamente (beta; aumenta o tempo de processamento)</label><p class="eco-caption">O motor começa a transcrever blocos durante a gravação. O processamento pode atrasar conforme o aparelho. Ao sair da tela, a captura termina e o áudio cifrado é preservado para retomada.</p>';
   out+='<div class="stack">'+btn('🎙 INICIAR GRAVAÇÃO LOCAL','ecoStart','','aria-label="Gravar agora e transcrever somente depois de parar"')+
- btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar arquivo e transcrever"')+
+ btn('⇧ IMPORTAR E TRANSCREVER ÁUDIO','ecoImportFile','secondary','aria-label="Selecionar arquivo e transcrever"')+btn('Importar texto / TXT (sem áudio)','ecoTextFromCapture','secondary')+
  (ecoIsRecording()?btn('■ ENCERRAR GRAVAÇÃO','ecoStop','danger'):
   ecoIsTranscribing()?btn('Ⅱ PAUSAR TRANSCRIÇÃO E REVISAR','ecoPause','secondary'):
   ecoIsPaused()?btn('▶ RETOMAR DO MINUTO INTERROMPIDO','ecoResume',''):
@@ -2023,6 +2023,7 @@ function ecoWorkspace(){
   else out+='<p class="muted small">Execute a busca para comparar o registro atual às sessões anteriores. Sem resultados, não significa ausência de relações.</p>';
   out+='</div>';
  }
+ out+=ecoTranscriptPdfButtons(sessionDraft,c.id,true);
  out+='<div class="eco-bottomsave">'+btn('Voltar ao caso','ecoBackCase','ghost')+btn(isEditing?'Salvar retificação':'Salvar sessão','ecoSave','')+'</div>';
  return out;
 }
@@ -3072,7 +3073,7 @@ act=function(name,id,button){
       intervencoes:interv.trim(),
       plano:plano.trim(),
       origem:transcript.trim()?'texto':'manual',
-      ...(transcript.trim()?{mlTranscricao:transcript,mlSegments:imported,importRolesConfirmed:roles,importSource:'texto colado'}:{}),
+      ...(transcript.trim()?{mlTranscricao:transcript,mlSegments:imported,importRolesConfirmed:roles,importSource:manualSessionDraft?.importSource||'texto colado'}:{}),
       criadoEm:new Date().toISOString(),
       revisoes:[]
     };
@@ -4378,7 +4379,7 @@ const ecoHomeModules=[
  ['atendimento','Novo atendimento','Preparar e iniciar','calendarPlus','case'],
  ['cases','Casos','Pacientes e histórico','users','nav'],
  ['eco','Gravar sessão','Áudio offline','mic','nav'],
- ['manual','Atendimento manual','Sem gravação','pen','manual'],
+ ['manual','Importar texto','TXT ou registro manual','pen','manual'],
  ['analisar','Análise','Palavras e recorrências','chart','case'],
  ['assistenteIA','Assistente IA','Síntese e fontes','brain','case'],
  ['sonhos','Sonhos','Atlas e símbolos','moon','case'],
@@ -6143,6 +6144,52 @@ act=function(name,id,button){
   if(['nav','openCase','newCase','ecoSelfReload'].includes(name)){if(!ecoSelfHubCanLeave())return;ecoSelfToolCancel();ecoSelfView='home';ecoSelfToolA=ecoSelfToolB=ecoSelfToolQuery=ecoSelfToolFocus=ecoSelfToolFocusB='';ecoSelfToolAll=false;ecoSelfToolAuthor='Freud';}
  }
  return ecoSelfHubAct(name,id,button);
+};
+
+
+/* Explicit transcript entry and single-session PDF. No clinical database/schema change. */
+function ecoTranscriptPdfButtons(s,caseId,isDraft){
+ const attrs='data-case="'+esc(caseId)+'" data-session="'+esc(s.id)+'" data-draft="'+(isDraft?'1':'0')+'" ';
+ const parts=[];
+ if(String(s.mlTranscricao||'').trim())parts.push(btn('PDF da transcrição original','ecoTranscriptPdf','secondary',attrs+'data-id="original"'));
+ if(String(s.mlRevisada||'').trim())parts.push(btn('PDF da transcrição revisada','ecoTranscriptPdf','secondary',attrs+'data-id="revisada"'));
+ return parts.length?'<div class="actions" aria-label="Exportar transcrição em PDF">'+parts.join('')+'</div>':'';
+}
+function ecoTranscriptPdfHtml(c,s,mode,raw,isDraft){
+ const title=mode==='revisada'?'Transcrição revisada':mode==='manual'?'Transcrição importada — rascunho':'Transcrição original';
+ return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>@page{size:A4;margin:19mm 18mm}body{font:11pt/1.55 Arial,sans-serif;color:#111}h1{font-size:18pt;margin:0 0 12pt}header{border-bottom:1px solid #aaa;padding-bottom:10pt;margin-bottom:14pt}p{margin:4pt 0}article{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;orphans:3;widows:3}.notice{font-size:9pt;color:#555}</style></head><body><header><h1>'+esc(title)+'</h1><p>Caso: '+esc(c.nome||c.id)+' · Sessão: '+esc(s.id||'rascunho')+'</p><p>Data clínica: '+esc(s.data||'Não registrada')+(s.hora?' · '+esc(s.hora):'')+'</p><p>Origem: '+esc(s.importSource||s.origem||'Não registrada')+'</p><p class="notice">Documento confidencial, não criptografado fora do ECO. '+(isDraft?'Rascunho não necessariamente salvo. ':'')+'Texto integral da versão selecionada, sem inferência diagnóstica. Falantes e conteúdo dependem de conferência humana.</p></header><article>'+esc(raw)+'</article></body></html>';
+}
+const ecoTranscriptEntryPriorAct=act;
+act=function(name,id,button){
+ if(name==='ecoTextFromCapture'){
+  if(screen!=='session'||!sessionDraft||!currentCase())return;
+  if(ecoIsCapturing()||ecoIsPaused()||ecoActiveJobId||editSessionId||state.mlDraft?.session||['texto','mlTranscricao','mlRevisada','intervencoes','plano'].some(k=>String(sessionDraft[k]||'').trim())||['mlSegments','mlTags','mlEvents','mlEvidence','mlAcoustic'].some(k=>sessionDraft[k]?.length)){
+   notify('Preserve a sessão atual: salve ou conclua o áudio antes de iniciar uma importação de texto separada.','red');return;
+  }
+  return ecoTranscriptEntryPriorAct('newManualSession',openedId,{dataset:{case:openedId}});
+ }
+ if(name==='ecoTranscriptPdf'){
+  if(errorLocked||!state)return;
+  let c=currentCase(),s,raw,isDraft=false;
+  if(id==='manual'){
+   if(screen!=='manualSession'||!c||!manualSessionDraft)return;
+   s=manualSessionDraft;raw=document.getElementById('manualSessTranscript')?.value||'';isDraft=true;
+   s={...s,data:document.getElementById('manualSessData')?.value||s.data,hora:document.getElementById('manualSessHora')?.value||s.hora};
+  }else{
+   if(!['original','revisada'].includes(id)||!c||button?.dataset?.case!==c.id)return;
+   isDraft=button.dataset.draft==='1';
+   if(isDraft){if(screen!=='session'||sessionDraft?.id!==button.dataset.session)return;s=sessionDraft;}
+   else{if(screen!=='case'||tab!=='sessoes')return;s=c.sessoes?.find(x=>x.id===button.dataset.session);}
+   if(!s)return;
+   raw=String(id==='revisada'?s.mlRevisada||'':s.mlTranscricao||'');
+  }
+  if(!raw.trim()){notify('Não há texto nesta versão da transcrição.','red');return;}
+  if(typeof window.NativeVault?.printReport!=='function'){notify('Exportação PDF disponível no aplicativo Android.','red');return;}
+  if(!window.confirm('Exportar somente esta transcrição? O PDF ficará fora do cofre e poderá conter informações confidenciais. Confirme o destino e a finalidade.'))return;
+  try{window.NativeVault.printReport(ecoTranscriptPdfHtml(c,s,id,raw,isDraft));}catch(e){notify('Não foi possível abrir a impressão PDF. Nenhum registro foi alterado.','red');}
+  return;
+ }
+ return ecoTranscriptEntryPriorAct(name,id,button);
 };
 
 </script></body></html>
