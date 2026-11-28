@@ -418,6 +418,23 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('SÍNTESE PESSOAL FICTÍCIA')));
  await page.screenshot({path:path.join(out,'autoanalise.png')});
+ await personalMenu('anamnese');
+ await page.locator('#ecoSP_history').fill('HISTÓRIA PESSOAL FICTÍCIA');
+ await page.locator('[data-act="ecoSelfProfileSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).profile.anamnese.history),'HISTÓRIA PESSOAL FICTÍCIA');
+ await personalMenu('genograma');
+ await page.locator('#ecoSP_name').fill('Mãe fictícia');
+ await page.locator('#ecoSP_role').fill('Mãe');
+ await page.locator('#ecoSP_generation').selectOption('-1');
+ await page.locator('[data-act="ecoSelfPersonSave"]').click();
+ assert.match(await page.locator('#app').textContent(),/Mãe fictícia/);
+ await personalMenu('vinculos');
+ await page.locator('#ecoSP_name').fill('Amiga fictícia');
+ await page.locator('#ecoSP_kind').selectOption('amizade');
+ await page.locator('#ecoSP_relation').selectOption('apoio');
+ await page.locator('[data-act="ecoSelfPersonSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).profile.people.length),2);
+ assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('HISTÓRIA PESSOAL FICTÍCIA')&&!JSON.stringify(state).includes('Amiga fictícia')));
  // Verify new tools using controlled bridge responses; real inference is covered separately.
  await personalMenu('history');
  await page.locator('details').filter({has:page.locator('[data-act="ecoSelfHubOpen"]')}).locator('summary').click();
@@ -441,6 +458,22 @@ try{
  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,draft:'Como você compreende esse registro pessoal?',model:'fixture'}));});
  assert.match(await page.locator('#app').textContent(),/Como você compreende esse registro pessoal/);
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('REGISTRO PESSOAL FICTÍCIO')));
+ page.once('dialog',d=>d.accept());
+ await page.locator('[data-act="ecoSelfArchiveSave"]').click();
+ assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].aiWork.length),1);
+ await personalMenu('tools');
+ await page.locator('[data-act="ecoSelfToolTab"][data-id="rag"]').click();
+ await page.locator('[data-act="ecoSelfToolStart"]').click();
+ const personalRag=await page.evaluate(()=>window.ecoTestRequests.at(-1));
+ assert.equal(personalRag.retrievalOnly,true);assert.equal(personalRag.cacheScope,undefined);assert.equal(personalRag.scope,'desconhecido');
+ assert.ok(personalRag.rows.every(x=>!x.text.includes('REGISTRO PESSOAL FICTÍCIO')));
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,scope:x.scope,count:x.rows.length,hits:[{i:0,score:.8}]}));});
+ assert.equal(await page.evaluate(()=>window.ecoTestRequests.at(-1).mode),'rerank');
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9}],skipped:[]}));});
+ const ragGen=await page.evaluate(()=>window.ecoTestRequests.at(-1));
+ assert.equal(ragGen.profile,'selfReflect');assert.equal(ragGen.sources.length,2);assert.equal(ragGen.sources[0].text,'REGISTRO PESSOAL FICTÍCIO');
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Como você compreende esse registro pessoal?',model:'fixture'}));});
+ assert.match(await page.locator('#app').textContent(),/Fundamentação editorial · Biblioteca didática/);
  await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
@@ -468,7 +501,7 @@ try{
    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.locator('#themeToggle').click();
    await page.evaluate(()=>act('nav','help'));await measure(width+'x'+height+'/'+theme+'/help');
    await page.evaluate(()=>act('nav','selfAnalysis'));await measure(width+'x'+height+'/'+theme+'/selfAnalysis');
-   for(const id of ['entry','history','work','tools','dream','timeline','review']){
+   for(const id of ['entry','history','work','tools','dream','timeline','review','anamnese','genograma','vinculos']){
     await page.locator('[data-act="ecoSelfHubView"][data-id="'+id+'"]').click();
     await measure(width+'x'+height+'/'+theme+'/selfAnalysis:'+id);
     await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();

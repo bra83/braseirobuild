@@ -220,6 +220,7 @@ jobs:
           ECO_KEYSTORE_B64: ${{ secrets.ECO_KEYSTORE_B64 }}
           ECO_KEYSTORE_PASSWORD: ${{ secrets.ECO_KEYSTORE_PASSWORD }}
           ECO_KEY_PASSWORD: ${{ secrets.ECO_KEY_PASSWORD }}
+          ECO_CERT_SHA256: ${{ vars.ECO_CERT_SHA256 }}
         run: |
           set -euo pipefail
           if [ -z "$ECO_KEYSTORE_B64" ]; then
@@ -228,19 +229,30 @@ jobs:
             exit 0
           fi
           test -n "$ECO_KEYSTORE_PASSWORD" && test -n "$ECO_KEY_PASSWORD"
+          test -n "$ECO_CERT_SHA256" || { echo "::error::Defina ECO_CERT_SHA256 com o certificado permanente autorizado."; exit 1; }
+          gradle :app:assembleRelease --no-daemon --stacktrace
+          unsigned=app/build/outputs/apk/release/app-release-unsigned.apk
+          test -s "$unsigned"
           ks=$(mktemp)
           trap 'rm -f "$ks"' EXIT
           chmod 600 "$ks"
           printf '%s' "$ECO_KEYSTORE_B64" | base64 --decode > "$ks"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$ks" --ks-key-alias eco --ks-pass env:ECO_KEYSTORE_PASSWORD --key-pass env:ECO_KEY_PASSWORD --out app/build/outputs/apk/debug/eco-stable.apk app/build/outputs/apk/debug/app-debug.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/eco-stable.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$ks" --ks-key-alias eco --ks-pass env:ECO_KEYSTORE_PASSWORD --key-pass env:ECO_KEY_PASSWORD --out app/build/outputs/apk/release/eco-stable.apk "$unsigned"
+          apk=app/build/outputs/apk/release/eco-stable.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > build/eco-security-evidence/release-certificate.txt
+          actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' build/eco-security-evidence/release-certificate.txt)
+          test "${actual,,}" = "${ECO_CERT_SHA256,,}" || { echo "::error::Certificado divergente; não publicar APK."; exit 1; }
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > build/eco-security-evidence/release-badging.txt
+          if grep -q '^application-debuggable' build/eco-security-evidence/release-badging.txt; then echo "::error::APK depurável."; exit 1; fi
+          python qa/eco_security_policy.py build/eco-security-evidence/release-badging.txt
+          python qa/verify_arm64_apk.py "$apk"
           echo "stable=true" >> "$GITHUB_OUTPUT"
       - name: Publicar APK atualizável
         if: steps.signing.outputs.stable == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ECO-v0.24.0-arm64-stable
-          path: tutor-clinico/android/app/build/outputs/apk/debug/eco-stable.apk
+          path: tutor-clinico/android/app/build/outputs/apk/release/eco-stable.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publicar APK de teste

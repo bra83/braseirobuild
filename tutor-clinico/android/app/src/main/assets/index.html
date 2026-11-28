@@ -6102,8 +6102,8 @@ let ecoSelfPersonId='';
 function ecoSelfProfileAction(name,id){
  const p=ecoSelfProfile(),val=id=>String(document.getElementById(id)?.value||'');
  if(name==='ecoSelfProfileSave'){const anamnese=Object.fromEntries(ecoSelfProfileFields.map(([k])=>[k,val('ecoSP_'+k)]));if(ecoSelfWrite(ecoSelfData.entries,{...p,anamnese})){render();notify('Anamnese pessoal salva.');}return;}
- if(name==='ecoSelfPersonNew'){ecoSelfPersonId='';render();return;}
- if(name==='ecoSelfPersonEdit'){if(p.people.some(x=>x.id===id)){ecoSelfPersonId=id;render();}return;}
+ if(name==='ecoSelfPersonNew'){if(!ecoSelfProfileAllowLeave())return;ecoSelfPersonId='';render();return;}
+ if(name==='ecoSelfPersonEdit'){if(p.people.some(x=>x.id===id)&&ecoSelfProfileAllowLeave()){ecoSelfPersonId=id;render();}return;}
  if(name==='ecoSelfPersonDelete'){if(!p.people.some(x=>x.id===id)||!window.confirm('Excluir apenas este vínculo e suas ligações familiares?'))return;const people=p.people.filter(x=>x.id!==id).map(x=>({...x,parents:x.parents.filter(y=>y!==id)}));if(ecoSelfWrite(ecoSelfData.entries,{...p,people})){ecoSelfPersonId='';render();}return;}
  if(name==='ecoSelfPersonSave'){
   const x={id:ecoSelfPersonId||uid(),name:val('ecoSP_name').trim(),role:val('ecoSP_role').trim(),kind:val('ecoSP_kind'),relation:val('ecoSP_relation'),generation:Number(val('ecoSP_generation')),parents:[...document.querySelectorAll('[data-eco-sp-parent]:checked')].map(y=>y.dataset.ecoSpParent),notes:val('ecoSP_notes')};
@@ -6262,7 +6262,19 @@ window.nativeSemanticResult=function(raw){let v;try{v=JSON.parse(raw);}catch(e){
 };
 window.nativeSemanticUnlocked=function(){ecoSelfToolCancel();ecoSelfView='home';ecoSelfToolA=ecoSelfToolB=ecoSelfToolQuery=ecoSelfToolFocus=ecoSelfToolFocusB='';ecoSelfToolAll=false;return ecoSelfHubUnlock();};
 const ecoSelfHubAct=act;
-function ecoSelfHubCanLeave(){return ecoSelfAllowLeave()&&ecoPersonalAllowLeave()&&ecoDreamWorkAllowLeave();}
+function ecoSelfProfileAllowLeave(){
+ if(ecoSelfView==='anamnese'){
+  const p=ecoSelfProfile().anamnese;
+  if(ecoSelfProfileFields.some(([k])=>document.getElementById('ecoSP_'+k)&&document.getElementById('ecoSP_'+k).value!==String(p[k]||'')))return window.confirm('Há alterações na anamnese pessoal não salvas. Descartar?');
+ }
+ if(['genograma','vinculos'].includes(ecoSelfView)&&document.getElementById('ecoSP_name')){
+  const p=ecoSelfProfile().people.find(x=>x.id===ecoSelfPersonId)||{name:'',role:'',notes:'',kind:ecoSelfView==='genograma'?'familia':'outro',relation:'nao_informado',generation:0,parents:[]};
+  const changed=['name','role','notes','kind','relation','generation'].some(k=>String(document.getElementById('ecoSP_'+k)?.value||'')!==String(p[k]??''))||JSON.stringify([...document.querySelectorAll('[data-eco-sp-parent]:checked')].map(y=>y.dataset.ecoSpParent).sort())!==JSON.stringify(p.parents.slice().sort());
+  if(changed)return window.confirm('Há um vínculo pessoal não salvo. Descartar?');
+ }
+ return true;
+}
+function ecoSelfHubCanLeave(){return ecoSelfAllowLeave()&&ecoPersonalAllowLeave()&&ecoDreamWorkAllowLeave()&&ecoSelfProfileAllowLeave();}
 act=function(name,id,button){
  if(screen==='selfAnalysis'){
   if(['ecoSelfProfileSave','ecoSelfPersonNew','ecoSelfPersonEdit','ecoSelfPersonDelete','ecoSelfPersonSave'].includes(name)){if(['anamnese','genograma','vinculos'].includes(ecoSelfView))ecoSelfProfileAction(name,id);return;}
