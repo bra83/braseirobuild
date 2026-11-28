@@ -497,7 +497,7 @@ public final class MainActivity extends Activity {
         }
         @JavascriptInterface public void exportTranscriptTxt(String text,String mode,String date){
             if(!unlocked||text==null||text.length()>1_000_000||text.trim().isEmpty()||text.indexOf(0)>=0)return;
-            if(!java.util.Set.of("manual","original","revisada","falantes").contains(mode))return;
+            if(!"manual".equals(mode)&&!"original".equals(mode)&&!"revisada".equals(mode)&&!"falantes".equals(mode))return;
             final String suffix=date!=null&&date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")?"-"+date:"";
             final long epoch=accessEpoch;
             main.post(()->{

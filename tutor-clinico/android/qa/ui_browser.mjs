@@ -69,6 +69,12 @@ try{
  // Integrated RAG: test the real UI and callback routing with a simulated native bridge.
  await home();await tile('assistenteIA').click();await page.locator('.eco-home-pick [data-id="browser-b"]').click();
  await page.locator('[data-act="ecoAiScope"][data-id="integrado"]').click();
+ assert.match(await page.locator('#ecoAiInventory').textContent(),/Notas manuais: [1-9]/);
+ assert.match(await page.locator('#ecoAiInventory').textContent(),/Passagens teóricas: 215/);
+ assert.match(await page.locator('#app').textContent(),/Qwen 0.5B detectado/);
+ const noSources=await page.evaluate(()=>ecoAiInventoryText(ecoAiSourceInventory({sessoes:[]})));
+ assert.match(noSources,/Nenhuma fonte clínica elegível/);
+ assert.match(await page.evaluate(()=>ecoQwenStatusText({llmAdvancedAvailable:true})),/Qwen 1.5B detectado/);
  await page.locator('#ecoAiQuery').fill('Organize o relato e as referências teóricas, sem inferir diagnóstico.');
  await page.evaluate(()=>{window.ecoTestRequests=[];window.NativeVault.analyzeSemantic=raw=>{window.ecoTestRequests.push(JSON.parse(raw));return 'OK';};});
  await page.locator('[data-act="ecoAiStart"]').click();
@@ -270,6 +276,7 @@ try{
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.1,.7,.2],ba:[.1,.2,.7]}]}));});
  }
  assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),perspectives.authors.map(a=>[a,true]));
+ assert.match(await page.locator('#app').textContent(),/Autores concluídos: 21 \/ 21/);
  assert.equal(await page.evaluate(()=>ecoPerspectiveRun.results.filter(x=>x.retrievalStatus==='catalog'&&x.semanticMatches===0&&x.candidateCount===2).length),20);
  assert.match(await page.locator('#app').textContent(),/nenhuma passagem atingiu o limiar experimental/);
  assert.doesNotMatch(await page.locator('#app').textContent(),/Nenhuma passagem teórica recuperada/);

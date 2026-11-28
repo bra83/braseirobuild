@@ -4284,6 +4284,29 @@ function ecoAiSend(r,phase,payload,stage){
  render();if(r.pending)setTimeout(()=>ecoAiWatch(r.id),5000);
 }
 function ecoAiWatch(id){const r=ecoAiRun;if(!r?.pending||r.id!==id)return;if(!ecoAiCurrent(r)){ecoAiCancel();return;}if(Date.now()-r.last>300000){if(r.phase==='verify'){try{window.NativeVault.cancelSemantic?.(r.id);}catch(e){}r.pending=false;r.phase='done';r.verificationError='Conferência NLI interrompida por falta de progresso.';render();return;}ecoAiCancel();notify('Motor sem progresso.','red');render();return;}setTimeout(()=>ecoAiWatch(id),5000);}
+function ecoAiSourceInventory(c,from='',to='',session=''){
+ const sessions=(c?.sessoes||[]).filter(s=>(!from||s.data>=from)&&(!to||s.data<=to)&&(!session||s.id===session));
+ const scoped={sessoes:sessions};
+ return {sessions:sessions.length,patient:ecoReviewRows(scoped,'paciente','','').length,manual:ecoReviewRows(scoped,'manual','','').length,unknown:sessions.reduce((n,s)=>n+ecoAnalysisRows(s,'desconhecido').length,0),theory:ecoLibraryChunks().length};
+}
+function ecoAiInventoryText(x){
+ return 'Sessões no filtro: '+x.sessions+' · Falas do paciente: '+x.patient+' · Notas manuais: '+x.manual+' · Trechos sem falante: '+x.unknown+' · Passagens teóricas: '+x.theory+'.'+(!x.patient&&!x.manual?' Nenhuma fonte clínica elegível. Revise os papéis dos falantes ou salve uma nota manual; o texto original não foi excluído.':'');
+}
+function ecoQwenStatusText(info){
+ if(info.llmAdvancedAvailable===true)return 'Qwen 1.5B detectado · preferencial; integridade verificada na execução.';
+ if(info.llmAvailable===true)return 'Qwen 0.5B detectado · limitado para fundamentação teórica (2/21 no benchmark). Para análises aprofundadas, importe o Qwen 1.5B em Ajustes.';
+ if(info.llmAvailable===false)return 'Qwen indisponível. Confira os modelos em Ajustes.';
+ return 'Qwen: disponibilidade não verificada.';
+}
+function ecoQwenStatusMarkup(){
+ let info={};try{info=JSON.parse(window.NativeVault?.getEngineInfo?.()||'{}');}catch(e){}
+ return '<p class="small muted" role="status">'+esc(ecoQwenStatusText(info))+'</p>';
+}
+document.addEventListener('change',e=>{
+ if(screen!=='case'||tab!=='assistenteIA'||!['ecoAiFrom','ecoAiTo','ecoAiSession'].includes(e.target?.id))return;
+ const el=document.getElementById('ecoAiInventory');
+ if(el)el.textContent=ecoAiInventoryText(ecoAiSourceInventory(currentCase(),document.getElementById('ecoAiFrom')?.value||'',document.getElementById('ecoAiTo')?.value||'',document.getElementById('ecoAiSession')?.value||''));
+});
 function ecoAiStart(c){
  if(ecoAiRun?.pending||ecoNliRun?.pending||ecoClaimRun?.pending||ecoLibraryRun?.pending||ecoReviewRun?.pending||ecoNeuralRun?.pending||ecoIsCapturing()){notify('Finalize a operação anterior.','red');return;}
  const from=document.getElementById('ecoAiFrom')?.value||'',to=document.getElementById('ecoAiTo')?.value||'',session=document.getElementById('ecoAiSession')?.value||'';
@@ -4292,8 +4315,10 @@ function ecoAiStart(c){
  const query=String(document.getElementById('ecoAiQuery')?.value||'').trim(),rows=ecoAiRows(c,ecoAiScope);ecoAiPrefill=query;
  const scope=ecoAiScope==='paciente'?'paciente':ecoAiScope==='integrado'?'todos':'desconhecido';
  const payload={query,scope,retrievalOnly:true,rows:rows.map(x=>({text:x.text,speaker:x.speaker,sessionId:x.sessionId||'',atMs:x.atMs??null}))};
- if(!query||query.length>500||!rows.length||rows.some(x=>x.text.length>12000)){notify('Informe uma consulta de até 500 caracteres e fontes não vazias de até 12 mil caracteres por trecho.','red');return;}
- if(ecoAiScope==='integrado'&&(!rows.some(x=>x.sourceScope!=='teoria')||!rows.some(x=>x.sourceScope==='teoria'))){notify('O modo integrado exige registros clínicos e biblioteca.','red');return;}
+ if(!query||query.length>500){notify('Informe uma consulta de até 500 caracteres.','red');return;}
+ const inventory=ecoAiSourceInventory(c,ecoAiFrom,ecoAiTo,ecoAiSession);
+ if(!rows.length||ecoAiScope==='integrado'&&(!inventory.patient&&!inventory.manual||!inventory.theory)){const el=document.getElementById('ecoAiInventory');if(el)el.textContent=ecoAiInventoryText(inventory);notify(ecoAiScope==='integrado'?'Caso + teoria precisa de ao menos uma fala do paciente ou nota manual e uma fonte teórica. Confira a contagem abaixo.':'Nenhuma fonte no escopo escolhido. Confira os filtros e os papéis dos falantes.','red');return;}
+ if(rows.some(x=>x.text.length>12000)){notify('Há trecho acima de 12 mil caracteres. Reduza o escopo ou revise a divisão da fonte; nenhum texto foi truncado.','red');return;}
  const r=ecoAiRun={caseId:c.id,scope:ecoAiScope,nativeScope:scope,key:ecoAiKey(c,ecoAiScope),rows,query};
  const batches=ecoAiBatchPlan(rows,r.scope);
  if(batches.length>1){r.batches=batches;r.batchIndex=0;r.covered=0;r.hits=[];ecoAiBatchNext(r);return;}
@@ -4337,11 +4362,12 @@ function ecoAiDraftVerification(r){
 function ecoAiSource(r,x){const u=r.rows[x.i];return '<p>'+esc(u.text)+'</p><small>'+esc(u.sourceScope==='teoria'?('Teoria · '+u.author+' · '+u.ref):(formatDate(u.sessionDate)+' · '+u.source))+' · cosseno '+Number(x.score).toFixed(3)+(Number.isFinite(x.rank)?' · relevância neural '+x.rank.toFixed(3):'')+'</small>';}
 function ecoAiPanel(c){
  const r=ecoAiCurrent(ecoAiRun)?ecoAiRun:null;
- let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica'],['integrado','Caso + teoria']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':ecoAiScope==='integrado'?'Relatos, notas e teoria em fontes separadas. Teoria não comprova fatos clínicos.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||ecoAiPrefill||'')+'</textarea></div>'+ecoAiTaskButtons()+(ecoAiScope==='teoria'?'':ecoAiFilterFields(c))+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
+ let out='<section class="card"><h2>Assistente IA local · RAG</h2><p class="alert">Experimental: recuperação, reranking e geração em etapas, sem APIs. A minuta pode conter erros, mesmo quando cita fontes. Não é diagnóstico, prescrição, avaliação de risco ou conclusão clínica. Não é salva automaticamente.</p><div class="actions">'+[['paciente','Paciente'],['manual','Notas manuais'],['teoria','Biblioteca teórica'],['integrado','Caso + teoria']].map(([k,l])=>btn(l,'ecoAiScope',ecoAiScope===k?'':'secondary','data-id="'+k+'"')).join('')+'</div><p class="small muted">Corpus: '+esc(ecoAiScope==='teoria'?'Somente material didático; não inclua dados pessoais na consulta.':ecoAiScope==='manual'?'Notas profissionais, não falas literais.':ecoAiScope==='integrado'?'Relatos, notas e teoria em fontes separadas. Teoria não comprova fatos clínicos.':'Falas atribuídas ao paciente deste caso.')+'</p><div class="field"><label>Questão ou síntese a preparar</label><textarea id="ecoAiQuery" maxlength="500">'+esc(r?.query||ecoAiPrefill||'')+'</textarea></div>'+ecoAiTaskButtons()+(ecoAiScope==='teoria'?'':ecoAiFilterFields(c))+'<p id="ecoAiInventory" class="small" role="status">'+esc(ecoAiScope==='teoria'?'Passagens teóricas disponíveis: '+ecoLibraryChunks().length:ecoAiInventoryText(ecoAiSourceInventory(c,ecoAiFrom,ecoAiTo,ecoAiSession)))+'</p>'+ecoQwenStatusMarkup()+btn('Recuperar e reordenar fontes','ecoAiStart','secondary','data-case="'+esc(c.id)+'"');
+ if(r?.phase==='ready'&&r.scope==='integrado'&&(!r.ranked.some(x=>r.rows[x.i].sourceScope==='teoria')||!r.ranked.some(x=>r.rows[x.i].sourceScope!=='teoria')))out+='<p class="alert">A busca não encontrou candidatos dos dois grupos (clínico e teoria). Reformule a consulta ou altere o período; a geração integrada não pode prosseguir sem ambos.</p>';
  if(r?.batches)out+='<p class="small">Cobertura da recuperação: '+r.covered+' / '+r.rows.length+' trechos · '+r.batches.length+' lotes. Nenhuma conclusão antes da busca completa.</p>';
  if(r?.pending)out+='<p id="ecoAiStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoAiCancel','ghost');
  else if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
- else if(r?.phase==='ready'){out+='<h3>Fontes reordenadas pelo cross-encoder</h3><p class="small">Selecione as fontes antes de gerar. Passagens longas não são cortadas silenciosamente.</p>'+r.ranked.map((x,i)=>'<div class="eco-evidence"><label class="choice"><input type="checkbox" id="ecoAiPick_'+i+'" '+(r.rows[x.i].text.length>1800?'disabled':'')+'>Selecionar fonte</label>'+ecoAiSource(r,x)+'</div>').join('')+(r.ranked.length?btn('Gerar minuta local','ecoAiGenerate','','data-case="'+esc(c.id)+'"'):'<p>Nenhuma fonte elegível; não gerar resposta.</p>')+(r.skipped?.length?'<p>'+r.skipped.length+' fonte(s) excederam o limite do reranker.</p>':'');}
+ else if(r?.phase==='ready'){out+='<h3>Fontes reordenadas pelo cross-encoder</h3><p class="small">Selecione as fontes antes de gerar. Passagens longas não são cortadas silenciosamente.</p>'+r.ranked.map((x,i)=>'<div class="eco-evidence"><label class="choice"><input type="checkbox" id="ecoAiPick_'+i+'" '+(r.rows[x.i].text.length>1800?'disabled':'')+'>Selecionar fonte</label>'+ecoAiSource(r,x)+'</div>').join('')+(r.ranked.length?btn('Gerar minuta local com Qwen','ecoAiGenerate','','data-case="'+esc(c.id)+'"'):'<p>Nenhuma fonte elegível; não gerar resposta.</p>')+(r.skipped?.length?'<p>'+r.skipped.length+' fonte(s) excederam o limite do reranker.</p>':'');}
  else if(r?.phase==='done'){out+='<h3>Minuta não revisada</h3><p class="alert">Compare cada afirmação com as passagens abaixo. Identificadores de fonte não garantem sustentação semântica.</p><div class="eco-evidence" style="white-space:pre-wrap">'+esc(r.draft)+'</div><p class="small">'+esc(r.model)+'</p>'+r.selected.map((x,i)=>'<div class="eco-evidence"><strong>[S'+(i+1)+']</strong>'+ecoAiSource(r,x)+'</div>').join('')+ecoAiDraftVerification(r)+(r.scope==='teoria'?'':ecoAiArchiveForm(r))+btn('Abrir comparação NLI','caseTab','secondary','data-id="compararRelatos"');}
  return out+'</section>'+ecoAiArchivePanel(c);
 }
@@ -5324,8 +5350,8 @@ function ecoPerspectivePanel(c){
  let out='<section class="card"><h2>Perspectivas Psicanalíticas</h2><p>Selecione uma fala atribuída ao paciente. O ECO consulta separadamente a teoria dos autores escolhidos e gera leituras didáticas, justificativa, exemplos e limites. Não simula a voz dos autores nem atribui diagnóstico.</p>';
  if(!rows.length)return out+'<p class="alert">Nenhuma fala atribuída ao paciente. Confirme os falantes na revisão da transcrição; notas profissionais não são usadas como se fossem falas.</p></section>';
  out+='<div class="field"><label>Sessão</label><select id="ecoPerspectiveSession" '+(r?.pending?'disabled':'')+'>'+sessions.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===selected.id?'selected':'')+'>'+esc(formatDate(s.data)+' '+(s.hora||''))+'</option>').join('')+'</select></div><div class="field"><label>Fala do paciente</label><select id="ecoPerspectivePassage" '+(r?.pending?'disabled':'')+'>'+rows.map((x,i)=>'<option value="'+i+'" '+(x===u?'selected':'')+'>'+esc((i+1)+'. '+x.text.slice(0,130))+'</option>').join('')+'</select></div><label for="ecoPerspectiveQuote">Trecho literal (se longo, selecione até 500 caracteres)</label><textarea id="ecoPerspectiveQuote" readonly rows="5">'+esc(u?.text||'')+'</textarea>';
- out+=ecoPerspectiveAuthorPicker(r)+btn('Comparar autores selecionados','ecoPerspectiveStart','', 'data-case="'+esc(c.id)+'"')+(r?.pending?'<p id="ecoPerspectiveStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoPerspectiveCancel','ghost'):'');
- if(r){out+='<h3>Fala analisada</h3><blockquote>'+esc(r.quote)+'</blockquote><p class="small">'+esc(formatDate(r.sessionDate))+' · '+(r.atMs==null?'sem minuto registrado':Math.floor(r.atMs/60000)+' min')+'</p>';
+ out+=ecoQwenStatusMarkup()+ecoPerspectiveAuthorPicker(r)+btn('Comparar autores selecionados','ecoPerspectiveStart','', 'data-case="'+esc(c.id)+'"')+(r?.pending?'<p id="ecoPerspectiveStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoPerspectiveCancel','ghost'):'');
+ if(r){out+='<p class="small" role="status">Autores concluídos: '+r.results.length+' / '+r.authors.length+'. '+(r.pending?'Processamento sequencial local.':'')+'</p><h3>Fala analisada</h3><blockquote>'+esc(r.quote)+'</blockquote><p class="small">'+esc(formatDate(r.sessionDate))+' · '+(r.atMs==null?'sem minuto registrado':Math.floor(r.atMs/60000)+' min')+'</p>';
  for(const result of r.results){out+='<article class="eco-evidence"><h3>'+esc(result.author)+'</h3>';
  if(result.retrievalStatus==='catalog')out+='<p class="small muted">Busca semântica: nenhuma passagem atingiu o limiar experimental. Foram comparadas '+esc(result.candidateCount)+' referências do catálogo deste autor; relevância para a fala ainda incerta. Não é uma correspondência semântica confirmada.</p>';
  else if(result.retrievalStatus==='semantic')out+='<p class="small muted">Busca semântica: '+esc(result.semanticMatches)+' passagem(ns) candidata(s) acima do limiar experimental.</p>';
@@ -6065,6 +6091,7 @@ function ecoSelfToolsPanel(rows){
    if(ecoSelfTool==='assist')out+='<label class="field">O que deseja explorar?<select id="ecoSelfToolQuery">'+['Associações e afetos','Repetições e exceções','Vínculos e expectativas','Ambivalência e alternativas','Elaboração e próximos passos'].map(q=>'<option '+(q===ecoSelfToolQuery?'selected':'')+'>'+esc(q)+'</option>').join('')+'</select></label><p>Qwen produz perguntas abertas individualizadas sobre o trecho.</p>';
    if(ecoSelfTool==='perspective')out+='<label class="field">Autor (selecione um por execução)<select id="ecoSelfToolAuthor">'+ecoPerspectiveCatalog.map(x=>'<option value="'+esc(x[1])+'" '+(x[1]===ecoSelfToolAuthor?'selected':'')+'>'+esc(x[2])+'</option>').join('')+'</select></label><p>Perguntas de reflexão por foco teórico; não simulação do autor ou interpretação conclusiva.</p>';
   }
+  if(['assist','perspective'].includes(ecoSelfTool))out+=ecoQwenStatusMarkup();
   out+=r?.pending?'<p id="ecoSelfToolStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoSelfToolCancel','secondary'):btn(ecoSelfTool==='neural'?'Executar análise neural':ecoSelfTool==='nli'?'Comparar com NLI':'Gerar intervenções da IA','ecoSelfToolStart','');
   if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
   if(r?.result)out+=ecoSelfToolResult(r);
