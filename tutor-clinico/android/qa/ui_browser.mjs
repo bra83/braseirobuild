@@ -104,10 +104,11 @@ try{
  const result=await page.evaluate(()=>{const c=state.cases.find(x=>x.id==='browser-b'),rec=c.ecoAiArchive.at(-1);return {scope:rec.scope,sources:rec.sources.map(x=>x.scope),valid:ecoAiArchiveValid(c,rec),other:state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0};});
  assert.deepEqual(result,{scope:'integrado',sources:['teoria','manual'],valid:true,other:0});
  // Full automatic pipeline, still requires human approval to archive.
- await page.evaluate(()=>{window.confirm=()=>true;act('caseTab','sessoes');});
+ await page.evaluate(()=>{act('caseTab','sessoes');});
  await page.locator('[data-act="ecoAiSessionIntegrated"]').first().click();
  assert.equal(await page.evaluate(()=>ecoAiScope),'integrado');
  assert.ok(await page.locator('#ecoAiSession').inputValue());
+ page.once('dialog',dialog=>dialog.accept());
  await page.locator('[data-act="ecoAiAutomatic"]').click();
  const autoClinical=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(autoClinical.scope,'todos');
  await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i:0,score:.75}]}));});
@@ -382,7 +383,7 @@ try{
  // Personal module uses only dedicated bridge, never case state.
  await page.evaluate(()=>{let record={version:1,entries:[],revision:'rev0'};window.NativeVault.readSelfAnalysis=()=>JSON.stringify(record);window.NativeVault.saveSelfAnalysis=(revision,raw)=>{if(revision!==record.revision)return 'CONFLICT';record={...JSON.parse(raw),revision:'rev'+Date.now()};return 'OK';};act('nav','home');});
  await page.locator('[data-act="nav"][data-id="selfAnalysis"]').click();
- assert.equal(await page.locator('[data-act="ecoSelfHubView"].eco-module-card').count(),7);
+ assert.equal(await page.locator('[data-act="ecoSelfHubView"].eco-module-card').count(),10);
  const personalMenu=async id=>{
   await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();
   await page.locator('[data-act="ecoSelfHubView"][data-id="'+id+'"]').click();
@@ -422,7 +423,7 @@ try{
  await page.locator('details').filter({has:page.locator('[data-act="ecoSelfHubOpen"]')}).locator('summary').click();
  await page.locator('[data-act="ecoSelfHubOpen"]').click();
  assert.match(await page.locator('#app').textContent(),/Nuvem de palavras/);
- assert.equal(await page.locator('[data-act="ecoSelfToolTab"]').count(),5);
+ assert.equal(await page.locator('[data-act="ecoSelfToolTab"]').count(),6);
  await page.locator('[data-act="ecoSelfToolTab"][data-id="neural"]').click();
  await page.locator('#ecoSelfToolQuery').fill('registro pessoal');
  await page.locator('[data-act="ecoSelfToolStart"]').click();

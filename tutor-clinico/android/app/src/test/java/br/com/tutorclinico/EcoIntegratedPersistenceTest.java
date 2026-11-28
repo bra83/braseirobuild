@@ -794,12 +794,15 @@ public class EcoIntegratedPersistenceTest {
         assertEquals("síntese pessoal",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONObject("reflectionWork").getString("insight"));
         JSONObject withAi=store.readSelfAnalysis();
         withAi.getJSONArray("entries").getJSONObject(1).put("aiWork",new JSONArray().put(new JSONObject().put("id","ai-1").put("createdAt","2026-11-28T12:00:00Z").put("kind","assist").put("model","fixture").put("source","SONHO SINTÉTICO").put("text","PRIVATE_AI_SYNTHETIC_193")));
+        withAi.put("profile",new JSONObject().put("anamnese",new JSONObject().put("history","PRIVATE_PROFILE_193")).put("people",new JSONArray().put(new JSONObject().put("id","person-1").put("name","Familiar fictício").put("role","mãe").put("kind","familia").put("relation","apoio").put("generation",-1).put("parents",new JSONArray()).put("notes",""))));
         String aiRev=withAi.getString("revision");withAi.remove("revision");store.saveSelfAnalysis(aiRev,withAi.toString());
         assertFalse(store.read().contains("PRIVATE_AI_SYNTHETIC_193"));
         java.io.ByteArrayOutputStream withPrivateAi=new java.io.ByteArrayOutputStream();store.exportFullVault(withPrivateAi,pass,true,()->true);
         store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
         store=new SecureStore(context,key);store.restoreFullVault(new java.io.ByteArrayInputStream(withPrivateAi.toByteArray()),pass,()->true);
         assertEquals("PRIVATE_AI_SYNTHETIC_193",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONArray("aiWork").getJSONObject(0).getString("text"));
+        assertEquals("PRIVATE_PROFILE_193",store.readSelfAnalysis().getJSONObject("profile").getJSONObject("anamnese").getString("history"));
+        assertFalse(store.read().contains("PRIVATE_PROFILE_193"));
         // Restore a prior archive without personal data into a personal-only vault; keep both works.
         store.restoreFullVault(new java.io.ByteArrayInputStream(no.toByteArray()),pass,()->true);
         assertEquals(2,store.readSelfAnalysis().getJSONArray("entries").length());

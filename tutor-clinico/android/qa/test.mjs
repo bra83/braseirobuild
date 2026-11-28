@@ -1953,8 +1953,8 @@ test('ECO perspective catalogue recovery never fabricates semantic hits and keep
 test('ECO all nine personal axes have specific work and preserved source',()=>{assert.equal(js('Object.keys(ecoPersonalAxis).length'),9);assert.ok(js('ecoSelfTopics.every(t=>!!ecoPersonalAxis[t[0]])'));assert.equal(js('ecoPersonalBlank(selfReviewA).source'),context.selfReviewA.reflection);assert.match(js('ecoPersonalMarkup({a:selfReviewA,b:selfReviewB})'),/Recorrências textuais/);assert.match(js('ecoPersonalMarkup({a:selfReviewA,b:null})'),/Minha compreensão provisória/);});
 
 test('ECO personal hub exposes isolated tools and record-specific analysis',()=>{
- assert.equal(js('ecoSelfHubModules.length'),7);
- assert.equal(js('ecoSelfToolKinds.length'),5);
+ assert.equal(js('ecoSelfHubModules.length'),10);
+ assert.equal(js('ecoSelfToolKinds.length'),6);
  assert.match(js('ecoSelfHubNav([selfReviewA,selfReviewB])'),/Análise e IA/);
  assert.match(js('ecoSelfToolEcos([selfReviewA,selfReviewB])'),/silêncio/i);
  assert.match(html,/scope:'revisado',personal:true,longitudinal:selected.length>1/);

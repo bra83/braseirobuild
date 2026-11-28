@@ -1202,7 +1202,27 @@ final class SecureStore {
     private static JSONObject validateSelfAnalysis(String raw)throws Exception{
         if(raw==null||raw.length()>2_000_000)throw new IllegalArgumentException("Limite pessoal atingido.");
         JSONObject value=new JSONObject(raw);
-        if(value.optInt("version")!=1||value.length()!=2)throw new IllegalArgumentException("Formato pessoal inválido");
+        if(value.optInt("version")!=1||value.length()!=2+(value.has("profile")?1:0))throw new IllegalArgumentException("Formato pessoal inválido");
+        if(value.has("profile")){
+            JSONObject profile=value.getJSONObject("profile");
+            if(profile.length()!=2)throw new IllegalArgumentException("Perfil pessoal inválido");
+            JSONObject anamnese=profile.getJSONObject("anamnese");
+            java.util.Iterator<String> fields=anamnese.keys();
+            while(fields.hasNext()){String k=fields.next();if(!java.util.Arrays.asList("history","childhood","health","work","relationships","concerns","resources").contains(k)||!(anamnese.opt(k) instanceof String)||anamnese.getString(k).length()>4000)throw new IllegalArgumentException("Anamnese pessoal inválida");}
+            JSONArray people=profile.getJSONArray("people");if(people.length()>150)throw new IllegalArgumentException("Limite de vínculos");
+            java.util.Map<String,JSONObject> nodes=new java.util.HashMap<>();
+            for(int i=0;i<people.length();i++){
+                JSONObject n=people.getJSONObject(i);
+                if(n.length()!=8)throw new IllegalArgumentException("Vínculo inválido");
+                for(String k:new String[]{"id","name","role","kind","relation","notes"})if(!(n.opt(k) instanceof String))throw new IllegalArgumentException("Campo de vínculo inválido");
+                if(!n.getString("id").matches("[A-Za-z0-9_-]{1,100}")||nodes.put(n.getString("id"),n)!=null||n.getString("name").trim().isEmpty()||n.getString("name").length()>120||n.getString("role").length()>120||n.getString("notes").length()>4000||!java.util.Arrays.asList("familia","amizade","trabalho","comunidade","cuidado","outro").contains(n.getString("kind"))||!java.util.Arrays.asList("apoio","conflito","misto","distante","nao_informado").contains(n.getString("relation"))||!(n.opt("generation") instanceof Number)||n.getDouble("generation")!=n.getInt("generation")||Math.abs(n.getInt("generation"))>2)throw new IllegalArgumentException("Vínculo pessoal inválido");
+            }
+            for(JSONObject n:nodes.values()){
+                JSONArray parents=n.getJSONArray("parents");java.util.HashSet<String> seenParents=new java.util.HashSet<>();
+                if(parents.length()>2||parents.length()>0&&!"familia".equals(n.getString("kind")))throw new IllegalArgumentException("Ascendentes inválidos");
+                for(int i=0;i<parents.length();i++){String id=parents.getString(i);JSONObject parent=nodes.get(id);if(!seenParents.add(id)||parent==null||!"familia".equals(parent.getString("kind"))||parent.getInt("generation")>=n.getInt("generation"))throw new IllegalArgumentException("Ligação familiar inválida");}
+            }
+        }
         JSONArray entries=value.getJSONArray("entries");
         if(entries.length()>500)throw new IllegalArgumentException("Limite de 500 registros pessoais.");
         java.util.HashSet<String> ids=new java.util.HashSet<>();
@@ -1221,7 +1241,7 @@ final class SecureStore {
                     if(result.length()!=6)throw new IllegalArgumentException("Resultado pessoal inválido");
                     for(String field:new String[]{"id","createdAt","kind","model","source","text"})
                         if(!(result.opt(field) instanceof String))throw new IllegalArgumentException("Campo de resultado inválido");
-                    if(!result.getString("id").matches("[A-Za-z0-9_-]{1,100}")||!resultIds.add(result.getString("id"))||!java.util.Arrays.asList("neural","nli","assist","perspective").contains(result.getString("kind"))||result.getString("createdAt").length()>40||result.getString("model").length()>200||result.getString("source").length()>12000||result.getString("text").length()>24000||result.getString("text").trim().isEmpty())throw new IllegalArgumentException("Resultado pessoal inválido");
+                    if(!result.getString("id").matches("[A-Za-z0-9_-]{1,100}")||!resultIds.add(result.getString("id"))||!java.util.Arrays.asList("neural","nli","assist","perspective","rag").contains(result.getString("kind"))||result.getString("createdAt").length()>40||result.getString("model").length()>200||result.getString("source").length()>12000||result.getString("text").length()>24000||result.getString("text").trim().isEmpty())throw new IllegalArgumentException("Resultado pessoal inválido");
                     java.time.Instant.parse(result.getString("createdAt"));
                 }
             }
@@ -1251,6 +1271,10 @@ final class SecureStore {
     }
     private static JSONObject mergeSelfAnalysis(String local,String incoming)throws Exception{
         JSONObject result=validateSelfAnalysis(local),other=validateSelfAnalysis(incoming);
+        if(other.has("profile")){
+            if(result.has("profile")&&!result.getJSONObject("profile").toString().equals(other.getJSONObject("profile").toString()))throw new SecurityException("Conflito no perfil pessoal; nenhum dado foi alterado.");
+            if(!result.has("profile"))result.put("profile",other.getJSONObject("profile"));
+        }
         JSONArray rows=result.getJSONArray("entries"),next=other.getJSONArray("entries");
         java.util.Map<String,JSONObject> seen=new java.util.HashMap<>();
         for(int i=0;i<rows.length();i++)seen.put(rows.getJSONObject(i).getString("id"),rows.getJSONObject(i));
@@ -1276,7 +1300,7 @@ final class SecureStore {
         try{
             String prior=readSelfAnalysisRaw(db);
             if(!EcoDatabaseHelper.computeChecksum(prior).equals(expected))throw new SecurityException("Registro pessoal alterado; recarregue.");
-            if(value.getJSONArray("entries").length()==0)db.delete("configuracoes","chave=?",new String[]{SELF_ANALYSIS_KEY});
+            if(value.getJSONArray("entries").length()==0&&!value.has("profile"))db.delete("configuracoes","chave=?",new String[]{SELF_ANALYSIS_KEY});
             else{
                 ContentValues cv=new ContentValues();cv.put("chave",SELF_ANALYSIS_KEY);cv.put("valor_enc",encryptRecord(raw));cv.put("updated_at",System.currentTimeMillis());
                 if(db.update("configuracoes",cv,"chave=?",new String[]{SELF_ANALYSIS_KEY})==0)db.insertOrThrow("configuracoes",null,cv);
