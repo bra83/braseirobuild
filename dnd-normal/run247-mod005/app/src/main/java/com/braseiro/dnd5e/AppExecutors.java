@@ -21,6 +21,8 @@ public final class AppExecutors {
     // Chaquopy boot must not block launch or the general RAG/image I/O pool.
     private static final ExecutorService BARBARA_BOOT = Executors.newSingleThreadExecutor(namedFactory("braseiro-barbara-boot"));
     private static final ExecutorService NETWORK = Executors.newFixedThreadPool(4, namedFactory("braseiro-network"));
+    private static final ExecutorService MASTER_TEXT = Executors.newFixedThreadPool(2, namedFactory("braseiro-master-text"));
+    private static final ExecutorService MASTER_RESPONSE = Executors.newSingleThreadExecutor(namedFactory("braseiro-master-response"));
     private static final ExecutorService SERIAL = Executors.newSingleThreadExecutor(namedFactory("braseiro-serial"));
     private static final ExecutorService INDEXING = Executors.newSingleThreadExecutor(namedFactory("braseiro-index"));
     private static final ExecutorService HEROES = Executors.newSingleThreadExecutor(namedFactory("braseiro-heroes"));
@@ -35,6 +37,8 @@ public final class AppExecutors {
     public static ExecutorService adventureStart() { return ADVENTURE_START; }
     public static ExecutorService barbaraBoot() { return BARBARA_BOOT; }
     public static ExecutorService network() { return NETWORK; }
+    public static ExecutorService masterText() { return MASTER_TEXT; }
+    public static ExecutorService masterResponse() { return MASTER_RESPONSE; }
     public static ExecutorService serial() { return SERIAL; }
     public static ExecutorService indexing() { return INDEXING; }
     public static ExecutorService heroes() { return HEROES; }

@@ -292,7 +292,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private long lastStreamUiAt=0L;
     private int lastStreamUiLength=0;
     private volatile long lastStreamPostAt=0L;
-    /* package */ long aiRequestGeneration=0L;
+    /* package */ volatile long aiRequestGeneration=0L;
+    private volatile long remoteMasterRequest=-1L, remoteMasterLastProgress=0L;
     private long aiPipelineGeneration=0L;
     // RUN188_GEMINI_EXPLICIT_OFFLINE: offline may run ONLY after a direct tap.
     private boolean manualOfflineNextRequest=false;
@@ -1828,7 +1829,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 LinearLayout failRow=new LinearLayout(this);failRow.setOrientation(LinearLayout.HORIZONTAL);
                 Button retry=smallButton("TENTAR NOVAMENTE",GREEN);retry.setOnClickListener(new View.OnClickListener(){public void onClick(View v){retryFailedGeminiRequest();}});
                 Button off=smallButton("MESTRE OFFLINE",PANEL2);off.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
-                failRow.addView(retry,new LinearLayout.LayoutParams(0,dp(38),1));failRow.addView(off,new LinearLayout.LayoutParams(0,dp(38),1));
+                failRow.addView(retry,new LinearLayout.LayoutParams(0,dp(38),1));
                 Button unlock=smallButton("LIBERAR CENA SEM APAGAR O SAVE",PANEL2);
                 unlock.setOnClickListener(v->{
                     if(aiBusy){toast("Termine ou interrompa a tentativa em andamento.");return;}
@@ -6719,7 +6720,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String stateSummary=prefs.getString("last_state_update_summary","");if(stateSummary.length()>0){LinearLayout stateCard=card();stateCard.addView(text("FICHA ATUALIZADA PELO MESTRE",13,GOLD,true));stateCard.addView(text(stateSummary,13,TEXT,false));b.addView(stateCard);}
         addGeminiMasterChoiceButtons(b);
         addRuleCuriosityButton(b);
-        narratorProgress=new ProgressBar(this);narratorProgress.setVisibility(aiBusy?View.VISIBLE:View.GONE);b.addView(narratorProgress,new LinearLayout.LayoutParams(-1,aiBusy?dp(34):0));if(aiBusy&&streamingNarration.length()>120){Button usePartial=button("USAR O TEXTO JÁ RECEBIDO",PANEL2);usePartial.setOnClickListener(new View.OnClickListener(){public void onClick(View v){finalizeStreamingNarrationNow();}});b.addView(usePartial);}
+        narratorProgress=new ProgressBar(this);narratorProgress.setVisibility(aiBusy?View.VISIBLE:View.GONE);b.addView(narratorProgress,new LinearLayout.LayoutParams(-1,aiBusy?dp(34):0));// Partial streaming text is never a confirmed scene.
         String shownNarration=aiBusy&&!masterSideQueryActive&&streamingNarration.length()>0?streamingNarration+" ▌":(lastNarration.length()==0?(aiBusy&&!masterSideQueryActive?"O Mestre começou a escrever...":"A aventura ainda não começou."):lastNarration);
         addNarratorSectionSafely(b,"Personagens e posição no mapa",new Runnable(){public void run(){addScenePresencePanel(b);}});
 
@@ -7816,7 +7817,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         markMasterRequestFailed(mode,action,channel,error,false);
     }
     private void markMasterRequestFailed(final String mode,final String action,final String channel,final String error,final boolean apiFailure){
-        aiBusy=false;streamingNarration="";
+        remoteMasterRequest=-1L;aiBusy=false;streamingNarration="";
         final boolean contextFailure=!apiFailure&&error!=null&&error.startsWith("CONTEXTO DO MESTRE:");
         final boolean choicesFailure=!apiFailure&&error!=null&&error.startsWith("ESCOLHAS:");
         final boolean narrativeFailure=!apiFailure&&error!=null&&error.startsWith("NARRATIVA:");
@@ -7855,7 +7856,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     "Sua ação foi preservada para tentar novamente.\n\n"+
                     (error==null?"Falha de conexão ou resposta incompleta.":error))
                 .setPositiveButton("TENTAR NOVAMENTE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){retryFailedGeminiRequest();}})
-                .setNeutralButton("MESTRE OFFLINE",new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){runExplicitOfflineMaster();}})
                 .setNegativeButton("AGORA NÃO",null)
                 .setOnDismissListener(new DialogInterface.OnDismissListener(){public void onDismiss(DialogInterface d){showingGeminiFailureDialog=false;}})
                 .show();
@@ -8017,7 +8017,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         Button offline=button("MESTRE OFFLINE • USAR MANUALMENTE",PANEL2);
         offline.setEnabled(!aiBusy);
         offline.setOnClickListener(new View.OnClickListener(){public void onClick(View v){runExplicitOfflineMaster();}});
-        panel.addView(offline);addFictionTraceControls(panel);parent.addView(panel);
+        if(!hasFailedGeminiRequest()&&!aiBusy)panel.addView(offline);addFictionTraceControls(panel);parent.addView(panel);
     }
 
     private void sendAi(final String mode,String userText){
@@ -8306,13 +8306,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     String writingStatus=ruleCacheHit?"Regra reutilizada do cache; o Mestre está escrevendo sem nova pesquisa…":(skippedSearch?"Contexto local suficiente; o Mestre está escrevendo sem pesquisar manuais…":(lastAiUsedRag?"Manuais consultados; o Mestre está escrevendo em uma única chamada…":"Consulta concluída sem prova suficiente; o Mestre continuará somente a ficção… "+(masterOrchestrator==null?"":masterOrchestrator.quotaStatus())));
                     updateAdventureStartupMessage(writingStatus);updateNarratorBusyUi();
                     final ArrayList<String> noRemoteFiles=new ArrayList<String>();
-                    ui.postDelayed(new Runnable(){public void run(){if(requestId!=aiRequestGeneration||!aiBusy)return;++aiRequestGeneration;markGeminiRequestFailed(mode,userText,inputChannel,"Tempo limite da geração do Mestre. Nenhuma cena foi confirmada.");}},LiveMasterOpeningPolicy.REQUEST_DEADLINE_MS);
+                    armRemoteMasterDeadline(requestId,mode,userText,inputChannel);
                     gemini.generateTextWithFilesStreaming(key,model,sys,effectiveUserText,noRemoteFiles,new GeminiService.StreamingTextCallback(){
-                        public void onPartial(String rawPartial){streamNarrationPartial(requestId,rawPartial);}
+                        public void onPartial(String rawPartial){remoteMasterProgress(requestId,rawPartial);streamNarrationPartial(requestId,rawPartial);}
                         public void onSuccess(final String text){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;prefs.edit().putString("gemini_connection_state","online").putLong("gemini_last_ok_at",System.currentTimeMillis()).remove("gemini_last_error").apply();acceptOrRepairNarration(mode,userText,text,sys,key,model,requestId,0);}});}
                         public void onError(final String error){ui.post(new Runnable(){public void run(){
                             if(requestId!=aiRequestGeneration)return;
-                            prefs.edit().putString("gemini_connection_state","offline").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();
+                            prefs.edit().putString("gemini_connection_state","request_failed").putString("gemini_last_error",error==null?"erro desconhecido":error).apply();
                             if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(pendingAiInputChars,streamingNarration.length());
                             if(!"Narrador".equals(mode)&&streamingNarration!=null&&streamingNarration.trim().length()>=160){
                                 String salvaged=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(streamingNarration));
@@ -8330,6 +8330,22 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 ui.post(new Runnable(){public void run(){if(!aiBusy||preparationPipeline!=aiPipelineGeneration)return;markGeminiRequestFailed(mode,userText,inputChannel,"Falha ao preparar o contexto: "+safeMessage(failure));}});
             }
         }});
+    }
+
+    private void remoteMasterProgress(long id,String value){
+        if(remoteMasterRequest==id&&value!=null&&!value.isEmpty())remoteMasterLastProgress=android.os.SystemClock.elapsedRealtime();
+    }
+    private void armRemoteMasterDeadline(final long id,final String mode,final String action,final String channel){
+        remoteMasterRequest=id;
+        final long started=android.os.SystemClock.elapsedRealtime();
+        remoteMasterLastProgress=started;
+        ui.postDelayed(new Runnable(){public void run(){
+            if(id!=aiRequestGeneration||remoteMasterRequest!=id||!aiBusy)return;
+            long now=android.os.SystemClock.elapsedRealtime();
+            if(!RemoteMasterTransportPolicy.expired(started,remoteMasterLastProgress,now)){ui.postDelayed(this,15000L);return;}
+            remoteMasterRequest=-1L;++aiRequestGeneration;
+            markGeminiRequestFailed(mode,action,channel,"Gemini não concluiu a resposta dentro do limite de comunicação. A ação e as regras recuperadas continuam salvas; nenhum Mestre offline foi ativado.");
+        }},15000L);
     }
 
     private void runOfflineMaster(final String mode,final String userText,final List<JSONObject> localHits,final String reason){
@@ -8396,6 +8412,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }catch(Exception ignored){}
 
         if(requestId!=aiRequestGeneration)return;
+        remoteMasterProgress(requestId,"response");
         // A requested player check must result in an actual pending roll,
         // not a narrative victory followed by an arbitration rollback.
         if("Narrador".equals(mode)&&!activeMasterPromotionFromRoll
@@ -8494,7 +8511,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 if(aiQuotaGovernor==null||aiQuotaGovernor.canCall(repairInputChars)){
                     setStatus("Revisão única do Mestre: "+problem);streamingNarration="";lastStreamUiLength=0;lastStreamUiAt=0L;lastStreamPostAt=0L;
                     gemini.generateTextWithFilesStreaming(key,model,"BRAS_SINGLE_CALL BRAS_BOUNDED_REPAIR "+repairSystem,repairPrompt,new ArrayList<String>(),new GeminiService.StreamingTextCallback(){
-                        public void onPartial(String partial){streamNarrationPartial(requestId,partial);}
+                        public void onPartial(String partial){remoteMasterProgress(requestId,partial);streamNarrationPartial(requestId,partial);}
                         public void onSuccess(final String repairedRaw){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;if(rebuildEnvelope){if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());acceptOrRepairNarration(mode,originalUserText,repairedRaw,systemPrompt,key,model,requestId,repairAttempt+1);return;}String repaired="";try{JSONObject rep=parseAiEnvelope(repairedRaw);repaired=PortugueseNarrationSanitizer.sanitize(completeNarrationSafely(rep.optString("narration",repairedRaw)));}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao interpretar revisão narrativa; preservando a cena original.",ignored);}if(aiQuotaGovernor!=null)aiQuotaGovernor.recordCall(repairInputChars,repairedRaw==null?0:repairedRaw.length());try{if(repaired.length()>=repairMinLength)stableEnvelope.put("narration",repaired);stableEnvelope.put("narrative_quality_repair",problem);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha ao registrar revisão narrativa.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                         public void onError(final String error){ui.post(new Runnable(){public void run(){if(requestId!=aiRequestGeneration)return;try{stableEnvelope.put("narration",draft);stableEnvelope.put("narrative_quality_repair_failed",error);}catch(Exception ignored){AppLog.ignored("NarrativeDirector","Falha tolerada ao registrar revisão indisponível.",ignored);}acceptOrRepairNarration(mode,originalUserText,stableEnvelope.toString(),systemPrompt,key,model,requestId,repairAttempt+1);}});}
                     });
@@ -8510,19 +8527,19 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
             // Keep the single remote beat. Never append a second story to meet a length target.
             try{envelope.put("narration",draft);envelope.put("quality_recovered_locally",problem);}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
-            aiBusy=false;streamingNarration="";
+            streamingNarration="";
             if(masterOrchestrator!=null)masterOrchestrator.cacheResponse(activeMasterPlan,pendingAiModel,mode,envelope.toString());
             handleAiResponse(envelope.toString(),originalUserText);
             setStatus("Cena preservada; a revisão narrativa automática não estava disponível.");
             return;
         }
-        aiBusy=false;streamingNarration="";
+        streamingNarration="";
         if(masterOrchestrator!=null)masterOrchestrator.cacheResponse(activeMasterPlan,pendingAiModel,mode,raw);
         handleAiResponse(raw,originalUserText);
-        if(activeTurnNonAdvancing(originalUserText))setStatus("Dúvida respondida sem avançar a cena • "+textModelStatus());else setStatus("Cena pronta"+(lastAiUsedRag?" • fonte local consultada":"")+" • "+textModelStatus());
+        setStatus("Resposta do Gemini recebida; validando antes de confirmar a cena…");
     }
 
-    private String textModelStatus(){String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();String state=prefs==null?"unknown":prefs.getString("gemini_connection_state","unknown");if(!"online".equals(state))return "Gemini OFFLINE • configurado: "+configured;String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();if(actual.length()==0)actual=configured;if(configured.length()==0||actual.equalsIgnoreCase(configured))return "Gemini ONLINE • "+actual;return "Gemini ONLINE • "+actual+" (fallback; configurado: "+configured+")";}
+    private String textModelStatus(){String configured=prefs==null?"":prefs.getString("text_model","gemini-3.5-flash-lite").trim();String state=prefs==null?"unknown":prefs.getString("gemini_connection_state","unknown");if(!"online".equals(state))return ("request_failed".equals(state)?"Gemini • última solicitação falhou":"Gemini • conexão não confirmada")+" • configurado: "+configured;String actual=gemini==null?"":gemini.getLastWorkingTextModel().trim();if(actual.length()==0)actual=configured;if(configured.length()==0||actual.equalsIgnoreCase(configured))return "Gemini ONLINE • "+actual;return "Gemini ONLINE • "+actual+" (fallback; configurado: "+configured+")";}
 
     private String narrationQualityProblem(String raw,String userText){
         JSONObject env=parseAiEnvelope(raw);String narration=sanitizeNarrationPayload(env.optString("narration",raw)).trim();
@@ -8634,7 +8651,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     /* package */ void handleAiResponse(final String raw, final String action) {
         final long requestGen = aiRequestGeneration;
-        AppExecutors.io().execute(new Runnable() {
+        remoteMasterRequest=-1L;aiBusy=true;updateNarratorBusyUi();
+        AppExecutors.masterResponse().execute(new Runnable() {
             public void run() {
                 processAiResponseInBackground(raw, action, requestGen);
             }
@@ -8795,6 +8813,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     ui.post(new Runnable() {
                         public void run() {
                             if (requestGen != aiRequestGeneration) return;
+                            aiBusy=false;streamingNarration="";
                             lastMasterSupport = finalSupport;
                             restoreAfterMasterSideQuery();
                             clearFailedGeminiRequest();
@@ -9082,8 +9101,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                     }
                 });
             }
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             AppLog.e("MainActivity", "Erro no processamento em segundo plano da resposta de IA", t);
+            if(ui!=null)ui.post(()->{if(requestGen!=aiRequestGeneration)return;markMasterRequestFailed(lastAiMode,action,activeInputChannel(),"VALIDAÇÃO: "+safeMessage(t)+". Consulte a ação preservada antes de repetir.",false);});
         }
     }
 
@@ -9100,6 +9120,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         }catch(Exception ignored){}
 
         if (requestGen != aiRequestGeneration || payload == null) return;
+        remoteMasterRequest=-1L;aiBusy=false;streamingNarration="";updateNarratorBusyUi();
         if(!payload.masterEnvelopeValid){
             // Preserve the original action and the completed rule checkpoint on rejection.
             setStatus("A resposta não passou na arbitragem. A cena anterior permanece canônica.");
@@ -13328,7 +13349,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                     (GeminiTextModelPriority.isFallback(configured,used)?" (fallback; preferência preservada)":"");
         }
         if("saved_not_tested".equals(state))return "● CHAVE SALVA • conexão ainda não testada";
-        return "● GEMINI OFFLINE"+(error==null||error.trim().length()==0?"":" • "+error.trim());
+        return ("request_failed".equals(state)?"● ÚLTIMA SOLICITAÇÃO GEMINI FALHOU":"● GEMINI • CONEXÃO NÃO CONFIRMADA")+(error==null||error.trim().length()==0?"":" • "+error.trim());
     }
 
     private boolean savePreferredGeminiTextModel(String selected){
