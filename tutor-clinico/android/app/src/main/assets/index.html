@@ -5252,7 +5252,7 @@ function ecoPerspectiveFallback(author,sources,quote){
  ].join('\n');
  return {author,draft,sources:selected,formatValid:true,refsValid:true,fallback:true,verificationStatus:'Roteiro editorial, sem interpretação neural validada',quote};
 }
-function ecoPerspectiveFinishAuthor(r,result){r.results.push(result);r.index++;ecoPerspectiveNext(r);}
+function ecoPerspectiveFinishAuthor(r,result){r.results.push({...result,retrievalStatus:r.retrievalStatus||'',semanticMatches:r.semanticMatches??null,candidateCount:r.candidateCount??null});r.index++;ecoPerspectiveNext(r);}
 function ecoPerspectiveNliValid(v,n){
  const valid=x=>Array.isArray(x)&&x.length===3&&x.every(y=>Number.isFinite(y)&&y>=0&&y<=1)&&Math.abs(x.reduce((a,b)=>a+b,0)-1)<.01;
  return JSON.stringify(v.labels)==='["contradiction","entailment","neutral"]'&&Array.isArray(v.comparisons)&&v.comparisons.length===n&&v.comparisons.every((x,i)=>x.i===i&&valid(x.ab)&&valid(x.ba));
@@ -5327,11 +5327,13 @@ function ecoPerspectivePanel(c){
  out+=ecoPerspectiveAuthorPicker(r)+btn('Comparar autores selecionados','ecoPerspectiveStart','', 'data-case="'+esc(c.id)+'"')+(r?.pending?'<p id="ecoPerspectiveStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoPerspectiveCancel','ghost'):'');
  if(r){out+='<h3>Fala analisada</h3><blockquote>'+esc(r.quote)+'</blockquote><p class="small">'+esc(formatDate(r.sessionDate))+' · '+(r.atMs==null?'sem minuto registrado':Math.floor(r.atMs/60000)+' min')+'</p>';
  for(const result of r.results){out+='<article class="eco-evidence"><h3>'+esc(result.author)+'</h3>';
+ if(result.retrievalStatus==='catalog')out+='<p class="small muted">Busca semântica: nenhuma passagem atingiu o limiar experimental. Foram comparadas '+esc(result.candidateCount)+' referências do catálogo deste autor; relevância para a fala ainda incerta. Não é uma correspondência semântica confirmada.</p>';
+ else if(result.retrievalStatus==='semantic')out+='<p class="small muted">Busca semântica: '+esc(result.semanticMatches)+' passagem(ns) candidata(s) acima do limiar experimental.</p>';
  if(result.error)out+='<p class="alert">'+esc(result.error)+'</p>';
  else{out+='<p class="small muted">'+esc(result.fallback?'Roteiro didático editorial · geração recusada ou indisponível; não é interpretação do modelo.':(result.structured?'Hipótese, justificativa e pergunta geradas por '+result.model+'; conceito e limites editoriais. · ':'')+(result.verificationStatus||'Minuta neural não validada'))+' · revisão humana obrigatória.</p><div style="white-space:pre-wrap">'+esc(result.draft)+'</div>'+(result.rejection?.length?'<p class="alert">Minuta neural não exibida: '+esc(result.rejection.join(' '))+'</p>':'')+(result.nli?.length?'<p class="small">NLI textual experimental: '+result.nli.map(x=>esc(x.field||'conceito')+' [S'+x.ref+'] possível incompatibilidade '+(100*x.ab[0]).toFixed(1)+'%, implicação '+(100*x.ab[1]).toFixed(1)+'%, indeterminação '+(100*x.ab[2]).toFixed(1)+'%').join(' · ')+'. Não verifica fatos clínicos.</p>':'');
  if(!result.refsValid)out+='<p class="alert">Referências incompletas ou inválidas: não utilize sem conferência.</p>';
  if(!result.formatValid)out+='<p class="alert">A IA não entregou todos os seis campos esperados. Minuta incompleta; revise antes de utilizar.</p>';
- out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':' · '+ecoBibliographicStatus(x.ref).status))+'<br>'+esc(x.text)+(x.generationFocus?'<br><small>Recorte enviado ao modelo: '+esc(x.generationFocus)+'</small>':'')+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
+ out+='<details><summary>Fundamentação e fontes realmente utilizadas</summary><p>[S1] Fala literal selecionada (acima).</p>'+result.sources.map((x,i)=>'<p><strong>[S'+(i+2)+'] '+esc(x.title)+'</strong><br>'+esc(x.author+' · '+x.ref+(x.personalId?' · Referência pessoal: autoria e edição declaradas pelo usuário':' · '+ecoBibliographicStatus(x.ref).status))+'<br>'+esc(x.text)+(Number.isFinite(x.rerankScore)?'<br><small>Score de relevância do reranker: '+x.rerankScore.toFixed(3)+' (não é confiança clínica)</small>':'')+(x.generationFocus?'<br><small>Recorte enviado ao modelo: '+esc(x.generationFocus)+'</small>':'')+'</p>').join('')+'<p class="small">Sínteses da biblioteca, não citações textuais dos livros. Edição e páginas não verificadas.</p></details>';}
  out+='</article>';}
  if(!r.pending)out+=ecoPerspectiveComparison(r.results)+'<p class="small muted">As leituras são possibilidades teóricas, não interpretações confirmadas, ranking de autores ou recomendação automática de tratamento. Não incorporadas ao prontuário.</p>';}
  return out+'</section>';
@@ -5347,9 +5349,16 @@ function ecoPerspectiveNext(r){
  // Abstain before retrieval, reranking or generation; no editorial reading of an injected instruction.
  if(ecoPerspectiveAdversarial(r.quote)){r.results=r.authors.map(author=>({author,error:'Fala contém instrução dirigida ao motor; abstenção de interpretação automática. Revise o trecho selecionado.'}));r.index=r.authors.length;r.pending=false;render();return;}
  if(r.index>=r.authors.length){r.pending=false;render();return;}
- const author=r.authors[r.index];r.sources=[];r.audit=null;r.draft='';r.theory=ecoPerspectiveTheory(author);
+ const author=r.authors[r.index];r.sources=[];r.audit=null;r.draft='';r.retrievalStatus='';r.semanticMatches=null;r.candidateCount=null;r.ranked=[];r.theory=ecoPerspectiveTheory(author);
  if(!r.theory.length){r.results.push({author,error:'Nenhuma fonte exclusiva deste autor disponível. Não gerar por suposição.'});r.index++;ecoPerspectiveNext(r);return;}
  r.batches=ecoGroupedBatchPlan(r.theory);r.batch=0;r.merged=[];ecoPerspectiveBatch(r);
+}
+// Author catalogues are small and bibliographically bounded. A threshold miss
+// is not absence of theory. Use the actual catalogue as reranking candidates,
+// never manufacture a semantic hit or lower the global search threshold.
+function ecoPerspectiveCandidates(theory,hits){
+ const matched=hits.map(x=>theory[x.i]).filter(Boolean);
+ return matched.length?{rows:matched,status:'semantic',matches:matched.length}:{rows:theory.slice(),status:'catalog',matches:0};
 }
 function ecoPerspectiveBatch(r){
  const b=r.batches[r.batch];
@@ -5380,15 +5389,16 @@ window.nativeSemanticResult=function(raw){
   else{
    r.merged=[...r.merged,...v.hits.map(x=>({...x,i:x.i+batch.start}))].sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,20);
    r.batch++;if(r.batch<r.batches.length){ecoPerspectiveBatch(r);return;}
-   if(!r.merged.length){r.results.push({author,error:'Nenhuma passagem teórica recuperada.'});r.index++;ecoPerspectiveNext(r);return;}
-   r.ranked=r.merged.map(x=>r.theory[x.i]);
-   ecoPerspectiveSend(r,'rerank',{mode:'rerank',query:r.quote,rows:r.ranked.map(x=>({text:x.text}))},author+' · reordenando fontes com mMARCO');return;
+   const candidates=ecoPerspectiveCandidates(r.theory,r.merged);
+   r.ranked=candidates.rows;r.retrievalStatus=candidates.status;r.semanticMatches=candidates.matches;r.candidateCount=r.ranked.length;
+   if(!r.ranked.length){ecoPerspectiveFinishAuthor(r,{author,error:'Catálogo teórico indisponível.'});return;}
+   ecoPerspectiveSend(r,'rerank',{mode:'rerank',query:r.quote,rows:r.ranked.map(x=>({text:x.text}))},author+(r.retrievalStatus==='catalog'?' · sem correspondência semântica forte; comparando catálogo do autor com mMARCO':' · reordenando fontes com mMARCO'));return;
   }
  }else if(r.mode==='rerank'){
   const valid=v.count===r.ranked.length&&Array.isArray(v.hits)&&Array.isArray(v.skipped)&&v.hits.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<r.ranked.length&&Number.isFinite(x.score)&&x.score>=0&&x.score<=1)&&new Set(v.hits.map(x=>x.i)).size===v.hits.length;
-  if(!valid||!v.hits.length)r.results.push({author,error:'Nenhuma passagem utilizável do autor após reranking.'});
+  if(!valid||!v.hits.length){ecoPerspectiveFinishAuthor(r,{author,error:!valid?'Retorno inválido do reranker teórico.':'Nenhuma passagem utilizável do autor após reranking.'});return;}
   else{
-   r.sources=v.hits.slice(0,2).map(x=>{const row=r.ranked[x.i];return {...row,generationFocus:ecoPerspectiveFocus(row,r.quote)};});
+   r.sources=v.hits.slice(0,2).map(x=>{const row=r.ranked[x.i];return {...row,rerankScore:x.score,generationFocus:ecoPerspectiveFocus(row,r.quote)};});
    const sources=[{text:'Fala literal atribuída ao paciente: '+r.quote},...r.sources.map(x=>({text:x.author+' · '+x.ref+'\n'+x.text,focus:x.generationFocus}))].filter(x=>x.text.length<=1800);
    if(sources.length!==r.sources.length+1||sources.reduce((n,x)=>n+x.text.length,0)>4200){r.results.push({author,error:'Fontes acima do limite do contexto, sem corte silencioso.'});}
    else{

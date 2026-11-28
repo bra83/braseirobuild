@@ -1945,6 +1945,11 @@ test('ECO personal reflection comparison shows exact lexical evidence without cl
 
 test('ECO personal dream work compares only actual dreams and gates questions',()=>{context.dreamA={id:'a',date:'2026-11-25',topic:'sonhos',reflection:'Entrei na casa. Vi uma porta e senti medo.',context:'',next:''};context.dreamB={id:'b',date:'2026-11-26',topic:'sonhos',reflection:'A porta da casa estava aberta.',context:'',next:''};const x=js('ecoDreamWorkCompare(dreamA,dreamB)');assert.ok(x.shared.some(r=>r.word.toLowerCase()==='porta'));assert.ok(x.one.fields.lugares.includes('casa'));assert.ok(x.one.fields.afetos.includes('medo'));assert.equal(js('ecoDreamWorkBlank(dreamA).images.length'),3);assert.equal(js('ecoDreamWorkQuestionGate("Que lembrança a porta lhe traz?",[dreamA.reflection]).length'),1);assert.equal(js('ecoDreamWorkQuestionGate("A porta significa que você tem trauma?",[dreamA.reflection]).length'),0);assert.match(js('ecoDreamWorkMarkup({a:dreamA,b:dreamB})'),/Karen Horney/);});
 
+test('ECO perspective catalogue recovery never fabricates semantic hits and keeps each author isolated',()=>{
+ assert.ok(js('ecoPerspectiveAuthors.every(a=>{const t=ecoPerspectiveTheory(a),x=ecoPerspectiveCandidates(t,[]);return x.status==="catalog"&&x.matches===0&&x.rows.length===2&&x.rows.every(s=>s.author===a)})'));
+ assert.ok(js('(()=>{const t=ecoPerspectiveTheory("Freud"),x=ecoPerspectiveCandidates(t,[{i:1,score:.6}]);return x.status==="semantic"&&x.matches===1&&x.rows[0]===t[1]})()'));
+ assert.equal(js('ecoPerspectiveCandidates([],[]).rows.length'),0);
+});
 test('ECO all nine personal axes have specific work and preserved source',()=>{assert.equal(js('Object.keys(ecoPersonalAxis).length'),9);assert.ok(js('ecoSelfTopics.every(t=>!!ecoPersonalAxis[t[0]])'));assert.equal(js('ecoPersonalBlank(selfReviewA).source'),context.selfReviewA.reflection);assert.match(js('ecoPersonalMarkup({a:selfReviewA,b:selfReviewB})'),/Recorrências textuais/);assert.match(js('ecoPersonalMarkup({a:selfReviewA,b:null})'),/Minha compreensão provisória/);});
 
 test('ECO personal hub exposes isolated tools and record-specific analysis',()=>{

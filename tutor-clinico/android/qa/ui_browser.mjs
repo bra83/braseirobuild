@@ -258,8 +258,11 @@ try{
   assert.equal(request.query,'Quando alguém se aproxima, eu me afasto.');
   assert.ok(request.rows.length>0&&request.rows.every(x=>x.text.includes(' — '+author+'\n')&&!x.text.includes('MARCADOR_TERAPEUTA_EXCLUIR')));
   const index=request.rows.findIndex(x=>x.text.length<1000);assert.ok(index>=0);
-  await page.evaluate(i=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:[{i,score:.8}]}));},index);
+  const weak=author!=='Freud';
+  await page.evaluate(({i,weak})=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,scope:x.scope,hits:weak?[]:[{i,score:.8}]}));},{i:index,weak});
   const rerank=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(rerank.mode,'rerank');
+  assert.equal(rerank.rows.length,weak?request.rows.length:1);
+  assert.ok(rerank.rows.every(x=>x.text.includes(' — '+author+'\n')));
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:x.rows.length,hits:[{i:0,score:.9}],skipped:[]}));});
   const gen=await page.evaluate(()=>window.ecoTestRequests.at(-1));assert.equal(gen.mode,'generate');assert.equal(gen.profile,'perspective');assert.equal(gen.author,author);assert.ok(gen.query.includes('[S1]')&&gen.query.includes('[S2]'));assert.ok(!gen.query.includes(author));assert.equal(gen.sources.length,2);assert.ok(gen.sources[1].text.startsWith(author+' · '));assert.ok(gen.sources[1].focus&&gen.sources[1].text.includes(gen.sources[1].focus));
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,sourceCount:x.sources.length,clinicalValidation:false,draft:'Conceito: foco teórico [S2].\nHipótese provisória: possibilidade de explorar a fala [S1].\nJustificativa: relacionar fala [S1] e teoria [S2].\nExemplo: Como vive essa situação?\nInvestigar: outros contextos e alternativas.\nEvitar: certeza ou diagnóstico.',model:'fixture'}));});
@@ -267,6 +270,9 @@ try{
   await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,labels:['contradiction','entailment','neutral'],comparisons:[{i:0,ab:[.1,.7,.2],ba:[.1,.2,.7]}]}));});
  }
  assert.deepEqual(await page.evaluate(()=>ecoPerspectiveRun.results.map(x=>[x.author,x.refsValid])),perspectives.authors.map(a=>[a,true]));
+ assert.equal(await page.evaluate(()=>ecoPerspectiveRun.results.filter(x=>x.retrievalStatus==='catalog'&&x.semanticMatches===0&&x.candidateCount===2).length),20);
+ assert.match(await page.locator('#app').textContent(),/nenhuma passagem atingiu o limiar experimental/);
+ assert.doesNotMatch(await page.locator('#app').textContent(),/Nenhuma passagem teórica recuperada/);
  assert.equal(await page.evaluate(()=>state.cases.find(x=>x.id==='browser-a').ecoAiArchive?.length||0),0);
  await page.screenshot({path:path.join(out,'perspectivas-psicanaliticas.png'),fullPage:true});
  await home();assert.equal(await page.evaluate(()=>ecoPerspectiveRun),null);
