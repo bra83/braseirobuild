@@ -130,7 +130,9 @@ final class NeuralSemanticEngine implements AutoCloseable {
         JSONArray rows=request.getJSONArray("rows");String query=request.optString("query","").trim();
         String scope=request.optString("scope","paciente");
         boolean longitudinal=request.optBoolean("longitudinal",false);
-        if(longitudinal&&!scope.equals("paciente"))throw new IOException("Histórico exige falas do paciente");
+        boolean personal=request.optBoolean("personal",false);
+        if(personal&&(!scope.equals("revisado")||!request.optString("cacheScope","").isEmpty()))throw new IOException("Material pessoal exige escopo revisado sem cache persistente");
+        if(longitudinal&&!scope.equals("paciente")&&!personal)throw new IOException("Histórico exige falas do paciente");
         if(!Set.of("paciente","terapeuta","desconhecido","todos","revisado").contains(scope))throw new IOException("Filtro inválido");
         for(int i=0;i<rows.length();i++){
             if(longitudinal&&rows.getJSONObject(i).optString("sessionId").isEmpty())throw new IOException("Sessão de origem ausente");
