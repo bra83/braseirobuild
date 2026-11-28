@@ -353,6 +353,12 @@ try{
  // Personal module uses only dedicated bridge, never case state.
  await page.evaluate(()=>{let record={version:1,entries:[],revision:'rev0'};window.NativeVault.readSelfAnalysis=()=>JSON.stringify(record);window.NativeVault.saveSelfAnalysis=(revision,raw)=>{if(revision!==record.revision)return 'CONFLICT';record={...JSON.parse(raw),revision:'rev'+Date.now()};return 'OK';};act('nav','home');});
  await page.locator('[data-act="nav"][data-id="selfAnalysis"]').click();
+ assert.equal(await page.locator('[data-act="ecoSelfHubView"].eco-module-card').count(),7);
+ const personalMenu=async id=>{
+  await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();
+  await page.locator('[data-act="ecoSelfHubView"][data-id="'+id+'"]').click();
+ };
+ await page.locator('[data-act="ecoSelfHubView"][data-id="entry"]').click();
  assert.equal(await page.locator('.eco-self-topics [data-act="ecoSelfTopic"]').count(),9);
  await page.locator('.eco-self-topics [data-act="ecoSelfTopic"][data-id="sonhos"]').click();
  await page.locator('#ecoSelfReflection').fill('REGISTRO PESSOAL FICTÍCIO');
@@ -360,17 +366,21 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries.length),1);
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('REGISTRO PESSOAL FICTÍCIO')));
  await page.evaluate(()=>{act('nav','home');act('nav','selfAnalysis');});
+ await page.locator('[data-act="ecoSelfHubView"][data-id="history"]').click();
  assert.match(await page.locator('#app').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
+ await personalMenu('review');
  await page.locator('[data-act="ecoSelfReview"]').click();
  assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/REGISTRO PESSOAL FICTÍCIO/);
  assert.match(await page.locator('#ecoSelfReviewResult').textContent(),/Transforme a reflexão em aprendizado/);
  // Open an already stored dream and save distinct dream work without modifying the text.
+ await personalMenu('dream');
  await page.locator('[data-act="ecoDreamWorkStart"][data-id="single"]').click();
  await page.locator('#ecoDWInsight').fill('COMPREENSÃO PESSOAL SINTÉTICA');
  await page.locator('[data-act="ecoDreamWorkSave"]').click();
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].reflection),'REGISTRO PESSOAL FICTÍCIO');
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('COMPREENSÃO PESSOAL SINTÉTICA')));
+ await personalMenu('work');
  await page.locator('[data-act="ecoPersonalWorkStart"]').click();
  await page.locator('#ecoPersonal_insight').fill('SÍNTESE PESSOAL FICTÍCIA');
  await page.locator('[data-act="ecoPersonalWorkSave"]').click();
@@ -378,6 +388,29 @@ try{
  assert.equal(await page.evaluate(()=>JSON.parse(window.NativeVault.readSelfAnalysis()).entries[0].dreamWork.insight),'COMPREENSÃO PESSOAL SINTÉTICA');
  assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('SÍNTESE PESSOAL FICTÍCIA')));
  await page.screenshot({path:path.join(out,'autoanalise.png')});
+ // Verify new tools using controlled bridge responses; real inference is covered separately.
+ await personalMenu('history');
+ await page.locator('[data-act="ecoSelfHubOpen"]').click();
+ assert.match(await page.locator('#app').textContent(),/Nuvem de palavras/);
+ assert.equal(await page.locator('[data-act="ecoSelfToolTab"]').count(),5);
+ await page.locator('[data-act="ecoSelfToolTab"][data-id="neural"]').click();
+ await page.locator('#ecoSelfToolQuery').fill('registro pessoal');
+ await page.locator('[data-act="ecoSelfToolStart"]').click();
+ const selfReq=await page.evaluate(()=>window.ecoTestRequests.at(-1));
+ assert.equal(selfReq.scope,'revisado');assert.equal(selfReq.personal,true);
+ assert.equal(selfReq.rows.length,1);
+ assert.equal(selfReq.rows[0].text,'REGISTRO PESSOAL FICTÍCIO');
+ assert.equal(selfReq.cacheScope,undefined);
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,count:1,scope:x.scope,hits:[{i:0,score:.8}],pairs:[],model:'fixture'}));});
+ assert.match(await page.locator('#app').textContent(),/0\.800/);
+ await page.locator('[data-act="ecoSelfToolTab"][data-id="assist"]').click();
+ await page.locator('[data-act="ecoSelfToolStart"]').click();
+ const selfQ=await page.evaluate(()=>window.ecoTestRequests.at(-1));
+ assert.equal(selfQ.profile,'selfReflect');assert.deepEqual(selfQ.sources,[{text:'REGISTRO PESSOAL FICTÍCIO'}]);
+ await page.evaluate(()=>{const x=window.ecoTestRequests.at(-1);window.nativeSemanticResult(JSON.stringify({id:x.id,draft:'Como você compreende esse registro pessoal?',model:'fixture'}));});
+ assert.match(await page.locator('#app').textContent(),/Como você compreende esse registro pessoal/);
+ assert.ok(await page.evaluate(()=>!JSON.stringify(state).includes('REGISTRO PESSOAL FICTÍCIO')));
+ await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();
  // Responsive audit: actual DOM across every home destination and every case module.
  const layoutReport=[];
  const routes=await page.evaluate(()=>({home:ecoHomeModules.map(x=>[x[0],x[4]]),case:["sintese","atendimento","fichaEvolutiva","sessoes","assistenteIA","perspectivas","compararRelatos","revisaoInteligente","analisar","anamnese","enquadre","investigar","tecnicas","sonhos","genograma","rede","cronologia","documentos","diario","seguranca"]}));
@@ -404,6 +437,11 @@ try{
    if(await page.locator('html').getAttribute('data-theme')!==theme)await page.locator('#themeToggle').click();
    await page.evaluate(()=>act('nav','help'));await measure(width+'x'+height+'/'+theme+'/help');
    await page.evaluate(()=>act('nav','selfAnalysis'));await measure(width+'x'+height+'/'+theme+'/selfAnalysis');
+   for(const id of ['entry','history','work','tools','dream','timeline','review']){
+    await page.locator('[data-act="ecoSelfHubView"][data-id="'+id+'"]').click();
+    await measure(width+'x'+height+'/'+theme+'/selfAnalysis:'+id);
+    await page.locator('[data-act="ecoSelfHubView"][data-id="home"]').click();
+   }
    for(const [id,route] of routes.home){
     await page.evaluate(()=>act('nav','home'));await tile(id).click();
     if(route==='case'||route==='manual')await page.locator('.eco-home-pick [data-id="browser-b"]').click();
