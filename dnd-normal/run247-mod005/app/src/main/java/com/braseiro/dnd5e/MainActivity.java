@@ -7397,8 +7397,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         try{
             for(JSONObject hero:partyDirector.activeHeroRoster())addSceneCastEntry(out,seen,hero.optString("name","Aventureiro"),"AVENTUREIRO",hero.optString("token_uri",""),heroSpeciesLabel(hero),1,false,false);
             JSONObject scene=db.getSceneState();String raw=scene.optString("present_npcs_json","[]");
-            try{JSONArray npcs=new JSONArray(raw);for(int i=0;i<npcs.length();i++){Object value=npcs.opt(i);if(value instanceof JSONObject){JSONObject npc=(JSONObject)value;String name=GeneratedTextSanitizer.scalar(npc.toString(),"name");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",npc.optString("token_uri",memory.optString("token_uri","")),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}else{String name=GeneratedTextSanitizer.scalar(String.valueOf(value),"name");JSONObject memory=db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",memory.optString("token_uri",""),memory.optString("summary",""),1,false,false);}}}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
-            if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject npc=currentSceneCastPreview.optJSONObject(i);if(npc==null)continue;String name=npc.optString("name","NPC");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",npc.optString("token_uri",memory.optString("token_uri","")),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}
+            try{JSONArray npcs=new JSONArray(raw);for(int i=0;i<npcs.length();i++){Object value=npcs.opt(i);if(value instanceof JSONObject){JSONObject npc=(JSONObject)value;String name=GeneratedTextSanitizer.scalar(npc.toString(),"name");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",NpcPortraitBinding.displayUri(npc,memory),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}else{String name=GeneratedTextSanitizer.scalar(String.valueOf(value),"name");JSONObject memory=db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",memory.optString("token_uri",""),memory.optString("summary",""),1,false,false);}}}catch(Exception ignored){AppLog.ignored("MainActivity","Falha tolerada; a execução continuou.",ignored);}
+            if(currentSceneCastPreview!=null)for(int i=0;i<currentSceneCastPreview.length();i++){JSONObject npc=currentSceneCastPreview.optJSONObject(i);if(npc==null)continue;String name=npc.optString("name","NPC");boolean transientNpc=npc.optBoolean("transient",false)||npc.optBoolean("anonymous",false);JSONObject memory=transientNpc?new JSONObject():db.findNpcMemoryByName(name);addSceneCastEntry(out,seen,name,"NPC",NpcPortraitBinding.displayUri(npc,memory),npc.optString("role",npc.optString("summary",memory.optString("summary",""))),Math.max(1,npc.optInt("count",1)),npc.optBoolean("group",false),transientNpc);}
             if(db.getCombatState().optInt("running",0)==1)
                 for(JSONObject combatant:db.listCombatants())
                     if(combatant.optInt("is_player",0)!=1)
@@ -7423,7 +7423,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         TextView initial=text(name.length()>0?name.substring(0,1).toUpperCase(new Locale("pt","BR")):"?",22,TEXT,true);initial.setGravity(Gravity.CENTER);initial.setBackgroundColor(INPUT_BG);circle.addView(initial,new FrameLayout.LayoutParams(-1,-1));
         if(uri.length()>0){ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);try{Bitmap tokenBitmap=ImageStorageManager.decodeSampled(this,Uri.parse(uri),256,256);if(tokenBitmap!=null){image.setImageBitmap(tokenBitmap);circle.addView(image,new FrameLayout.LayoutParams(-1,-1));}}catch(Throwable ignored){AppLog.ignored("SceneToken","Token inválido ou pesado foi ignorado sem fechar o Mestre IA.",ignored);}}
         int count=Math.max(1,entry.optInt("count",1));if(count>1){TextView badge=text("×"+count,8,TEXT,true);badge.setGravity(Gravity.CENTER);GradientDrawable badgeBg=new GradientDrawable();badgeBg.setShape(GradientDrawable.OVAL);badgeBg.setColor(PANEL2);badge.setBackground(badgeBg);FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(dp(22),dp(22),Gravity.END|Gravity.BOTTOM);circle.addView(badge,bp);}
-        if(!entry.optBoolean("group",false)&&!entry.optBoolean("transient",false)){final JSONObject portraitEntry=entry;circle.setClickable(true);if("AVENTUREIRO".equalsIgnoreCase(kind)){circle.setContentDescription("Gerar ou atualizar retrato persistente do herói "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginHeroPortrait(portraitEntry);}});}else{circle.setContentDescription("Gerar ou atualizar retrato persistente de "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginNpcPortrait(portraitEntry);}});}}
+        if(!entry.optBoolean("group",false)&&!entry.optBoolean("transient",false)){final JSONObject portraitEntry=entry;circle.setClickable(true);if("AVENTUREIRO".equalsIgnoreCase(kind)){circle.setContentDescription("Gerar ou atualizar retrato persistente do herói "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){beginHeroPortrait(portraitEntry);}});}else{circle.setContentDescription("Gerar ou atualizar retrato persistente de "+name+" no Gemini");circle.setOnClickListener(new View.OnClickListener(){public void onClick(View v){showNpcPortraitActions(portraitEntry);}});}}
         tile.addView(circle,new LinearLayout.LayoutParams(dp(58),dp(58)));
         TextView label=text(name,10,TEXT,true);label.setGravity(Gravity.CENTER);label.setMaxLines(1);label.setEllipsize(android.text.TextUtils.TruncateAt.END);tile.addView(label,new LinearLayout.LayoutParams(dp(70),dp(21)));
         String visibleRole=sceneCastVisibleRole(entry);TextView role=text(visibleRole,8,"INIMIGO".equals(kind)?RED:MUTED,true);role.setGravity(Gravity.CENTER);role.setMaxLines(1);role.setEllipsize(android.text.TextUtils.TruncateAt.END);tile.addView(role,new LinearLayout.LayoutParams(dp(70),dp(16)));
@@ -13689,7 +13689,8 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
             .putString("pending_image_target_type",type==null?"":type)
             .putLong("pending_image_target_id",id)
             .putString("pending_image_target_stable_id",stable==null?"":stable)
-            .putString("pending_image_target_name",name==null?"":name);
+            .putString("pending_image_target_name",name==null?"":name)
+            .putString("pending_image_target_world",activeWorldProfile());
         if("NPC".equals(type))e.putLong("pending_npc_portrait_id",id).putString("pending_npc_portrait_stable_id",stable==null?"":stable).putString("pending_npc_portrait_name",name==null?"":name);
         else e.remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name");
         e.commit();
@@ -13722,12 +13723,36 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
             sharePortraitPromptWithGemini(p.toString(),name);setStatus("Prompt de retrato do herói enviado ao Gemini para "+name+". Compartilhe a imagem de volta ao Braseiro.");
         }catch(Exception e){AppLog.e("HeroPortrait","Falha ao preparar retrato persistente do herói.",e);toast("Retrato do herói: "+e.getMessage());}
     }
+    private static final int REQ_NPC_PORTRAIT_LOCAL=10999;
+    private void showNpcPortraitActions(final JSONObject entry){
+        final String name=entry.optString("name","");
+        new AlertDialog.Builder(this).setTitle("Retrato de "+name)
+            .setItems(new String[]{"GERAR NO GEMINI","IMPORTAR FOTO DO APARELHO"},(d,w)->{
+                if(w==0)beginNpcPortrait(entry);else chooseLocalNpcPortrait(entry);
+            }).setNegativeButton("Cancelar",null).show();
+    }
+    private void chooseLocalNpcPortrait(JSONObject entry){
+        try{
+            JSONObject npc=prepareNpcPortraitIdentity(entry);
+            setPendingPortraitTarget("NPC",npc.optLong("id"),npc.optString("stable_id"),npc.optString("name"));
+            openFile("image/*",REQ_NPC_PORTRAIT_LOCAL,false);
+        }catch(Exception e){toast("Retrato: "+safeMessage(e));}
+    }
+    private JSONObject prepareNpcPortraitIdentity(JSONObject entry)throws Exception{
+        String name=SceneNpcRoleAliases.canonicalName(entry.optString("name","").trim(),db.getSceneState());
+        if(name.isEmpty())throw new Exception("NPC sem nome.");
+        JSONObject npc=db.findNpcMemoryByName(name);
+        if(npc.length()==0){
+            db.upsertNpcMemory(new JSONObject().put("name",name).put("visual_description",entry.optString("hint","")).put("active",1));
+            npc=db.findNpcMemoryByName(name);
+        }
+        return NpcPortraitBinding.ensureIdentity(db,npc);
+    }
     private void beginNpcPortrait(JSONObject entry){
         try{
             String name=entry==null?"":entry.optString("name","").trim();if(name.length()==0)return;
             name=SceneNpcRoleAliases.canonicalName(name,db.getSceneState());
-            JSONObject npc=db.findNpcMemoryByName(name);
-            if(npc.length()==0){db.upsertNpcMemory(new JSONObject().put("name",name).put("stable_id",NpcIdentityNormalizer.stableId(activeWorldProfile(),name)).put("visual_description",entry.optString("hint","")).put("active",1));npc=db.findNpcMemoryByName(name);}
+            JSONObject npc=prepareNpcPortraitIdentity(entry);
             if(npc.length()==0){toast("Não foi possível criar a identidade persistente deste NPC.");return;}
             JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception e){stats=new JSONObject();}
             if(stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"))){toast(name+" está registrado como morto; o retrato não será recriado.");return;}
@@ -13845,7 +13870,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
         if(id>0&&("HERO".equals(type)||"NPC".equals(type)||"COMBATANT".equals(type)||"MONSTER".equals(type)))return true;
         return prefs.getLong("pending_npc_portrait_id",0)>0;
     }
-    private void clearPendingPortraitTarget(){if(prefs!=null)prefs.edit().remove("pending_image_target_type").remove("pending_image_target_id").remove("pending_image_target_stable_id").remove("pending_image_target_name").remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
+    private void clearPendingPortraitTarget(){if(prefs!=null)prefs.edit().remove("pending_image_target_world").remove("pending_portrait_saved_uri").remove("pending_image_target_type").remove("pending_image_target_id").remove("pending_image_target_stable_id").remove("pending_image_target_name").remove("pending_npc_portrait_id").remove("pending_npc_portrait_stable_id").remove("pending_npc_portrait_name").apply();}
     private Uri storeHeroAvatar(Uri source,long characterId){try{return ImageStorageManager.importImage(this,source,"character_avatars","hero_"+characterId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do herói "+characterId,e);return null;}}
     private Uri storeCombatantAvatar(Uri source,long combatantId){try{return ImageStorageManager.importImage(this,source,"combatant_avatars","combatant_"+combatantId,80);}catch(Exception e){AppLog.e("ImageImport","Falha ao armazenar avatar do combatente "+combatantId,e);return null;}}
     private void importReceivedPortraitAsync(final Uri source){
@@ -13853,8 +13878,10 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
         if((type==null||type.length()==0||genericId<=0)&&prefs.getLong("pending_npc_portrait_id",0)>0){type="NPC";genericId=prefs.getLong("pending_npc_portrait_id",0);}
         final String targetType=type;final long id=genericId;final String expectedStable=prefs.getString("pending_image_target_stable_id",prefs.getString("pending_npc_portrait_stable_id",""));final String name=prefs.getString("pending_image_target_name",prefs.getString("pending_npc_portrait_name","personagem"));
         if(id<=0||(!"HERO".equals(targetType)&&!"NPC".equals(targetType)&&!"COMBATANT".equals(targetType)&&!"MONSTER".equals(targetType))){clearPendingPortraitTarget();return;}
+        final String targetWorld=prefs.getString("pending_image_target_world",activeWorldProfile());
         setStatus("Salvando retrato persistente de "+name+"…");
-        AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;try{
+        AppExecutors.io().execute(new Runnable(){public void run(){String failure="";Uri stored=null;long boundNpcId=0;try{
+            if(!targetWorld.equals(activeWorldProfile()))throw new Exception("Retorne ao mundo do personagem antes de importar o retrato.");
             if("HERO".equals(targetType)){
                 JSONObject hero=db.getCharacter(id);if(hero.length()==0)throw new Exception("A ficha do herói não existe mais.");
                 stored=storeHeroAvatar(source,id);if(stored==null)throw new Exception("A imagem do herói não pôde ser armazenada.");
@@ -13865,19 +13892,19 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
                 db.setCombatantVisualIdentity(id,"combatant",id,stored.toString());
                 try{ContentValues cv=new ContentValues();cv.put("token_uri",stored.toString());db.getWritableDatabase().update("tactical_tokens",cv,"combatant_id=? AND world_profile=?",new String[]{String.valueOf(id),db.getActiveMapProfile()});}catch(Exception ignored){}
             }else{
-                JSONObject npc=db.getNpcMemory(id);JSONObject stats;try{stats=new JSONObject(npc.optString("stats_json","{}"));}catch(Exception parse){stats=new JSONObject();}
-                boolean dead=stats.optBoolean("dead",false)||"dead".equalsIgnoreCase(stats.optString("status"))||"morto".equalsIgnoreCase(stats.optString("status"));
-                PersistentPortraitImportPolicy.Result admission=PersistentPortraitImportPolicy.validate("NPC",id,expectedStable,npc.optString("stable_id"),npc.length()>0&&npc.optInt("active",1)!=0,dead);
-                if(!admission.accepted)throw new Exception(admission.message);
-                stored=storeNpcAvatar(source,id);if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");
-                db.setNpcToken(id,stored.toString());
-                db.setCombatantVisualIdentity(id,"npc",id,stored.toString());
+                JSONObject npc=NpcPortraitBinding.resolveTarget(db,id,expectedStable,name);
+                boundNpcId=npc.optLong("id");
+                stored=storeNpcAvatar(source,boundNpcId);
+                if(stored==null)throw new Exception("A imagem do NPC não pôde ser armazenada.");
+                if(!targetWorld.equals(activeWorldProfile()))throw new Exception("O mundo mudou durante a importação.");
+                NpcPortraitBinding.bindVerified(db,boundNpcId,stored.toString());
+                db.setCombatantVisualIdentity(boundNpcId,"npc",boundNpcId,stored.toString());
             }
-        }catch(Exception e){failure=String.valueOf(e.getMessage());}final String error=failure;ui.post(new Runnable(){public void run(){
-            if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado.");return;}
+        }catch(Exception e){failure=String.valueOf(e.getMessage());AppLog.e("PortraitImport","Falha ao vincular "+name,e);}final String error=failure;final long savedNpcId=boundNpcId;final Uri savedPortrait=stored;ui.post(new Runnable(){public void run(){
+            if(error.length()>0){toast("Retrato: "+error);setStatus("Retrato não importado: "+error);return;}
+            if(savedNpcId>0&&savedPortrait!=null){try{currentSceneCastPreview=NpcPortraitBinding.refreshCast(currentSceneCastPreview,db.getNpcMemory(savedNpcId),db.getSceneState());prefs.edit().putString("last_scene_cast_preview",currentSceneCastPreview.toString()).commit();}catch(Exception e){AppLog.w("PortraitImport","Retrato salvo; cache visual será lido do banco.",e);}}
             try{db.addAuditEvent("retrato","Retrato persistente vinculado",name,"{}",new JSONObject().put("target_type",targetType).put("target_id",id).put("receipt","portrait:"+targetType+":"+id+":"+expectedStable).toString(),true);}catch(Exception audit){AppLog.w("PortraitImport","Retrato salvo, mas o recibo de auditoria não pôde ser gravado.",audit);}
             clearPendingPortraitTarget();screenCache.remove("Mestre IA");screenCache.remove("Combate");
-            synchronizeVisualSceneCast();
             if(tacticalBoardView!=null)tacticalBoardView.refresh();
             toast("Retrato de "+name+" salvo e aplicado ao token!");
             setStatus("Retrato persistente de "+name+" atualizado.");
@@ -13956,6 +13983,7 @@ currentOptions=StoryMomentumAction.ensureVisible(currentOptions,lastNarration);
     }
 
     protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);
+        if(request==REQ_NPC_PORTRAIT_LOCAL){if(result==RESULT_OK&&data!=null&&data.getData()!=null){importReceivedPortraitAsync(data.getData());}else{clearPendingPortraitTarget();toast("Importação de retrato cancelada.");}return;}
     if(request==REQ_SPEECH_TO_TEXT){
         if(result==RESULT_OK&&data!=null){
             ArrayList<String> alternatives=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
