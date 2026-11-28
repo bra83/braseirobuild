@@ -6,6 +6,11 @@ public final class RemoteMasterTransportPolicyTest {
   for(int status:new int[]{408,429,500,502,503,504})assertTrue(RemoteMasterTransportPolicy.retryableHttp(status));
   for(int status:new int[]{400,401,403,404})assertFalse(RemoteMasterTransportPolicy.retryableHttp(status));
  }
+ @Test public void directRecoveryWorksBeforeAnyFragmentAndAfterInterruptedStream(){
+  assertTrue(RemoteMasterTransportPolicy.tryDirectRecovery(true,true));
+  assertFalse(RemoteMasterTransportPolicy.tryDirectRecovery(true,false));
+  assertFalse(RemoteMasterTransportPolicy.tryDirectRecovery(false,true));
+ }
  @Test public void streamProgressExtendsIdleDeadlineButNotHardLimit(){
   assertFalse(RemoteMasterTransportPolicy.expired(1000L,175000L,190000L));
   assertTrue(RemoteMasterTransportPolicy.expired(1000L,1000L,181000L));

@@ -108,37 +108,93 @@ public class GeminiService {
     /** Entrega os fragmentos assim que o Gemini os produz. Isso reduz o tempo percebido
      * sem criar uma segunda chamada nem consumir uma segunda resposta. */
     public void generateTextWithFilesStreaming(final String apiKey,final String model,final String system,final String prompt,final List<String> fileUris,final StreamingTextCallback cb){
-        AppExecutors.masterText().execute(new Runnable(){public void run(){
+        final boolean singleBudgetCall=isSingleBudgetCall(system);
+        final long transportId=MASTER_TRANSPORT_SEQUENCE.incrementAndGet();
+        final long queued=android.os.SystemClock.elapsedRealtime();
+        if(singleBudgetCall)masterTransportLog(transportId,"queued",queued,"");
+        Runnable task=new Runnable(){public void run(){
+            String result=null, failure=null;
             try{
-                ensureKey(apiKey);final JSONObject body=buildTextBody(system,prompt,fileUris);final boolean singleBudgetCall=isSingleBudgetCall(system);
-                List<String> candidates=budgetCandidates(resolveCandidates(apiKey,model,Kind.TEXT),singleBudgetCall);ArrayList<String> errors=new ArrayList<String>();
+                if(singleBudgetCall)masterTransportLog(transportId,"worker_started",queued,"");
+                ensureKey(apiKey);
+                final JSONObject body=buildTextBody(system,prompt,fileUris);
+                List<String> candidates=budgetCandidates(resolveCandidates(apiKey,model,Kind.TEXT),singleBudgetCall);
+                ArrayList<String> errors=new ArrayList<String>();
                 final boolean bounded=system!=null&&(system.contains("BRAS_BOUNDED_OPENING")||system.contains("BRAS_BOUNDED_REPAIR"));
                 if(bounded&&candidates.size()>2)candidates=new ArrayList<String>(candidates.subList(0,2));
-                final boolean[] received={false};
-                final StreamingTextCallback tracking=new StreamingTextCallback(){public void onPartial(String value){if(value!=null&&!value.isEmpty())received[0]=true;cb.onPartial(value);}public void onSuccess(String value){}public void onError(String error){}};
-                for(int i=0;i<candidates.size();i++){
-                    String candidate=candidates.get(i);
-                    try{
-                        String text=streamTextWithRetry(candidate,apiKey,body,tracking,bounded?0:1);
-                        if(text.length()==0)throw new java.io.EOFException("A IA não retornou texto.");
-                        if(singleBudgetCall&&!RemoteMasterTransportPolicy.completeEnvelope(text))throw new java.io.EOFException("JSON do Mestre incompleto.");
-                        rememberWorkingModel("last_text_model_ok",candidate);cb.onSuccess(text);return;
-                    }catch(AuthException e){errors.add(candidate+": "+shortError(e));}
-                    catch(Exception e){errors.add(candidate+": "+shortError(e));if(received[0]){
-                        if(singleBudgetCall&&isTransientTextFailure(e)){
-                            try{JSONObject response=postWithRetry(candidate,apiKey,body,0);String recovered=extractText(response);
-                                if(RemoteMasterTransportPolicy.completeEnvelope(recovered)){rememberWorkingModel("last_text_model_ok",candidate);cb.onSuccess(recovered);return;}
-                                errors.add(candidate+": recuperação incompleta");
-                            }catch(Exception recovery){errors.add(candidate+": "+shortError(recovery));}
+                for(String candidate:candidates){
+                    final boolean[] received={false};
+                    final StreamingTextCallback tracking=new StreamingTextCallback(){
+                        public void onPartial(String value){
+                            if(value!=null&&!value.isEmpty()&&!received[0]){
+                                received[0]=true;
+                                if(singleBudgetCall)masterTransportLog(transportId,"first_fragment",queued,"");
+                            }
+                            cb.onPartial(value);
                         }
-                        throw new Exception("Resposta do Mestre interrompida. "+joinErrors(errors),e);
-                    }}
+                        public void onSuccess(String value){}
+                        public void onError(String error){}
+                    };
+                    try{
+                        if(singleBudgetCall)masterTransportLog(transportId,"stream_start",queued,"");
+                        // Do not spend the entire master deadline retrying an empty SSE stream.
+                        String value=streamTextWithRetry(candidate,apiKey,body,tracking,(bounded||singleBudgetCall)?0:1);
+                        if(value.length()==0)throw new java.io.EOFException("A IA não retornou texto.");
+                        if(singleBudgetCall&&!RemoteMasterTransportPolicy.completeEnvelope(value))throw new java.io.EOFException("JSON do Mestre incompleto.");
+                        result=value;
+                    }catch(AuthException e){
+                        errors.add(candidate+": "+shortError(e));
+                        if(singleBudgetCall)masterTransportLog(transportId,"authentication_failed",queued,"");
+                    }catch(Exception e){
+                        errors.add(candidate+": "+shortError(e));
+                        if(singleBudgetCall)masterTransportLog(transportId,"stream_failed",queued,transportFailureKind(e));
+                        // A non-streaming request can recover both empty and interrupted SSE.
+                        // The returned envelope replaces the preview; partial text is never committed.
+                        if(RemoteMasterTransportPolicy.tryDirectRecovery(singleBudgetCall,isTransientTextFailure(e))){
+                            try{
+                                masterTransportLog(transportId,"direct_recovery_start",queued,"");
+                                String recovered=extractText(postWithRetry(candidate,apiKey,body,0));
+                                if(!RemoteMasterTransportPolicy.completeEnvelope(recovered))throw new java.io.EOFException("Recuperação do Mestre incompleta.");
+                                result=recovered;
+                            }catch(Exception recovery){
+                                errors.add(candidate+": "+shortError(recovery));
+                                masterTransportLog(transportId,"direct_recovery_failed",queued,transportFailureKind(recovery));
+                            }
+                        }
+                        // Once a preview was shown, do not start a different story/model.
+                        if(result==null&&received[0])throw new Exception("Resposta do Mestre interrompida. "+joinErrors(errors),e);
+                    }
+                    if(result!=null){rememberWorkingModel("last_text_model_ok",candidate);break;}
                 }
-                throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
-            }catch(Exception e){cb.onError(clean(e));}
-        }});
+                if(result==null)throw new Exception("Nenhum modelo de texto disponível respondeu. "+joinErrors(errors));
+            }catch(Exception e){failure=clean(e);}
+            // Deliver exactly one terminal callback, outside the transport retry loop.
+            if(failure!=null){
+                if(singleBudgetCall)masterTransportLog(transportId,"failed",queued,"");
+                cb.onError(failure);
+            }else{
+                if(singleBudgetCall)masterTransportLog(transportId,"response_complete",queued,"");
+                cb.onSuccess(result);
+            }
+        }};
+        try{AppExecutors.masterText().execute(task);}
+        catch(java.util.concurrent.RejectedExecutionException e){
+            if(singleBudgetCall)masterTransportLog(transportId,"queue_rejected",queued,"");
+            cb.onError("Executor do Mestre indisponível. A ação deve permanecer preservada para nova tentativa.");
+        }
     }
 
+    private static final java.util.concurrent.atomic.AtomicLong MASTER_TRANSPORT_SEQUENCE=new java.util.concurrent.atomic.AtomicLong();
+    private static void masterTransportLog(long id,String phase,long queued,String detail){
+        AppLog.i("MasterTransport","transport="+id+" phase="+phase+" elapsed_ms="+(android.os.SystemClock.elapsedRealtime()-queued)+(detail.isEmpty()?"":" "+detail));
+    }
+    private static String transportFailureKind(Exception error){
+        for(Throwable cause=error;cause!=null;cause=cause.getCause()){
+            if(cause instanceof HttpStatusException)return "http="+((HttpStatusException)cause).status;
+            if(cause.getCause()==cause)break;
+        }
+        return "type="+error.getClass().getSimpleName();
+    }
 
     private static boolean isSingleBudgetCall(String system){return system!=null&&(system.contains("BRAS_MASTER_ORCHESTRATED")||system.contains("BRAS_SINGLE_CALL"));}
     private static List<String> budgetCandidates(List<String> candidates,boolean single){if(!single||candidates==null||candidates.size()<=3)return candidates;ArrayList<String> failover=new ArrayList<String>();for(int i=0;i<candidates.size()&&failover.size()<3;i++)failover.add(candidates.get(i));return failover;}
@@ -615,7 +671,7 @@ public class GeminiService {
         for(Throwable cause=e;cause!=null;cause=cause.getCause()){
             if(cause instanceof HttpStatusException)return RemoteMasterTransportPolicy.retryableHttp(((HttpStatusException)cause).status);
             if(cause instanceof AuthException)return false;
-            if(cause instanceof java.io.IOException)return true;
+            if(cause instanceof java.io.IOException||cause instanceof org.json.JSONException)return true;
             if(cause.getCause()==cause)break;
         }
         return false;

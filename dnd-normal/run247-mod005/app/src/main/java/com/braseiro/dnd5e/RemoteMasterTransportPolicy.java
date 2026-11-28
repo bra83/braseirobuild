@@ -3,6 +3,7 @@ import org.json.JSONObject;
 final class RemoteMasterTransportPolicy {
  private RemoteMasterTransportPolicy(){}
  static boolean retryableHttp(int code){return code==408||code==429||code==500||code==502||code==503||code==504;}
+ static boolean tryDirectRecovery(boolean orchestrated,boolean transientFailure){return orchestrated&&transientFailure;}
  static boolean expired(long started,long progress,long now){return now-started>=360000L||now-Math.max(started,progress)>=180000L;}
  static boolean completeEnvelope(String raw){
   if(raw==null)return false;

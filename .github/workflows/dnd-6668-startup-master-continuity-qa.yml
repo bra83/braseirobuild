@@ -1,4 +1,4 @@
-name: DnD 6.6.79 Live Master and Adventure Journal QA
+name: DnD 6.6.80 Live Master and Adventure Journal QA
 on:
   push:
     branches:
@@ -21,6 +21,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
       - name: Android SDK check
         shell: bash
         run: |
@@ -38,6 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
+          run_regression() {
           ./gradlew :app:testDebugUnitTest \
             --tests com.braseiro.dnd5e.DndStartupContinuityPerformanceRobolectricTest \
             --tests com.braseiro.dnd5e.AtlasBundledImportRobolectricTest \
@@ -61,6 +63,12 @@ jobs:
             --tests com.braseiro.dnd5e.AdventureContinuityPersistenceTest \
             --tests com.braseiro.dnd5e.IndependentOfflineRecoveryRobolectricTest \
             --no-daemon --console=plain
+          }
+          for attempt in 1 2 3; do
+            if run_regression 2>&1 | tee /tmp/dnd-regression.log; then break; fi
+            if ! grep -Eq 'Received status code (429|502|503|504) from server' /tmp/dnd-regression.log || [ "$attempt" = 3 ]; then exit 1; fi
+            sleep $((attempt * 30))
+          done
       - name: Show failed regression details
         if: failure()
         working-directory: dnd-normal/run247-mod005
@@ -82,14 +90,14 @@ jobs:
           set -euo pipefail
           ./gradlew :app:assembleDebug --no-daemon --console=plain
           test -s app/build/outputs/apk/debug/app-debug.apk
-          grep -q '^VERSION_CODE=203900642$' version.properties
+          grep -q '^VERSION_CODE=203900643$' version.properties
           grep -q '^DB_SCHEMA=61$' version.properties
           grep -q '^BACKUP_FORMAT=21$' version.properties
       - name: Upload Android QA build
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BRASEIRO_DND_6.6.79_LIVE_MASTER_JOURNAL_QA
+          name: BRASEIRO_DND_6.6.80_MASTER_TRANSPORT_RECOVERY_QA
           path: dnd-normal/run247-mod005/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
           if-no-files-found: error
