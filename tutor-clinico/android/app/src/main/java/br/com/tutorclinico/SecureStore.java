@@ -1209,9 +1209,22 @@ final class SecureStore {
         for(int i=0;i<entries.length();i++){
             JSONObject entry=entries.getJSONObject(i);
             String id=entry.getString("id"),date=entry.getString("date"),topic=entry.getString("topic");
-            if((entry.length()!=6+(entry.has("dreamWork")?1:0)+(entry.has("reflectionWork")?1:0))||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
+            if((entry.length()!=6+(entry.has("dreamWork")?1:0)+(entry.has("reflectionWork")?1:0)+(entry.has("aiWork")?1:0))||!id.matches("[A-Za-z0-9_-]{1,100}")||!ids.add(id)||!date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")||!java.util.Arrays.asList("livre","afetos","repeticao","vinculos","ambivalencia","autenticidade","sonhos","mentalizacao","integracao").contains(topic))throw new IllegalArgumentException("Registro pessoal inválido");
             java.time.LocalDate.parse(date);
             if(!(entry.opt("context") instanceof String)||!(entry.opt("reflection") instanceof String)||!(entry.opt("next") instanceof String)||entry.getString("context").length()>4000||entry.getString("reflection").length()>12000||entry.getString("next").length()>4000)throw new IllegalArgumentException("Texto pessoal inválido");
+            if(entry.has("aiWork")){
+                JSONArray work=entry.getJSONArray("aiWork");
+                if(work.length()>10)throw new IllegalArgumentException("Limite de resultados pessoais");
+                java.util.HashSet<String> resultIds=new java.util.HashSet<>();
+                for(int k=0;k<work.length();k++){
+                    JSONObject result=work.getJSONObject(k);
+                    if(result.length()!=6)throw new IllegalArgumentException("Resultado pessoal inválido");
+                    for(String field:new String[]{"id","createdAt","kind","model","source","text"})
+                        if(!(result.opt(field) instanceof String))throw new IllegalArgumentException("Campo de resultado inválido");
+                    if(!result.getString("id").matches("[A-Za-z0-9_-]{1,100}")||!resultIds.add(result.getString("id"))||!java.util.Arrays.asList("neural","nli","assist","perspective").contains(result.getString("kind"))||result.getString("createdAt").length()>40||result.getString("model").length()>200||result.getString("source").length()>12000||result.getString("text").length()>24000||result.getString("text").trim().isEmpty())throw new IllegalArgumentException("Resultado pessoal inválido");
+                    java.time.Instant.parse(result.getString("createdAt"));
+                }
+            }
             if(entry.has("reflectionWork")){
                 JSONObject work=entry.getJSONObject("reflectionWork");
                 if(work.length()!=9)throw new IllegalArgumentException("Trabalho pessoal inválido");

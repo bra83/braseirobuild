@@ -5743,6 +5743,7 @@ function ecoSelfScreen(){
  if(ecoSelfView==='work')out+=ecoPersonalWorkPanel(rows);
  if(ecoSelfView==='dream')out+=ecoDreamWorkPanel(rows);
  if(ecoSelfView==='tools')out+=ecoSelfToolsPanel(rows);
+ if(ecoSelfView==='history')out+=ecoSelfArchivePanel(rows);
  if(ecoSelfView==='entry')out+='<section class="card"><h2>Trilha de reflexão</h2><p>Escolha livremente um eixo. Para se aperfeiçoar, comece com uma situação concreta, escreva sua experiência, faça a sessão de autoanálise guiada, formule uma pergunta ou ação e retome em outro registro. Não há pontuação, diagnóstico ou obrigação de completar etapas.</p><div class="eco-self-topics">'+ecoSelfTopics.map(t=>btn(t[1],'ecoSelfTopic',t[0]===topic[0]?'':'secondary','data-id="'+t[0]+'"')).join('')+'</div></section>';
  if(ecoSelfView==='entry')out+='<section class="card"><h2>'+esc(topic[1])+'</h2><p>'+esc(topic[4])+'</p><div class="eco-help-example">'+esc(topic[5])+'</div><details class="eco-help-topic"><summary>Fundamentação e limites</summary><p>'+esc(topic[2])+'</p><p class="small muted">Localizador bibliográfico (consulta externa manual): '+esc(topic[3])+'. Exercício autoral adaptado, não citação nem protocolo clínico validado.</p></details><h3>'+(old?'Editar registro':'Novo registro')+'</h3><div class="field"><label for="ecoSelfDate">Data</label><input id="ecoSelfDate" type="date" value="'+esc(draft.date||datestr())+'"></div>'+ecoSelfField('ecoSelfContext','Situação, fato ou lembrança (opcional)',draft.context,4000)+ecoSelfField('ecoSelfReflection','Reflexão ou livre associação',draft.reflection,12000)+ecoSelfField('ecoSelfNext','Questões abertas e próximos passos (opcional)',draft.next,4000)+'<p class="small muted">Salve antes de sair. Rascunho não salvo não é recuperável após fechar ou bloquear o ECO.</p><div class="actions">'+btn('Salvar registro pessoal','ecoSelfSave','')+btn('Limpar / novo registro','ecoSelfNew','ghost')+'</div></section>';
  if(ecoSelfView==='review')out+=ecoSelfReviewPanel(rows);
@@ -5817,7 +5818,7 @@ act=function(name,id,button){
   if(name==='ecoSelfSave'){
    const x=ecoSelfCapture();if(!x||!validDate(x.date)||!x.reflection.trim()){notify('Preencha uma data válida e a reflexão.','red');return;}
    const row={id:ecoSelfEdit||uid(),date:x.date,topic:ecoSelfTopic,context:x.context,reflection:x.reflection,next:x.next};
-   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else{if(rows[index].dreamWork){if(row.topic!=='sonhos'){notify('Preserve o eixo Sonhos para não perder o trabalho já salvo.','red');return;}row.dreamWork=rows[index].dreamWork;}if(rows[index].reflectionWork)row.reflectionWork=rows[index].reflectionWork;rows[index]=row;}
+   const rows=ecoSelfData.entries.slice(),index=rows.findIndex(r=>r.id===row.id);if(index<0)rows.push(row);else{if(rows[index].dreamWork){if(row.topic!=='sonhos'){notify('Preserve o eixo Sonhos para não perder o trabalho já salvo.','red');return;}row.dreamWork=rows[index].dreamWork;}if(rows[index].reflectionWork)row.reflectionWork=rows[index].reflectionWork;if(rows[index].aiWork)row.aiWork=rows[index].aiWork;rows[index]=row;}
    if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;ecoSelfView='history';render();notify('Registro pessoal salvo. Abra Autoanalisar ou Análise e IA.');}return;
   }
   if(name==='ecoSelfDelete'){if(!ecoSelfAllowLeave()||!window.confirm('Excluir este registro pessoal? A exclusão não remove cópias já exportadas.'))return;const rows=ecoSelfData.entries.filter(x=>x.id!==id);if(ecoSelfWrite(rows)){ecoSelfEdit='';ecoSelfDraft=null;render();}return;}
@@ -6117,7 +6118,7 @@ function ecoSelfToolsPanel(rows){
   if(['assist','perspective'].includes(ecoSelfTool))out+=ecoQwenStatusMarkup();
   out+=r?.pending?'<p id="ecoSelfToolStage">'+esc(r.stage)+'</p>'+btn('Cancelar','ecoSelfToolCancel','secondary'):btn(ecoSelfTool==='neural'?'Executar análise neural':ecoSelfTool==='nli'?'Comparar com NLI':'Gerar intervenções da IA','ecoSelfToolStart','');
   if(r?.error)out+='<p class="alert red">'+esc(r.error)+'</p>';
-  if(r?.result)out+=ecoSelfToolResult(r);
+  if(r?.result)out+=ecoSelfToolResult(r)+btn('Guardar resultado no diário privado','ecoSelfArchiveSave','secondary')+'<p class="small muted">Guarda uma evidência experimental separada da reflexão original; não é conclusão clínica.</p>';
  }
  return out+'<p class="small muted">Somente dados pessoais selecionados. Resultados experimentais não constituem diagnóstico. Para guardar suas próprias reflexões, abra Autoanálise guiada no registro.</p></section>';
 }
@@ -6135,10 +6136,28 @@ function ecoSelfToolResult(r){
  }
  return out;
 }
+function ecoSelfArchivePanel(rows){
+ const items=rows.flatMap(e=>(e.aiWork||[]).map(x=>({e,x}))).sort((a,b)=>b.x.createdAt.localeCompare(a.x.createdAt));
+ return '<details class="card"><summary>Resultados de IA guardados · '+items.length+'</summary>'+items.map(({e,x})=>'<article class="eco-evidence"><h3>'+esc(x.kind+' · '+x.model)+'</h3><p class="small">'+esc(x.createdAt.slice(0,10))+' · '+(x.source===e.reflection?'Registro principal preservado':'Registro principal alterado depois da análise; resultado histórico')+'</p><p style="white-space:pre-wrap">'+esc(x.text)+'</p><details><summary>Relato principal no momento da análise</summary><p style="white-space:pre-wrap">'+esc(x.source)+'</p></details>'+btn('Excluir somente resultado','ecoSelfArchiveDelete','danger','data-id="'+esc(x.id)+'" data-entry="'+esc(e.id)+'"')+'</article>').join('')+'<p class="small">Incluído somente no backup integral com diário privado e autoanálise. Nenhuma interpretação é automaticamente incorporada aos relatos.</p></details>';
+}
+function ecoSelfArchiveText(r){
+ const v=r.result;
+ if(r.kind==='neural'){const line=i=>r.rows[i]?.text||'';return ['Consulta e recorrências semânticas (proximidade matemática, não diagnóstico).',...(v.hits||[]).map(x=>x.score.toFixed(3)+' · '+line(x.i)),...(v.pairs||[]).map(x=>x.score.toFixed(3)+' · '+line(x.i)+'\n'+line(x.j))].join('\n\n');}
+ if(r.kind==='nli'){const x=v.comparisons[0];return ['Comparação textual experimental: incompatibilidade / implicação / indeterminação.', 'A: '+r.sources[0],'B: '+r.sources[1],'A → B: '+x.ab.map(n=>(100*n).toFixed(1)+'%').join(' / '),'B → A: '+x.ba.map(n=>(100*n).toFixed(1)+'%').join(' / ')].join('\n\n');}
+ return [r.author?'Perspectiva didática: '+r.author:'Perguntas de reflexão',...(r.theory||[]).map(t=>t.title+' · '+t.ref+'\n'+t.text),...r.sources,...v.questions].join('\n\n');
+}
+function ecoSelfArchiveSave(){
+ const r=ecoSelfToolRun,rows=ecoSelfData?.entries||[],e=rows.find(x=>x.id===r?.entryId);
+ if(!r?.result||r.pending||!e||e.reflection!==r.entrySnapshot){notify('Resultado ou fonte principal alterada. Execute novamente.','red');return;}
+ const text=ecoSelfArchiveText(r);if(!text.trim()||text.length>24000||(e.aiWork||[]).length>=10){notify('Limite de 10 resultados por registro e 24 mil caracteres por resultado. Nenhum texto foi cortado.','red');return;}
+ if(!window.confirm('Guardar este resultado experimental no diário privado, separado do seu relato original?'))return;
+ const item={id:uid(),createdAt:new Date().toISOString(),kind:r.kind,model:String(r.result.model||'Motor local').slice(0,200),source:r.entrySnapshot,text};
+ if(ecoSelfWrite(rows.map(x=>x.id===e.id?{...x,aiWork:[...(x.aiWork||[]),item]}:x))){ecoSelfView='history';ecoSelfToolCancel();render();notify('Resultado guardado no diário privado.');}
+}
 function ecoSelfToolStart(){
  if(ecoSelfToolRun?.pending)return;
  ecoSelfToolCapture();const rows=ecoSelfData?.entries||[],{a,b,selected}=ecoSelfToolEntries(rows);if(!a)return;
- const r={id:'selfhub-'+uid(),kind:ecoSelfTool,pending:true,stage:'Carregando motor local',last:Date.now(),sources:[]};let payload={id:r.id};
+ const r={id:'selfhub-'+uid(),kind:ecoSelfTool,pending:true,stage:'Carregando motor local',last:Date.now(),sources:[],entryId:a.id,entrySnapshot:a.reflection};let payload={id:r.id};
  if(r.kind==='neural'){
   r.rows=selected.flatMap(x=>x.reflection.split(/\n+/u).filter(t=>t.trim()).map(t=>({text:t,speaker:'desconhecido',atMs:null,source:ecoSelfToolLabel(x),sessionId:x.id})));
   payload={...payload,query:ecoSelfToolQuery.trim(),scope:'revisado',personal:true,longitudinal:selected.length>1,rows:r.rows};
@@ -6196,6 +6215,8 @@ act=function(name,id,button){
    render();return;
   }
   if(name==='ecoSelfToolStart'){if(document.getElementById('ecoSelfToolA')?.value!==ecoSelfToolA||document.getElementById('ecoSelfToolB')?.value!==ecoSelfToolB){notify('Aplique a seleção de registros primeiro.','red');return;}ecoSelfToolStart();return;}
+  if(name==='ecoSelfArchiveSave'){ecoSelfArchiveSave();return;}
+  if(name==='ecoSelfArchiveDelete'){const rows=ecoSelfData?.entries||[],e=rows.find(x=>x.id===button?.dataset?.entry);if(!e?.aiWork?.some(x=>x.id===id)||!window.confirm('Excluir somente este resultado de IA? O relato original será preservado.'))return;if(ecoSelfWrite(rows.map(x=>x.id===e.id?{...x,aiWork:x.aiWork.filter(a=>a.id!==id)}:x)))render();return;}
   if(name==='ecoSelfToolCancel'){ecoSelfToolCancel(false);render();return;}
   if(['ecoPersonalWorkOpen','ecoDreamWorkOpen','ecoSelfEdit','ecoSelfReviewNext','ecoSelfTopic'].includes(name)){
    const target=name==='ecoPersonalWorkOpen'?'work':name==='ecoDreamWorkOpen'?'dream':'entry';

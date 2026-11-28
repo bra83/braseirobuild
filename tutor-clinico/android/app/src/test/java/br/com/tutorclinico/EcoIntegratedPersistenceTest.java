@@ -792,6 +792,14 @@ public class EcoIntegratedPersistenceTest {
         JSONObject withWork=store.readSelfAnalysis();JSONObject work=new JSONObject().put("source","SONHO SINTÉTICO").put("focus","SONHO").put("association","associação").put("affect","").put("pattern","").put("alternative","").put("insight","síntese pessoal").put("action","").put("followup","");
         withWork.getJSONArray("entries").getJSONObject(1).put("reflectionWork",work);String rev=withWork.getString("revision");withWork.remove("revision");store.saveSelfAnalysis(rev,withWork.toString());
         assertEquals("síntese pessoal",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONObject("reflectionWork").getString("insight"));
+        JSONObject withAi=store.readSelfAnalysis();
+        withAi.getJSONArray("entries").getJSONObject(1).put("aiWork",new JSONArray().put(new JSONObject().put("id","ai-1").put("createdAt","2026-11-28T12:00:00Z").put("kind","assist").put("model","fixture").put("source","SONHO SINTÉTICO").put("text","PRIVATE_AI_SYNTHETIC_193")));
+        String aiRev=withAi.getString("revision");withAi.remove("revision");store.saveSelfAnalysis(aiRev,withAi.toString());
+        assertFalse(store.read().contains("PRIVATE_AI_SYNTHETIC_193"));
+        java.io.ByteArrayOutputStream withPrivateAi=new java.io.ByteArrayOutputStream();store.exportFullVault(withPrivateAi,pass,true,()->true);
+        store.getDbHelper().close();assertTrue(context.deleteDatabase("eco_vault.db"));
+        store=new SecureStore(context,key);store.restoreFullVault(new java.io.ByteArrayInputStream(withPrivateAi.toByteArray()),pass,()->true);
+        assertEquals("PRIVATE_AI_SYNTHETIC_193",store.readSelfAnalysis().getJSONArray("entries").getJSONObject(1).getJSONArray("aiWork").getJSONObject(0).getString("text"));
         // Restore a prior archive without personal data into a personal-only vault; keep both works.
         store.restoreFullVault(new java.io.ByteArrayInputStream(no.toByteArray()),pass,()->true);
         assertEquals(2,store.readSelfAnalysis().getJSONArray("entries").length());
