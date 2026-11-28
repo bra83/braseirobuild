@@ -630,7 +630,7 @@ function manualSessionScreen(){
     `</div>`+
     `<div class="field"><label>Síntese e relato clínico da sessão *</label><textarea id="manualSessTexto" rows="6" placeholder="Anotações do atendimento, falas marcantes do paciente, relato do processo...">${esc(s.texto||'')}</textarea></div>`+
     `<div class="field"><label>Importar transcrição em texto (opcional)</label><textarea id="manualSessTranscript" rows="8" placeholder="Cole a transcrição integral, sem áudio.">${esc(s.mlTranscricao||'')}</textarea></div>`+
-    btn('Importar arquivo TXT','ecoImportTranscript','','data-case="'+esc(c.id)+'"')+btn('Exportar transcrição em PDF','ecoTranscriptPdf','secondary','data-id="manual"')+
+    btn('Importar arquivo TXT','ecoImportTranscript','','data-case="'+esc(c.id)+'"')+btn('Exportar transcrição em PDF','ecoTranscriptPdf','secondary','data-id="manual"')+btn('Exportar TXT','ecoTranscriptTxt','secondary','data-id="manual"')+
     `<label class="choice"><input type="checkbox" id="manualSessRoles" ${s.importRolesConfirmed?'checked':''}>Confirmei os rótulos explícitos Paciente: e Terapeuta: neste texto.</label><p class="small muted">Sem confirmação, os falantes ficam não identificados. O original é preservado e não são inventados horários.</p>`+
     `<div class="field"><label>Intervenções e observações técnicas</label><textarea id="manualSessInterv" rows="3" placeholder="Interpretações pontuadas, manejo de resistência, clarificações...">${esc(s.intervencoes||'')}</textarea></div>`+
     `<div class="field"><label>Encaminhamentos e pontos a acompanhar</label><textarea id="manualSessPlano" rows="3" placeholder="Próximos passos combinados para o encontro seguinte...">${esc(s.plano||'')}</textarea></div>`+
@@ -6151,13 +6151,23 @@ act=function(name,id,button){
 function ecoTranscriptPdfButtons(s,caseId,isDraft){
  const attrs='data-case="'+esc(caseId)+'" data-session="'+esc(s.id)+'" data-draft="'+(isDraft?'1':'0')+'" ';
  const parts=[];
- if(String(s.mlTranscricao||'').trim())parts.push(btn('PDF da transcrição original','ecoTranscriptPdf','secondary',attrs+'data-id="original"'));
- if(String(s.mlRevisada||'').trim())parts.push(btn('PDF da transcrição revisada','ecoTranscriptPdf','secondary',attrs+'data-id="revisada"'));
- return parts.length?'<div class="actions" aria-label="Exportar transcrição em PDF">'+parts.join('')+'</div>':'';
+ if(String(s.mlTranscricao||'').trim())parts.push(btn('PDF da transcrição original','ecoTranscriptPdf','secondary',attrs+'data-id="original"'),btn('TXT original','ecoTranscriptTxt','secondary',attrs+'data-id="original"'));
+ if(String(s.mlRevisada||'').trim()||isDraft)parts.push(...(String(s.mlRevisada||'').trim()?[btn('PDF da transcrição revisada','ecoTranscriptPdf','secondary',attrs+'data-id="revisada"')]:[]),btn('TXT revisado','ecoTranscriptTxt','secondary',attrs+'data-id="revisada"'));
+ if((s.mlSegments||[]).some(x=>String(x.text||'').trim()&&['paciente','terapeuta'].includes(x.speaker)))parts.push(btn('TXT com falantes','ecoTranscriptTxt','secondary',attrs+'data-id="falantes"'));
+ return parts.length?'<div class="actions" aria-label="Exportar transcrição">'+parts.join('')+'</div>':'';
 }
 function ecoTranscriptPdfHtml(c,s,mode,raw,isDraft){
  const title=mode==='revisada'?'Transcrição revisada':mode==='manual'?'Transcrição importada — rascunho':'Transcrição original';
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>@page{size:A4;margin:19mm 18mm}body{font:11pt/1.55 Arial,sans-serif;color:#111}h1{font-size:18pt;margin:0 0 12pt}header{border-bottom:1px solid #aaa;padding-bottom:10pt;margin-bottom:14pt}p{margin:4pt 0}article{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;orphans:3;widows:3}.notice{font-size:9pt;color:#555}</style></head><body><header><h1>'+esc(title)+'</h1><p>Caso: '+esc(c.nome||c.id)+' · Sessão: '+esc(s.id||'rascunho')+'</p><p>Data clínica: '+esc(s.data||'Não registrada')+(s.hora?' · '+esc(s.hora):'')+'</p><p>Origem: '+esc(s.importSource||s.origem||'Não registrada')+'</p><p class="notice">Documento confidencial, não criptografado fora do ECO. '+(isDraft?'Rascunho não necessariamente salvo. ':'')+'Texto integral da versão selecionada, sem inferência diagnóstica. Falantes e conteúdo dependem de conferência humana.</p></header><article>'+esc(raw)+'</article></body></html>';
+}
+function ecoTranscriptSpeakerText(s){
+ const segments=(s.mlSegments||[]).filter(x=>String(x.text||'').trim());
+ if(!segments.some(x=>['paciente','terapeuta'].includes(x.speaker)))return '';
+ return segments.flatMap(x=>String(x.text).split(/\r\n|\n|\r/u).filter(t=>t.trim()).map(t=>{
+  // Avoid reinterpreting an unlabeled turn as an identified speaker on reimport.
+  const label=x.speaker==='paciente'?'Paciente':x.speaker==='terapeuta'?'Terapeuta':'Não identificado';
+  return label+': '+t;
+ })).join('\n');
 }
 const ecoTranscriptEntryPriorAct=act;
 act=function(name,id,button){
@@ -6168,7 +6178,8 @@ act=function(name,id,button){
   }
   return ecoTranscriptEntryPriorAct('newManualSession',openedId,{dataset:{case:openedId}});
  }
- if(name==='ecoTranscriptPdf'){
+ if(name==='ecoTranscriptPdf'||name==='ecoTranscriptTxt'){
+  const txt=name==='ecoTranscriptTxt';
   if(errorLocked||!state)return;
   let c=currentCase(),s,raw,isDraft=false;
   if(id==='manual'){
@@ -6176,14 +6187,21 @@ act=function(name,id,button){
    s=manualSessionDraft;raw=document.getElementById('manualSessTranscript')?.value||'';isDraft=true;
    s={...s,data:document.getElementById('manualSessData')?.value||s.data,hora:document.getElementById('manualSessHora')?.value||s.hora};
   }else{
-   if(!['original','revisada'].includes(id)||!c||button?.dataset?.case!==c.id)return;
+   if(!(txt?['original','revisada','falantes']:['original','revisada']).includes(id)||!c||button?.dataset?.case!==c.id)return;
    isDraft=button.dataset.draft==='1';
    if(isDraft){if(screen!=='session'||sessionDraft?.id!==button.dataset.session)return;s=sessionDraft;}
    else{if(screen!=='case'||tab!=='sessoes')return;s=c.sessoes?.find(x=>x.id===button.dataset.session);}
    if(!s)return;
-   raw=String(id==='revisada'?s.mlRevisada||'':s.mlTranscricao||'');
+   raw=id==='falantes'?ecoTranscriptSpeakerText(s):String(id==='revisada'?(isDraft?document.querySelector('[data-field="mlRevisada"]')?.value??s.mlRevisada??'':s.mlRevisada||''):s.mlTranscricao||'');
   }
   if(!raw.trim()){notify('Não há texto nesta versão da transcrição.','red');return;}
+  if(txt){
+   if(typeof window.NativeVault?.exportTranscriptTxt!=='function'){notify('Exportação TXT disponível no aplicativo Android.','red');return;}
+   if(raw.length>1000000||raw.includes('\u0000')){notify('Texto inválido ou acima de 1 milhão de caracteres; nenhum arquivo foi criado.','red');return;}
+   if(!window.confirm('Exportar somente esta transcrição em TXT? O arquivo ficará fora do cofre, sem criptografia. '+(id==='falantes'?'Esta versão contém os segmentos e papéis registrados, não o original integral. Confira as atribuições. ':'')+(isDraft?'Inclui o texto atual, que pode não estar salvo. ':'')+'Confirme o destino e a finalidade.'))return;
+   try{window.NativeVault.exportTranscriptTxt(raw,id,validDate(s.data)?s.data:'');}catch(e){notify('Não foi possível abrir o seletor TXT. Nenhum registro foi alterado.','red');}
+   return;
+  }
   if(typeof window.NativeVault?.printReport!=='function'){notify('Exportação PDF disponível no aplicativo Android.','red');return;}
   if(!window.confirm('Exportar somente esta transcrição? O PDF ficará fora do cofre e poderá conter informações confidenciais. Confirme o destino e a finalidade.'))return;
   try{window.NativeVault.printReport(ecoTranscriptPdfHtml(c,s,id,raw,isDraft));}catch(e){notify('Não foi possível abrir a impressão PDF. Nenhum registro foi alterado.','red');}

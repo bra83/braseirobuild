@@ -47,6 +47,13 @@ public final class MainActivity extends Activity {
     private String pendingAttachmentCase,pendingAttachmentTitle,pendingAttachmentClass;
     private byte[] pendingAttachmentExport;
     private String pendingTranscriptToken;
+    private static final int TRANSCRIPT_EXPORT_CODE=914;
+    private byte[] pendingTranscriptExport;
+    private boolean transcriptExportAuthPending;
+    private void clearPendingTranscriptExport(){
+        if(pendingTranscriptExport!=null)java.util.Arrays.fill(pendingTranscriptExport,(byte)0);
+        pendingTranscriptExport=null;transcriptExportAuthPending=false;
+    }
     private MlSessionEngine ml;
     private final java.util.concurrent.ExecutorService semanticWorker=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final java.util.concurrent.atomic.AtomicBoolean semanticBusy=new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -204,8 +211,9 @@ public final class MainActivity extends Activity {
         if(failures>=5)editor.putLong("blocked_until",System.currentTimeMillis()+60000).putInt("failed",0);
         editor.apply();return false;
     }
-    private void reauthenticate(String purpose,Runnable authorized){
-        if(!unlocked||isFinishing()||isDestroyed())return;
+    private void reauthenticate(String purpose,Runnable authorized){reauthenticate(purpose,authorized,()->{});}
+    private void reauthenticate(String purpose,Runnable authorized,Runnable cancelled){
+        if(!unlocked||isFinishing()||isDestroyed()){cancelled.run();return;}
         final long authorizationEpoch=accessEpoch;
         EditText input=passwordInput("PIN do ECO");
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle(purpose).setMessage("Confirme o PIN antes de continuar.").setView(input)
@@ -214,7 +222,10 @@ public final class MainActivity extends Activity {
             try{if(!unlocked||accessEpoch!=authorizationEpoch||!checkExistingPin(input.getText().toString())){input.setError("PIN inválido ou temporariamente bloqueado");return;}
                 input.setText("");dialog.dismiss();authorized.run();
             }catch(Exception e){input.setError("Não foi possível autenticar");}
-        }));dialog.show();
+        }));
+        dialog.setOnCancelListener(d->cancelled.run());
+        dialog.setOnDismissListener(d->cancelled.run());
+        dialog.show();
     }
     private boolean strongBiometricsAvailable(){
         if(android.os.Build.VERSION.SDK_INT<30)return false;
@@ -242,7 +253,7 @@ public final class MainActivity extends Activity {
     }
     private void requestUnlock() {
         if (showingLock || isFinishing()) return;
-        stopAutomaticCheckpoint();clearPendingBackup(); showingLock = true; accessEpoch++; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
+        stopAutomaticCheckpoint();clearPendingBackup(); showingLock = true; accessEpoch++; journalWhileLocked=initialUnlockDone&&ml!=null&&ml.isTranscribing(); unlocked = false; clearPendingTranscriptExport(); pendingTranscriptToken = null; pendingAttachmentCase=null; pendingAttachmentTitle=null;pendingAttachmentClass=null;if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null; semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); web.setVisibility(View.INVISIBLE);
         boolean needsCreate = !pref.contains("pin_hash");
         EditText input = passwordInput(needsCreate ? "Crie um PIN com 6 ou mais dígitos" : "Digite seu PIN");
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -305,7 +316,7 @@ public final class MainActivity extends Activity {
         // Do not cancel a Whisper decoder or release a microphone from the UI thread.
         if(ml!=null)ml.onHostPause();
         backgroundAt = System.currentTimeMillis();foreground=false;
-        if(pendingPassword==null&&pendingExport==null&&!modelPickerPending&&pendingModelUri==null&&!backupPickerPending&&pendingBackupUri==null)maybeAutomaticCheckpoint();
+        if(pendingPassword==null&&pendingExport==null&&pendingTranscriptExport==null&&!transcriptExportAuthPending&&!modelPickerPending&&pendingModelUri==null&&!backupPickerPending&&pendingBackupUri==null)maybeAutomaticCheckpoint();
         super.onPause();
     }
     @Override protected void onResume() {
@@ -321,7 +332,7 @@ public final class MainActivity extends Activity {
             TagarelaEngine.Companion.releaseCached();
         }
     }
-    @Override protected void onDestroy() { backupPickerPending=false;pendingBackupUri=null;modelPickerPending=false;pendingModelUri=null;stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
+    @Override protected void onDestroy() { backupPickerPending=false;pendingBackupUri=null;modelPickerPending=false;pendingModelUri=null;stopAutomaticCheckpoint();accessEpoch++;semanticEpoch++; embeddingCache.clear(); releaseWarmSemantic(); semanticWorker.shutdown(); clearPendingBackup(); clearPendingTranscriptExport(); if(ml!=null)TranscriptionService.detach(this); if (web != null) web.destroy(); super.onDestroy(); }
     private void jsCallback(String fn, String arg) {
         main.post(() -> { if (!isFinishing() && !isDestroyed() && web != null) web.evaluateJavascript("window."+fn+"("+JSONObject.quote(arg)+")",null); });
     }
@@ -483,6 +494,26 @@ public final class MainActivity extends Activity {
                     startActivityForResult(intent,ATTACHMENT_EXPORT_CODE);
                 }catch(Exception e){if(pendingAttachmentExport!=null)java.util.Arrays.fill(pendingAttachmentExport,(byte)0);pendingAttachmentExport=null;showToast("Anexo não exportado");}
             }));
+        }
+        @JavascriptInterface public void exportTranscriptTxt(String text,String mode,String date){
+            if(!unlocked||text==null||text.length()>1_000_000||text.trim().isEmpty()||text.indexOf(0)>=0)return;
+            if(!java.util.Set.of("manual","original","revisada","falantes").contains(mode))return;
+            final String suffix=date!=null&&date.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")?"-"+date:"";
+            final long epoch=accessEpoch;
+            main.post(()->{
+                if(!privateOperationAuthorized()||epoch!=accessEpoch||pendingTranscriptExport!=null||transcriptExportAuthPending)return;
+                transcriptExportAuthPending=true;
+                reauthenticate("Exportar transcrição TXT não cifrada",()->{
+                    transcriptExportAuthPending=false;
+                    if(!privateOperationAuthorized()||epoch!=accessEpoch||pendingTranscriptExport!=null)return;
+                    try{
+                        pendingTranscriptExport=text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                        Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain");
+                        intent.putExtra(Intent.EXTRA_TITLE,"eco-transcricao-"+mode+suffix+".txt");
+                        startActivityForResult(intent,TRANSCRIPT_EXPORT_CODE);
+                    }catch(Exception e){clearPendingTranscriptExport();showToast("Não foi possível abrir o destino TXT.");}
+                },()->transcriptExportAuthPending=false);
+            });
         }
         @JavascriptInterface public void selectTranscriptFile(String token) {
             if(!unlocked || token == null || token.isEmpty() || token.length() > 200) return;
@@ -1232,6 +1263,20 @@ public final class MainActivity extends Activity {
                 }showToast("Anexo exportado fora do cofre. Proteja o arquivo.");
             }catch(Exception e){showToast("Exportação não concluída; confira o destino.");}
             finally{java.util.Arrays.fill(bytes,(byte)0);}return;
+        }
+        if(code==TRANSCRIPT_EXPORT_CODE){
+            byte[] bytes=pendingTranscriptExport;pendingTranscriptExport=null;transcriptExportAuthPending=false;
+            if(bytes==null)return;
+            try{
+                if(!privateOperationAuthorized()||result!=RESULT_OK||data==null||data.getData()==null)return;
+                try(OutputStream out=getContentResolver().openOutputStream(data.getData(),"wt")){
+                    if(out==null)throw new java.io.IOException("Destino indisponível");
+                    out.write(bytes);out.flush();
+                }
+                showToast("Transcrição TXT exportada fora do cofre. Proteja o arquivo.");
+            }catch(Exception e){showToast("Exportação não concluída; descarte eventual arquivo incompleto.");}
+            finally{java.util.Arrays.fill(bytes,(byte)0);}
+            return;
         }
         if(code == TRANSCRIPT_FILE_CODE) {
             final String token = pendingTranscriptToken; pendingTranscriptToken = null;
