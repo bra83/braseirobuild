@@ -468,5 +468,29 @@ try{
  fs.writeFileSync(path.join(out,'responsive-audit.json'),JSON.stringify(layoutReport,null,2));
  console.log('PASS responsive audit: '+layoutReport.length+' route/viewport/theme checks');
  assert.deepEqual(errors,[]);
+ // Explicit TXT entry and isolated transcription PDF, with synthetic case and simulated Android bridge.
+ const transcriptPage=await browser.newPage({viewport:{width:393,height:852},isMobile:true,hasTouch:true});
+ const transcriptErrors=[];transcriptPage.on('pageerror',e=>transcriptErrors.push(e.message));
+ await transcriptPage.setContent(html);
+ await transcriptPage.evaluate(()=>{let raw=JSON.stringify({version:1,cases:[{id:'txt-a',nome:'Caso de teste A',sessoes:[]},{id:'txt-b',nome:'Caso de teste B',sessoes:[{id:'other',data:'2026-11-25',mlTranscricao:'OUTRO_CASO_NAO_EXPORTAR'}]}],appointments:[]});const drafts={};window.__printed=[];window.NativeVault={loadState:()=>raw,saveState:x=>{raw=x;return 'OK'},loadFormDraft:id=>drafts[id]||'',saveFormDraft:(id,data)=>{drafts[id]=data;return 'OK'},clearFormDraft:id=>{delete drafts[id];return 'OK'},selectTranscriptFile:token=>{window.__txtToken=token},printReport:doc=>window.__printed.push(doc)};window.confirm=()=>true;window.appUnlock();});
+ await transcriptPage.locator('#bottom [data-id="eco"]').click();
+ await transcriptPage.locator('[data-act="newManualSession"][data-case="txt-a"]').click();
+ assert.equal(await transcriptPage.evaluate(()=>screen),'manualSession');
+ await transcriptPage.locator('[data-act="ecoImportTranscript"]').click();
+ const textFixture=Array.from({length:160},(_,i)=>'Paciente: Fala fictícia '+(i+1)+' com atenção e vínculos.').join('\n')+'\nTerapeuta: <script>TESTE</script>';
+ await transcriptPage.evaluate(t=>{window.nativeTranscriptImport(JSON.stringify({token:'txt-b|errado',text:'ERRADO'}));window.nativeTranscriptImport(JSON.stringify({token:window.__txtToken,text:t}));},textFixture);
+ assert.equal(await transcriptPage.locator('#manualSessTranscript').inputValue(),textFixture);
+ await transcriptPage.locator('#manualSessRoles').check();
+ await transcriptPage.locator('[data-act="saveManualSession"]').click();
+ const saved=await transcriptPage.evaluate(()=>state.cases.find(c=>c.id==='txt-a').sessoes[0]);
+ assert.equal(saved.mlTranscricao,textFixture);assert.equal(saved.importSource,'arquivo TXT');assert.equal(saved.mlSegments[0].speaker,'paciente');
+ await transcriptPage.locator('[data-act="ecoTranscriptPdf"][data-id="original"]').click();
+ const singlePdf=await transcriptPage.evaluate(()=>window.__printed.at(-1));
+ assert.ok(singlePdf.includes('Fala fictícia 160'));assert.ok(singlePdf.includes('&lt;script&gt;TESTE&lt;/script&gt;'));assert.ok(!singlePdf.includes('OUTRO_CASO_NAO_EXPORTAR'));
+ const printTranscript=await browser.newPage();await printTranscript.setContent(singlePdf);
+ const transcriptBytes=await printTranscript.pdf({path:path.join(out,'transcricao-ficticia-a4.pdf'),preferCSSPageSize:true});
+ assert.ok(transcriptBytes.toString('latin1').startsWith('%PDF-'));assert.ok((transcriptBytes.toString('latin1').match(/\/Type\s*\/Page\b/g)||[]).length>1);
+ await printTranscript.close();await transcriptPage.close();assert.deepEqual(transcriptErrors,[]);
+ console.log('PASS direct TXT import, speaker labels, single-case transcript PDF, multi-page layout');
  console.log('PASS ECO real Chromium DOM: 16 destinations, 3 widths, 2 themes, square layout, manual record isolation');
 }finally{await browser.close();}
