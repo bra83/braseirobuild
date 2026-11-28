@@ -214,4 +214,29 @@ public class BraseiroSideQuestStoreRobolectricTest {
         assertEquals(0,new BraseiroSideQuestStore(db).listInstalled().length());
         assertEquals("principal",main.masterContext().optString("activeId"));
     }
+    @Test public void remoteSidequestCannotReplaceKnownInnSceneOrKote() throws Exception {
+        JSONObject scene=db.getSceneState();
+        scene.put("location","Pousada Marco do Percurso");
+        scene.put("hex_id","DO40");
+        scene.put("present_npcs_json",new JSONArray().put(
+            new JSONObject().put("name","Kote").put("role","estalajadeiro")
+                .put("present",true)).toString());
+        db.saveSceneState(scene);
+        JSONObject before=db.getSceneState();
+        JSONObject mapBefore=db.getMapState();
+        BraseiroSideQuestStore optional=new BraseiroSideQuestStore(db);
+        // This module's own start is an entirely DIFFERENT inn in the north.
+        JSONObject distant=sample("echo.north","O Eco entre os Mundos");
+        assertEquals("tres_pedras",distant.getJSONObject("start").getString("locationId"));
+        assertTrue(optional.importJson(distant.toString()).optBoolean("ok"));
+        JSONObject after=db.getSceneState();
+        assertEquals(before.optString("location"),after.optString("location"));
+        assertEquals(before.optString("hex_id"),after.optString("hex_id"));
+        assertTrue(after.optString("present_npcs_json").contains("Kote"));
+        assertEquals(before.optString("present_npcs_json"),after.optString("present_npcs_json"));
+        assertEquals(mapBefore.toString(),db.getMapState().toString());
+        assertEquals(0,optional.masterContext().optJSONArray("optional_modules_nearby").length());
+        assertEquals(0,db.listQuests("active",100).size());
+    }
+
 }

@@ -83,6 +83,12 @@ public final class SceneHexMiniMapView extends View {
 
     public void bind(JSONObject mapState) { bind(mapState, null); }
 
+    /** Runtime Atlas preview must not fall back to parsing the full manifest. */
+    public void bindIndexedNeighborhood(JSONObject mapState,MapManifestGeometry local){
+        if(local==null){bind(null,null);return;}
+        bind(mapState,local);
+    }
+
     public void bind(JSONObject mapState, MapManifestGeometry resolvedGeometry) {
         recycle();
         geometry = null;

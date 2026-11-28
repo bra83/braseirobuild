@@ -21,6 +21,7 @@ public final class MasterResponseValidator {
             envelope=MasterProtocolV1.enforce(envelope);
             if(envelope.optBoolean("protocol_rejected",false))warnings.put("Protocolo estrutural incompatível; a narração foi preservada sem mutações.");
             normalizeCore(envelope,warnings);
+            SceneNpcRoleAliases.reconcile(envelope,db.getSceneState());
             envelope=rules.validate(envelope,action);
             requireValid(envelope.optJSONObject("_rules_report"),"validador mecânico");
             envelope=npcs.validateUpdates(envelope);

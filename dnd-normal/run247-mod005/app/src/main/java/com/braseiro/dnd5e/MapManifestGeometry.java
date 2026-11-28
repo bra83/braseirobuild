@@ -78,7 +78,7 @@ public final class MapManifestGeometry {
      * foram importados do dataset canônico. Nenhum centro ou vizinho é inferido
      * do JPG e nenhuma topologia odd-q é recalculada durante o jogo.
      */
-    public static MapManifestGeometry fromAtlasDatabase(AppDb db, String packageId, AtlasMapProfile p) throws Exception {/*BR_JSON_WRAP*/try{
+    public static synchronized MapManifestGeometry fromAtlasDatabase(AppDb db, String packageId, AtlasMapProfile p) throws Exception {/*BR_JSON_WRAP*/try{
         if (db == null) throw new Exception("AppDb ausente para geometria do Atlas.");
         if (p == null) throw new Exception("AtlasMapProfile ausente.");
         if (packageId == null || packageId.trim().isEmpty()) throw new Exception("map_package_id ausente.");
@@ -114,6 +114,24 @@ public final class MapManifestGeometry {
         synchronized(GEOMETRY_CACHE){GEOMETRY_CACHE.put(cacheKey,g);}
         return g;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
+
+    /** At most seven indexed rows for the scene preview; never scans the full atlas. */
+    public static MapManifestGeometry fromAtlasNeighborhood(AppDb db,String packageId,AtlasMapProfile p,String centerId) throws Exception {
+        MapManifestGeometry g=baseFromAtlasProfile(p);g.explicitCenters=true;
+        JSONObject center=db.getRawMapHex(packageId,centerId);
+        if(center.length()==0)return g;
+        ArrayList<String> neighbors=new ArrayList<>(db.getMapHexNeighbors(packageId,centerId));
+        if(neighbors.size()>6)throw new IllegalStateException("Vizinhança canônica inválida.");
+        ArrayList<String> ids=new ArrayList<>();ids.add(centerId);ids.addAll(neighbors);
+        for(String id:ids){
+            JSONObject row=id.equalsIgnoreCase(centerId)?center:db.getRawMapHex(packageId,id);
+            if(row.length()==0)continue;
+            int[] cr=parseExcelHexId(id);
+            g.add(id,(float)row.optDouble("center_x",Double.NaN),(float)row.optDouble("center_y",Double.NaN),p.hexWidth,p.hexHeight,cr==null?-1:cr[0],cr==null?-1:cr[1]);
+        }
+        g.explicitNeighbors.put(centerId.toUpperCase(Locale.US),Collections.unmodifiableList(neighbors));
+        return g;
+    }
 
     private static MapManifestGeometry baseFromAtlasProfile(AtlasMapProfile p) {
         MapManifestGeometry g = new MapManifestGeometry();

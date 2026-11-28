@@ -17,6 +17,13 @@ public final class FictionTurnTrace {
     public static final String PREF_ENABLED="fiction_turn_trace_opt_in";
     private static final long MAX_BYTES=512L*1024L;
     private static final Object FILE_LOCK=new Object();
+    // Logs must not wait behind a busy SQLite/gameplay serial executor.
+    private static final java.util.concurrent.ExecutorService TRACE_IO =
+        java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+            Thread thread = new Thread(r,"braseiro-private-trace");
+            thread.setDaemon(true);
+            return thread;
+        });
     private static final Pattern API_KEY=Pattern.compile("AIza[0-9A-Za-z_-]{15,}");
     private static final Pattern BEARER=Pattern.compile("(?i)Bearer\\s+[a-z0-9._~+/=-]{8,}");
     private static final Pattern JSON_SECRET=Pattern.compile(
@@ -66,7 +73,7 @@ public final class FictionTurnTrace {
             }
             line=sanitized+"\n";
         }catch(Exception ignored){return;}
-        AppExecutors.serial().execute(new Runnable(){public void run(){
+        TRACE_IO.execute(new Runnable(){public void run(){
             synchronized(FILE_LOCK){
             if(!isEnabled(preferences))return; // opt-out wins over queued writes
             try{

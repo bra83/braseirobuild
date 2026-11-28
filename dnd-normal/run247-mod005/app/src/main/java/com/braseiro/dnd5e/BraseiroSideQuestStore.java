@@ -405,6 +405,8 @@ public final class BraseiroSideQuestStore {
             out.put("optional_modules_nearby",nearby)
                .put("current_location_verified_by_host",location)
                .put("policy","Missões importadas são oportunidades opcionais e NÃO substituem a aventura principal. " +
+                    "O módulo secundário NUNCA fornece posição inicial, elenco obrigatório ou cena de abertura, mesmo quando seu JSON contém start ou playerIntroduction. " +
+                    "A cena persistida e a identidade dos NPCs presentes têm prioridade absoluta; mantenha nomes, relações e diálogos já estabelecidos. " +
                     "Ofereça NO MÁXIMO UM rumor natural por cena, apenas se o local atual permitir, " +
                     "sem inventar NPC presente, evento, teste, recompensa ou viagem. " +
                     "Não revele segredo, pano de fundo privado, solução, nome oculto ou destino " +

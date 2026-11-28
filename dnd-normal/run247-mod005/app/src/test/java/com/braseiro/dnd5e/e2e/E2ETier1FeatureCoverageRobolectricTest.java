@@ -581,7 +581,9 @@ public final class E2ETier1FeatureCoverageRobolectricTest {
             f.db.addJournal("Log", "Journey begins", "quest");
 
             // 1. Export produces version 21
+            System.out.println("F18: starting export");
             JSONObject export = f.db.exportAll();
+            System.out.println("F18: export completed");
             assertEquals(21, export.optInt("version"));
             // 2. Export has empty check error (valid SHA-256 seal)
             assertEquals("", Backup21IntegrityEnvelope.check(export));
@@ -591,7 +593,9 @@ public final class E2ETier1FeatureCoverageRobolectricTest {
             assertTrue(sha.matches("[0-9a-f]{64}"));
             // 4. Import restores campaign name
             f.db.saveCampaign("Temp", "5e 2014", "Dark", false, false, false, "t");
+            System.out.println("F18: starting import");
             f.db.importAll(export);
+            System.out.println("F18: import completed");
             assertEquals("F18 World", f.db.getCampaign().optString("name"));
             // 5. Import restores journal entries
             assertEquals(1, f.db.listJournal().size());

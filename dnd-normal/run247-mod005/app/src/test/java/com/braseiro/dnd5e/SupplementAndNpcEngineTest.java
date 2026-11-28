@@ -259,5 +259,7 @@ public class SupplementAndNpcEngineTest {
         assertTrue(prompt.contains("Humano"));
         assertTrue(prompt.contains("Bucaneiro Corsário"));
         assertTrue(prompt.contains("token portrait"));
+        assertTrue(prompt.contains("photorealistic cinematic live-action"));
+        assertFalse(prompt.contains("painted digital portrait"));
     }
 }

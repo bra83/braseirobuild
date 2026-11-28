@@ -111,12 +111,13 @@ public class NarrativeDefinitiveLeakRegressionTest {
 
         for (String occ : occasions) {
             MasterOrchestrator.Plan plan = MasterOrchestrator.Plan.forTest("Entrar em Strixhaven", "{}", occ, "PLAYER_ACTION");
-            String narration = OfflineMasterEngine.completePresentationWithBarbara("", occ, plan, scene);
-            assertTrue("Apresentação em " + occ + " não pode ser vazia", narration.length() > 0);
+            String original="Vocês estão no Biblioplex de Strixhaven. Brelga: — Bom dia! O que vocês fazem?";
+            String narration = OfflineMasterEngine.completePresentationWithBarbara(original, occ, plan, scene);
+            org.junit.Assert.assertEquals(original,narration);
+            org.junit.Assert.assertEquals("",OfflineMasterEngine.completePresentationWithBarbara("",occ,plan,scene));
             assertContainsNoLeakedPhrases("completePresentationWithBarbara(" + occ + ")", narration);
             assertFalse("NarrativeGuard não pode acusar vazamento em " + occ, NarrativeGuardService.containsInternalLeak(narration));
-            assertTrue("WorldOnboardingNarrativeGuard deve aceitar a apresentação em " + occ,
-                    WorldOnboardingNarrativeGuard.problem(narration, occ, null).isEmpty());
+            // Coverage may be insufficient for a specific discovery; that cannot authorize fabricated prose.
         }
     }
 

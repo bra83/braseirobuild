@@ -116,6 +116,8 @@ public final class MapPackageManager {
                 File staging = null;
                 File finalDirectory = null;
                 String packageId = "";
+                boolean createdPackage=false;
+                boolean verifiedPackage=false;
                 String stage = "abrir o ZIP";
                 try {
                     progress(callback, "Abrindo pacote ZIP", 0, 8);
@@ -128,7 +130,9 @@ public final class MapPackageManager {
                     requireFile(manifestFile, "manifesto do mapa");
                     String manifestJson = readText(manifestFile);
                     JSONObject manifestRoot = new JSONObject(manifestJson);
-                    File profileFile = new File(staging, manifestRoot.optJSONObject("dataFiles") == null ? "atlas_map_profile_v1.json" : manifestRoot.optJSONObject("dataFiles").optString("atlasMapProfile", "atlas_map_profile_v1.json"));
+                    File profileFile = resolveAtlasProfileFile(staging, manifestRoot);
+                    String inputName = uri == null ? "" : String.valueOf(uri.getLastPathSegment());
+                    boolean bundledAtlas = inputName.toUpperCase(Locale.US).startsWith("PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V");
                     AtlasMapProfile atlasProfile = profileFile.isFile() ? AtlasMapProfile.load(profileFile) : null;
                     File contractFile = new File(staging, "atlas_contract_v1.json");
                     File indexContractFile = new File(staging, "canonical_catalog_index_v1.json");
@@ -136,6 +140,10 @@ public final class MapPackageManager {
                     JSONObject atlasContract = contractFile.isFile() ? new JSONObject(readText(contractFile)) : new JSONObject();
                     JSONObject canonicalIndex = indexContractFile.isFile() ? new JSONObject(readText(indexContractFile)) : new JSONObject();
                     JSONObject migrationProfiles = migrationsFile.isFile() ? new JSONObject(readText(migrationsFile)) : new JSONObject();
+                    boolean legacyV2 = atlasProfile == null && "PACOTE_MAPA_FAERUN_2025_PTBR_MAX_V2.zip".equals(inputName) && LegacyFaerunV2Atlas.matchesSource(uri);
+                    if (atlasProfile == null && !legacyV2 && (bundledAtlas || contractFile.isFile() || manifestRoot.has("coordinate_frame_id"))) {
+                        throw new Exception("Atlas Contract sem perfil reconhecido: " + profileFile.getName() + "; arquivos extraídos: " + extracted);
+                    }
                     if (atlasProfile != null) atlasProfile.validateAgainst(manifestRoot, canonicalIndex, atlasContract);
                     // Atlas Contract: não gere centros/topologia a partir da matemática do grid.
                     // A geometria exata só é construída DEPOIS da importação, lendo center_x/center_y/neighbors_json do dataset.
@@ -177,8 +185,18 @@ public final class MapPackageManager {
                             || (isFaerunMap && isPrevFaerun)
                             || (atlasProfile != null && AtlasMigrationEngine.sourceDeclaredForTarget(migrationProfiles, previousPackage.optString("map_package_id",previousPackage.optString("package_id",previous.optString("map_package_id",""))), previous.optString("coordinate_frame_id",previousPackage.optString("coordinate_frame_id","")), atlasProfile.mapPackageId, atlasProfile.coordinateFrameId))
                             || (previous.optString("current_hex_id", "").trim().length() > 0 && geometry != null && geometry.byId(previous.optString("current_hex_id")) != null);
-                    packageId = atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis();
-                    if (atlasProfile != null && appDb.getMapPackageAny(packageId).length() > 0) appDb.deleteMapPackage(packageId);
+                    packageId = legacyV2 ? LegacyFaerunV2Atlas.PACKAGE_ID : (atlasProfile != null ? atlasProfile.mapPackageId : mapId + "@" + System.currentTimeMillis());
+                    if ((atlasProfile != null || legacyV2) && appDb.getMapPackageAny(packageId).length() > 0) {
+                        if(appDb.isAtlasContractPackage(packageId)&&appDb.isMapPackageUsable(packageId)){
+                            JSONObject ready=appDb.getMapPackageAny(packageId);
+                            if(!packageId.equals(previous.optString("map_package_id")))appDb.rebindReadyAtlasPackage(worldProfile,packageId);
+                            JSONObject active=appDb.getMapStateForProfile(worldProfile);
+                            deleteDirectory(staging);staging=null;
+                            if(callback!=null)callback.onSuccess(new ImportResult(packageId,mapId,worldProfile,ready.optString("label"),ready.optString("image_uri"),ready.optString("overlay_uri"),ready.optString("vector_overlay_uri",ready.optString("vector_overlay_gzip_uri")),ready.optString("hex_index_uri"),ready.optString("overlay_mode","dynamic"),ready.optString("manifest_json"),active.optString("current_hex_id"),(float)active.optDouble("token_x",.5),(float)active.optDouble("token_y",.5),ready.optInt("hex_count"),ready.optInt("location_count")));
+                            return;
+                        }
+                        appDb.deleteMapPackage(packageId);
+                    }
                     finalDirectory = new File(context.getFilesDir(), "maps/" + safeName(packageId) + "_" + System.currentTimeMillis());
                     if (finalDirectory.exists()) deleteDirectory(finalDirectory);
                     if (!staging.renameTo(finalDirectory)) {
@@ -232,6 +250,7 @@ public final class MapPackageManager {
                     packageValues.put("imported_at", System.currentTimeMillis());
                     packageValues.put("ready", 0);
                     db.insertOrThrow("map_packages", null, packageValues);
+                    createdPackage=true;
 
                     stage = "importar o atlas de hexes";
                     progress(callback, "Importando atlas de hexes", 4, 8);
@@ -240,9 +259,10 @@ public final class MapPackageManager {
                     int hexCount = importAtlas(spec.atlasFile, packageId, expectedHexCount, callback);
                     if (hexCount != expectedHexCount) throw new Exception("Atlas incompleto: " + hexCount + " de " + expectedHexCount + " hexes.");
                     if (atlasProfile != null) {
+                        stage = "validar geometria indexada";
                         geometry = MapManifestGeometry.fromAtlasDatabase(appDb, packageId, atlasProfile);
                         verifyGeometry(geometry);
-                        if (spec.hexIndexFile != null) { requireFile(spec.hexIndexFile, spec.hexIndexFile.getName()); validateHexIndex(spec.hexIndexFile, geometry, callback); }
+                        if (spec.hexIndexFile != null) { stage = "validar identidade e centros do índice"; requireFile(spec.hexIndexFile, spec.hexIndexFile.getName()); validateHexIndex(spec.hexIndexFile, geometry, callback, atlasProfile, manifestRoot.optString("mapId","")); }
                     }
 
                     stage = "importar o catálogo de locais";
@@ -261,14 +281,30 @@ public final class MapPackageManager {
                     stage = "cruzar atlas, índice e locais";
                     progress(callback, "Validando cruzamento por hexId", 6, 8);
                     validateDatabaseSamples(packageId, geometry);
+                    if (legacyV2) {
+                        stage = "migrar o Atlas V2 embarcado para o contrato indexado";
+                        atlasProfile = LegacyFaerunV2Atlas.adapt(db, packageId, manifestRoot, geometry, spec.mapFile.getName(), hexCount);
+                        manifestJson = manifestRoot.toString();
+                        geometry = MapManifestGeometry.fromAtlasDatabase(appDb, packageId, atlasProfile);
+                        verifyGeometry(geometry);
+                    }
                     ContentValues ready = new ContentValues();
                     ready.put("hex_count", hexCount);
                     ready.put("location_count", locationCount);
                     ready.put("ready", 1);
                     ready.put("atlas_ready", atlasProfile == null ? 0 : 1);
-                    db.update("map_packages", ready, "package_id=?", new String[]{packageId});
-
-                    AtlasMigrationEngine.PositionResolution resolved = atlasProfile == null ? null : AtlasMigrationEngine.resolveCampaignPosition(appDb, previous, previousPackage, atlasProfile, migrationProfiles, packageId, geometry);
+                    int updated = db.update("map_packages", ready, "package_id=?", new String[]{packageId});
+                    if (updated != 1) throw new Exception("Não foi possível finalizar exatamente um pacote: " + packageId + " (" + updated + ")");
+                    if (atlasProfile != null && !appDb.isAtlasContractPackage(packageId)) throw new Exception(atlasReadinessDiagnostic(appDb, packageId));
+                    verifiedPackage=true;
+                    stage="ativar pacote validado";
+                    AtlasMigrationEngine.PositionResolution resolved = null;
+                    if(atlasProfile!=null)try{
+                        resolved=AtlasMigrationEngine.resolveCampaignPosition(appDb,previous,previousPackage,atlasProfile,migrationProfiles,packageId,geometry);
+                    }catch(Exception migrationError){
+                        AppLog.e("MapPackage","Posição legada pendente; o índice validado não será descartado.",migrationError);
+                        resolved=new AtlasMigrationEngine.PositionResolution("",.5,.5,false,"migration_pending",previous.toString());
+                    }
                     MapManifestGeometry.ManifestHex initial = null;
                     if (atlasProfile == null) {
                         String prevHex = previous.optString("current_hex_id", "").trim();
@@ -293,8 +329,10 @@ public final class MapPackageManager {
                             tokenX, tokenY, savedScale, savedOx, savedOy);
                     if (atlasProfile != null) {
                         appDb.saveAtlasPositionForProfile(worldProfile, packageId, currentHexId, tokenX, tokenY, atlasProfile.coordinateFrameId, resolved == null ? "ready" : resolved.status, resolved == null ? "{}" : resolved.legacyJson);
-                        JSONObject poiMigration = AtlasMigrationEngine.migrateCampaignPois(appDb, atlasProfile, migrationProfiles, packageId);
-                        appDb.addAuditEvent("atlas_migration", "CampaignPoi reconciliados pelo contrato do pacote", poiMigration.toString(), "{}", poiMigration.toString(), true);
+                        try{
+                            JSONObject poiMigration = AtlasMigrationEngine.migrateCampaignPois(appDb, atlasProfile, migrationProfiles, packageId);
+                            appDb.addAuditEvent("atlas_migration", "CampaignPoi reconciliados pelo contrato do pacote", poiMigration.toString(), "{}", poiMigration.toString(), true);
+                        }catch(Exception migrationError){AppLog.e("MapPackage","Migração de POIs pendente; Atlas válido mantido.",migrationError);}
                     }
                     if(sameMap && (resolved == null || "ready".equals(resolved.status) || "ready_identity_reconciled".equals(resolved.status))){String destination=atlasProfile==null&&geometry.byId(previous.optString("destination_hex_id"))!=null?previous.optString("destination_hex_id"):"";appDb.saveMapTravelStateForProfile(worldProfile,previous.optInt("position_locked",0)==1&&currentHexId.length()>0,destination,previous.optString("route_json","[]"),previous.optString("route_owner","Jogador"));}
                     else appDb.saveMapTravelStateForProfile(worldProfile,false,"","[]","Jogador");
@@ -325,14 +363,16 @@ public final class MapPackageManager {
                                 "A chegada a Yartar sera revalidada na proxima abertura.", arrivalError);
                         }
                     }
+                    if (atlasProfile != null && !appDb.isAtlasContractPackage(packageId)) throw new Exception(atlasReadinessDiagnostic(appDb, packageId));
+                    if (atlasProfile != null && !packageId.equals(appDb.getMapStateForProfile(worldProfile).optString("map_package_id"))) throw new Exception("O Atlas validado não é o pacote ativo: " + packageId);
                     if (callback != null) callback.onSuccess(new ImportResult(packageId, mapId, worldProfile, atlasProfile != null ? (atlasProfile.setting.length()>0?atlasProfile.setting+" — Atlas":atlasProfile.logicalMapId) : geometry.getLabel(), imageUri,
                             overlayUri, vectorUri.length() > 0 ? vectorUri : vectorGzipUri, indexUri, overlayMode,
                             manifestJson, currentHexId, tokenX, tokenY, hexCount, locationCount));
                 } catch (Exception e) {
                     AppLog.e("MapPackage", "Falha ao " + stage + ".", e);
-                    if (packageId.length() > 0) try { appDb.deleteMapPackage(packageId); } catch (Exception cleanupError) { AppLog.w("MapPackage", "Falha ao remover pacote incompleto.", cleanupError); }
+                    if (createdPackage&&!verifiedPackage&&packageId.length()>0) try { appDb.deleteMapPackage(packageId); } catch (Exception cleanupError) { AppLog.w("MapPackage", "Falha ao remover pacote incompleto.", cleanupError); }
                     if (staging != null) deleteDirectory(staging);
-                    if (finalDirectory != null) deleteDirectory(finalDirectory);
+                    if (finalDirectory != null&&!verifiedPackage) deleteDirectory(finalDirectory);
                     String detail = e.getMessage() == null ? e.toString() : e.getMessage();
                     if (callback != null) callback.onError("Falha ao " + stage + ": " + detail);
                 }
@@ -394,6 +434,27 @@ public final class MapPackageManager {
         return found;
     }catch(RuntimeException e){throw e;}catch(Exception e){throw new IllegalStateException(e);}}
 
+    static File resolveAtlasProfileFile(File staging, JSONObject manifest) {
+        JSONObject files = manifest.optJSONObject("dataFiles");
+        String declared = files == null ? "" : files.optString("atlasMapProfile", "").trim();
+        String basename = new File(declared.replace('\\', '/')).getName();
+        File declaredFile = new File(staging, basename.isEmpty() ? "atlas_map_profile_v1.json" : basename);
+        if (declaredFile.isFile()) return declaredFile;
+        File standard = new File(staging, "atlas_map_profile_v1.json");
+        return standard.isFile() ? standard : declaredFile;
+    }
+
+    private static String atlasReadinessDiagnostic(AppDb db, String id) {
+        JSONObject row = db.getMapPackageAny(id);
+        return "Atlas não reconhecido após persistência: id=" + id
+                + "; row=" + (row.length() > 0)
+                + "; ready=" + row.optInt("ready", -1)
+                + "; atlas_ready=" + row.optInt("atlas_ready", -1)
+                + "; logical_map_id=" + row.optString("logical_map_id")
+                + "; coordinate_frame_id=" + row.optString("coordinate_frame_id")
+                + "; profile_length=" + row.optString("atlas_profile_json").length();
+    }
+
     private File findManifest(File staging, List<String> names) throws Exception {
         ArrayList<String> candidates = new ArrayList<>();
         for (String name : names) if (name.toLowerCase(Locale.US).startsWith("map_manifest") && name.toLowerCase(Locale.US).endsWith(".json")) candidates.add(name);
@@ -406,10 +467,31 @@ public final class MapPackageManager {
                 return a.compareToIgnoreCase(b);
             }
         });
-        return new File(staging, candidates.get(0));
+        // Prefer a manifest that actually declares a matching Atlas Contract.
+        // A legacy V2 filename must not override an authoritative contract.
+        File selected = null;
+        for (String name : candidates) {
+            File candidate = new File(staging, name);
+            JSONObject root = new JSONObject(readText(candidate));
+            File profile = resolveAtlasProfileFile(staging, root);
+            if (!profile.isFile() || root.optString("coordinate_frame_id").isEmpty()) continue;
+            AtlasMapProfile parsed = AtlasMapProfile.load(profile);
+            if (!parsed.logicalMapId.equals(root.optString("logical_map_id"))
+                    || !parsed.mapPackageId.equals(root.optString("map_package_id", root.optString("mapId")))
+                    || !parsed.coordinateFrameId.equals(root.optString("coordinate_frame_id"))) continue;
+            if (selected != null) throw new Exception("Mais de um manifesto Atlas Contract compatível; seleção ambígua.");
+            selected = candidate;
+        }
+        return selected != null ? selected : new File(staging, candidates.get(0));
     }
 
     private void validateHexIndex(File file, MapManifestGeometry geometry, Callback callback) throws Exception {
+        validateHexIndex(file,geometry,callback,null,"");
+    }
+    static boolean indexIdentityMatches(String actual,String logical,String packageId,String manifestAlias){
+        return actual.isEmpty()||actual.equals(logical)||(!packageId.isEmpty()&&actual.equals(packageId))||(!manifestAlias.isEmpty()&&actual.equals(manifestAlias));
+    }
+    private void validateHexIndex(File file, MapManifestGeometry geometry, Callback callback,AtlasMapProfile profile,String manifestAlias) throws Exception {
         JsonReader reader = new JsonReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8));
         reader.setLenient(true);
         int count = 0;
@@ -444,7 +526,7 @@ public final class MapPackageManager {
         }
         reader.endObject();
         reader.close();
-        if (mapId.length() > 0 && geometry.getMapId().length() > 0 && !mapId.equals(geometry.getMapId())) throw new Exception("hex_index pertence ao mapa " + mapId + ".");
+        if (!indexIdentityMatches(mapId,geometry.getMapId(),profile==null?"":profile.mapPackageId,profile==null?"":manifestAlias)) throw new Exception("hex_index pertence ao mapa " + mapId + "; esperado "+geometry.getMapId()+".");
         if (count != geometry.size()) throw new Exception("hex_index incompleto: " + count + " de " + geometry.size() + " hexes.");
     }
 

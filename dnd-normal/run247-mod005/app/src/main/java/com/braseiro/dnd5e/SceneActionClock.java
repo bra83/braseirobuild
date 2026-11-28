@@ -26,7 +26,12 @@ public final class SceneActionClock {
             int runtime=chosenText.indexOf("=== STRIXHAVEN OFICIAL");
             if(runtime>=0)chosenText=chosenText.substring(0,runtime);
             clean=chosenText.trim();
-        }else if(clean.startsWith("CONTRATO NARRATIVO STRIXHAVEN")
+        }else if(clean.startsWith("ABERTURA DA AVENTURA PRINCIPAL IMPORTADA:")
+                ||clean.startsWith("POSIÇÃO ATUAL CONFIRMADA:")
+                ||clean.startsWith("PONTO INICIAL CATALOGADO DESTA AVENTURA")
+                ||clean.contains("INÍCIO AUTOMÁTICO — ABERTURA DE HISTÓRIA")
+                ||clean.contains("INÍCIO AUTOMÁTICO — CONTINUAÇÃO DA CENA EXISTENTE")
+                ||clean.startsWith("CONTRATO NARRATIVO STRIXHAVEN")
                 ||clean.startsWith("INÍCIO AUTOMÁTICO")
                 ||clean.startsWith("INICIO AUTOMATICO")){
             return ""; // automated opening is not an action by the hero

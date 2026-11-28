@@ -489,6 +489,7 @@ public class AppDb extends SQLiteOpenHelper {
         addColumnIfMissing(db,"journal","canonical_fact","INTEGER DEFAULT 1");
         addColumnIfMissing(db,"journal","event_key","TEXT DEFAULT ''");
         addColumnIfMissing(db,"journal","source_kind","TEXT DEFAULT 'system'");
+        addColumnIfMissing(db,"journal","adventure_archive_key","TEXT NOT NULL DEFAULT ''");
         try{db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_journal_event_key ON journal(world_profile,event_key) WHERE event_key<>''");}catch(Exception e){AppLog.w("AppDb","Não foi possível criar índice canônico do Diário.",e);}
         addColumnIfMissing(db,"npc_memory_profiles","stable_id","TEXT DEFAULT ''");
         try{db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_npc_stable_id ON npc_memory_profiles(world_profile,stable_id) WHERE stable_id<>''");}catch(Exception e){AppLog.w("AppDb","Não foi possível criar índice de identidade de NPC.",e);}
@@ -2339,6 +2340,34 @@ public class AppDb extends SQLiteOpenHelper {
         return getWritableDatabase().insert("journal",null,v);
     }
     public List<JSONObject> listJournal() { return queryList("SELECT * FROM journal WHERE world_profile=? ORDER BY created_at DESC",new String[]{getActiveMapProfile()}); }
+    public synchronized void archiveActiveAdventureJournal(){
+        SQLiteDatabase sql=getWritableDatabase();addColumnIfMissing(sql,"journal","adventure_archive_key","TEXT NOT NULL DEFAULT ''");
+        ContentValues v=new ContentValues();v.put("adventure_archive_key",java.util.UUID.randomUUID().toString());
+        sql.update("journal",v,"world_profile=? AND COALESCE(adventure_archive_key,'')=''",new String[]{getActiveMapProfile()});
+    }
+    public synchronized List<JSONObject> listActiveAdventureJournal(){
+        addColumnIfMissing(getWritableDatabase(),"journal","adventure_archive_key","TEXT NOT NULL DEFAULT ''");
+        return queryList("SELECT * FROM journal WHERE world_profile=? AND COALESCE(adventure_archive_key,'')='' ORDER BY created_at DESC,id DESC",new String[]{getActiveMapProfile()});
+    }
+    /**
+     * Bounded pre-Gemini context, not bounded persistence. The COMPLETE journal
+     * stays in SQLite/Chronicles forever. Older named milestones are fetched
+     * separately to preserve established campaign facts without reading every
+     * narrative paragraph on each turn.
+     */
+    public List<JSONObject> listJournalForMasterContext(){
+        String[] world={getActiveMapProfile()};
+        List<JSONObject> recent=queryList(
+            "SELECT * FROM journal WHERE world_profile=? ORDER BY created_at DESC,id DESC LIMIT 120",world);
+        List<JSONObject> milestones=queryList(
+            "SELECT * FROM journal WHERE world_profile=? AND COALESCE(event_key,'')<>'' ORDER BY created_at DESC,id DESC LIMIT 40",world);
+        java.util.HashSet<Long> seen=new java.util.HashSet<Long>();
+        java.util.ArrayList<JSONObject> out=new java.util.ArrayList<JSONObject>();
+        for(JSONObject event:recent){if(seen.add(event.optLong("id",0)))out.add(event);}
+        for(JSONObject event:milestones){if(seen.add(event.optLong("id",0)))out.add(event);}
+        return out;
+    }
+
     public void deleteJournal(long id) { getWritableDatabase().delete("journal","id=?",new String[]{String.valueOf(id)}); }
 
     public long addCombatant(String name,int initiative,int hp,int maxHp,int ac,String conditions,boolean player) {
@@ -6980,6 +7009,29 @@ public class AppDb extends SQLiteOpenHelper {
         try{if(manifestJson!=null&&manifestJson.trim().length()>0){JSONObject root=new JSONObject(manifestJson);String logical=root.optString("logical_map_id","").trim();if(logical.length()>0)return logical;String id=MapManifestGeometry.parse(manifestJson).getMapId();if(id!=null&&id.trim().length()>0)return id.trim();}}catch(Exception e){AppLog.w("AppDb","Manifesto de mapa sem identidade lógica durante persistência.",e);}
         String value=packageId==null?"":packageId.trim();int at=value.indexOf('@');return at>0?value.substring(0,at):value;
     }
+    /** Restore a lost active-package pointer without reimporting or guessing a position. */
+    public void rebindReadyAtlasPackage(String profile,String packageId) throws Exception {
+        if(!isAtlasContractPackage(packageId))throw new IllegalStateException("Atlas não está indexado.");
+        JSONObject pack=getMapPackageAny(packageId),state=getMapStateForProfile(profile);
+        if(!normalizeMapProfile(profile).equalsIgnoreCase(pack.optString("world_profile")))throw new IllegalArgumentException("Atlas de outro perfil.");
+        String hex=state.optString("current_hex_id","");
+        String oldFrame=state.optString("coordinate_frame_id",""),newFrame=pack.optString("coordinate_frame_id","");
+        boolean sameFrame=!newFrame.isEmpty()&&newFrame.equals(oldFrame);
+        JSONObject row=sameFrame&&isValidMapHex(packageId,hex)?getRawMapHex(packageId,hex):new JSONObject();
+        double u=row.optDouble("center_u",Double.NaN),v=row.optDouble("center_v",Double.NaN);
+        boolean retain=row.length()>0&&Double.isFinite(u)&&Double.isFinite(v);
+        String retainedHex=retain?hex:"";
+        SQLiteDatabase sql=getWritableDatabase();sql.beginTransaction();
+        try{
+            ContentValues values=new ContentValues();
+            values.put("map_package_id",packageId);values.put("logical_map_id",pack.optString("logical_map_id"));
+            values.put("image_uri",pack.optString("image_uri"));values.put("overlay_uri",pack.optString("overlay_uri"));values.put("manifest_json",pack.optString("manifest_json"));
+            updateMapStateForProfile(profile,values);
+            saveAtlasPositionForProfile(profile,packageId,retainedHex,u,v,newFrame,retain?"ready":"unresolved",state.optString("legacy_position_json","{}"));
+            if(!retain)saveMapTravelStateForProfile(profile,false,"","[]","Jogador");
+            sql.setTransactionSuccessful();
+        }finally{sql.endTransaction();}
+    }
     public JSONObject getLatestMapPackageByMapId(String profile,String mapId){if(mapId==null||mapId.trim().length()==0)return new JSONObject();String id=mapId.trim();return queryOne("SELECT * FROM map_packages WHERE ready=1 AND world_profile=? AND (logical_map_id=? OR (COALESCE(logical_map_id,'')='' AND map_id=?)) ORDER BY imported_at DESC LIMIT 1",new String[]{normalizeMapProfile(profile),id,id});}
     public JSONObject getMapPackageAny(String packageId){if(packageId==null||packageId.length()==0)return new JSONObject();return queryOne("SELECT * FROM map_packages WHERE package_id=?",new String[]{packageId});}
     public void markMapPackageUnavailable(String packageId,String reason){
@@ -9277,7 +9329,7 @@ public List<JSONObject> listWorldEventsForMaster(int limit){return queryList("SE
             JSONObject ss=root.optJSONObject("storyState");
             Map<Long,Long> characterIdMap=new HashMap<Long,Long>();
             JSONArray chars=root.optJSONArray("characters");if(chars!=null){db.delete("characters","world_profile=?",new String[]{backupProfile});for(int i=0;i<chars.length();i++){JSONObject c=new JSONObject(chars.getJSONObject(i).toString());CharacterIdentityCoherence.repairLegacyRow(c);long oldId=c.optLong("id",0);long cid=addCharacter(c.optString("name"),c.optString("species"),c.optString("class_name"),c.optInt("level",1),c.optInt("hp",1),c.optInt("max_hp",1),c.optInt("ac",10),c.optInt("str",10),c.optInt("dex",10),c.optInt("con",10),c.optInt("int_score",10),c.optInt("wis",10),c.optInt("cha",10),c.optInt("active",1)==1,c.optString("notes"));if(oldId>0&&cid>0)characterIdMap.put(oldId,cid);updateCharacterRuleDetails(cid,backupNullableString(c,"background"),backupNullableString(c,"visual_description"),backupNullableString(c,"proficiencies"),backupNullableString(c,"equipment"),backupNullableString(c,"spells"),backupNullableString(c,"rules_source"));updateCharacterSheet(cid,c.optString("sheet_json","{}"));String token=c.optString("token_uri");if(isUriReadable(token))setCharacterToken(cid,token);}}
-            if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));}}
+            if(root.has("journal")){db.delete("journal","world_profile=?",new String[]{backupProfile});JSONArray j=root.optJSONArray("journal");if(j!=null)for(int i=0;i<j.length();i++){JSONObject x=j.getJSONObject(i);long journalId=addJournal(x.optString("title"),x.optString("body"),x.optString("kind"));if(journalId>0){addColumnIfMissing(db,"journal","adventure_archive_key","TEXT NOT NULL DEFAULT ''");ContentValues jv=new ContentValues();jv.put("adventure_archive_key",x.optString("adventure_archive_key",""));jv.put("created_at",x.optLong("created_at",System.currentTimeMillis()));db.update("journal",jv,"id=?",new String[]{String.valueOf(journalId)});}}}
             Map<Long,Long> combatantIdMap=root.has("combatants")?restoreCombatants(db,root.optJSONArray("combatants"),characterIdMap):new HashMap<Long,Long>();
             Map<Long,Long> diceIdMap=root.has("diceHistory")?restoreDiceHistory(db,root.optJSONArray("diceHistory"),backupProfile,backupVersion,characterIdMap):new HashMap<Long,Long>();
             JSONObject combatState=root.optJSONObject("combatState");if(combatState!=null){ContentValues stateValues=jsonValues(combatState);stateValues.remove("id");stateValues.remove("world_profile");db.update("combat_state_profiles",stateValues,"world_profile=?",new String[]{backupProfile});}

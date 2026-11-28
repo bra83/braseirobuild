@@ -80,7 +80,8 @@ public final class ImageStorageManager {
             copyFile(temporary, target);
             if (!temporary.delete()) AppLog.w("ImageStorage", "Falha ao limpar arquivo temporário após cópia.");
         }
-        cleanup(directory, Math.max(1, keepNewest), target);
+        // Persistent portraits may be referenced by different NPCs indefinitely.
+        if (!"npc_avatars".equals(safe(folder))) cleanup(directory, Math.max(1, keepNewest), target);
         return Uri.fromFile(target);
     }
 
@@ -176,7 +177,7 @@ public final class ImageStorageManager {
         input.mark(32);byte[] header=new byte[16];int count=input.read(header);input.reset();
         String detected=detectMime(header,count);
         if(detected.length()==0)throw new Exception("Formato não aceito. Use JPEG, PNG ou WebP.");
-        if(declared.startsWith("image/")&&!declared.contains("jpeg")&&!declared.contains("jpg")&&!declared.contains("png")&&!declared.contains("webp"))throw new Exception("Formato não aceito. Use JPEG, PNG ou WebP.");
+        // The supported magic bytes and decoded dimensions are authoritative even for a mislabeled MIME.
         if(declared.length()>0&&declared.startsWith("image/")&&!compatibleMime(declared,detected))AppLog.w("ImageStorage","MIME declarado "+declared+" difere do conteúdo "+detected+"; usando o conteúdo real.");
         return detected;
     }
